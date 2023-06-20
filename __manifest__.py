@@ -29,6 +29,7 @@
         'views/views.xml',
         'views/templates.xml',
         'views/ticket_copier.xml',
+        'views/vista_tree_portal.xml',
         'security/ir.model.access.csv',
 
     ],
