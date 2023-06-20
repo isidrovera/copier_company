@@ -1,0 +1,16 @@
+<odoo>
+    <data>
+        <!-- Definir la vista heredada de formulario -->
+        <record id="vista_heredada_form_ticket" model="ir.ui.view">
+            <field name="name">Vista Heredada de Formulario Ticket</field>
+            <field name="model">helpdesk.ticket</field>
+            <field name="inherit_id" ref="helpdesk.helpdesk_ticket_view_form"/>
+            <field name="arch" type="xml">
+                <!-- Agregar o modificar elementos en la vista original -->
+                <xpath expr="//field[@name='team_id']" position="after">
+                    <field name="producto_id"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

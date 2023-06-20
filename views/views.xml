@@ -1,0 +1,80 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+
+    <record model="ir.ui.view" id="copier_company.list">
+      <field name="name">copier_company list</field>
+      <field name="model">copier.company</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="marca_id"/>
+          <field name="name"/>
+          <field name="serie_id"/>
+          <field name="cliente_id"/>
+        </tree>
+      </field>
+    </record>
+    <record id="view_maquinas_form" model="ir.ui.view">
+      <field name="name">.form.view_maquinas</field>
+      <field name="model">copier.company</field>
+      <field name="arch" type="xml">
+        <form>
+          <header>
+              <button name="crear_ticket" string="Crear Ticket" type="object" class="oe_highlight"/>
+          </header>
+          <sheet>
+            <field name="marca_id"/>
+            <field name="name"/>
+            <field name="serie_id"/>
+            <field name="cliente_id"/>
+          </sheet>
+          <div class="oe_chatter">
+            <field name="message_follower_ids" widget="mail_followers"></field>
+            <field name="message_ids" widget="mail_thread"></field>
+          </div>
+        </form>
+      </field>
+    </record>
+
+
+    <!-- actions opening views on models -->
+
+    <record model="ir.actions.act_window" id="copier_company.action_window">
+      <field name="name">copier_company window</field>
+      <field name="res_model">copier.company</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+
+    <!-- server action to the one above -->
+
+    <record model="ir.actions.server" id="copier_company.action_server">
+      <field name="name">copier_company server</field>
+      <field name="model_id" ref="model_copier_company"/>
+      <field name="state">code</field>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "tree,form",
+          "res_model": model._name,
+        }
+      </field>
+    </record>
+
+
+    <!-- Top menu item -->
+
+    <menuitem name="Copier Company" id="copier_company.menu_root"/>
+
+    <!-- menu categories -->
+
+    <menuitem name="Menu 1" id="copier_company.menu_1" parent="copier_company.menu_root"/>
+    <menuitem name="Menu 2" id="copier_company.menu_2" parent="copier_company.menu_root"/>
+
+    <!-- actions -->
+
+    <menuitem name="List" id="copier_company.menu_1_list" parent="copier_company.menu_1" action="copier_company.action_window"/>
+    <menuitem name="Server to list" id="copier_company" parent="copier_company.menu_2" action="copier_company.action_server"/>
+
+  </data>
+</odoo>
