@@ -20,13 +20,16 @@
       <field name="arch" type="xml">
         <form>
           <header>
-              <button name="crear_ticket" string="Crear Ticket" type="object" class="oe_highlight"/>
+            <button name="crear_ticket" string="Crear Ticket" type="object" class="oe_highlight"/>
           </header>
           <sheet>
-            <field name="marca_id"/>
-            <field name="name"/>
-            <field name="serie_id"/>
-            <field name="cliente_id"/>
+            <group >
+              <field name="marca_id" string="Marca"/>
+              <field name="name" string="Modelo"/>
+              <field name="serie_id" string="Serie"/>
+              <field name="cliente_id" string="Cliente"/>
+
+            </group>
           </sheet>
           <div class="oe_chatter">
             <field name="message_follower_ids" widget="mail_followers"></field>
@@ -40,7 +43,7 @@
     <!-- actions opening views on models -->
 
     <record model="ir.actions.act_window" id="copier_company.action_window">
-      <field name="name">copier_company window</field>
+      <field name="name">Registrar Equipo</field>
       <field name="res_model">copier.company</field>
       <field name="view_mode">tree,form</field>
     </record>
