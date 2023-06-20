@@ -1,0 +1,24 @@
+<odoo>
+    <data>
+        <record id="view_pcloud_files" model="ir.ui.view">
+            <field name="name">pCloud Files</field>
+            <field name="model">pcloud.files</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="size"/>
+                    <field name="download_link" widget="url"/>
+                </tree>
+            </field>
+        </record>
+
+      
+
+        <!--<record id="menu_pcloud_files" model="ir.ui.menu">
+            <field name="name">pCloud Files</field>
+            <field name="action" ref="action_pcloud_files"/>
+            <field name="parent_id" ref="base.menu_documentation"/>
+            <field name="sequence" type="int">20</field>
+        </record>-->
+    </data>
+</odoo>

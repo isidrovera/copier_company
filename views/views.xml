@@ -47,6 +47,12 @@
       <field name="res_model">copier.company</field>
       <field name="view_mode">tree,form</field>
     </record>
+    <record id="action_pcloud_files" model="ir.actions.act_window">
+      <field name="name">pCloud Files</field>
+      <field name="res_model">pcloud.files</field>
+      <field name="view_mode">tree</field>
+      <field name="view_id" ref="view_pcloud_files"/>
+    </record>
 
 
     <!-- server action to the one above -->
@@ -77,7 +83,7 @@
     <!-- actions -->
 
     <menuitem name="List" id="copier_company.menu_1_list" parent="copier_company.menu_1" action="copier_company.action_window"/>
-    <menuitem name="Server to list" id="copier_company" parent="copier_company.menu_2" action="copier_company.action_server"/>
+    <menuitem name="Server to list" id="copier_company" parent="copier_company.menu_2" action="action_pcloud_files"/>
 
   </data>
 </odoo>
