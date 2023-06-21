@@ -1,5 +1,8 @@
 import pcloud
 from odoo import models, fields, api
+import logging
+_logger = logging.getLogger(__name__)
+
 class PcloudFiles(models.Model):
     _name = 'pcloud.files'
     
@@ -8,13 +11,18 @@ class PcloudFiles(models.Model):
     
     @api.model
     def get_files(self):
+        _logger.info('Iniciando la función get_files')
         client = pcloud.Client("verapolo@icloud.com", "system05VP$$")
         client.auth()
+        _logger.info('Autenticación exitosa')
         files = client.listfolder(0)['metadata']
+        _logger.info('Archivos encontrados: %s', files)
         for file in files:
             self.create({
                 'name': file['name'],
                 'size': file['size']
             })
+        _logger.info('Registros creados exitosamente')
         return self.search([])
+
 
