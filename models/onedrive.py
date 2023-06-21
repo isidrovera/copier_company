@@ -3,10 +3,10 @@ import xmlrpc.client
 import requests
 class PCloudAPI:
     def __init__(self, username, password):
-        self.username = 'verapolo@icloud.com'
-        self.password = 'system05VP$$'
+        self.username = username
+        self.password = password
         self.auth = None
-        self.api_url = 'https://api.pcloud.com/gettreepublink'
+        self.api_url = 'https://api.pcloud.com/'
         self.odoo_url = 'http://localhost:8069'
         self.common = xmlrpc.client.ServerProxy('{}/xmlrpc/2/common'.format(self.odoo_url))
         self.uid = self.common.authenticate('demo', self.username, self.password, {})
@@ -48,20 +48,22 @@ class PCloudFiles(models.Model):
     _name = 'pcloud.files'
     _description = 'pCloud Files'
 
-    name = fields.Char(string='File Name')
-    size = fields.Float(string='File Size')
-    download_link = fields.Char(string='Download Link')
+    name = fields.Char(string='Nombre del archivo')
+    size = fields.Float(string='Tamaño del archivo')
+    download_link = fields.Char(string='Enlace de descarga')
 
     @api.model
     def get_pcloud_files(self):
         pcloud_api = PCloudAPI('verapolo@icloud.com', 'system05VP$$')
         files_metadata = pcloud_api.list_files(folder_id='canon')
         files = []
-        for file_metadata in files_metadata:
-            file = {
-                'name': file_metadata['name'],
-                'size': file_metadata['size'],
-                'download_link': pcloud_api.download_file(file_metadata['fileid'])
-            }
-            files.append(file)
+        if files_metadata:
+            for file_metadata in files_metadata:
+                file = {
+                    'name': file_metadata['name'],
+                    'size': file_metadata['size'],
+                    'download_link': pcloud_api.download_file(file_metadata['fileid'])
+                }
+                files.append(file)
         return files
+
