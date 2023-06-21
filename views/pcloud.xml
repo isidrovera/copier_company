@@ -4,25 +4,26 @@
             <field name="name">Pcloud Files Tree View</field>
             <field name="model">pcloud.files</field>
             <field name="arch" type="xml">
-                <tree>
-                    <field name="name"/>
-                    <field name="size"/>
-                </tree>
-                <field name="arch" type="xml">
-                    <data>
-                        <script>
-                    console.log('Iniciando la vista Pcloud Files');
-                    rpc.query({
-                        model: 'pcloud.files',
-                        method: 'get_files',
-                    }).then(function(result) {
-                        console.log('Registros recuperados: ', result);
-                    });
-                        </script>
-                    </data>
-                </field>
+                <data>
+                    <tree>
+                        <field name="name"/>
+                        <field name="size"/>
+                    </tree>
+                    <field name="arch" type="xml">
+                        <data>
+                            <script>
+                        console.log('Iniciando la vista Pcloud Files');
+                        rpc.query({
+                            model: 'pcloud.files',
+                            method: 'get_files',
+                        }).then(function(result) {
+                            console.log('Registros recuperados: ', result);
+                        });
+                            </script>
+                        </data>
+                    </field>
+                </data>
             </field>
         </record>
-
     </data>
 </odoo>
