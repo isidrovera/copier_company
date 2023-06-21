@@ -22,7 +22,10 @@ class PcloudFiles(models.Model):
                 'name': file['name'],
                 'size': file['size']
             })
+            _logger.info('Registro creado: %s', file)
         _logger.info('Registros creados exitosamente')
-        return self.search([])
+        records = self.search([])
+        _logger.info('Registros encontrados: %s', records)
+        return records
 
 
