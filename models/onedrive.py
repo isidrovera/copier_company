@@ -16,4 +16,5 @@ class PcloudFiles(models.Model):
                 'name': file['name'],
                 'size': file['size']
             })
+        return self.search([])
 
