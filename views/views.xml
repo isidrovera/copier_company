@@ -47,7 +47,14 @@
       <field name="res_model">copier.company</field>
       <field name="view_mode">tree,form</field>
     </record>
-   <!-- <record id="action_pcloud_files" model="ir.actions.act_window">
+    <record model="ir.actions.act_window" id="pcloud_files_action">
+      <field name="name">Archivos de pCloud</field>
+      <field name="res_model">pcloud.files</field>
+      <field name="view_mode">tree</field>
+      <field name="view_type">form</field>
+      <field name="view_id" ref="pcloud_files_list_view"/>
+    </record>
+    <!-- <record id="action_pcloud_files" model="ir.actions.act_window">
       <field name="name">pCloud Files</field>
       <field name="res_model">pcloud.files</field>
       <field name="view_mode">tree</field>
@@ -74,6 +81,7 @@
     <!-- Top menu item -->
 
     <menuitem name="Copier Company" id="copier_company.menu_root"/>
+    <menuitem id="pcloud_files_menu" name="Archivos de pCloud" action="pcloud_files_action" parent="copier_company.menu_root"/>
 
     <!-- menu categories -->
 
