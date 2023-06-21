@@ -28,8 +28,8 @@
         # 'security/ir.model.access.csv',
         'views/views.xml',
         'views/templates.xml',
-        'views/ticket_copier.xml',
-        'views/pcloud.xml',
+        'views/ticket_copier.xml', 
+        'views/descargas.xml',       
         'views/vista_tree_portal.xml',
         'security/ir.model.access.csv',
 
