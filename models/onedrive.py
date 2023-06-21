@@ -1,31 +1,25 @@
-import pcloud
-from odoo import models, fields, api
-import logging
-_logger = logging.getLogger(__name__)
+from onedrivesdk import (
+    AuthenticationProvider,
+    OneDriveClient
+)
+from onedrivesdk.helpers import GetAuthCodeServer
+# Configurar las credenciales de la aplicación
+client_id = 'su_client_id'
+client_secret = 'su_client_secret'
+redirect_uri = 'https://copiercompanysac.com/'
+scopes=['wl.signin', 'wl.offline_access', 'onedrive.readwrite']
 
-class PcloudFiles(models.Model):
-    _name = 'pcloud.files'
-    
-    name = fields.Char('Nombre')
-    size = fields.Integer('Tamaño')
-    
-    @api.model
-    def get_files(self):
-        _logger.info('Iniciando la función get_files')
-        client = pcloud.Client("verapolo@icloud.com", "system05VP$$")
-        client.auth()
-        _logger.info('Autenticación exitosa')
-        files = client.listfolder(0)['metadata']
-        _logger.info('Archivos encontrados: %s', files)
-        for file in files:
-            self.create({
-                'name': file['name'],
-                'size': file['size']
-            })
-            _logger.info('Registro creado: %s', file)
-        _logger.info('Registros creados exitosamente')
-        records = self.search([])
-        _logger.info('Registros encontrados: %s', records)
-        return records
+# Obtener el código de autorización
+auth_url = GetAuthCodeServer.get_auth_url(client_id, redirect_uri, scopes)
+print('Por favor, visite esta URL para obtener el código de autorización: ', auth_url)
+code = input('Ingrese el código de autorización: ')
+
+# Autenticarse y obtener una lista de archivos en una carpeta específica
+auth = AuthenticationProvider(client_id, client_secret, scopes)
+auth.authenticate(code, redirect_uri)
+client = OneDriveClient('https://api.onedrive.com/v1.0/', auth, http=None)
+archivos = client.item(drive='me', id='carpeta_id').children.get()
+for item in archivos:
+    print(item.name)
 
 

@@ -1,30 +1,43 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="pcloud_files_tree_view">
-            <field name="name">Pcloud Files Tree View</field>
-            <field name="model">pcloud.files</field>
+        <template id="template_file_list">
+            <t t-foreach="folder" t-as="item">
+                <div>
+                    <a t-attf-href="{{ item.web_url }}">{{ item.name }}</a>
+                </div>
+            </t>
+        </template>
+
+        <record id="view_file_list" model="ir.ui.view">
+            <field name="name">File List</field>
+            <field name="model">ir.ui.view</field>
             <field name="arch" type="xml">
-                <data>
-                    <tree>
-                        <field name="name"/>
-                        <field name="size"/>
-                    </tree>
-                    <template>
-                        <t t-name="pcloud_files_tree_view_script">
-                            <script>
-                        console.log('Iniciando la vista Pcloud Files');
-                        rpc.query({
-                            model: 'pcloud.files',
-                            method: 'get_files',
-                        }).then(function(result) {
-                            console.log('Registros recuperados: ', result);
-                        });
-                            </script>
-                        </t>
-                    </template>
-                </data>
+                <form>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>Lista de archivos y carpetas en OneDrive</h1>
+                        </div>
+                        <div class="oe_chatter">
+                            <div class="oe_chatter_top">
+                                <div class="oe_chatter_top_left">
+                                    <field name="name"/>
+                                </div>
+                            </div>
+                            <div class="oe_chatter_bottom">
+                                <div class="oe_chatter_bottom_left">
+                                    <field name="archivos" widget="web_grid"/>
+                                </div>
+                            </div>
+                        </div>
+                    </sheet>
+                </form>
             </field>
         </record>
 
+        <record id="action_file_list" model="ir.actions.act_window">
+            <field name="name">File List</field>
+            <field name="res_model">ir.ui.view</field>
+            <field name="view_mode">form</field>            
+        </record>
     </data>
 </odoo>
