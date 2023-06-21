@@ -9,19 +9,19 @@
                         <field name="name"/>
                         <field name="size"/>
                     </tree>
-                    <field name="arch" type="xml">
-                        <data>
+                    <template>
+                        <t t-name="pcloud_files_tree_view_script">
                             <script>
-                        console.log('Iniciando la vista Pcloud Files');
-                        rpc.query({
-                            model: 'pcloud.files',
-                            method: 'get_files',
-                        }).then(function(result) {
-                            console.log('Registros recuperados: ', result);
-                        });
+                                console.log('Iniciando la vista Pcloud Files');
+                                rpc.query({
+                                    model: 'pcloud.files',
+                                    method: 'get_files',
+                                }).then(function(result) {
+                                    console.log('Registros recuperados: ', result);
+                                });
                             </script>
-                        </data>
-                    </field>
+                        </t>
+                    </template>
                 </data>
             </field>
         </record>
