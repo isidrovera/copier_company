@@ -1,0 +1,60 @@
+<odoo>
+    <data>
+        <!-- Vista de árbol -->
+        <record id="vista_arbol_marcas_maquinas" model="ir.ui.view">
+            <field name="name">marcas.maquinas.tree</field>
+            <field name="model">marcas.maquinas</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Vista de formulario -->
+        <record id="vista_formulario_marcas_maquinas" model="ir.ui.view">
+            <field name="name">marcas.maquinas.form</field>
+            <field name="model">marcas.maquinas</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista kanban -->
+        <record id="vista_kanban_marcas_maquinas" model="ir.ui.view">
+            <field name="name">marcas.maquinas.kanban</field>
+            <field name="model">marcas.maquinas</field>
+            <field name="arch" type="xml">
+                <kanban>
+                    <field name="name"/>
+                </kanban>
+            </field>
+        </record>
+
+        <!-- Vista de búsqueda -->
+        <record id="vista_busqueda_marcas_maquinas" model="ir.ui.view">
+            <field name="name">marcas.maquinas.search</field>
+            <field name="model">marcas.maquinas</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                </search>
+            </field>
+        </record>
+        <record id="accion_marcas_maquinas" model="ir.actions.act_window">
+            <field name="name">Marcas de Maquinas</field>
+            <field name="res_model">marcas.maquinas</field>
+            <field name="view_mode">tree,form,kanban</field>            
+        </record>
+
+        <!-- Menús -->
+        <menuitem id="menu_marcas_maquinas" name="Marcas de Maquinas" parent="copier_company.menu_root" action="accion_marcas_maquinas"/>
+        
+    </data>
+</odoo>

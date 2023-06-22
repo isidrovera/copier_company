@@ -10,9 +10,10 @@
                             <field name="modelo"/>
                             <field name="name"/>
                             <field name="url"/>
+                            <field name="observacion"/>
                         </group>
                         <footer>
-                            <button name="descargar_archivo" string="Descargar archivo" type="object" class="btn-primary"/>
+
                         </footer>
                     </sheet>
                 </form>
@@ -25,10 +26,12 @@
                 <tree>
                     <field name="modelo"/>
                     <field name="name"/>
-                    <field name="url" widget="url"/>
-                    <button name="descargar_archivo" string="Descargar archivo" type="object"/>
+                    <field name="observacion"/>
+                    <button name="open_url" string="Descargar Archivo" type="object"
+                        icon="fa-download"/>
+                  
                 </tree>
-            </field>
+            </field>            
         </record>
 
         <record id="action_descarga_archivos_form" model="ir.actions.act_window">
@@ -38,7 +41,7 @@
         </record>
 
         <!-- Menú para acceder a la acción -->
-        <menuitem id="menu_descarga_archivos" name="Descarga de archivos" parent="copier_company.menu_root" sequence="10"/>
-        <menuitem id="menu_descarga_archivos_form" name="Descarga de archivos" parent="menu_descarga_archivos" action="action_descarga_archivos_form" sequence="10"/>
+        <menuitem id="menu_descarga_archivos" name="Descarga de archivos" parent="copier_company.menu_root" action="action_descarga_archivos_form" sequence="10"/>
+        
     </data>
 </odoo>

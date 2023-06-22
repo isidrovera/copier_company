@@ -40,7 +40,7 @@
     <!-- actions opening views on models -->
 
     <record model="ir.actions.act_window" id="copier_company.action_window">
-      <field name="name">copier_company window</field>
+      <field name="name">Registrar Maquina</field>
       <field name="res_model">copier.company</field>
       <field name="view_mode">tree,form</field>
     </record>
@@ -67,13 +67,8 @@
 
     <!-- menu categories -->
 
-    <menuitem name="Menu 1" id="copier_company.menu_1" parent="copier_company.menu_root"/>
-    <menuitem name="Menu 2" id="copier_company.menu_2" parent="copier_company.menu_root"/>
-
-    <!-- actions -->
-
-
-    <menuitem name="Server to list" id="copier_company" parent="copier_company.menu_2" action="copier_company.action_server"/>
-
+    <menuitem name="Maquinas" id="copier_company.menu_1" parent="copier_company.menu_root" action="copier_company.action_window"/>
+    
+    <!-- actions -->   
   </data>
 </odoo>

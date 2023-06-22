@@ -1,13 +1,30 @@
-import requests
-from odoo import models, fields, api
-from odoo.http import request, Response
+from odoo import models, fields, api,http
+
 class DescargaArchivos(models.Model):
     _name = 'descarga.archivos'
     
-    name = fields.Char(string='Nombre del archivo')
-    url = fields.Char(string='URL del archivo')
-    modelo = fields.Char(string="Modelo")
+    url = fields.Char(string='URL del archivo'     )
+    name = fields.Char(string="Nombre de archivo"    )
+    modelo = fields.Many2one('modelos.maquinas',string="Modelo de maquina"    )
+    observacion = fields.Text(string="Descripción"    )
     
-    def descargar_archivo(self):
-        url = self.url
-        
+    
+    
+    def open_url(self):
+        for record in self:
+            return {
+                'type': 'ir.actions.act_url',
+                'url': record.url,
+                'target': 'new',
+            }
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Descarga exitosa',
+                'message': 'La descarga se realizó correctamente. Este archivo no debe ser revendido.',
+                'type': 'success',
+            },
+        }
+
+

@@ -1,0 +1,66 @@
+<odoo>
+  <data>
+    <!-- Vista árbol -->
+    <record id="vista_arbol_modelos_maquinas" model="ir.ui.view">
+      <field name="name">modelos.maquinas.tree</field>
+      <field name="model">modelos.maquinas</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+          <field name="marca_id"/>
+        </tree>
+      </field>
+    </record>
+
+    <!-- Vista formulario -->
+    <record id="vista_formulario_modelos_maquinas" model="ir.ui.view">
+      <field name="name">modelos.maquinas.form</field>
+      <field name="model">modelos.maquinas</field>
+      <field name="arch" type="xml">
+        <form>
+          <sheet>
+            <group>
+              <field name="name"/>
+              <field name="marca_id"/>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <!-- Vista kanban -->
+    <record id="vista_kanban_modelos_maquinas" model="ir.ui.view">
+      <field name="name">modelos.maquinas.kanban</field>
+      <field name="model">modelos.maquinas</field>
+      <field name="arch" type="xml">
+        <kanban>
+          <field name="name"/>
+          <field name="marca_id"/>
+        </kanban>
+      </field>
+    </record>
+
+    <!-- Vista búsqueda -->
+    <record id="vista_busqueda_modelos_maquinas" model="ir.ui.view">
+      <field name="name">modelos.maquinas.search</field>
+      <field name="model">modelos.maquinas</field>
+      <field name="arch" type="xml">
+        <search>
+          <field name="name"/>
+          <field name="marca_id"/>
+        </search>
+      </field>
+    </record>
+
+    <!-- Acciones -->
+    <record id="accion_modelos_maquinas" model="ir.actions.act_window">
+      <field name="name">Modelos de Máquinas</field>
+      <field name="res_model">modelos.maquinas</field>
+      <field name="view_mode">tree,form,kanban,search</field>
+    </record>
+
+    <!-- Menú -->
+    <menuitem id="menu_modelos_maquinas" name="Modelos de Máquinas" parent="copier_company.menu_root" action="accion_modelos_maquinas"/>
+    
+  </data>
+</odoo>
