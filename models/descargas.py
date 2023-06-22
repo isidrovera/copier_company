@@ -6,6 +6,7 @@ class DescargaArchivos(models.Model):
     
     name = fields.Char(string='Nombre del archivo')
     url = fields.Char(string='URL del archivo')
+    prueba = fields.Html(string="Prueba")
     
     def descargar_archivo(self):
         url = self.url
