@@ -7,7 +7,7 @@
                 <form string="Descarga de archivos">
                     <sheet>
                         <group>
-                            <field name="prueba"/>
+                            <field name="modelo"/>
                             <field name="name"/>
                             <field name="url"/>
                         </group>
@@ -23,6 +23,7 @@
             <field name="model">descarga.archivos</field>
             <field name="arch" type="xml">
                 <tree>
+                    <field name="modelo"/>
                     <field name="name"/>
                     <field name="url" widget="url"/>
                     <button name="descargar_archivo" string="Descargar archivo" type="object"/>
