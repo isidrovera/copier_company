@@ -41,3 +41,5 @@ class copier_company(models.Model):
             'target': 'current',
 
         }
+        
+

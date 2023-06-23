@@ -1,0 +1,7 @@
+ <template id="descarga_archivos_template" name="Descarga de archivos">
+    <t t-foreach="archivos" t-as="archivo">
+        <div>
+            <a t-attf-href="/web/content/{{archivo.id}}?download=true">{{archivo.name}}</a>
+        </div>
+    </t>
+</template>

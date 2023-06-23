@@ -21,7 +21,7 @@
 
     # any module necessary for this one to work correctly
     'depends': ['base','mail', 'contacts','helpdesk',
-    'sale_management','portal'],
+    'sale_management','portal','sale_subscription'],
 
     # always loaded
     'data': [
@@ -31,11 +31,13 @@
         'views/ticket_copier.xml', 
         'views/descargas.xml',
         'views/marcas.xml',
-        'views/portal.xml',
+        'views/portal.xml',        
         'views/descargas_portal.xml',
-        'views/modelos.xml',     
+        'views/modelos.xml', 
+            
         'views/vista_tree_portal.xml',
         'security/ir.model.access.csv',
+        'static/src/js/script.js',
 
     ],
     # only loaded in demonstration mode

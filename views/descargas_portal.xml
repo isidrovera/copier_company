@@ -1,64 +1,50 @@
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data noupdate="1">
-        <template id="client_portal_descarga_archivos" name="Descarga de archivos">
-            <t t-call="portal.layout">
-                <div class="container mt32">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3 class="card-title">Descarga de archivos</h3>
-                                </div>
-                                <div class="card-body">
-                                    <form class="form-horizontal" role="form">
-                                        <div class="form-group">
-                                            <label class="col-sm-2 control-label">Nombre de archivo:</label>
-                                            <div class="col-sm-10">
-                                                <p class="form-control-static">
-                                                    <t t-esc="record.name"/>
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-2 control-label">Descripción:</label>
-                                            <div class="col-sm-10">
-                                                <p class="form-control-static">
-                                                    <t t-esc="record.observacion"/>
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-2 control-label">Modelo de máquina:</label>
-                                            <div class="col-sm-10">
-                                                <p class="form-control-static">
-                                                    <t t-esc="record.modelo.name"/>
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-2 control-label">URL del archivo:</label>
-                                            <div class="col-sm-10">
-                                                <p class="form-control-static">
-                                                    <a href="#" t-att-href="record.url" target="_blank">
-                                                        <t t-esc="record.url"/>
-                                                    </a>
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <div class="col-sm-offset-2 col-sm-10">
-                                                <button type="button" class="btn btn-primary" t-on-click="widget.open_url()">Descargar archivo</button>
-                                                <button type="button" class="btn btn-secondary" t-on-click="widget.back()">Volver</button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
+    <template id="client_portal_descarga_archivos">
+        <t t-call="website.layout">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h1>Descarga de archivos</h1>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="Buscar archivo" aria-label="Buscar archivo" aria-describedby="basic-addon2" id="search" onkeyup="searchFiles()"/>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" onclick="searchFiles()">Buscar</button>
                             </div>
                         </div>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Modelo de máquina</th>
+                                    <th>Nombre de archivo</th>                                    
+                                    <th>Descripción</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="docs" t-as="doc">
+                                    <tr>
+                                        <td>
+                                            <t t-esc="doc.modelo.name"/>
+                                        </td>
+                                        <td>
+                                            <t t-esc="doc.name"/>
+                                        </td>                                        
+                                        <td>
+                                            <t t-esc="doc.observacion"/>
+                                        </td>
+                                        <td>
+                                            <a t-att-href="doc.url" download="true">Descargar</a>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            </t>
-        </template>
-    </data>
+            </div>
+        </t>
+        <script type="text/javascript" src="/copier_company/static/src/js/script.js"></script>
+    </template>
 </odoo>
+
+
