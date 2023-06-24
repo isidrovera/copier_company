@@ -1,7 +1,7 @@
 from odoo import http
 from odoo.http import request
 class DescargaArchivosController(http.Controller):
-    @http.route('/descarga/archivos', type='http', auth='public', website=True)
+    @http.route('/descarga/archivos', type='http', website=True)
     def descarga_archivos(self, **kw):
         partner = request.env.user.partner_id
         
