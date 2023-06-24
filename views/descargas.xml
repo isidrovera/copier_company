@@ -24,14 +24,13 @@
             <field name="model">descarga.archivos</field>
             <field name="arch" type="xml">
                 <tree>
-                    <field name="modelo"/>
+                    <field name="modelo" string="Modelo de maquina" domain="[('active', '=', True)]" options="{'no_create': True}" context="{'default_active': True}" multi="True"/>
                     <field name="name"/>
                     <field name="observacion"/>
-                    <button name="open_url" string="Descargar Archivo" type="object"
-                        icon="fa-download"/>
-                  
+                    <button name="open_url" string="Descargar Archivo" type="object" icon="fa-download"/>
+
                 </tree>
-            </field>            
+            </field>
         </record>
 
         <record id="action_descarga_archivos_form" model="ir.actions.act_window">
@@ -42,6 +41,6 @@
 
         <!-- Menú para acceder a la acción -->
         <menuitem id="menu_descarga_archivos" name="Descarga de archivos" parent="copier_company.menu_root" action="action_descarga_archivos_form" sequence="10"/>
-        
+
     </data>
 </odoo>
