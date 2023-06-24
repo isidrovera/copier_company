@@ -7,7 +7,7 @@
                 <form string="Descarga de archivos">
                     <sheet>
                         <group>
-                            <field name="modelo"/>
+                            <field name="modelo" string="Modelo de maquina" domain="[('active', '=', True)]" options="{'no_create': True}" context="{'default_active': True}" multi="True"/>
                             <field name="name"/>
                             <field name="url"/>
                             <field name="observacion"/>
@@ -24,7 +24,7 @@
             <field name="model">descarga.archivos</field>
             <field name="arch" type="xml">
                 <tree>
-                    <field name="modelo" string="Modelo de maquina" multi="True"/>
+                    <field name="modelo" string="Modelo de maquina" />
                     <field name="name"/>
                     <field name="observacion"/>
                     <button name="open_url" string="Descargar Archivo" type="object" icon="fa-download"/>
