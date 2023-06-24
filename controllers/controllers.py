@@ -3,9 +3,14 @@ from odoo.http import request
 class DescargaArchivosController(http.Controller):
     @http.route('/descarga/archivos', type='http', auth='public', website=True)
     def descarga_archivos(self, **kw):
-        docs = request.env['descarga.archivos'].search([])
         partner = request.env.user.partner_id
-        if partner.subscription_count == 1:
-            return request.render('copier_company.client_portal_descarga_archivos', {'docs': docs})
-        else:
-            return "Lo siento, no tiene acceso a esta página porque no tiene una suscripción activa. ¡Pero no se preocupe! Puede comprar una suscripción en nuestra página de servicios."
+        
+        stage = request.env['sale.order.stage'].sudo().search([('category', '=', 'progress')], limit=1)
+        if stage:
+            order = request.env['sale.order'].sudo().search([('partner_id', '=', partner.id), ('stage_id', '=', stage.id)], limit=1)
+            if order:
+                docs = request.env['descarga.archivos'].search([])
+                return request.render('copier_company.client_portal_descarga_archivos', {'docs': docs})
+        
+        return request.render('copier_company.no_subscription_message')
+

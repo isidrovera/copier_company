@@ -34,7 +34,7 @@
         'views/portal.xml',        
         'views/descargas_portal.xml',
         'views/modelos.xml', 
-            
+        'views/portal_suscripcion.xml',
         'views/vista_tree_portal.xml',
         'security/ir.model.access.csv',
         'static/src/js/script.js',

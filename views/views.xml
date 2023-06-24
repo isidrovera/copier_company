@@ -20,13 +20,15 @@
       <field name="arch" type="xml">
         <form>
           <header>
-              <button name="crear_ticket" string="Crear Ticket" type="object" class="oe_highlight"/>
+            <button name="crear_ticket" string="Crear Ticket" type="object" class="oe_highlight"/>
           </header>
           <sheet>
-            <field name="marca_id"/>
-            <field name="name"/>
-            <field name="serie_id"/>
-            <field name="cliente_id"/>
+            <group>
+              <field name="marca_id"/>
+              <field name="name"/>
+              <field name="serie_id"/>
+              <field name="cliente_id"/>
+            </group>
           </sheet>
           <div class="oe_chatter">
             <field name="message_follower_ids" widget="mail_followers"></field>
@@ -44,7 +46,7 @@
       <field name="res_model">copier.company</field>
       <field name="view_mode">tree,form</field>
     </record>
-  
+
     <!-- server action to the one above -->
 
     <record model="ir.actions.server" id="copier_company.action_server">
@@ -68,7 +70,7 @@
     <!-- menu categories -->
 
     <menuitem name="Maquinas" id="copier_company.menu_1" parent="copier_company.menu_root" action="copier_company.action_window"/>
-    
-    <!-- actions -->   
+
+    <!-- actions -->
   </data>
 </odoo>

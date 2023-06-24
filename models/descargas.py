@@ -7,7 +7,9 @@ class DescargaArchivos(models.Model):
     name = fields.Char(string="Nombre de archivo"    )
     modelo = fields.Many2one('modelos.maquinas',string="Modelo de maquina"    )
     observacion = fields.Text(string="Descripción"    )
-    
+    _sql_constraints = [
+        ('name_unique', 'unique(name)', 'El nombre del archivo debe ser único.')
+    ]
     
     
     def open_url(self):
