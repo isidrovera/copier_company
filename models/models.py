@@ -11,7 +11,7 @@ class copier_company(models.Model):
     name = fields.Many2one('modelos.maquinas',string='Maquina')
     
     serie_id = fields.Char(string='Serie', required=True)
-    marca_id = fields.Many2one('marcas.maquinas',string='Marca', required=True,)
+    marca_id = fields.Many2one('marcas.maquinas',string='Marca', required=True,related='name.marca_id')
     cliente_id = fields.Many2one('res.partner',string='Cliente', required=True, )
     
     _rec_name = 'serie_id'
