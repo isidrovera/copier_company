@@ -16,6 +16,18 @@ function searchFiles() {
                 }
             }
         }
+        if (!found) {
+            for (j = 0; j < tr[i].childNodes.length; j++) {
+                if (tr[i].childNodes[j].nodeName == "TD") {
+                    td = tr[i].childNodes[j];
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+        }
         if (found) {
             tr[i].style.display = "";
         } else {
@@ -23,3 +35,7 @@ function searchFiles() {
         }
     }
 }
+
+
+
+

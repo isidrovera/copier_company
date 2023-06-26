@@ -8,7 +8,7 @@ class copier_company(models.Model):
     _description = 'Aqui se veran los archivos de onedrive'
     _inherit = ['mail.thread', 'mail.activity.mixin']
        
-    name = fields.Many2one('product.template',string='Maquina')
+    name = fields.Many2one('modelos.maquinas',string='Maquina')
     
     serie_id = fields.Char(string='Serie', required=True)
     marca_id = fields.Many2one('marcas.maquinas',string='Marca', required=True,)
