@@ -8,7 +8,7 @@ class DescargaArchivos(models.Model):
     modelo = fields.Many2one('modelos.maquinas',string="Modelo de maquina"    )
     observacion = fields.Text(string="Descripción"    )
     tipo = fields.Selection(string='Tipo', selection=[('base', 'Base'),('especial','Especial')])
-
+    icono = fields.Binary()
     _sql_constraints = [
         ('name_unique', 'unique(name)', 'El nombre del archivo debe ser único.')
     ]
