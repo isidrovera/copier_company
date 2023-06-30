@@ -33,11 +33,14 @@
         'views/marcas.xml',
         'views/portal.xml',        
         'views/descargas_portal.xml',
-        'views/modelos.xml', 
+        'views/modelos.xml',
+        'views/cotizacion_formulario.xml',
+        'views/cotizaciones.xml',        
         'views/portal_suscripcion.xml',
         'views/vista_tree_portal.xml',
         'security/ir.model.access.csv',
         'static/src/js/script.js',
+        'data/ir.secuencia.xml',
 
     ],
     # only loaded in demonstration mode

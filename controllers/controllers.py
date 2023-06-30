@@ -13,4 +13,12 @@ class DescargaArchivosController(http.Controller):
                 return request.render('copier_company.client_portal_descarga_archivos', {'docs': docs})
         
         return request.render('copier_company.no_subscription_message')
+    
+class PortalAlquilerController(http.Controller):
+    
+    @http.route('/portal/alquiler/<int:alquiler_id>', auth='public', website=True)
+    def portal_alquiler_form(self, alquiler_id, **kwargs):
+        alquiler = request.env['cotizacion.alquiler'].sudo().browse(alquiler_id)
+        return request.render('copier_company.portal_alquiler_form', {'alquiler': alquiler})
+
 
