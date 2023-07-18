@@ -5,7 +5,7 @@ class DescargaArchivos(models.Model):
     
     url = fields.Char(string='URL del archivo'     )
     name = fields.Char(string="Nombre de archivo"    )
-    modelo = fields.Many2one('modelos.maquinas',string="Modelo de maquina"    )
+    modelo = fields.Many2many('modelos.maquinas',string="Modelo de maquina"    )
     observacion = fields.Text(string="Descripción"    )
     tipo = fields.Selection(string='Tipo', selection=[('base', 'Base'),('especial','Especial')])
     icono = fields.Binary()

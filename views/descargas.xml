@@ -7,7 +7,7 @@
                 <form string="Descarga de archivos">
                     <sheet>
                         <group>
-                            <field name="modelo" string="Modelo de maquina" domain="[('active', '=', True)]" options="{'no_create': True}" context="{'default_active': True}" multi="True"/>
+                            <field name="modelo" string="Modelo de maquina" widget="many2many_tags"/>
                             <field name="name"/>
                             <field name="url"/>
                             <field name="tipo"/>
