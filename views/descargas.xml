@@ -14,7 +14,6 @@
                             <field name="observacion"/>                            
                         </group>
                         <footer>
-
                         </footer>
                     </sheet>
                 </form>
@@ -25,7 +24,7 @@
             <field name="model">descarga.archivos</field>
             <field name="arch" type="xml">
                 <tree>
-                    <field name="modelo" string="Modelo de maquina" />
+                    <field name="modelo" string="Modelo" widget="many2many_tags"/>
                     <field name="tipo"/>
                     <field name="name"/>
                     <field name="observacion"/>

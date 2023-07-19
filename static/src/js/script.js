@@ -4,6 +4,7 @@ function searchFiles() {
     filter = input.value.toUpperCase();
     table = document.getElementsByTagName("table")[0];
     tr = table.getElementsByTagName("tr");
+
     for (i = 0; i < tr.length; i++) {
         var found = false;
         for (j = 0; j < tr[i].cells.length; j++) {
@@ -16,18 +17,7 @@ function searchFiles() {
                 }
             }
         }
-        if (!found) {
-            for (j = 0; j < tr[i].childNodes.length; j++) {
-                if (tr[i].childNodes[j].nodeName == "TD") {
-                    td = tr[i].childNodes[j];
-                    txtValue = td.textContent || td.innerText;
-                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                        found = true;
-                        break;
-                    }
-                }
-            }
-        }
+        
         if (found) {
             tr[i].style.display = "";
         } else {
@@ -35,6 +25,7 @@ function searchFiles() {
         }
     }
 }
+
 
 
 
