@@ -5,7 +5,7 @@ class ModelosMaquinas(models.Model):
     _sql_constraints = [
         ('name_uniq', 'unique(name)', 'El modelo de la máquina debe ser único!')
     ]
-    name = fields.Char(string='Modelo')
+    name = fields.Char(string='Modelo', required=True, index=True)
     marca_id = fields.Many2one('marcas.maquinas',string='Marca')
     active = fields.Boolean(string="Activo", default=True)
     
