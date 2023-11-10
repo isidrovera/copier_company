@@ -5,7 +5,7 @@ class DescargaArchivosController(http.Controller):
     def descarga_archivos(self, **kw):
         partner = request.env.user.partner_id
         
-        stage = request.env['sale.order.stage'].sudo().search([('category', '=', 'progress')], limit=1)
+        stage = request.env['sale.order'].sudo().search([('subscription_state', '=', 'progress')], limit=1)
         if stage:
             order = request.env['sale.order'].sudo().search([('partner_id', '=', partner.id), ('stage_id', '=', stage.id)], limit=1)
             if order:
