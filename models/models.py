@@ -7,7 +7,7 @@ class copier_company(models.Model):
     _name = 'copier.company'
     _description = 'Aqui se veran los archivos de onedrive'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-       
+    _rec_name = 'serie_id'
     name = fields.Many2one('modelos.maquinas',string='Maquina')
     
     serie_id = fields.Char(string='Serie', required=True)
@@ -17,10 +17,7 @@ class copier_company(models.Model):
     def name_get(self):
         result = []
         for record in self:
-            # Aquí es donde construyes la cadena que quieres mostrar.
-            name = record.name or ''
-            serie_id = record.serie_id or ''
-            name = '[{}] Serie: {}'.format(name, serie_id) if serie_id else name
+            name = '[{}] Serie: {}'.format(record.name.display_name if record.name else '', record.serie_id)
             result.append((record.id, name))
         return result
        
