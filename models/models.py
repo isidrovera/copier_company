@@ -14,15 +14,13 @@ class copier_company(models.Model):
     marca_id = fields.Many2one('marcas.maquinas',string='Marca', required=True,related='name.marca_id')
     cliente_id = fields.Many2one('res.partner',string='Cliente', required=True, )
     
-    _rec_name = 'serie_id'
-
     def name_get(self):
         result = []
         for record in self:
-            name = '[  ' + record.name.name + '  ]   ' + \
-                'Serie: ' + record.serie_id
-            result.append((record.id, name))
-        return result  
+            name = record.name or ''
+            serie_id = record.serie_id or ''
+            result.append((record.id, f"[{name}] Serie: {serie_id}"))
+        return result
     def crear_ticket(self):
         ticket = self.env['helpdesk.ticket']
         ticket_id = ticket.create({
