@@ -17,10 +17,11 @@ class copier_company(models.Model):
     def name_get(self):
         result = []
         for record in self:
-            # Suponiendo que 'name' es un campo Many2one y el modelo relacionado tiene un campo 'name'.
-            maquina_name = record.name.display_name if record.name else ''
+            # Aquí es donde construyes la cadena que quieres mostrar.
+            name = record.name or ''
             serie_id = record.serie_id or ''
-            result.append((record.id, f"[{maquina_name}] Serie: {serie_id}"))
+            name = '[{}] Serie: {}'.format(name, serie_id) if serie_id else name
+            result.append((record.id, name))
         return result
        
     def crear_ticket(self):
