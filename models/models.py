@@ -14,14 +14,12 @@ class copier_company(models.Model):
     marca_id = fields.Many2one('marcas.maquinas',string='Marca', required=True,related='name.marca_id')
     cliente_id = fields.Many2one('res.partner',string='Cliente', required=True, )
     
-    @api.multi
-    def _rec_name(self):
-        result = super(copier_company, self)._rec_name()
+    def name_get(self):
+        result = []
         for record in self:
-            if record.serie_id:
-                result[record.id] = "{}({})".format(record.name.name, record.serie_id)
-            else:
-                result[record.id] = record.name
+            # Combina el nombre y la serie con el formato deseado.
+            display_name = f'{record.name.name} ({record.serie_id})' if record.name.name and record.serie_id else record.name.name or record.serie_id
+            result.append((record.id, display_name))
         return result
        
     def crear_ticket(self):
