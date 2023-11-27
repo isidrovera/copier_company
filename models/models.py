@@ -17,8 +17,12 @@ class copier_company(models.Model):
     def name_get(self):
         result = []
         for record in self:
-            name = '[{}] Serie: {}'.format(record.name.display_name if record.name else '', record.serie_id)
-            result.append((record.id, name))
+            # Asumiendo que el modelo relacionado 'modelos.maquinas' tiene un campo 'display_name' o 'name'.
+            maquina_name = record.name.display_name if record.name else ''
+            serie = record.serie_id or ''
+            # Combina el nombre de la máquina y la serie para mostrar.
+            name_combined = f"[{maquina_name}] Serie: {serie}"
+            result.append((record.id, name_combined))
         return result
        
     def crear_ticket(self):
