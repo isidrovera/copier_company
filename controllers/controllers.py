@@ -4,21 +4,19 @@ class DescargaArchivosController(http.Controller):
     @http.route('/descarga/archivos', type='http', website=True)
     def descarga_archivos(self, **kw):
         partner = request.env.user.partner_id
-        
-        # Filtra las órdenes de venta relacionadas con el cliente actual que tengan subscription_state = 3_progress.
-        orders_with_subscription = request.env['sale.order'].sudo().search([
-            ('partner_id', '=', partner.id),
-            ('subscription_state', '=', '3_progress')
-        ])
-        
-        # Comprueba si hay alguna orden de venta con subscription_state = 3_progress.
-        if orders_with_subscription:
-            # Si existe al menos una orden de venta, busca los documentos y muestra la página.
+
+        # Obtener la última orden de venta en línea a través del campo last_website_so_id
+        last_order = partner.last_website_so_id
+
+        # Comprueba si la última orden de venta tiene subscription_state = 3_progress.
+        if last_order and last_order.subscription_state == '3_progress':
+            # Si la última orden está en progreso, busca los documentos relacionados
             docs = request.env['descarga.archivos'].search([])
             return request.render('copier_company.client_portal_descarga_archivos', {'docs': docs})
         
-        # Si no hay órdenes de venta con subscription_state = 3_progress, muestra un mensaje.
+        # Si no hay una última orden de venta con subscription_state = 3_progress, muestra un mensaje.
         return request.render('copier_company.no_subscription_message')
+
 
 
     
