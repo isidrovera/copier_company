@@ -5,19 +5,14 @@ class DescargaArchivosController(http.Controller):
     def descarga_archivos(self, **kw):
         partner = request.env.user.partner_id
         
-        # Obtén el valor del campo "subscription_count" en el modelo "res.partner".
-        subscription_count = partner.subscription_count
+        stage = request.env['sale.order'].sudo().search([('subscription_state', '=', '3_progress')], limit=1)
+        if stage:
+            order = request.env['sale.order'].sudo().search([('partner_id', '=', partner.id), ('subscription_id', '=', stage.id)], limit=1)
+            if order:
+                docs = request.env['descarga.archivos'].search([])
+                return request.render('copier_company.client_portal_descarga_archivos', {'docs': docs})
         
-        # Comprueba si el valor del campo "subscription_count" es mayor que cero.
-        if subscription_count > 0:
-            # Si el cliente tiene una suscripción en progreso, busca los documentos y muestra la página.
-            docs = request.env['descarga.archivos'].search([])
-            return request.render('copier_company.client_portal_descarga_archivos', {'docs': docs})
-        
-        # Si el valor del campo "subscription_count" es cero o menos, muestra un mensaje.
         return request.render('copier_company.no_subscription_message')
-
-
     
 class PortalAlquilerController(http.Controller):
     
