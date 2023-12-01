@@ -7,7 +7,7 @@ class DescargaArchivosController(http.Controller):
         
         stage = request.env['sale.order'].sudo().search([('subscription_state', '=', '3_progress')], limit=1)
         if stage:
-            order = request.env['sale.order'].sudo().search([('partner_id', '=', partner.id), ('subscription_state', '=', stage.id)], limit=1)
+            order = request.env['sale.order'].sudo().search([('partner_id', '=', partner.id), ('state', '=', stage.id)], limit=1)
             if order:
                 docs = request.env['descarga.archivos'].search([])
                 return request.render('copier_company.client_portal_descarga_archivos', {'docs': docs})
