@@ -17,6 +17,7 @@
                                     <th>Modelo de máquina</th>
                                     <th>Tipo</th>
                                     <th>Nombre de archivo</th>
+                                    <th>adjunto</th>
                                     <th>Descripción</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -35,6 +36,9 @@
                                         </td>
                                         <td>
                                             <t t-esc="doc.name"/>
+                                        </td>
+                                        <td>
+                                            <t t-esc="doc.adjunto"/>
                                         </td>
                                         <td>
                                             <t t-esc="doc.observacion"/>
