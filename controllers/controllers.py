@@ -5,17 +5,21 @@ class DescargaArchivosController(http.Controller):
     def descarga_archivos(self, **kw):
         partner = request.env.user.partner_id
         
-        # Obtén el valor del campo "subscription_state" en el modelo "res.partner".
-        subscription_state = partner.subscription_state
+        # Filtra las órdenes de venta relacionadas con el cliente actual que tengan subscription_state = 3_progress.
+        orders_with_subscription = request.env['sale.order'].sudo().search([
+            ('partner_id', '=', partner.id),
+            ('subscription_state', '=', '3_progress')
+        ])
         
-        # Comprueba si el valor del campo "subscription_state" es igual a '3_progress'.
-        if subscription_state == '3_progress':
-            # Si el cliente tiene una suscripción en progreso, busca los documentos y muestra la página.
+        # Comprueba si hay alguna orden de venta con subscription_state = 3_progress.
+        if orders_with_subscription:
+            # Si existe al menos una orden de venta, busca los documentos y muestra la página.
             docs = request.env['descarga.archivos'].search([])
             return request.render('copier_company.client_portal_descarga_archivos', {'docs': docs})
         
-        # Si el valor del campo "subscription_state" no es igual a '3_progress', muestra un mensaje.
+        # Si no hay órdenes de venta con subscription_state = 3_progress, muestra un mensaje.
         return request.render('copier_company.no_subscription_message')
+
 
     
 class PortalAlquilerController(http.Controller):
