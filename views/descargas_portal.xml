@@ -5,15 +5,30 @@
                 /* Estilos personalizados para el ícono de adjunto y el texto */
                 .icono-adjunto {
                     display: flex;
-                    flex-direction: column; /* Organizar ícono y texto en columna */
-                    align-items: center; /* Centrar horizontalmente en la celda */
-                    justify-content: center; /* Centrar verticalmente en la celda */
+                    flex-direction: column; /* Organiza el ícono y el texto en una columna */
+                    align-items: center; /* Centra el ícono horizontalmente en la celda */
+                    justify-content: center; /* Centra el ícono verticalmente en la celda */
                     color: red; /* Color rojo para el ícono */
+                    text-decoration: none; /* No underline */
                 }
                 .icono-adjunto i {
                     font-size: 24px; /* Tamaño más grande para el ícono */
                 }
-                
+                <!--.icono-adjunto-text {
+                    margin-top: 4px; /* Espacio entre el ícono y el texto */
+                }-->
+                /* Asegúrate de que los estilos no afecten otros botones en la página */
+                .descargar-btn {
+                    background: #0E62C7; /* Un color de fondo azul para el botón de descargar */
+                    color: white; /* Texto blanco para el botón de descargar */
+                    border-radius: 4px; /* Bordes redondeados para el botón */
+                    padding: 0.375rem 0.75rem; /* Padding similar al estilo de botón de Bootstrap */
+                    text-decoration: none; /* No underline */
+                }
+                .descargar-btn:hover {
+                    background: #0056b3; /* Un color de fondo más oscuro cuando se pasa el mouse por encima */
+                    text-decoration: none; /* No underline */
+                }
             </style>
             <div class="container">
                 <div class="row">
@@ -33,7 +48,7 @@
                                     <th>Nombre de archivo</th>
                                     <th>Adjunto</th>
                                     <th>Descripción</th>
-                                    <th></th>
+                                    <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -53,15 +68,17 @@
                                         </td>
                                         <td>
                                             <span class="icono-adjunto">
-                                                <i class="fa fa-file-pdf-o"></i> <!-- Asegúrate de que estás usando la versión correcta de FontAwesome -->
-                                                
+                                                <a t-att-href="'/web/content?model=descarga.archivos&amp;id=' + str(doc.id) + '&amp;field=adjunto&amp;filename_field=name'" target="_blank">
+                                                    <i class="fa fa-file-pdf-o"></i>
+                                                </a>
+                                                <!--<span class="icono-adjunto-text">Adjunto</span>-->
                                             </span>
                                         </td>
                                         <td>
                                             <t t-esc="doc.observacion"/>
                                         </td>
                                         <td>
-                                            <a t-att-href="'/web/content?model=descarga.archivos&amp;id=' + str(doc.id) + '&amp;field=adjunto&amp;filename_field=name'" class="btn btn-secondary">Descargar</a>
+                                            <a t-att-href="'/web/content?model=descarga.archivos&amp;id=' + str(doc.id) + '&amp;field=adjunto&amp;filename_field=name&amp;download=true'" class="descargar-btn">Descargar</a>
                                         </td>
                                     </tr>
                                 </t>
