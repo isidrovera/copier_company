@@ -2,17 +2,19 @@
     <template id="client_portal_descarga_archivos">
         <t t-call="website.layout">
             <style>
-                /* Estilos personalizados para el ícono de adjunto */
+                /* Estilos personalizados para el ícono de adjunto y el texto */
                 .icono-adjunto {
-                    background: none;
-                    border: none;
-                    padding: 0;
-                    box-shadow: none;
-                    display: inline; /* Asegurarse de que el ícono se muestre en línea con el texto si es necesario */
-                    color: inherit; /* El ícono hereda el color de texto del elemento padre */
+                    display: flex;
+                    flex-direction: column; /* Organizar ícono y texto en columna */
+                    align-items: center; /* Centrar horizontalmente en la celda */
+                    justify-content: center; /* Centrar verticalmente en la celda */
+                    color: red; /* Color rojo para el ícono */
                 }
-                .icono-adjunto:hover {
-                    text-decoration: none; /* Evitar el subrayado al pasar el ratón sobre el ícono */
+                .icono-adjunto i {
+                    font-size: 24px; /* Tamaño más grande para el ícono */
+                }
+                .icono-adjunto-text {
+                    margin-top: 4px; /* Espacio entre el ícono y el texto */
                 }
             </style>
             <div class="container">
@@ -33,7 +35,7 @@
                                     <th>Nombre de archivo</th>
                                     <th>Adjunto</th>
                                     <th>Descripción</th>
-                                    <th>Acciones</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -52,17 +54,16 @@
                                             <t t-esc="doc.name"/>
                                         </td>
                                         <td>
-                                            <!-- Se elimina la clase 'btn btn-secondary' y se añade la clase 'icono-adjunto' para el estilo personalizado -->
-                                            <a t-att-href="'/web/content?model=descarga.archivos&amp;id=' + str(doc.id) + '&amp;field=adjunto&amp;filename_field=name'" class="icono-adjunto">
-                                                <i class="fa fa-file-pdf-o"></i> <!-- Usa 'fa-file-pdf' si estás en FontAwesome 5 -->
-                                            </a>
+                                            <span class="icono-adjunto">
+                                                <i class="fa fa-file-pdf-o"></i> <!-- Asegúrate de que estás usando la versión correcta de FontAwesome -->
+                                                <span class="icono-adjunto-text">Adjunto</span>
+                                            </span>
                                         </td>
                                         <td>
                                             <t t-esc="doc.observacion"/>
                                         </td>
                                         <td>
-                                            <!-- Asegúrate de que 'doc.url' es la URL correcta para descargar el archivo -->
-                                            <a t-att-href="doc.url" class="btn btn-secondary">Descargar</a>
+                                            <a t-att-href="'/web/content?model=descarga.archivos&amp;id=' + str(doc.id) + '&amp;field=adjunto&amp;filename_field=name'" class="btn btn-secondary">Descargar</a>
                                         </td>
                                     </tr>
                                 </t>
