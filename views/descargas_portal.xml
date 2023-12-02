@@ -1,6 +1,20 @@
 <odoo>
     <template id="client_portal_descarga_archivos">
         <t t-call="website.layout">
+            <style>
+                /* Estilos personalizados para el ícono de adjunto */
+                .icono-adjunto {
+                    background: none;
+                    border: none;
+                    padding: 0;
+                    box-shadow: none;
+                    display: inline; /* Asegurarse de que el ícono se muestre en línea con el texto si es necesario */
+                    color: inherit; /* El ícono hereda el color de texto del elemento padre */
+                }
+                .icono-adjunto:hover {
+                    text-decoration: none; /* Evitar el subrayado al pasar el ratón sobre el ícono */
+                }
+            </style>
             <div class="container">
                 <div class="row">
                     <div class="col-md-12">
@@ -38,21 +52,21 @@
                                             <t t-esc="doc.name"/>
                                         </td>
                                         <td>
-                                            <a t-att-href="'/web/content?model=descarga.archivos&amp;id=' + str(doc.id) + '&amp;field=adjunto&amp;filename_field=name'" class="btn btn-secondary">
-                                                <i class="fa fa-file-pdf-o"></i>                                                <!-- Asegúrate de usar la clase correcta para el ícono de PDF según tu versión de FontAwesome -->
+                                            <!-- Se elimina la clase 'btn btn-secondary' y se añade la clase 'icono-adjunto' para el estilo personalizado -->
+                                            <a t-att-href="'/web/content?model=descarga.archivos&amp;id=' + str(doc.id) + '&amp;field=adjunto&amp;filename_field=name'" class="icono-adjunto">
+                                                <i class="fa fa-file-pdf-o"></i> <!-- Usa 'fa-file-pdf' si estás en FontAwesome 5 -->
                                             </a>
                                         </td>
                                         <td>
                                             <t t-esc="doc.observacion"/>
                                         </td>
                                         <td>
+                                            <!-- Asegúrate de que 'doc.url' es la URL correcta para descargar el archivo -->
                                             <a t-att-href="doc.url" class="btn btn-secondary">Descargar</a>
                                         </td>
                                     </tr>
                                 </t>
                             </tbody>
-
-
                         </table>
                     </div>
                 </div>
@@ -61,5 +75,3 @@
         <script type="text/javascript" src="/copier_company/static/src/js/script.js"></script>
     </template>
 </odoo>
-
-
