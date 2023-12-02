@@ -38,17 +38,20 @@
                                             <t t-esc="doc.name"/>
                                         </td>
                                         <td>
-                                            <t t-esc="doc.adjunto"/>
+                                            <a t-att-href="'/web/content?model=descarga.archivos&amp;id=' + str(doc.id) + '&amp;field=adjunto&amp;download=true'" class="btn btn-secondary">
+                                                <i class="fa fa-file-o"></i>
+                                            </a>
                                         </td>
                                         <td>
                                             <t t-esc="doc.observacion"/>
                                         </td>
                                         <td>
-                                            <a t-att-href="doc.url" download="true">Descargar</a>
+                                            <a t-att-href="doc.url" class="btn btn-secondary">Descargar</a>
                                         </td>
                                     </tr>
                                 </t>
                             </tbody>
+
                         </table>
                     </div>
                 </div>
