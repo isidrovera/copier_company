@@ -17,7 +17,7 @@
                                     <th>Modelo de máquina</th>
                                     <th>Tipo</th>
                                     <th>Nombre de archivo</th>
-                                    <th>adjunto</th>
+                                    <th>Adjunto</th>
                                     <th>Descripción</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -39,7 +39,7 @@
                                         </td>
                                         <td>
                                             <a t-att-href="'/web/content?model=descarga.archivos&amp;id=' + str(doc.id) + '&amp;field=adjunto&amp;filename_field=name'" class="btn btn-secondary">
-                                                <i class="fa fa-file-pdf"></i>                                                <!-- Asegúrate de usar la clase correcta para el ícono de PDF según tu versión de FontAwesome -->
+                                                <i icon="fa-file-pdf"></i>                                                <!-- Asegúrate de usar la clase correcta para el ícono de PDF según tu versión de FontAwesome -->
                                             </a>
                                         </td>
                                         <td>
