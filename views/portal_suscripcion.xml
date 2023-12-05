@@ -12,33 +12,31 @@
             </div>
         </div>
         <style>
-            /* Preload the FontAwesome font to avoid FOUC */
+            /* Inline font loading for FontAwesome to prevent FOUC */
             @font-face {
                 font-family: 'FontAwesome';
-                src: url('/path_to_your_fonts/FontAwesome.otf') format('opentype');
+                src: url('data:application/font-woff2;charset=utf-8;base64,...') format('woff2'),
+                     url('data:font/woff;charset=utf-8;base64,...') format('woff'),
+                     url('data:image/svg+xml;charset=utf-8;base64,...') format('svg');
                 font-weight: normal;
                 font-style: normal;
             }
             
-            body {
-                margin: 0;
-                padding: 0;
-                font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            }
-            
-            .fa-frown-o {
-                display: block;
+            .fa-frown-o:before {
+                content: "\f119";
                 font-family: 'FontAwesome';
-            }
-            
-            .btn-primary {
-                transition: background-color 0.3s, box-shadow 0.3s;
             }
             
             .btn-primary:hover {
                 background-color: #0d47a1;
                 box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
                 transform: translateY(-2px);
+            }
+            
+            /* Preload the FontAwesome font to avoid FOUC */
+            .fa-frown-o {
+                display: block;
+                font-family: 'FontAwesome';
             }
             
             /* Additional global styles, if necessary, can go here */
