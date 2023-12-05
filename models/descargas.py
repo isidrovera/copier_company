@@ -13,8 +13,7 @@ class DescargaArchivos(models.Model):
         ('name_unique', 'unique(name)', 'El nombre del archivo debe ser único.')
     ]
     adjunto = fields.Binary(
-    string='Adjunto', 
-    required=True
+    string='Adjunto'
     
     )
     fecha = fields.Date(string='Fecha')
