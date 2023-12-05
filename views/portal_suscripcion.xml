@@ -12,15 +12,38 @@
             </div>
         </div>
         <style>
+            /* Preload the FontAwesome font to avoid FOUC */
+            @font-face {
+                font-family: 'FontAwesome';
+                src: url('/path_to_your_fonts/FontAwesome.otf') format('opentype');
+                font-weight: normal;
+                font-style: normal;
+            }
+            
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            }
+            
             .fa-frown-o {
                 display: block;
+                font-family: 'FontAwesome';
             }
+            
+            .btn-primary {
+                transition: background-color 0.3s, box-shadow 0.3s;
+            }
+            
             .btn-primary:hover {
                 background-color: #0d47a1;
                 box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
                 transform: translateY(-2px);
             }
+            
+            /* Additional global styles, if necessary, can go here */
         </style>
     </template>
 </odoo>
+
 
