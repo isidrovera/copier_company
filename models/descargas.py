@@ -17,6 +17,7 @@ class DescargaArchivos(models.Model):
     required=True
     
     )
+    fecha = fields.Date(string='Fecha')
     
     def open_url(self):
         for record in self:
