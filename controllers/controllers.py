@@ -15,7 +15,7 @@ class DescargaArchivosController(http.Controller):
         if subscriptions_in_progress:
             # Si existe al menos una suscripción en progreso, buscar los documentos relacionados
             docs = request.env['descarga.archivos'].search([])
-            return request.render('copier_company.client_portal_descarga_archivos', {'docs': docs})
+            return request.render('copier_company.Descargas', {'docs': docs})
         else:
             # Si no hay suscripciones en el estado '3_progress', mostrar un mensaje
             return request.render('copier_company.no_subscription_message')
