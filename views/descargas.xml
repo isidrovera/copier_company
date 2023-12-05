@@ -11,6 +11,7 @@
                             <field name="name"/>
                             <field name="url"/>
                             <field name="tipo"/>
+                            <field name="fecha"/>
                             <field name="adjunto"/>
                             <field name="observacion"/>                            
                         </group>
@@ -28,6 +29,7 @@
                     <field name="modelo" string="Modelo" widget="many2many_tags"/>
                     <field name="tipo"/>
                     <field name="name"/>
+                    <field name="fecha"/>
                     <field name="adjunto"/>
                     <field name="observacion"/>
                     <button name="open_url" string="Descargar Archivo" type="object" icon="fa-download"/>                    
