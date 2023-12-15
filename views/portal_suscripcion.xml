@@ -1,42 +1,20 @@
 <?xml version='1.0' encoding='utf-8'?>
 <odoo>
     <template id="no_subscription_message">
-        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background: #fdfdfd; color: #333; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 2rem;">
-            <!-- Asegúrate de que la clase del ícono corresponda con una que tengas en tu conjunto de FontAwesome -->
-            <i class="fa fa-frown-o" style="font-size: 60px; color: #ffa726; margin-bottom: 2rem;"></i>
-            <div style="max-width: 600px; text-align: center;">
-                <h1 style="font-size: 2.5rem; color: #212121; margin-bottom: 1rem;">Lo sentimos...</h1>
-                <p style="font-size: 1.25rem; margin-bottom: 1rem;">Parece que no tienes una suscripción activa.</p>
-                <p style="font-size: 1rem; margin-bottom: 1rem;">Para seguir utilizando nuestros servicios, necesitas adquirir una licencia de suscripción.</p>
-                <p style="font-size: 1rem; margin-bottom: 1rem;">¡No te preocupes! Tenemos una gran variedad de opciones de suscripción para que puedas elegir la que mejor se adapte a tus necesidades.</p>
-                <a href="/shop" class="btn btn-primary" style="display: inline-block; background-color: #1E88E5; border: none; padding: 0.75rem 1.5rem; font-size: 1.25rem; color: white; font-weight: bold; text-decoration: none; border-radius: 0.3rem; box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2); transition: all 0.3s ease-in-out;">Ir a la tienda</a>
+        <div style="display: flex; justify-content: center; align-items: center; height: 100vh; position: relative;">
+            <i class="fa fa-frown-o" style="font-size: 48px; color: #F44336; position: absolute; top: 20px; right: 20px;"></i>
+            <div style="text-align: center;">
+                <p style="font-size: 24px; margin-top: 20px;">Lo sentimos, pero parece que no tienes una suscripción activa.</p>
+                <p style="font-size: 20px;">Para seguir utilizando nuestros servicios, necesitas adquirir una licencia de suscripción.</p>
+                <p style="font-size: 20px;">¡No te preocupes! Tenemos una gran variedad de opciones de suscripción para que puedas elegir la que mejor se adapte a tus necesidades.</p>
+                <a href="/shop" class="btn btn-primary" style="background-color: #1E88E5; border-color: #1E88E5; margin-top: 20px; font-size: 32px; color: #000000; font-weight: bold;">Ir a la tienda</a>
             </div>
         </div>
         <style>
-            /* Inline font loading for FontAwesome to prevent FOUC */
-            @font-face {
-                font-family: 'FontAwesome';
-                src: url('data:application/font-woff2;charset=utf-8;base64,...') format('woff2'),
-                     url('data:application/font-woff;charset=utf-8;base64,...') format('woff'),
-                     url('data:application/font-ttf;charset=utf-8;base64,...') format('truetype'),
-                     url('data:font/woff;charset=utf-8;base64,...') format('woff'),
-                     url('data:image/svg+xml;charset=utf-8;base64,...') format('svg');
-                font-weight: normal;
-                font-style: normal;
+            .fa-frown-o {
+                display: block;
             }
-
-            .fa-frown-o:before {
-                content: "\f119";
-                font-family: 'FontAwesome';
-            }
-
-            .btn-primary:hover {
-                background-color: #0d47a1;
-                box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-                transform: translateY(-2px);
-            }
-
-            /* Asegúrate de que las rutas base64 estén correctamente codificadas para las fuentes FontAwesome que estás utilizando */
         </style>
     </template>
 </odoo>
+

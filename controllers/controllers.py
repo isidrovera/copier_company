@@ -1,24 +1,46 @@
 from odoo import http
 from odoo.http import request
+from odoo import http
+from odoo.http import request
+
 class DescargaArchivosController(http.Controller):
-    @http.route('/descarga/archivos', type='http', website=True)
-    def descarga_archivos(self, **kw):
+    @http.route('/descarga/archivos', type='http', website=True, auth='user')
+    def descarga_archivos(self, page=0, limit=20, **kw):
+        # Convertir los parámetros de la URL a enteros
+        page = int(page) if page else 1
+        limit = int(limit) if limit else 20
+        offset = (page - 1) * limit
+
         partner = request.env.user.partner_id
+        stage = request.env['sale.order'].sudo().search(
+            [('subscription_state', '=', 'progress')], 
+            limit=1
+        )
 
-        # Buscar suscripciones del partner que estén en el estado '3_progress'
-        subscriptions_in_progress = request.env['sale.order'].sudo().search([
-            ('partner_id', '=', partner.id),
-            ('subscription_state', '=', '3_progress')  # Usando el valor del estado proporcionado
-        ])
+        if stage:
+            order = request.env['sale.order'].sudo().search(
+                [('partner_id', '=', partner.id), ('stage_id', '=', stage.id)], 
+                limit=1
+            )
 
-        # Comprobar si hay suscripciones en el estado '3_progress'
-        if subscriptions_in_progress:
-            # Si existe al menos una suscripción en progreso, buscar los documentos relacionados
-            docs = request.env['descarga.archivos'].search([])
-            return request.render('copier_company.Descargas', {'docs': docs})
-        else:
-            # Si no hay suscripciones en el estado '3_progress', mostrar un mensaje
-            return request.render('copier_company.no_subscription_message')
+            if order:
+                doc_count = request.env['descarga.archivos'].sudo().search_count([])
+                pager = request.website.pager(
+                    url="/descarga/archivos",
+                    total=doc_count,
+                    page=page,
+                    step=limit
+                )
+                docs = request.env['descarga.archivos'].sudo().search([], limit=limit, offset=offset)
+                return request.render(
+                    'copier_company.client_portal_descarga_archivos', 
+                    {
+                        'docs': docs,
+                        'pager': pager,
+                    }
+                )
+        
+        return request.render('copier_company.no_subscription_message')
 
     
 class PortalAlquilerController(http.Controller):
