@@ -12,7 +12,11 @@ class DescargaArchivos(models.Model):
     _sql_constraints = [
         ('name_unique', 'unique(name)', 'El nombre del archivo debe ser único.')
     ]
+    adjunto = fields.Binary(
+    string='Adjunto'
     
+    )
+    fecha = fields.Date(string='Fecha')
     
     def open_url(self):
         for record in self:
@@ -30,5 +34,3 @@ class DescargaArchivos(models.Model):
                 'type': 'success',
             },
         }
-
-
