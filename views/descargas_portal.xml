@@ -93,5 +93,30 @@
             </div>
         </t>
         <script type="text/javascript" src="/copier_company/static/src/js/script.js"></script>
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <t t-if="pager['page'] > 1">
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1">Inicio</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=#{pager['page'] - 1}">Anterior</a>
+                    </li>
+                </t>
+                <t t-foreach="range(max(pager['page'] - 2, 1), min(pager['page'] + 3, pager['page_count'] + 1))" t-as="pg">
+                    <li t-att-class="'page-item' + (' active' if pg == pager['page'] else '')">
+                        <a class="page-link" t-attf-href="?page=#{pg}">#{pg}</a>
+                    </li>
+                </t>
+                <t t-if="pager['page'] < pager['page_count']">
+                    <li class="page-item">
+                        <a class="page-link" t-attf-href="?page=#{pager['page'] + 1}">Siguiente</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" t-attf-href="?page=#{pager['page_count']}">Final</a>
+                    </li>
+                </t>
+            </ul>
+        </nav>
     </template>
 </odoo>
