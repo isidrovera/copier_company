@@ -110,7 +110,7 @@
                         </a>
                     </li>
                 </t>
-                <t t-if="pager['page']  pager['page_count']">
+                <t t-if="pager['page'] < pager['page_count']">
                     <li class="page-item">
                         <a class="page-link" t-att-href="'?page=' + str(pager['page'] + 1)" aria-label="Next">»</a>
                     </li>
