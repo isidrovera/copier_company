@@ -59,12 +59,12 @@
                                 <t t-if="pager['page'] > 1">
                                     <li class="page-item">
                                         <a class="page-link" href="?page=1" aria-label="First">
-                                            <span aria-hidden="true">&laquo;&laquo;</span>
+                                            <span aria-hidden="true">««</span>
                                         </a>
                                     </li>
                                     <li class="page-item">
-                                        <a class="page-link" href="?page=1" aria-label="Previous">
-                                            <span aria-hidden="true">&laquo;</span>
+                                        <a class="page-link" href="?page=#{pager['page'] - 1}" aria-label="Previous">
+                                            <span aria-hidden="true">«</span>
                                         </a>
                                     </li>
                                 </t>
@@ -75,13 +75,13 @@
                                 </t>
                                 <t t-if="pager['page'] < pager['page_count']">
                                     <li class="page-item">
-                                        <a class="page-link" href="?page=1" aria-label="Next">
-                                            <span aria-hidden="true">&raquo;</span>
+                                        <a class="page-link" href="?page=#{pager['page'] + 1}" aria-label="Next">
+                                            <span aria-hidden="true">»</span>
                                         </a>
                                     </li>
                                     <li class="page-item">
-                                        <a class="page-link" href="?page=1" aria-label="Last">
-                                            <span aria-hidden="true">&raquo;&raquo;</span>
+                                        <a class="page-link" href="?page=#{pager['page_count']}" aria-label="Last">
+                                            <span aria-hidden="true">»»</span>
                                         </a>
                                     </li>
                                 </t>
@@ -94,6 +94,3 @@
         <script type="text/javascript" src="/copier_company/static/src/js/script.js"></script>
     </template>
 </odoo>
-
-
-
