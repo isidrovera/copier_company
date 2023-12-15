@@ -26,13 +26,29 @@
                             <tbody>
                                 <t t-foreach="docs" t-as="doc">
                                     <tr>
-                                        <td><t t-esc="doc.modelo"/></td>
-                                        <td><t t-esc="doc.tipo"/></td>
-                                        <td><t t-esc="doc.name"/></td>
-                                        <td><t t-esc="doc.ano"/></td>
-                                        <td><t t-if="doc.adjunto"><a t-att-href="doc.adjunto">Descargar</a></t></td>
-                                        <td><t t-esc="doc.descripcion"/></td>
-                                        <td><a t-att-href="'/descargar/archivo/' + str(doc.id)" class="btn btn-primary">Descargar</a></td>
+                                        <td>
+                                            <t t-esc="doc.modelo"/>
+                                        </td>
+                                        <td>
+                                            <t t-esc="doc.tipo"/>
+                                        </td>
+                                        <td>
+                                            <t t-esc="doc.name"/>
+                                        </td>
+                                        <td>
+                                            <t t-esc="doc.ano"/>
+                                        </td>
+                                        <td>
+                                            <t t-if="doc.adjunto">
+                                                <a t-att-href="doc.adjunto">Descargar</a>
+                                            </t>
+                                        </td>
+                                        <td>
+                                            <t t-esc="doc.descripcion"/>
+                                        </td>
+                                        <td>
+                                            <a t-att-href="'/descargar/archivo/' + str(doc.id)" class="btn btn-primary">Descargar</a>
+                                        </td>
                                     </tr>
                                 </t>
                             </tbody>
@@ -42,23 +58,33 @@
                             <ul class="pagination justify-content-center">
                                 <t t-if="pager['page'] > 1">
                                     <li class="page-item">
-                                        <a class="page-link" href="?page=1" aria-label="First"><span aria-hidden="true">««</span></a>
+                                        <a class="page-link" href="?page=1" aria-label="First">
+                                            <span aria-hidden="true">««</span>
+                                        </a>
                                     </li>
                                     <li class="page-item">
-                                        <a class="page-link" t-att-href="'?page=%s' % (pager['page'] - 1)" aria-label="Previous"><span aria-hidden="true">«</span></a>
+                                        <a class="page-link" t-att-href="'?page=%s' % (pager['page'] - 1)" aria-label="Previous">
+                                            <span aria-hidden="true">«</span>
+                                        </a>
                                     </li>
                                 </t>
                                 <t t-foreach="range(max(pager['page'] - 2, 1), min(pager['page'] + 3, pager['page_count'] + 1))" t-as="pg">
                                     <li t-att-class="'page-item' + (' active' if pg == pager['page'] else '')">
-                                        <a class="page-link" t-att-href="'?page=%d' % pg"><t t-esc="pg"/></a>
+                                        <a class="page-link" t-att-href="'?page=%s' % pg">
+                                            <t t-esc="pg"/>
+                                        </a>
                                     </li>
                                 </t>
                                 <t t-if="pager['page'] < pager['page_count']">
                                     <li class="page-item">
-                                        <a class="page-link" t-att-href="'?page=%s' % (pager['page'] + 1)" aria-label="Next"><span aria-hidden="true">»</span></a>
+                                        <a class="page-link" t-att-href="'?page=%s' % (pager['page'] + 1)" aria-label="Next">
+                                            <span aria-hidden="true">»</span>
+                                        </a>
                                     </li>
                                     <li class="page-item">
-                                        <a class="page-link" t-att-href="'?page=%s' % pager['page_count']" aria-label="Last"><span aria-hidden="true">»»</span></a>
+                                        <a class="page-link" t-att-href="'?page=%s' % pager['page_count']" aria-label="Last">
+                                            <span aria-hidden="true">»»</span>
+                                        </a>
                                     </li>
                                 </t>
                             </ul>
