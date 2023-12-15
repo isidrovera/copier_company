@@ -1,6 +1,35 @@
 <odoo>
     <template id="client_portal_descarga_archivos">
         <t t-call="website.layout">
+            <style>
+                /* Estilos personalizados para el ícono de adjunto y el texto */
+                .icono-adjunto {
+                    display: flex;
+                    flex-direction: column; /* Organiza el ícono y el texto en una columna */
+                    align-items: center; /* Centra el ícono horizontalmente en la celda */
+                    justify-content: center; /* Centra el ícono verticalmente en la celda */
+                    color: red; /* Color rojo para el ícono */
+                    text-decoration: none; /* No underline */
+                }
+                .icono-adjunto i {
+                    font-size: 24px; /* Tamaño más grande para el ícono */
+                }
+                <!--.icono-adjunto-text {
+                    margin-top: 4px; /* Espacio entre el ícono y el texto */
+                }-->
+                /* Asegúrate de que los estilos no afecten otros botones en la página */
+                .descargar-btn {
+                    background: #0E62C7; /* Un color de fondo azul para el botón de descargar */
+                    color: white; /* Texto blanco para el botón de descargar */
+                    border-radius: 4px; /* Bordes redondeados para el botón */
+                    padding: 0.375rem 0.75rem; /* Padding similar al estilo de botón de Bootstrap */
+                    text-decoration: none; /* No underline */
+                }
+                .descargar-btn:hover {
+                    background: #0056b3; /* Un color de fondo más oscuro cuando se pasa el mouse por encima */
+                    text-decoration: none; /* No underline */
+                }
+            </style>
             <div class="container">
                 <div class="row">
                     <div class="col-md-12">
@@ -17,7 +46,6 @@
                                     <th>Modelo de máquina</th>
                                     <th>Tipo</th>
                                     <th>Nombre de archivo</th>
-                                    <th>Año</th>
                                     <th>Adjunto</th>
                                     <th>Descripción</th>
                                     <th>Acciones</th>
@@ -27,7 +55,10 @@
                                 <t t-foreach="docs" t-as="doc">
                                     <tr>
                                         <td>
-                                            <t t-esc="doc.modelo"/>
+                                            <t t-foreach="doc.modelo" t-as="modelo">
+                                                <t t-esc="modelo.name"/>
+                                                <br/>
+                                            </t>
                                         </td>
                                         <td>
                                             <t t-esc="doc.tipo"/>
@@ -36,56 +67,23 @@
                                             <t t-esc="doc.name"/>
                                         </td>
                                         <td>
-                                            <t t-esc="doc.ano"/>
+                                            <span class="icono-adjunto">
+                                                <a t-att-href="'/web/content?model=descarga.archivos&amp;id=' + str(doc.id) + '&amp;field=adjunto&amp;filename_field=name'" target="_blank">
+                                                    <i class="fa fa-file-pdf-o"></i>
+                                                </a>
+                                                <!--<span class="icono-adjunto-text">Adjunto</span>-->
+                                            </span>
                                         </td>
                                         <td>
-                                            <t t-if="doc.adjunto">
-                                                <a t-att-href="doc.adjunto">Descargar</a>
-                                            </t>
+                                            <t t-esc="doc.observacion"/>
                                         </td>
                                         <td>
-                                            <t t-esc="doc.descripcion"/>
-                                        </td>
-                                        <td>
-                                            <a t-att-href="'/descargar/archivo/' + str(doc.id)" class="btn btn-primary">Descargar</a>
+                                            <a t-att-href="'/web/content?model=descarga.archivos&amp;id=' + str(doc.id) + '&amp;field=adjunto&amp;filename_field=name&amp;download=true'" class="descargar-btn">Descargar</a>
                                         </td>
                                     </tr>
                                 </t>
                             </tbody>
                         </table>
-                        <!-- Paginación -->
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination justify-content-center">
-                                <t t-if="pager['page'] > 1">
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page=1" aria-label="First">
-                                            <span aria-hidden="true">««</span>
-                                        </a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link" t-att-href="'?page=%s' % (pager['page'] - 1)" aria-label="Previous">
-                                            <span aria-hidden="true">«</span>
-                                        </a>
-                                    </li>
-                                </t>
-                                <t t-foreach="range(max(pager['page'] - 2, 1), min(pager['page'] + 3, pager['page_count'] + 1))" t-as="pg">
-                                    <li t-att-class="'page-item' + (' active' if pg == pager['page'] else '')">
-                                        <a class="page-link" t-att-href="'?page=%s' % pg">
-                                            <t t-esc="pg"/>
-                                        </a>
-                                    </li>
-                                </t>
-                                <t t-if="pager['page'] < pager['page_count']">
-                                    <li class="page-item">
-                                        <a class="page-link" t-att-href="'?page=%s' % (pager['page'] + 1)" aria-label="Next">
-                                            <span aria-hidden="true">»</span>
-                                        </a>
-                                    </li>
-                                </t>
-                            </ul>
-                        </nav>
-
-
                     </div>
                 </div>
             </div>
