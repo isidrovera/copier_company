@@ -97,7 +97,8 @@
             <ul class="pagination justify-content-center">
                 <t t-if="pager['page'] > 1">
                     <li class="page-item">
-                        <a class="page-link" t-att-href="'?page=1'" aria-label="First">««</a>
+                        <a class="page-link" t-att-href="'?page=1'" aria-label="First"/>
+
                     </li>
                     <li class="page-item">
                         <a class="page-link" t-att-href="'?page=' + str(pager['page'] - 1)" aria-label="Previous">«</a>
