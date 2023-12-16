@@ -14,7 +14,7 @@
                 .icono-adjunto i {
                     font-size: 24px; /* Tamaño más grande para el ícono */
                 }
-                                <!--.icono-adjunto-text {
+                                                <!--.icono-adjunto-text {
                     margin-top: 4px; /* Espacio entre el ícono y el texto */
                 }-->
                 /* Asegúrate de que los estilos no afecten otros botones en la página */
@@ -95,33 +95,34 @@
         <script type="text/javascript" src="/copier_company/static/src/js/script.js"></script>
         <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center">
-                <t t-if="pager['page'] > 1">
-                    <li class="page-item">
-                        <a class="page-link" t-att-href="'?page=1'" aria-label="First"></a>
+                <!-- First Page -->
+                <li class="page-item" t-if="pager['page'] > 1">
+                    <a t-att-href="'?page=1'" class="page-link" aria-label="First">««</a>
+                </li>
 
+                <!-- Previous Page -->
+                <li class="page-item" t-if="pager['page'] > 1">
+                    <a t-att-href="'?page=%s' % (pager['page'] - 1)" class="page-link" aria-label="Previous">«</a>
+                </li>
 
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" t-att-href="'?page=' + str(pager['page'] - 1)" aria-label="Previous"></a>
-                    </li>
-                </t>
+                <!-- Page Numbers -->
                 <t t-foreach="range(max(pager['page'] - 2, 1), min(pager['page'] + 3, pager['page_count'] + 1))" t-as="pg">
                     <li t-att-class="'page-item' + (' active' if pg == pager['page'] else '')">
-                        <a class="page-link" t-att-href="'?page=' + str(pg)">
+                        <a t-att-href="'?page=%s' % pg" class="page-link">
                             <t t-esc="pg"/>
                         </a>
                     </li>
                 </t>
-                <t t-if="int(pager['page']) &lt; int(pager['page_count'])">
-        
 
-                    <li class="page-item">
-                        <a class="page-link" t-att-href="'?page=' + str(pager['page'] + 1)" aria-label="Next">»</a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" t-att-href="'?page=' + str(pager['page_count'])" aria-label="Last">»»</a>
-                    </li>
-                </t>
+                <!-- Next Page -->
+                <li class="page-item" t-if="pager['page'] < pager['page_count']">
+                    <a t-att-href="'?page=%s' % (pager['page'] + 1)" class="page-link" aria-label="Next">»</a>
+                </li>
+
+                <!-- Last Page -->
+                <li class="page-item" t-if="pager['page'] < pager['page_count']">
+                    <a t-att-href="'?page=%s' % pager['page_count']" class="page-link" aria-label="Last">»»</a>
+                </li>
             </ul>
         </nav>
 
