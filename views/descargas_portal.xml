@@ -115,12 +115,12 @@
                 </t>
 
                 <!-- Next Page -->
-                <li class="page-item" t-if="pager['page'] < pager['page_count']">
+                <li class="page-item" t-if="pager['page'] &lt; pager['page_count']">
                     <a t-att-href="'?page=%s' % (pager['page'] + 1)" class="page-link" aria-label="Next">»</a>
                 </li>
 
                 <!-- Last Page -->
-                <li class="page-item" t-if="pager['page'] < pager['page_count']">
+                <li class="page-item" t-if="pager['page'] &lt; pager['page_count']">
                     <a t-att-href="'?page=%s' % pager['page_count']" class="page-link" aria-label="Last">»»</a>
                 </li>
             </ul>
