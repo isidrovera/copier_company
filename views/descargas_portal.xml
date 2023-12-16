@@ -97,11 +97,12 @@
             <ul class="pagination justify-content-center">
                 <t t-if="pager['page'] > 1">
                     <li class="page-item">
-                        <a class="page-link" t-att-href="'?page=1'" aria-label="First"/>
+                        <a class="page-link" t-att-href="'?page=1'" aria-label="First"></a>
+
 
                     </li>
                     <li class="page-item">
-                        <a class="page-link" t-att-href="'?page=' + str(pager['page'] - 1)" aria-label="Previous" />
+                        <a class="page-link" t-att-href="'?page=' + str(pager['page'] - 1)" aria-label="Previous"></a>
                     </li>
                 </t>
                 <t t-foreach="range(max(pager['page'] - 2, 1), min(pager['page'] + 3, pager['page_count'] + 1))" t-as="pg">
