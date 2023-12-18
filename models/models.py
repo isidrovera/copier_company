@@ -15,15 +15,20 @@ class copier_company(models.Model):
     marca_id = fields.Many2one('marcas.maquinas',string='Marca', required=True,related='name.marca_id')
     cliente_id = fields.Many2one('res.partner',string='Cliente', required=True, )
     
+    @api.model
+    def name_search(self, name, args=None, operator='ilike', limit=100):
+        if not args:
+            args = []
+        domain = args + ['|', ('name', operator, name), ('serie_id', operator, name)]
+        records = self.search(domain, limit=limit)
+        return records.name_get()
+
     def name_get(self):
-        _logger.info('name_get method called for copier.company')
         result = []
         for record in self:
-            maquina_name = record.name.name if record.name else ''
+            name = record.name.name or ''
             serie_id = record.serie_id or ''
-            full_name = f"[{maquina_name}] Serie: {serie_id}"
-            result.append((record.id, full_name))
-            _logger.info(f"Generated name_get for copier.company record {record.id}: {full_name}")
+            result.append((record.id, "{} Serie: {}".format(name, serie_id)))
         return result
 
     
