@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, _logger
+from odoo import models, fields, api
+import logging
 
 
 class copier_company(models.Model):
