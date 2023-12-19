@@ -13,7 +13,7 @@
                         $.getJSON('/get_maquinas', function(data) {
                             var select = $('#maquina_selector');
                             $.each(data, function(key, val) {
-                                select.append($('<option>', {
+                                select.append($('<option/>', {
                                     value: val.id,
                                     text: val.name
                                 }));
