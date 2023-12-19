@@ -38,11 +38,6 @@ class MaquinasController(http.Controller):
     @http.route('/get_maquinas', auth='user', methods=['GET'], type='json')
     def get_maquinas(self, **kw):
         Maquinas = request.env['copier.company'].sudo()
-        maquinas_records = Maquinas.search([])  # Aquí puedes añadir tu lógica de búsqueda o filtro
-        maquinas_data = []
-        for rec in maquinas_records:
-            maquinas_data.append({
-                'id': rec.id,
-                'name': f"{rec.name.name} Serie: {rec.serie_id}"
-            })
+        maquinas_records = Maquinas.search([])  # You can add your search logic or filters here
+        maquinas_data = [{'id': rec.id, 'name': f"{rec.name.name} Serie: {rec.serie_id}"} for rec in maquinas_records]
         return maquinas_data
