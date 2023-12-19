@@ -1,0 +1,27 @@
+<odoo>
+    <data>
+        <template id="add_custom_selection_field" inherit_id="website_helpdesk.team">
+            <xpath expr="//div[@id='helpdesk_section']" position="inside">
+                <div class="form-group">
+                    <label for="maquina_selector">Máquina</label>
+                    <select id="maquina_selector" name="maquina_id" class="form-control">
+                        <!-- Las opciones se llenarán dinámicamente con JavaScript -->
+                    </select>
+                </div>
+                <script type="text/javascript">
+                    $(document).ready(function() {
+                        $.getJSON('/get_maquinas', function(data) {
+                            var select = $('#maquina_selector');
+                            $.each(data, function(key, val) {
+                                select.append($('<option>', {
+                                    value: val.id,
+                                    text: val.name
+                                }));
+                            });
+                        });
+                    });
+                </script>
+            </xpath>
+        </template>
+    </data>
+</odoo>
