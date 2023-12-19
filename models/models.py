@@ -15,21 +15,15 @@ class copier_company(models.Model):
     marca_id = fields.Many2one('marcas.maquinas',string='Marca', required=True,related='name.marca_id')
     cliente_id = fields.Many2one('res.partner',string='Cliente', required=True, )
     
-    @api.model
-    def name_search(self, name, args=None, operator='ilike', limit=100):
-        if not args:
-            args = []
-        domain = args + ['|', ('name', operator, name), ('serie_id', operator, name)]
-        records = self.search(domain, limit=limit)
-        return records.name_get()
+    _rec_name = 'serie_id'
 
     def name_get(self):
         result = []
         for record in self:
-            name = record.name.name or ''
-            serie_id = record.serie_id or ''
-            result.append((record.id, "{} Serie: {}".format(name, serie_id)))
-        return result
+            name = '[  ' + record.name.name + '  ]   ' + \
+                'Serie: ' + record.serie_id
+            result.append((record.id, name))
+        return result 
 
     
     def crear_ticket(self):
