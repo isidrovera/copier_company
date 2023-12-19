@@ -6,11 +6,11 @@ class TicketCopier(models.Model):
     
     producto_id = fields.Many2one('copier.company', string='Maquina')
     serie_id = fields.Char(
-    related='producto_id', 
-    string='Serie'
+    related='producto_id.serie_id', 
+    string='Serie',
     
     readonly=True,
-    store=True
+ 
     )
     
 
