@@ -27,3 +27,22 @@ class PortalAlquilerController(http.Controller):
     def portal_alquiler_form(self, alquiler_id, **kwargs):
         alquiler = request.env['cotizacion.alquiler'].sudo().browse(alquiler_id)
         return request.render('copier_company.portal_alquiler_form', {'alquiler': alquiler})
+
+
+# En tu módulo personalizado, crea un archivo `controllers.py`
+
+
+
+
+class MaquinasController(http.Controller):
+    @http.route('/get_maquinas', auth='user', methods=['GET'], type='json')
+    def get_maquinas(self, **kw):
+        Maquinas = request.env['copier.company'].sudo()
+        maquinas_records = Maquinas.search([])  # Aquí puedes añadir tu lógica de búsqueda o filtro
+        maquinas_data = []
+        for rec in maquinas_records:
+            maquinas_data.append({
+                'id': rec.id,
+                'name': f"{rec.name} Serie: {rec.serie_id}"
+            })
+        return maquinas_data

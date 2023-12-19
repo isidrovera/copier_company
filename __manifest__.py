@@ -41,6 +41,7 @@
         'security/ir.model.access.csv',
         'static/src/js/script.js',
         'data/ir.secuencia.xml',
+        'views/extend_form_view.xml',
 
     ],
     # only loaded in demonstration mode

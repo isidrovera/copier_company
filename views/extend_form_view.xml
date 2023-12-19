@@ -1,0 +1,22 @@
+<odoo>
+    <data>
+        <template id="inherit_form_template" inherit_id="website_helpdesk.ticket_submit_form">
+            <xpath expr="//div[@id='helpdesk_section']" position="inside">
+                <script type="text/javascript">
+                    $(document).ready(function() {
+                        $.getJSON('/get_maquinas', function(data) {
+                            var select = $('<select/>', { 'id': 'maquina_selector', 'name': 'maquina_id' });
+                            $.each(data, function(index, value) {
+                                select.append($('<option/>', {
+                                    value: value.id,
+                                    text: value.name
+                                }));
+                            });
+                            $("#helpdesk_section").append(select);
+                        });
+                    });
+                </script>
+            </xpath>
+        </template>
+    </data>
+</odoo>
