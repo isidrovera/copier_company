@@ -9,6 +9,7 @@
                 <!-- Agregar o modificar elementos en la vista original -->
                 <xpath expr="//field[@name='team_id']" position="after">
                     <field name="producto_id"/>
+                    <field name="producto_display_name"/>
                 </xpath>
             </field>
         </record>
