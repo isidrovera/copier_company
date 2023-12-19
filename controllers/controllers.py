@@ -38,6 +38,14 @@ class MaquinasController(http.Controller):
     @http.route('/get_maquinas', auth='user', methods=['GET'], type='json')
     def get_maquinas(self, **kw):
         Maquinas = request.env['copier.company'].sudo()
-        maquinas_records = Maquinas.search([])  # You can add your search logic or filters here
-        maquinas_data = [{'id': rec.id, 'name': f"{rec.name.name} Serie: {rec.serie_id}"} for rec in maquinas_records]
+        maquinas_records = Maquinas.search([])  # Aquí puedes añadir tu lógica de búsqueda o filtro
+        maquinas_data = []
+        for rec in maquinas_records:
+            # Asegúrate de que 'name' es un campo Many2one que referencia a otro modelo que tiene un campo 'name'.
+            maquina_name = rec.name.name if rec.name else ''
+            serie_id = rec.serie_id or ''
+            maquinas_data.append({
+                'id': rec.id,
+                'name': f"{maquina_name} Serie: {serie_id}"
+            })
         return maquinas_data
