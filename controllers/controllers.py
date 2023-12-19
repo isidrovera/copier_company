@@ -43,6 +43,6 @@ class MaquinasController(http.Controller):
         for rec in maquinas_records:
             maquinas_data.append({
                 'id': rec.id,
-                'name': f"{rec.name} Serie: {rec.serie_id}"
+                'name': f"{rec.name.name} Serie: {rec.serie_id}"
             })
         return maquinas_data
