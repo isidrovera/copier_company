@@ -2,17 +2,24 @@
     <data>
         <template id="inherit_form_template" inherit_id="website_helpdesk.ticket_submit_form">
             <xpath expr="//div[@id='helpdesk_section']" position="inside">
+                <!-- Agrega el contenedor del select aquí para asegurarte de que el DOM está listo -->
+                <div class="form-group">
+                    <label for="maquina_selector">Máquina</label>
+                    <select id="maquina_selector" name="maquina_id" class="form-control">
+                        <!-- Las opciones se llenarán dinámicamente con JavaScript -->
+                    </select>
+                </div>
+            </xpath>
+            <xpath expr="//div[@id='helpdesk_section']" position="after">
                 <script type="text/javascript">
                     $(document).ready(function() {
                         $.getJSON('/get_maquinas', function(data) {
-                            var select = $('<select/>', { 'id': 'maquina_selector', 'name': 'maquina_id' });
+                            var select = $('#maquina_selector');
+                            // Asegúrate de que el select esté vacío antes de agregar nuevas opciones
+                            select.empty();
                             $.each(data, function(index, value) {
-                                select.append($('<option/>', {
-                                    value: value.id,
-                                    text: value.name
-                                }));
+                                select.append(new Option(value.name, value.id));
                             });
-                            $("#helpdesk_section").append(select);
                         });
                     });
                 </script>

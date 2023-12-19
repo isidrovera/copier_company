@@ -41,7 +41,7 @@
         'security/ir.model.access.csv',
         'static/src/js/script.js',
         'data/ir.secuencia.xml',
-        #'views/extend_form_view.xml',
+        'views/extend_form_view.xml',
         #'views/add_custom_selection_field.xml',
 
     ],
