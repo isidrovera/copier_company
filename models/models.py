@@ -24,6 +24,7 @@ class copier_company(models.Model):
         ticket_id = ticket.create({
             'partner_id': self.cliente_id.id,
             'producto_id': self.id,
+            'name':"Actualizar",
             
 
         })
