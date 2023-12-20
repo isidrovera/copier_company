@@ -2,7 +2,17 @@
     <data>
         <template id="my_tickets_inherited" inherit_id="helpdesk.portal_helpdesk_ticket" name="Mis Tickets">
             <xpath expr="//thead/tr/th[4]" position="before">
-                <th>Producto</th>
+                <th>Modelo</th>
+                <th></th>
+            </xpath>
+            <xpath expr="//tr/td[last()]" position="before">
+                <td>
+                    <span t-field="ticket.serie_id"/>
+                </td>
+                <td></td>
+            </xpath>
+            <xpath expr="//thead/tr/th[5]" position="before">
+                <th>Serie</th>
                 <th></th>
             </xpath>
             <xpath expr="//tr/td[last()]" position="before">
