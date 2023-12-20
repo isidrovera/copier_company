@@ -1,23 +1,27 @@
 <odoo>
     <data>
         <template id="my_tickets_inherited" inherit_id="helpdesk.portal_helpdesk_ticket" name="Mis Tickets">
+            <!-- Columna para el Modelo -->
             <xpath expr="//thead/tr/th[4]" position="before">
                 <th>Modelo</th>
             </xpath>
             <xpath expr="//tr/td[last()]" position="before">
                 <td>
-                    <span t-field="ticket.serie_id"/>
+                    <!-- Asegúrate de que este campo se refiere al nombre del modelo -->
+                    <span t-field="ticket.producto_id.name"/>
                 </td>
             </xpath>
+            
+            <!-- Columna para la Serie -->
             <xpath expr="//thead/tr/th[5]" position="before">
                 <th>Serie</th>
             </xpath>
             <xpath expr="//tr/td[last()]" position="before">
                 <td>
-                    <span t-field="ticket.producto_id.name"/>
+                    <!-- Aquí deberías mostrar solo el número de serie -->
+                    <span t-field="ticket.producto_id.serie_id"/>
                 </td>
             </xpath>
         </template>        
     </data>
 </odoo>
-
