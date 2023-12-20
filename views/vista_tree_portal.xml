@@ -8,7 +8,7 @@
             <xpath expr="//tr/td[last()]" position="before">
                 <td>
                     <!-- Asegúrate de que este campo se refiere al nombre del modelo -->
-                    <span t-field="ticket.producto_id.name"/>
+                    <span t-field="ticket.producto_id.serie_id"/>
                 </td>
             </xpath>
             
@@ -19,7 +19,7 @@
             <xpath expr="//tr/td[last()]" position="before">
                 <td>
                     <!-- Aquí deberías mostrar solo el número de serie -->
-                    <span t-field="ticket.producto_id.serie_id"/>
+                    <span t-field="ticket.producto_id.name"/>
                 </td>
             </xpath>
         </template>        
