@@ -51,7 +51,16 @@ class ConfiguracionPCloud(models.Model):
             raise exceptions.UserError('Error al conectar con pCloud: %s' % str(e))
 
 
-
+    def sincronizar_pcloud_con_odoo(self):
+        archivos_pcloud = self.obtener_archivos_pcloud()
+        for archivo in archivos_pcloud:
+            # Crear o actualizar registros en Odoo basado en los datos de pCloud
+            vals = {
+                'name': archivo['name'],
+                'size': archivo.get('size', 0),
+                'isfolder': archivo['isfolder'],
+            }
+            self.env['pcloud.archivo'].create(vals)
 
 
     def subir_archivo_pcloud(self, file_path):
