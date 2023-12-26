@@ -1,5 +1,9 @@
 from odoo import models, fields, api
+from odoo.exceptions import UserError
 import requests
+import logging
+
+_logger = logging.getLogger(__name__)
 
 class ConfiguracionPCloud(models.Model):
     _name = 'configuracion.pcloud'
@@ -10,7 +14,6 @@ class ConfiguracionPCloud(models.Model):
     password = fields.Char('Contraseña pCloud')
     token = fields.Char('Token de Acceso', readonly=True)
 
-    
     def obtener_token_pcloud(self):
         url = "https://api.pcloud.com/oauth2_token"
         payload = {
@@ -22,30 +25,54 @@ class ConfiguracionPCloud(models.Model):
         response = requests.post(url, data=payload)
         if response.status_code == 200:
             self.token = response.json().get('access_token')
+            _logger.info("Token de pCloud obtenido con éxito.")
+            return self.token
         else:
-            raise UserError('Error de autenticación con pCloud')
-    
-    
-    def conectar_pcloud(self):
-        self.ensure_one()
-        self.obtener_token_pcloud()
+            error_msg = f"Error al obtener token de pCloud: {response.text}"
+            _logger.error(error_msg)
+            raise UserError(error_msg)
 
-    
-    def sincronizar_pcloud(self):
-        self.ensure_one()
-        # Lógica para sincronizar datos con pCloud
-        # Esto puede incluir listar archivos, revisar estados, etc.
+    @api.model
+    def conectar_pcloud(self):
+        try:
+            token = self.obtener_token_pcloud()
+            if token:
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': _('Conexión Exitosa'),
+                        'message': _('Conexión con pCloud establecida.'),
+                        'type': 'success',
+                    }
+                }
+        except Exception as e:
+            raise UserError(_('Error al conectar con pCloud: %s' % str(e)))
 
     def subir_archivo_pcloud(self, file_path):
-        token = self.token
+        if not self.token:
+            raise UserError("No se ha establecido la conexión con pCloud.")
+
         url = "https://api.pcloud.com/uploadfile"
-        params = {'auth': token, 'folderid': 0}
+        params = {'auth': self.token, 'folderid': 0}
         files = {'file': open(file_path, 'rb')}
         response = requests.post(url, files=files, params=params)
         if response.status_code == 200:
-            return response.json()
+            _logger.info("Archivo subido con éxito a pCloud.")
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Éxito'),
+                    'message': _('Archivo subido exitosamente a pCloud.'),
+                    'type': 'success',
+                }
+            }
         else:
-            raise UserError('Error al subir el archivo a pCloud')
+            error_msg = f"Error al subir archivo a pCloud: {response.text}"
+            _logger.error(error_msg)
+            raise UserError(error_msg)
+
 
     def descargar_archivo_pcloud(self, file_id):
         token = self.token
