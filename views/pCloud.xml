@@ -11,8 +11,6 @@
                         <field name="usuario"/>
                         <field name="password"/>
                         <field name="token" readonly="1"/>
-                        <button string="Conectar" type="object" name="conectar_pcloud" class="oe_highlight"/>
-                        <button string="Sincronizar" type="object" name="sincronizar_pcloud"/>
                     </group>
                     <footer>
                         <button string="Conectar" type="object" name="conectar_pcloud" class="oe_highlight"/>
@@ -20,20 +18,21 @@
                     </footer>
                 </sheet>
             </form>
-            <record id="configuracion_pcloud_view_tree" model="ir.ui.view">
-                <field name="name">configuracion_pcloud.view.tree</field>
-                <field name="model">configuracion.pcloud</field>
-                <field name="arch" type="xml">
-                    <tree string="">
-                        <field name="api_key"/>
-                        <field name="usuario"/>
-                        <field name="password"/>
-                        <field name="token" readonly="1"/>
-                        <button string="Conectar" type="object" name="conectar_pcloud" class="oe_highlight"/>
-                        <button string="Sincronizar" type="object" name="sincronizar_pcloud"/>
-                    </tree>
-                </field>
-            </record>
+        </field>
+    </record>
+
+    <!-- Vista de Árbol (Tree View) para Configuración de pCloud -->
+    <record id="configuracion_pcloud_view_tree" model="ir.ui.view">
+        <field name="name">configuracion_pcloud.view.tree</field>
+        <field name="model">configuracion.pcloud</field>
+        <field name="arch" type="xml">
+            <tree string="Configuraciones pCloud">
+                <field name="api_key"/>
+                <field name="usuario"/>
+                <!-- No es recomendable mostrar contraseñas en vistas de tipo tree -->
+                <field name="token"/>
+                <!-- Botones en vistas tree no son comunes, considera removerlos -->
+            </tree>
         </field>
     </record>
 
@@ -42,7 +41,7 @@
         <field name="name">Configuración pCloud</field>
         <field name="res_model">configuracion.pcloud</field>
         <field name="view_mode">tree,form</field>
-        <field name="view_id" ref="view_form_configuracion_pcloud"/>
+        <field name="view_id" ref="configuracion_pcloud_view_tree"/>
     </record>
 
     <menuitem id="menu_configuracion_pcloud"
