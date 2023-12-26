@@ -34,7 +34,7 @@ class ConfiguracionPCloud(models.Model):
 
   
     def conectar_pcloud(self):
-        for record in self:
+        self.ensure_one()
             try:
                 token = record.obtener_token_pcloud()
                 if token:
