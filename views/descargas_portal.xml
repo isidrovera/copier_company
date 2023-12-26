@@ -1,98 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <template id="Descargas">
+    <template id="Descargas" name="Descargas">
         <t t-call="website.layout">
             <style>
-                /* Estilos personalizados para el ícono de adjunto y el texto */
-                .icono-adjunto {
-                    display: flex;
-                    flex-direction: column; /* Organiza el ícono y el texto en una columna */
-                    align-items: center; /* Centra el ícono horizontalmente en la celda */
-                    justify-content: center; /* Centra el ícono verticalmente en la celda */
-                    color: red; /* Color rojo para el ícono */
-                    text-decoration: none; /* No underline */
-                }
+                /* Estilos comunes */
                 .icono-adjunto i {
                     font-size: 24px; /* Tamaño más grande para el ícono */
                 }
-                                                <!--.icono-adjunto-text {
-                    margin-top: 4px; /* Espacio entre el ícono y el texto */
-                }-->
-                /* Asegúrate de que los estilos no afecten otros botones en la página */
                 .descargar-btn {
                     background: #0E62C7; /* Un color de fondo azul para el botón de descargar */
                     color: white; /* Texto blanco para el botón de descargar */
                     border-radius: 4px; /* Bordes redondeados para el botón */
                     padding: 0.375rem 0.75rem; /* Padding similar al estilo de botón de Bootstrap */
                     text-decoration: none; /* No underline */
+                    display: inline-block; /* Necesario para enlaces actuando como botones */
                 }
                 .descargar-btn:hover {
                     background: #0056b3; /* Un color de fondo más oscuro cuando se pasa el mouse por encima */
-                    text-decoration: none; /* No underline */
+                }
+
+                /* Estilos para dispositivos móviles */
+                @media (max-width: 768px) {
+                    .table-view {
+                        display: none;
+                    }
+                    .kanban-view {
+                        display: flex;
+                        flex-wrap: wrap;
+                    }
+                    .kanban-card {
+                        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                        margin-bottom: 1rem;
+                        border-radius: 0.25rem;
+                        background-color: white;
+                        width: calc(50% - 10px);
+                        margin: 5px;
+                        padding: 10px;
+                    }
+                }
+
+                /* Estilos para dispositivos más grandes que móviles */
+                @media (min-width: 769px) {
+                    .table-view {
+                        display: block;
+                    }
+                    .kanban-view {
+                        display: none;
+                    }
                 }
             </style>
             <div class="container">
-                <div class="row">
-                    <div class="col-md-12">
-                        <h1>Descarga de archivos</h1>
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control" placeholder="Buscar archivo" aria-label="Buscar archivo" aria-describedby="basic-addon2" id="search" onkeyup="searchFiles()"/>
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-secondary" type="button" onclick="searchFiles()">Buscar</button>
+                <h1>Descarga de archivos</h1>
+                <!-- Búsqueda omitida para simplificar -->
+
+                <!-- Vista de tabla para escritorio -->
+                <div class="table-view">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Modelo de máquina</th>
+                                <th>Tipo</th>
+                                <th>Nombre de archivo</th>
+                                <th>Año</th>
+                                <th>Adjunto</th>
+                                <th>Descripción</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="docs" t-as="doc">
+                                <tr>
+                                    <td>
+                                        <t t-foreach="doc.modelo" t-as="modelo">
+                                            <span t-esc="modelo.name"/><br/>
+                                        </t>
+                                    </td>
+                                    <td t-esc="doc.tipo"/>
+                                    <td t-esc="doc.name"/>
+                                    <td t-esc="doc.fecha"/>
+                                    <td>
+                                        <span class="icono-adjunto">
+                                            <a t-att-href="'/web/content?model=descarga.archivos&amp;id=' + str(doc.id) + '&amp;field=adjunto&amp;filename_field=name'" target="_blank">
+                                                <i class="fa fa-file-pdf-o"></i>
+                                            </a>
+                                        </span>
+                                    </td>
+                                    <td t-esc="doc.observacion"/>
+                                    <td>
+                                        <a t-att-href="'/web/content?model=descarga.archivos&amp;id=' + str(doc.id) + '&amp;field=adjunto&amp;filename_field=name&amp;download=true'" class="descargar-btn">Descargar</a>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Vista kanban para móviles -->
+                <div class="kanban-view">
+                    <t t-foreach="docs" t-as="doc">
+                        <div class="kanban-card">
+                            <div><strong>Modelo:</strong> <span t-esc="doc.modelo.name"/></div>
+                            <div><strong>Tipo:</strong> <span t-esc="doc.tipo"/></div>
+                            <div><strong>Nombre:</strong> <span t-esc="doc.name"/></div>
+                            <div><strong>Año:</strong> <span t-esc="doc.fecha"/></div>
+                            <div><strong>Adjunto:</strong>
+                                <a t-att-href="'/web/content?model=descarga.archivos&amp;id=' + str(doc.id) + '&amp;field=adjunto&amp;filename_field=name'" target="_blank">
+                                    <i class="fa fa-file-pdf-o"></i> Ver
+                                </a>
+                            </div>
+                            <div><strong>Descripción:</strong> <span t-esc="doc.observacion"/></div>
+                            <div class="mt-2">
+                                <a t-att-href="'/web/content?model=descarga.archivos&amp;id=' + str(doc.id) + '&amp;field=adjunto&amp;filename_field=name&amp;download=true'" class="descargar-btn">Descargar</a>
                             </div>
                         </div>
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Modelo de máquina</th>
-                                    <th>Tipo</th>
-                                    <th>Nombre de archivo</th>
-                                    <th>Año</th>
-                                    <th>Adjunto</th>
-                                    <th>Descripción</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <t t-foreach="docs" t-as="doc">
-                                    <tr>
-                                        <td>
-                                            <t t-foreach="doc.modelo" t-as="modelo">
-                                                <t t-esc="modelo.name"/>
-                                                <br/>
-                                            </t>
-                                        </td>
-                                        <td>
-                                            <t t-esc="doc.tipo"/>
-                                        </td>
-                                        <td>
-                                            <t t-esc="doc.name"/>
-                                        </td>
-                                        <td>
-                                            <t t-esc="doc.fecha"/>
-                                        </td>
-                                        <td>
-                                            <span class="icono-adjunto">
-                                                <a t-att-href="'/web/content?model=descarga.archivos&amp;id=' + str(doc.id) + '&amp;field=adjunto&amp;filename_field=name'" target="_blank">
-                                                    <i class="fa fa-file-pdf-o"></i>
-                                                </a>
-                                                <!--<span class="icono-adjunto-text">Adjunto</span>-->
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <t t-esc="doc.observacion"/>
-                                        </td>
-                                        <td>
-                                            <a t-att-href="'/web/content?model=descarga.archivos&amp;id=' + str(doc.id) + '&amp;field=adjunto&amp;filename_field=name&amp;download=true'" class="descargar-btn">Descargar</a>
-                                        </td>
-                                    </tr>
-                                </t>
-                            </tbody>
-                        </table>
-                    </div>
+                    </t>
                 </div>
             </div>
         </t>
-        <script type="text/javascript" src="/copier_company/static/src/js/script.js"></script>       
-
     </template>
 </odoo>
