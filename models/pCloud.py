@@ -10,7 +10,7 @@ class ConfiguracionPCloud(models.Model):
     password = fields.Char('Contraseña pCloud')
     token = fields.Char('Token de Acceso', readonly=True)
 
-    @api.multi
+    
     def obtener_token_pcloud(self):
         url = "https://api.pcloud.com/oauth2_token"
         payload = {
@@ -25,12 +25,12 @@ class ConfiguracionPCloud(models.Model):
         else:
             raise UserError('Error de autenticación con pCloud')
     
-    @api.multi
+    
     def conectar_pcloud(self):
         self.ensure_one()
         self.obtener_token_pcloud()
 
-    @api.multi
+    
     def sincronizar_pcloud(self):
         self.ensure_one()
         # Lógica para sincronizar datos con pCloud
