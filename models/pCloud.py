@@ -112,3 +112,28 @@ class ConfiguracionPCloud(models.Model):
             return True
         else:
             raise UserError('Error al renombrar el archivo en pCloud')
+    def obtener_archivos_pcloud(self):
+        if not self.token:
+            raise UserError("La conexión con pCloud no está establecida.")
+
+        url = "https://api.pcloud.com/listfolder"
+        params = {'auth': self.token, 'folderid': 0}  # Usando la carpeta raíz como ejemplo
+        response = requests.get(url, params=params)
+
+        if response.status_code == 200:
+            archivos = response.json().get('contents', [])
+            return archivos
+        else:
+            error_msg = "Error al obtener archivos de pCloud: {}".format(response.text)
+            _logger.error(error_msg)
+            raise UserError(error_msg)
+            raise UserError(error_msg)
+
+
+    class PCloudArchivo(models.Model):
+        _name = 'pcloud.archivo'
+        _description = 'Archivo de pCloud'
+
+        name = fields.Char("Nombre", required=True)
+        size = fields.Integer("Tamaño")
+        isfolder = fields.Boolean("Es Carpeta")

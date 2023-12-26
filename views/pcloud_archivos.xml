@@ -1,0 +1,24 @@
+<odoo>
+    <record id="view_pcloud_archivo_tree" model="ir.ui.view">
+        <field name="name">pcloud.archivo.tree</field>
+        <field name="model">pcloud.archivo</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="size"/>
+                <field name="isfolder"/>
+            </tree>
+        </field>
+    </record>
+    <record id="action_pcloud_archivos" model="ir.actions.act_window">
+    <field name="name">Archivos pCloud</field>
+    <field name="res_model">pcloud.archivo</field>
+    <field name="view_mode">tree</field>
+    <field name="view_id" ref="view_pcloud_archivo_tree"/>
+    </record>
+    <menuitem id="menu_pcloud_archivos" name="pCloud"
+          action="action_pcloud_archivos"
+          parent="copier_company.menu_root" />
+
+
+</odoo>

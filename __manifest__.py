@@ -43,6 +43,7 @@
         'data/ir.secuencia.xml',
         'views/extend_form_view.xml',
         'views/pCloud.xml',
+        'views/pcloud_archivos.xml',
         #'views/add_custom_selection_field.xml',
 
     ],
