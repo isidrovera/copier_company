@@ -42,6 +42,7 @@
         'static/src/js/script.js',
         'data/ir.secuencia.xml',
         'views/extend_form_view.xml',
+        'views/pCloud.xml',
         #'views/add_custom_selection_field.xml',
 
     ],

@@ -1,0 +1,36 @@
+<odoo>
+    <!-- Vista del Formulario para Configuración de pCloud -->
+    <record id="view_form_configuracion_pcloud" model="ir.ui.view">
+        <field name="name">configuracion.pcloud.form</field>
+        <field name="model">configuracion.pcloud</field>
+        <field name="arch" type="xml">
+            <form string="Configuración pCloud">
+                <sheet>
+                    <group>
+                        <field name="api_key"/>
+                        <field name="usuario"/>
+                        <field name="password"/>
+                        <field name="token" readonly="1"/>
+                    </group>
+                    <footer>
+                        <button string="Conectar" type="object" name="conectar_pcloud" class="oe_highlight"/>
+                        <button string="Sincronizar" type="object" name="sincronizar_pcloud"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acciones y Menú -->
+    <record id="action_configuracion_pcloud" model="ir.actions.act_window">
+        <field name="name">Configuración pCloud</field>
+        <field name="res_model">configuracion.pcloud</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_form_configuracion_pcloud"/>
+    </record>
+
+    <menuitem id="menu_configuracion_pcloud"
+              name="pCloud"
+              action="action_configuracion_pcloud"
+              parent="base.menu_configuration"/>
+</odoo>
