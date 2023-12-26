@@ -34,21 +34,21 @@ class ConfiguracionPCloud(models.Model):
 
     @api.model
     def conectar_pcloud(self):
-        try:
-            token = self.obtener_token_pcloud()
-            if token:
-                return {
-                    'type': 'ir.actions.client',
-                    'tag': 'display_notification',
-                    'params': {
-                        'title': _('Conexión Exitosa'),
-                        'message': _('Conexión con pCloud establecida.'),
-                        'type': 'success',
+        for record in self:
+            try:
+                token = record.obtener_token_pcloud()
+                if token:
+                    return {
+                        'type': 'ir.actions.client',
+                        'tag': 'display_notification',
+                        'params': {
+                            'title': _('Conexión Exitosa'),
+                            'message': _('Conexión con pCloud establecida.'),
+                            'type': 'success',
+                        }
                     }
-                }
-        except Exception as e:
-            raise UserError(_('Error al conectar con pCloud: %s' % str(e)))
-
+            except Exception as e:
+                raise UserError(_('Error al conectar con pCloud: %s' % str(e)))
     def subir_archivo_pcloud(self, file_path):
         if not self.token:
             raise UserError("No se ha establecido la conexión con pCloud.")
