@@ -35,18 +35,18 @@ class ConfiguracionPCloud(models.Model):
   
     def conectar_pcloud(self):
         self.ensure_one()
-            try:
-                token = record.obtener_token_pcloud()
-                if token:
-                    return {
+        try:
+            token = self.obtener_token_pcloud()
+            if token:
+                return {
                     'type': 'ir.actions.client',
                     'tag': 'display_notification',
                     'params': {
-                    'title': 'Conexión Exitosa',
-                    'message': 'Conexión con pCloud establecida.',
-                    'type': 'success',
+                        'title': 'Conexión Exitosa',
+                        'message': 'Conexión con pCloud establecida.',
+                        'type': 'success',
+                    }
                 }
-            }
         except Exception as e:
             raise exceptions.UserError('Error al conectar con pCloud: %s' % str(e))
 
