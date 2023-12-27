@@ -22,12 +22,21 @@ class DescargaArchivosController(http.Controller):
                           ('observacion', 'ilike', '%' + search + '%'),
                           ('modelo.name', 'ilike', '%' + search + '%')]
             
+            # Si hay término de búsqueda, comenzar desde la primera página
+            if search:
+                page = 1
+            
             total_docs = request.env['descarga.archivos'].sudo().search_count(domain)
             total_pages = ((total_docs - 1) // items_per_page) + 1
+
+            # Asegurarse de que el número de página esté dentro del rango correcto
             page = max(min(int(page), total_pages), 1)
 
+            # Calcular el desplazamiento basado en la nueva página
+            offset = (page-1) * items_per_page if search else (page-1) * items_per_page
+
             docs = request.env['descarga.archivos'].sudo().search(
-                domain, offset=(page-1)*items_per_page, limit=items_per_page
+                domain, offset=offset, limit=items_per_page
             )
 
             return request.render('copier_company.Descargas', {
@@ -39,6 +48,7 @@ class DescargaArchivosController(http.Controller):
         else:
             # Mostrar mensaje de suscripción expirada
             return request.render('copier_company.no_subscription_message')
+
 
 
 
