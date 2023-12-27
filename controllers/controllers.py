@@ -15,9 +15,12 @@ class DescargaArchivosController(http.Controller):
 
         if subscriptions_in_progress:
             # Definir el dominio de búsqueda basado en el término de búsqueda
-            domain = [('partner_id', '=', partner.id)]
+            domain = []
             if search:
-                domain.append(('name', 'ilike', '%' + search + '%'))
+                domain = ['|', '|',
+                          ('name', 'ilike', '%' + search + '%'),
+                          ('observacion', 'ilike', '%' + search + '%'),
+                          ('modelo.name', 'ilike', '%' + search + '%')]
 
             # Calcular el total de documentos y la paginación
             total_docs = request.env['descarga.archivos'].sudo().search_count(domain)
@@ -39,6 +42,7 @@ class DescargaArchivosController(http.Controller):
         else:
             # Si no hay suscripciones en progreso, mostrar mensaje
             return request.render('copier_company.no_subscription_message')
+
 
 
 
