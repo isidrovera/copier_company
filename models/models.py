@@ -2,11 +2,13 @@
 
 from odoo import models, fields, api
 import logging
+import qrcode
+import base64
 
 
-class copier_company(models.Model):
+class CopierCompany(models.Model):
     _name = 'copier.company'
-    _description = 'Aqui se veran los archivos de onedrive'
+    _description = 'Aqui se registran las maquinas que estan en alquiler'
     _inherit = ['mail.thread', 'mail.activity.mixin']
        
     name = fields.Many2one('modelos.maquinas',string='Maquina')
@@ -41,3 +43,28 @@ class copier_company(models.Model):
         
 
 
+    qr_code = fields.Binary(string='Código QR', readonly=True)
+    def generar_qr_code(self):
+        for record in self:
+            # Crear una cadena de datos que quieras codificar en el código QR
+            data_to_encode = f"Registro de Máquina: {record.serie_id}, Cliente: {record.cliente_id.name}"
+
+            # Generar el código QR
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_L,
+                box_size=10,
+                border=4,
+            )
+            qr.add_data(data_to_encode)
+            qr.make(fit=True)
+
+            # Crear una imagen del código QR en formato PNG
+            img = qr.make_image(fill_color="black", back_color="white")
+
+            # Convertir la imagen en una cadena de bytes y almacenarla en el campo qr_code
+            qr_image = img.get_image()
+            img_byte_array = io.BytesIO()
+            qr_image.save(img_byte_array, format='PNG')
+            qr_image_base64 = base64.b64encode(img_byte_array.getvalue()).decode('utf-8')
+            record.qr_code = qr_image_base64
