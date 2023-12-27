@@ -1,9 +1,18 @@
 from odoo import http
 from odoo.http import request
 
+from odoo import http
+from odoo.http import request
+
 class DescargaArchivosController(http.Controller):
     @http.route('/descarga/archivos', type='http', website=True)
     def descarga_archivos(self, page=1, search='', **kw):
+        # Asegúrate de que 'page' sea un entero
+        try:
+            page = int(page)
+        except ValueError:
+            page = 1
+
         partner = request.env.user.partner_id
         items_per_page = 20
 
@@ -22,17 +31,22 @@ class DescargaArchivosController(http.Controller):
                           ('name', 'ilike', '%' + search + '%'),
                           ('observacion', 'ilike', '%' + search + '%'),
                           ('modelo.name', 'ilike', '%' + search + '%')]
-
+            
+            # Obtener el número total de documentos
             total_docs = request.env['descarga.archivos'].sudo().search_count(domain)
+            # Calcular el total de páginas
             total_pages = ((total_docs - 1) // items_per_page) + 1
-
-            # Calcular el desplazamiento para la búsqueda
+            # Asegurarse de que el número de página esté dentro del rango
+            page = max(min(page, total_pages), 1)
+            # Calcular el desplazamiento
             offset = (page - 1) * items_per_page
 
+            # Obtener los documentos para la página actual
             docs = request.env['descarga.archivos'].sudo().search(
                 domain, offset=offset, limit=items_per_page
             )
 
+            # Renderizar la vista con los documentos y la información de paginación
             return request.render('copier_company.Descargas', {
                 'docs': docs,
                 'page': page,
@@ -40,9 +54,8 @@ class DescargaArchivosController(http.Controller):
                 'search': search
             })
         else:
-            # Mostrar mensaje de suscripción expirada
+            # Mostrar mensaje si no hay suscripciones activas
             return request.render('copier_company.no_subscription_message')
-
 
 
 
