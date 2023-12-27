@@ -1,4 +1,5 @@
 function searchFiles() {
-    var searchTerm = document.getElementById("search").value;
-    window.location.href = '/descarga/archivos?page=1&search=' + encodeURIComponent(searchTerm);
+    var input = document.getElementById("search");
+    var filter = input.value;
+    window.location = '/descarga/archivos?page=1&search=' + encodeURIComponent(filter);
 }

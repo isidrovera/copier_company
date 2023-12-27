@@ -4,16 +4,24 @@ from odoo.http import request
 class DescargaArchivosController(http.Controller):
     @http.route('/descarga/archivos', type='http', website=True)
     def descarga_archivos(self, page=1, search='', **kw):
+        partner = request.env.user.partner_id
         items_per_page = 20
-        
-        # Definir el dominio de búsqueda
-        domain = []
-        if search:
-            domain = ['|', '|',
-                      ('name', 'ilike', '%' + search + '%'),
-                      ('observacion', 'ilike', '%' + search + '%'),
-                      ('modelo.name', 'ilike', '%' + search + '%')]
 
+        # Verificar suscripciones activas
+        subscriptions_in_progress = request.env['sale.order'].sudo().search([
+            ('partner_id', '=', partner.id),
+            ('subscription_state', '=', '3_progress')
+        ])
+
+        # Si hay suscripciones en progreso
+        if subscriptions_in_progress:
+            domain = []
+            if search:
+                domain = ['|', '|',
+                          ('name', 'ilike', '%' + search + '%'),
+                          ('observacion', 'ilike', '%' + search + '%'),
+                          ('modelo.name', 'ilike', '%' + search + '%')]
+            
             total_docs = request.env['descarga.archivos'].sudo().search_count(domain)
             total_pages = ((total_docs - 1) // items_per_page) + 1
             page = max(min(int(page), total_pages), 1)
@@ -28,10 +36,10 @@ class DescargaArchivosController(http.Controller):
                 'total_pages': total_pages,
                 'search': search
             })
-
         else:
-            # Si no hay suscripciones en progreso, mostrar mensaje
+            # Mostrar mensaje de suscripción expirada
             return request.render('copier_company.no_subscription_message')
+
 
 
 
