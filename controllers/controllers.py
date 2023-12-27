@@ -3,9 +3,9 @@ from odoo.http import request
 
 class DescargaArchivosController(http.Controller):
     @http.route('/descarga/archivos', type='http', website=True)
-    def descarga_archivos(self, page=1, **kw):
+    def descarga_archivos(self, page=1, search='', **kw):
         partner = request.env.user.partner_id
-        items_per_page = 20  # Definir la cantidad de elementos por página
+        items_per_page = 20  # Cantidad de elementos por página
 
         # Buscar suscripciones del partner que estén en el estado '3_progress'
         subscriptions_in_progress = request.env['sale.order'].sudo().search([
@@ -14,29 +14,36 @@ class DescargaArchivosController(http.Controller):
         ])
 
         if subscriptions_in_progress:
-            # Total de documentos
-            total_docs = request.env['descarga.archivos'].sudo().search_count([])
+            domain = []
+            if search:
+                # Aplicar filtro de búsqueda
+                domain.append(('name', 'ilike', '%' + search + '%'))
+
+            # Total de documentos con criterio de búsqueda
+            total_docs = request.env['descarga.archivos'].sudo().search_count(domain)
 
             # Calcular paginación
             total_pages = ((total_docs - 1) // items_per_page) + 1
             page = max(min(int(page), total_pages), 1)
 
-            # Obtener documentos para la página actual
+            # Obtener documentos para la página actual con filtro de búsqueda
             docs = request.env['descarga.archivos'].sudo().search(
-                [],
+                domain,
                 offset=(page-1)*items_per_page,
                 limit=items_per_page
             )
 
-            # Renderizar la plantilla con la lista de documentos y la información de paginación
+            # Renderizar la plantilla con documentos, paginación y término de búsqueda
             return request.render('copier_company.Descargas', {
                 'docs': docs,
                 'page': page,
-                'total_pages': total_pages
+                'total_pages': total_pages,
+                'search': search
             })
         else:
-            # Si no hay suscripciones en el estado '3_progress', mostrar un mensaje
+            # Si no hay suscripciones en progreso, mostrar mensaje
             return request.render('copier_company.no_subscription_message')
+
 
 
     
