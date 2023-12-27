@@ -1,39 +1,32 @@
 from odoo import http
 from odoo.http import request
 
-from odoo import http
-from odoo.http import request
-
 class DescargaArchivosController(http.Controller):
     @http.route('/descarga/archivos', type='http', website=True)
     def descarga_archivos(self, page=1, search='', **kw):
-        partner = request.env.user.partner_id
+        # Asegúrate de que 'page' sea un entero
+        try:
+            page = int(page)
+        except ValueError:
+            page = 1
+
         items_per_page = 20
 
-        # Verificar suscripciones activas
-        subscriptions_in_progress = request.env['sale.order'].sudo().search([
-            ('partner_id', '=', partner.id),
-            ('subscription_state', '=', '3_progress')
-        ])
+        # Si hay término de búsqueda, reiniciar la paginación a la primera página
+        if search:
+            page = 1
 
-        if subscriptions_in_progress:
-            domain = [('partner_id', '=', partner.id)]  # Asumiendo que quieres mantener este filtro
-            if search:
-                domain += ['|', '|',
-                           ('name', 'ilike', '%' + search + '%'),
-                           ('observacion', 'ilike', '%' + search + '%'),
-                           ('modelo.name', 'ilike', '%' + search + '%')]
+        # Definir el dominio de búsqueda basado en el término de búsqueda
+        domain = []
+        if search:
+            domain += ['|', '|',
+                       ('name', 'ilike', '%' + search + '%'),
+                       ('observacion', 'ilike', '%' + search + '%'),
+                       ('modelo.name', 'ilike', '%' + search + '%')]
 
-            # Si hay término de búsqueda, reiniciar la paginación a la primera página
-            page = int(page) if not search else 1
-            
             total_docs = request.env['descarga.archivos'].sudo().search_count(domain)
             total_pages = ((total_docs - 1) // items_per_page) + 1
-
-            # Asegurarse de que el número de página esté dentro del rango correcto
             page = max(min(page, total_pages), 1)
-
-            # Calcular el desplazamiento
             offset = (page - 1) * items_per_page
 
             docs = request.env['descarga.archivos'].sudo().search(
@@ -46,6 +39,7 @@ class DescargaArchivosController(http.Controller):
                 'total_pages': total_pages,
                 'search': search
             })
+
         else:
             # Mostrar mensaje si no hay suscripciones activas
             return request.render('copier_company.no_subscription_message')
