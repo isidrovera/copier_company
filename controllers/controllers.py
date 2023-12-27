@@ -70,18 +70,11 @@ class PortalAlquilerController(http.Controller):
 
 
 
-class MaquinasController(http.Controller):
-    @http.route('/get_maquinas', auth='user', methods=['GET'], type='json')
-    def get_maquinas(self, **kw):
-        Maquinas = request.env['copier.company'].sudo()
-        maquinas_records = Maquinas.search([])  # Aquí puedes añadir tu lógica de búsqueda o filtro
-        maquinas_data = []
-        for rec in maquinas_records:
-            # Asegúrate de que 'name' es un campo Many2one que referencia a otro modelo que tiene un campo 'name'.
-            maquina_name = rec.name.name if rec.name else ''
-            serie_id = rec.serie_id or ''
-            maquinas_data.append({
-                'id': rec.id,
-                'name': f"{maquina_name} Serie: {serie_id}"
-            })
-        return maquinas_data
+
+class HelpdeskFormController(http.Controller):
+    @http.route('/helpdesk/get_series', type='json', auth="public", methods=['POST'], website=True)
+    def get_series(self, **kw):
+        # Obtener todas las series disponibles en el modelo 'copier.company'
+        series = request.env['copier.company'].sudo().search_read([], ['name'])
+        # Preparar la respuesta en formato JSON
+        return [{'id': rec['id'], 'name': rec['name']} for rec in series]

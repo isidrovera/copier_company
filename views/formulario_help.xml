@@ -15,7 +15,6 @@
                 </div>
             </div>
             <!-- Agregar el campo relacionado 'serie_id' -->
-            <!-- Este campo es de solo lectura, así que solo se mostrará el valor relacionado sin entrada del usuario -->
             <div class="mb-0 py-2 s_website_form_field col-12" data-type="char" data-name="serie_id">
                 <div class="row s_col_no_resize s_col_no_bgcolor">
                     <label class="col-form-label col-sm-auto s_website_form_label" style="width: 200px" for="serie_id">
@@ -26,6 +25,31 @@
                     </div>
                 </div>
             </div>
+        </xpath>
+        <!-- Inyectar JavaScript para poblar el campo Many2one -->
+        <xpath expr="//form" position="after">
+            <script type="text/javascript">
+                $(document).ready(function(){
+                    $.ajax({
+                        url: '/helpdesk/get_series',
+                        method: 'POST',
+                        dataType: 'json',
+                        success: function(data) {
+                            var select = $('#producto_id');
+                            select.empty(); // Limpiar las opciones anteriores
+                            $.each(data, function() {
+                                select.append($('<option/>', {
+                                    value: this.id,
+                                    text: this.name
+                                }));
+                            });
+                        },
+                        error: function() {
+                            alert("Error al cargar las series");
+                        }
+                    });
+                });
+            </script>
         </xpath>
     </template>
 </odoo>
