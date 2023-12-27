@@ -7,12 +7,6 @@ from odoo.http import request
 class DescargaArchivosController(http.Controller):
     @http.route('/descarga/archivos', type='http', website=True)
     def descarga_archivos(self, page=1, search='', **kw):
-        # Asegúrate de que 'page' sea un entero
-        try:
-            page = int(page)
-        except ValueError:
-            page = 1
-
         partner = request.env.user.partner_id
         items_per_page = 20
 
@@ -23,30 +17,29 @@ class DescargaArchivosController(http.Controller):
         ])
 
         if subscriptions_in_progress:
-            domain = []
+            domain = [('partner_id', '=', partner.id)]  # Asumiendo que quieres mantener este filtro
             if search:
-                # Si hay un término de búsqueda, reiniciar la paginación a la primera página
-                page = 1
-                domain = ['|', '|',
-                          ('name', 'ilike', '%' + search + '%'),
-                          ('observacion', 'ilike', '%' + search + '%'),
-                          ('modelo.name', 'ilike', '%' + search + '%')]
+                domain += ['|', '|',
+                           ('name', 'ilike', '%' + search + '%'),
+                           ('observacion', 'ilike', '%' + search + '%'),
+                           ('modelo.name', 'ilike', '%' + search + '%')]
+
+            # Si hay término de búsqueda, reiniciar la paginación a la primera página
+            page = int(page) if not search else 1
             
-            # Obtener el número total de documentos
             total_docs = request.env['descarga.archivos'].sudo().search_count(domain)
-            # Calcular el total de páginas
             total_pages = ((total_docs - 1) // items_per_page) + 1
-            # Asegurarse de que el número de página esté dentro del rango
+
+            # Asegurarse de que el número de página esté dentro del rango correcto
             page = max(min(page, total_pages), 1)
+
             # Calcular el desplazamiento
             offset = (page - 1) * items_per_page
 
-            # Obtener los documentos para la página actual
             docs = request.env['descarga.archivos'].sudo().search(
                 domain, offset=offset, limit=items_per_page
             )
 
-            # Renderizar la vista con los documentos y la información de paginación
             return request.render('copier_company.Descargas', {
                 'docs': docs,
                 'page': page,
@@ -56,6 +49,7 @@ class DescargaArchivosController(http.Controller):
         else:
             # Mostrar mensaje si no hay suscripciones activas
             return request.render('copier_company.no_subscription_message')
+
 
 
 
