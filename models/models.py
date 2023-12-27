@@ -4,6 +4,7 @@ from odoo import models, fields, api
 import logging
 import qrcode
 import base64
+import io
 
 
 class CopierCompany(models.Model):
