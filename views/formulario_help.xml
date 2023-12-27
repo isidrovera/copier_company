@@ -1,5 +1,5 @@
 <odoo>
-    <template id="ticket_form_inherit" inherit_id="website_helpdesk.ticket_submit_form_1" name="Helpdesk Ticket Form Inherit">
+    <template id="ticket_form_inherit" inherit_id="website_helpdesk.ticket_submit_form" name="Helpdesk Ticket Form Inherit">
         <xpath expr="//div[contains(@class, 's_website_form_rows')]" position="inside">
             <!-- Agregar el campo Many2one 'producto_id' -->
             <div class="mb-0 py-2 s_website_form_field col-12" data-type="many2one" data-name="producto_id">
