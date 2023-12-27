@@ -1,24 +1,43 @@
 from odoo import http
 from odoo.http import request
+
 class DescargaArchivosController(http.Controller):
     @http.route('/descarga/archivos', type='http', website=True)
-    def descarga_archivos(self, **kw):
+    def descarga_archivos(self, page=1, **kw):
         partner = request.env.user.partner_id
+        items_per_page = 100  # Definir la cantidad de elementos por página
 
         # Buscar suscripciones del partner que estén en el estado '3_progress'
         subscriptions_in_progress = request.env['sale.order'].sudo().search([
             ('partner_id', '=', partner.id),
-            ('subscription_state', '=', '3_progress')  # Usando el valor del estado proporcionado
+            ('subscription_state', '=', '3_progress')
         ])
 
-        # Comprobar si hay suscripciones en el estado '3_progress'
         if subscriptions_in_progress:
-            # Si existe al menos una suscripción en progreso, buscar los documentos relacionados
-            docs = request.env['descarga.archivos'].search([])
-            return request.render('copier_company.Descargas', {'docs': docs})
+            # Total de documentos
+            total_docs = request.env['descarga.archivos'].sudo().search_count([])
+
+            # Calcular paginación
+            total_pages = ((total_docs - 1) // items_per_page) + 1
+            page = max(min(int(page), total_pages), 1)
+
+            # Obtener documentos para la página actual
+            docs = request.env['descarga.archivos'].sudo().search(
+                [],
+                offset=(page-1)*items_per_page,
+                limit=items_per_page
+            )
+
+            # Renderizar la plantilla con la lista de documentos y la información de paginación
+            return request.render('copier_company.Descargas', {
+                'docs': docs,
+                'page': page,
+                'total_pages': total_pages
+            })
         else:
             # Si no hay suscripciones en el estado '3_progress', mostrar un mensaje
             return request.render('copier_company.no_subscription_message')
+
 
     
 class PortalAlquilerController(http.Controller):

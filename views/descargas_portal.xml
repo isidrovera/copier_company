@@ -14,7 +14,7 @@
                 .icono-adjunto i {
                     font-size: 24px; /* Tamaño más grande para el ícono */
                 }
-                                                <!--.icono-adjunto-text {
+                                                                <!--.icono-adjunto-text {
                     margin-top: 4px; /* Espacio entre el ícono y el texto */
                 }-->
                 /* Asegúrate de que los estilos no afecten otros botones en la página */
@@ -88,11 +88,29 @@
                                 </t>
                             </tbody>
                         </table>
+                        <div class="row">
+                            <div class="col-md-12 text-center">
+                                <ul class="pagination">
+                                    <li t-if="page > 1" class="page-item">
+                                        <a class="page-link" t-att-href="'/descarga/archivos?page=' + str(page-1)">Anterior</a>
+                                    </li>
+                                    <li t-foreach="range(1, total_pages + 1)" t-as="p" class="page-item" t-att-class="'active' if p == page else ''">
+                                        <a class="page-link" t-att-href="'/descarga/archivos?page=' + str(p)">
+                                            <t t-esc="p"/>
+                                        </a>
+                                    </li>
+                                    <li t-if="page < total_pages" class="page-item">
+                                        <a class="page-link" t-att-href="'/descarga/archivos?page=' + str(page+1)">Siguiente</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
         </t>
-        <script type="text/javascript" src="/copier_company/static/src/js/script.js"></script>       
+        <script type="text/javascript" src="/copier_company/static/src/js/script.js"></script>
 
     </template>
 </odoo>
