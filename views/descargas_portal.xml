@@ -99,7 +99,7 @@
                                             <t t-esc="p"/>
                                         </a>
                                     </li>
-                                    <li t-if="page < total_pages" class="page-item">
+                                    <li t-if="page &lt; total_pages" class="page-item">
                                         <a class="page-link" t-att-href="'/descarga/archivos?page=' + str(page+1)">Siguiente</a>
                                     </li>
                                 </ul>
