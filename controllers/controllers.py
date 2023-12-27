@@ -13,27 +13,21 @@ class DescargaArchivosController(http.Controller):
             ('subscription_state', '=', '3_progress')
         ])
 
-        # Si hay suscripciones en progreso
         if subscriptions_in_progress:
             domain = []
             if search:
+                # Si hay un término de búsqueda, reiniciar la paginación a la primera página
+                page = 1
                 domain = ['|', '|',
                           ('name', 'ilike', '%' + search + '%'),
                           ('observacion', 'ilike', '%' + search + '%'),
                           ('modelo.name', 'ilike', '%' + search + '%')]
-            
-            # Si hay término de búsqueda, comenzar desde la primera página
-            if search:
-                page = 1
-            
+
             total_docs = request.env['descarga.archivos'].sudo().search_count(domain)
             total_pages = ((total_docs - 1) // items_per_page) + 1
 
-            # Asegurarse de que el número de página esté dentro del rango correcto
-            page = max(min(int(page), total_pages), 1)
-
-            # Calcular el desplazamiento basado en la nueva página
-            offset = (page-1) * items_per_page if search else (page-1) * items_per_page
+            # Calcular el desplazamiento para la búsqueda
+            offset = (page - 1) * items_per_page
 
             docs = request.env['descarga.archivos'].sudo().search(
                 domain, offset=offset, limit=items_per_page
