@@ -14,7 +14,7 @@
                 .icono-adjunto i {
                     font-size: 24px; /* Tamaño más grande para el ícono */
                 }
-                                                                                                <!--.icono-adjunto-text {
+                                                                                <!--.icono-adjunto-text {
                     margin-top: 4px; /* Espacio entre el ícono y el texto */
                 }-->
                 /* Asegúrate de que los estilos no afecten otros botones en la página */
@@ -35,11 +35,12 @@
                     <div class="col-md-12">
                         <h1>Descarga de archivos</h1>
                         <div class="input-group mb-3">
-                            <input type="text" class="form-control" placeholder="Buscar archivo" aria-label="Buscar archivo" aria-describedby="basic-addon2" id="search" t-att-value="search"/>
+                            <input type="text" class="form-control" placeholder="Buscar archivo" aria-label="Buscar archivo" aria-describedby="basic-addon2" id="search"/>
                             <div class="input-group-append">
-                                <button class="btn btn-outline-secondary" type="button" t-on-click="searchFiles()">Buscar</button>
+                                <button class="btn btn-outline-secondary" type="button" onclick="searchFiles()">Buscar</button>
                             </div>
                         </div>
+
                         <table class="table table-striped">
                             <thead>
                                 <tr>
