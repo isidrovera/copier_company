@@ -5,7 +5,7 @@ class DescargaArchivosController(http.Controller):
     @http.route('/descarga/archivos', type='http', website=True)
     def descarga_archivos(self, page=1, **kw):
         partner = request.env.user.partner_id
-        items_per_page = 100  # Definir la cantidad de elementos por página
+        items_per_page = 20  # Definir la cantidad de elementos por página
 
         # Buscar suscripciones del partner que estén en el estado '3_progress'
         subscriptions_in_progress = request.env['sale.order'].sudo().search([
