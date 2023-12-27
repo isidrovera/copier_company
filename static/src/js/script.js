@@ -1,14 +1,9 @@
 function searchFiles() {
-    var input = document.getElementById("search");
-    var searchTerm = input.value;
-    
-    // Construir la URL para la solicitud
-    var url = "/descarga/archivos?page=1&search=" + encodeURIComponent(searchTerm);
+    var searchTerm = document.getElementById("search").value;
 
-    // Realizar la solicitud al servidor
-    window.location.href = url;
+    // Redirigir a la URL con el término de búsqueda
+    window.location.href = '/descarga/archivos?page=1&search=' + encodeURIComponent(searchTerm);
 }
-
 
 
 

@@ -5,7 +5,7 @@ class DescargaArchivosController(http.Controller):
     @http.route('/descarga/archivos', type='http', website=True)
     def descarga_archivos(self, page=1, search='', **kw):
         partner = request.env.user.partner_id
-        items_per_page = 20  # Cantidad de elementos por página
+        items_per_page = 20
 
         # Buscar suscripciones del partner que estén en el estado '3_progress'
         subscriptions_in_progress = request.env['sale.order'].sudo().search([
@@ -14,26 +14,22 @@ class DescargaArchivosController(http.Controller):
         ])
 
         if subscriptions_in_progress:
-            domain = []
+            # Definir el dominio de búsqueda basado en el término de búsqueda
+            domain = [('partner_id', '=', partner.id)]
             if search:
-                # Aplicar filtro de búsqueda
                 domain.append(('name', 'ilike', '%' + search + '%'))
 
-            # Total de documentos con criterio de búsqueda
+            # Calcular el total de documentos y la paginación
             total_docs = request.env['descarga.archivos'].sudo().search_count(domain)
-
-            # Calcular paginación
             total_pages = ((total_docs - 1) // items_per_page) + 1
             page = max(min(int(page), total_pages), 1)
 
-            # Obtener documentos para la página actual con filtro de búsqueda
+            # Obtener los documentos para la página actual
             docs = request.env['descarga.archivos'].sudo().search(
-                domain,
-                offset=(page-1)*items_per_page,
-                limit=items_per_page
+                domain, offset=(page-1)*items_per_page, limit=items_per_page
             )
 
-            # Renderizar la plantilla con documentos, paginación y término de búsqueda
+            # Renderizar la plantilla con los documentos y la información de paginación
             return request.render('copier_company.Descargas', {
                 'docs': docs,
                 'page': page,
@@ -43,6 +39,7 @@ class DescargaArchivosController(http.Controller):
         else:
             # Si no hay suscripciones en progreso, mostrar mensaje
             return request.render('copier_company.no_subscription_message')
+
 
 
 
