@@ -72,7 +72,8 @@ class PortalAlquilerController(http.Controller):
 
 
 class HelpdeskFormController(http.Controller):
-    @http.route('/helpdesk/get_series', type='json', auth="public", methods=['POST'], website=True)
+    @http.route('/helpdesk/get_series', auth="public", methods=['POST'], website=True)
+
     def get_series(self, **kw):
         # Obtener todas las series disponibles en el modelo 'copier.company'
         series = request.env['copier.company'].sudo().search_read([], ['name'])
