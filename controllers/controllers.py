@@ -79,4 +79,6 @@ class HelpdeskFormController(http.Controller):
         series = request.env['copier.company'].sudo().search_read([], ['name'])
         # Asegúrate de que estamos extrayendo la cadena del nombre correctamente.
         series_data = [{'id': rec['id'], 'name': rec['name'][1] if isinstance(rec['name'], list) else rec['name']} for rec in series]
-        return request.make_response(json.dumps(series_data), [('Content-Type', 'application/json')])
+        response = request.make_response(json.dumps(series_data))
+        response.headers['Content-Type'] = 'application/json'
+        return response
