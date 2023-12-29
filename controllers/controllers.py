@@ -76,9 +76,10 @@ class PortalAlquilerController(http.Controller):
 class HelpdeskFormController(http.Controller):
     @http.route('/helpdesk/get_series', type='http', auth="public", methods=['GET'], website=True)
     def get_series(self, **kw):
+        # Obtener todas las series disponibles en el modelo 'copier.company'
         series = request.env['copier.company'].sudo().search_read([], ['name'])
-        # Asegúrate de que estamos extrayendo la cadena del nombre correctamente.
-        series_data = [{'id': rec['id'], 'name': rec['name'][1] if isinstance(rec['name'], list) else rec['name']} for rec in series]
+        # Asegúrate de extraer solo el nombre como una cadena, no como una lista
+        series_data = [{'id': rec['id'], 'name': rec['name'][1]} for rec in series if isinstance(rec['name'], list) and len(rec['name']) == 2]
         response = request.make_response(json.dumps(series_data))
         response.headers['Content-Type'] = 'application/json'
         return response

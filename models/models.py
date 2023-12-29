@@ -18,7 +18,7 @@ class CopierCompany(models.Model):
     marca_id = fields.Many2one('marcas.maquinas',string='Marca', required=True,related='name.marca_id')
     cliente_id = fields.Many2one('res.partner',string='Cliente', required=True, )
     
-    _rec_name = 'serie_id'
+   # _rec_name = 'serie_id'
 
     
     
