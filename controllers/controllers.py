@@ -1,5 +1,7 @@
 from odoo import http
 from odoo.http import request
+import json
+
 
 class DescargaArchivosController(http.Controller):
     @http.route('/descarga/archivos', type='http', website=True)
@@ -73,9 +75,10 @@ class PortalAlquilerController(http.Controller):
 
 class HelpdeskFormController(http.Controller):
     @http.route('/helpdesk/get_series', type='http', auth="public", methods=['GET'], website=True)
-
     def get_series(self, **kw):
-        # Obtener todas las series disponibles en el modelo 'copier.company'
         series = request.env['copier.company'].sudo().search_read([], ['name'])
-        # Preparar la respuesta en formato JSON
-        return [{'id': rec['id'], 'name': rec['name']} for rec in series]
+        # Crear una respuesta JSON válida
+        return request.make_response(
+            headers={'Content-Type': 'application/json'},
+            data=json.dumps([{'id': rec['id'], 'name': rec['name']} for rec in series])
+        )
