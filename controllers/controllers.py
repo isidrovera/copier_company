@@ -77,8 +77,6 @@ class HelpdeskFormController(http.Controller):
     @http.route('/helpdesk/get_series', type='http', auth="public", methods=['GET'], website=True)
     def get_series(self, **kw):
         series = request.env['copier.company'].sudo().search_read([], ['name'])
-        # Crear una respuesta JSON válida
-        return request.make_response(
-            headers={'Content-Type': 'application/json'},
-            data=json.dumps([{'id': rec['id'], 'name': rec['name']} for rec in series])
-        )
+        # Asegúrate de que estamos extrayendo la cadena del nombre correctamente.
+        series_data = [{'id': rec['id'], 'name': rec['name'][1] if isinstance(rec['name'], list) else rec['name']} for rec in series]
+        return request.make_response(json.dumps(series_data), [('Content-Type', 'application/json')])
