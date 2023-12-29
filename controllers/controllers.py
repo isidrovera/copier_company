@@ -76,9 +76,9 @@ class PortalAlquilerController(http.Controller):
 class HelpdeskFormController(http.Controller):
     @http.route('/helpdesk/get_series', type='http', auth="public", methods=['GET'], website=True)
     def get_series(self, **kw):
-        series = request.env['copier.company'].sudo().search_read([], ['display_name'])
-        # Convert the records to a list of dictionaries with 'id' and 'name' keys
-        series_data = [{'id': rec['id'], 'name': rec['display_name']} for rec in series]
-        # Convert the list of dictionaries to JSON and return it as a response
+        # Asegúrate de incluir el nombre del modelo de máquina referenciado.
+        series = request.env['copier.company'].sudo().search_read([], ['name'])
+        # Extrae el nombre del modelo de la máquina relacionado.
+        series_data = [{'id': rec['id'], 'name': rec['name'][1]} for rec in series if rec['name']]
         response_json = json.dumps(series_data)
         return request.make_response(response_json, [('Content-Type', 'application/json')])
