@@ -31,22 +31,23 @@
                 $(document).ready(function(){
                     $.ajax({
                         url: '/helpdesk/get_series',
-                        method: 'POST',
+                        method: 'GET', // Cambio a 'GET' aquí
                         dataType: 'json',
                         success: function(data) {
-                            var select = $('#select_serie');
-                            select.empty(); // Limpiar las opciones anteriores
-                            $.each(data, function() {
-                                select.append($('<option/>', {
-                                    value: this.id,
-                                    text: this.name
-                                }));
-                            });
-                            // Agregar un valor predeterminado o un prompt si es necesario
-                            select.prepend($('<option/>', {
+                            var select = $('#select_serie'); // Asegúrate de que este ID coincida con el ID del campo select en el HTML
+                            select.empty(); // Limpia las opciones existentes
+                            // Añadir un valor predeterminado en la parte superior
+                            select.append($('<option/>', {
                                 value: '',
                                 text: 'Seleccione una serie...'
-                            })).val('');
+                            }));
+                            // Añadir las opciones obtenidas del controlador
+                            $.each(data, function(index, item) {
+                                select.append($('<option/>', {
+                                    value: item.id,
+                                    text: item.name
+                                }));
+                            });
                         },
                         error: function() {
                             alert("Error al cargar las series");
