@@ -41,11 +41,9 @@
                                 <button class="btn btn-outline-secondary" type="button" onclick="searchFiles()">Buscar</button>
                                 <!-- Botón de 'Inicio' para resetear la búsqueda y mostrar todos los registros -->
                                 <button class="btn btn-outline-secondary" type="button" onclick="window.location='/descarga/archivos?page=1'">Inicio</button>
-                            </div>
-                            <div class="text-center mb-3">
-                                <!-- Botón que abre el enlace de la nube en una nueva pestaña -->
-                                <a href="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/" class="btn btn-primary" target="_blank">Vista a la Nube</a>
-                            </div>
+                                <button type="button" class="btn btn-primary" onclick="window.location.href='/descarga/vista_nube'">Vista antigua</button>
+
+                            </div>                            
                         </div>
 
                         <table class="table table-striped">
