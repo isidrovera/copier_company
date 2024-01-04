@@ -88,7 +88,9 @@ class PortalAlquilerController(http.Controller):
         nuevo_alquiler = request.env['cotizacion.alquiler'].sudo().create(alquiler_vals)
         # Aquí, puedes redirigir al usuario a una página de confirmación o de vuelta al formulario con un mensaje de éxito
         return request.redirect('/ruta_de_confirmacion')
-
+    @http.route('/ruta_de_confirmacion', auth='public', website=True)
+    def confirmacion(self, **kwargs):
+        return request.render('copier_company.confirmacion_template', {})
 
 
 
