@@ -61,14 +61,32 @@ class DescargaArchivosController(http.Controller):
 
 
 
-    
 class PortalAlquilerController(http.Controller):
     
     @http.route('/portal/alquiler/<int:alquiler_id>', auth='public', website=True)
     def portal_alquiler_form(self, alquiler_id, **kwargs):
         alquiler = request.env['cotizacion.alquiler'].sudo().browse(alquiler_id)
-        return request.render('copier_company.portal_alquiler_form', {'alquiler': alquiler})
+        marcas = request.env['marcas.maquinas'].sudo().search([])
+        return request.render('copier_company.portal_alquiler_form', {
+            'alquiler': alquiler,
+            'marcas': marcas
+        })
 
+    @http.route('/portal/alquiler/submit', type='http', auth='user', website=True, methods=['POST'])
+    def portal_alquiler_submit(self, **post):
+        alquiler_vals = {
+            'marca_id': int(post.get('marca_id')),
+            'tipo': post.get('tipo'),
+            'cantidad': post.get('cantidad'),
+            'empresa': post.get('empresa'),
+            'contacto': post.get('contacto'),
+            'celular': post.get('celular'),
+            'correo': post.get('correo'),
+            'detalles': post.get('detalles'),
+            'formato': post.get('formato'),
+        }
+        nuevo_alquiler = request.env['cotizacion.alquiler'].sudo().create(alquiler_vals)
+        return request.redirect('/portal/alquiler/%s' % nuevo_alquiler.id)
 
 # En tu módulo personalizado, crea un archivo `controllers.py`
 

@@ -45,6 +45,7 @@
         'views/pCloud.xml',
         'views/pcloud_archivos.xml',
         'views/vista_nube.xml',
+        'views/portal_alquiler.xml',
         #'views/formulario_help.xml',
         #'views/assets.xml',
         #'views/add_custom_selection_field.xml',
