@@ -7,15 +7,12 @@ class DescargaArchivos(models.Model):
     name = fields.Char(string="Nombre de archivo"    )
     modelo = fields.Many2many('modelos.maquinas',string="Modelo de maquina"    )
     observacion = fields.Text(string="Descripción"    )
-    tipo = fields.Selection(string='Tipo', selection=[('base', 'Base'),('especial','Especial')])
+    tipo = fields.Selection(string='Tipo', selection=[('base', 'Base'),('especial','Especial'), ('manual', 'Manual')])
     icono = fields.Binary()
     _sql_constraints = [
         ('name_unique', 'unique(name)', 'El nombre del archivo debe ser único.')
     ]
-    adjunto = fields.Binary(
-    string='Adjunto'
-    
-    )
+    adjunto = fields.Binary(string='Adjunto')
     fecha = fields.Date(string='Fecha')
     
     def open_url(self):
