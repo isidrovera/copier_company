@@ -7,7 +7,7 @@
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                     <div class="form-group">
                         <label for="marca_id">Marca</label>
-                        <<select name="marca_id" class="form-control" required="required">>
+                        <select name="marca_id" class="form-control" required="required">
                             <option value="">Seleccione una marca...</option>
                             <t t-foreach="marcas" t-as="marca">
                                 <option t-att-value="marca.id" t-esc="marca.name"/>
@@ -16,14 +16,14 @@
                     </div>
                     <div class="form-group">
                         <label for="tipo">Tipo de impresora</label>
-                        <select name="tipo" class="form-control" />
+                        <select name="tipo" class="form-control" required="required">
                             <option value="monocroma">Blanco y negro</option>
                             <option value="color">Color</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="cantidad">Cantidad mensual</label>
-                        <input type="text" name="cantidad" class="form-control" />
+                        <input type="text" name="cantidad" class="form-control" required="required"/>
                     </div>
                     <!-- Agrega aquí más campos siguiendo el mismo patrón -->
                     <div class="form-group">
