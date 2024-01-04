@@ -64,7 +64,7 @@ class DescargaArchivosController(http.Controller):
 class PortalAlquilerController(http.Controller):
     
     @http.route('/portal/alquiler', auth='public', website=True)
-    def portal_alquiler_form(self, alquiler_id, **kwargs):
+    def portal_alquiler_form(self,  **kwargs):
         alquiler = request.env['cotizacion.alquiler'].sudo().browse(alquiler_id)
         marcas = request.env['marcas.maquinas'].sudo().search([])
         return request.render('copier_company.portal_alquiler_form', {
