@@ -14,7 +14,7 @@
                 .icono-adjunto i {
                     font-size: 24px; /* Tamaño más grande para el ícono */
                 }
-                                                                                                                <!--.icono-adjunto-text {
+                                                                                                                                <!--.icono-adjunto-text {
                     margin-top: 4px; /* Espacio entre el ícono y el texto */
                 }-->
                 /* Asegúrate de que los estilos no afecten otros botones en la página */
@@ -41,6 +41,10 @@
                                 <button class="btn btn-outline-secondary" type="button" onclick="searchFiles()">Buscar</button>
                                 <!-- Botón de 'Inicio' para resetear la búsqueda y mostrar todos los registros -->
                                 <button class="btn btn-outline-secondary" type="button" onclick="window.location='/descarga/archivos?page=1'">Inicio</button>
+                            </div>
+                            <div class="text-center mb-3">
+                                <!-- Botón que abre el enlace de la nube en una nueva pestaña -->
+                                <a href="TU_ENLACE_DE_NUBE_AQUÍ" class="btn btn-primary" target="_blank">Vista a la Nube</a>
                             </div>
                         </div>
 
