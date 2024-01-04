@@ -64,11 +64,11 @@ class DescargaArchivosController(http.Controller):
 class PortalAlquilerController(http.Controller):
     
     @http.route('/portal/alquiler', auth='public', website=True)
-    def portal_alquiler_form(self,  **kwargs):
-        alquiler = request.env['cotizacion.alquiler'].sudo().browse(alquiler_id)
+    def portal_alquiler_form(self, **kwargs):
         marcas = request.env['marcas.maquinas'].sudo().search([])
+        # Elimina la siguiente línea, ya que no estás utilizando 'alquiler_id'
+        # alquiler = request.env['cotizacion.alquiler'].sudo().browse(alquiler_id)
         return request.render('copier_company.portal_alquiler_form', {
-            'alquiler': alquiler,
             'marcas': marcas
         })
 
@@ -86,9 +86,9 @@ class PortalAlquilerController(http.Controller):
             'formato': post.get('formato'),
         }
         nuevo_alquiler = request.env['cotizacion.alquiler'].sudo().create(alquiler_vals)
-        return request.redirect('/portal/alquiler/%s' % nuevo_alquiler.id)
+        # Aquí, puedes redirigir al usuario a una página de confirmación o de vuelta al formulario con un mensaje de éxito
+        return request.redirect('/ruta_de_confirmacion')
 
-# En tu módulo personalizado, crea un archivo `controllers.py`
 
 
 
