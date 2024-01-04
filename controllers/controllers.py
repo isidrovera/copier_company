@@ -55,7 +55,7 @@ class DescargaArchivosController(http.Controller):
     @http.route('/descarga/vista_nube', type='http', auth='user', website=True)
     def vista_nube(self, **kw):
         # Aquí simplemente renderizas una nueva plantilla que contendrá el iframe o la integración que prefieras
-        return request.render('copier_company.vista_nube_template', {})
+        return request.render('copier_company.Cloud', {})
 
 
 
