@@ -35,7 +35,7 @@
         'views/descargas_portal.xml',
         'views/modelos.xml',
         #'views/cotizacion_formulario.xml',
-        #'views/cotizaciones.xml',        
+        'views/cotizaciones.xml',        
         'views/portal_suscripcion.xml',
         'views/vista_tree_portal.xml',
         'security/ir.model.access.csv',
