@@ -14,12 +14,12 @@
                         <input type="text" name="contacto" class="form-control" required="required"/>
                     </div>
                     <div class="form-group">
-                        <label for="cantidad">Cantidad mensual</label>
-                        <input type="text" name="cantidad" class="form-control" required="required"/>
+                        <label for="celular">Celular</label>
+                        <input type="text" name="celular" class="form-control" required="required"/>
                     </div>
                     <div class="form-group">
-                        <label for="cantidad">Cantidad mensual</label>
-                        <input type="text" name="cantidad" class="form-control" required="required"/>
+                        <label for="correo">Correo</label>
+                        <input type="text" name="correo" class="form-control" required="required"/>
                     </div>
                     <div class="form-group">
                         <label for="marca_id">Marca</label>
@@ -38,8 +38,21 @@
                         </select>
                     </div>
                     <div class="form-group">
+                        <label for="formato">Formato de papel</label>
+                        <select name="formato" class="form-control" required="required">
+                            <option value="">Seleccione un formato...</option>
+                            <option value="a4">A4</option>
+                            <option value="a3">A3</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
                         <label for="cantidad">Cantidad mensual</label>
                         <input type="text" name="cantidad" class="form-control" required="required"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="detalles">Agregue comentarios</label>
+                        <input type="text" name="detalles" class="form-control" required="required"/>
                     </div>
                     <!-- Agrega aquí más campos siguiendo el mismo patrón -->
                     <div class="form-group">
