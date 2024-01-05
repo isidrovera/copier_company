@@ -1,11 +1,14 @@
 <odoo>
+
     <template id="public_helpdesk_ticket_form" name="Public Helpdesk Ticket Form">
         <t t-call="website.layout">
             <div id="wrap">
                 <div class="container mt8">
                     <h1>Crear Ticket de Ayuda</h1>
                     <form action="/public/helpdesk_ticket_submit" method="post">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                         <input type="hidden" name="copier_company_id" t-att-value="copier_company_id"/>
+                        <!-- Tus otros campos del formulario -->
                         <div class="form-group">
                             <label>Empresa:</label>
                             <p t-esc="partner_name"/>
@@ -22,6 +25,7 @@
                             <label for="name">Problema:</label>
                             <input type="text" class="form-control" id="name" name="name" required="required"/>
                         </div>
+                        <!-- Los otros campos y la información -->
                         <button type="submit" class="btn btn-primary">Enviar</button>
                     </form>
                 </div>
