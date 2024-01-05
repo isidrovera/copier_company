@@ -7,16 +7,20 @@
                     <form action="/public/helpdesk_ticket_submit" method="post">
                         <input type="hidden" name="copier_company_id" t-att-value="copier_company_id"/>
                         <div class="form-group">
-                            <label for="name">Nombre del Ticket:</label>
-                            <input type="text" class="form-control" id="name" name="name" required="required"/>
-                        </div>
-                        <div class="form-group">
-                            <label>Cliente:</label>
+                            <label>Empresa:</label>
                             <p t-esc="partner_name"/>
                         </div>
                         <div class="form-group">
-                            <label>Producto:</label>
+                            <label>Equipo:</label>
                             <p t-esc="product_name.name"/>
+                        </div>
+                        <div class="form-group">
+                            <label>Serie:</label>
+                            <p t-esc="serie_id"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="name">Problema:</label>
+                            <input type="text" class="form-control" id="name" name="name" required="required"/>
                         </div>
                         <button type="submit" class="btn btn-primary">Enviar</button>
                     </form>

@@ -118,20 +118,24 @@ class PublicHelpdeskController(http.Controller):
         copier_company = None
         partner_name = ''
         product_name = ''
+        serie_id = ''
         if copier_company_id:
             try:
                 copier_company = request.env['copier.company'].sudo().browse(int(copier_company_id))
                 if copier_company.exists():
                     partner_name = copier_company.cliente_id.name
                     product_name = copier_company.name
+                    serie_id = copier_company.serie_id
             except ValueError:
                 return request.redirect('/error')  # Redirige a una página de error en caso de un ID no válido
 
         return request.render("copier_company.public_helpdesk_ticket_form", {
             'copier_company_id': copier_company_id,
             'partner_name': partner_name,
-            'product_name': product_name
+            'product_name': product_name,
+            'serie_id': serie_id
         })
+
 
 
     @http.route('/public/helpdesk_ticket_submit', type='http', auth='public', methods=['POST'], website=True)
