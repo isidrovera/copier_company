@@ -106,3 +106,9 @@ class HelpdeskTicketController(http.Controller):
             'productos': productos
         })
         return response
+class HelpdeskController(http.Controller):
+    @http.route('/helpdesk/form', type='http', auth="public", website=True)
+    def helpdesk_form(self, **kw):
+        # Obtener datos necesarios, como los productos disponibles
+        products = request.env['copier.company'].sudo().search([])
+        return request.render("copier_company.helpdesk_form_template", {'products': products})

@@ -48,6 +48,7 @@
         'views/portal_alquiler.xml',
         'views/confirmacion_formulario.xml',
         'views/formulario_help.xml',
+        'views/demo_ticket.xml',
         #'views/assets.xml',
         #'views/add_custom_selection_field.xml',
 
