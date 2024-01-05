@@ -1,6 +1,8 @@
 from odoo import http
 from odoo.http import request
 import json
+import base64
+from werkzeug import exceptions
 
 
 class DescargaArchivosController(http.Controller):
