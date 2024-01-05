@@ -98,9 +98,11 @@ class PortalAlquilerController(http.Controller):
 
 class HelpdeskTicketController(http.Controller):
 
-    @http.route('/helpdesk/ticket', type='http', auth="public", website=True)
+    @http.route('/helpdesk/ticket/form', type='http', auth="public", website=True)
     def ticket_form(self, **kw):
         productos = request.env['copier.company'].sudo().search([])
-        return request.render('copier_company.ticket_form_inherit', {
-            'productos': productos,
+        response = super(HelpdeskTicketController, self).ticket_form()
+        response.qcontext.update({
+            'productos': productos
         })
+        return response
