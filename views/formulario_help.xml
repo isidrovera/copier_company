@@ -1,18 +1,17 @@
 <odoo>
     <template id="ticket_form_inherit" inherit_id="website_helpdesk.team_form_1" name="Helpdesk Ticket Form Inherit">
         <xpath expr="//input[@id='helpdesk3']/parent::div" position="after">
-            <!-- Agregar campos 'Serie' después del campo 'Asunto' -->
-            <div class="mb-0 py-2 s_website_form_field col-12" data-type="many2one" data-name="Field">
-                <div class="row mb-3">
-                    <label for="producto_id" class="col-sm-3 col-form-label">Serie</label>
-                    <div class="col-sm-9">
-                        <select name="producto_id" class="form-control" required="required">
-                            <option value="">Seleccione una serie...</option>
-                            <t t-foreach="productos" t-as="producto">
-                                <option t-att-value="producto.id" t-esc="producto_id.name"/>
-                            </t>
-                        </select>
-                    </div>
+            <div class="form-group">
+                <label for="producto_id" class="col-sm-3 col-form-label">Serie</label>
+                <div class="col-sm-9">
+                    <select name="producto_id" class="form-control" required="required">
+                        <option value="">Seleccione una serie...</option>
+                        <t t-foreach="productos" t-as="producto">
+                            <option t-att-value="producto.id">
+                                <t t-esc="producto.name"/>
+                            </option>
+                        </t>
+                    </select>
                 </div>
             </div>
         </xpath>
