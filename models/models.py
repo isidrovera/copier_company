@@ -47,8 +47,8 @@ class CopierCompany(models.Model):
     qr_code = fields.Binary(string='Código QR', readonly=True)
     def generar_qr_code(self):
         for record in self:
-            # Crear una cadena de datos que quieras codificar en el código QR
-            data_to_encode = f"Registro de Máquina: {record.serie_id}, Cliente: {record.cliente_id.name}"
+            # Datos para codificar en el código QR
+            data_to_encode = f"copier_company_id={record.id}"
 
             # Generar el código QR
             qr = qrcode.QRCode(
@@ -64,8 +64,8 @@ class CopierCompany(models.Model):
             img = qr.make_image(fill_color="black", back_color="white")
 
             # Convertir la imagen en una cadena de bytes y almacenarla en el campo qr_code
-            qr_image = img.get_image()
             img_byte_array = io.BytesIO()
-            qr_image.save(img_byte_array, format='PNG')
+            img.save(img_byte_array, format='PNG')
             qr_image_base64 = base64.b64encode(img_byte_array.getvalue()).decode('utf-8')
             record.qr_code = qr_image_base64
+

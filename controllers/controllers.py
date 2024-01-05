@@ -106,9 +106,46 @@ class HelpdeskTicketController(http.Controller):
             'productos': productos
         })
         return response
-class HelpdeskController(http.Controller):
-    @http.route('/helpdesk/form', type='http', auth="public", website=True)
-    def helpdesk_form(self, **kw):
-        # Obtener datos necesarios, como los productos disponibles
-        products = request.env['copier.company'].sudo().search([])
-        return request.render("copier_company.helpdesk_form_template", {'products': products})
+
+
+
+
+
+class PublicHelpdeskController(http.Controller):
+    @http.route('/public/helpdesk_ticket', type='http', auth='public', website=True)
+    def public_helpdesk_ticket(self, copier_company_id=None, **kwargs):
+        # Precargar datos basados en copier_company_id si está presente
+        copier_company = None
+        if copier_company_id:
+            copier_company = request.env['copier.company'].sudo().browse(int(copier_company_id))
+            if not copier_company.exists():
+                copier_company = None
+
+        return request.render("copier_company.public_helpdesk_ticket_form", {
+            'copier_company': copier_company,
+            'copier_company_id': copier_company_id
+        })
+
+    @http.route('/public/helpdesk_ticket_submit', type='http', auth='public', methods=['POST'], website=True)
+    def submit_helpdesk_ticket(self, **post):
+        copier_company_id = post.get('copier_company_id')
+        copier_company = request.env['copier.company'].sudo().browse(int(copier_company_id))
+
+        if not copier_company.exists():
+            # Manejar el error aquí, por ejemplo, redirigir de nuevo al formulario con un mensaje de error
+            return request.redirect('/public/helpdesk_ticket')
+
+        # Crear el ticket de helpdesk
+        ticket = request.env['helpdesk.ticket'].sudo().create({
+            'name': post.get('name'),
+            'partner_id': copier_company.cliente_id.id,
+            'producto_id': copier_company.id
+            # Agrega aquí más campos según sean necesarios
+        })
+
+        # Redirigir a la página de confirmación
+        return request.redirect('/public/helpdesk_ticket_confirmation')
+
+    @http.route('/public/helpdesk_ticket_confirmation', type='http', auth='public', website=True)
+    def confirmation(self, **kwargs):
+        return request.render("copier_company.helpdesk_ticket_confirmation")
