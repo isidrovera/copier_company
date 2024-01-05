@@ -11,7 +11,7 @@
                         <select name="product_id" id="product_id">
                             <t t-foreach="products" t-as="product">
                                 <option t-att-value="product.id">
-                                    <t t-esc="product.name"/>
+                                    <t t-esc="product.name.name"/>
                                 </option>
                             </t>
                         </select>
