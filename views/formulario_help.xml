@@ -10,22 +10,31 @@
                             <label for="name">Nombre del Ticket:</label>
                             <input type="text" class="form-control" id="name" name="name" required="required"/>
                         </div>
-                        <!-- Agrega aquí más campos según sean necesarios -->
+                        <div class="form-group">
+                            <label>Cliente:</label>
+                            <p t-esc="partner_name"/>
+                        </div>
+                        <div class="form-group">
+                            <label>Producto:</label>
+                            <p t-esc="product_name"/>
+                        </div>
                         <button type="submit" class="btn btn-primary">Enviar</button>
                     </form>
                 </div>
             </div>
         </t>
     </template>
+
+
     <template id="helpdesk_ticket_confirmation" name="Helpdesk Ticket Confirmation">
-    <t t-call="website.layout">
-        <div id="wrap">
-            <div class="container mt8">
-                <h2>Confirmación de Ticket de Ayuda</h2>
-                <p>Gracias por enviar su ticket. Nos pondremos en contacto con usted lo antes posible.</p>
+        <t t-call="website.layout">
+            <div id="wrap">
+                <div class="container mt8">
+                    <h2>Confirmación de Ticket de Ayuda</h2>
+                    <p>Gracias por enviar su ticket. Nos pondremos en contacto con usted lo antes posible.</p>
+                </div>
             </div>
-        </div>
-    </t>
-</template>
+        </t>
+    </template>
 
 </odoo>
