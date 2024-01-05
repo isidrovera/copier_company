@@ -9,7 +9,7 @@
                         <select name="producto_id" class="form-control" required="required">
                             <option value="">Seleccione una serie...</option>
                             <t t-foreach="productos" t-as="producto">
-                                <option t-att-value="producto.id" t-esc="producto.name"/>
+                                <option t-att-value="producto.id" t-esc="producto_id.name"/>
                             </t>
                         </select>
                     </div>
