@@ -10,73 +10,66 @@
                 <div class="row justify-content-center">
                     <div class="col-md-8">
                         <form action="/public/helpdesk_ticket_submit" method="post" enctype="multipart/form-data" class="needs-validation" novalidate="novalidate">
-
-<input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                        <input type="hidden" name="copier_company_id" t-att-value="copier_company_id"/>
-
-                        <div class="form-group">
-                            <label for="partner_name">Empresa:</label>
-                            <input type="text" class="form-control" id="partner_name" name="partner_name" t-esc="partner_name" readonly="readonly"/>
-</div>
-<div class="form-group">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <input type="hidden" name="copier_company_id" t-att-value="copier_company_id"/>
+                            <div class="form-group">
+                                <label for="partner_name">Empresa:</label>
+                                <input type="text" class="form-control" id="partner_name" name="partner_name" t-att-value="partner_name" readonly="readonly"/>
+                            </div>
+                            <div class="form-group">
                                 <label for="product_name">Equipo:</label>
-                                <input type="text" class="form-control" id="product_name" name="product_name" t-esc="product_name.name" readonly="readonly"/>
-</div>
-<div class="form-group">
-                                    <label for="serie_id">Serie:</label>
-                                    <input type="text" class="form-control" id="serie_id" name="serie_id" t-esc="serie_id" readonly="readonly"/>
-</div>
-<div class="form-group">
-                                        <label for="description">Problema:</label>
-                                        <textarea class="form-control" id="description" name="description" 
-                                        required="1"
-                                        ></textarea>
-<div class="invalid-feedback">
+                                <input type="text" class="form-control" id="product_name" name="product_name" t-att-value="product_name.name" readonly="readonly"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="serie_id">Serie:</label>
+                                <input type="text" class="form-control" id="serie_id" name="serie_id" t-att-value="serie_id" readonly="readonly"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="description">Problema:</label>
+                                <textarea class="form-control" id="description" name="description" required="required"></textarea>
+                                <div class="invalid-feedback">
                                 Por favor ingresa la descripción del problema.
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="nombre_reporta">Nombre de quien reporta:</label>
-                                        <input type="text" class="form-control" id="nombre_reporta" name="nombre_reporta" 
-                                        required="1"
-                                        />
-<div class="invalid-feedback">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="nombre_reporta">Nombre de quien reporta:</label>
+                                <input type="text" class="form-control" id="nombre_reporta" name="nombre_reporta" required="required"/>
+                                <div class="invalid-feedback">
                                 Por favor ingresa tu nombre.
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="image">Adjuntar Imagen:</label>
-                                        <input type="file" class="form-control-file" id="image" name="image" accept="image/*" capture="user" 
-                                        required="1"
-                                        />
-<div class="invalid-feedback">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="image">Adjuntar Imagen:</label>
+                                <input type="file" class="form-control-file" id="image" name="image" accept="image/*" capture="user" required="required"/>
+                                <div class="invalid-feedback">
                                 Por favor adjunta una imagen relacionada con el problema.
-                                        </div>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Enviar</button>
-                                </form>
+                                </div>
                             </div>
-                        </div>
+                            <button type="submit" class="btn btn-primary">Enviar</button>
+                        </form>
                     </div>
-                </t>
-            </template>
+                </div>
+            </div>
+        </t>
+    </template>
 
 
 
-            <template id="helpdesk_ticket_confirmation" name="Helpdesk Ticket Confirmation">
-                <t t-call="website.layout">
-                    <div id="wrap" class="mt16">
-                        <div class="container text-center">
-                            <h2>Confirmación de Ticket de Ayuda</h2>
-                            <p>Gracias por enviar su ticket. Nos pondremos en contacto con usted lo antes posible.</p>
-                            <div class="mt8">
-                                <a href="/" class="btn btn-primary">Ir al Inicio</a>
-                                <a href="/my/tickets" class="btn btn-secondary">Ver Mis Tickets</a>
-                            </div>
-                        </div>
+
+    <template id="helpdesk_ticket_confirmation" name="Helpdesk Ticket Confirmation">
+        <t t-call="website.layout">
+            <div id="wrap" class="mt16">
+                <div class="container text-center">
+                    <h2>Confirmación de Ticket de Ayuda</h2>
+                    <p>Gracias por enviar su ticket. Nos pondremos en contacto con usted lo antes posible.</p>
+                    <div class="mt8">
+                        <a href="/" class="btn btn-primary">Ir al Inicio</a>
+                        <a href="/my/tickets" class="btn btn-secondary">Ver Mis Tickets</a>
                     </div>
-                </t>
-            </template>
+                </div>
+            </div>
+        </t>
+    </template>
 
 
-        </odoo>
+</odoo>
