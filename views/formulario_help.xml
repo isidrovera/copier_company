@@ -16,7 +16,7 @@
                         </div>
                         <div class="form-group">
                             <label>Producto:</label>
-                            <p t-esc="product_name"/>
+                            <p t-esc="product_name.name"/>
                         </div>
                         <button type="submit" class="btn btn-primary">Enviar</button>
                     </form>
