@@ -106,14 +106,9 @@ class HelpdeskTicketController(http.Controller):
             'productos': productos
         })
         return response
-class CustomHelpdeskController(http.Controller):
-    _inherit = 'helpdesk.ticket'
-
-    @http.route()
-    class HelpdeskControllerExtended(http.Controller):
-        @http.route('/helpdesk/customer-care-1', type='http', auth="public", website=True)
-        def helpdesk_form_extended(self, **kw):
-            response = super(HelpdeskControllerExtended, self).helpdesk_form(**kw)
-            products = request.env['copier.company'].sudo().search([])
-            response.qcontext['products'] = products
-            return response
+class HelpdeskController(http.Controller):
+    @http.route('/helpdesk/form', type='http', auth="public", website=True)
+    def helpdesk_form(self, **kw):
+        # Obtener datos necesarios, como los productos disponibles
+        products = request.env['copier.company'].sudo().search([])
+        return request.render("copier_company.helpdesk_form_template", {'products': products})
