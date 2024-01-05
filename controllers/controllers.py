@@ -111,15 +111,18 @@ class HelpdeskTicketController(http.Controller):
 
 
 
+
 class PublicHelpdeskController(http.Controller):
     @http.route('/public/helpdesk_ticket', type='http', auth='public', website=True)
     def public_helpdesk_ticket(self, copier_company_id=None, **kwargs):
-        # Precargar datos basados en copier_company_id si está presente
         copier_company = None
         if copier_company_id:
-            copier_company = request.env['copier.company'].sudo().browse(int(copier_company_id))
-            if not copier_company.exists():
-                copier_company = None
+            try:
+                copier_company = request.env['copier.company'].sudo().browse(int(copier_company_id))
+                if not copier_company.exists():
+                    return request.redirect('/error')  # Redirige a una página de error personalizada
+            except ValueError:
+                return request.redirect('/error')  # Redirige a una página de error en caso de un ID no válido
 
         return request.render("copier_company.public_helpdesk_ticket_form", {
             'copier_company': copier_company,
@@ -129,22 +132,24 @@ class PublicHelpdeskController(http.Controller):
     @http.route('/public/helpdesk_ticket_submit', type='http', auth='public', methods=['POST'], website=True)
     def submit_helpdesk_ticket(self, **post):
         copier_company_id = post.get('copier_company_id')
-        copier_company = request.env['copier.company'].sudo().browse(int(copier_company_id))
+        try:
+            copier_company = request.env['copier.company'].sudo().browse(int(copier_company_id))
+            if not copier_company.exists():
+                return request.redirect('/public/helpdesk_ticket')  # Redirige de nuevo al formulario
 
-        if not copier_company.exists():
-            # Manejar el error aquí, por ejemplo, redirigir de nuevo al formulario con un mensaje de error
-            return request.redirect('/public/helpdesk_ticket')
+            # Crear el ticket de helpdesk
+            ticket = request.env['helpdesk.ticket'].sudo().create({
+                'name': post.get('name'),
+                'partner_id': copier_company.cliente_id.id,
+                'producto_id': copier_company.id,
+                # Agrega aquí más campos según sean necesarios
+            })
 
-        # Crear el ticket de helpdesk
-        ticket = request.env['helpdesk.ticket'].sudo().create({
-            'name': post.get('name'),
-            'partner_id': copier_company.cliente_id.id,
-            'producto_id': copier_company.id
-            # Agrega aquí más campos según sean necesarios
-        })
-
-        # Redirigir a la página de confirmación
-        return request.redirect('/public/helpdesk_ticket_confirmation')
+            # Redirigir a la página de confirmación
+            return request.redirect('/public/helpdesk_ticket_confirmation')
+        except Exception as e:
+            # Maneja la excepción y redirige a una página de error
+            return request.redirect('/error')
 
     @http.route('/public/helpdesk_ticket_confirmation', type='http', auth='public', website=True)
     def confirmation(self, **kwargs):
