@@ -141,23 +141,33 @@ class PublicHelpdeskController(http.Controller):
     @http.route('/public/helpdesk_ticket_submit', type='http', auth='public', methods=['POST'], website=True)
     def submit_helpdesk_ticket(self, **post):
         copier_company_id = post.get('copier_company_id')
+        image = post.get('image')  # El archivo de la imagen
+        nombre_reporta = post.get('nombre_reporta')  # El nombre de quien reporta
+        
         try:
             copier_company = request.env['copier.company'].sudo().browse(int(copier_company_id))
             if not copier_company.exists():
                 return request.redirect('/public/helpdesk_ticket')  # Redirige de nuevo al formulario
 
+            # Convertir la imagen a base64
+            image_base64 = image and base64.b64encode(image.read()) or None
+            
             # Crear el ticket de helpdesk
-            ticket = request.env['helpdesk.ticket'].sudo().create({
+            ticket_values = {
                 'name': post.get('name'),
                 'partner_id': copier_company.cliente_id.id,
                 'producto_id': copier_company.id,
+                'nombre_reporta': nombre_reporta,
+                'image': image_base64,
                 # Agrega aquí más campos según sean necesarios
-            })
+            }
+            ticket = request.env['helpdesk.ticket'].sudo().create(ticket_values)
 
             # Redirigir a la página de confirmación
             return request.redirect('/public/helpdesk_ticket_confirmation')
         except Exception as e:
             # Maneja la excepción y redirige a una página de error
+            request.env.cr.rollback()  # Importante para prevenir bloqueos en la transacción
             return request.redirect('/error')
 
     @http.route('/public/helpdesk_ticket_confirmation', type='http', auth='public', website=True)

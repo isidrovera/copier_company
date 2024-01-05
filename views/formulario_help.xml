@@ -5,33 +5,50 @@
             <div id="wrap">
                 <div class="container mt8">
                     <h1>Crear Ticket de Ayuda</h1>
-                    <form action="/public/helpdesk_ticket_submit" method="post">
+                    <form action="/public/helpdesk_ticket_submit" method="post" enctype="multipart/form-data">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                         <input type="hidden" name="copier_company_id" t-att-value="copier_company_id"/>
-                        <!-- Tus otros campos del formulario -->
+
+                        <!-- Los campos pre-cargados -->
                         <div class="form-group">
                             <label>Empresa:</label>
                             <p t-esc="partner_name"/>
                         </div>
                         <div class="form-group">
                             <label>Equipo:</label>
-                            <p t-esc="product_name.name"/>
+                            <p t-esc="product_name"/>
                         </div>
                         <div class="form-group">
                             <label>Serie:</label>
                             <p t-esc="serie_id"/>
                         </div>
+
+                        <!-- Campo para describir el problema -->
                         <div class="form-group">
-                            <label for="name">Problema:</label>
-                            <input type="text" class="form-control" id="name" name="name" required="required"/>
+                            <label for="description">Problema:</label>
+                            <textarea class="form-control" id="description" name="description" required="required"></textarea>
                         </div>
-                        <!-- Los otros campos y la información -->
+
+                        <!-- Campo para el nombre de quien reporta -->
+                        <div class="form-group">
+                            <label for="nombre_reporta">Nombre de quien reporta:</label>
+                            <input type="text" class="form-control" id="nombre_reporta" name="nombre_reporta" required="required"/>
+                        </div>
+
+                        <!-- Campo para adjuntar la imagen -->
+                        <div class="form-group">
+                            <label for="image">Adjuntar Imagen:</label>
+                            <input type="file" class="form-control-file" id="image" name="image" accept="image/*" capture="user"/>
+                        </div>
+
+                        <!-- Botón de envío -->
                         <button type="submit" class="btn btn-primary">Enviar</button>
                     </form>
                 </div>
             </div>
         </t>
     </template>
+
 
 
     <template id="helpdesk_ticket_confirmation" name="Helpdesk Ticket Confirmation">
