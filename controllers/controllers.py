@@ -96,12 +96,11 @@ class PortalAlquilerController(http.Controller):
 
 
 
-class HelpdeskFormController(http.Controller):
-    @http.route('/helpdesk/get_series', type='http', auth="public", methods=['GET'], website=True)
-    def get_series(self, **kw):
-        # Asegúrate de incluir el nombre del modelo de máquina referenciado.
-        series = request.env['copier.company'].sudo().search_read([], ['name'])
-        # Extrae el nombre del modelo de la máquina relacionado.
-        series_data = [{'id': rec['id'], 'name': rec['name'][1]} for rec in series if rec['name']]
-        response_json = json.dumps(series_data)
-        return request.make_response(response_json, [('Content-Type', 'application/json')])
+class HelpdeskTicketController(http.Controller):
+
+    @http.route('/helpdesk/ticket', type='http', auth="public", website=True)
+    def ticket_form(self, **kw):
+        productos = request.env['copier.company'].sudo().search([])
+        return request.render('copier_company.ticket_form_inherit', {
+            'productos': productos,
+        })
