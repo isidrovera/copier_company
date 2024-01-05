@@ -52,14 +52,19 @@
 
 
     <template id="helpdesk_ticket_confirmation" name="Helpdesk Ticket Confirmation">
-        <t t-call="website.layout">
-            <div id="wrap">
-                <div class="container mt8">
-                    <h2>Confirmación de Ticket de Ayuda</h2>
-                    <p>Gracias por enviar su ticket. Nos pondremos en contacto con usted lo antes posible.</p>
+    <t t-call="website.layout">
+        <div id="wrap" class="mt16">
+            <div class="container text-center">
+                <h2>Confirmación de Ticket de Ayuda</h2>
+                <p>Gracias por enviar su ticket. Nos pondremos en contacto con usted lo antes posible.</p>
+                <div class="mt8">
+                    <a href="/" class="btn btn-primary">Ir al Inicio</a>
+                    <a href="/my/tickets" class="btn btn-secondary">Ver Mis Tickets</a>
                 </div>
             </div>
-        </t>
-    </template>
+        </div>
+    </t>
+</template>
+
 
 </odoo>
