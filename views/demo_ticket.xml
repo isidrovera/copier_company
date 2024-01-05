@@ -1,20 +1,26 @@
-<template id="helpdesk_form_template">
-    <t t-call="website.layout">
-        <div id="wrap">
-            <div class="container">
-                <h1>Solicitud de Helpdesk</h1>
-                <form action="/helpdesk/submit" method="post">
-                    <!-- Campo del Producto -->
-                    <label for="product_id">Serie:</label>
-                    <select name="product_id" id="product_id">
-                        <t t-foreach="products" t-as="product">
-                            <option t-att-value="product.id"><t t-esc="product.name"/></option>
-                        </t>
-                    </select>
-                    <!-- Otros campos del formulario -->
-                    <button type="submit">Enviar</button>
-                </form>
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="helpdesk_form_template">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <div class="container">
+                    <h1>Solicitud de Helpdesk</h1>
+                    <form action="/helpdesk/submit" method="post">
+                        <!-- Campo del Producto -->
+                        <label for="product_id">Serie:</label>
+                        <select name="product_id" id="product_id">
+                            <t t-foreach="products" t-as="product">
+                                <option t-att-value="product.id">
+                                    <t t-esc="product.name"/>
+                                </option>
+                            </t>
+                        </select>
+                        <!-- Otros campos del formulario -->
+                        <button type="submit">Enviar</button>
+                    </form>
+                </div>
             </div>
-        </div>
-    </t>
-</template>
+        </t>
+    </template>
+</odoo>
+
