@@ -1,28 +1,24 @@
-<odoo>
-    <data noupdate="1">
-        <record id="mail_template_ticket_creation" model="mail.template">
-            <field name="name">Helpdesk Ticket Creation</field>
-            <field name="model_id" ref="helpdesk.model_helpdesk_ticket"/>
-            <field name="subject">Support Ticket [#${object.id}] - ${object.name}</field>
-            <field name="email_from">${(object.company_id.email or 'support@yourcompany.com')|safe}</field>
-            <field name="email_to">${object.partner_id.email|safe}</field>
-            <field name="lang">${object.partner_id.lang}</field>            
-            <field name="body_html"><![CDATA[
-                <div style="font-family: 'Arial', sans-serif;">
-                    <p>Apreciable ${object.partner_id.name or 'Cliente'},</p>
-                    <p>Su solicitud <a href="${object.get_portal_url()}" style="text-decoration: none;">${object.name or ''}</a> se ha recibido y está siendo revisada por nuestro equipo de ${object.team_id.name or 'Asistencia'}. La referencia de su ticket es <strong>${object.id}</strong>.</p>
-                    <p>Para proporcionar información adicional, puede responder a este correo electrónico o seguir el enlace proporcionado para actualizar su ticket.</p>
-                    <p>
-                        No dude en visitar nuestro <a href="${object.team_id.get_knowledge_base_url()}" style="text-decoration: none;">Centro de Soporte</a>. Puede encontrar respuestas a preguntas frecuentes.
-                    </p>
-                    <div style="text-align: center; margin-top: 16px;">
-                        <a href="${object.get_portal_url()}" style="background-color: #875A7B; color: #ffffff; padding: 8px 12px; border-radius: 5px; text-decoration: none; font-size: 14px; display: inline-block; margin-right: 8px;">Ver ticket</a>
-                        ${''.join(['<a href="/my/ticket/close/%s/%s" style="background-color: #875A7B; color: #ffffff; padding: 8px 12px; border-radius: 5px; text-decoration: none; font-size: 14px; display: inline-block;">Cerrar ticket</a>' % (object.id, object.access_token) if object.team_id.allow_portal_ticket_closing else ''])}
-                    </div>
-                    <p>Saludos cordiales,</p>
-                    <p>El Equipo de ${object.team_id.name or 'Soporte'}</p>
-                </div>
-            ]]></field>
-        </record>
-    </data>
-</odoo>
+<record id="mail_template_ticket_creation" model="mail.template">
+    <field name="name">Helpdesk Ticket Creation</field>
+    <field name="model_id" ref="helpdesk.model_helpdesk_ticket"/>
+    <field name="subject">Support Ticket [#${object.id}] - ${object.name}</field>
+    <field name="email_from">${(object.company_id.email or 'support@yourcompany.com')|safe}</field>
+    <field name="email_to">${object.partner_id.email|safe}</field>
+    <field name="lang">${object.partner_id.lang}</field>
+    <field name="body_html"><![CDATA[
+        <div style="font-family: 'Arial', sans-serif;">
+            <p>Apreciable ${object.partner_id.name or 'Cliente'},</p>
+            <p>Su solicitud <a href="${object.get_portal_url()}" style="text-decoration: none;">${object.name or ''}</a> se ha recibido y está siendo revisada por nuestro equipo de ${object.team_id.name or 'Asistencia'}. La referencia de su ticket es <strong>${object.id}</strong>.</p>
+            <p>Para proporcionar información adicional, puede responder a este correo electrónico o seguir el enlace proporcionado para actualizar su ticket.</p>
+            <p>No dude en visitar nuestro <a href="${object.team_id.get_knowledge_base_url()}" style="text-decoration: none;">Centro de Soporte</a>. Puede encontrar respuestas a preguntas frecuentes.</p>
+            <div style="text-align: center; margin-top: 16px;">
+                <a href="${object.get_portal_url()}" style="background-color: #875A7B; color: #ffffff; padding: 8px 12px; border-radius: 5px; text-decoration: none; font-size: 14px; display: inline-block; margin-right: 8px;">Ver ticket</a>
+                <t t-if="object.team_id.allow_portal_ticket_closing">
+                    <a href="/my/ticket/close/${object.id}/${object.access_token}" style="background-color: #875A7B; color: #ffffff; padding: 8px 12px; border-radius: 5px; text-decoration: none; font-size: 14px; display: inline-block;">Cerrar ticket</a>
+                </t>
+            </div>
+            <p>Saludos cordiales,</p>
+            <p>El Equipo de ${object.team_id.name or 'Soporte'}</p>
+        </div>
+    ]]></field>
+</record>
