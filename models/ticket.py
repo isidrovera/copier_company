@@ -1,4 +1,8 @@
 from odoo import models, fields, api, _
+from odoo.tools.translate import _
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class TicketCopier(models.Model):
@@ -10,3 +14,17 @@ class TicketCopier(models.Model):
     nombre_reporta  = fields.Char(
     string='Nombre de quien reporto'
     )
+
+    @api.model
+    def create(self, vals):
+        # Llamar al método 'create' original para crear el ticket
+        ticket = super(TicketCopier, self).create(vals)
+        
+        # Enviar correo electrónico utilizando la plantilla
+        template = self.env.ref('copier_company.email_template_helpdesk_ticket_created', raise_if_not_found=False)
+        if template:
+            self.env['mail.template'].browse(template.id).send_mail(ticket.id, force_send=True)
+        else:
+            _logger.error(_('No se encontró la plantilla de correo electrónico.'))
+        
+        return ticket
