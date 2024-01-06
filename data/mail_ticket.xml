@@ -1,11 +1,16 @@
-<record id="mail_template_ticket_creation" model="mail.template">
-    <field name="name">Helpdesk Ticket Creation</field>
-    <field name="model_id" ref="helpdesk.model_helpdesk_ticket"/>
-    <field name="subject">Support Ticket [#${object.id}] - ${object.name}</field>
-    <field name="email_from">${(object.company_id.email or 'support@yourcompany.com')|safe}</field>
-    <field name="email_to">${object.partner_id.email|safe}</field>
-    <field name="lang">${object.partner_id.lang}</field>
-    <field name="body_html"><![CDATA[
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data noupdate="1">
+
+        <record id="mail_template_ticket_creation" model="mail.template">
+            <field name="name">Helpdesk Ticket Creation</field>
+            <field name="model_id" ref="helpdesk.model_helpdesk_ticket"/>
+            <field name="subject">Support Ticket [#${object.id}] - ${object.name}</field>
+            <field name="email_from">${(object.company_id.email or 'support@yourcompany.com')|safe}</field>
+            <field name="email_to">${object.partner_id.email|safe}</field>
+            <field name="lang">${object.partner_id.lang}</field>
+            <field name="body_html"><![CDATA[
         <div style="font-family: 'Arial', sans-serif;">
             <p>Apreciable ${object.partner_id.name or 'Cliente'},</p>
             <p>Su solicitud <a href="${object.get_portal_url()}" style="text-decoration: none;">${object.name or ''}</a> se ha recibido y está siendo revisada por nuestro equipo de ${object.team_id.name or 'Asistencia'}. La referencia de su ticket es <strong>${object.id}</strong>.</p>
@@ -20,5 +25,12 @@
             <p>Saludos cordiales,</p>
             <p>El Equipo de ${object.team_id.name or 'Soporte'}</p>
         </div>
-    ]]></field>
-</record>
+    ]]>            </field>
+        </record>
+
+
+
+    </data>
+
+
+</odoo>
