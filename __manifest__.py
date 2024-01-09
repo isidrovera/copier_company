@@ -21,7 +21,7 @@
 
     # any module necessary for this one to work correctly
     'depends': ['base','mail', 'contacts','helpdesk',
-    'sale_management','portal','sale_subscription'],
+    'sale_management','portal','sale_subscription','website'],
 
     # always loaded
     'data': [
@@ -45,12 +45,13 @@
         'views/pCloud.xml',
         'views/pcloud_archivos.xml',
         'views/vista_nube.xml',
+        'views/whatsapp_web.xml',
         'views/portal_alquiler.xml',
         'views/confirmacion_formulario.xml',
         'views/formulario_help.xml',
         'views/demo_ticket.xml',
         'data/mail_ticket.xml',
-        'views/whatsapp_web.xml',
+        
         #'views/assets.xml',
         #'views/add_custom_selection_field.xml',
 
