@@ -10,11 +10,11 @@
             <field name="lang">${object.partner_id.lang}</field>
             <field name="body_html"><![CDATA[
                     <div style="font-family: 'Arial', sans-serif;">
-                        <p>Estimado ${object.partner_id.name or 'Cliente'},</p>
-                        <p>Le confirmamos que hemos recibido su solicitud con el número de ticket <strong>${object.id}</strong>. Nuestro equipo de ${object.team_id.name or 'Asistencia'} ya está trabajando en ella.</p>
-                        <p>Para cualquier consulta adicional o para proporcionar más detalles, puede responder directamente a este correo electrónico o utilizar el enlace a continuación para ver o actualizar su ticket.</p>
+                        <p>Estimado <t t-out="object.partner_id.name">,</p>
+                        <p>Le confirmamos que hemos recibido su solicitud con el número de ticket <strong><t t-out= "object.ticket_ref"></strong>. Nuestro equipo de ${object.team_id.name or 'Asistencia'} ya está trabajando en ella.</p>
+                        <p>Para cualquier consulta adicional o para proporcionar más detalles, puede responder directamente a este correo electrónico o contactarnos a través de WhatsApp utilizando el siguiente botón:</p>
                         <div style="text-align: center; margin-top: 16px;">
-                            <a href="${object.get_portal_url()}" style="background-color: #4A90E2; color: #ffffff; padding: 10px 15px; border-radius: 4px; text-decoration: none; font-size: 16px; display: inline-block;">Ver o Actualizar Ticket</a>
+                            <a href="https://wa.me/message/XNGGOGE4PPOGO1" style="background-color: #25D366; color: #ffffff; padding: 10px 15px; border-radius: 4px; text-decoration: none; font-size: 16px; display: inline-block;">Contactar por WhatsApp</a>
                         </div>
                         <p>También puede revisar el estado actual de su ticket y cualquier ticket anterior visitando el siguiente enlace:</p>
                         <div style="text-align: center; margin-top: 10px;">
@@ -22,9 +22,8 @@
                         </div>
                         <p>Gracias por confiar en nosotros. No dude en contactarnos si necesita ayuda adicional.</p>
                         <p>Saludos cordiales,</p>
-                        <p>El Equipo de ${object.team_id.name or 'Soporte'}</p>
+                        <p>El Equipo de 'Soporte'}</p>
                     </div>
-
                 ]]>            
             </field>
         </record>
