@@ -1,13 +1,16 @@
 <?xml version='1.0' encoding='utf-8'?>
 <odoo>
     <data inherit_id="website.placeholder_header_social_links" name="Header Social Links WhatsApp" active="True">
-        <xpath expr="//div[@class='s_social_media o_not_editable oe_unmovable oe_unremovable']" position="inside">
+        <xpath expr="." position="inside">
             <!-- Aquí se agrega el enlace de WhatsApp al final de los enlaces sociales existentes -->
-            <a href="https://wa.me/tu_numero" class="s_social_media_whatsapp o_nav-link_secondary nav-link m-0 p-0 text-decoration-none" target="_blank">
-                <i class="fa fa-whatsapp fa-stack p-1 o_editable_media" style="color: green;"></i>
-            </a>
+            <li t-attf-class="#{_item_class}">
+                <a href="https://wa.me/tu_numero" class="s_social_media_whatsapp o_nav-link_secondary nav-link m-0 p-0 text-decoration-none" target="_blank">
+                    <i class="fa fa-whatsapp fa-stack p-1 o_editable_media" style="color: green;"></i>
+                </a>
+            </li>
         </xpath>
     </data>
 </odoo>
+
 
 
