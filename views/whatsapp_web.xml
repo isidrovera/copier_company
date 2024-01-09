@@ -1,15 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <template id="social_links_inherit" inherit_id="mass_mailing.social_links" name="Social Links Inherited">
-        <xpath expr="//t[last()]" position="after">
-            <t>
-                <!-- Añadir el enlace de WhatsApp aquí -->
-                <a href="https://wa.me/tu_numero" style="margin-left:10px" aria-label="WhatsApp" title="WhatsApp" target="_blank">
-                    <span class="fa fa-whatsapp"/>
-                </a>&amp;nbsp;&amp;nbsp;
-            </t>
+    <data inherit_id="website.placeholder_header_social_links" name="Header Social Links whatsap" active="False">
+        <xpath expr="." position="inside">
+            <li t-attf-class="#{_item_class}">
+                <div t-attf-class="o_header_social_links #{_div_class}">
+                    <div class="s_social_media o_not_editable oe_unmovable oe_unremovable" data-snippet="s_social_media" data-name="Social Media">
+                        <h5 class="s_social_media_title d-none">Follow us</h5>
+                        <a href="/website/social/facebook" class="s_social_media_facebook o_nav-link_secondary nav-link m-0 p-0 text-decoration-none" target="_blank">
+                            <i class="fa fa-facebook fa-stack p-1 o_editable_media"/>
+                        </a>
+                        <a href="/website/social/twitter" class="s_social_media_twitter o_nav-link_secondary nav-link m-0 p-0 text-decoration-none" target="_blank">
+                            <i class="fa fa-twitter fa-stack p-1 o_editable_media"/>
+                        </a>
+                        <a href="/website/social/linkedin" class="s_social_media_linkedin o_nav-link_secondary nav-link m-0 p-0 text-decoration-none" target="_blank">
+                            <i class="fa fa-linkedin fa-stack p-1 o_editable_media"/>
+                        </a>
+                        <a href="/website/social/instagram" class="s_social_media_instagram o_nav-link_secondary nav-link m-0 p-0 text-decoration-none" target="_blank">
+                            <i class="fa fa-instagram fa-stack p-1 o_editable_media"/>
+                        </a>
+                        <a href="/website/social/instagram" class="s_social_media_instagram o_nav-link_secondary nav-link m-0 p-0 text-decoration-none" target="_blank">
+                            <i class="fa fa-instagram fa-stack p-1 o_editable_media"/>
+                        </a>
+                    </div>
+                </div>
+            </li>
         </xpath>
-    </template>
+    </data>
 </odoo>
 
 
