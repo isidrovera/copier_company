@@ -4,14 +4,14 @@
         <record id="mail_template_ticket_creation" model="mail.template">
             <field name="name">Helpdesk Ticket Creation</field>
             <field name="model_id" ref="helpdesk.model_helpdesk_ticket"/>
-            <field name="subject">Support Ticket [#${object.id}] - ${object.name}</field>
-            <field name="email_from">${(object.company_id.email or 'support@yourcompany.com')|safe}</field>
-            <field name="email_to">${object.partner_id.email|safe}</field>
-            <field name="lang">${object.partner_id.lang}</field>
+            <field name="subject">Support Ticket {{object.ticket_ref}}</field>
+            <field name="email_from">info@copiercompanysac.com</field>
+            <field name="email_to">{{object.partner_id.email}}</field>
+            <field name="lang">{{object.partner_id.lang}}</field>
             <field name="body_html"><![CDATA[
                     <div style="font-family: 'Arial', sans-serif;">
                         <p>Estimado <t t-out="object.partner_id.name">,</p>
-                        <p>Le confirmamos que hemos recibido su solicitud con el número de ticket <strong><t t-out= "object.ticket_ref"></strong>. Nuestro equipo de ${object.team_id.name or 'Asistencia'} ya está trabajando en ella.</p>
+                        <p>Le confirmamos que hemos recibido su solicitud con el número de ticket <strong><t t-out= "object.ticket_ref"></strong>. Nuestro equipo de Asistencia ya está trabajando en ella.</p>
                         <p>Para cualquier consulta adicional o para proporcionar más detalles, puede responder directamente a este correo electrónico o contactarnos a través de WhatsApp utilizando el siguiente botón:</p>
                         <div style="text-align: center; margin-top: 16px;">
                             <a href="https://wa.me/message/XNGGOGE4PPOGO1" style="background-color: #25D366; color: #ffffff; padding: 10px 15px; border-radius: 4px; text-decoration: none; font-size: 16px; display: inline-block;">Contactar por WhatsApp</a>
@@ -22,7 +22,7 @@
                         </div>
                         <p>Gracias por confiar en nosotros. No dude en contactarnos si necesita ayuda adicional.</p>
                         <p>Saludos cordiales,</p>
-                        <p>El Equipo de 'Soporte'}</p>
+                        <p>El Equipo de Soporte</p>
                     </div>
                 ]]>            
             </field>
