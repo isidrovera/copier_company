@@ -11,7 +11,7 @@
           <field name="name"/>
           <field name="serie_id"/>
           <field name="cliente_id"/>
-          <field name="qr_code_with_icon" widget="binary"/>
+          <field name="qr_code" widget="binary"/>
         </tree>
       </field>
     </record>
@@ -22,7 +22,7 @@
         <form>
           <header>
             <button name="crear_ticket" string="Crear Ticket" type="object" class="oe_highlight"/>
-            <button name="generar_qr_con_icono" string="Crear QR" type="object" class="oe_highlight"/>
+            <button name="generar_qr_code" string="Crear QR" type="object" class="oe_highlight"/>
           </header>
           <sheet>
             <group>
