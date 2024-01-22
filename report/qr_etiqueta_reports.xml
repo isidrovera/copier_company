@@ -16,37 +16,41 @@
             <field name="dpi">300</field>
         </record>
         <!-- Plantilla QWeb para el reporte -->
-        <template id="report_helpdesk_ticket">
+         <template id="report_helpdesk_ticket">
             <t t-call="web.html_container">
                 <t t-set="size_class" t-value="'page-size-etiqueta'"/>
                 <style>
                     .page-size-etiqueta {
-                        size: 70mm 30mm; /* Ancho y alto de la etiqueta */
-                        margin: 0;
-                        padding: 0;
+                        width: 70mm;  /* Ancho de la etiqueta */
+                        height: 30mm; /* Altura de la etiqueta */
+                        display: block;
+                        margin: auto;
+                        padding: 5mm;
                     }
-                    @page {
-                        size: 70mm 30mm;
-                        margin: 0;
+                    .page-size-etiqueta img {
+                        width: 100%;
+                        height: auto;
+                    }
+                    .text-section {
+                        text-align: center;
+                        font-size: 10pt;
                     }
                 </style>
                 <t t-foreach="docs" t-as="doc">
-                    <div class="page page-size-etiqueta">
-                        <div style="text-align:center;">
+                    <div class="page">
+                        <div class="page-size-etiqueta">
                             <!-- Mostrar el código QR -->
-                            <img t-att-src="'data:image/png;base64,%s' % doc.qr_code" style="width:200px;height:200px;"/>
-                            <br/>
-                            <!-- Texto profesional debajo del código QR -->
-                            <span>Para reportar incidencias, escanee este código QR o contacte a nuestro equipo de soporte técnico.</span>
-                            <br/>
-                            <span>
-                                <strong>Correo:</strong> soporte@copiercompanysac.com</span>
-                            <br/>
-                            <span>
-                                <strong>Celular:</strong> +51 987 654 321</span>
-                            <br/>
-                            <span>
-                                <strong>WhatsApp:</strong> +51 987 654 321</span>
+                            <img t-att-src="'data:image/png;base64,%s' % doc.qr_code"/>
+                            <div class="text-section">
+                                <!-- Texto debajo del código QR -->
+                                Para reportar incidencias, escanee este código QR o contacte a nuestro equipo de soporte técnico.
+                                <br/>
+                                <strong>Correo:</strong> soporte@copiercompanysac.com
+                                <br/>
+                                <strong>Celular:</strong> +51 987 654 321
+                                <br/>
+                                <strong>WhatsApp:</strong> +51 987 654 321
+                            </div>
                         </div>
                     </div>
                 </t>
