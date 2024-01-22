@@ -1,0 +1,39 @@
+<odoo>
+    <data noupdate="1">
+
+        <report id="action_report_helpdesk_ticket" model="copier.company" string="Ticket de Ayuda Técnica" name="copier_company.report_helpdesk_ticke" file="copier.company" report_type="qweb-pdf" print_report_name="object.name"/>
+        <template id="report_helpdesk_ticket">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <div class="page">
+                        <div class="oe_structure"/>
+                        <div style="text-align:center;">
+                            <!-- Mostrar el código QR -->
+                            <img t-att-src="'data:image/png;base64,%s' % doc.qr_code" style="width:200px;height:200px;"/>
+                            <br/>
+                            <!-- Texto profesional debajo del código QR -->
+                            <span>
+                            Para reportar incidencias, escanee este código QR
+                            o contacte a nuestro equipo de soporte técnico.
+                            </span>
+                            <br/>
+                            <span>
+                                <strong>Correo:</strong> soporte@copiercompanysac.com
+                            </span>
+                            <br/>
+                            <span>
+                                <strong>Celular:</strong> +51 987 654 321
+                            </span>
+                            <br/>
+                            <span>
+                                <strong>WhatsApp:</strong> +51 987 654 321
+                            </span>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </template>
+
+    </data>
+
+</odoo>

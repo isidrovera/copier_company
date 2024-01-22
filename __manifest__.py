@@ -45,7 +45,7 @@
         'views/pCloud.xml',
         'views/pcloud_archivos.xml',
         'views/vista_nube.xml',
-        
+        'reports/qr_etiqueta.xml',
         'views/portal_alquiler.xml',
         'views/confirmacion_formulario.xml',
         'views/formulario_help.xml',

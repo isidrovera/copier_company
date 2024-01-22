@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
+from PIL import Image, ImageDraw, ImageFont
 import logging
 import qrcode
 import base64
@@ -46,6 +47,7 @@ class CopierCompany(models.Model):
 
     qr_code = fields.Binary(string='Código QR', readonly=True)
     def generar_qr_code(self):
+        icon_path = "/static/src/img/icono.png"       # Asegúrate de que esta ruta sea correcta y accesible en el servidor
         base_url = "https://copiercompanysac.com//public/helpdesk_ticket"
         for record in self:
             # Datos para codificar en el código QR con URL completa
@@ -54,21 +56,46 @@ class CopierCompany(models.Model):
             # Generar el código QR
             qr = qrcode.QRCode(
                 version=1,
-                error_correction=qrcode.constants.ERROR_CORRECT_L,
+                error_correction=qrcode.constants.ERROR_CORRECT_H,
                 box_size=10,
                 border=4,
             )
             qr.add_data(data_to_encode)
             qr.make(fit=True)
+            qr_img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
 
-            # Crear una imagen del código QR en formato PNG
-            img = qr.make_image(fill_color="black", back_color="white")
+            # Cargar el ícono y colocarlo en el centro del QR
+            icon = Image.open(icon_path)
+            icon_w, icon_h = icon.size
+            qr_w, qr_h = qr_img.size
+            icon_x = (qr_w - icon_w) // 2
+            icon_y = (qr_h - icon_h) // 2
+            qr_img.paste(icon, (icon_x, icon_y), icon)
 
-            # Convertir la imagen en una cadena de bytes y almacenarla en el campo qr_code
-            img_byte_array = io.BytesIO()
-            img.save(img_byte_array, format='PNG')
-            qr_image_base64 = base64.b64encode(img_byte_array.getvalue()).decode('utf-8')
+            # Crear imagen para la etiqueta
+            etiqueta = Image.new('RGB', (qr_w, qr_h + 60), 'white')
+            draw = ImageDraw.Draw(etiqueta)
+            font_path = "/path/to/font.ttf"  # Reemplaza con la ruta a la fuente que deseas usar
+            font = ImageFont.truetype(font_path, 12)
+            
+            # Texto mejorado para la etiqueta
+            texto_incidencias = ("Para reportar incidencias, escanee este código QR\n"
+                                 "o contacte a nuestro equipo de soporte técnico.\n"
+                                 "Correo: soporte@copiercompanysac.com\n"
+                                 "Celular: +51 987 654 321\n"
+                                 "WhatsApp: +51 987 654 321")
 
-            # Almacenar la imagen en el campo qr_code del registro
-            record.qr_code = qr_image_base64
+            # Dibujar texto en la parte inferior del QR
+            draw.text((10, qr_h + 10), texto_incidencias, (0, 0, 0), font=font)
+            
+            # Pegar el QR en la etiqueta
+            etiqueta.paste(qr_img, (0, 0))
+
+            # Convertir a base64
+            temp_buffer = io.BytesIO()
+            etiqueta.save(temp_buffer, format="PNG")
+            qr_base64 = base64.b64encode(temp_buffer.getvalue()).decode("utf-8")
+
+            # Almacenar en el campo qr_code
+            record.qr_code = qr_base64
 
