@@ -1,52 +1,14 @@
-
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
         <report
-            id="action_report_helpdesk_ticket"
-            model="copier.company"
-            string="Ticket de Ayuda Técnica"
-            name="copier_company.report_helpdesk_ticket"
-            file="copier_company.report_helpdesk_ticket"
-            report_type="qweb-pdf"
-            print_report_name="object.name"
-            paperformat_id="ref('tu_modulo.paperformat_etiqueta')" />
+                id="qr_alquiler_maquinas"
+                model="copier.company"
+                string="QR ALQUILER"
+                name="copier_company.ticket_view"
+                file="copier.company"
+                report_type="qweb-pdf"
+                print_report_name="Ejemplo"/>
 
-        <template id="report_helpdesk_ticket">
-            <t t-call="web.html_container">
-                <t t-set="size_class" t-value="'page-size-etiqueta'" />
-                <style>
-                    .page-size-etiqueta {
-                        size: 70mm 30mm; /* Ancho y alto de la etiqueta */
-                        margin: 0;
-                        padding: 0;
-                    }
-                    @page {
-                        size: 70mm 30mm;
-                        margin: 0;
-                    }
-                </style>
-                <t t-foreach="docs" t-as="doc">
-                    <div class="page page-size-etiqueta">
-                        <!-- El contenido de tu etiqueta aquí -->
-                    </div>
-                </t>
-            </t>
-        </template>
-
-        <record id="paperformat_etiqueta" model="report.paperformat">
-            <field name="name">Etiqueta</field>
-            <field name="default" eval="False" />
-            <field name="format">Custom</field>
-            <field name="page_height">30</field>
-            <field name="page_width">70</field>
-            <field name="orientation">Portrait</field>
-            <field name="margin_top">0</field>
-            <field name="margin_bottom">0</field>
-            <field name="margin_left">0</field>
-            <field name="margin_right">0</field>
-            <field name="header_line" eval="False" />
-            <field name="header_spacing">0</field>
-            <field name="dpi">300</field>
-        </record>
     </data>
 </odoo>
