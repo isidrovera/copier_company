@@ -48,24 +48,34 @@ class CopierCompany(models.Model):
     qr_code = fields.Binary(string='Código QR', readonly=True)
     def generar_qr_code(self):
         base_url = "https://copiercompanysac.com//public/helpdesk_ticket"
+        
+        # Configuración de tamaño
+        dpi = 300  # puntos por pulgada
+        size_in_inches = 1.5  # tamaño deseado en pulgadas
+        total_size_in_pixels = size_in_inches * dpi
+
+        # Establecer bordes y calcular el tamaño de cada caja
+        border = 4
+        num_boxes_per_side = 21 + (2 * border)  # 21 cajas para la versión 1 del QR más los bordes
+        box_size = (total_size_in_pixels - (2 * border * dpi / 25.4)) // num_boxes_per_side
+
         for record in self:
-            # Datos para codificar en el código QR con URL completa
             data_to_encode = f"{base_url}?copier_company_id={record.id}"
 
             # Generar el código QR
             qr = qrcode.QRCode(
                 version=1,
                 error_correction=qrcode.constants.ERROR_CORRECT_L,
-                box_size=10,
-                border=4,
+                box_size=box_size,
+                border=border,
             )
             qr.add_data(data_to_encode)
             qr.make(fit=True)
 
-            # Crear una imagen del código QR en formato PNG
+            # Crear la imagen del código QR
             img = qr.make_image(fill_color="black", back_color="white")
 
-            # Convertir la imagen en una cadena de bytes y almacenarla en el campo qr_code
+            # Convertir la imagen a una cadena de bytes y almacenarla
             img_byte_array = io.BytesIO()
             img.save(img_byte_array, format='PNG')
             qr_image_base64 = base64.b64encode(img_byte_array.getvalue()).decode('utf-8')
