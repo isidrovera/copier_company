@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-      
         <!-- Plantilla QWeb para el reporte -->
-         <template id="report_helpdesk_ticket">
+        <template id="report_helpdesk_ticket">
             <t t-call="web.html_container">
-                <t t-set="size_class" t-value="'page-size-etiqueta'"/>
                 <style>
-                    .page-size-etiqueta {
+                    .etiqueta-container {
                         width: 70mm;  /* Ancho de la etiqueta */
                         height: 30mm; /* Altura de la etiqueta */
+                        margin: 10mm auto; /* Centrar la etiqueta en la página */
+                        padding: 5mm;
+                        border: 1px solid #000; /* Borde para visualizar el área de la etiqueta */
+                    }
+                    .etiqueta-container img {
+                        width: 60mm; /* Ancho del código QR */
+                        height: auto;
                         display: block;
                         margin: auto;
-                        padding: 5mm;
-                    }
-                    .page-size-etiqueta img {
-                        width: 100%;
-                        height: auto;
                     }
                     .text-section {
                         text-align: center;
@@ -25,7 +25,7 @@
                 </style>
                 <t t-foreach="docs" t-as="doc">
                     <div class="page">
-                        <div class="page-size-etiqueta">
+                        <div class="etiqueta-container">
                             <!-- Mostrar el código QR -->
                             <img t-att-src="'data:image/png;base64,%s' % doc.qr_code"/>
                             <div class="text-section">
@@ -51,7 +51,6 @@
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">copier_company.report_helpdesk_ticket</field>
             <field name="report_file">copier_company.report_helpdesk_ticket</field>
-            <field name="paperformat_id" ref="copier_company.paperformat_etiqueta"/>
             <field name="binding_model_id" ref="copier_company.model_copier_company"/>
             <field name="binding_type">report</field>
         </record>
