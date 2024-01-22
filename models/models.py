@@ -55,7 +55,7 @@ class CopierCompany(models.Model):
             # Datos para codificar en el código QR con URL completa
             data_to_encode = f"{base_url}?copier_company_id={record.id}"
 
-            # Generar el código QR
+            # Generar el código QR con un espacio en el centro para el ícono
             qr = qrcode.QRCode(
                 version=1,
                 error_correction=qrcode.constants.ERROR_CORRECT_H,
@@ -77,6 +77,27 @@ class CopierCompany(models.Model):
 
             # Insertar el ícono en el QR
             qr_img.paste(icon, icon_pos, icon)
+
+            # Crear una imagen para el texto debajo del código QR
+            texto_incidencias = ("Para reportar incidencias, escanee este código QR\n"
+                                "o contacte a nuestro equipo de soporte técnico.\n"
+                                "Correo: soporte@copiercompanysac.com\n"
+                                "Celular: +51 987 654 321\n"
+                                "WhatsApp: +51 987 654 321")
+            # Definir la fuente y tamaño del texto
+            font = ImageFont.load_default()
+            # Si quieres usar una fuente específica, descomenta la siguiente línea y asegúrate de tener la ruta correcta
+            # font = ImageFont.truetype("arial.ttf", 15)
+
+            # Crear un objeto 'draw' para dibujar texto en la imagen
+            draw = ImageDraw.Draw(qr_img)
+            # Calcular el tamaño del texto
+            text_size = draw.textsize(texto_incidencias, font=font)
+            # Calcular la posición para el texto debajo del código QR
+            text_x = (qr_img.size[0] - text_size[0]) // 2
+            text_y = qr_img.size[1] - text_size[1]
+            # Dibujar el texto en la imagen
+            draw.text((text_x, text_y), texto_incidencias, font=font, fill="black")
 
             # Convertir la imagen del QR a Base64 para almacenamiento
             temp_buffer = io.BytesIO()
