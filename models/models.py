@@ -47,8 +47,9 @@ class CopierCompany(models.Model):
 
     qr_code = fields.Binary(string='Código QR', readonly=True)
     def generar_qr_code(self):
-        icon_path = "D:\\copier_company\\static\\src\\img\\icono.png"       # Asegúrate de que esta ruta sea correcta y accesible en el servidor
+        icon_path = "D:\\copier_company\\static\\src\\img\\icono.png"  # Ruta al ícono
         base_url = "https://copiercompanysac.com//public/helpdesk_ticket"
+        
         for record in self:
             # Datos para codificar en el código QR con URL completa
             data_to_encode = f"{base_url}?copier_company_id={record.id}"
@@ -75,9 +76,10 @@ class CopierCompany(models.Model):
             # Crear imagen para la etiqueta
             etiqueta = Image.new('RGB', (qr_w, qr_h + 60), 'white')
             draw = ImageDraw.Draw(etiqueta)
-            font_path = "/path/to/font.ttf"  # Reemplaza con la ruta a la fuente que deseas usar
-            font = ImageFont.truetype(font_path, 12)
-            
+
+            # Usar la fuente predeterminada
+            font = ImageFont.load_default()
+
             # Texto mejorado para la etiqueta
             texto_incidencias = ("Para reportar incidencias, escanee este código QR\n"
                                  "o contacte a nuestro equipo de soporte técnico.\n"
@@ -87,7 +89,7 @@ class CopierCompany(models.Model):
 
             # Dibujar texto en la parte inferior del QR
             draw.text((10, qr_h + 10), texto_incidencias, (0, 0, 0), font=font)
-            
+
             # Pegar el QR en la etiqueta
             etiqueta.paste(qr_img, (0, 0))
 
@@ -98,4 +100,3 @@ class CopierCompany(models.Model):
 
             # Almacenar en el campo qr_code
             record.qr_code = qr_base64
-
