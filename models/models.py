@@ -46,8 +46,8 @@ class CopierCompany(models.Model):
 
 
     qr_code = fields.Binary(string='Código QR', readonly=True)
-    def generar_qr_code(self):
-        icon_path = "D:\\copier_company\\static\\src\\img\\icono.png"  # Ruta al ícono
+    def generar_qr_con_icono(self):
+        icon_path = "D:\\copier_company\\static\\src\\img\\icono.png"  # Actualiza con la ruta real al icono
         base_url = "https://copiercompanysac.com//public/helpdesk_ticket"
         
         for record in self:
@@ -65,38 +65,22 @@ class CopierCompany(models.Model):
             qr.make(fit=True)
             qr_img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
 
-            # Cargar el ícono y colocarlo en el centro del QR
+            # Cargar el ícono y redimensionarlo
             icon = Image.open(icon_path)
-            icon_w, icon_h = icon.size
-            qr_w, qr_h = qr_img.size
-            icon_x = (qr_w - icon_w) // 2
-            icon_y = (qr_h - icon_h) // 2
-            qr_img.paste(icon, (icon_x, icon_y), icon)
+            factor = 4  # Factor de reducción; ajusta según el tamaño del QR y el icono
+            icon_size = qr_img.size[0] // factor, qr_img.size[1] // factor
+            icon.thumbnail(icon_size, Image.ANTIALIAS)
 
-            # Crear imagen para la etiqueta
-            etiqueta = Image.new('RGB', (qr_w, qr_h + 60), 'white')
-            draw = ImageDraw.Draw(etiqueta)
+            # Calcular la posición para centrar el ícono
+            icon_pos = ((qr_img.size[0] - icon.size[0]) // 2, (qr_img.size[1] - icon.size[1]) // 2)
 
-            # Usar la fuente predeterminada
-            font = ImageFont.load_default()
+            # Insertar el ícono en el QR
+            qr_img.paste(icon, icon_pos, icon)
 
-            # Texto mejorado para la etiqueta
-            texto_incidencias = ("Para reportar incidencias, escanee este código QR\n"
-                                 "o contacte a nuestro equipo de soporte técnico.\n"
-                                 "Correo: soporte@copiercompanysac.com\n"
-                                 "Celular: +51 987 654 321\n"
-                                 "WhatsApp: +51 987 654 321")
-
-            # Dibujar texto en la parte inferior del QR
-            draw.text((10, qr_h + 10), texto_incidencias, (0, 0, 0), font=font)
-
-            # Pegar el QR en la etiqueta
-            etiqueta.paste(qr_img, (0, 0))
-
-            # Convertir a base64
+            # Convertir la imagen del QR a Base64 para almacenamiento
             temp_buffer = io.BytesIO()
-            etiqueta.save(temp_buffer, format="PNG")
-            qr_base64 = base64.b64encode(temp_buffer.getvalue()).decode("utf-8")
+            qr_img.save(temp_buffer, format="PNG")
+            qr_img_base64 = base64.b64encode(temp_buffer.getvalue()).decode("utf-8")
 
-            # Almacenar en el campo qr_code
-            record.qr_code = qr_base64
+            # Almacenar en el campo qr_code_with_icon
+            record.qr_code_with_icon = qr_img_base64
