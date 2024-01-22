@@ -45,7 +45,8 @@ class CopierCompany(models.Model):
         
 
 
-    qr_code = fields.Binary(string='Código QR', readonly=True)
+    qr_code_with_icon = fields.Binary(string='Código QR con Icono', readonly=True)
+
     def generar_qr_con_icono(self):
         icon_path = "D:\\copier_company\\static\\src\\img\\icono.png"  # Actualiza con la ruta real al icono
         base_url = "https://copiercompanysac.com//public/helpdesk_ticket"
@@ -68,7 +69,7 @@ class CopierCompany(models.Model):
             # Cargar el ícono y redimensionarlo
             icon = Image.open(icon_path)
             factor = 4  # Factor de reducción; ajusta según el tamaño del QR y el icono
-            icon_size = qr_img.size[0] // factor, qr_img.size[1] // factor
+            icon_size = (qr_img.size[0] // factor, qr_img.size[1] // factor)
             icon.thumbnail(icon_size, Image.ANTIALIAS)
 
             # Calcular la posición para centrar el ícono
