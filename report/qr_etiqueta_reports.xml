@@ -5,9 +5,11 @@
             <field name="name">Property Report</field>
             <field name="model">copier.company</field>
             <field name="report_type">qweb-pdf</field>
-            <field name="report_name">estate.report_property_offers</field>
-            <field name="report_file">estate.report_property_offers</field>            
+            <field name="report_name">copier_company.report_property_offers</field>
+            <field name="report_file">copier_company.report_property_offers</field>
+            <field name="binding_model_id" ref="copier_company.model_copier_company"/>
             <field name="binding_type">report</field>
         </record>
+
     </data>
 </odoo>
