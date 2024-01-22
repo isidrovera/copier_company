@@ -47,7 +47,7 @@ class CopierCompany(models.Model):
 
     qr_code = fields.Binary(string='Código QR', readonly=True)
     def generar_qr_code(self):
-        icon_path = "/static/src/img/icono.png"       # Asegúrate de que esta ruta sea correcta y accesible en el servidor
+        icon_path = "D:\\copier_company\\static\\src\\img\\icono.png"       # Asegúrate de que esta ruta sea correcta y accesible en el servidor
         base_url = "https://copiercompanysac.com//public/helpdesk_ticket"
         for record in self:
             # Datos para codificar en el código QR con URL completa
