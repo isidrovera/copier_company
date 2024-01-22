@@ -1,15 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <record id="estate_property_action_report" model="ir.actions.report">
-            <field name="name">Property Report</field>
+        <!-- Definición del formato de papel para la etiqueta -->
+        <record id="paperformat_etiqueta" model="report.paperformat">
+            <field name="name">Etiqueta</field>
+            <field name="default" eval="False"/>
+            <field name="format">Custom</field>
+            <field name="page_height">30</field>
+            <field name="page_width">70</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">0</field>
+            <field name="margin_bottom">0</field>
+            <field name="margin_left">0</field>
+            <field name="margin_right">0</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">0</field>
+            <field name="dpi">300</field>
+        </record>
+
+        <!-- Plantilla QWeb para el reporte -->
+        <template id="report_helpdesk_ticket">
+            <t t-call="web.html_container">
+                <t t-set="size_class" t-value="'page-size-etiqueta'"/>
+                <style>
+                    .page-size-etiqueta {
+                        size: 70mm 30mm; /* Ancho y alto de la etiqueta */
+                        margin: 0;
+                        padding: 0;
+                    }
+                    @page {
+                        size: 70mm 30mm;
+                        margin: 0;
+                    }
+                </style>
+                <t t-foreach="docs" t-as="doc">
+                    <div class="page page-size-etiqueta">
+                        <div style="text-align:center;">
+                            <!-- Mostrar el código QR -->
+                            <img t-att-src="'data:image/png;base64,%s' % doc.qr_code" style="width:200px;height:200px;"/>
+                            <br/>
+                            <!-- Texto profesional debajo del código QR -->
+                            <span>Para reportar incidencias, escanee este código QR o contacte a nuestro equipo de soporte técnico.</span>
+                            <br/>
+                            <span><strong>Correo:</strong> soporte@copiercompanysac.com</span>
+                            <br/>
+                            <span><strong>Celular:</strong> +51 987 654 321</span>
+                            <br/>
+                            <span><strong>WhatsApp:</strong> +51 987 654 321</span>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </template>
+
+        <!-- Acción del reporte -->
+        <record id="action_report_helpdesk_ticket" model="ir.actions.report">
+            <field name="name">Ticket de Ayuda Técnica</field>
             <field name="model">copier.company</field>
             <field name="report_type">qweb-pdf</field>
-            <field name="report_name">copier_company.report_property_offers</field>
-            <field name="report_file">copier_company.report_property_offers</field>
+            <field name="report_name">copier_company.report_helpdesk_ticket</field>
+            <field name="report_file">copier_company.report_helpdesk_ticket</field>
+            <field name="paperformat_id" ref="copier_company.paperformat_etiqueta"/>
             <field name="binding_model_id" ref="copier_company.model_copier_company"/>
             <field name="binding_type">report</field>
         </record>
-
     </data>
 </odoo>
