@@ -48,7 +48,7 @@ class CopierCompany(models.Model):
     qr_code_with_icon = fields.Binary(string='Código QR con Icono', readonly=True)
 
     def generar_qr_con_icono(self):
-        icon_path = "D:\\copier_company\\static\\src\\img\\icono.png"  # Actualiza con la ruta real al icono
+        icon_path = "copier_company/static/src/img/icono.png"  # Actualiza con la ruta real al icono
         base_url = "https://copiercompanysac.com//public/helpdesk_ticket"
         
         for record in self:
