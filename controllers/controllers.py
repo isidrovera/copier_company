@@ -121,6 +121,8 @@ class PublicHelpdeskController(http.Controller):
         partner_name = ''
         product_name = ''
         serie_id = ''
+        sede = ''
+        ubicacion = ''
         if copier_company_id:
             try:
                 copier_company = request.env['copier.company'].sudo().browse(int(copier_company_id))
@@ -128,6 +130,8 @@ class PublicHelpdeskController(http.Controller):
                     partner_name = copier_company.cliente_id.name
                     product_name = copier_company.name
                     serie_id = copier_company.serie_id
+                    sede = copier_company.sede
+                    ubicacion = copier_company.ubicacion
             except ValueError:
                 return request.redirect('/error')  # Redirige a una página de error en caso de un ID no válido
 
@@ -135,7 +139,10 @@ class PublicHelpdeskController(http.Controller):
             'copier_company_id': copier_company_id,
             'partner_name': partner_name,
             'product_name': product_name,
-            'serie_id': serie_id
+            'serie_id': serie_id,
+            'sede' : sede,
+            'ubicacion' : ubicacion
+
         })
 
 

@@ -11,6 +11,8 @@
           <field name="name"/>
           <field name="serie_id"/>
           <field name="cliente_id"/>
+          <field name="sede"/>
+          <field name="ubicacion"/>
           <button name="crear_ticket" string=" " type="object" class="oe_highlight" icon="fa-question-circle"/>
           <button name="generar_qr_code" string=" " type="object" class="oe_highlight" icon="fa-qrcode"/>
           <field name="qr_code" widget="binary"/>
@@ -32,7 +34,8 @@
               <field name="name"/>
               <field name="serie_id"/>
               <field name="cliente_id"/>
-              
+              <field name="sede"/>
+              <field name="ubicacion"/>              
             </group>
           </sheet>
           <div class="oe_chatter">
