@@ -188,3 +188,19 @@ class PublicHelpdeskController(http.Controller):
     @http.route('/public/helpdesk_ticket_confirmation', type='http', auth='public', website=True)
     def confirmation(self, **kwargs):
         return request.render("copier_company.helpdesk_ticket_confirmation")
+    
+class PCloudController(http.Controller):
+    @http.route('/pcloud/callback', type='http', auth='public', csrf=False)
+    def pcloud_authenticate(self, **kw):
+        if 'code' not in kw:
+            return "No code provided by pCloud."
+        
+        pcloud_config = request.env['pcloud.config'].sudo().search([], limit=1)
+        if not pcloud_config:
+            return "PCloud configuration not found."
+        
+        try:
+            pcloud_config.exchange_code_for_token(kw['code'])
+            return "PCloud authentication successful. You can close this page."
+        except UserError as e:
+            return str(e)
