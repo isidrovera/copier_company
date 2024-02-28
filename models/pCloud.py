@@ -89,22 +89,25 @@ class PCloudConfig(models.Model):
         else:
             raise UserError(_("No active pCloud session to disconnect."))
     def get_folder_list(self):
-        _logger.info("Getting folder list...")
+        _logger.info("Getting folder list from pCloud")
         url = "https://api.pcloud.com/listfolder"
         params = {
             'auth': self.access_token,
             'folderid': 0,
         }
-        response = requests.get(url, params=params)
-        if response.status_code == 200:
-            data = response.json()
-            _logger.info("Received folder list: %s", data)
-            if data['result'] == 0:
-                return data['metadata']['contents']
+        try:
+            response = requests.get(url, params=params)
+            _logger.info("pCloud API response: %s", response.text)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('result') == 0:
+                    return data['metadata']['contents']
+                else:
+                    _logger.error("Error from pCloud API: %s", data.get('error'))
+                    raise UserError(_("Error from pCloud API: %s") % data.get('error'))
             else:
-                error_message = data.get('error', 'Unknown error.')
-                _logger.error("Error listing folder: %s", error_message)
-                raise UserError(_("Error listing folder: %s") % error_message)
-        else:
-            _logger.error("Failed to communicate with pCloud API. Status code: %s, Response: %s", response.status_code, response.text)
-            raise UserError(_("Failed to communicate with pCloud API: %s") % response.status_code)
+                _logger.error("Bad response from pCloud API: %s", response.status_code)
+                raise UserError(_("Bad response from pCloud API: %s") % response.status_code)
+        except requests.RequestException as e:
+            _logger.exception("Request to pCloud API failed: %s", e)
+            raise UserError(_("Communication with pCloud API failed: %s") % e)
