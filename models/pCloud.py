@@ -32,24 +32,25 @@ class PCloudConfig(models.Model):
             'client_id': self.client_id,
             'client_secret': self.client_secret,
             'code': authorization_code,
-            'redirect_uri': 'https://copiercompanysac.com/pcloud/callback',
-            'grant_type': 'authorization_code',
         }
-        response = requests.post(token_url, data=token_params)
-        _logger.info("Response status code: %s", response.status_code)
-        if response.status_code == 200:
-            response_data = response.json()
-            _logger.info("Received response data: %s", response_data)
-            access_token = response_data.get('access_token')
-            if access_token:
-                _logger.info("Access token received: %s", access_token)
-                self.write({'access_token': access_token})
+        try:
+            response = requests.post(token_url, data=token_params)
+            _logger.debug("Token exchange response: %s", response.text)
+            if response.status_code == 200:
+                response_data = response.json()
+                if response_data['result'] == 0:
+                    _logger.info("Access token received: %s", response_data['access_token'])
+                    self.write({'access_token': response_data['access_token']})
+                else:
+                    _logger.error("Failed to exchange code for token: %s", response_data)
+                    # Handle specific error based on 'result' code from pCloud
             else:
-                _logger.error("No access token returned in response.")
-                raise UserError(_("Authentication with pCloud failed. No access token returned."))
-        else:
-            _logger.error("Failed to exchange authorization code for access token. Error: %s", response.text)
-            raise UserError(_("Failed to exchange authorization code for access token. Error: %s") % response.text)
+                _logger.error("Token exchange request failed with status: %s", response.status_code)
+                # Handle HTTP error
+        except requests.RequestException as e:
+            _logger.exception("Token exchange request resulted in exception: %s", e)
+            # Handle request exception
+
     @api.model
     def authenticate_with_pcloud(self):
         return {
