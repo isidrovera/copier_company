@@ -1,148 +1,63 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 import requests
-import logging
+import hashlib
 
-_logger = logging.getLogger(__name__)
+class PCloudConfig(models.Model):
+    _name = 'pcloud.config'
+    _description = 'pCloud Configuration'
 
-class ConfiguracionPCloud(models.Model):
-    _name = 'configuracion.pcloud'
-    _description = 'Configuración de pCloud'
+    name = fields.Char(string='Configuration Name', required=True)
+    client_id = fields.Char(string='Client ID', required=True)
+    client_secret = fields.Char(string='Client Secret', required=True)
+    access_token = fields.Char(string='Access Token', readonly=True)
 
-    api_key = fields.Char('API Key', required=True)
-    usuario = fields.Char('Usuario pCloud', required=True)
-    password = fields.Char('Contraseña pCloud')
-    token = fields.Char('Token de Acceso', readonly=True)
+    def generate_password_digest(self, username, password, digest):
+        # Generar el password digest como sha1(password + sha1(lowercase(username)) + digest)
+        sha1_of_username = hashlib.sha1(username.lower().encode('utf-8')).hexdigest()
+        password_digest = hashlib.sha1((password + sha1_of_username + digest).encode('utf-8')).hexdigest()
+        return password_digest
 
-    def obtener_token_pcloud(self):
-        url = "https://api.pcloud.com/oauth2_token"
-        payload = {
-            'client_id': self.api_key,
-            'username': self.usuario,
-            'password': self.password,
-            'grant_type': 'password',
+    def action_connect(self):
+        # En este punto, necesitarías capturar el username y password del usuario de manera segura
+        # Por ejemplo, podrían ser almacenados temporalmente en el modelo o introducidos por el usuario
+        username = 'USUARIO'
+        password = 'CONTRASEÑA'
+
+        # Obtener el digest para la autenticación
+        digest_response = requests.get('https://api.pcloud.com/getdigest')
+        digest_data = digest_response.json()
+        digest = digest_data.get('digest')
+
+        # Generar el password digest
+        password_digest = self.generate_password_digest(username, password, digest)
+
+        # Llamar al método userinfo con los parámetros para autenticación
+        auth_params = {
+            'getauth': 1,
+            'logout': 1,
+            'username': username,
+            'passworddigest': password_digest,
         }
-        response = requests.post(url, data=payload)
-        if response.status_code == 200:
-            self.token = response.json().get('access_token')
-            _logger.info("Token de pCloud obtenido con éxito.")
-            return self.token
-        else:
-            error_msg = f"Error al obtener token de pCloud: {response.text}"
-            _logger.error(error_msg)
-            raise UserError(error_msg)
-
-  
-    def conectar_pcloud(self):
-        self.ensure_one()
-        try:
-            token = self.obtener_token_pcloud()
-            if token:
-                return {
-                    'type': 'ir.actions.client',
-                    'tag': 'display_notification',
-                    'params': {
-                        'title': 'Conexión Exitosa',
-                        'message': 'Conexión con pCloud establecida.',
-                        'type': 'success',
-                    }
-                }
-        except Exception as e:
-            raise exceptions.UserError('Error al conectar con pCloud: %s' % str(e))
-
-
-    def sincronizar_pcloud_con_odoo(self):
-        archivos_pcloud = self.obtener_archivos_pcloud()
-        for archivo in archivos_pcloud:
-            # Crear o actualizar registros en Odoo basado en los datos de pCloud
-            vals = {
-                'name': archivo['name'],
-                'size': archivo.get('size', 0),
-                'isfolder': archivo['isfolder'],
-            }
-            self.env['pcloud.archivo'].create(vals)
-
-
-    def subir_archivo_pcloud(self, file_path):
-        if not self.token:
-            raise UserError("No se ha establecido la conexión con pCloud.")
-
-        url = "https://api.pcloud.com/uploadfile"
-        params = {'auth': self.token, 'folderid': 0}
-        files = {'file': open(file_path, 'rb')}
-        response = requests.post(url, files=files, params=params)
-        if response.status_code == 200:
-            _logger.info("Archivo subido con éxito a pCloud.")
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': _('Éxito'),
-                    'message': _('Archivo subido exitosamente a pCloud.'),
-                    'type': 'success',
-                }
-            }
-        else:
-            error_msg = f"Error al subir archivo a pCloud: {response.text}"
-            _logger.error(error_msg)
-            raise UserError(error_msg)
-
-
-    def descargar_archivo_pcloud(self, file_id):
-        token = self.token
-        url = f"https://api.pcloud.com/getfilelink?fileid={file_id}&auth={token}"
-        response = requests.get(url)
-        if response.status_code == 200:
-            download_link = response.json().get('path')
-            file_response = requests.get(f"https://api.pcloud.com{download_link}")
-            if file_response.status_code == 200:
-                return file_response.content
+        auth_response = requests.get('https://api.pcloud.com/userinfo', params=auth_params)
+        if auth_response.status_code == 200:
+            auth_data = auth_response.json()
+            if auth_data.get('result') == 0:
+                # Guardar el token de autenticación
+                self.access_token = auth_data.get('auth')
             else:
-                raise UserError('Error al descargar el archivo de pCloud')
+                raise UserError(_('No se pudo obtener el token de autenticación de pCloud.'))
         else:
-            raise UserError('Error al obtener el enlace de descarga de pCloud')
+            raise UserError(_('Error de conexión con pCloud.'))
 
-    def eliminar_archivo_pcloud(self, file_id):
-        token = self.token
-        url = "https://api.pcloud.com/deletefile"
-        params = {'auth': token, 'fileid': file_id}
-        response = requests.get(url, params=params)
-        if response.status_code == 200:
-            return True
+    def action_disconnect(self):
+        # Usar el token de acceso para desconectar la sesión en pCloud
+        if self.access_token:
+            logout_response = requests.get('https://api.pcloud.com/logout', params={'auth': self.access_token})
+            if logout_response.status_code == 200:
+                # Limpiar el token de acceso después de cerrar la sesión exitosamente
+                self.access_token = False
+            else:
+                raise UserError(_('Error al desconectar de pCloud.'))
         else:
-            raise UserError('Error al eliminar el archivo en pCloud')
-
-    def renombrar_archivo_pcloud(self, file_id, nuevo_nombre):
-        token = self.token
-        url = "https://api.pcloud.com/renamefile"
-        params = {'auth': token, 'fileid': file_id, 'toname': nuevo_nombre}
-        response = requests.get(url, params=params)
-        if response.status_code == 200:
-            return True
-        else:
-            raise UserError('Error al renombrar el archivo en pCloud')
-    def obtener_archivos_pcloud(self):
-        if not self.token:
-            raise UserError("La conexión con pCloud no está establecida.")
-
-        url = "https://api.pcloud.com/listfolder"
-        params = {'auth': self.token, 'folderid': 0}  # Usando la carpeta raíz como ejemplo
-        response = requests.get(url, params=params)
-
-        if response.status_code == 200:
-            archivos = response.json().get('contents', [])
-            return archivos
-        else:
-            error_msg = "Error al obtener archivos de pCloud: {}".format(response.text)
-            _logger.error(error_msg)
-            raise UserError(error_msg)
-            raise UserError(error_msg)
-
-
-    class PCloudArchivo(models.Model):
-        _name = 'pcloud.archivo'
-        _description = 'Archivo de pCloud'
-
-        name = fields.Char("Nombre", required=True)
-        size = fields.Integer("Tamaño")
-        isfolder = fields.Boolean("Es Carpeta")
+            raise UserError(_('No hay una sesión activa de pCloud para desconectar.'))

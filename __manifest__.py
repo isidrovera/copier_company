@@ -42,10 +42,8 @@
         'static/src/js/script.js',
         'data/ir.secuencia.xml',
         'views/extend_form_view.xml',
-        'views/pCloud.xml',
-        'views/pcloud_archivos.xml',
-        'views/vista_nube.xml',
-        
+        'views/pCloud.xml',        
+        'views/vista_nube.xml',        
         'views/portal_alquiler.xml',
         'views/confirmacion_formulario.xml',
         'views/formulario_help.xml',
