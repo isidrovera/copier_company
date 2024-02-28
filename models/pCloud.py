@@ -79,3 +79,22 @@ class PCloudConfig(models.Model):
                 raise UserError(_("Failed to disconnect from pCloud: %s" % str(e)))
         else:
             raise UserError(_("No active pCloud session to disconnect."))
+    def get_folder_list(self):
+        url = "https://api.pcloud.com/listfolder"
+        params = {
+            'auth': self.access_token,  # Usar el access_token que tienes almacenado
+            'folderid': 0,  # O cualquier otro ID de carpeta que quieras listar
+        }
+        response = requests.get(url, params=params)
+        if response.status_code == 200:
+            # Convertir la respuesta JSON en un diccionario de Python
+            data = response.json()
+            if data['result'] == 0:
+                # Devolver la lista de carpetas y archivos
+                return data['metadata']['contents']
+            else:
+                # Manejar los errores según los códigos de error de la API de pCloud
+                error_message = data.get('error', 'Unknown error.')
+                raise UserError(_("Error listing folder: %s") % error_message)
+        else:
+            raise UserError(_("Failed to communicate with pCloud API: %s") % response.status_code)

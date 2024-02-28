@@ -204,3 +204,17 @@ class PCloudController(http.Controller):
             return "PCloud authentication successful. You can close this page."
         except UserError as e:
             return str(e)
+    @http.route(['/my/pcloud/folders'], type='http', auth='user', website=True)
+    def list_pcloud_folders(self, **kwargs):
+        pcloud_config_record = request.env['pcloud.config'].sudo().search([], limit=1)
+        if not pcloud_config_record:
+            return request.render('copier_company.no_pcloud_config')
+        
+        # Asumiendo que tienes un access_token válido en pcloud_config_record
+        try:
+            folder_list = pcloud_config_record.get_folder_list()
+            return request.render('copier_company.pcloud_folder_list_template', {
+                'folder_list': folder_list,
+            })
+        except UserError as e:
+            return str(e)

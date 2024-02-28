@@ -1,0 +1,27 @@
+<odoo>
+    <template id="pcloud_folder_list_template" name="PCloud Folder List">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <div class="container">
+                    <h1>PCloud Folder List</h1>
+                    <ul>
+                        <t t-foreach="folder_list" t-as="folder">
+                            <li>
+                                <t t-esc="folder['name']"/>
+                            </li>
+                        </t>
+                    </ul>
+                </div>
+            </div>
+        </t>
+    </template>
+    <template id="no_pcloud_config" name="No PCloud Config">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <div class="container">
+                    <h1>No PCloud Configuration Found</h1>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>
