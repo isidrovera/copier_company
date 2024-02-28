@@ -25,31 +25,25 @@ class PCloudConfig(models.Model):
         }
         return werkzeug.urls.url_join(authorize_url, '?' + werkzeug.urls.url_encode(authorize_params))
 
-    def exchange_code_for_token(self, authorization_code):
-        _logger.info("Exchanging code for token...")
-        token_url = 'https://api.pcloud.com/oauth2_token'
-        token_params = {
+    def refresh_access_token(self):
+        _logger.info("Refrescando el token de acceso de pCloud")
+        refresh_url = 'https://api.pcloud.com/oauth2_token'  # Usa la URL correcta para refrescar tokens
+        params = {
             'client_id': self.client_id,
             'client_secret': self.client_secret,
-            'code': authorization_code,
+            'refresh_token': self.refresh_token,  # Asumiendo que has guardado el token de refresco
+            'grant_type': 'refresh_token',
         }
         try:
-            response = requests.post(token_url, data=token_params)
-            _logger.debug("Token exchange response: %s", response.text)
+            response = requests.post(refresh_url, data=params)
             if response.status_code == 200:
                 response_data = response.json()
-                if response_data['result'] == 0:
-                    _logger.info("Access token received: %s", response_data['access_token'])
-                    self.write({'access_token': response_data['access_token']})
-                else:
-                    _logger.error("Failed to exchange code for token: %s", response_data)
-                    # Handle specific error based on 'result' code from pCloud
+                _logger.info("Nuevo token de acceso recibido: %s", response_data['access_token'])
+                self.write({'access_token': response_data['access_token']})
             else:
-                _logger.error("Token exchange request failed with status: %s", response.status_code)
-                # Handle HTTP error
+                _logger.error("Fallo al refrescar el token: HTTP %s, Respuesta: %s", response.status_code, response.text)
         except requests.RequestException as e:
-            _logger.exception("Token exchange request resulted in exception: %s", e)
-            # Handle request exception
+            _logger.exception("Excepción durante el refresco del token: %s", e)
 
     @api.model
     def authenticate_with_pcloud(self):
