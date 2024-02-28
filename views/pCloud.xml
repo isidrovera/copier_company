@@ -1,32 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_pcloud_config_form" model="ir.ui.view">
-        <field name="name">pcloud.config.form</field>
-        <field name="model">pcloud.config</field>
-        <field name="arch" type="xml">
-            <form string="pCloud Configuration">
-                <sheet>
-                    <group>
-                        <field name="name"/>
-                        <field name="client_id"/>
-                        <field name="client_secret"/>
-                    </group>
-                    <footer>
-                        <button string="Connect" type="object" name="action_connect"/>
-                        <button string="Cancel" class="btn-secondary" special="cancel"/>
-                    </footer>
-                </sheet>
-            </form>
-        </field>
-    </record>
-
-    <record id="action_pcloud_config" model="ir.actions.act_window">
-        <field name="name">pCloud Configuration</field>
-        <field name="res_model">pcloud.config</field>
-        <field name="view_mode">form</field>
-    </record>
-
-    <menuitem id="menu_pcloud_config" name="pCloud"
-              action="action_pcloud_config"
-              parent="base.menu_configuration"/>
-
+    <data>
+        <!-- Definición de la vista de formulario -->
+        <record id="view_pcloud_config_form" model="ir.ui.view">
+            <field name="name">pcloud.config.form</field>
+            <field name="model">pcloud.config</field>
+            <field name="arch" type="xml">
+                <form string="pCloud Configuration">
+                    <sheet>
+                        <!-- Campos a mostrar en el formulario -->
+                        <group>
+                            <field name="name"/>
+                            <field name="client_id"/>
+                            <field name="client_secret"/>
+                            <field name="access_token" readonly="1"/>
+                        </group>
+                        <!-- Botones de acción -->
+                        <footer>
+                            <button name="action_connect" string="Connect" type="object" class="btn-primary"/>
+                            <button name="action_disconnect" string="Disconnect" type="object" class="btn-secondary"/>
+                        </footer>
+                    </sheet>
+                </form>
+            </field>
+        </record>   
+        <!-- Definición de la vista de árbol -->
+        <record id="view_pcloud_config_tree" model="ir.ui.view">
+            <field name="name">pcloud.config.tree</field>
+            <field name="model">pcloud.config</field>
+            <field name="arch" type="xml">
+                <tree string="pCloud Configurations">
+                    <field name="name"/>
+                    <field name="client_id"/>
+                    <field name="client_secret"/>
+                    <field name="access_token"/>
+                </tree>
+            </field>
+        </record>
+        <!-- Definición del menú -->
+        <menuitem id="menu_pcloud_config" name="pCloud Configuration" sequence="30" parent="copier_company.menu_root"/>
+        <menuitem id="menu_pcloud_config_form" name="pCloud Configuration" parent="menu_pcloud_config" action="view_pcloud_config_form"/>
+        <menuitem id="menu_pcloud_config_tree" name="pCloud Configuration Tree" parent="menu_pcloud_config" action="view_pcloud_config_tree"/>
+    </data>
 </odoo>
