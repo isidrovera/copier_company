@@ -4,7 +4,8 @@ import json
 import base64
 from werkzeug import exceptions
 from odoo.exceptions import UserError
-
+import requests
+import ssl
 
 class DescargaArchivosController(http.Controller):
     @http.route('/descarga/archivos', type='http', website=True)
@@ -190,6 +191,8 @@ class PublicHelpdeskController(http.Controller):
     def confirmation(self, **kwargs):
         return request.render("copier_company.helpdesk_ticket_confirmation")
     
+
+
 class PCloudController(http.Controller):
     @http.route('/pcloud/callback', type='http', auth='public', csrf=False)
     def pcloud_authenticate(self, **kw):
@@ -205,6 +208,7 @@ class PCloudController(http.Controller):
             return "PCloud authentication successful. You can close this page."
         except UserError as e:
             return str(e)
+
     @http.route(['/my/pcloud/folders'], type='http', auth='user', website=True)
     def list_pcloud_folders(self, **kwargs):
         pcloud_config_record = request.env['pcloud.config'].sudo().search([], limit=1)
@@ -213,6 +217,8 @@ class PCloudController(http.Controller):
         
         # Asumiendo que tienes un access_token válido en pcloud_config_record
         try:
+            # Ignorar verificación SSL
+            requests.Session().mount('https://', requests.adapters.HTTPAdapter(ssl_context=ssl.create_default_context()))
             folder_list = pcloud_config_record.get_folder_list()
             return request.render('copier_company.pcloud_folder_list_template', {
                 'folder_list': folder_list,
