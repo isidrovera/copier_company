@@ -3,6 +3,7 @@ from odoo.http import request
 import json
 import base64
 from werkzeug import exceptions
+from odoo.exceptions import UserError
 
 
 class DescargaArchivosController(http.Controller):
