@@ -223,7 +223,7 @@ class PCloudController(http.Controller):
             ssl_context.verify_mode = ssl.CERT_NONE
 
             # Ignorar verificación SSL
-            adapter = requests.adapters.HTTPAdapter(ssl_context=ssl_context)
+            adapter = requests.adapters.HTTPAdapter(**{'ssl_context': ssl_context})
             session = requests.Session()
             session.mount('https://', adapter)
 
