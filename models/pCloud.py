@@ -3,6 +3,9 @@ from odoo.exceptions import UserError
 from odoo.http import request
 import requests
 import werkzeug
+import logging
+
+_logger = logging.getLogger(__name__)
 
 class PCloudConfig(models.Model):
     _name = 'pcloud.config'
@@ -23,6 +26,7 @@ class PCloudConfig(models.Model):
         return werkzeug.urls.url_join(authorize_url, '?' + werkzeug.urls.url_encode(authorize_params))
 
     def exchange_code_for_token(self, authorization_code):
+        _logger.info("Exchanging code for token...")
         token_url = 'https://api.pcloud.com/oauth2_token'
         token_params = {
             'client_id': self.client_id,
@@ -32,15 +36,20 @@ class PCloudConfig(models.Model):
             'grant_type': 'authorization_code',
         }
         response = requests.post(token_url, data=token_params)
+        _logger.info("Response status code: %s", response.status_code)
         if response.status_code == 200:
-            access_token = response.json().get('access_token')
+            response_data = response.json()
+            _logger.info("Received response data: %s", response_data)
+            access_token = response_data.get('access_token')
             if access_token:
+                _logger.info("Access token received: %s", access_token)
                 self.write({'access_token': access_token})
             else:
+                _logger.error("No access token returned in response.")
                 raise UserError(_("Authentication with pCloud failed. No access token returned."))
         else:
+            _logger.error("Failed to exchange authorization code for access token. Error: %s", response.text)
             raise UserError(_("Failed to exchange authorization code for access token. Error: %s") % response.text)
-
     @api.model
     def authenticate_with_pcloud(self):
         return {
@@ -80,21 +89,22 @@ class PCloudConfig(models.Model):
         else:
             raise UserError(_("No active pCloud session to disconnect."))
     def get_folder_list(self):
+        _logger.info("Getting folder list...")
         url = "https://api.pcloud.com/listfolder"
         params = {
-            'auth': self.access_token,  # Usar el access_token que tienes almacenado
-            'folderid': 0,  # O cualquier otro ID de carpeta que quieras listar
+            'auth': self.access_token,
+            'folderid': 0,
         }
         response = requests.get(url, params=params)
         if response.status_code == 200:
-            # Convertir la respuesta JSON en un diccionario de Python
             data = response.json()
+            _logger.info("Received folder list: %s", data)
             if data['result'] == 0:
-                # Devolver la lista de carpetas y archivos
                 return data['metadata']['contents']
             else:
-                # Manejar los errores según los códigos de error de la API de pCloud
                 error_message = data.get('error', 'Unknown error.')
+                _logger.error("Error listing folder: %s", error_message)
                 raise UserError(_("Error listing folder: %s") % error_message)
         else:
+            _logger.error("Failed to communicate with pCloud API. Status code: %s, Response: %s", response.status_code, response.text)
             raise UserError(_("Failed to communicate with pCloud API: %s") % response.status_code)
