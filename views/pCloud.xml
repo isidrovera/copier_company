@@ -44,9 +44,9 @@
             <field name="view_id" ref="view_pcloud_config_form"/>
         </record>
 
+
         <!-- Definición del menú -->
-        <menuitem id="menu_pcloud_config" name="pCloud Configuration" sequence="30" parent="copier_company.menu_root"/>
-        <menuitem id="menu_pcloud_config_form" name="pCloud Configuration" parent="menu_pcloud_config" action="view_pcloud_config_form"/>
-       
+        <menuitem id="menu_pcloud_config" name="pCloud Configuration"  parent="copier_company.menu_root" action="view_pcloud_config_form"/>
+      
     </data>
 </odoo>
