@@ -40,12 +40,11 @@
         <record id="view_pcloud_config_form_action" model="ir.actions.act_window">
             <field name="name">pCloud Configuration</field>
             <field name="res_model">pcloud.config</field>
-            <field name="view_mode">form</field>
-            <field name="view_id" ref="view_pcloud_config_form"/>
+            <field name="view_mode">form, tree</field>            
         </record>
 
         <!-- Definición del menú -->
-        <menuitem id="menu_pcloud_config" name="pCloud Configuration" sequence="30" parent="copier_company.menu_root" action="view_pcloud_config_form"/>
+        <menuitem id="menu_pcloud_config" name="pCloud Configuration" sequence="30" parent="copier_company.menu_root" action="view_pcloud_config_form_action"/>
       
     </data>
 </odoo>
