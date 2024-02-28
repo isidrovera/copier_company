@@ -57,7 +57,7 @@ class PCloudConfig(models.Model):
             'target': 'new',
         }
 
-    @api.multi
+
     def action_disconnect_from_pcloud(self):
         self.ensure_one()
         if self.access_token:
