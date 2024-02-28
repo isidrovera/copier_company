@@ -6,6 +6,7 @@ from werkzeug import exceptions
 from odoo.exceptions import UserError
 import requests
 import ssl
+from urllib3.exceptions import SSLError
 
 class DescargaArchivosController(http.Controller):
     @http.route('/descarga/archivos', type='http', website=True)
@@ -214,14 +215,23 @@ class PCloudController(http.Controller):
         pcloud_config_record = request.env['pcloud.config'].sudo().search([], limit=1)
         if not pcloud_config_record:
             return request.render('copier_company.no_pcloud_config')
-        
-        # Asumiendo que tienes un access_token válido en pcloud_config_record
+
         try:
+            # Crear un nuevo contexto SSL
+            ssl_context = ssl.create_default_context()
+            ssl_context.check_hostname = False
+            ssl_context.verify_mode = ssl.CERT_NONE
+
             # Ignorar verificación SSL
-            requests.Session().mount('https://', requests.adapters.HTTPAdapter(ssl_context=ssl.create_default_context()))
+            adapter = requests.adapters.HTTPAdapter(ssl_context=ssl_context)
+            session = requests.Session()
+            session.mount('https://', adapter)
+
             folder_list = pcloud_config_record.get_folder_list()
             return request.render('copier_company.pcloud_folder_list_template', {
                 'folder_list': folder_list,
             })
+        except SSLError as e:
+            return "Error de SSL: {}".format(str(e))
         except UserError as e:
             return str(e)
