@@ -49,8 +49,8 @@ class PCloudConfig(models.Model):
             'target': 'new',
         }
 
-    @api.model
     def action_connect_to_pcloud(self):
+        self.ensure_one()  # Asegurarse de que el método se llama para un solo registro
         return {
             'type': 'ir.actions.act_url',
             'url': self.generate_authorization_url(),
