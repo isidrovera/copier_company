@@ -7,6 +7,10 @@
             <field name="model">pcloud.config</field>
             <field name="arch" type="xml">
                 <form string="pCloud Configuration">
+                    <header>
+                        <button name="action_connect" string="Connect" type="object" class="btn-primary"/>
+                        <button name="action_disconnect" string="Disconnect" type="object" class="btn-secondary"/>
+                    </header>                     
                     <sheet>
                         <!-- Campos a mostrar en el formulario -->
                         <group>
@@ -14,12 +18,7 @@
                             <field name="client_id"/>
                             <field name="client_secret"/>
                             <field name="access_token" readonly="1"/>
-                        </group>
-                        <!-- Botones de acción -->
-                        <footer>
-                            <button name="action_connect" string="Connect" type="object" class="btn-primary"/>
-                            <button name="action_disconnect" string="Disconnect" type="object" class="btn-secondary"/>
-                        </footer>
+                        </group>                        
                     </sheet>
                 </form>
             </field>
