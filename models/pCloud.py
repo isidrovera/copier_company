@@ -15,6 +15,7 @@ class PCloudConfig(models.Model):
     client_id = fields.Char(string='Client ID', required=True)
     client_secret = fields.Char(string='Client Secret', required=True)
     access_token = fields.Char(string='Access Token', readonly=True)
+    refresh_token = fields.Char(string='Refresh Token', readonly=True)
 
     def generate_authorization_url(self):
         authorize_url = 'https://my.pcloud.com/oauth2/authorize'
@@ -57,6 +58,8 @@ class PCloudConfig(models.Model):
         if response.status_code == 200:
             response_data = response.json()
             self.access_token = response_data.get('access_token')
+            # Actualizar también el refresh_token con el nuevo valor
+            self.refresh_token = response_data.get('refresh_token')
             self.save()
             _logger.info("Token de acceso renovado y almacenado correctamente.")
         else:
