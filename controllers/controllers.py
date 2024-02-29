@@ -202,7 +202,8 @@ class PCloudController(http.Controller):
         
         try:
             pcloud_config.exchange_code_for_token(kw['code'])
-            return "PCloud authentication successful. You can close this page."
+            # Redirige al usuario a alguna página después de la autenticación exitosa
+            return http.request.redirect('/my/pcloud/folders')
         except UserError as e:
             return str(e)
 
