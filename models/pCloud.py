@@ -37,14 +37,16 @@ class PCloudConfig(models.Model):
         response = requests.post(token_url, data=token_params)
         if response.status_code == 200:
             response_data = response.json()
-            self.access_token = response_data.get('access_token')
-            # Suponiendo que 'refresh_token' también se devuelve en la respuesta
-            self.refresh_token = response_data.get('refresh_token')
-            self.save()
-            _logger.info("Token de acceso y refresh token almacenados correctamente.")
+            # Actualiza el registro actual con los nuevos tokens
+            self.write({
+                'access_token': response_data.get('access_token'),
+                'refresh_token': response_data.get('refresh_token'),  # Asegúrate de que tu modelo tiene este campo
+            })
+            _logger.info("Access and refresh tokens stored successfully.")
         else:
-            _logger.error("Error al obtener el token de acceso: %s", response.text)
-            raise UserError(_("Error al obtener el token de acceso: %s") % response.text)
+            _logger.error("Failed to obtain access token: %s", response.text)
+            raise UserError(_("Failed to obtain access token: %s") % response.text)
+
     def refresh_access_token(self):
         _logger.info("Refrescando el token de acceso de pCloud")
         refresh_url = 'https://api.pcloud.com/oauth2_token'
