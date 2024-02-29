@@ -205,17 +205,36 @@ class PCloudController(http.Controller):
             return "PCloud authentication successful. You can close this page."
         except UserError as e:
             return str(e)
+
     @http.route(['/my/pcloud/folders'], type='http', auth='user', website=True)
     def list_pcloud_folders(self, **kwargs):
         pcloud_config_record = request.env['pcloud.config'].sudo().search([], limit=1)
         if not pcloud_config_record:
             return request.render('copier_company.no_pcloud_config')
         
-        # Asumiendo que tienes un access_token válido en pcloud_config_record
+        if not pcloud_config_record.access_token:
+            # Redirige al usuario a la página de autenticación si no se encuentra el token
+            auth_url = pcloud_config_record.generate_authorization_url()
+            return http.request.redirect(auth_url)
+        
         try:
             folder_list = pcloud_config_record.get_folder_list()
             return request.render('copier_company.pcloud_folder_list_template', {
                 'folder_list': folder_list,
             })
         except UserError as e:
-            return str(e)
+            # Maneja la posibilidad de un token caducado y necesita renovación
+            if "token ha caducado" in str(e) or "No hay token de acceso disponible" in str(e):
+                # Intenta renovar el token automáticamente si es posible
+                try:
+                    pcloud_config_record.refresh_access_token()
+                    # Intenta obtener la lista de carpetas nuevamente después de la renovación del token
+                    folder_list = pcloud_config_record.get_folder_list()
+                    return request.render('copier_company.pcloud_folder_list_template', {
+                        'folder_list': folder_list,
+                    })
+                except UserError as e2:
+                    # Si la renovación falla, redirige para autenticación nuevamente
+                    auth_url = pcloud_config_record.generate_authorization_url()
+                    return http.request.redirect(auth_url)
+            return str(e)  # Retorna el mensaje de error original si no es un problema de token caducado
