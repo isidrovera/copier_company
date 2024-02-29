@@ -59,10 +59,8 @@ class PCloudConfig(models.Model):
         response = requests.post(refresh_url, data=params)
         if response.status_code == 200:
             response_data = response.json()
-            # Actualiza el registro actual con los nuevos tokens
             self.write({
                 'access_token': response_data.get('access_token'),
-                # Asegúrate de actualizar refresh_token si la API lo devuelve
                 'refresh_token': response_data.get('refresh_token', self.refresh_token),
             })
             _logger.info("Token de acceso renovado y almacenado correctamente.")
