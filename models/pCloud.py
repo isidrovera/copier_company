@@ -24,26 +24,44 @@ class PCloudConfig(models.Model):
             'redirect_uri': 'https://copiercompanysac.com/pcloud/callback',
         }
         return werkzeug.urls.url_join(authorize_url, '?' + werkzeug.urls.url_encode(authorize_params))
-
+    
+    def exchange_code_for_token(self, authorization_code):
+        token_url = 'https://api.pcloud.com/oauth2_token'
+        token_params = {
+            'client_id': self.client_id,
+            'client_secret': self.client_secret,
+            'code': authorization_code,
+            'grant_type': 'authorization_code',
+        }
+        response = requests.post(token_url, data=token_params)
+        if response.status_code == 200:
+            response_data = response.json()
+            self.access_token = response_data.get('access_token')
+            # Suponiendo que 'refresh_token' también se devuelve en la respuesta
+            self.refresh_token = response_data.get('refresh_token')
+            self.save()
+            _logger.info("Token de acceso y refresh token almacenados correctamente.")
+        else:
+            _logger.error("Error al obtener el token de acceso: %s", response.text)
+            raise UserError(_("Error al obtener el token de acceso: %s") % response.text)
     def refresh_access_token(self):
         _logger.info("Refrescando el token de acceso de pCloud")
-        refresh_url = 'https://api.pcloud.com/oauth2_token'  # Usa la URL correcta para refrescar tokens
+        refresh_url = 'https://api.pcloud.com/oauth2_token'  # Asegúrate de que esta es la URL correcta
         params = {
             'client_id': self.client_id,
             'client_secret': self.client_secret,
-            'refresh_token': self.refresh_token,  # Asumiendo que has guardado el token de refresco
+            'refresh_token': self.refresh_token,
             'grant_type': 'refresh_token',
         }
-        try:
-            response = requests.post(refresh_url, data=params)
-            if response.status_code == 200:
-                response_data = response.json()
-                _logger.info("Nuevo token de acceso recibido: %s", response_data['access_token'])
-                self.write({'access_token': response_data['access_token']})
-            else:
-                _logger.error("Fallo al refrescar el token: HTTP %s, Respuesta: %s", response.status_code, response.text)
-        except requests.RequestException as e:
-            _logger.exception("Excepción durante el refresco del token: %s", e)
+        response = requests.post(refresh_url, data=params)
+        if response.status_code == 200:
+            response_data = response.json()
+            self.access_token = response_data.get('access_token')
+            self.save()
+            _logger.info("Token de acceso renovado y almacenado correctamente.")
+        else:
+            _logger.error("Error al refrescar el token: %s", response.text)
+            raise UserError(_("Error al refrescar el token: %s") % response.text)
 
     @api.model
     def authenticate_with_pcloud(self):
@@ -84,26 +102,28 @@ class PCloudConfig(models.Model):
         else:
             raise UserError(_("No active pCloud session to disconnect."))
     def get_folder_list(self):
-        _logger.info("Getting folder list from pCloud")
+        _logger.info("Obteniendo lista de carpetas desde pCloud")
+        if not self.access_token:
+            raise UserError(_("No hay token de acceso disponible. Por favor, autentíquese primero."))
+        
         url = "https://api.pcloud.com/listfolder"
         params = {
             'auth': self.access_token,
-            'folderid': 0,
+            'folderid': 0,  # Raíz de pCloud por defecto
         }
         response = requests.get(url, params=params)
         if response.status_code == 200:
             data = response.json()
             if data['result'] == 0:
                 return data['metadata']['contents']
-            elif data['result'] == 2000:
-                _logger.error("Log in failed with pCloud API, possible invalid or expired token.")
-                # Aquí puedes agregar una lógica para manejar un token expirado
-                # Por ejemplo, intentar obtener un nuevo token usando un 'refresh token'
-                # O informar al usuario para que vuelva a iniciar sesión
-                raise UserError(_("Log in failed. Please authenticate again."))
             else:
-                _logger.error("Error from pCloud API: %s", data.get('error'))
-                raise UserError(_("Error from pCloud API: %s") % data.get('error'))
+                # Si el token ha caducado o es inválido, refrescar el token
+                if data['result'] == 2000:
+                    self.refresh_access_token()
+                    return self.get_folder_list()
+                else:
+                    _logger.error("Error desde API de pCloud: %s", data.get('error'))
+                    raise UserError(_("Error desde API de pCloud: %s") % data.get('error'))
         else:
-            _logger.error("Failed to communicate with pCloud API. Status code: %s, Response: %s", response.status_code, response.text)
-            raise UserError(_("Failed to communicate with pCloud API: %s") % response.status_code)
+            _logger.error("Falló la comunicación con API de pCloud. Código de estado: %s", response.status_code)
+            raise UserError(_("Falló la comunicación con API de pCloud: %s") % response.status_code)
