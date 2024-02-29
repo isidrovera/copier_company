@@ -47,7 +47,7 @@ class PCloudConfig(models.Model):
             raise UserError(_("Error al obtener el token de acceso: %s") % response.text)
     def refresh_access_token(self):
         _logger.info("Refrescando el token de acceso de pCloud")
-        refresh_url = 'https://api.pcloud.com/oauth2_token'  # Asegúrate de que esta es la URL correcta
+        refresh_url = 'https://api.pcloud.com/oauth2_token'
         params = {
             'client_id': self.client_id,
             'client_secret': self.client_secret,
@@ -57,14 +57,17 @@ class PCloudConfig(models.Model):
         response = requests.post(refresh_url, data=params)
         if response.status_code == 200:
             response_data = response.json()
-            self.access_token = response_data.get('access_token')
-            # Actualizar también el refresh_token con el nuevo valor
-            self.refresh_token = response_data.get('refresh_token')
-            self.save()
+            # Actualiza el registro actual con los nuevos tokens
+            self.write({
+                'access_token': response_data.get('access_token'),
+                # Asegúrate de actualizar refresh_token si la API lo devuelve
+                'refresh_token': response_data.get('refresh_token', self.refresh_token),
+            })
             _logger.info("Token de acceso renovado y almacenado correctamente.")
         else:
             _logger.error("Error al refrescar el token: %s", response.text)
             raise UserError(_("Error al refrescar el token: %s") % response.text)
+
 
     @api.model
     def authenticate_with_pcloud(self):
