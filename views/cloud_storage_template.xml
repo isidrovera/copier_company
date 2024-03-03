@@ -4,11 +4,20 @@
         <div class="oe_structure"/>
         <div class="container">
             <h2>Cloud Storage</h2>
-            <table class="table table-striped">
+            <!-- Formulario de búsqueda -->
+            <form action="/cloud/storage/search" method="get" class="search-form mb-3">
+                <div class="input-group">
+                    <input type="text" name="query" placeholder="Search files..." class="form-control"/>
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
+                </div>
+            </form>
+            <table class="table table-hover">
                 <thead>
                     <tr>
                         <th>Name</th>
-                        <th>Type</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -17,7 +26,7 @@
                             <td>
                                 <t t-if="fd['is_dir']">
                                     <a t-attf-href="/cloud/storage/{{ current_path }}/{{ fd['name'] }}">
-                                        <t t-esc="fd['name']"/>
+                                        <i class="fa fa-folder"></i> <t t-esc="fd['name']"/>
                                     </a>
                                 </t>
                                 <t t-else="">
@@ -25,8 +34,12 @@
                                 </t>
                             </td>
                             <td>
-                                <t t-if="fd['is_dir']">Directory</t>
-                                <t t-else="">File</t>
+                                <t t-if="not fd['is_dir']">
+                                    <!-- Ícono de descarga para archivos -->
+                                    <a t-attf-href="/cloud/storage/download/{{ current_path }}/{{ fd['name'] }}" class="btn btn-default">
+                                        <i class="fa fa-download"></i>
+                                    </a>
+                                </t>
                             </td>
                         </tr>
                     </t>
@@ -35,5 +48,6 @@
         </div>
     </t>
 </template>
+
 
 </odoo>
