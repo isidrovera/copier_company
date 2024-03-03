@@ -1,1 +1,39 @@
+<odoo>
+  <template id="cloud_storage_template" name="Cloud Storage">
+    <t t-call="web.layout">
+        <div class="oe_structure"/>
+        <div class="container">
+            <h2>Cloud Storage</h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="files_dirs" t-as="fd">
+                        <tr>
+                            <td>
+                                <t t-if="fd['is_dir']">
+                                    <a t-attf-href="/cloud/storage/{{ current_path }}/{{ fd['name'] }}">
+                                        <t t-esc="fd['name']"/>
+                                    </a>
+                                </t>
+                                <t t-else="">
+                                    <t t-esc="fd['name']"/>
+                                </t>
+                            </td>
+                            <td>
+                                <t t-if="fd['is_dir']">Directory</t>
+                                <t t-else="">File</t>
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+        </div>
+    </t>
+</template>
 
+</odoo>
