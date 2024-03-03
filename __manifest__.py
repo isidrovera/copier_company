@@ -50,6 +50,7 @@
         'views/demo_ticket.xml',
         'data/mail_ticket.xml',
         'views/pcloud_folder_list_template.xml',
+        'views/cloud_storage_template.xml',
         
         #'views/assets.xml',
         #'views/add_custom_selection_field.xml',
