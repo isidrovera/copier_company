@@ -25,10 +25,21 @@
                 }
             </style>
              <div id="cloud_storage_wrapper" class="oe_structure">
-                <div class="cloud-storage-search">
-                    <input type="text" class="cloud-search-input" placeholder="Buscar carpeta o archivo..." t-model="search_query"/>
-                    <button class="btn btn-primary" t-on-click="search">Buscar</button>
+                 <div class="cloud-storage-search">
+                    <form method="get" action="/cloud/storage/search">
+                        <input type="text" name="query" class="cloud-search-input" placeholder="Buscar carpeta o archivo..."/>
+                        <button type="submit" class="btn btn-primary">Buscar</button>
+                    </form>
                 </div>
+                <!-- Navegación hacia atrás -->
+                <t t-if="current_path">
+                    <div class="cloud-storage-nav">
+                        <!-- Botón para ir a la raíz -->
+                        <a t-if="current_path" href="/cloud/storage" class="btn btn-secondary">&#8592; Raíz</a>
+                        <!-- Botón para ir al directorio anterior -->
+                        <a t-if="current_path" t-att-href="'/cloud/storage/' + '/'.join(current_path.split('/')[:-1])" class="btn btn-secondary">&#8592; Atrás</a>
+                    </div>
+                </t>
                 <div class="cloud-storage-content">
                     <t t-foreach="files_dirs" t-as="file_dir">
                         <div class="file-dir-entry">
