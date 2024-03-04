@@ -31,27 +31,27 @@
                         </thead>
                         <tbody>
                             <t t-foreach="files_dirs" t-as="fd">
-                                <tr>
-                                    <td>
-                                        <t t-if="fd['is_dir']">
-                                            <i class="fa fa-folder"></i>
-                                             <a t-attf-href="/cloud/storage/{{ fd['path'] }}"><t t-esc="fd['name']"/></a>
-                                        </t>
-                                        <t t-else="">
-                                            <i class="fa fa-file"></i>
-                                            <t t-esc="fd['name']"/>
-                                        </t>
-                                    </td>
-                                    <td>
-                                        <t t-if="not fd['is_dir']">
-                                            <!-- Botón de descarga -->
-                                            <a t-attf-href="/cloud/storage/download/{{ fd['path'] }}" class="btn btn-sm btn-primary">
-                                                <i class="fa fa-download"></i> Download
-                                            </a>
-                                        </t>
-                                    </td>
-                                </tr>
-                            </t>
+                                <t t-foreach="files_dirs" t-as="fd">
+                              <tr>
+                                  <td>
+                                      <t t-if="fd['is_dir']">
+                                          <i class="fa fa-folder"></i>
+                                          <a t-attf-href="/cloud/storage/{{ fd['path'] }}"><t t-esc="fd['name']"/></a>
+                                      </t>
+                                      <t t-else="">
+                                          <i class="fa fa-file"></i>
+                                          <t t-esc="fd['name']"/>
+                                      </t>
+                                  </td>
+                                  <td>
+                                      <t t-if="not fd['is_dir']">
+                                          <a t-attf-href="/cloud/storage/download/{{ fd['path'] }}" class="btn btn-sm btn-primary">
+                                              <i class="fa fa-download"></i> Download
+                                          </a>
+                                      </t>
+                                  </td>
+                              </tr>
+                          </t>
                         </tbody>
                     </table>
                 </div>
