@@ -3,51 +3,63 @@
     <t t-call="web.layout">
         <div class="oe_structure"/>
         <div class="container">
-            <h2>Cloud Storage</h2>
+            <h1 class="text-center my-4">Cloud Storage</h1>
+            
             <!-- Formulario de búsqueda -->
-            <form action="/cloud/storage/search" method="get" class="search-form mb-3">
-                <div class="input-group">
-                    <input type="text" name="query" placeholder="Search files..." class="form-control"/>
-                    <div class="input-group-append">
-                        <button type="submit" class="btn btn-primary">Search</button>
-                    </div>
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <form action="/cloud/storage/search" method="get" class="search-form">
+                        <div class="input-group">
+                            <input type="text" name="query" placeholder="Search files..." class="form-control"/>
+                            <div class="input-group-append">
+                                <button type="submit" class="btn btn-secondary">Search</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-            </form>
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <t t-foreach="files_dirs" t-as="fd">
-                        <tr>
-                            <td>
-                                <t t-if="fd['is_dir']">
-                                    <a t-attf-href="/cloud/storage/{{ current_path }}/{{ fd['name'] }}">
-                                        <i class="fa fa-folder"></i> <t t-esc="fd['name']"/>
-                                    </a>
-                                </t>
-                                <t t-else="">
-                                    <t t-esc="fd['name']"/>
-                                </t>
-                            </td>
-                            <td>
-                                <t t-if="not fd['is_dir']">
-                                    <!-- Ícono de descarga para archivos -->
-                                    <a t-attf-href="/cloud/storage/download/{{ current_path }}/{{ fd['name'] }}" class="btn btn-default">
-                                        <i class="fa fa-download"></i>
-                                    </a>
-                                </t>
-                            </td>
-                        </tr>
-                    </t>
-                </tbody>
-            </table>
+            </div>
+            
+            <!-- Lista de archivos/carpetas -->
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="files_dirs" t-as="fd">
+                                <tr>
+                                    <td>
+                                        <t t-if="fd['is_dir']">
+                                            <i class="fa fa-folder"></i>
+                                            <a t-attf-href="/cloud/storage/{{ current_path }}/{{ fd['name'] }}"><t t-esc="fd['name']"/></a>
+                                        </t>
+                                        <t t-else="">
+                                            <i class="fa fa-file"></i>
+                                            <t t-esc="fd['name']"/>
+                                        </t>
+                                    </td>
+                                    <td>
+                                        <t t-if="not fd['is_dir']">
+                                            <!-- Botón de descarga -->
+                                            <a t-attf-href="/cloud/storage/download/{{ fd['path'] }}" class="btn btn-sm btn-primary">
+                                                <i class="fa fa-download"></i> Download
+                                            </a>
+                                        </t>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </t>
 </template>
+
 <template id="cloud_storage_search_template" name="Search Results">
         <t t-call="web.layout">
             <div class="oe_structure"/>
