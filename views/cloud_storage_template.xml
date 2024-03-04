@@ -35,7 +35,7 @@
                                     <td>
                                         <t t-if="fd['is_dir']">
                                             <i class="fa fa-folder"></i>
-                                            <a t-attf-href="/cloud/storage/{{ current_path }}/{{ fd['name'] }}"><t t-esc="fd['name']"/></a>
+                                             <a t-attf-href="/cloud/storage/{{ fd['path'] }}"><t t-esc="fd['name']"/></a>
                                         </t>
                                         <t t-else="">
                                             <i class="fa fa-file"></i>
