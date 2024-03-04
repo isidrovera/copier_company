@@ -1,59 +1,67 @@
 <odoo>
- <template id="cloud_storage_template" name="Cloud Storage">
-    <t t-call="web.layout">
-        <div class="oe_structure"/>
-        <div class="container">
-            <h2>Cloud Storage</h2>
-            <!-- Botones para ir atrás y adelante -->
-            <div class="navigation-buttons">
-                <a href="#" class="btn btn-secondary go-back"><i class="fa fa-arrow-left"></i> Atrás</a>
-                <a href="#" class="btn btn-secondary go-forward"><i class="fa fa-arrow-right"></i> Adelante</a>
+<template id="cloud_storage_template" name="Cloud Storage">
+    <div class="flex min-h-screen w-full">
+        <div class="hidden border-r border-gray-200 bg-gray-100/40 w-[300px] md:flex flex-col">
+            <div class="flex h-[60px] items-center border-b px-6">
+                <a class="flex items-center gap-2 font-semibold" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"></path><path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"></path><path d="M12 3v6"></path></svg><span class="">Files</span></a>
+                <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground ml-auto h-8 w-8"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg><span class="sr-only">New</span></button>
             </div>
-            <!-- Formulario de búsqueda -->
-            <form action="/cloud/storage/search" method="get" class="search-form mb-3">
-                <div class="input-group">
-                    <input type="text" name="query" placeholder="Search files..." class="form-control"/>
-                    <div class="input-group-append">
-                        <button type="submit" class="btn btn-primary">Search</button>
-                    </div>
+            <div class="flex-1 overflow-auto p-4">
+                <div class="grid gap-4">
+                    <a class="flex items-center gap-3 rounded-lg bg-gray-100 px-3 py-2 text-gray-900 dark:bg-gray-800 dark:text-gray-50" href="#">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path></svg>
+                        Photos
+                        <div class="whitespace-nowrap border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80 ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
+                            4
+                        </div>
+                    </a>
+                    <a class="flex items-center gap-3 rounded-lg bg-gray-100 px-3 py-2 text-gray-900 dark:bg-gray-800 dark:text-gray-50" href="#">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path></svg>
+                        Do
+                        <div class="whitespace-nowrap border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80 ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
+                            2
+                        </div>
+                    </a>
+                    <a class="flex items-center gap-3 rounded-lg bg-gray-100 px-3 py-2 text-gray-900 dark:bg-gray-800 dark:text-gray-50" href="#">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path></svg>
+                        Placeholder
+                        <div class="whitespace-nowrap border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80 ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
+                        </div>
+                    </a>
+                    <a class="flex items-center gap-3 rounded-lg bg-gray-100 px-3 py-2 text-gray-900 dark:bg-gray-800 dark:text-gray-50" href="#">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path></svg>
+                        Placeholder
+                        <div class="whitespace-nowrap border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80 ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
+                        </div>
+                    </a>
                 </div>
-            </form>
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <t t-foreach="files_dirs" t-as="fd">
-                        <tr>
-                            <td>
-                                <t t-if="fd['is_dir']">
-                                    <a t-attf-href="/cloud/storage/navigate?path={{ current_path }}/{{ fd['name'] }}">
-                                        <i class="fa fa-folder"></i> <t t-esc="fd['name']"/>
-                                    </a>
-                                </t>
-                                <t t-else="">
-                                    <t t-esc="fd['name']"/>
-                                </t>
-                            </td>
-                            <td>
-                                <t t-if="not fd['is_dir']">
-                                    <!-- Ícono de descarga para archivos -->
-                                    <a t-attf-href="/cloud/storage/download/{{ current_path }}/{{ fd['name'] }}" class="btn btn-default">
-                                        <i class="fa fa-download"></i>
-                                    </a>
-                                </t>
-                            </td>
-                        </tr>
-                    </t>
-                </tbody>
-            </table>
+            </div>
         </div>
-    </t>
+        <div class="flex-1 flex flex-col min-h-screen">
+            <header class="flex h-14 items-center gap-4 border-b bg-gray-100/40 px-6 dark:bg-gray-800/40">
+                <a class="lg:hidden" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"></path><path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"></path><path d="M12 3v6"></path></svg><span class="sr-only">Home</span></a>
+                <div class="w-full">
+                    <form>
+                        <div class="relative">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                            <input class="flex h-10 rounded-md border border-input px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-full bg-white shadow-none appearance-none pl-8 md:w-2/3 lg:w-1/3 dark:bg-gray-950" placeholder="Search files..." type="search">
+                        </div>
+                    </form>
+                </div>
+                <button class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground rounded-full border border-gray-200 w-8 h-8 dark:border-gray-800" type="button" id="radix-:rg:" aria-haspopup="menu" aria-expanded="false" data-state="closed">
+                    <img src="/placeholder.svg" width="32" height="32" class="rounded-full" alt="Avatar" style="aspect-ratio: 32 / 32; object-fit: cover;">
+                    <span class="sr-only">Toggle user menu</span>
+                </button>
+            </header>
+            <main class="flex-1 flex flex-col p-4 md:p-6">
+                <div class="grid gap-2">
+                    <h1 class="font-semibold text-lg">Pho</h1>
+                    <p class="text-sm text-gray-500 dark:text-gray-400"></p>
+                </div>
+            </main>
+        </div>
+    </div>
 </template>
-
 
 
 <template id="cloud_storage_search_template" name="Search Results">
