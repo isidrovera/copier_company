@@ -16,6 +16,18 @@ class CloudStorageController(http.Controller):
                     rel_path = os.path.relpath(os.path.join(root, filename), base_path)
                     matches.append(rel_path)
         return matches
+    def get_icon_class(self, filename):
+        """Función para obtener la clase CSS del ícono basada en la extensión del archivo."""
+        extension_to_icon = {
+            '.pdf': 'fa-file-pdf-o',
+            '.doc': 'fa-file-word-o',
+            '.docx': 'fa-file-word-o',
+            '.xls': 'fa-file-excel-o',
+            '.xlsx': 'fa-file-excel-o',
+            # Agrega más mapeos según sea necesario
+        }
+        extension = os.path.splitext(filename)[1].lower()
+        return extension_to_icon.get(extension, 'fa-file-o')
 
     @http.route(['/cloud/storage', '/cloud/storage/<path:extra>'], auth='user', website=True)
     def list_files(self, extra=''):
@@ -38,6 +50,7 @@ class CloudStorageController(http.Controller):
         return request.render('copier_company.cloud_storage_template', {
             'files_dirs': files_dirs,
             'current_path': extra,
+            'get_icon_class': self.get_icon_class,
         })
 
 

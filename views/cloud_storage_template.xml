@@ -3,7 +3,10 @@
         <t t-call="website.layout">
             <style>
                 .cloud-storage-search {
-                    margin-bottom: 20px;
+                    margin: 20px auto; /* Margen arriba y abajo y centrar horizontalmente */
+                    display: flex;
+                    justify-content: center; /* Centrar contenido horizontalmente */
+                    align-items: center; /* Centrar contenido verticalmente */
                 }
                 .cloud-storage-search .cloud-search-input {
                     width: 300px;
@@ -15,14 +18,19 @@
                     align-items: center;
                     margin-bottom: 5px;
                 }
-                .cloud-storage-content .file-dir-entry i.fa,
-                .search-results-content .search-result-entry i.fa {
+                .cloud-storage-content .file-dir-entry i,
+                .search-results-content .search-result-entry i {
                     margin-right: 10px;
                 }
                 .cloud-storage-content .file-dir-entry .download-btn,
                 .search-results-content .search-result-entry .download-btn {
                     margin-left: auto;
                 }
+                /* Estilos para los íconos de tipos de archivos */
+                .icon-file {
+                    font-size: 16px; /* Tamaño del ícono */
+                }
+                /* ... Puedes agregar más reglas para otros íconos ... */
             </style>
             <div id="cloud_storage_wrapper" class="oe_structure">
                 <div class="cloud-storage-search">
@@ -42,7 +50,7 @@
                         <a t-if="current_path" t-att-href="'/cloud/storage/' + '/'.join(current_path.split('/')[:-1])" class="btn btn-secondary">&#8592; Atrás</a>
                     </div>
                 </t>
-                <div class="cloud-storage-content">
+                 <div class="cloud-storage-content">
                     <t t-foreach="files_dirs" t-as="file_dir">
                         <div class="file-dir-entry">
                             <t t-if="file_dir['is_dir']">
@@ -50,7 +58,8 @@
                                 <a t-att-href="'/cloud/storage/' + file_dir['path']"><t t-esc="file_dir['name']"/></a>
                             </t>
                             <t t-else="">
-                                <i class="fa fa-file"></i>
+                                <!-- Utiliza una función para obtener el ícono adecuado según la extensión del archivo -->
+                                <i t-att-class="'icon-file ' + get_icon_class(file_dir['name'])"></i>
                                 <span t-esc="file_dir['name']"/>
                                 <a t-att-href="'/cloud/storage/download/' + file_dir['path']" class="btn btn-secondary btn-sm download-btn">Descargar</a>
                             </t>
