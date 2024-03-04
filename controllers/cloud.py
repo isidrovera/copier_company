@@ -17,25 +17,30 @@ class CloudStorageController(http.Controller):
                     matches.append(rel_path)
         return matches
 
-    @http.route(['/cloud/storage', '/cloud/storage/<path:extra>'], auth='user', website=True)
+   @http.route(['/cloud/storage', '/cloud/storage/<path:extra>'], auth='user', website=True)
     def list_files(self, extra=''):
-        """Método para listar archivos y carpetas en la ruta especificada."""
         base_path = '/mnt/cloud'
         path = os.path.normpath(os.path.join(base_path, extra))
         
         # Prevenir la salida del directorio base
         if not path.startswith(base_path):
             return request.not_found()
-
+    
         if not os.path.exists(path) or not os.path.isdir(path):
             return request.not_found()
         
-        files_dirs = [{'name': f, 'is_dir': os.path.isdir(os.path.join(path, f)), 'path': os.path.join(extra, f)} for f in os.listdir(path)]
+        files_dirs = [{
+            'name': f,
+            'is_dir': os.path.isdir(os.path.join(path, f)),
+            'path': os.path.join(extra, f)  # Asegúrate de que esta línea esté presente
+        } for f in sorted(os.listdir(path))]  # Asegúrate de que 'sorted' esté presente para mantener el orden en la lista
         
         return request.render('copier_company.cloud_storage_template', {
             'files_dirs': files_dirs,
             'current_path': extra,
         })
+
+
 
     @http.route(['/cloud/storage/search'], type='http', auth='user', website=True)
     def search(self, query=''):
