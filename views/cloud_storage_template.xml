@@ -48,6 +48,25 @@
         </div>
     </t>
 </template>
+<template id="cloud_storage_search_template" name="Search Results">
+        <t t-call="web.layout">
+            <div class="oe_structure"/>
+            <div class="container">
+                <h2>Search Results for "<t t-esc="query"/>":</h2>
+                <div class="mt-2">
+                    <t t-foreach="search_results" t-as="result">
+                        <div class="mb-2">
+                            <i class="fa fa-file" aria-hidden="true"></i>
+                            <a t-attf-href="/cloud/storage/download/{{ result }}">{{ result.split('/')[-1] }}</a>
+                        </div>
+                    </t>
+                    <t t-if="not search_results">
+                        <p>No files found matching your query.</p>
+                    </t>
+                </div>
+            </div>
+        </t>
+    </template>
 
 
 </odoo>
