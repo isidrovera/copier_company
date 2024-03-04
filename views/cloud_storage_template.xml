@@ -24,7 +24,7 @@
                     margin-left: auto;
                 }
             </style>
-            <div id="cloud_storage_wrapper" class="oe_structure">
+             <div id="cloud_storage_wrapper" class="oe_structure">
                 <div class="cloud-storage-search">
                     <input type="text" class="cloud-search-input" placeholder="Buscar carpeta o archivo..." t-model="search_query"/>
                     <button class="btn btn-primary" t-on-click="search">Buscar</button>
@@ -32,14 +32,14 @@
                 <div class="cloud-storage-content">
                     <t t-foreach="files_dirs" t-as="file_dir">
                         <div class="file-dir-entry">
-                            <t t-if="file_dir.is_dir">
+                            <t t-if="file_dir['is_dir']">
                                 <i class="fa fa-folder"></i>
-                                <a t-att-href="'/cloud/storage/' + file_dir.path"><t t-esc="file_dir.name"/></a>
+                                <a t-att-href="'/cloud/storage/' + file_dir['path']"><t t-esc="file_dir['name']"/></a>
                             </t>
                             <t t-else="">
                                 <i class="fa fa-file"></i>
-                                <span t-esc="file_dir.name"/>
-                                <a t-att-href="'/cloud/storage/download/' + file_dir.path" class="btn btn-secondary btn-sm download-btn">Descargar</a>
+                                <span t-esc="file_dir['name']"/>
+                                <a t-att-href="'/cloud/storage/download/' + file_dir['path']" class="btn btn-secondary btn-sm download-btn">Descargar</a>
                             </t>
                         </div>
                     </t>
