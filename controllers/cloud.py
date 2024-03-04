@@ -18,7 +18,7 @@ class CloudStorageController(http.Controller):
         return matches
 
    @http.route(['/cloud/storage', '/cloud/storage/<path:extra>'], auth='user', website=True)
-    def list_files(self, extra=''):
+   def list_files(self, extra=''):
         base_path = '/mnt/cloud'
         path = os.path.normpath(os.path.join(base_path, extra))
         
