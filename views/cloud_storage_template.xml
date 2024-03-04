@@ -50,22 +50,25 @@
                         <a t-if="current_path" t-att-href="'/cloud/storage/' + '/'.join(current_path.split('/')[:-1])" class="btn btn-secondary">&#8592; Atrás</a>
                     </div>
                 </t>
-                 <div class="cloud-storage-content">
+                <div class="cloud-storage-content">
                     <t t-foreach="files_dirs" t-as="file_dir">
                         <div class="file-dir-entry">
                             <t t-if="file_dir['is_dir']">
                                 <i class="fa fa-folder"></i>
-                                <a t-att-href="'/cloud/storage/' + file_dir['path']"><t t-esc="file_dir['name']"/></a>
+                                <a t-att-href="'/cloud/storage/' + file_dir['path']">
+                                    <t t-esc="file_dir['name']"/>
+                                </a>
                             </t>
                             <t t-else="">
-                                <!-- Utiliza una función para obtener el ícono adecuado según la extensión del archivo -->
-                                <i t-att-class="'icon-file ' + get_icon_class(file_dir['name'])"></i>
+                                <!-- Utiliza la función get_icon_class para obtener el ícono adecuado según la extensión del archivo -->
+                                <i t-att-class="'fa ' + get_icon_class(file_dir['name'])"></i>
                                 <span t-esc="file_dir['name']"/>
                                 <a t-att-href="'/cloud/storage/download/' + file_dir['path']" class="btn btn-secondary btn-sm download-btn">Descargar</a>
                             </t>
                         </div>
                     </t>
                 </div>
+
             </div>
         </t>
     </template>
@@ -77,7 +80,8 @@
                 <div class="cloud-storage-nav">
                     <a href="/cloud/storage" class="btn btn-secondary">&#8592; Volver</a>
                 </div>
-                <h3>Resultados de búsqueda para "<t t-esc="query"/></h3>
+                <h3>Resultados de búsqueda para "<t t-esc="query"/>
+                </h3>
                 <div class="search-results-content">
                     <t t-foreach="search_results" t-as="result">
                         <div class="search-result-entry">
