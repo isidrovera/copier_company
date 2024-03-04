@@ -17,15 +17,15 @@ class CloudStorageController(http.Controller):
                     matches.append(rel_path)
         return matches
 
-   @http.route(['/cloud/storage', '/cloud/storage/<path:extra>'], auth='user', website=True)
-   def list_files(self, extra=''):
+    @http.route(['/cloud/storage', '/cloud/storage/<path:extra>'], auth='user', website=True)
+    def list_files(self, extra=''):
         base_path = '/mnt/cloud'
         path = os.path.normpath(os.path.join(base_path, extra))
         
         # Prevenir la salida del directorio base
         if not path.startswith(base_path):
             return request.not_found()
-    
+
         if not os.path.exists(path) or not os.path.isdir(path):
             return request.not_found()
         
@@ -39,6 +39,7 @@ class CloudStorageController(http.Controller):
             'files_dirs': files_dirs,
             'current_path': extra,
         })
+
 
 
 
