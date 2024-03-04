@@ -1,0 +1,26 @@
+#cloud_storage_wrapper, #search_results_wrapper {
+    .cloud-storage-search {
+        margin-bottom: 20px;
+
+        .cloud-search-input {
+            width: 300px;
+            margin-right: 10px;
+        }
+    }
+
+    .cloud-storage-content, .search-results-content {
+        .file-dir-entry, .search-result-entry {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+
+            i.fa {
+                margin-right: 10px;
+            }
+
+            .download-btn {
+                margin-left: auto;
+            }
+        }
+    }
+}
