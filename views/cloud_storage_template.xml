@@ -1,13 +1,29 @@
 <odoo>
-    <template id="assets_backend" name="cloud_storage_assets" inherit_id="web.assets_backend">
-        <xpath expr="." position="inside">
-            <!-- Añadir estilos CSS personalizados para la vista de almacenamiento en la nube -->
-            <link rel="stylesheet" type="text/scss" href="/copier_company/static/src/scss/cloud_storage.scss"/>
-        </xpath>
-    </template>
-
     <template id="cloud_storage_template" name="Cloud Storage">
         <t t-call="website.layout">
+            <style>
+                .cloud-storage-search {
+                    margin-bottom: 20px;
+                }
+                .cloud-storage-search .cloud-search-input {
+                    width: 300px;
+                    margin-right: 10px;
+                }
+                .cloud-storage-content .file-dir-entry,
+                .search-results-content .search-result-entry {
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 5px;
+                }
+                .cloud-storage-content .file-dir-entry i.fa,
+                .search-results-content .search-result-entry i.fa {
+                    margin-right: 10px;
+                }
+                .cloud-storage-content .file-dir-entry .download-btn,
+                .search-results-content .search-result-entry .download-btn {
+                    margin-left: auto;
+                }
+            </style>
             <div id="cloud_storage_wrapper" class="oe_structure">
                 <div class="cloud-storage-search">
                     <input type="text" class="cloud-search-input" placeholder="Buscar carpeta o archivo..." t-model="search_query"/>
