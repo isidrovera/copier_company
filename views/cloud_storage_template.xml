@@ -24,11 +24,13 @@
                     margin-left: auto;
                 }
             </style>
-             <div id="cloud_storage_wrapper" class="oe_structure">
-                 <div class="cloud-storage-search">
+            <div id="cloud_storage_wrapper" class="oe_structure">
+                <div class="cloud-storage-search">
                     <form method="get" action="/cloud/storage/search">
-                        <input type="text" name="query" class="cloud-search-input" placeholder="Buscar carpeta o archivo..."/>
+                        <input type="text" name="query" class="cloud-search-input" placeholder="Buscar carpeta o archivo..." t-att-value="request.params.get('query', '')"/>
                         <button type="submit" class="btn btn-primary">Buscar</button>
+                        <!-- Botón para limpiar el campo de búsqueda y refrescar la página -->
+                        <a href="/cloud/storage" class="btn btn-secondary">Limpiar</a>
                     </form>
                 </div>
                 <!-- Navegación hacia atrás -->
@@ -62,6 +64,10 @@
     <template id="cloud_storage_search_template" name="Cloud Storage Search Results">
         <t t-call="website.layout">
             <div id="search_results_wrapper" class="oe_structure">
+                <!-- Botón para volver a la vista principal de almacenamiento -->
+                <div class="cloud-storage-nav">
+                    <a href="/cloud/storage" class="btn btn-secondary">&#8592; Volver</a>
+                </div>
                 <h3>Resultados de búsqueda para "<t t-esc="query"/></h3>
                 <div class="search-results-content">
                     <t t-foreach="search_results" t-as="result">
