@@ -1,104 +1,60 @@
 <odoo>
-    <template id="cloud_storage_template" name="Cloud Storage">
-        <t t-call="web.layout">
-            <div class="oe_structure"/>
-            <div class="container">
-                <h1 class="text-center my-4">Cloud Storage</h1>
-
-                <!-- Formulario de búsqueda -->
-                <div class="row mb-4">
-                    <div class="col-md-12">
-                        <form action="/cloud/storage/search" method="get" class="search-form">
-                            <div class="input-group">
-                                <input type="text" name="query" placeholder="Search files..." class="form-control"/>
-                                <div class="input-group-append">
-                                    <button type="submit" class="btn btn-secondary">Search</button>
-                                </div>
-                            </div>
-                        </form>
+ <template id="cloud_storage_template" name="Cloud Storage">
+    <t t-call="web.layout">
+        <div class="oe_structure"/>
+        <div class="container">
+            <h2>Cloud Storage</h2>
+            <!-- Formulario de búsqueda -->
+            <form action="/cloud/storage/search" method="get" class="search-form mb-3">
+                <div class="input-group">
+                    <input type="text" name="query" placeholder="Search files..." class="form-control"/>
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-primary">Search</button>
                     </div>
                 </div>
-
-                <!-- Lista de archivos/carpetas -->
-                <div class="row">
-                    <div class="col-md-12">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <t t-foreach="files_dirs" t-as="fd">
-                                    <tr>
-                                        <td>
-                                            <t t-if="fd['is_dir']">
-                                                <i class="fa fa-folder"></i>
-                                                <a t-attf-href="/cloud/storage/{{ fd['path'] }}">
-                                                    <t t-esc="fd['name']"/>
-                                                </a>
-                                            </t>
-                                            <t t-else="">
-                                                <i class="fa fa-file"></i>
-                                                <t t-esc="fd['name']"/>
-                                            </t>
-                                        </td>
-                                        <td>
-                                            <t t-if="not fd['is_dir']">
-                                                <a t-attf-href="/cloud/storage/download/{{ fd['path'] }}" class="btn btn-sm btn-primary">
-                                                    <i class="fa fa-download"></i> Download
-                                                </a>
-                                            </t>
-                                        </td>
-                                    </tr>
+            </form>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="files_dirs" t-as="fd">
+                        <tr>
+                            <td>
+                                <t t-if="fd['is_dir']">
+                                    <a t-attf-href="/cloud/storage/{{ current_path }}/{{ fd['name'] }}">
+                                        <i class="fa fa-folder"></i> <t t-esc="fd['name']"/>
+                                    </a>
                                 </t>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Mejoras aplicadas para consistencia y claridad -->
-            <div class="grid grid-cols-1 gap-6 w-full">
-                <!-- Sección de íconos -->
-                <div class="space-y-2">
-                    <div class="flex items-center space-x-2">
-                        <!-- Íconos SVG aquí -->
-                    </div>
-
-                    <!-- Barra de búsqueda -->
-                    <div class="flex items-center space-x-2">
-                        <label class="text-sm font-medium leading-none m-0" for="search">Search</label>
-                        <input type="text" id="search" placeholder="Search..." class="h-10 rounded-md border px-3 py-2 text-sm w-1/2" />
-                    </div>
-
-                    <!-- Botones de seleccionar todo y descargar -->
-                    <div class="grid grid-cols-2 gap-2 text-sm">
-                        <div class="flex items-center space-x-1">
-                            <input type="checkbox" class="h-4 w-4 rounded border-gray-300" id="select-all" />
-                            <label for="select-all" class="text-sm font-medium leading-none m-0">Select all</label>
-                        </div>
-                        <div class="flex items-center justify-end space-x-1">
-                            <span class="font-semibold">2 items selected</span>
-                            <button class="inline-flex items-center px-3 h-9 rounded-md text-sm font-medium border transition-colors hover:bg-accent hover:text-accent-foreground">
-                            Download
-                                                            <!-- Ícono de descarga SVG aquí -->
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </t>
-    </template>
+                                <t t-else="">
+                                    <t t-esc="fd['name']"/>
+                                </t>
+                            </td>
+                            <td>
+                                <t t-if="not fd['is_dir']">
+                                    <!-- Ícono de descarga para archivos -->
+                                    <a t-attf-href="/cloud/storage/download/{{ current_path }}/{{ fd['name'] }}" class="btn btn-default">
+                                        <i class="fa fa-download"></i>
+                                    </a>
+                                </t>
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+        </div>
+    </t>
+</template>
 
 
-    <template id="cloud_storage_search_template" name="Search Results">
+<template id="cloud_storage_search_template" name="Search Results">
         <t t-call="web.layout">
             <div class="oe_structure"/>
             <div class="container">
-                <h2>Search Results for "<t t-esc="query"/>
-":</h2>
+                <h2>Search Results for "<t t-esc="query"/>":</h2>
                 <div class="mt-2">
                     <t t-foreach="search_results" t-as="result">
                         <div class="mb-2">
