@@ -4,6 +4,11 @@
         <div class="oe_structure"/>
         <div class="container">
             <h2>Cloud Storage</h2>
+            <!-- Botones para ir atrás y adelante -->
+            <div class="navigation-buttons">
+                <a href="#" class="btn btn-secondary go-back"><i class="fa fa-arrow-left"></i> Atrás</a>
+                <a href="#" class="btn btn-secondary go-forward"><i class="fa fa-arrow-right"></i> Adelante</a>
+            </div>
             <!-- Formulario de búsqueda -->
             <form action="/cloud/storage/search" method="get" class="search-form mb-3">
                 <div class="input-group">
@@ -25,7 +30,7 @@
                         <tr>
                             <td>
                                 <t t-if="fd['is_dir']">
-                                    <a t-attf-href="/cloud/storage/{{ current_path }}/{{ fd['name'] }}">
+                                    <a t-attf-href="/cloud/storage/navigate?path={{ current_path }}/{{ fd['name'] }}">
                                         <i class="fa fa-folder"></i> <t t-esc="fd['name']"/>
                                     </a>
                                 </t>
@@ -48,6 +53,7 @@
         </div>
     </t>
 </template>
+
 
 
 <template id="cloud_storage_search_template" name="Search Results">
