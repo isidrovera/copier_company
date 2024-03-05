@@ -4,8 +4,8 @@ body {
   }
   
   .file-manager {
-    max-width: calc(100% - 40px);
-    margin: 20px;
+    max-width: 100%;
+    margin: auto;
     background: #fff;
     padding: 20px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -13,42 +13,41 @@ body {
   
   .search-area {
     display: flex;
+    justify-content: center;
     align-items: center;
-    justify-content: space-between;
     margin-bottom: 20px;
   }
   
   .search-bar {
-    flex-grow: 1;
     padding: 10px;
     border: 1px solid #ddd;
-    margin-right: 5px;
+    border-radius: 20px 0 0 20px; /* bordes redondeados del lado izquierdo */
+  }
+  
+  .search-btn, .clear-btn {
+    padding: 10px 20px;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 0 20px 20px 0; /* bordes redondeados del lado derecho para 'Buscar' */
+    margin-left: -5px; /* Asegura que no haya espacio entre los botones y la barra de búsqueda */
   }
   
   .search-btn {
-    padding: 10px;
     background: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
   }
   
   .search-btn:hover {
     background: #0056b3;
   }
   
-  /* Estilo para el botón Limpiar */
   .clear-btn {
-    padding: 10px;
-    background-color: #f0ad4e; /* Color naranja para el botón */
-    color: white;
-    border: none;
-    cursor: pointer;
-    margin-left: 5px; /* Margen para separar del botón Buscar */
+    background: #f0ad4e; /* Color naranja para el botón 'Limpiar' */
+    border-radius: 20px; /* bordes redondeados para 'Limpiar' */
   }
   
   .clear-btn:hover {
-    background-color: #ec971f; /* Color naranja más oscuro al pasar el cursor */
+    background: #ec971f;
   }
   
   .cloud-storage-content, .files-list {
@@ -58,9 +57,13 @@ body {
   .file-dir-entry {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     padding: 10px;
     border-bottom: 1px solid #ddd;
+    justify-content: space-between;
+  }
+  
+  .folder-icon, .file-icon {
+    margin-right: 10px; /* Espacio entre el icono y el texto */
   }
   
   /* Estilos para los íconos de tipo de archivo */
@@ -84,7 +87,6 @@ body {
   
   .file-name {
     flex-grow: 1;
-    margin-right: 20px;
   }
   
   .download-btn {
@@ -93,7 +95,7 @@ body {
     border: none;
     color: #007bff;
     padding: 5px 10px;
-    margin-left: 10px;
+    border-radius: 20px; /* bordes redondeados para el botón 'Descargar' */
   }
   
   .download-btn:hover {
@@ -113,6 +115,7 @@ body {
     padding: 5px 10px;
     color: #000;
     text-decoration: none;
+    border-radius: 20px; /* bordes redondeados para los botones de navegación */
   }
   
   .back-btn:hover, .home-btn:hover {
