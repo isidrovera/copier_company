@@ -42,7 +42,7 @@
             </div>
         </t>
     </template>
-     <template id="cloud_storage_search_template" name="Cloud Storage Search Results">
+    <template id="cloud_storage_search_template" name="Cloud Storage Search Results">
         <t t-call="website.layout">
             <link rel="stylesheet" type="text/css" href="/copier_company/static/src/css/cloud_storage.css"/>
             <div id="search_results_wrapper" class="oe_structure file-manager">
@@ -50,14 +50,15 @@
                 <div class="navigation">
                     <a href="/cloud/storage" class="back-btn">&#8592; Volver</a>
                 </div>
-                <h3>Resultados de búsqueda para "<t t-esc="query"/></h3>
+                <h3>Resultados de búsqueda para "<t t-esc="query"/>
+                </h3>
                 <div class="cloud-storage-content">
                     <t t-foreach="search_results" t-as="result">
                         <div class="file-dir-entry">
-                            <!-- Utiliza la función get_icon_class para obtener la clase de icono basada en el nombre del archivo -->
-                            <i t-att-class="'fa ' + get_icon_class(result['name']) + ' file-icon'"></i>
-                            <span class="file-name" t-esc="result['name']"/>
-                            <a t-att-href="'/cloud/storage/download/' + result['path']" class="download-btn">Descargar</a>
+                            <i t-att-class="'fa ' + get_icon_class(result) + ' file-icon'"></i>
+                            <span class="file-name" t-esc="result"/>
+                            <!-- Ajusta el enlace de descarga según tu lógica de URL -->
+                            <a t-att-href="'/cloud/storage/download/' + result" class="download-btn">Descargar</a>
                         </div>
                     </t>
                 </div>
