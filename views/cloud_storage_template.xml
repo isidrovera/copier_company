@@ -1,177 +1,134 @@
 <odoo>
     <template id="cloud_storage_template" name="Cloud Storage">
         <t t-call="website.layout">
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+            
             <style>
-    .cloud-storage-search {
-    margin: 20px auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap; /* Asegura que los elementos se adapten a pantallas pequeñas */
-}
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+    .navigation {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 20px;
+        }
 
-.cloud-storage-search .cloud-search-input {
-    flex-grow: 1;
-    margin-right: 10px;
-    min-width: 150px;
-}
+        /* Estilos para botones de navegación */
+        .back-btn, .home-btn {
+            cursor: pointer;
+            background: #ddd;
+            border: none;
+            padding: 5px 10px;
+            margin-right: 5px;
+            text-decoration: none;
+            color: #000;
+        }
 
-/* Estilos para los botones de búsqueda y limpieza */
-.cloud-storage-search button,
-.cloud-storage-search a.btn {
-    padding: 6px 12px;
-    border-radius: 4px;
-    text-decoration: none;
-}
+        .back-btn:hover, .home-btn:hover {
+            background: #ccc;
+        }
 
-/* Estilos para los iconos de las carpetas y archivos según su extensión */
-.file-dir-entry i {
-    margin-right: 10px;
-    font-size: 24px;
-}
+        /* Estilos para la barra de búsqueda */
+        .cloud-storage-search {
+            display: flex;
+            margin-bottom: 20px;
+        }
 
-/* Clases específicas para los íconos de diferentes tipos de archivos */
-/* Debes incluir tu propia lógica para asignar estas clases basada en la extensión del archivo */
-.icon-excel { color: #28a745; }
-.icon-word { color: #007bff; }
-.icon-pdf { color: #ff0000; }
+        .cloud-search-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-right: none;
+        }
 
-/* Estilos para los botones de descarga */
-.download-btn {
-    margin-left: auto;
-    background-color: #28a745;
-    color: #fff;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
+        /* Estilos para botón de búsqueda */
+        .btn-primary {
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
 
-.download-btn:hover {
-    background-color: #218838;
-}
+        .btn-primary:hover {
+            background: #0056b3;
+        }
 
-/* Estilos para la vista de archivos y carpetas */
-.cloud-storage-content .file-dir-entry,
-.search-results-content .search-result-entry {
-    display: flex;
-    align-items: center;
-    margin-bottom: 5px;
-    flex-wrap: wrap; /* Permite envolver el contenido en pantallas pequeñas */
-}
+        /* Estilos para la lista de archivos y carpetas */
+        .cloud-storage-content {
+            border-collapse: collapse;
+            width: 100%;
+        }
 
-/* Media queries para adaptación a pantallas de diferentes tamaños */
+        /* Estilos para entradas de archivos y carpetas */
+        .file-dir-entry {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
 
-/* Estilos para tabletas y móviles */
-@media (max-width: 600px) {
-    .cloud-storage-search {
-        flex-direction: column; /* Cambia la disposición a vertical */
-    }
-    .cloud-storage-search .cloud-search-input,
-    .cloud-storage-search button,
-    .cloud-storage-search a.btn {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-    
-    .cloud-storage-content .file-dir-entry,
-    .search-results-content .search-result-entry {
-        flex-direction: column; /* Cambia la disposición a vertical */
-    }
-    
-    .cloud-storage-content .file-dir-entry .download-btn,
-    .search-results-content .search-result-entry .download-btn {
-        margin-left: 0; /* Remueve el margen izquierdo */
-    }
-    
-    .file-dir-entry i,
-    .search-result-entry i {
-        font-size: 1.5em; /* Aumenta el tamaño del icono ligeramente para pantallas táctiles */
-    }
-}
+        /* Estilos para íconos de carpetas y archivos */
+        .fa-folder, .fa-file {
+            margin-right: 10px;
+            color: #fdd835; /* Amarillo para carpetas */
+        }
 
-/* Estilos para pantallas muy pequeñas */
-@media (max-width: 400px) {
-    .file-dir-entry i,
-    .search-result-entry i {
-        font-size: 1.2em; /* Reduce el tamaño del icono para pantallas muy pequeñas */
-    }
-}
-.navigation {
-                    margin-bottom: 10px;
-                    display: flex;
-                    justify-content: flex-start;
-                }
+        /* Estilos específicos para archivos Excel */
+        .icon-excel {
+            color: #207245; /* Verde para archivos Excel */
+        }
 
-                .back-btn, .home-btn {
-                    cursor: pointer;
-                    background: #ddd;
-                    border: none;
-                    padding: 5px 10px;
-                    margin-right: 5px;
-                }
+        /* Estilos para botón de descarga */
+        .download-btn {
+            margin-left: auto;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            color: #007bff;
+        }
 
-                .back-btn:hover, .home-btn:hover {
-                    background: #ccc;
-                }
+        .download-btn:hover {
+            color: #0056b3;
+        }
 
             </style>
             <div id="cloud_storage_wrapper" class="oe_structure file-manager">
-                <!-- Nueva barra de navegación al estilo de tu ejemplo -->
+                <!-- Barra de navegación con estilos actualizados -->
                 <div class="navigation">
                     <t t-if="current_path">
-                        <a t-if="current_path" href="/cloud/storage" class="btn btn-secondary back-btn">&#8592; Raíz</a>
-                        <a t-if="current_path" t-att-href="'/cloud/storage/' + '/'.join(current_path.split('/')[:-1])" class="btn btn-secondary">&#8592; Atrás</a>
+                        <!-- Botones con clases actualizadas para aplicar nuevos estilos -->
+                        <a t-if="current_path" href="/cloud/storage" class="back-btn">&#8592; Raíz</a>
+                        <a t-if="current_path" t-att-href="'/cloud/storage/' + '/'.join(current_path.split('/')[:-1])" class="back-btn">&#8592; Atrás</a>
                     </t>
                 </div>
-                <!-- La búsqueda y listado de archivos se mantiene como en tu estructura original -->
+                
+                <!-- Búsqueda y listado de archivos con estilos actualizados -->
                 <div class="cloud-storage-search">
                     <form method="get" action="/cloud/storage/search">
                         <input type="text" name="query" class="cloud-search-input" placeholder="Buscar carpeta o archivo..." t-att-value="request.params.get('query', '')"/>
-                        <button type="submit" class="btn btn-primary">Buscar</button>
-                        <a href="/cloud/storage" class="btn btn-secondary">Limpiar</a>
+                        <!-- Botón con clases actualizadas para aplicar nuevos estilos -->
+                        <button type="submit" class="search-btn">Buscar</button>
+                        <!-- Asegúrate de que los estilos de este botón sean consistentes con los demás botones -->
+                        <a href="/cloud/storage" class="btn clear-btn">Limpiar</a>
                     </form>
                 </div>
+                
+                <!-- Contenido de almacenamiento de archivos con estilos actualizados -->
                 <div class="cloud-storage-content">
-                    <!-- Estructura original para mostrar archivos y carpetas -->
                     <t t-foreach="files_dirs" t-as="file_dir">
                         <div class="file-dir-entry">
                             <t t-if="file_dir['is_dir']">
-                                <i class="fa fa-folder"></i>
-                                <a t-att-href="'/cloud/storage/' + file_dir['path']">
+                                <!-- Ícono de carpeta con clase de Font Awesome -->
+                                <i class="fa fa-folder folder-icon"></i>
+                                <a t-att-href="'/cloud/storage/' + file_dir['path']" class="file-name">
                                     <t t-esc="file_dir['name']"/>
                                 </a>
                             </t>
                             <t t-else="">
-                                <i t-att-class="'fa ' + get_icon_class(file_dir['name'])"></i>
-                                <span t-esc="file_dir['name']"/>
-                                <a t-att-href="'/cloud/storage/download/' + file_dir['path']" class="btn btn-secondary btn-sm download-btn">Descargar</a>
+                                <!-- Ícono de archivo con clase dinámica basada en la extensión del archivo -->
+                                <i t-att-class="'fa ' + get_icon_class(file_dir['name']) + ' file-icon'"></i>
+                                <span class="file-name" t-esc="file_dir['name']"/>
+                                <!-- Botón de descarga con clases actualizadas para aplicar nuevos estilos -->
+                                <a t-att-href="'/cloud/storage/download/' + file_dir['path']" class="download-btn">Descargar</a>
                             </t>
-                        </div>
-                    </t>
-
-                </div>
-            </div>
-        </t>
-    </template>
-
-    <template id="cloud_storage_search_template" name="Cloud Storage Search Results">
-        <t t-call="website.layout">
-            <div id="search_results_wrapper" class="oe_structure">
-                <!-- Botón para volver a la vista principal de almacenamiento -->
-                <div class="cloud-storage-nav">
-                    <a href="/cloud/storage" class="btn btn-secondary">&#8592; Volver</a>
-                </div>
-                <h3>Resultados de búsqueda para "<t t-esc="query"/>
-                </h3>
-                <div class="search-results-content">
-                    <t t-foreach="search_results" t-as="result">
-                        <div class="search-result-entry">
-                            <i class="fa fa-file"></i>
-                            <span t-esc="result"/>
-                            <a t-att-href="'/cloud/storage/download/' + result" class="btn btn-secondary btn-sm download-btn">Descargar</a>
                         </div>
                     </t>
                 </div>
