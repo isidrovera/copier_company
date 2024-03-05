@@ -1,4 +1,4 @@
-/* Estilos generales */
+/* Estilos generales para la vista de almacenamiento en la nube */
 
 /* Estilos para la barra de búsqueda */
 .cloud-storage-search {
@@ -6,57 +6,85 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-wrap: wrap; /* Permite que los elementos se envuelvan en la siguiente línea en pantallas pequeñas */
+    flex-wrap: wrap; /* Asegura que los elementos se adapten a pantallas pequeñas */
 }
 
 .cloud-storage-search .cloud-search-input {
-    flex-grow: 1; /* Permite que el input crezca para llenar el espacio disponible */
+    flex-grow: 1;
     margin-right: 10px;
-    min-width: 150px; /* Establece un ancho mínimo para el input */
+    min-width: 150px;
 }
 
-/* Estilos para los iconos de las carpetas y archivos */
+/* Estilos para los botones de búsqueda y limpieza */
+.cloud-storage-search button,
+.cloud-storage-search a.btn {
+    padding: 6px 12px;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+/* Estilos para los iconos de las carpetas y archivos según su extensión */
 .file-dir-entry i {
     margin-right: 10px;
-    font-size: 24px; /* Tamaño de los iconos */
+    font-size: 24px;
 }
+
+/* Clases específicas para los íconos de diferentes tipos de archivos */
+.icon-excel { color: #28a745; }
+.icon-word { color: #007bff; }
+.icon-pdf { color: #ff0000; }
 
 /* Estilos para los botones de descarga */
 .download-btn {
     margin-left: auto;
-    background-color: #28a745; /* Color de fondo */
-    color: #fff; /* Color del texto */
-    border: none; /* Sin borde */
-    padding: 6px 12px; /* Espaciado interno */
-    border-radius: 4px; /* Bordes redondeados */
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s; /* Transición suave al cambiar el color de fondo */
+    transition: background-color 0.3s;
 }
 
 .download-btn:hover {
-    background-color: #218838; /* Cambia el color de fondo al pasar el ratón */
+    background-color: #218838;
 }
 
-/* Estilos para pantallas más pequeñas (menos de 600px) */
-@media (max-width: 600px) {
-    .cloud-storage-search {
-        flex-direction: column; /* Cambia la disposición a vertical */
-    }
+/* Estilos para la vista de archivos y carpetas */
+.cloud-storage-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-gap: 20px;
+    padding: 20px;
+}
+
+/* Media queries para adaptación a pantallas de diferentes tamaños */
+
+/* Estilos para tabletas y móviles */
+@media (max-width: 768px) {
     .cloud-storage-search .cloud-search-input,
     .cloud-storage-search button,
     .cloud-storage-search a.btn {
-        width: 100%; /* Hace que los elementos ocupen todo el ancho disponible */
-        margin-right: 0; /* Remueve el margen derecho */
-        margin-bottom: 10px; /* Agrega margen inferior para separarlos */
+        width: 100%;
+        margin-bottom: 10px;
     }
+    
+    .cloud-storage-content {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    
     .file-dir-entry i {
-        font-size: 20px; /* Reduce el tamaño de los iconos en pantallas pequeñas */
+        font-size: 1.5em;
+    }
+    
+    .download-btn {
+        padding: 8px 16px;
     }
 }
 
-/* Estilos adicionales para pantallas más pequeñas (menos de 400px) */
+/* Estilos para pantallas muy pequeñas */
 @media (max-width: 400px) {
     .file-dir-entry i {
-        font-size: 16px; /* Reduce aún más el tamaño de los iconos en pantallas muy pequeñas */
+        font-size: 1.2em;
     }
 }
