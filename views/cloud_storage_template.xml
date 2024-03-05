@@ -42,4 +42,25 @@
             </div>
         </t>
     </template>
+        <template id="cloud_storage_search_template" name="Cloud Storage Search Results">
+        <t t-call="website.layout">
+            <div id="search_results_wrapper" class="oe_structure">
+                <!-- Botón para volver a la vista principal de almacenamiento -->
+                <div class="cloud-storage-nav">
+                    <a href="/cloud/storage" class="btn btn-secondary">&#8592; Volver</a>
+                </div>
+                <h3>Resultados de búsqueda para "<t t-esc="query"/>
+                </h3>
+                <div class="search-results-content">
+                    <t t-foreach="search_results" t-as="result">
+                        <div class="search-result-entry">
+                            <i class="fa fa-file" style="color: #ffc107;"></i>
+                            <span t-esc="result"/>
+                            <a t-att-href="'/cloud/storage/download/' + result" class="btn btn-secondary btn-sm download-btn">Descargar</a>
+                        </div>
+                    </t>
+                </div>
+            </div>
+        </t>
+    </template>
 </odoo>
