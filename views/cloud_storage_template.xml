@@ -1,7 +1,105 @@
 <odoo>
     <template id="cloud_storage_template" name="Cloud Storage">
         <t t-call="website.layout">
-            <link rel="stylesheet" type="text/scss" href="/copier_company/static/src/scss/cloud_storage.scss"/>
+            <style>
+    .cloud-storage-search {
+    margin: 20px auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap; /* Asegura que los elementos se adapten a pantallas pequeñas */
+}
+
+.cloud-storage-search .cloud-search-input {
+    flex-grow: 1;
+    margin-right: 10px;
+    min-width: 150px;
+}
+
+/* Estilos para los botones de búsqueda y limpieza */
+.cloud-storage-search button,
+.cloud-storage-search a.btn {
+    padding: 6px 12px;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+/* Estilos para los iconos de las carpetas y archivos según su extensión */
+.file-dir-entry i {
+    margin-right: 10px;
+    font-size: 24px;
+}
+
+/* Clases específicas para los íconos de diferentes tipos de archivos */
+/* Debes incluir tu propia lógica para asignar estas clases basada en la extensión del archivo */
+.icon-excel { color: #28a745; }
+.icon-word { color: #007bff; }
+.icon-pdf { color: #ff0000; }
+
+/* Estilos para los botones de descarga */
+.download-btn {
+    margin-left: auto;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.download-btn:hover {
+    background-color: #218838;
+}
+
+/* Estilos para la vista de archivos y carpetas */
+.cloud-storage-content .file-dir-entry,
+.search-results-content .search-result-entry {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    flex-wrap: wrap; /* Permite envolver el contenido en pantallas pequeñas */
+}
+
+/* Media queries para adaptación a pantallas de diferentes tamaños */
+
+/* Estilos para tabletas y móviles */
+@media (max-width: 600px) {
+    .cloud-storage-search {
+        flex-direction: column; /* Cambia la disposición a vertical */
+    }
+    .cloud-storage-search .cloud-search-input,
+    .cloud-storage-search button,
+    .cloud-storage-search a.btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .cloud-storage-content .file-dir-entry,
+    .search-results-content .search-result-entry {
+        flex-direction: column; /* Cambia la disposición a vertical */
+    }
+    
+    .cloud-storage-content .file-dir-entry .download-btn,
+    .search-results-content .search-result-entry .download-btn {
+        margin-left: 0; /* Remueve el margen izquierdo */
+    }
+    
+    .file-dir-entry i,
+    .search-result-entry i {
+        font-size: 1.5em; /* Aumenta el tamaño del icono ligeramente para pantallas táctiles */
+    }
+}
+
+/* Estilos para pantallas muy pequeñas */
+@media (max-width: 400px) {
+    .file-dir-entry i,
+    .search-result-entry i {
+        font-size: 1.2em; /* Reduce el tamaño del icono para pantallas muy pequeñas */
+    }
+}
+
+            </style>
             <div id="cloud_storage_wrapper" class="oe_structure">
                 <div class="cloud-storage-search">
                     <form method="get" action="/cloud/storage/search">
@@ -24,20 +122,21 @@
                     <t t-foreach="files_dirs" t-as="file_dir">
                         <div class="file-dir-entry">
                             <t t-if="file_dir['is_dir']">
-                                <i class="fa fa-folder" style="color: #007bff;"></i>
+                                <i class="fa fa-folder"></i>
                                 <a t-att-href="'/cloud/storage/' + file_dir['path']">
                                     <t t-esc="file_dir['name']"/>
                                 </a>
                             </t>
                             <t t-else="">
                                 <!-- Utiliza la función get_icon_class para obtener el ícono adecuado según la extensión del archivo -->
-                                <i t-att-class="'fa ' + get_icon_class(file_dir['name'])" style="color: #28a745;"></i>
+                                <i t-att-class="'fa ' + get_icon_class(file_dir['name'])"></i>
                                 <span t-esc="file_dir['name']"/>
                                 <a t-att-href="'/cloud/storage/download/' + file_dir['path']" class="btn btn-secondary btn-sm download-btn">Descargar</a>
                             </t>
                         </div>
                     </t>
                 </div>
+
             </div>
         </t>
     </template>
@@ -54,7 +153,7 @@
                 <div class="search-results-content">
                     <t t-foreach="search_results" t-as="result">
                         <div class="search-result-entry">
-                            <i class="fa fa-file" style="color: #ffc107;"></i>
+                            <i class="fa fa-file"></i>
                             <span t-esc="result"/>
                             <a t-att-href="'/cloud/storage/download/' + result" class="btn btn-secondary btn-sm download-btn">Descargar</a>
                         </div>
