@@ -4,8 +4,8 @@ body {
   }
   
   .file-manager {
-    max-width: calc(100% - 40px); /* O ajusta según sea necesario para dejar algo de margen a los lados */
-    margin: 20px; /* Agregamos margen alrededor del contenedor para que no toque los bordes de la pantalla */
+    max-width: calc(100% - 40px);
+    margin: 20px;
     background: #fff;
     padding: 20px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -13,6 +13,8 @@ body {
   
   .search-area {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: 20px;
   }
   
@@ -20,8 +22,7 @@ body {
     flex-grow: 1;
     padding: 10px;
     border: 1px solid #ddd;
-    border-right: none;
-    margin-right: 5px; /* Añade un pequeño margen entre la barra de búsqueda y el botón */
+    margin-right: 5px;
   }
   
   .search-btn {
@@ -36,30 +37,54 @@ body {
     background: #0056b3;
   }
   
+  /* Estilo para el botón Limpiar */
+  .clear-btn {
+    padding: 10px;
+    background-color: #f0ad4e; /* Color naranja para el botón */
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-left: 5px; /* Margen para separar del botón Buscar */
+  }
+  
+  .clear-btn:hover {
+    background-color: #ec971f; /* Color naranja más oscuro al pasar el cursor */
+  }
+  
   .cloud-storage-content, .files-list {
-    width: 100%; /* Aseguramos que tome todo el ancho */
+    width: 100%;
   }
   
   .file-dir-entry {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Separa el nombre del archivo y el botón de descarga */
+    justify-content: space-between;
     padding: 10px;
     border-bottom: 1px solid #ddd;
   }
   
-  .folder-icon, .file-icon {
-    color: #fdd835; /* Amarillo para carpetas */
-    margin-right: 10px;
+  /* Estilos para los íconos de tipo de archivo */
+  .fa-folder {
+    color: #fdd835; /* Color amarillo para íconos de carpeta */
   }
   
   .icon-excel {
-    color: #207245; /* Verde para archivos Excel */
+    color: #207245; /* Color verde para archivos Excel */
   }
+  
+  .icon-word {
+    color: #2b579a; /* Color azul para archivos Word */
+  }
+  
+  .icon-pdf {
+    color: #ff0000; /* Color rojo para archivos PDF */
+  }
+  
+  /* Añadir más selectores de íconos para otros tipos de archivos según sea necesario */
   
   .file-name {
     flex-grow: 1;
-    margin-right: 20px; /* Añade espacio antes del botón de descarga */
+    margin-right: 20px;
   }
   
   .download-btn {
@@ -67,8 +92,8 @@ body {
     background: transparent;
     border: none;
     color: #007bff;
-    padding: 5px 10px; /* Añade un poco de padding para hacer el botón más grande */
-    margin-left: 10px; /* Añade espacio a la izquierda del botón de descarga */
+    padding: 5px 10px;
+    margin-left: 10px;
   }
   
   .download-btn:hover {
@@ -77,7 +102,8 @@ body {
   
   .navigation {
     display: flex;
-    margin-bottom: 20px; /* Añade margen abajo de la navegación */
+    justify-content: space-between;
+    margin-bottom: 20px;
   }
   
   .back-btn, .home-btn {
@@ -85,9 +111,8 @@ body {
     background: #ddd;
     border: none;
     padding: 5px 10px;
-    margin-right: 5px;
-    color: #000; /* Aseguramos que el texto es negro */
-    text-decoration: none; /* Removemos el subrayado */
+    color: #000;
+    text-decoration: none;
   }
   
   .back-btn:hover, .home-btn:hover {
