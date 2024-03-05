@@ -11,7 +11,7 @@
                         <a t-if="current_path" t-att-href="'/cloud/storage/' + '/'.join(current_path.split('/')[:-1])" class="back-btn">&#8592; Atrás</a>
                     </t>
                 </div>
-                
+
                 <!-- Búsqueda y listado de archivos con estilos actualizados -->
                 <div class="cloud-storage-search">
                     <form method="get" action="/cloud/storage/search">
@@ -20,7 +20,7 @@
                         <a href="/cloud/storage" class="btn clear-btn">Limpiar</a>
                     </form>
                 </div>
-                
+
                 <!-- Contenido de almacenamiento de archivos con estilos actualizados -->
                 <div class="cloud-storage-content">
                     <t t-foreach="files_dirs" t-as="file_dir">
@@ -41,6 +41,7 @@
                 </div>
             </div>
         </t>
+    </template>
     <template id="cloud_storage_search_template" name="Cloud Storage Search Results">
         <t t-call="website.layout">
             <link rel="stylesheet" type="text/css" href="/copier_company/static/src/css/cloud_storage.css"/>
@@ -49,7 +50,8 @@
                 <div class="navigation">
                     <a href="/cloud/storage" class="back-btn">&#8592; Volver</a>
                 </div>
-                <h3>Resultados de búsqueda para "<t t-esc="query"/></h3>
+                <h3>Resultados de búsqueda para "<t t-esc="query"/>
+                </h3>
                 <div class="cloud-storage-content">
                     <t t-foreach="search_results" t-as="result">
                         <div class="file-dir-entry">
