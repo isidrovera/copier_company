@@ -1,26 +1,62 @@
-#cloud_storage_wrapper, #search_results_wrapper {
+/* Estilos generales */
+
+/* Estilos para la barra de búsqueda */
+.cloud-storage-search {
+    margin: 20px auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap; /* Permite que los elementos se envuelvan en la siguiente línea en pantallas pequeñas */
+}
+
+.cloud-storage-search .cloud-search-input {
+    flex-grow: 1; /* Permite que el input crezca para llenar el espacio disponible */
+    margin-right: 10px;
+    min-width: 150px; /* Establece un ancho mínimo para el input */
+}
+
+/* Estilos para los iconos de las carpetas y archivos */
+.file-dir-entry i {
+    margin-right: 10px;
+    font-size: 24px; /* Tamaño de los iconos */
+}
+
+/* Estilos para los botones de descarga */
+.download-btn {
+    margin-left: auto;
+    background-color: #28a745; /* Color de fondo */
+    color: #fff; /* Color del texto */
+    border: none; /* Sin borde */
+    padding: 6px 12px; /* Espaciado interno */
+    border-radius: 4px; /* Bordes redondeados */
+    cursor: pointer;
+    transition: background-color 0.3s; /* Transición suave al cambiar el color de fondo */
+}
+
+.download-btn:hover {
+    background-color: #218838; /* Cambia el color de fondo al pasar el ratón */
+}
+
+/* Estilos para pantallas más pequeñas (menos de 600px) */
+@media (max-width: 600px) {
     .cloud-storage-search {
-        margin-bottom: 20px;
-
-        .cloud-search-input {
-            width: 300px;
-            margin-right: 10px;
-        }
+        flex-direction: column; /* Cambia la disposición a vertical */
     }
+    .cloud-storage-search .cloud-search-input,
+    .cloud-storage-search button,
+    .cloud-storage-search a.btn {
+        width: 100%; /* Hace que los elementos ocupen todo el ancho disponible */
+        margin-right: 0; /* Remueve el margen derecho */
+        margin-bottom: 10px; /* Agrega margen inferior para separarlos */
+    }
+    .file-dir-entry i {
+        font-size: 20px; /* Reduce el tamaño de los iconos en pantallas pequeñas */
+    }
+}
 
-    .cloud-storage-content, .search-results-content {
-        .file-dir-entry, .search-result-entry {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
-
-            i.fa {
-                margin-right: 10px;
-            }
-
-            .download-btn {
-                margin-left: auto;
-            }
-        }
+/* Estilos adicionales para pantallas más pequeñas (menos de 400px) */
+@media (max-width: 400px) {
+    .file-dir-entry i {
+        font-size: 16px; /* Reduce aún más el tamaño de los iconos en pantallas muy pequeñas */
     }
 }

@@ -1,57 +1,7 @@
 <odoo>
     <template id="cloud_storage_template" name="Cloud Storage">
         <t t-call="website.layout">
-            <style>
-    .cloud-storage-search {
-        margin: 20px auto;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-wrap: wrap; /* Permite que los elementos se envuelvan en la siguiente línea en pantallas pequeñas */
-    }
-    .cloud-storage-search .cloud-search-input {
-        flex-grow: 1; /* Permite que el input crezca para llenar el espacio disponible */
-        margin-right: 10px;
-        min-width: 150px; /* Establece un ancho mínimo para el input */
-    }
-    .cloud-storage-content .file-dir-entry,
-    .search-results-content .search-result-entry {
-        display: flex;
-        align-items: center;
-        margin-bottom: 5px;
-        flex-wrap: wrap; /* Permite envolver el contenido en pantallas pequeñas */
-    }
-    .cloud-storage-content .file-dir-entry i,
-    .search-results-content .search-result-entry i {
-        margin-right: 10px;
-    }
-    .cloud-storage-content .file-dir-entry .download-btn,
-    .search-results-content .search-result-entry .download-btn {
-        margin-left: auto;
-    }
-
-    /* Media Query para pantallas menores a 600px */
-    @media (max-width: 600px) {
-        .cloud-storage-search {
-            flex-direction: column; /* Cambia la disposición a vertical */
-        }
-        .cloud-storage-search .cloud-search-input,
-        .cloud-storage-search button,
-        .cloud-storage-search a.btn {
-            width: 100%; /* Hace que los elementos ocupen todo el ancho disponible */
-            margin-right: 0; /* Remueve el margen derecho */
-            margin-bottom: 10px; /* Agrega margen inferior para separarlos */
-        }
-        .cloud-storage-content .file-dir-entry,
-        .search-results-content .search-result-entry {
-            flex-direction: column; /* Cambia la disposición a vertical */
-        }
-        .cloud-storage-content .file-dir-entry .download-btn,
-        .search-results-content .search-result-entry .download-btn {
-            margin-left: 0; /* Remueve el margen izquierdo */
-        }
-    }
-</style>
+            <link rel="stylesheet" type="text/scss" href="/copier_company/static/src/scss/cloud_storage.scss"/>
             <div id="cloud_storage_wrapper" class="oe_structure">
                 <div class="cloud-storage-search">
                     <form method="get" action="/cloud/storage/search">
@@ -74,21 +24,20 @@
                     <t t-foreach="files_dirs" t-as="file_dir">
                         <div class="file-dir-entry">
                             <t t-if="file_dir['is_dir']">
-                                <i class="fa fa-folder"></i>
+                                <i class="fa fa-folder" style="color: #007bff;"></i>
                                 <a t-att-href="'/cloud/storage/' + file_dir['path']">
                                     <t t-esc="file_dir['name']"/>
                                 </a>
                             </t>
                             <t t-else="">
                                 <!-- Utiliza la función get_icon_class para obtener el ícono adecuado según la extensión del archivo -->
-                                <i t-att-class="'fa ' + get_icon_class(file_dir['name'])"></i>
+                                <i t-att-class="'fa ' + get_icon_class(file_dir['name'])" style="color: #28a745;"></i>
                                 <span t-esc="file_dir['name']"/>
                                 <a t-att-href="'/cloud/storage/download/' + file_dir['path']" class="btn btn-secondary btn-sm download-btn">Descargar</a>
                             </t>
                         </div>
                     </t>
                 </div>
-
             </div>
         </t>
     </template>
@@ -105,7 +54,7 @@
                 <div class="search-results-content">
                     <t t-foreach="search_results" t-as="result">
                         <div class="search-result-entry">
-                            <i class="fa fa-file"></i>
+                            <i class="fa fa-file" style="color: #ffc107;"></i>
                             <span t-esc="result"/>
                             <a t-att-href="'/cloud/storage/download/' + result" class="btn btn-secondary btn-sm download-btn">Descargar</a>
                         </div>
