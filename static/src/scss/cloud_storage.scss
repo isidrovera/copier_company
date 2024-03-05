@@ -30,6 +30,7 @@
 }
 
 /* Clases específicas para los íconos de diferentes tipos de archivos */
+/* Debes incluir tu propia lógica para asignar estas clases basada en la extensión del archivo */
 .icon-excel { color: #28a745; }
 .icon-word { color: #007bff; }
 .icon-pdf { color: #ff0000; }
@@ -51,17 +52,21 @@
 }
 
 /* Estilos para la vista de archivos y carpetas */
-.cloud-storage-content {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    grid-gap: 20px;
-    padding: 20px;
+.cloud-storage-content .file-dir-entry,
+.search-results-content .search-result-entry {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    flex-wrap: wrap; /* Permite envolver el contenido en pantallas pequeñas */
 }
 
 /* Media queries para adaptación a pantallas de diferentes tamaños */
 
 /* Estilos para tabletas y móviles */
-@media (max-width: 768px) {
+@media (max-width: 600px) {
+    .cloud-storage-search {
+        flex-direction: column; /* Cambia la disposición a vertical */
+    }
     .cloud-storage-search .cloud-search-input,
     .cloud-storage-search button,
     .cloud-storage-search a.btn {
@@ -69,22 +74,26 @@
         margin-bottom: 10px;
     }
     
-    .cloud-storage-content {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    .cloud-storage-content .file-dir-entry,
+    .search-results-content .search-result-entry {
+        flex-direction: column; /* Cambia la disposición a vertical */
     }
     
-    .file-dir-entry i {
-        font-size: 1.5em;
+    .cloud-storage-content .file-dir-entry .download-btn,
+    .search-results-content .search-result-entry .download-btn {
+        margin-left: 0; /* Remueve el margen izquierdo */
     }
     
-    .download-btn {
-        padding: 8px 16px;
+    .file-dir-entry i,
+    .search-result-entry i {
+        font-size: 1.5em; /* Aumenta el tamaño del icono ligeramente para pantallas táctiles */
     }
 }
 
 /* Estilos para pantallas muy pequeñas */
 @media (max-width: 400px) {
-    .file-dir-entry i {
-        font-size: 1.2em;
+    .file-dir-entry i,
+    .search-result-entry i {
+        font-size: 1.2em; /* Reduce el tamaño del icono para pantallas muy pequeñas */
     }
 }
