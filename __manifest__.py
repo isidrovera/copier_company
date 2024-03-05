@@ -56,6 +56,11 @@
         #'views/add_custom_selection_field.xml',
 
     ],
+    'assets': {
+        'web.assets_frontend': [
+            'copier_company/static/src/scss/cloud_storage.scss',
+        ],
+    },
     # only loaded in demonstration mode
     'demo': [
         'demo/demo.xml',        
