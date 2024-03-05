@@ -2,36 +2,56 @@
     <template id="cloud_storage_template" name="Cloud Storage">
         <t t-call="website.layout">
             <style>
-                .cloud-storage-search {
-                    margin: 20px auto; /* Margen arriba y abajo y centrar horizontalmente */
-                    display: flex;
-                    justify-content: center; /* Centrar contenido horizontalmente */
-                    align-items: center; /* Centrar contenido verticalmente */
-                }
-                .cloud-storage-search .cloud-search-input {
-                    width: 300px;
-                    margin-right: 10px;
-                }
-                .cloud-storage-content .file-dir-entry,
-                .search-results-content .search-result-entry {
-                    display: flex;
-                    align-items: center;
-                    margin-bottom: 5px;
-                }
-                .cloud-storage-content .file-dir-entry i,
-                .search-results-content .search-result-entry i {
-                    margin-right: 10px;
-                }
-                .cloud-storage-content .file-dir-entry .download-btn,
-                .search-results-content .search-result-entry .download-btn {
-                    margin-left: auto;
-                }
-                /* Estilos para los íconos de tipos de archivos */
-                .icon-file {
-                    font-size: 16px; /* Tamaño del ícono */
-                }
-                /* ... Puedes agregar más reglas para otros íconos ... */
-            </style>
+    .cloud-storage-search {
+        margin: 20px auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap; /* Permite que los elementos se envuelvan en la siguiente línea en pantallas pequeñas */
+    }
+    .cloud-storage-search .cloud-search-input {
+        flex-grow: 1; /* Permite que el input crezca para llenar el espacio disponible */
+        margin-right: 10px;
+        min-width: 150px; /* Establece un ancho mínimo para el input */
+    }
+    .cloud-storage-content .file-dir-entry,
+    .search-results-content .search-result-entry {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+        flex-wrap: wrap; /* Permite envolver el contenido en pantallas pequeñas */
+    }
+    .cloud-storage-content .file-dir-entry i,
+    .search-results-content .search-result-entry i {
+        margin-right: 10px;
+    }
+    .cloud-storage-content .file-dir-entry .download-btn,
+    .search-results-content .search-result-entry .download-btn {
+        margin-left: auto;
+    }
+
+    /* Media Query para pantallas menores a 600px */
+    @media (max-width: 600px) {
+        .cloud-storage-search {
+            flex-direction: column; /* Cambia la disposición a vertical */
+        }
+        .cloud-storage-search .cloud-search-input,
+        .cloud-storage-search button,
+        .cloud-storage-search a.btn {
+            width: 100%; /* Hace que los elementos ocupen todo el ancho disponible */
+            margin-right: 0; /* Remueve el margen derecho */
+            margin-bottom: 10px; /* Agrega margen inferior para separarlos */
+        }
+        .cloud-storage-content .file-dir-entry,
+        .search-results-content .search-result-entry {
+            flex-direction: column; /* Cambia la disposición a vertical */
+        }
+        .cloud-storage-content .file-dir-entry .download-btn,
+        .search-results-content .search-result-entry .download-btn {
+            margin-left: 0; /* Remueve el margen izquierdo */
+        }
+    }
+</style>
             <div id="cloud_storage_wrapper" class="oe_structure">
                 <div class="cloud-storage-search">
                     <form method="get" action="/cloud/storage/search">
