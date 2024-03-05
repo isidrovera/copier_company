@@ -16,7 +16,7 @@
                 <div class="cloud-storage-search">
                     <form method="get" action="/cloud/storage/search">
                         <input type="text" name="query" class="cloud-search-input" placeholder="Buscar carpeta o archivo..." t-att-value="request.params.get('query', '')"/>
-                        <button type="submit" class="search-btn">Buscar</button>
+                        <button type="submit" class="search-btn" icon="fa-search"></button>
                         <a href="/cloud/storage" class="btn clear-btn">Limpiar</a>
                     </form>
                 </div>
