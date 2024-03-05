@@ -64,6 +64,7 @@ class CloudStorageController(http.Controller):
         return request.render('copier_company.cloud_storage_search_template', {
             'search_results': search_results,
             'query': query,
+            'get_icon_class': self.get_icon_class,
         })
 
     @http.route('/cloud/storage/download/<path:filename>', auth='user')
