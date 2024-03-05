@@ -1,142 +1,37 @@
 <odoo>
     <template id="cloud_storage_template" name="Cloud Storage">
         <t t-call="website.layout">
-            <style>
-    .cloud-storage-search {
-    margin: 20px auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap; /* Asegura que los elementos se adapten a pantallas pequeñas */
-}
-
-.cloud-storage-search .cloud-search-input {
-    flex-grow: 1;
-    margin-right: 10px;
-    min-width: 150px;
-}
-
-/* Estilos para los botones de búsqueda y limpieza */
-.cloud-storage-search button,
-.cloud-storage-search a.btn {
-    padding: 6px 12px;
-    border-radius: 4px;
-    text-decoration: none;
-}
-
-/* Estilos para los iconos de las carpetas y archivos según su extensión */
-.file-dir-entry i {
-    margin-right: 10px;
-    font-size: 24px;
-}
-
-/* Clases específicas para los íconos de diferentes tipos de archivos */
-/* Debes incluir tu propia lógica para asignar estas clases basada en la extensión del archivo */
-.icon-excel { color: #28a745; }
-.icon-word { color: #007bff; }
-.icon-pdf { color: #ff0000; }
-
-/* Estilos para los botones de descarga */
-.download-btn {
-    margin-left: auto;
-    background-color: #28a745;
-    color: #fff;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.download-btn:hover {
-    background-color: #218838;
-}
-
-/* Estilos para la vista de archivos y carpetas */
-.cloud-storage-content .file-dir-entry,
-.search-results-content .search-result-entry {
-    display: flex;
-    align-items: center;
-    margin-bottom: 5px;
-    flex-wrap: wrap; /* Permite envolver el contenido en pantallas pequeñas */
-}
-
-/* Media queries para adaptación a pantallas de diferentes tamaños */
-
-/* Estilos para tabletas y móviles */
-@media (max-width: 600px) {
-    .cloud-storage-search {
-        flex-direction: column; /* Cambia la disposición a vertical */
-    }
-    .cloud-storage-search .cloud-search-input,
-    .cloud-storage-search button,
-    .cloud-storage-search a.btn {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-    
-    .cloud-storage-content .file-dir-entry,
-    .search-results-content .search-result-entry {
-        flex-direction: column; /* Cambia la disposición a vertical */
-    }
-    
-    .cloud-storage-content .file-dir-entry .download-btn,
-    .search-results-content .search-result-entry .download-btn {
-        margin-left: 0; /* Remueve el margen izquierdo */
-    }
-    
-    .file-dir-entry i,
-    .search-result-entry i {
-        font-size: 1.5em; /* Aumenta el tamaño del icono ligeramente para pantallas táctiles */
-    }
-}
-
-/* Estilos para pantallas muy pequeñas */
-@media (max-width: 400px) {
-    .file-dir-entry i,
-    .search-result-entry i {
-        font-size: 1.2em; /* Reduce el tamaño del icono para pantallas muy pequeñas */
-    }
-}
-
-            </style>
-            <div id="cloud_storage_wrapper" class="oe_structure">
-                <div class="cloud-storage-search">
-                    <form method="get" action="/cloud/storage/search">
-                        <input type="text" name="query" class="cloud-search-input" placeholder="Buscar carpeta o archivo..." t-att-value="request.params.get('query', '')"/>
-                        <button type="submit" class="btn btn-primary">Buscar</button>
-                        <!-- Botón para limpiar el campo de búsqueda y refrescar la página -->
-                        <a href="/cloud/storage" class="btn btn-secondary">Limpiar</a>
-                    </form>
-                </div>
-                <!-- Navegación hacia atrás -->
-                <t t-if="current_path">
-                    <div class="cloud-storage-nav">
-                        <!-- Botón para ir a la raíz -->
-                        <a t-if="current_path" href="/cloud/storage" class="btn btn-secondary">&#8592; Raíz</a>
-                        <!-- Botón para ir al directorio anterior -->
-                        <a t-if="current_path" t-att-href="'/cloud/storage/' + '/'.join(current_path.split('/')[:-1])" class="btn btn-secondary">&#8592; Atrás</a>
+            <div class="flex min-h-[400px] w-full border rounded-lg overflow-hidden">
+                <div class="flex flex-col w-[300px] border-r">
+                    <div class="flex items-center h-10 px-4 border-b">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-4 w-4">
+                            <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path>
+                        </svg>
+                        <span class="font-semibold">Folders</span>
                     </div>
-                </t>
-                <div class="cloud-storage-content">
-                    <t t-foreach="files_dirs" t-as="file_dir">
-                        <div class="file-dir-entry">
-                            <t t-if="file_dir['is_dir']">
-                                <i class="fa fa-folder"></i>
-                                <a t-att-href="'/cloud/storage/' + file_dir['path']">
-                                    <t t-esc="file_dir['name']"/>
-                                </a>
+                    <div class="flex-1 overflow-auto">
+                        <ul class="p-0 list-none">
+                            <t t-foreach="files_dirs" t-as="file_dir">
+                                <li class="bg-gray-100">
+                                    <a class="flex items-center gap-2 p-3" t-if="file_dir['is_dir']" t-att-href="'/cloud/storage/' + file_dir['path']">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                                            <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path>
+                                        </svg>
+                                        <span class="font-medium"><t t-esc="file_dir['name']"/></span>
+                                    </a>
+                                    <a class="flex items-center gap-2 p-3" t-else="" t-att-href="'/cloud/storage/download/' + file_dir['path']">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                                            <polyline points="14 2 14 8 20 8"></polyline>
+                                        </svg>
+                                        <span class="font-medium"><t t-esc="file_dir['name']"/></span>
+                                        <button class="btn btn-secondary btn-sm download-btn">Download</button>
+                                    </a>
+                                </li>
                             </t>
-                            <t t-else="">
-                                <!-- Utiliza la función get_icon_class para obtener el ícono adecuado según la extensión del archivo -->
-                                <i t-att-class="'fa ' + get_icon_class(file_dir['name'])"></i>
-                                <span t-esc="file_dir['name']"/>
-                                <a t-att-href="'/cloud/storage/download/' + file_dir['path']" class="btn btn-secondary btn-sm download-btn">Descargar</a>
-                            </t>
-                        </div>
-                    </t>
+                        </ul>
+                    </div>
                 </div>
-
             </div>
         </t>
     </template>
