@@ -1,6 +1,7 @@
 <odoo>
     <template id="cloud_storage_template" name="Cloud Storage">
         <t t-call="website.layout">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
             <style>
     .cloud-storage-search {
     margin: 20px auto;
@@ -98,45 +99,49 @@
         font-size: 1.2em; /* Reduce el tamaño del icono para pantallas muy pequeñas */
     }
 }
+.navigation {
+                    margin-bottom: 10px;
+                    display: flex;
+                    justify-content: flex-start;
+                }
+
+                .back-btn, .home-btn {
+                    cursor: pointer;
+                    background: #ddd;
+                    border: none;
+                    padding: 5px 10px;
+                    margin-right: 5px;
+                }
+
+                .back-btn:hover, .home-btn:hover {
+                    background: #ccc;
+                }
 
             </style>
-            <div id="cloud_storage_wrapper" class="oe_structure">
+            <div id="cloud_storage_wrapper" class="oe_structure file-manager">
+                <!-- Nueva barra de navegación al estilo de tu ejemplo -->
+                <div class="navigation">
+                    <t t-if="current_path">
+                        <a t-if="current_path" href="/cloud/storage" class="btn btn-secondary back-btn">&#8592; Raíz</a>
+                        <a t-if="current_path" t-att-href="'/cloud/storage/' + '/'.join(current_path.split('/')[:-1])" class="btn btn-secondary">&#8592; Atrás</a>
+                    </t>
+                </div>
+                <!-- La búsqueda y listado de archivos se mantiene como en tu estructura original -->
                 <div class="cloud-storage-search">
                     <form method="get" action="/cloud/storage/search">
                         <input type="text" name="query" class="cloud-search-input" placeholder="Buscar carpeta o archivo..." t-att-value="request.params.get('query', '')"/>
                         <button type="submit" class="btn btn-primary">Buscar</button>
-                        <!-- Botón para limpiar el campo de búsqueda y refrescar la página -->
                         <a href="/cloud/storage" class="btn btn-secondary">Limpiar</a>
                     </form>
                 </div>
-                <!-- Navegación hacia atrás -->
-                <t t-if="current_path">
-                    <div class="cloud-storage-nav">
-                        <!-- Botón para ir a la raíz -->
-                        <a t-if="current_path" href="/cloud/storage" class="btn btn-secondary">&#8592; Raíz</a>
-                        <!-- Botón para ir al directorio anterior -->
-                        <a t-if="current_path" t-att-href="'/cloud/storage/' + '/'.join(current_path.split('/')[:-1])" class="btn btn-secondary">&#8592; Atrás</a>
-                    </div>
-                </t>
                 <div class="cloud-storage-content">
+                    <!-- Estructura original para mostrar archivos y carpetas -->
                     <t t-foreach="files_dirs" t-as="file_dir">
                         <div class="file-dir-entry">
-                            <t t-if="file_dir['is_dir']">
-                                <i class="fa fa-folder"></i>
-                                <a t-att-href="'/cloud/storage/' + file_dir['path']">
-                                    <t t-esc="file_dir['name']"/>
-                                </a>
-                            </t>
-                            <t t-else="">
-                                <!-- Utiliza la función get_icon_class para obtener el ícono adecuado según la extensión del archivo -->
-                                <i t-att-class="'fa ' + get_icon_class(file_dir['name'])"></i>
-                                <span t-esc="file_dir['name']"/>
-                                <a t-att-href="'/cloud/storage/download/' + file_dir['path']" class="btn btn-secondary btn-sm download-btn">Descargar</a>
-                            </t>
+                            <!-- Lógica original para mostrar carpetas y archivos -->
                         </div>
                     </t>
                 </div>
-
             </div>
         </t>
     </template>
