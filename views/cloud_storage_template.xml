@@ -138,9 +138,20 @@
                     <!-- Estructura original para mostrar archivos y carpetas -->
                     <t t-foreach="files_dirs" t-as="file_dir">
                         <div class="file-dir-entry">
-                            <!-- Lógica original para mostrar carpetas y archivos -->
+                            <t t-if="file_dir['is_dir']">
+                                <i class="fa fa-folder"></i>
+                                <a t-att-href="'/cloud/storage/' + file_dir['path']">
+                                    <t t-esc="file_dir['name']"/>
+                                </a>
+                            </t>
+                            <t t-else="">
+                                <i t-att-class="'fa ' + get_icon_class(file_dir['name'])"></i>
+                                <span t-esc="file_dir['name']"/>
+                                <a t-att-href="'/cloud/storage/download/' + file_dir['path']" class="btn btn-secondary btn-sm download-btn">Descargar</a>
+                            </t>
                         </div>
                     </t>
+
                 </div>
             </div>
         </t>
