@@ -147,3 +147,51 @@ body {
 .home-btn:hover {
     background: #ccc;
 }
+
+/* Estilos existentes */
+
+/* ... */
+
+/* Media queries para responsividad */
+
+@media only screen and (max-width: 768px) {
+    /* Para tablets y dispositivos de tamaño medio */
+    .search-area {
+      flex-direction: column; /* Los elementos de búsqueda se apilan verticalmente */
+      gap: 5px;
+    }
+  
+    .search-bar,
+    .search-btn,
+    .clear-btn {
+      width: 100%; /* Los botones y la barra de búsqueda toman el ancho completo */
+      border-radius: 20px; /* Todos los bordes redondeados */
+      margin-right: 0; /* Eliminar el margen derecho */
+    }
+  
+    .file-dir-entry {
+      flex-direction: column; /* Apilar el nombre del archivo y el botón de descarga */
+      align-items: flex-start; /* Alinear elementos al inicio */
+    }
+  
+    .file-name,
+    .download-btn {
+      margin: 5px 0; /* Agregar un poco de margen arriba y abajo */
+    }
+  }
+  
+  @media only screen and (max-width: 480px) {
+    /* Para teléfonos móviles */
+    .navigation,
+    .file-dir-entry {
+      flex-direction: column; /* Apilar los elementos de navegación y los resultados de archivo */
+    }
+  
+    .navigation a {
+      width: 100%; /* Los botones de navegación toman el ancho completo */
+      margin: 5px 0; /* Agregar un poco de margen arriba y abajo */
+    }
+  }
+  
+  /* Puedes agregar más media queries según sea necesario */
+  
