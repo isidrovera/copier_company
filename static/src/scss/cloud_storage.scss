@@ -1,12 +1,11 @@
-/* static\src\scss\cloud_storage.scss */
 body {
     font-family: Arial, sans-serif;
     background: #f4f4f4;
   }
   
   .file-manager {
-    max-width: 800px;
-    margin: auto;
+    max-width: calc(100% - 40px); /* O ajusta según sea necesario para dejar algo de margen a los lados */
+    margin: 20px; /* Agregamos margen alrededor del contenedor para que no toque los bordes de la pantalla */
     background: #fff;
     padding: 20px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -22,6 +21,7 @@ body {
     padding: 10px;
     border: 1px solid #ddd;
     border-right: none;
+    margin-right: 5px; /* Añade un pequeño margen entre la barra de búsqueda y el botón */
   }
   
   .search-btn {
@@ -36,43 +36,30 @@ body {
     background: #0056b3;
   }
   
-  .files-list {
-    border-collapse: collapse;
-    width: 100%;
+  .cloud-storage-content, .files-list {
+    width: 100%; /* Aseguramos que tome todo el ancho */
   }
   
-  .file {
+  .file-dir-entry {
     display: flex;
     align-items: center;
+    justify-content: space-between; /* Separa el nombre del archivo y el botón de descarga */
     padding: 10px;
     border-bottom: 1px solid #ddd;
   }
   
-  .folder-icon {
+  .folder-icon, .file-icon {
     color: #fdd835; /* Amarillo para carpetas */
     margin-right: 10px;
   }
   
-  .file-icon {
-    margin-right: 10px;
-  }
-  
-  .xlsx {
+  .icon-excel {
     color: #207245; /* Verde para archivos Excel */
   }
   
   .file-name {
     flex-grow: 1;
-  }
-  
-  .file-date {
-    white-space: nowrap;
-    margin-right: 10px;
-  }
-  
-  .file-size {
-    white-space: nowrap;
-    margin-right: 10px;
+    margin-right: 20px; /* Añade espacio antes del botón de descarga */
   }
   
   .download-btn {
@@ -80,6 +67,8 @@ body {
     background: transparent;
     border: none;
     color: #007bff;
+    padding: 5px 10px; /* Añade un poco de padding para hacer el botón más grande */
+    margin-left: 10px; /* Añade espacio a la izquierda del botón de descarga */
   }
   
   .download-btn:hover {
@@ -87,7 +76,8 @@ body {
   }
   
   .navigation {
-    margin-bottom: 10px;
+    display: flex;
+    margin-bottom: 20px; /* Añade margen abajo de la navegación */
   }
   
   .back-btn, .home-btn {
@@ -96,10 +86,11 @@ body {
     border: none;
     padding: 5px 10px;
     margin-right: 5px;
+    color: #000; /* Aseguramos que el texto es negro */
+    text-decoration: none; /* Removemos el subrayado */
   }
   
   .back-btn:hover, .home-btn:hover {
     background: #ccc;
   }
   
-
