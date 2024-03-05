@@ -41,22 +41,22 @@
                 </div>
             </div>
         </t>
-    </template>
-        <template id="cloud_storage_search_template" name="Cloud Storage Search Results">
+    <template id="cloud_storage_search_template" name="Cloud Storage Search Results">
         <t t-call="website.layout">
-            <div id="search_results_wrapper" class="oe_structure">
+            <link rel="stylesheet" type="text/css" href="/copier_company/static/src/css/cloud_storage.css"/>
+            <div id="search_results_wrapper" class="oe_structure file-manager">
                 <!-- Botón para volver a la vista principal de almacenamiento -->
-                <div class="cloud-storage-nav">
-                    <a href="/cloud/storage" class="btn btn-secondary">&#8592; Volver</a>
+                <div class="navigation">
+                    <a href="/cloud/storage" class="back-btn">&#8592; Volver</a>
                 </div>
-                <h3>Resultados de búsqueda para "<t t-esc="query"/>
-                </h3>
-                <div class="search-results-content">
+                <h3>Resultados de búsqueda para "<t t-esc="query"/></h3>
+                <div class="cloud-storage-content">
                     <t t-foreach="search_results" t-as="result">
-                        <div class="search-result-entry">
-                            <i class="fa fa-file" style="color: #ffc107;"></i>
-                            <span t-esc="result"/>
-                            <a t-att-href="'/cloud/storage/download/' + result" class="btn btn-secondary btn-sm download-btn">Descargar</a>
+                        <div class="file-dir-entry">
+                            <!-- Asumiendo que tienes una función para asignar íconos basada en el tipo de archivo -->
+                            <i t-att-class="'fa ' + get_icon_class(result) + ' file-icon'"></i>
+                            <span class="file-name" t-esc="result"/>
+                            <a t-att-href="'/cloud/storage/download/' + result" class="download-btn">Descargar</a>
                         </div>
                     </t>
                 </div>
