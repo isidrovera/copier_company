@@ -1,124 +1,149 @@
 body {
     font-family: Arial, sans-serif;
     background: #f4f4f4;
-  }
-  
-  .file-manager {
+}
+
+.file-manager {
     max-width: 100%;
     margin: auto;
     background: #fff;
     padding: 20px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  }
-  
-  .search-area {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para el área de búsqueda completa */
+.search-area {
     display: flex;
     justify-content: center;
-    align-items: center;
+    /* Centrar el área de búsqueda horizontalmente */
+    gap: 10px;
+    /* Añadir espacio entre los elementos de la búsqueda */
     margin-bottom: 20px;
-  }
-  
-  .search-bar {
+}
+
+/* Estilo para la barra de búsqueda y los botones */
+.search-bar,
+.search-btn,
+.clear-btn {
     padding: 10px;
     border: 1px solid #ddd;
-    border-radius: 20px 0 0 20px; /* bordes redondeados del lado izquierdo */
-  }
-  
-  .search-btn, .clear-btn {
-    padding: 10px 20px;
-    border: none;
-    color: white;
     cursor: pointer;
-    border-radius: 0 20px 20px 0; /* bordes redondeados del lado derecho para 'Buscar' */
-    margin-left: -5px; /* Asegura que no haya espacio entre los botones y la barra de búsqueda */
-  }
-  
-  .search-btn {
+}
+
+/* Asegúrate de que la barra de búsqueda tenga bordes redondeados solo en los lados izquierdos */
+.search-bar {
+    border-radius: 20px 0 0 20px;
+    margin-right: -1px;
+    /* Alinea la barra de búsqueda con el botón de buscar */
+}
+
+/* Botón de buscar con bordes redondeados solo en el lado derecho */
+.search-btn {
     background: #007bff;
-  }
-  
-  .search-btn:hover {
+    color: white;
+    border: none;
+    border-radius: 0 20px 20px 0;
+    margin-right: 10px;
+    /* Espacio entre botón Buscar y Limpiar */
+}
+
+.search-btn:hover {
     background: #0056b3;
-  }
-  
-  .clear-btn {
-    background: #f0ad4e; /* Color naranja para el botón 'Limpiar' */
-    border-radius: 20px; /* bordes redondeados para 'Limpiar' */
-  }
-  
-  .clear-btn:hover {
-    background: #ec971f;
-  }
-  
-  .cloud-storage-content, .files-list {
+}
+
+
+
+/* Botón de limpiar con bordes redondeados */
+.clear-btn {
+    background-color: #f0ad4e;
+    border-radius: 20px;
+    color: white;
+    border: none;
+}
+
+.clear-btn:hover {
+    background-color: #ec971f;
+}
+
+.cloud-storage-content,
+.files-list {
     width: 100%;
-  }
-  
-  .file-dir-entry {
+}
+
+.file-dir-entry {
     display: flex;
     align-items: center;
     padding: 10px;
     border-bottom: 1px solid #ddd;
     justify-content: space-between;
-  }
-  
-  .folder-icon, .file-icon {
-    margin-right: 10px; /* Espacio entre el icono y el texto */
-  }
-  
-  /* Estilos para los íconos de tipo de archivo */
-  .fa-folder {
-    color: #fdd835; /* Color amarillo para íconos de carpeta */
-  }
-  
-  .icon-excel {
-    color: #207245; /* Color verde para archivos Excel */
-  }
-  
-  .icon-word {
-    color: #2b579a; /* Color azul para archivos Word */
-  }
-  
-  .icon-pdf {
-    color: #ff0000; /* Color rojo para archivos PDF */
-  }
-  
-  /* Añadir más selectores de íconos para otros tipos de archivos según sea necesario */
-  
-  .file-name {
+}
+
+.folder-icon,
+.file-icon {
+    margin-right: 10px;
+    /* Espacio entre el icono y el texto */
+}
+
+/* Estilos para los íconos de tipo de archivo */
+.fa-folder {
+    color: #fdd835;
+    /* Color amarillo para íconos de carpeta */
+}
+
+.icon-excel {
+    color: #207245;
+    /* Color verde para archivos Excel */
+}
+
+.icon-word {
+    color: #2b579a;
+    /* Color azul para archivos Word */
+}
+
+.icon-pdf {
+    color: #ff0000;
+    /* Color rojo para archivos PDF */
+}
+
+/* Añadir más selectores de íconos para otros tipos de archivos según sea necesario */
+
+.file-name {
     flex-grow: 1;
-  }
-  
-  .download-btn {
+}
+
+.download-btn {
     cursor: pointer;
     background: transparent;
     border: none;
     color: #007bff;
     padding: 5px 10px;
-    border-radius: 20px; /* bordes redondeados para el botón 'Descargar' */
-  }
-  
-  .download-btn:hover {
+    border-radius: 20px;
+    /* bordes redondeados para el botón 'Descargar' */
+}
+
+.download-btn:hover {
     color: #0056b3;
-  }
-  
-  .navigation {
+}
+
+.navigation {
     display: flex;
     justify-content: space-between;
     margin-bottom: 20px;
-  }
-  
-  .back-btn, .home-btn {
+}
+
+.back-btn,
+.home-btn {
     cursor: pointer;
     background: #ddd;
     border: none;
     padding: 5px 10px;
     color: #000;
     text-decoration: none;
-    border-radius: 20px; /* bordes redondeados para los botones de navegación */
-  }
-  
-  .back-btn:hover, .home-btn:hover {
+    border-radius: 20px;
+    /* bordes redondeados para los botones de navegación */
+}
+
+.back-btn:hover,
+.home-btn:hover {
     background: #ccc;
-  }
-  
+}
