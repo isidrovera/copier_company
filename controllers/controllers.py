@@ -5,7 +5,8 @@ import base64
 from werkzeug import exceptions
 from odoo.exceptions import UserError
 from urllib.parse import quote
-
+import logging
+_logger = logging.getLogger(__name__)
 
 class DescargaArchivosController(http.Controller):
     @http.route('/descarga/archivos', type='http', website=True)
@@ -167,42 +168,42 @@ class PublicHelpdeskController(http.Controller):
 
             # Crea el ticket con los valores recibidos
             ticket_values = {
-                'name': post.get('description'),  # Asumiendo que 'name' es la descripción del problema
+                'name': post.get('description'),
                 'partner_id': copier_company.cliente_id.id,
                 'producto_id': copier_company.id,
                 'image': image_content,
                 'nombre_reporta': post.get('nombre_reporta'),
-                # Añade aquí otros campos si es necesario
             }
             new_ticket = request.env['helpdesk.ticket'].sudo().create(ticket_values)
 
-            # Redirige a la página de confirmación
-            return request.redirect('/public/helpdesk_ticket_confirmation')
+            # Log para depuración
+            _logger.info('Ticket creado con ID: %s', new_ticket.id)
+
+            # Redirige a la página de confirmación con el ID del ticket
+            return request.redirect('/public/helpdesk_ticket_confirmation?ticket_id={}'.format(new_ticket.id))
 
         except werkzeug.exceptions.HTTPException as e:
-            # Redirige a la página de error con el mensaje de la excepción HTTP
             return request.redirect('/error?message={}'.format(e.description))
         except Exception as e:
-            # Para otras excepciones, redirige a una página de error genérica
             error_message = "Se produjo un error inesperado. Por favor, intente de nuevo más tarde."
             return request.redirect('/error?message={}'.format(error_message))
 
+
     @http.route('/public/helpdesk_ticket_confirmation', type='http', auth='public', website=True)
     def confirmation(self, **kwargs):
-        # Asegúrate de tener acceso a los datos del ticket recién creado o de un ticket específico.
-        ticket = request.env['helpdesk.ticket'].sudo().search([('id', '=', kwargs.get('ticket_id'))], limit=1)
+        ticket_id = request.args.get('ticket_id')  # Obtiene el ticket_id de los parámetros de la URL
+        ticket = request.env['helpdesk.ticket'].sudo().search([('id', '=', ticket_id)], limit=1)
         if ticket:
-            # Formato del mensaje con detalles específicos del problema
             mensaje = f"Hola, soy {ticket.nombre_reporta} de {ticket.partner_id.name}, ubicado en {ticket.ubicacion}. He reportado un problema con el equipo {ticket.producto_id.name}, serie {ticket.serie_id}. Por favor, revisen los detalles del ticket y pónganse en contacto conmigo para la asistencia correspondiente. Gracias."
+            _logger.info('Ticket recuperado con éxito: %s', ticket_id)
         else:
             mensaje = "Hola, he reportado una incidencia pero parece que hubo un problema con el registro del ticket. Por favor, contacten conmigo directamente. Gracias."
-        
-        # Codificación del mensaje para URL
+            _logger.warning('No se encontró el ticket con ID: %s', ticket_id)
+
         mensaje_codificado = quote(mensaje)
-        numero_destino = '+51924894829'  # Número de teléfono del equipo de soporte
+        numero_destino = '+51924894829'
         whatsapp_url = f'https://api.whatsapp.com/send?phone={numero_destino}&text={mensaje_codificado}'
 
-        # Script de JavaScript para redireccionar
         script = f"""
         <script>
             setTimeout(function() {{
@@ -211,9 +212,9 @@ class PublicHelpdeskController(http.Controller):
         </script>
         """
 
-        # Renderizar la página de confirmación y añadir el script al contexto
         response = request.render("copier_company.helpdesk_ticket_confirmation", {'whatsapp_script': script})
         return response
+
 class PCloudController(http.Controller):
     @http.route('/pcloud/callback', type='http', auth='public', csrf=False)
     def pcloud_authenticate(self, **kw):
