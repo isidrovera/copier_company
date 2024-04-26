@@ -189,13 +189,20 @@ class PublicHelpdeskController(http.Controller):
 
     @http.route('/public/helpdesk_ticket_confirmation', type='http', auth='public', website=True)
     def confirmation(self, **kwargs):
-        # Generar la URL de WhatsApp
-        numero_destino = '+51924894829'
-        mensaje = "Hola, he reportado una incidencia con mi equipo de fotocopiadora y he enviado los detalles a través del formulario en línea. Por favor, revisen la información y pónganse en contacto conmigo para la asistencia correspondiente. Gracias."
-        mensaje_codificado = quote(mensaje)  # Codificar el mensaje para URL
+        # Asegúrate de tener acceso a los datos del ticket recién creado o de un ticket específico.
+        ticket = request.env['helpdesk.ticket'].sudo().search([('id', '=', kwargs.get('ticket_id'))], limit=1)
+        if ticket:
+            # Formato del mensaje con detalles específicos del problema
+            mensaje = f"Hola, soy {ticket.nombre_reporta} de {ticket.partner_id.name}, ubicado en {ticket.ubicacion}. He reportado un problema con el equipo {ticket.producto_id.name}, serie {ticket.serie_id}. Por favor, revisen los detalles del ticket y pónganse en contacto conmigo para la asistencia correspondiente. Gracias."
+        else:
+            mensaje = "Hola, he reportado una incidencia pero parece que hubo un problema con el registro del ticket. Por favor, contacten conmigo directamente. Gracias."
+        
+        # Codificación del mensaje para URL
+        mensaje_codificado = quote(mensaje)
+        numero_destino = '+51924894829'  # Número de teléfono del equipo de soporte
         whatsapp_url = f'https://api.whatsapp.com/send?phone={numero_destino}&text={mensaje_codificado}'
 
-        # Crear el script de JavaScript
+        # Script de JavaScript para redireccionar
         script = f"""
         <script>
             setTimeout(function() {{
