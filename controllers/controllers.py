@@ -191,7 +191,8 @@ class PublicHelpdeskController(http.Controller):
 
     @http.route('/public/helpdesk_ticket_confirmation', type='http', auth='public', website=True)
     def confirmation(self, **kwargs):
-        ticket_id = request.args.get('ticket_id')  # Obtiene el ticket_id de los parámetros de la URL
+        # Usar request.params para acceder a los parámetros de la solicitud
+        ticket_id = request.params.get('ticket_id')
         ticket = request.env['helpdesk.ticket'].sudo().search([('id', '=', ticket_id)], limit=1)
         if ticket:
             mensaje = f"Hola, soy {ticket.nombre_reporta} de {ticket.partner_id.name}, ubicado en {ticket.ubicacion}. He reportado un problema con el equipo {ticket.producto_id.name}, serie {ticket.serie_id}. Por favor, revisen los detalles del ticket y pónganse en contacto conmigo para la asistencia correspondiente. Gracias."
@@ -214,7 +215,6 @@ class PublicHelpdeskController(http.Controller):
 
         response = request.render("copier_company.helpdesk_ticket_confirmation", {'whatsapp_script': script})
         return response
-
 class PCloudController(http.Controller):
     @http.route('/pcloud/callback', type='http', auth='public', csrf=False)
     def pcloud_authenticate(self, **kw):
