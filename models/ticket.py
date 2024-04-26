@@ -14,7 +14,7 @@ class TicketCopier(models.Model):
     nombre_reporta  = fields.Char(
     string='Nombre de quien reporto'
     )
-
+    ubicacion = fields.Char('Ubicacion')
     @api.model
     def create(self, vals):
         # Llamar al método 'create' original para crear el ticket
