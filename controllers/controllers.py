@@ -189,19 +189,15 @@ class PublicHelpdeskController(http.Controller):
 
     @http.route('/public/helpdesk_ticket_confirmation', type='http', auth='public', website=True)
     def confirmation(self, **kwargs):
-        # Renderizar la página de confirmación
-        response = request.render("copier_company.helpdesk_ticket_confirmation")
-
-        # Supongamos que se obtienen algunos detalles del ticket que se acaban de enviar
-        # Estos detalles deben ser proporcionados por el formulario o almacenados en la sesión antes de redirigir a esta confirmación
+        # Supongamos que recuperamos algunos datos del formulario o de la sesión aquí
         descripcion = kwargs.get('description', 'No proporcionada')
         nombre_reporta = kwargs.get('nombre_reporta', 'Desconocido')
         producto = kwargs.get('product_name', 'Producto no especificado')
         ubicacion = kwargs.get('ubicacion', 'Ubicación no especificada')
 
         # Preparar el mensaje de WhatsApp
-        numero_destino = '+51975399303'  # Asegúrate de cambiar este número por el número objetivo
-        mensaje = f"Hola, soy {nombre_reporta}. He reportado un problema con el siguiente equipo: {producto}, ubicado en {ubicacion}. Descripción del problema: {descripcion}. Por favor, revisen la información y pónganse en contacto conmigo para la asistencia correspondiente. Gracias."
+        numero_destino = '+51975399303'  # Cambiar por el número de tu equipo de soporte
+        mensaje = f"Hola, se ha reportado un problema con el equipo {producto} en {ubicacion}. Reportado por: {nombre_reporta}. Descripción del problema: {descripcion}. Por favor, revisen la información y coordinen la asistencia correspondiente. Gracias."
         mensaje_codificado = quote(mensaje)  # Codificar el mensaje para URL
 
         whatsapp_url = f'https://api.whatsapp.com/send?phone={numero_destino}&text={mensaje_codificado}'
@@ -215,7 +211,8 @@ class PublicHelpdeskController(http.Controller):
         </script>
         """
 
-        # Añadir el script JS a la respuesta y devolver la respuesta completa
+        # Renderizar la página de confirmación con el script
+        response = request.render("copier_company.helpdesk_ticket_confirmation")
         response.qcontext.update({'whatsapp_script': script})
         return response
     
