@@ -195,14 +195,14 @@ class PublicHelpdeskController(http.Controller):
         ticket_id = request.params.get('ticket_id')
         ticket = request.env['helpdesk.ticket'].sudo().search([('id', '=', ticket_id)], limit=1)
         if ticket:
-            mensaje = f"Hola, soy {ticket.nombre_reporta} de {ticket.partner_id.name}, ubicado en {ticket.ubicacion}. He reportado un problema con el equipo {ticket.producto_id.name.name}, serie {ticket.serie_id}. Por favor, revisen los detalles del ticket y pónganse en contacto conmigo para la asistencia correspondiente. Gracias."
+            mensaje = f"Hola, soy {ticket.nombre_reporta} de {ticket.partner_id.name}, ubicado en {ticket.ubicacion}. He reportado un problema con el equipo: {ticket.producto_id.name.name}, serie: {ticket.serie_id}. Por favor, revisen los detalles del ticket y pónganse en contacto conmigo para la asistencia correspondiente. Gracias."
             _logger.info('Ticket recuperado con éxito: %s', ticket_id)
         else:
             mensaje = "Hola, he reportado una incidencia pero parece que hubo un problema con el registro del ticket. Por favor, contacten conmigo directamente. Gracias."
             _logger.warning('No se encontró el ticket con ID: %s', ticket_id)
 
         mensaje_codificado = quote(mensaje)
-        numero_destino = '+51924894829'
+        numero_destino = '+51975399303'
         whatsapp_url = f'https://api.whatsapp.com/send?phone={numero_destino}&text={mensaje_codificado}'
 
         script = f"""
