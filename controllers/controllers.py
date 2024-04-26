@@ -4,6 +4,7 @@ import json
 import base64
 from werkzeug import exceptions
 from odoo.exceptions import UserError
+from urllib.parse import quote
 
 
 class DescargaArchivosController(http.Controller):
@@ -188,7 +189,35 @@ class PublicHelpdeskController(http.Controller):
 
     @http.route('/public/helpdesk_ticket_confirmation', type='http', auth='public', website=True)
     def confirmation(self, **kwargs):
-        return request.render("copier_company.helpdesk_ticket_confirmation")
+        # Renderizar la página de confirmación
+        response = request.render("copier_company.helpdesk_ticket_confirmation")
+
+        # Supongamos que se obtienen algunos detalles del ticket que se acaban de enviar
+        # Estos detalles deben ser proporcionados por el formulario o almacenados en la sesión antes de redirigir a esta confirmación
+        descripcion = kwargs.get('description', 'No proporcionada')
+        nombre_reporta = kwargs.get('nombre_reporta', 'Desconocido')
+        producto = kwargs.get('product_name', 'Producto no especificado')
+        ubicacion = kwargs.get('ubicacion', 'Ubicación no especificada')
+
+        # Preparar el mensaje de WhatsApp
+        numero_destino = '+51975399303'  # Asegúrate de cambiar este número por el número objetivo
+        mensaje = f"Hola, soy {nombre_reporta}. He reportado un problema con el siguiente equipo: {producto}, ubicado en {ubicacion}. Descripción del problema: {descripcion}. Por favor, revisen la información y pónganse en contacto conmigo para la asistencia correspondiente. Gracias."
+        mensaje_codificado = quote(mensaje)  # Codificar el mensaje para URL
+
+        whatsapp_url = f'https://api.whatsapp.com/send?phone={numero_destino}&text={mensaje_codificado}'
+
+        # Crear el script JS para abrir la URL de WhatsApp en una nueva pestaña después de un breve retraso
+        script = f"""
+        <script>
+        setTimeout(function() {{
+            window.open("{whatsapp_url}", '_blank');
+        }}, 3000);  // Espera 3 segundos después de cargar la página de confirmación
+        </script>
+        """
+
+        # Añadir el script JS a la respuesta y devolver la respuesta completa
+        response.qcontext.update({'whatsapp_script': script})
+        return response
     
 class PCloudController(http.Controller):
     @http.route('/pcloud/callback', type='http', auth='public', csrf=False)
