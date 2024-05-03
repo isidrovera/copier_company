@@ -46,7 +46,7 @@
         'data/mail_ticket.xml',
         'views/pcloud_folder_list_template.xml',
         'views/cloud_storage_template.xml',
-        'views/social_links_whatsapp_extension.xml',
+       
     ],
 
     'assets': {
