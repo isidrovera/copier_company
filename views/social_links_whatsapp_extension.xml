@@ -1,18 +1,8 @@
 <odoo>
     <template id="social_links_whatsapp_extension" inherit_id="website.placeholder_header_social_links" name="Social Links WhatsApp">
-        <xpath expr="//div[@class='s_social_media o_not_editable oe_unmovable oe_unremovable']" position="inside">
-            <style>
-                .s_social_media_whatsapp .fa {
-                    background-color: #25D366; /* Verde WhatsApp */
-                    color: white; /* Icono en blanco */
-                    padding: 1em; /* Espaciado alrededor del icono */
-                }
-                .s_social_media_whatsapp {
-                    color: #25D366; /* Color del enlace */
-                }
-            </style>
+        <xpath expr="//div[contains(@class, 's_social_media')]" position="inside">
             <a href="https://wa.me/tunúmero" class="s_social_media_whatsapp o_nav-link_secondary nav-link m-0 p-0 text-decoration-none" target="_blank" aria-label="WhatsApp">
-                <i class="fa fa-whatsapp fa-stack"/>
+                <i class="fa fa-whatsapp fa-stack p-1 o_editable_media" style="color: #25D366;"/>
             </a>
         </xpath>
     </template>
