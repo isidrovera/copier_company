@@ -1,9 +1,10 @@
 <odoo>
-    <template id="social_links_whatsapp_extension" inherit_id="website.placeholder_header_social_links" name="Social Links WhatsApp">
-        <xpath expr="//div[contains(@class, 's_social_media')]" position="inside">
-            <a href="https://wa.me/tunúmero" class="s_social_media_whatsapp o_nav-link_secondary nav-link m-0 p-0 text-decoration-none" target="_blank" aria-label="WhatsApp">
-                <i class="fa fa-whatsapp fa-stack p-1 o_editable_media" style="color: #25D366;"/>
-            </a>
-        </xpath>
-    </template>
+    <data inherit_id="website.placeholder_header_social_links" name="Header Social Links" active="False">
+    <xpath expr="//div[@data-name='Social Media']" position="inside">
+        <a href="https://wa.me/tu_numero" class="s_social_media_whatsapp o_nav-link_secondary nav-link m-0 p-0 text-decoration-none" target="_blank" aria-label="WhatsApp">
+            <i class="fa fa-whatsapp fa-stack p-1 o_editable_media" style="color: #25D366;"/>
+        </a>
+    </xpath>
+</data>
+
 </odoo>
