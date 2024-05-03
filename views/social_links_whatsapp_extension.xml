@@ -1,11 +1,7 @@
 <odoo>
-    <template id="extend_social_links" inherit_id="website.placeholder_header_social_links">
-        <xpath expr="//div[@data-name='Social Media']" position="inside">
-            <!-- Añade un enlace para WhatsApp al final de los enlaces sociales existentes -->
-            <a href="https://wa.me/your_phone_number" class="s_social_media_whatsapp o_nav-link_secondary nav-link m-0 p-0 text-decoration-none" target="_blank" aria-label="WhatsApp">
-                <i class="fa fa-whatsapp fa-stack p-1 o_editable_media" style="color: #25D366;"></i>
-            </a>
+    <template id="extend_social_links_test" inherit_id="website.placeholder_header_social_links">
+        <xpath expr="//div" position="inside">
+            <div>Test Content</div>
         </xpath>
     </template>
 </odoo>
-
