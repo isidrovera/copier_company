@@ -9,7 +9,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 class DescargaArchivosController(http.Controller):
-    @http.route('/descarga/archivos', type='http', website=True)
+    @http.route('/descarga/archivos', type='http', auth='user', website=True)
     def descarga_archivos(self, page=1, search='', **kw):
         # Convertir 'page' a un entero
         try:
