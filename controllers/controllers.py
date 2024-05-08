@@ -264,9 +264,10 @@ class PCloudController(http.Controller):
                     auth_url = pcloud_config_record.generate_authorization_url()
                     return http.request.redirect(auth_url)
             return str(e)  # Retorna el mensaje de error original si no es un problema de token caducado
+
+
 class ExternalPageController(http.Controller):
     @http.route('/external/login', auth='public', website=True)
     def render_external_login(self, **kw):
-        # Aquí se debe ingresar la URL real de la página que quieres mostrar en el iframe
         external_url = "https://app.printtrackerpro.com/auth/login"
         return request.render('copier_company.external_login_page_template', {'external_url': external_url})
