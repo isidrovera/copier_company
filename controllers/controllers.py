@@ -267,7 +267,8 @@ class PCloudController(http.Controller):
 
 
 class ExternalPageController(http.Controller):
-    @http.route('/external/login', auth='public', website=True)
+    @http.route('/external/login', auth='public', type='http', website=True)
     def render_external_login(self, **kw):
+        # URL externa a la que quieres redirigir
         external_url = "https://app.printtrackerpro.com/auth/login"
-        return request.render('copier_company.external_login_page_template', {'external_url': external_url})
+        return request.redirect(external_url)
