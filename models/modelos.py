@@ -13,3 +13,7 @@ class MarcasMaquinas(models.Model):
     _name = 'marcas.maquinas'
     name = fields.Char(string='Marca')
     
+class AccesoriosMaquinas(models.Model):
+    _name = 'accesorios.maquinas'
+    name = fields.Char(string='Accesorio')
+    

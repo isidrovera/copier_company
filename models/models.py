@@ -6,7 +6,7 @@ import logging
 import qrcode
 import base64
 import io
-
+from dateutil.relativedelta import relativedelta
 
 class CopierCompany(models.Model):
     _name = 'copier.company'
@@ -20,7 +20,39 @@ class CopierCompany(models.Model):
     cliente_id = fields.Many2one('res.partner',string='Cliente', required=True, )
     ubicacion = fields.Char(string='Ubicación')
     sede = fields.Char(string='Sede')
-   # _rec_name = 'serie_id'
+    ip_id = fields.Char(string="IP")
+    accesorios_ids = fields.Many2many('accesorios.maquinas', string="Accesorios")
+    estado_maquina = fields.Selection([
+        ('disponible', 'Disponible'),
+        ('alquilada', 'Alquilada'),
+        ('mantenimiento', 'En Mantenimiento')
+    ], string="Estado de la Máquina", default='disponible', tracking=True)
+    fecha_inicio_alquiler = fields.Date(string="Fecha de Inicio del Alquiler")
+    duracion_alquiler = fields.Selection([
+        ('6_meses', '6 Meses'),
+        ('1_año', '1 Año'),
+        ('2_años', '2 Años')
+    ], string="Duración del Alquiler", default='1_año')
+    fecha_fin_alquiler = fields.Date(string="Fecha de Fin del Alquiler", compute='_calcular_fecha_fin', store=True)
+    
+    moneda_id = fields.Many2one('res.currency', string='Moneda', default=lambda self: self.env.company.currency_id)
+    costo_copia_color = fields.Monetary(string="Costo por Copia (Color)", currency_field='moneda_id')
+    costo_copia_bn = fields.Monetary(string="Costo por Copia (B/N)", currency_field='moneda_id')
+    volumen_mensual_color = fields.Integer(string="Volumen Mensual (Color)")
+    volumen_mensual_bn = fields.Integer(string="Volumen Mensual (B/N)")
+
+    @api.depends('fecha_inicio_alquiler', 'duracion_alquiler')
+    def _calcular_fecha_fin(self):
+        for record in self:
+            if record.fecha_inicio_alquiler and record.duracion_alquiler:
+                start_date = fields.Date.from_string(record.fecha_inicio_alquiler)
+                if record.duracion_alquiler == '6_meses':
+                    record.fecha_fin_alquiler = start_date + relativedelta(months=+6)
+                elif record.duracion_alquiler == '1_año':
+                    record.fecha_fin_alquiler = start_date + relativedelta(years=+1)
+                elif record.duracion_alquiler == '2_años':
+                    record.fecha_fin_alquiler = start_date + relativedelta(years=+2)
+
 
     
     
