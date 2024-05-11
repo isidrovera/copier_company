@@ -29,13 +29,24 @@
             <button name="generar_qr_code" string="Crear QR" type="object" class="oe_highlight"/>
           </header>
           <sheet>
-            <group>
-              <field name="marca_id"/>
-              <field name="name"/>
-              <field name="serie_id"/>
-              <field name="cliente_id"/>
-              <field name="sede"/>
-              <field name="ubicacion"/>              
+            <group >
+              <group>
+                <field name="marca_id"/>
+                <field name="name"/>
+                <field name="serie_id"/>
+                <field name="cliente_id"/>
+                <field name="sede"/>
+                <field name="ubicacion"/>
+              </group>
+              <group>
+                <field name="fecha_inicio_alquiler"/>
+                <field name="fecha_inicio_alquiler"/>
+                <field name="accesorios_ids"/>
+                <field name="costo_copia_bn"/>
+                <field name="costo_copia_color"/>
+                <field name="volumen_mensual_bn"/>
+                <field name="volumen_mensual_color"/>               
+              </group>
             </group>
           </sheet>
           <div class="oe_chatter">
