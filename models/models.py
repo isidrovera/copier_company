@@ -44,7 +44,8 @@ class CopierCompany(models.Model):
             if currency:
                 return currency.id
         return self.env.company.currency_id.id
-    moneda_id = fields.Many2one('res.currency', string='Moneda', default=_order_by_field_currency)
+
+    moneda_id = fields.Many2one('res.currency', string='Moneda', default=_default_currency)
     costo_copia_color = fields.Monetary(string="Costo por Copia (Color)", currency_field='moneda_id')
     costo_copia_bn = fields.Monetary(string="Costo por Copia (B/N)", currency_field='moneda_id')
     volumen_mensual_color = fields.Integer(string="Volumen Mensual (Color)")
