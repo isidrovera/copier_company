@@ -18,7 +18,7 @@
 
     # Módulos necesarios para que este funcione correctamente
     'depends': ['base', 'mail', 'contacts', 'helpdesk',
-                'sale_management', 'portal', 'sale_subscription', 'website'],
+                'sale_management', 'portal', 'sale_subscription', 'website','web'],
 
     # Siempre cargado
     'data': [
