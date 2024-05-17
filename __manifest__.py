@@ -46,16 +46,11 @@
         'data/mail_ticket.xml',
         'views/pcloud_folder_list_template.xml',
         'views/cloud_storage_template.xml',
-        'views/assets.xml',
+        #'views/assets.xml',
        
     ],
 
-    'assets': {
-        'web.assets_frontend': [
-            'copier_company/static/src/css/cloud_storage.scss',
-            'copier_company/static/src/css/kanban.css',
-        ],
-    },
+    
 
     # Cargado solo en modo demostración
     'demo': [
