@@ -73,14 +73,38 @@
           <field name="ubicacion"/>
           <templates>
             <t t-name="kanban-box">
-              <div class="oe_kanban_global_click">
-                <div class="oe_kanban_details">
-                  <field name="name"/>
-                  <field name="marca_id"/>
-                  <field name="serie_id"/>
-                  <field name="cliente_id"/>
-                  <field name="sede"/>
-                  <field name="ubicacion"/>
+              <div class="oe_kanban_card">
+                <div class="oe_kanban_global_click o_kanban_record">
+                  <div class="o_kanban_image">
+                    <img t-att-src="'/copier_company/static/src/img/machine_icon.png'" alt="Machine Image"/>
+                  </div>
+                  <div class="o_kanban_details">
+                    <div class="o_kanban_record_title">
+                      <strong><field name="name"/></strong>
+                    </div>
+                    <div class="o_kanban_record_body">
+                      <div>
+                        <span class="o_field_value">Marca:</span>
+                        <span class="o_field_value"><field name="marca_id"/></span>
+                      </div>
+                      <div>
+                        <span class="o_field_value">Serie:</span>
+                        <span class="o_field_value"><field name="serie_id"/></span>
+                      </div>
+                      <div>
+                        <span class="o_field_value">Cliente:</span>
+                        <span class="o_field_value"><field name="cliente_id"/></span>
+                      </div>
+                      <div>
+                        <span class="o_field_value">Sede:</span>
+                        <span class="o_field_value"><field name="sede"/></span>
+                      </div>
+                      <div>
+                        <span class="o_field_value">Ubicación:</span>
+                        <span class="o_field_value"><field name="ubicacion"/></span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </t>
