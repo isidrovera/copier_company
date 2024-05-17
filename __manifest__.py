@@ -50,7 +50,12 @@
        
     ],
 
-    
+    'assets': {
+        'web.assets_frontend': [
+            'copier_company/static/src/css/cloud_storage.scss',
+            'copier_company/static/src/css/kanban.css',
+        ],
+    },
 
     # Cargado solo en modo demostración
     'demo': [
