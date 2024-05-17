@@ -58,13 +58,43 @@
       </field>
     </record>
 
+    <!-- kanban view definition -->
+    
+    <record model="ir.ui.view" id="copier_company.kanban">
+      <field name="name">copier_company kanban</field>
+      <field name="model">copier.company</field>
+      <field name="arch" type="xml">
+        <kanban>
+          <field name="name"/>
+          <field name="marca_id"/>
+          <field name="serie_id"/>
+          <field name="cliente_id"/>
+          <field name="sede"/>
+          <field name="ubicacion"/>
+          <templates>
+            <t t-name="kanban-box">
+              <div class="oe_kanban_global_click">
+                <div class="oe_kanban_details">
+                  <field name="name"/>
+                  <field name="marca_id"/>
+                  <field name="serie_id"/>
+                  <field name="cliente_id"/>
+                  <field name="sede"/>
+                  <field name="ubicacion"/>
+                </div>
+              </div>
+            </t>
+          </templates>
+        </kanban>
+      </field>
+    </record>
 
     <!-- actions opening views on models -->
 
     <record model="ir.actions.act_window" id="copier_company.action_window">
       <field name="name">Registrar Maquina</field>
       <field name="res_model">copier.company</field>
-      <field name="view_mode">tree,form</field>
+      <field name="view_mode">tree,form,kanban</field>
     </record>
 
     <!-- server action to the one above -->
@@ -76,7 +106,7 @@
       <field name="code">
         action = {
           "type": "ir.actions.act_window",
-          "view_mode": "tree,form",
+          "view_mode": "tree,form,kanban",
           "res_model": model._name,
         }
       </field>
