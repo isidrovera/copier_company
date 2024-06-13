@@ -148,6 +148,10 @@ class PcloudController(http.Controller):
             file_id = int(file_id)
             download_url = config.download_pcloud_file(file_id)
             
+            # Asegurarse de que la URL tenga el esquema
+            if not download_url.startswith(('http://', 'https://')):
+                download_url = 'https://' + download_url
+            
             response = requests.get(download_url, stream=True)
             response.raise_for_status()
             
