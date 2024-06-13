@@ -112,34 +112,35 @@ class PCloudController(http.Controller):
         
 class PcloudController(http.Controller):
 
+    def _recursive_search(self, config, folder_id, search_term):
+        contents = config.list_pcloud_contents(folder_id=folder_id)
+        results = []
+        for item in contents:
+            if item.get('name', 'Unknown').lower().find(search_term.lower()) != -1:
+                results.append(item)
+            if item.get('isfolder'):
+                results.extend(self._recursive_search(config, item.get('folderid'), search_term))
+        return results
+
     @http.route('/pcloud/files', type='http', auth='public', website=True)
     def list_files(self, folder_id=0, search=None, **kwargs):
         config = request.env['pcloud.config'].search([], limit=1)
         if not config:
             return request.render('copier_company.no_config_template')
         
-        # Manejo de folder_id y búsqueda
         folder_id = int(folder_id) if folder_id else 0
-
         try:
-            contents = config.list_pcloud_contents(folder_id=folder_id)
-            _logger.info('Contents: %s', contents)
-            
-            # Lista de nombres de archivos y carpetas a excluir
-            exclusions = [
-                '.cache', '.config', '.git', '.github', '.local', 
-                'Crypto Folder', 'System Volume Information', '.DS_Store', '.editorconfig', '.gitattributes',
-                '.gitignore', '.last_revision', '.mailmap', '.npmignore', '.npmrc', '.parentlock', '.travis.yml',
-                '.dockerignore', '.pydio_id', '.megaignore', ''
-            ]
-            
-            # Filtrar elementos
-            filtered_contents = [item for item in contents if item.get('name', 'Unknown') not in exclusions]
-
-            # Filtrar por búsqueda
             if search:
-                search_lower = search.lower()
-                filtered_contents = [item for item in filtered_contents if search_lower in item.get('name', 'Unknown').lower()]
+                filtered_contents = self._recursive_search(config, folder_id, search)
+            else:
+                contents = config.list_pcloud_contents(folder_id=folder_id)
+                exclusions = [
+                    '.cache', '.config', '.git', '.github', '.local', 
+                    'Crypto Folder', 'System Volume Information', '.DS_Store', '.editorconfig', '.gitattributes',
+                    '.gitignore', '.last_revision', '.mailmap', '.npmignore', '.npmrc', '.parentlock', '.travis.yml',
+                    '.dockerignore', '.pydio_id', '.megaignore', ''
+                ]
+                filtered_contents = [item for item in contents if item.get('name', 'Unknown') not in exclusions]
             
             processed_contents = [
                 {
@@ -156,9 +157,8 @@ class PcloudController(http.Controller):
         return request.render('copier_company.pcloud_files_template', {
             'contents': processed_contents,
             'current_folder_id': folder_id,
-            'search': search  # Pasar el término de búsqueda a la plantilla
+            'search': search
         })
-
 
     @http.route('/pcloud/download', type='http', auth='public')
     def download_file(self, file_id, **kwargs):
@@ -170,7 +170,6 @@ class PcloudController(http.Controller):
             file_id = int(file_id)
             download_url = config.download_pcloud_file(file_id)
             
-            # Asegurarse de que la URL tenga el esquema
             if not download_url.startswith(('http://', 'https://')):
                 download_url = 'https://' + download_url
             
