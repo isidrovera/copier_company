@@ -113,7 +113,7 @@ class PCloudController(http.Controller):
 class PcloudController(http.Controller):
 
     @http.route('/pcloud/files', type='http', auth='public', website=True)
-    def list_files(self, folder_id=0, **kwargs):
+    def list_files(self, folder_id=0, search=None, **kwargs):
         config = request.env['pcloud.config'].search([], limit=1)
         if not config:
             return request.render('copier_company.no_config_template')
@@ -127,11 +127,15 @@ class PcloudController(http.Controller):
                 '.cache', '.config', '.git', '.github', '.local', 
                 'Crypto Folder', 'System Volume Information', '.DS_Store', '.editorconfig', '.gitattributes',
                 '.gitignore', '.last_revision', '.mailmap', '.npmignore', '.npmrc', '.parentlock', '.travis.yml',
-                '.dockerignore'
+                '.dockerignore', '.pydio_id', '.megaignore', ''
             ]
             
             # Filtrar elementos
             filtered_contents = [item for item in contents if item.get('name', 'Unknown') not in exclusions]
+            
+            # Aplicar búsqueda
+            if search:
+                filtered_contents = [item for item in filtered_contents if search.lower() in item.get('name', 'Unknown').lower()]
             
             processed_contents = [
                 {

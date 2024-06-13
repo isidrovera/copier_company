@@ -1,27 +1,58 @@
-<odoo>
-    <data>
-        <template id="pcloud_files_template" name="pCloud File List">
-            <t t-call="website.layout">
-                <div class="container">
-                    <h1 class="my-4">Archivos y Carpetas de Pcloud</h1>
-                    <div class="list-group">
-                        <t t-if="current_folder_id != 0">
-                            <a t-attf-href="/pcloud/files?folder_id=#{0}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                                <span>.. (Subir)</span>
-                            </a>
-                        </t>
-                        <t t-foreach="contents" t-as="item">
-                            <a t-if="item['isfolder']" t-attf-href="/pcloud/files?folder_id=#{item['id']}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                                <span t-esc="item['name']"/> <span class="badge badge-primary badge-pill">(Folder)</span>
-                            </a>
-                            <div t-if="not item['isfolder']" class="list-group-item d-flex justify-content-between align-items-center">
-                                <span t-esc="item['name']"/> <span class="badge badge-secondary badge-pill">(File)</span>
-                                <a t-attf-href="/pcloud/download?file_id=#{item['id']}" class="btn btn-primary">Download</a>
-                            </div>
-                        </t>
-                    </div>
+<template id="pcloud_files_template" name="Pcloud Files">
+    <t t-call="website.layout">
+        <div class="container">
+            <div class="row mt-4 mb-4">
+                <div class="col-md-6">
+                    <a href="/pcloud/files?folder_id=0" class="btn btn-primary">
+                        <i class="fa fa-home"></i> Inicio
+                    </a>
+                    <t t-if="current_folder_id">
+                        <a href="javascript:history.back()" class="btn btn-secondary">
+                            <i class="fa fa-arrow-left"></i> Atrás
+                        </a>
+                    </t>
                 </div>
-            </t>
-        </template>
-    </data>
-</odoo>
+                <div class="col-md-6">
+                    <form method="GET" action="/pcloud/files" class="form-inline float-right">
+                        <input type="hidden" name="folder_id" t-att-value="current_folder_id"/>
+                        <input type="text" name="search" class="form-control mr-sm-2" placeholder="Buscar archivos..."/>
+                        <button type="submit" class="btn btn-outline-success">Buscar</button>
+                    </form>
+                </div>
+            </div>
+            <div class="row">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="contents" t-as="item">
+                            <tr>
+                                <td>
+                                    <t t-if="item['isfolder']">
+                                        <i class="fa fa-folder"></i>
+                                        <a t-att-href="'/pcloud/files?folder_id=%d' % item['id']"><t t-esc="item['name']"/></a>
+                                    </t>
+                                    <t t-if="not item['isfolder']">
+                                        <i class="fa fa-file"></i>
+                                        <t t-esc="item['name']"/>
+                                    </t>
+                                </td>
+                                <td>
+                                    <t t-if="not item['isfolder']">
+                                        <a t-att-href="'/pcloud/download?file_id=%d' % item['id']" class="btn btn-outline-primary">
+                                            Descargar
+                                        </a>
+                                    </t>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </t>
+</template>
