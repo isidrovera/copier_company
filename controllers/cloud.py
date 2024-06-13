@@ -118,8 +118,11 @@ class PcloudController(http.Controller):
         if not config:
             return request.render('copier_company.no_config_template')
         
+        # Manejo de folder_id y búsqueda
+        folder_id = int(folder_id) if folder_id else 0
+
         try:
-            contents = config.list_pcloud_contents(folder_id=int(folder_id))
+            contents = config.list_pcloud_contents(folder_id=folder_id)
             _logger.info('Contents: %s', contents)
             
             # Lista de nombres de archivos y carpetas a excluir
@@ -132,8 +135,8 @@ class PcloudController(http.Controller):
             
             # Filtrar elementos
             filtered_contents = [item for item in contents if item.get('name', 'Unknown') not in exclusions]
-            
-            # Aplicar búsqueda
+
+            # Filtrar por búsqueda
             if search:
                 filtered_contents = [item for item in filtered_contents if search.lower() in item.get('name', 'Unknown').lower()]
             
@@ -151,7 +154,7 @@ class PcloudController(http.Controller):
         
         return request.render('copier_company.pcloud_files_template', {
             'contents': processed_contents,
-            'current_folder_id': int(folder_id)
+            'current_folder_id': folder_id
         })
 
 
