@@ -110,8 +110,11 @@ class PCloudConfig(models.Model):
     def action_connect_to_pcloud(self):
         for record in self:
             authorization_url = record.get_authorization_url()
-            print("Authorize the application by visiting this URL:", authorization_url)
-            # Aquí deberías redirigir al usuario a esta URL para obtener el código de autorización.
+            return {
+                'type': 'ir.actions.act_url',
+                'url': authorization_url,
+                'target': 'new',
+            }
 
     def action_disconnect_from_pcloud(self):
         for record in self:
