@@ -1,16 +1,20 @@
-<odoo>
-    <template id="pcloud_files_template">
-        <t t-call="website.layout">
-            <div class="container">
-                <h1>Archivos y Carpetas de Pcloud</h1>
-                <ul>
-                    <t t-foreach="contents" t-as="content">
-                        <li>
-                            <t t-esc="content['name']"/> (<t t-esc="content['isfolder'] and 'Folder' or 'File'"/>)
-                        </li>
-                    </t>
-                </ul>
+<template id="pcloud_files_template" name="pCloud File List">
+    <t t-call="website.layout">
+        <div class="container">
+            <h1 class="my-4">Archivos y Carpetas de Pcloud</h1>
+            <div class="list-group">
+                <a t-if="current_folder_id != 0" t-attf-href="/pcloud/files?folder_id=#{parent_id}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <span>.. (Subir)</span>
+                </a>
+                <t t-foreach="contents" t-as="item">
+                    <a t-if="item['isfolder']" t-attf-href="/pcloud/files?folder_id=#{item['id']}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <span t-esc="item['name']"/> <span class="badge badge-primary badge-pill">(Folder)</span>
+                    </a>
+                    <span t-if="not item['isfolder']" class="list-group-item d-flex justify-content-between align-items-center">
+                        <span t-esc="item['name']"/> <span class="badge badge-secondary badge-pill">(File)</span>
+                    </span>
+                </t>
             </div>
-        </t>
-    </template>
-</odoo>
+        </div>
+    </t>
+</template>

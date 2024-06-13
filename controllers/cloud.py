@@ -112,20 +112,21 @@ class PCloudController(http.Controller):
 class PcloudController(http.Controller):
 
     @http.route('/pcloud/files', type='http', auth='public', website=True)
-    def list_files(self, **kwargs):
+    def list_files(self, folder_id=0, **kwargs):
         config = request.env['pcloud.config'].search([], limit=1)
         if not config:
             return request.render('copier_company.no_config_template')
         
         try:
-            contents = config.list_pcloud_contents()
+            contents = config.list_pcloud_contents(folder_id=int(folder_id))
             _logger.info('Contents: %s', contents)
             # Ensure that each item in contents has the attributes 'name' and 'isfolder'
-            processed_contents = [{'name': item.get('name', 'Unknown'), 'isfolder': item.get('isfolder', False)} for item in contents]
+            processed_contents = [{'name': item.get('name', 'Unknown'), 'isfolder': item.get('isfolder', False), 'id': item.get('folderid') if item.get('isfolder') else item.get('fileid')} for item in contents]
         except Exception as e:
             _logger.error('Failed to list contents: %s', str(e))
             processed_contents = []
         
         return request.render('copier_company.pcloud_files_template', {
-            'contents': processed_contents
+            'contents': processed_contents,
+            'current_folder_id': int(folder_id)
         })
