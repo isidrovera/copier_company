@@ -120,8 +120,14 @@ class PcloudController(http.Controller):
         try:
             contents = config.list_pcloud_contents(folder_id=int(folder_id))
             _logger.info('Contents: %s', contents)
-            # Ensure that each item in contents has the attributes 'name' and 'isfolder'
-            processed_contents = [{'name': item.get('name', 'Unknown'), 'isfolder': item.get('isfolder', False), 'id': item.get('folderid') if item.get('isfolder') else item.get('fileid')} for item in contents]
+            processed_contents = [
+                {
+                    'name': item.get('name', 'Unknown'),
+                    'isfolder': item.get('isfolder', False),
+                    'id': item.get('folderid') if item.get('isfolder') else item.get('fileid')
+                }
+                for item in contents
+            ]
         except Exception as e:
             _logger.error('Failed to list contents: %s', str(e))
             processed_contents = []
