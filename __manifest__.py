@@ -49,6 +49,7 @@
         'views/pcloud_templates.xml',
         'views/pcloud_folder_file_views.xml',
         'views/pcloud_files_template.xml',
+        'views/no_config_template.xml',
         
     ],
 

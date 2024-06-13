@@ -6,19 +6,10 @@
                 <ul>
                     <t t-foreach="contents" t-as="content">
                         <li>
-                            <t t-esc="content.name"/> (<t t-esc="content.isfolder and 'Folder' or 'File'"/>)
+                            <t t-esc="content['name']"/> (<t t-esc="content['isfolder'] and 'Folder' or 'File'"/>)
                         </li>
                     </t>
                 </ul>
-            </div>
-        </t>
-    </template>
-
-    <template id="no_config_template">
-        <t t-call="website.layout">
-            <div class="container">
-                <h1>Error</h1>
-                <p>No se ha configurado pCloud correctamente.</p>
             </div>
         </t>
     </template>
