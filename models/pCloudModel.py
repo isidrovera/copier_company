@@ -1,5 +1,8 @@
 from odoo import models, fields, api
 import requests
+import logging
+
+_logger = logging.getLogger(__name__)
 
 class PCloudConfig(models.Model):
     _name = 'pcloud.config'
@@ -186,7 +189,10 @@ class PCloudConfig(models.Model):
             response = requests.get(url, params=params)
             if response.status_code == 200:
                 data = response.json()
-                download_url = data['link']
+                _logger.info('API Response: %s', data)  # Log the API response for debugging
+                download_url = data.get('link')
+                if not download_url:
+                    raise Exception("Failed to get file download link")
                 return download_url
             else:
                 raise Exception("Failed to get file download link")
