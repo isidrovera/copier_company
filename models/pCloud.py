@@ -103,7 +103,7 @@ class PCloudConfig(models.Model):
             response = requests.get(url, params=params)
             if response.status_code == 200:
                 contents = response.json()['metadata']['contents']
-                return [item for item in contents if item['isfolder'] == False]
+                return [item for item in contents if not item['isfolder']]
             else:
                 raise Exception("Failed to list files")
 
@@ -120,3 +120,50 @@ class PCloudConfig(models.Model):
         for record in self:
             record.access_token = False
             record.hostname = False
+
+    def action_list_folders(self):
+        for record in self:
+            # Limpiar los registros anteriores
+            self.env['pcloud.folder.file'].search([]).unlink()
+            folders = record.list_pcloud_folders()
+            for folder in folders:
+                self.env['pcloud.folder.file'].create({
+                    'name': folder['name'],
+                    'is_folder': folder['isfolder'],
+                    'pcloud_config_id': record.id
+                })
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'pCloud Folders and Files',
+                'res_model': 'pcloud.folder.file',
+                'view_mode': 'tree,form',
+                'target': 'current',
+            }
+
+    def action_list_files(self):
+        for record in self:
+            # Limpiar los registros anteriores
+            self.env['pcloud.folder.file'].search([]).unlink()
+            files = record.list_pcloud_files()
+            for file in files:
+                self.env['pcloud.folder.file'].create({
+                    'name': file['name'],
+                    'is_folder': file['isfolder'],
+                    'pcloud_config_id': record.id
+                })
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'pCloud Folders and Files',
+                'res_model': 'pcloud.folder.file',
+                'view_mode': 'tree,form',
+                'target': 'current',
+            }
+
+
+class PCloudFolderFile(models.TransientModel):
+    _name = 'pcloud.folder.file'
+    _description = 'Temporary model to store pCloud folders and files'
+
+    name = fields.Char(string='Name', required=True)
+    is_folder = fields.Boolean(string='Is Folder')
+    pcloud_config_id = fields.Many2one('pcloud.config', string='pCloud Config', required=True)

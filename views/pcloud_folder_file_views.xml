@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Vista de formulario para pCloudFolderFile -->
+        <record id="view_pcloud_folder_file_form" model="ir.ui.view">
+            <field name="name">pcloud.folder.file.form</field>
+            <field name="model">pcloud.folder.file</field>
+            <field name="arch" type="xml">
+                <form string="pCloud Folder/File">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="is_folder"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <!-- Vista de árbol para pCloudFolderFile -->
+        <record id="view_pcloud_folder_file_tree" model="ir.ui.view">
+            <field name="name">pcloud.folder.file.tree</field>
+            <field name="model">pcloud.folder.file</field>
+            <field name="arch" type="xml">
+                <tree string="pCloud Folders and Files">
+                    <field name="name"/>
+                    <field name="is_folder"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Acción para abrir la vista de pCloudFolderFile -->
+        <record id="action_pcloud_folder_file" model="ir.actions.act_window">
+            <field name="name">pCloud Folders and Files</field>
+            <field name="res_model">pcloud.folder.file</field>
+            <field name="view_mode">tree,form</field>
+            <field name="target">current</field>
+        </record>
+    </data>
+</odoo>
