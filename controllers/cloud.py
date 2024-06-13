@@ -1,4 +1,5 @@
 from odoo import http
+import requests
 from odoo.http import request
 import os
 import mimetypes
