@@ -87,3 +87,21 @@ class CloudStorageController(http.Controller):
         return request.not_found()
 
 
+class PCloudController(http.Controller):
+    
+    @http.route('/pcloud/callback', type='http', auth='public', csrf=False)
+    def pcloud_callback(self, **kwargs):
+        code = kwargs.get('code')
+        state = kwargs.get('state')
+        
+        # Encuentra la configuración de pCloud en la base de datos
+        pcloud_config = request.env['pcloud.config'].search([], limit=1)
+        if not pcloud_config:
+            return "pCloud configuration not found."
+
+        # Intercambia el código de autorización por un token de acceso
+        try:
+            pcloud_config.get_access_token(code)
+            return "Successfully connected to pCloud!"
+        except Exception as e:
+            return str(e)
