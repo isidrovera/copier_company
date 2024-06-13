@@ -9,7 +9,7 @@
                 <form string="pCloud Configuration">
                     <header>
                         <button string="Connect" type="object" name="action_connect_to_pcloud"  class="btn-primary"/>
-                        <button string="Disconnect" type="object"  name="action_disconnect_from_pcloud"               class="btn-secondary"/>
+                        <button string="Disconnect" type="object"  name="action_disconnect_from_pcloud" class="btn-secondary"/>
                     </header>                     
                     <sheet>
                         <!-- Campos a mostrar en el formulario -->
@@ -17,7 +17,9 @@
                             <field name="name"/>
                             <field name="client_id"/>
                             <field name="client_secret"/>
+                            <field name="redirect_uri"/>
                             <field name="access_token" readonly="1"/>
+                            <field name="hostname" readonly="1"/>
                         </group>                        
                     </sheet>
                 </form>
@@ -32,7 +34,9 @@
                     <field name="name"/>
                     <field name="client_id"/>
                     <field name="client_secret"/>
+                    <field name="redirect_uri"/>
                     <field name="access_token"/>
+                    <field name="hostname"/>
                 </tree>
             </field>
         </record>
