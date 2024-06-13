@@ -172,18 +172,9 @@ class PCloudConfig(models.Model):
                 return response.json()
             else:
                 raise Exception("Failed to get file info")
-    def download_pcloud_file(self, file_id):
-        for record in self:
-            if not record.access_token:
-                raise Exception("No access token found. Please connect to pCloud first.")
-            
-            url = f"{record.hostname}/downloadfile"
-            params = {
-                'access_token': record.access_token,
-                'fileid': file_id,
-            }
-            response = requests.get(url, params=params, stream=True)
-            if response.status_code == 200:
-                return response.content
-            else:
-                raise Exception("Failed to download file")
+
+    def download_pcloud_file(self, file_link):
+        response = requests.get(file_link, stream=True)
+        response.raise_for_status()
+        return response.content
+

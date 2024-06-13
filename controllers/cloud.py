@@ -146,10 +146,13 @@ class PcloudController(http.Controller):
         try:
             file_id = int(file_id)
             file_info = config.get_pcloud_file_info(file_id)
-            file_name = file_info.get('name', 'downloaded_file')
-            file_content = config.download_pcloud_file(file_id)
+            file_name = file_info['metadata'][0].get('name', 'downloaded_file')
+            file_link = file_info['downloadlink']
             
-            return request.make_response(file_content,
+            response = requests.get(file_link, stream=True)
+            response.raise_for_status()
+            
+            return request.make_response(response.content,
                 headers=[
                     ('Content-Type', 'application/octet-stream'),
                     ('Content-Disposition', f'attachment; filename={file_name}')
