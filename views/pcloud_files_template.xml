@@ -1,0 +1,16 @@
+<odoo>
+    <template id="pcloud_files_template">
+        <t t-call="website.layout">
+            <div class="container">
+                <h1>Archivos y Carpetas de Pcloud</h1>
+                <ul>
+                    <t t-foreach="files" t-as="file">
+                        <li>
+                            <t t-esc="file.name"/>
+                        </li>
+                    </t>
+                </ul>
+            </div>
+        </t>
+    </template>
+</odoo>
