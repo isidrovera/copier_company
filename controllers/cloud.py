@@ -121,13 +121,23 @@ class PcloudController(http.Controller):
         try:
             contents = config.list_pcloud_contents(folder_id=int(folder_id))
             _logger.info('Contents: %s', contents)
+            
+            # Lista de nombres de archivos y carpetas a excluir
+            exclusions = [
+                '.cache', '.config', '.git', '.github', '.local', 
+                'Crypto Folder', 'System Volume Information'
+            ]
+            
+            # Filtrar elementos
+            filtered_contents = [item for item in contents if item.get('name', 'Unknown') not in exclusions]
+            
             processed_contents = [
                 {
                     'name': item.get('name', 'Unknown'),
                     'isfolder': item.get('isfolder', False),
                     'id': item.get('folderid') if item.get('isfolder') else item.get('fileid')
                 }
-                for item in contents
+                for item in filtered_contents
             ]
         except Exception as e:
             _logger.error('Failed to list contents: %s', str(e))
@@ -137,6 +147,7 @@ class PcloudController(http.Controller):
             'contents': processed_contents,
             'current_folder_id': int(folder_id)
         })
+
 
     @http.route('/pcloud/download', type='http', auth='public')
     def download_file(self, file_id, **kwargs):
