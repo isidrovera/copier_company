@@ -3,6 +3,9 @@ from odoo.http import request
 import os
 import mimetypes
 from werkzeug.utils import redirect
+import logging
+
+_logger = logging.getLogger(__name__)
 
 class CloudStorageController(http.Controller):
     @staticmethod
@@ -110,8 +113,11 @@ class PcloudController(http.Controller):
     
     @http.route('/pcloud/files', type='http', auth='public', website=True)
     def list_files(self, **kwargs):
-        # Aquí debes obtener los datos de tus archivos y carpetas
+        # Obtener los datos de tus archivos y carpetas
         files = request.env['pcloud.folder.file'].search([])
+        
+        # Log de los archivos recuperados
+        _logger.info('Files: %s', files)
         
         # Pasar los datos a la plantilla
         return request.render('copier_company.pcloud_files_template', {
