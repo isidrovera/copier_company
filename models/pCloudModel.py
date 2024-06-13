@@ -190,7 +190,7 @@ class PCloudConfig(models.Model):
             if response.status_code == 200:
                 data = response.json()
                 _logger.info('API Response: %s', data)  # Log the API response for debugging
-                download_url = data.get('link')
+                download_url = data.get('hosts')[0] + data.get('path')
                 if not download_url:
                     raise Exception("Failed to get file download link")
                 return download_url
