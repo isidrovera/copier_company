@@ -157,5 +157,33 @@ class PCloudConfig(models.Model):
                 'view_mode': 'tree,form',
                 'target': 'current',
             }
-
-
+    def get_pcloud_file_info(self, file_id):
+        for record in self:
+            if not record.access_token:
+                raise Exception("No access token found. Please connect to pCloud first.")
+            
+            url = f"{record.hostname}/getfilelink"
+            params = {
+                'access_token': record.access_token,
+                'fileid': file_id,
+            }
+            response = requests.get(url, params=params)
+            if response.status_code == 200:
+                return response.json()
+            else:
+                raise Exception("Failed to get file info")
+    def download_pcloud_file(self, file_id):
+        for record in self:
+            if not record.access_token:
+                raise Exception("No access token found. Please connect to pCloud first.")
+            
+            url = f"{record.hostname}/downloadfile"
+            params = {
+                'access_token': record.access_token,
+                'fileid': file_id,
+            }
+            response = requests.get(url, params=params, stream=True)
+            if response.status_code == 200:
+                return response.content
+            else:
+                raise Exception("Failed to download file")

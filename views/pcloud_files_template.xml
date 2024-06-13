@@ -1,6 +1,5 @@
 <odoo>
     <data>
-
         <template id="pcloud_files_template" name="pCloud File List">
             <t t-call="website.layout">
                 <div class="container">
@@ -15,14 +14,14 @@
                             <a t-if="item['isfolder']" t-attf-href="/pcloud/files?folder_id=#{item['id']}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                                 <span t-esc="item['name']"/> <span class="badge badge-primary badge-pill">(Folder)</span>
                             </a>
-                            <span t-if="not item['isfolder']" class="list-group-item d-flex justify-content-between align-items-center">
+                            <div t-if="not item['isfolder']" class="list-group-item d-flex justify-content-between align-items-center">
                                 <span t-esc="item['name']"/> <span class="badge badge-secondary badge-pill">(File)</span>
-                            </span>
+                                <a t-attf-href="/pcloud/download?file_id=#{item['id']}" class="btn btn-primary">Download</a>
+                            </div>
                         </t>
                     </div>
                 </div>
             </t>
         </template>
-
     </data>
 </odoo>

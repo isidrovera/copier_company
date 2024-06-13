@@ -136,3 +136,25 @@ class PcloudController(http.Controller):
             'contents': processed_contents,
             'current_folder_id': int(folder_id)
         })
+
+    @http.route('/pcloud/download', type='http', auth='public', website=True)
+    def download_file(self, file_id, **kwargs):
+        config = request.env['pcloud.config'].search([], limit=1)
+        if not config or not file_id:
+            return request.redirect('/pcloud/files')
+        
+        try:
+            file_id = int(file_id)
+            file_info = config.get_pcloud_file_info(file_id)
+            file_name = file_info.get('name', 'downloaded_file')
+            file_content = config.download_pcloud_file(file_id)
+            
+            return request.make_response(file_content,
+                headers=[
+                    ('Content-Type', 'application/octet-stream'),
+                    ('Content-Disposition', f'attachment; filename={file_name}')
+                ]
+            )
+        except Exception as e:
+            _logger.error('Failed to download file: %s', str(e))
+            return request.redirect('/pcloud/files')
