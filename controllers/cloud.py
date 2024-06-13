@@ -125,7 +125,9 @@ class PcloudController(http.Controller):
             # Lista de nombres de archivos y carpetas a excluir
             exclusions = [
                 '.cache', '.config', '.git', '.github', '.local', 
-                'Crypto Folder', 'System Volume Information'
+                'Crypto Folder', 'System Volume Information', '.DS_Store', '.editorconfig', '.gitattributes',
+                '.gitignore', '.last_revision', '.mailmap', '.npmignore', '.npmrc', '.parentlock', '.travis.yml',
+                '.dockerignore'
             ]
             
             # Filtrar elementos
