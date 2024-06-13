@@ -113,13 +113,17 @@ class PcloudController(http.Controller):
     
     @http.route('/pcloud/files', type='http', auth='public', website=True)
     def list_files(self, **kwargs):
-        # Obtener los datos de tus archivos y carpetas
-        files = request.env['pcloud.folder.file'].search([])
+        config = request.env['pcloud.config'].search([], limit=1)
+        if not config:
+            return request.render('your_module_name.no_config_template')
         
-        # Log de los archivos recuperados
-        _logger.info('Files: %s', files)
+        try:
+            contents = config.list_pcloud_contents()
+            _logger.info('Contents: %s', contents)
+        except Exception as e:
+            _logger.error('Failed to list contents: %s', str(e))
+            contents = []
         
-        # Pasar los datos a la plantilla
         return request.render('copier_company.pcloud_files_template', {
-            'files': files
+            'contents': contents
         })

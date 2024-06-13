@@ -90,7 +90,7 @@ class PCloudConfig(models.Model):
             else:
                 raise Exception("Failed to list folders")
 
-    def list_pcloud_files(self, folder_id=0):
+    def list_pcloud_contents(self, folder_id=0):
         for record in self:
             if not record.access_token:
                 raise Exception("No access token found. Please connect to pCloud first.")
@@ -102,10 +102,9 @@ class PCloudConfig(models.Model):
             }
             response = requests.get(url, params=params)
             if response.status_code == 200:
-                contents = response.json()['metadata']['contents']
-                return [item for item in contents if not item['isfolder']]
+                return response.json()['metadata']['contents']
             else:
-                raise Exception("Failed to list files")
+                raise Exception("Failed to list folders")
 
     def action_connect_to_pcloud(self):
         for record in self:
