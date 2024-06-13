@@ -20,7 +20,6 @@
                             <input type="text" name="search" class="form-control mr-sm-2" placeholder="Buscar archivos..." t-att-value="request.params.get('search', '')"/>
                             <button type="submit" class="btn btn-outline-success">Buscar</button>
                         </form>
-
                     </div>
                 </div>
                 <div class="row">
@@ -49,7 +48,7 @@
                                     <td>
                                         <t t-if="not item['isfolder']">
                                             <a t-att-href="'/pcloud/download?file_id=%d' % item['id']" class="btn btn-outline-primary">
-                                            Descargar
+                                                Descargar
                                             </a>
                                         </t>
                                     </td>
@@ -61,5 +60,4 @@
             </div>
         </t>
     </template>
-
 </odoo>

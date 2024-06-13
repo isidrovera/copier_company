@@ -138,7 +138,8 @@ class PcloudController(http.Controller):
 
             # Filtrar por búsqueda
             if search:
-                filtered_contents = [item for item in filtered_contents if search.lower() in item.get('name', 'Unknown').lower()]
+                search_lower = search.lower()
+                filtered_contents = [item for item in filtered_contents if search_lower in item.get('name', 'Unknown').lower()]
             
             processed_contents = [
                 {
@@ -154,7 +155,8 @@ class PcloudController(http.Controller):
         
         return request.render('copier_company.pcloud_files_template', {
             'contents': processed_contents,
-            'current_folder_id': folder_id
+            'current_folder_id': folder_id,
+            'search': search  # Pasar el término de búsqueda a la plantilla
         })
 
 
