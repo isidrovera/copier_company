@@ -36,5 +36,9 @@
             <field name="view_mode">tree,form</field>
             <field name="target">current</field>
         </record>
+
+        <!-- Menú para abrir la vista de pCloudFolderFile -->
+        <menuitem id="menu_pcloud_root" name="pCloud" sequence="10" parent="menu_root"/>
+        <menuitem id="menu_pcloud_folder_file" name="Folders and Files" parent="menu_pcloud_root" action="action_pcloud_folder_file" sequence="20"/>
     </data>
 </odoo>
