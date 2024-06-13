@@ -38,7 +38,7 @@
         </record>
 
         <!-- Menú para abrir la vista de pCloudFolderFile -->
-        <menuitem id="menu_pcloud_root" name="pCloud" sequence="10"/>
+        <menuitem id="menu_pcloud_root" name="pCloud" parent="copier_company.menu_root" sequence="40"/>
         <menuitem id="menu_pcloud_folder_file" name="Folders and Files" parent="menu_pcloud_root" action="action_pcloud_folder_file" sequence="20"/>
     </data>
 </odoo>
