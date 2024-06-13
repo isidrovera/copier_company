@@ -88,12 +88,12 @@ class CloudStorageController(http.Controller):
 
 
 class PCloudController(http.Controller):
-    
-    @http.route('/pcloud/callback', type='http', auth='public', csrf=False)
+
+    @http.route('/auth/callback', type='http', auth='public', csrf=False)
     def pcloud_callback(self, **kwargs):
         code = kwargs.get('code')
         state = kwargs.get('state')
-        
+
         # Encuentra la configuración de pCloud en la base de datos
         pcloud_config = request.env['pcloud.config'].search([], limit=1)
         if not pcloud_config:
