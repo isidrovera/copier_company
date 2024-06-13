@@ -1,0 +1,14 @@
+<odoo>
+    <template id="pcloud_success" name="pCloud Success">
+        <h1>Successfully connected to pCloud!</h1>
+        <p>You can now use pCloud features within Odoo.</p>
+        <a href="/web" class="btn btn-primary">Go to Odoo</a>
+    </template>
+
+    <template id="pcloud_error" name="pCloud Error">
+        <h1>Error connecting to pCloud</h1>
+        <p>There was an issue connecting to pCloud:</p>
+        <p t-esc="error"/>
+        <a href="/web" class="btn btn-primary">Go to Odoo</a>
+    </template>
+</odoo>

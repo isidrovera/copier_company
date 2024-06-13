@@ -102,6 +102,6 @@ class PCloudController(http.Controller):
         # Intercambia el código de autorización por un token de acceso
         try:
             pcloud_config.get_access_token(code)
-            return "Successfully connected to pCloud!"
+            return request.render('copier_company.pcloud_success', {})
         except Exception as e:
-            return str(e)
+            return request.render('copier_company.pcloud_error', {'error': str(e)})

@@ -46,6 +46,7 @@
         'data/mail_ticket.xml',
         'views/pcloud_folder_list_template.xml',
         'views/cloud_storage_template.xml',
+        'views/pcloud_templates.xml',
         
     ],
 
