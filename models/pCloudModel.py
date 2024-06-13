@@ -105,3 +105,57 @@ class PCloudConfig(models.Model):
                 return response.json()['metadata']['contents']
             else:
                 raise Exception("Failed to list folders")
+
+    def action_connect_to_pcloud(self):
+        for record in self:
+            authorization_url = record.get_authorization_url()
+            return {
+                'type': 'ir.actions.act_url',
+                'url': authorization_url,
+                'target': 'new',
+            }
+
+    def action_disconnect_from_pcloud(self):
+        for record in self:
+            record.access_token = False
+            record.hostname = False
+
+    def action_list_folders(self):
+        for record in self:
+            # Limpiar los registros anteriores
+            self.env['pcloud.folder.file'].search([]).unlink()
+            folders = record.list_pcloud_folders()
+            for folder in folders:
+                self.env['pcloud.folder.file'].create({
+                    'name': folder['name'],
+                    'is_folder': folder['isfolder'],
+                    'pcloud_config_id': record.id
+                })
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'pCloud Folders and Files',
+                'res_model': 'pcloud.folder.file',
+                'view_mode': 'tree,form',
+                'target': 'current',
+            }
+
+    def action_list_files(self):
+        for record in self:
+            # Limpiar los registros anteriores
+            self.env['pcloud.folder.file'].search([]).unlink()
+            files = record.list_pcloud_files()
+            for file in files:
+                self.env['pcloud.folder.file'].create({
+                    'name': file['name'],
+                    'is_folder': file['isfolder'],
+                    'pcloud_config_id': record.id
+                })
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'pCloud Folders and Files',
+                'res_model': 'pcloud.folder.file',
+                'view_mode': 'tree,form',
+                'target': 'current',
+            }
+
+
