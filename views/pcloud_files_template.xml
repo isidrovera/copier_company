@@ -58,27 +58,27 @@
                     </table>
                 </div>
             </div>
-        </t>
-        <script type="text/javascript">
-            document.addEventListener('DOMContentLoaded', function() {
-                var searchInput = document.getElementById('search-input');
-                var filesList = document.getElementById('files-list');
+            <script type="text/javascript">
+                document.addEventListener('DOMContentLoaded', function() {
+                    var searchInput = document.getElementById('search-input');
+                    var filesList = document.getElementById('files-list');
 
-                searchInput.addEventListener('input', function() {
-                    var searchTerm = searchInput.value.toLowerCase();
-                    var rows = filesList.getElementsByTagName('tr');
+                    searchInput.addEventListener('input', function() {
+                        var searchTerm = searchInput.value.toLowerCase();
+                        var rows = filesList.getElementsByTagName('tr');
 
-                    for (var i = 0; i < rows.length; i++) {
-                        var row = rows[i];
-                        var fileName = row.getElementsByTagName('td')[0].innerText.toLowerCase();
-                        if (fileName.includes(searchTerm)) {
-                            row.style.display = '';
-                        } else {
-                            row.style.display = 'none';
+                        for (var i = 0; i < rows.length; i++) {
+                            var row = rows[i];
+                            var fileName = row.getElementsByTagName('td')[0].innerText.toLowerCase();
+                            if (fileName.includes(searchTerm)) {
+                                row.style.display = '';
+                            } else {
+                                row.style.display = 'none';
+                            }
                         }
-                    }
+                    });
                 });
-            });
-        </script>
+            </script>
+        </t>
     </template>
 </odoo>
