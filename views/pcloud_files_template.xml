@@ -36,7 +36,7 @@
                                 <tr>
                                     <td>
                                         <t t-if="item['isfolder']">
-                                            <img t-att-src="'/copier_company/static/src/img/' + item['icon']" alt="Carpeta" width="24"/>
+                                            <img t-att-src="'/copier_company/static/src/img/icons8-carpet-48.png'" alt="Carpeta" width="24"/>
                                             <a t-att-href="'/pcloud/files?folder_id=%d' % item['id']">
                                                 <t t-esc="item['name']"/>
                                             </a>
