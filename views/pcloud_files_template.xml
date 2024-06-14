@@ -44,7 +44,7 @@
                                         <td>
                                             <img t-att-src="'/copier_company/static/src/img/' + item['icon']" alt="icon" style="width: 24px; height: 24px;"/>
                                             <t t-if="item['isfolder']">
-                                                <a t-att-href="'/pcloud/files?folder_id=%d&view_mode=' + viewMode" t-att-data-view-mode="viewMode">
+                                                <a t-att-href="'/pcloud/files?folder_id=%d&view_mode=' + viewMode" t-att-data-view-mode="viewMode" />
                                                     <t t-esc="item['name']"/>
                                                 </a>
                                             </t>
