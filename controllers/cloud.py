@@ -11,12 +11,22 @@ _logger = logging.getLogger(__name__)
 
 class PcloudController(http.Controller):
 
-    @http.route('/pcloud/files', type='http', auth='public', website=True)
+    @http.route('/soporte/descargas', type='http', auth='user', website=True)
     def list_files(self, folder_id=0, search='', **kwargs):
         config = request.env['pcloud.config'].search([], limit=1)
         if not config:
             return request.render('copier_company.no_config_template')
         
+        # Verificar suscripciones activas
+        partner = request.env.user.partner_id
+        subscriptions_active = request.env['sale.subscription'].search([
+            ('partner_id', '=', partner.id),
+            ('state', '=', 'open')
+        ])
+        
+        if not subscriptions_active:
+            return request.render('copier_company.no_subscription_message')
+
         try:
             if search:
                 contents = self._search_files_recursive(config, search)
@@ -85,6 +95,7 @@ class PcloudController(http.Controller):
             'gif': 'icons8-image-48.png',
             'zip': 'icons8-zip-48.png',
             'rar': 'icons8-winrar-48.png',
+            'tar': 'icons8-tar-100.png',
             'exe': 'icons8-ex-40.png',
         }
         return icons.get(ext, 'icons8-file-48.png')
@@ -98,17 +109,27 @@ class PcloudController(http.Controller):
 
     def _format_date(self, date_str):
         try:
-            date_obj = datetime.strptime(date_str, '%a, %d %b %Y %H:%M:%S %z')
-            return date_obj.strftime('%d %b %Y, %H:%M')
+            date_obj = datetime.strptime(date_str, '%a, %d %b Y %H:%M:%S %z')
+            return date_obj.strftime('%d %b Y, %H:%M')
         except ValueError:
             return date_str
 
-    @http.route('/pcloud/download', type='http', auth='public')
+    @http.route('/soporte/descarga', type='http', auth='user')
     def download_file(self, file_id, **kwargs):
         config = request.env['pcloud.config'].search([], limit=1)
         if not config or not file_id:
-            return request.redirect('/pcloud/files')
+            return redirect('/soporte/descargas')
         
+        # Verificar suscripciones activas
+        partner = request.env.user.partner_id
+        subscriptions_active = request.env['sale.subscription'].search([
+            ('partner_id', '=', partner.id),
+            ('state', '=', 'open')
+        ])
+        
+        if not subscriptions_active:
+            return redirect('/soporte/descargas')
+
         try:
             file_id = int(file_id)
             download_url = config.download_pcloud_file(file_id)
@@ -127,4 +148,4 @@ class PcloudController(http.Controller):
             return request.make_response(response.content, headers)
         except Exception as e:
             _logger.error('Failed to download file: %s', str(e))
-            return request.redirect('/pcloud/files')
+            return redirect('/soporte/descargas')
