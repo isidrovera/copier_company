@@ -73,7 +73,7 @@
                         var rows = filesList.getElementsByTagName('tr');
                         for (var i = 0; i &lt; rows.length; i++) {
                             var row = rows[i];
-                            var fileName = row.getElementsByTagName('td')[1].innerText.toLowerCase();
+                            var fileName = row.getElementsByTagName('td')[0].innerText.toLowerCase();
                             if (fileName.includes(searchTerm)) {
                                 row.style.display = '';
                             } else {
