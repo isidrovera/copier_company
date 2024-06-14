@@ -37,7 +37,10 @@ class PcloudController(http.Controller):
                 {
                     'name': item.get('name', 'Unknown'),
                     'isfolder': item.get('isfolder', False),
-                    'id': item.get('folderid') if item.get('isfolder') else item.get('fileid')
+                    'id': item.get('folderid') if item.get('isfolder') else item.get('fileid'),
+                    'modified': item.get('modified', 'Unknown'),
+                    'size': self._format_size(item.get('size', 0)),
+                    'icon': self._get_file_type(item.get('name', 'Unknown'))
                 }
                 for item in filtered_contents
             ]
@@ -62,6 +65,34 @@ class PcloudController(http.Controller):
                 matching_contents.extend(self._search_files_recursive(config, search_term, item.get('folderid')))
         
         return matching_contents
+
+    def _get_file_type(self, file_name):
+        ext = file_name.split('.')[-1].lower()
+        icons = {
+            'doc': 'icons8-ms-word-48.png',
+            'docx': 'icons8-ms-word-48.png',
+            'xls': 'icons8-microsoft-excel-2019-48.png',
+            'xlsx': 'icons8-microsoft-excel-2019-48.png',
+            'ppt': 'icons8-powerpoint-48.png',
+            'pptx': 'icons8-powerpoint-48.png',
+            'pdf': 'icons8-pdf-48.png',
+            'txt': 'icons8-text-48.png',
+            'jpg': 'icons8-image-48.png',
+            'jpeg': 'icons8-image-48.png',
+            'png': 'icons8-image-48.png',
+            'gif': 'icons8-image-48.png',
+            'zip': 'icons8-zip-48.png',
+            'rar': 'icons8-winrar-48.png',
+        }
+        return icons.get(ext, 'icons8-file-48.png')
+
+    def _format_size(self, size):
+        for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+            if size < 1024.0:
+                return f"{size:.2f} {unit}"
+            size /= 1024.0
+        return f"{size:.2f} PB"
+
 
     @http.route('/pcloud/download', type='http', auth='public')
     def download_file(self, file_id, **kwargs):
