@@ -10,7 +10,7 @@ _logger = logging.getLogger(__name__)
 
 class PcloudController(http.Controller):
 
-    @http.route('/pcloud/files', type='http', auth='user', website=True)
+    @http.route('/pcloud/files', type='http', auth='public', website=True)
     def list_files(self, folder_id=0, search='', **kwargs):
         config = request.env['pcloud.config'].search([], limit=1)
         if not config:
@@ -38,9 +38,9 @@ class PcloudController(http.Controller):
                     'name': item.get('name', 'Unknown'),
                     'isfolder': item.get('isfolder', False),
                     'id': item.get('folderid') if item.get('isfolder') else item.get('fileid'),
-                    'modified': self._format_date(item.get('modified', 'Unknown')),
-                    'size': self._format_size(item.get('size', 0)) if not item.get('isfolder') else '',
-                    'icon': 'icons8-carpet-48.png' if item.get('isfolder') else self._get_file_type(item.get('name', 'Unknown'))
+                    'modified': item.get('modified', 'Unknown'),
+                    'size': self._format_size(item.get('size', 0)),
+                    'icon': self._get_file_type(item.get('name', 'Unknown'))
                 }
                 for item in filtered_contents
             ]
@@ -87,20 +87,12 @@ class PcloudController(http.Controller):
         return icons.get(ext, 'icons8-file-48.png')
 
     def _format_size(self, size):
-        if size == 0:
-            return '0 B'
-        size_name = ("B", "KB", "MB", "GB", "TB")
-        i = int(math.floor(math.log(size, 1024)))
-        p = math.pow(1024, i)
-        s = round(size / p, 2)
-        return f"{s} {size_name[i]}"
+        for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+            if size < 1024.0:
+                return f"{size:.2f} {unit}"
+            size /= 1024.0
+        return f"{size:.2f} PB"
 
-    def _format_date(self, date_str):
-        try:
-            date_obj = datetime.strptime(date_str, '%a, %d %b %Y %H:%M:%S %z')
-            return date_obj.strftime('%Y-%m-%d %H:%M:%S')
-        except ValueError:
-            return date_str
 
     @http.route('/pcloud/download', type='http', auth='public')
     def download_file(self, file_id, **kwargs):
