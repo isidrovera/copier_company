@@ -4,7 +4,7 @@
         <t t-call="website.layout">
             <div class="container-fluid">
                 <div class="row mt-4 mb-4">
-                    <div class="col-md-6">
+                    <div class="col-6 col-md-3">
                         <a href="/pcloud/files?folder_id=0" class="btn btn-primary btn-block btn-md-inline">
                             <i class="fa fa-home"></i> Inicio
                         </a>
@@ -14,17 +14,19 @@
                             </a>
                         </t>
                     </div>
-                    <div class="col-md-6">
-                        <form id="search-form" class="form-inline float-md-right">
+                    <div class="col-12 col-md-6 text-center mt-2 mt-md-0">
+                        <form id="search-form" class="form-inline justify-content-center">
                             <input type="hidden" name="folder_id" t-att-value="current_folder_id"/>
-                            <input type="text" id="search-input" class="form-control mr-sm-2 mb-2 mb-md-0" placeholder="Buscar archivos..." t-att-value="request.params.get('search', '')"/>
+                            <input type="text" id="search-input" class="form-control" placeholder="Buscar archivos..." t-att-value="request.params.get('search', '')"/>
                         </form>
                     </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-12">
-                        <button id="list-view-btn" class="btn btn-outline-primary active">Lista</button>
-                        <button id="kanban-view-btn" class="btn btn-outline-primary">Kanban</button>
+                    <div class="col-6 col-md-3 text-right mt-2 mt-md-0">
+                        <button id="list-view-btn" class="btn btn-outline-secondary" title="Vista de lista">
+                            <img src="/copier_company/static/src/img/list-view-icon.png" alt="Lista" style="width: 24px; height: 24px;"/>
+                        </button>
+                        <button id="kanban-view-btn" class="btn btn-outline-secondary" title="Vista Kanban">
+                            <img src="/copier_company/static/src/img/kanban-view-icon.png" alt="Kanban" style="width: 24px; height: 24px;"/>
+                        </button>
                     </div>
                 </div>
                 <div class="row">
