@@ -47,9 +47,7 @@
                                         </t>
                                     </td>
                                     <td>
-                                        <t t-if="not item['isfolder']">
-                                            <t t-esc="item['size']"/>
-                                        </t>
+                                        <t t-esc="item['size']"/>
                                     </td>
                                     <td>
                                         <t t-esc="item['modified']"/>
