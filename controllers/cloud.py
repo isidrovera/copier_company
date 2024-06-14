@@ -4,6 +4,7 @@ from odoo.http import request
 import os
 import mimetypes
 from werkzeug.utils import redirect
+from datetime import datetime
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -38,9 +39,9 @@ class PcloudController(http.Controller):
                     'name': item.get('name', 'Unknown'),
                     'isfolder': item.get('isfolder', False),
                     'id': item.get('folderid') if item.get('isfolder') else item.get('fileid'),
-                    'modified': item.get('modified', 'Unknown'),
-                    'size': self._format_size(item.get('size', 0)),
-                    'icon': self._get_file_type(item.get('name', 'Unknown'))
+                    'modified': self._format_date(item.get('modified', 'Unknown')),
+                    'size': self._format_size(item.get('size', 0)) if not item.get('isfolder') else '',
+                    'icon': 'icons8-carpet-48.png' if item.get('isfolder') else self._get_file_type(item.get('name', 'Unknown'))
                 }
                 for item in filtered_contents
             ]
@@ -93,6 +94,12 @@ class PcloudController(http.Controller):
             size /= 1024.0
         return f"{size:.2f} PB"
 
+    def _format_date(self, date_str):
+        try:
+            date_obj = datetime.strptime(date_str, '%a, %d %b %Y %H:%M:%S %z')
+            return date_obj.strftime('%d %b %Y, %H:%M')
+        except ValueError:
+            return date_str
 
     @http.route('/pcloud/download', type='http', auth='public')
     def download_file(self, file_id, **kwargs):
