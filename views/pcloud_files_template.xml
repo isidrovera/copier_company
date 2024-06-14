@@ -15,10 +15,10 @@
                         </t>
                     </div>
                     <div class="col-md-6">
-                        <form class="form-inline float-right">
+                        <form id="search-form" method="GET" action="/pcloud/files" class="form-inline float-right">
                             <input type="hidden" name="folder_id" t-att-value="current_folder_id"/>
-                            <input type="text" id="searchInput" class="form-control mr-sm-2" placeholder="Buscar archivos..."/>
-                            <button type="button" class="btn btn-outline-success" onclick="searchFiles()">Buscar</button>
+                            <input id="search-input" type="text" name="search" class="form-control mr-sm-2" placeholder="Buscar archivos..." t-att-value="request.params.get('search', '')"/>
+                            <button type="submit" class="btn btn-outline-success">Buscar</button>
                         </form>
                     </div>
                 </div>
@@ -30,9 +30,9 @@
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-                        <tbody id="fileTableBody">
+                        <tbody id="files-list">
                             <t t-foreach="contents" t-as="item">
-                                <tr class="file-row">
+                                <tr>
                                     <td>
                                         <t t-if="item['isfolder']">
                                             <i class="fa fa-folder"></i>
@@ -58,20 +58,32 @@
                     </table>
                 </div>
             </div>
+        </t>
+    </template>
+
+    <template id="assets_backend" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
             <script>
-                function searchFiles() {
-                    let input = document.getElementById('searchInput').value.toLowerCase();
-                    let rows = document.querySelectorAll('.file-row');
-                    rows.forEach(row => {
-                        let fileName = row.querySelector('td:first-child').textContent.toLowerCase();
-                        if (fileName.includes(input)) {
-                            row.style.display = '';
-                        } else {
-                            row.style.display = 'none';
+                document.addEventListener('DOMContentLoaded', function() {
+                    var searchInput = document.getElementById('search-input');
+                    var filesList = document.getElementById('files-list');
+
+                    searchInput.addEventListener('input', function() {
+                        var searchTerm = searchInput.value.toLowerCase();
+                        var rows = filesList.getElementsByTagName('tr');
+
+                        for (var i = 0; i < rows.length; i++) {
+                            var row = rows[i];
+                            var fileName = row.getElementsByTagName('td')[0].innerText.toLowerCase();
+                            if (fileName.includes(searchTerm)) {
+                                row.style.display = '';
+                            } else {
+                                row.style.display = 'none';
+                            }
                         }
                     });
-                }
+                });
             </script>
-        </t>
+        </xpath>
     </template>
 </odoo>
