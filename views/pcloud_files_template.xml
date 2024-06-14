@@ -62,11 +62,9 @@
                 document.addEventListener('DOMContentLoaded', function() {
                     var searchInput = document.getElementById('search-input');
                     var filesList = document.getElementById('files-list');
-
                     searchInput.addEventListener('input', function() {
                         var searchTerm = searchInput.value.toLowerCase();
                         var rows = filesList.getElementsByTagName('tr');
-
                         for (var i = 0; i < rows.length; i++) {
                             var row = rows[i];
                             var fileName = row.getElementsByTagName('td')[0].innerText.toLowerCase();
