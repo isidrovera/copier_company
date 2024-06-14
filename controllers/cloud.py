@@ -3,7 +3,6 @@ import requests
 from odoo.http import request
 import os
 import mimetypes
-from werkzeug.utils import redirect
 from datetime import datetime
 import logging
 
@@ -12,7 +11,6 @@ _logger = logging.getLogger(__name__)
 class PcloudController(http.Controller):
     @http.route('/soporte/descargas', type='http', auth='user', website=True)
     def list_files(self, folder_id=0, search='', **kwargs):
-        # Verificar suscripciones activas usando sale.order como en DescargaArchivosController
         partner = request.env.user.partner_id
         subscriptions_in_progress = request.env['sale.order'].sudo().search([
             ('partner_id', '=', partner.id),
@@ -25,10 +23,10 @@ class PcloudController(http.Controller):
         config = request.env['pcloud.config'].search([], limit=1)
         if not config:
             return request.render('copier_company.no_config_template')
-
+        
         try:
             if search:
-                contents = self._search_files_recursive(config, search)
+                contents = self._search_files_recursive(config, search, folder_id)
             else:
                 contents = config.list_pcloud_contents(folder_id=int(folder_id))
             
@@ -67,13 +65,11 @@ class PcloudController(http.Controller):
     def _search_files_recursive(self, config, search_term, folder_id=0):
         contents = config.list_pcloud_contents(folder_id=folder_id)
         matching_contents = []
-
         for item in contents:
             if search_term.lower() in item.get('name', '').lower():
                 matching_contents.append(item)
             if item.get('isfolder'):
                 matching_contents.extend(self._search_files_recursive(config, search_term, item.get('folderid')))
-        
         return matching_contents
 
     def _get_file_type(self, file_name):
@@ -108,11 +104,10 @@ class PcloudController(http.Controller):
 
     def _format_date(self, date_str):
         try:
-            date_obj = datetime.strptime(date_str, '%a, %d %b Y %H:%M:%S %z')
-            return date_obj.strftime('%d %b Y, %H:%M')
+            date_obj = datetime.strptime(date_str, '%a, %d %b %Y %H:%M:%S %z')
+            return date_obj.strftime('%d %b %Y, %H:%M')
         except ValueError:
             return date_str
-
 
     @http.route('/soporte/descarga', type='http', auth='user')
     def download_file(self, file_id, **kwargs):
@@ -120,16 +115,6 @@ class PcloudController(http.Controller):
         if not config or not file_id:
             return redirect('/soporte/descargas')
         
-        # Verificar suscripciones activas
-        partner = request.env.user.partner_id
-        subscriptions_active = request.env['sale.subscription'].search([
-            ('partner_id', '=', partner.id),
-            ('state', '=', 'open')
-        ])
-        
-        if not subscriptions_active:
-            return redirect('/soporte/descargas')
-
         try:
             file_id = int(file_id)
             download_url = config.download_pcloud_file(file_id)
