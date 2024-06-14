@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <template id="pcloud_files_template" name="Pcloud Files">
         <t t-call="website.layout">
@@ -40,7 +40,7 @@
                                                 <t t-esc="item['name']"/>
                                             </a>
                                         </t>
-                                        <t t-if="not item['isfolder']">
+                                        <t t-else="">
                                             <i class="fa fa-file"></i>
                                             <t t-esc="item['name']"/>
                                         </t>
