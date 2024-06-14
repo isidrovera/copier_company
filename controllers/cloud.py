@@ -3,6 +3,7 @@ import requests
 from odoo.http import request
 import os
 import mimetypes
+from werkzeug.utils import redirect
 from datetime import datetime
 import logging
 
@@ -104,8 +105,8 @@ class PcloudController(http.Controller):
 
     def _format_date(self, date_str):
         try:
-            date_obj = datetime.strptime(date_str, '%a, %d %b %Y %H:%M:%S %z')
-            return date_obj.strftime('%d %b %Y, %H:%M')
+            date_obj = datetime.strptime(date_str, '%a, %d %b Y %H:%M:%S %z')
+            return date_obj.strftime('%d %b Y, %H:%M')
         except ValueError:
             return date_str
 
