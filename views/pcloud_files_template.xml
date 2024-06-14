@@ -44,7 +44,7 @@
                                         <td>
                                             <img t-att-src="'/copier_company/static/src/img/' + item['icon']" alt="icon" style="width: 24px; height: 24px;"/>
                                             <t t-if="item['isfolder']">
-                                                <a t-att-href="'/pcloud/files?folder_id=%d' % item['id']">
+                                                <a t-att-href="'/pcloud/files?folder_id=%d&view_mode=' + viewMode" t-att-data-view-mode="viewMode">
                                                     <t t-esc="item['name']"/>
                                                 </a>
                                             </t>
@@ -75,17 +75,16 @@
                             <t t-foreach="contents" t-as="item">
                                 <div class="col-6 col-md-4 col-lg-3 mb-4">
                                     <div class="card">
-                                        <img class="card-img-top" t-att-src="'/copier_company/static/src/img/' + item['icon']" alt="icon"/>
+                                        <img class="card-img-top" t-att-src="'/copier_company/static/src/img/' + item['icon']" alt="icon" style="width: 48px; height: 48px; margin: auto;"/>
                                         <div class="card-body">
                                             <h5 class="card-title">
                                                 <t t-esc="item['name']"/>
                                             </h5>
                                             <p class="card-text">
-                                                <strong>Tamaño:</strong> <t t-esc="item['size']"/><br/>
                                                 <strong>Modificado:</strong> <t t-esc="item['modified']"/>
                                             </p>
                                             <t t-if="item['isfolder']">
-                                                <a t-att-href="'/pcloud/files?folder_id=%d' % item['id']" class="btn btn-primary">Abrir</a>
+                                                <a t-att-href="'/pcloud/files?folder_id=%d&view_mode=' + viewMode" t-att-data-view-mode="viewMode" class="btn btn-primary">Abrir</a>
                                             </t>
                                             <t t-if="not item['isfolder']">
                                                 <a t-att-href="'/pcloud/download?file_id=%d' % item['id']" class="btn btn-outline-primary">Descargar</a>
@@ -106,19 +105,29 @@
                     var kanbanViewBtn = document.getElementById('kanban-view-btn');
                     var listView = document.getElementById('list-view');
                     var kanbanView = document.getElementById('kanban-view');
+                    var viewMode = localStorage.getItem('viewMode') || 'list';
+
+                    function setViewMode(mode) {
+                        if (mode === 'list') {
+                            listView.classList.remove('d-none');
+                            kanbanView.classList.add('d-none');
+                            listViewBtn.classList.add('active');
+                            kanbanViewBtn.classList.remove('active');
+                        } else {
+                            listView.classList.add('d-none');
+                            kanbanView.classList.remove('d-none');
+                            listViewBtn.classList.remove('active');
+                            kanbanViewBtn.classList.add('active');
+                        }
+                        localStorage.setItem('viewMode', mode);
+                    }
 
                     listViewBtn.addEventListener('click', function() {
-                        listView.classList.remove('d-none');
-                        kanbanView.classList.add('d-none');
-                        listViewBtn.classList.add('active');
-                        kanbanViewBtn.classList.remove('active');
+                        setViewMode('list');
                     });
 
                     kanbanViewBtn.addEventListener('click', function() {
-                        listView.classList.add('d-none');
-                        kanbanView.classList.remove('d-none');
-                        listViewBtn.classList.remove('active');
-                        kanbanViewBtn.classList.add('active');
+                        setViewMode('kanban');
                     });
 
                     searchInput.addEventListener('input', function() {
@@ -145,6 +154,8 @@
                             }
                         }
                     });
+
+                    setViewMode(viewMode);
                 });
             </script>
         </t>
