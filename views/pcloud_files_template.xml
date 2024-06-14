@@ -17,8 +17,7 @@
                     <div class="col-md-6">
                         <form id="search-form" class="form-inline float-right">
                             <input type="hidden" name="folder_id" t-att-value="current_folder_id"/>
-                            <input type="text" id="search-input" name="search" class="form-control mr-sm-2" placeholder="Buscar archivos..." t-att-value="request.params.get('search', '')"/>
-                            <button type="submit" class="btn btn-outline-success">Buscar</button>
+                            <input type="text" id="search-input" class="form-control mr-sm-2" placeholder="Buscar archivos..." t-att-value="request.params.get('search', '')"/>
                         </form>
                     </div>
                 </div>
@@ -36,7 +35,7 @@
                             <t t-foreach="contents" t-as="item">
                                 <tr>
                                     <td>
-                                        <img t-att-src="'/copier_company/static/src/img/' + item['icon']" alt="Icon" width="24"/>
+                                        <img t-att-src="'/copier_company/static/icon/' + item['icon']" alt="Icon" class="img-thumbnail" style="width:24px; height:24px;"/>
                                         <t t-if="item['isfolder']">
                                             <a t-att-href="'/pcloud/files?folder_id=%d' % item['id']">
                                                 <t t-esc="item['name']"/>

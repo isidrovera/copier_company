@@ -41,7 +41,7 @@ class PcloudController(http.Controller):
                     'id': item.get('folderid') if item.get('isfolder') else item.get('fileid'),
                     'modified': self._format_date(item.get('modified', 'Unknown')),
                     'size': self._format_size(item.get('size', 0)) if not item.get('isfolder') else '',
-                    'icon': 'icons8-carpet-48.png' if item.get('isfolder') else self._get_file_type(item.get('name', 'Unknown'))
+                    'icon': 'icons8-carpeta-48.png' if item.get('isfolder') else self._get_file_type(item.get('name', 'Unknown'))
                 }
                 for item in filtered_contents
             ]
