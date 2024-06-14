@@ -15,10 +15,10 @@
                         </t>
                     </div>
                     <div class="col-md-6">
-                        <form id="search-form" method="GET" action="/pcloud/files" class="form-inline float-right">
+                        <form id="search-form" class="form-inline float-right">
                             <input type="hidden" name="folder_id" t-att-value="current_folder_id"/>
-                            <input id="search-input" type="text" name="search" class="form-control mr-sm-2" placeholder="Buscar archivos..." t-att-value="search"/>
-                            <button type="submit" class="btn btn-outline-success">Buscar</button>
+                            <input type="text" id="search-input" class="form-control mr-sm-2" placeholder="Buscar archivos..." t-att-value="request.params.get('search', '')"/>
+                            <button type="button" class="btn btn-outline-success">Buscar</button>
                         </form>
                     </div>
                 </div>
@@ -58,12 +58,7 @@
                     </table>
                 </div>
             </div>
-        </t>
-    </template>
-
-    <template id="assets_backend" inherit_id="web.assets_backend">
-        <xpath expr="." position="inside">
-            <script>
+            <script type="text/javascript">
                 document.addEventListener('DOMContentLoaded', function() {
                     var searchInput = document.getElementById('search-input');
                     var filesList = document.getElementById('files-list');
@@ -84,6 +79,6 @@
                     });
                 });
             </script>
-        </xpath>
+        </t>
     </template>
 </odoo>
