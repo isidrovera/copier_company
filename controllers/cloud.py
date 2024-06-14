@@ -74,6 +74,7 @@ class PcloudController(http.Controller):
             'docx': 'icons8-ms-word-48.png',
             'xls': 'icons8-microsoft-excel-2019-48.png',
             'xlsx': 'icons8-microsoft-excel-2019-48.png',
+            'xlsm': 'icons8-microsoft-excel-2019-48.png',
             'ppt': 'icons8-powerpoint-48.png',
             'pptx': 'icons8-powerpoint-48.png',
             'pdf': 'icons8-pdf-48.png',
