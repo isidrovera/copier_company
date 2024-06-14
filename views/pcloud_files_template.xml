@@ -15,10 +15,10 @@
                         </t>
                     </div>
                     <div class="col-md-6">
-                        <form method="GET" action="/pcloud/files" class="form-inline float-right">
+                        <form class="form-inline float-right">
                             <input type="hidden" name="folder_id" t-att-value="current_folder_id"/>
-                            <input type="text" name="search" class="form-control mr-sm-2" placeholder="Buscar archivos..." t-att-value="search or ''"/>
-                            <button type="submit" class="btn btn-outline-success">Buscar</button>
+                            <input type="text" id="searchInput" class="form-control mr-sm-2" placeholder="Buscar archivos..."/>
+                            <button type="button" class="btn btn-outline-success" onclick="searchFiles()">Buscar</button>
                         </form>
                     </div>
                 </div>
@@ -30,9 +30,9 @@
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="fileTableBody">
                             <t t-foreach="contents" t-as="item">
-                                <tr>
+                                <tr class="file-row">
                                     <td>
                                         <t t-if="item['isfolder']">
                                             <i class="fa fa-folder"></i>
@@ -58,6 +58,20 @@
                     </table>
                 </div>
             </div>
+            <script>
+                function searchFiles() {
+                    let input = document.getElementById('searchInput').value.toLowerCase();
+                    let rows = document.querySelectorAll('.file-row');
+                    rows.forEach(row => {
+                        let fileName = row.querySelector('td:first-child').textContent.toLowerCase();
+                        if (fileName.includes(input)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                }
+            </script>
         </t>
     </template>
 </odoo>
