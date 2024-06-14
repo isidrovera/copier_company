@@ -2,72 +2,125 @@
 <odoo>
     <template id="pcloud_files_template" name="Pcloud Files">
         <t t-call="website.layout">
-            <div class="container">
+            <div class="container-fluid">
                 <div class="row mt-4 mb-4">
-                    <div class="col-md-6">
-                        <a href="/pcloud/files?folder_id=0" class="btn btn-primary">
+                    <div class="col-12 col-md-6 mb-2 mb-md-0">
+                        <a href="/pcloud/files?folder_id=0" class="btn btn-primary btn-block btn-md-inline">
                             <i class="fa fa-home"></i> Inicio
                         </a>
                         <t t-if="current_folder_id">
-                            <a href="javascript:history.back()" class="btn btn-secondary">
+                            <a href="javascript:history.back()" class="btn btn-secondary btn-block btn-md-inline mt-2 mt-md-0">
                                 <i class="fa fa-arrow-left"></i> Atrás
                             </a>
                         </t>
                     </div>
-                    <div class="col-md-6">
-                        <form id="search-form" class="form-inline float-right">
+                    <div class="col-12 col-md-6">
+                        <form id="search-form" class="form-inline float-md-right">
                             <input type="hidden" name="folder_id" t-att-value="current_folder_id"/>
-                            <input type="text" id="search-input" class="form-control mr-sm-2" placeholder="Buscar archivos..." t-att-value="request.params.get('search', '')"/>
+                            <input type="text" id="search-input" class="form-control mr-sm-2 mb-2 mb-md-0" placeholder="Buscar archivos..." t-att-value="request.params.get('search', '')"/>
                         </form>
                     </div>
                 </div>
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <button id="list-view-btn" class="btn btn-outline-primary active">Lista</button>
+                        <button id="kanban-view-btn" class="btn btn-outline-primary">Kanban</button>
+                    </div>
+                </div>
                 <div class="row">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Tamaño</th>
-                                <th>Fecha de Modificación</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="files-list">
-                            <t t-foreach="contents" t-as="item">
+                    <div class="col-12 table-responsive" id="list-view">
+                        <table class="table table-striped">
+                            <thead>
                                 <tr>
-                                    <td>
-                                        <img t-att-src="'/copier_company/static/src/img/' + item['icon']" alt="icon" style="width: 24px; height: 24px;"/>
-                                        <t t-if="item['isfolder']">
-                                            <a t-att-href="'/pcloud/files?folder_id=%d' % item['id']">
-                                                <t t-esc="item['name']"/>
-                                            </a>
-                                        </t>
-                                        <t t-else="">
-                                            <t t-esc="item['name']"/>
-                                        </t>
-                                    </td>
-                                    <td>
-                                        <t t-esc="item['size']"/>
-                                    </td>
-                                    <td>
-                                        <t t-esc="item['modified']"/>
-                                    </td>
-                                    <td>
-                                        <t t-if="not item['isfolder']">
-                                            <a t-att-href="'/pcloud/download?file_id=%d' % item['id']" class="btn btn-outline-primary">
-                                                Descargar
-                                            </a>
-                                        </t>
-                                    </td>
+                                    <th>Nombre</th>
+                                    <th>Tamaño</th>
+                                    <th>Fecha de Modificación</th>
+                                    <th>Acciones</th>
                                 </tr>
+                            </thead>
+                            <tbody id="files-list">
+                                <t t-foreach="contents" t-as="item">
+                                    <tr>
+                                        <td>
+                                            <img t-att-src="'/copier_company/static/src/img/' + item['icon']" alt="icon" style="width: 24px; height: 24px;"/>
+                                            <t t-if="item['isfolder']">
+                                                <a t-att-href="'/pcloud/files?folder_id=%d' % item['id']">
+                                                    <t t-esc="item['name']"/>
+                                                </a>
+                                            </t>
+                                            <t t-else="">
+                                                <t t-esc="item['name']"/>
+                                            </t>
+                                        </td>
+                                        <td>
+                                            <t t-esc="item['size']"/>
+                                        </td>
+                                        <td>
+                                            <t t-esc="item['modified']"/>
+                                        </td>
+                                        <td>
+                                            <t t-if="not item['isfolder']">
+                                                <a t-att-href="'/pcloud/download?file_id=%d' % item['id']" class="btn btn-outline-primary btn-block btn-md-inline">
+                                                    Descargar
+                                                </a>
+                                            </t>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-12 d-none" id="kanban-view">
+                        <div class="row">
+                            <t t-foreach="contents" t-as="item">
+                                <div class="col-6 col-md-4 col-lg-3 mb-4">
+                                    <div class="card">
+                                        <img class="card-img-top" t-att-src="'/copier_company/static/src/img/' + item['icon']" alt="icon"/>
+                                        <div class="card-body">
+                                            <h5 class="card-title">
+                                                <t t-esc="item['name']"/>
+                                            </h5>
+                                            <p class="card-text">
+                                                <strong>Tamaño:</strong> <t t-esc="item['size']"/><br/>
+                                                <strong>Modificado:</strong> <t t-esc="item['modified']"/>
+                                            </p>
+                                            <t t-if="item['isfolder']">
+                                                <a t-att-href="'/pcloud/files?folder_id=%d' % item['id']" class="btn btn-primary">Abrir</a>
+                                            </t>
+                                            <t t-if="not item['isfolder']">
+                                                <a t-att-href="'/pcloud/download?file_id=%d' % item['id']" class="btn btn-outline-primary">Descargar</a>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
                             </t>
-                        </tbody>
-                    </table>
+                        </div>
+                    </div>
                 </div>
             </div>
             <script type="text/javascript">
                 document.addEventListener('DOMContentLoaded', function() {
                     var searchInput = document.getElementById('search-input');
                     var filesList = document.getElementById('files-list');
+                    var listViewBtn = document.getElementById('list-view-btn');
+                    var kanbanViewBtn = document.getElementById('kanban-view-btn');
+                    var listView = document.getElementById('list-view');
+                    var kanbanView = document.getElementById('kanban-view');
+
+                    listViewBtn.addEventListener('click', function() {
+                        listView.classList.remove('d-none');
+                        kanbanView.classList.add('d-none');
+                        listViewBtn.classList.add('active');
+                        kanbanViewBtn.classList.remove('active');
+                    });
+
+                    kanbanViewBtn.addEventListener('click', function() {
+                        listView.classList.add('d-none');
+                        kanbanView.classList.remove('d-none');
+                        listViewBtn.classList.remove('active');
+                        kanbanViewBtn.classList.add('active');
+                    });
+
                     searchInput.addEventListener('input', function() {
                         var searchTerm = searchInput.value.toLowerCase();
                         var rows = filesList.getElementsByTagName('tr');
@@ -80,10 +133,20 @@
                                 row.style.display = 'none';
                             }
                         }
+
+                        var cards = kanbanView.getElementsByClassName('card');
+                        for (var i = 0; i &lt; cards.length; i++) {
+                            var card = cards[i];
+                            var fileName = card.getElementsByClassName('card-title')[0].innerText.toLowerCase();
+                            if (fileName.includes(searchTerm)) {
+                                card.style.display = '';
+                            } else {
+                                card.style.display = 'none';
+                            }
+                        }
                     });
                 });
             </script>
         </t>
     </template>
 </odoo>
-
