@@ -65,7 +65,7 @@
                     searchInput.addEventListener('input', function() {
                         var searchTerm = searchInput.value.toLowerCase();
                         var rows = filesList.getElementsByTagName('tr');
-                        for (var i = 0; i < rows.length; i++) {
+                        for (var i = 0; i &lt; rows.length; i++) {
                             var row = rows[i];
                             var fileName = row.getElementsByTagName('td')[0].innerText.toLowerCase();
                             if (fileName.includes(searchTerm)) {
