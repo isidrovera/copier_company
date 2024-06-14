@@ -35,7 +35,7 @@
                             <t t-foreach="contents" t-as="item">
                                 <tr>
                                     <td>
-                                        <img t-att-src="'/copier_company/static/icon/' + item['icon']" alt="Icon" class="img-thumbnail" style="width:24px; height:24px;"/>
+                                        <img t-att-src="'/copier_company/static/src/img/' + item['icon']" alt="icon" style="width: 24px; height: 24px;">
                                         <t t-if="item['isfolder']">
                                             <a t-att-href="'/pcloud/files?folder_id=%d' % item['id']">
                                                 <t t-esc="item['name']"/>
