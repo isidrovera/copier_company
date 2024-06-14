@@ -10,22 +10,21 @@ import logging
 _logger = logging.getLogger(__name__)
 
 class PcloudController(http.Controller):
-
     @http.route('/soporte/descargas', type='http', auth='user', website=True)
     def list_files(self, folder_id=0, search='', **kwargs):
+        # Verificar suscripciones activas usando sale.order como en DescargaArchivosController
+        partner = request.env.user.partner_id
+        subscriptions_in_progress = request.env['sale.order'].sudo().search([
+            ('partner_id', '=', partner.id),
+            ('subscription_state', '=', '3_progress')
+        ])
+
+        if not subscriptions_in_progress:
+            return request.render('copier_company.no_subscription_message')
+
         config = request.env['pcloud.config'].search([], limit=1)
         if not config:
             return request.render('copier_company.no_config_template')
-        
-        # Verificar suscripciones activas
-        partner = request.env.user.partner_id
-        subscriptions_active = request.env['sale.subscription'].search([
-            ('partner_id', '=', partner.id),
-            ('state', '=', 'open')
-        ])
-        
-        if not subscriptions_active:
-            return request.render('copier_company.no_subscription_message')
 
         try:
             if search:
@@ -113,6 +112,7 @@ class PcloudController(http.Controller):
             return date_obj.strftime('%d %b Y, %H:%M')
         except ValueError:
             return date_str
+
 
     @http.route('/soporte/descarga', type='http', auth='user')
     def download_file(self, file_id, **kwargs):
