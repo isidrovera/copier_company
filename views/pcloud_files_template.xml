@@ -18,7 +18,6 @@
                         <form id="search-form" class="form-inline float-right">
                             <input type="hidden" name="folder_id" t-att-value="current_folder_id"/>
                             <input type="text" id="search-input" class="form-control mr-sm-2" placeholder="Buscar archivos..." t-att-value="request.params.get('search', '')"/>
-                            <button type="button" class="btn btn-outline-success">Buscar</button>
                         </form>
                     </div>
                 </div>
