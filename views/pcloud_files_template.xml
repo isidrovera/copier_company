@@ -45,7 +45,7 @@
                                     <td>
                                         <img t-att-src="'/copier_company/static/src/img/' + item['icon']" alt="icon" style="width: 24px; height: 24px;"/>
                                         <t t-if="item['isfolder']">
-                                            <a t-att-href="'/pcloud/files?folder_id=%d&view_mode=' + viewMode" t-att-data-view-mode="viewMode">
+                                            <a t-att-href="'/pcloud/files?folder_id=%d&amp;view_mode=' + viewMode" t-att-data-view-mode="viewMode">
                                                 <t t-esc="item['name']"/>
                                             </a>
                                         </t>
@@ -72,16 +72,15 @@
                     </table>
                     <div id="kanban-view" class="d-flex flex-wrap" style="display: none;">
                         <t t-foreach="contents" t-as="item">
-                            <div class="card m-2" style="width: 18rem;">
+                            <div class="card m-2" style="width: 12rem;">
                                 <img t-att-src="'/copier_company/static/src/img/' + item['icon']" class="card-img-top" alt="icon" style="width: 48px; height: 48px; margin: auto;"/>
                                 <div class="card-body">
                                     <h5 class="card-title"><t t-esc="item['name']"/></h5>
                                     <p class="card-text">
-                                        <strong>Tamaño:</strong> <t t-esc="item['size']"/><br/>
                                         <strong>Modificado:</strong> <t t-esc="item['modified']"/>
                                     </p>
                                     <t t-if="item['isfolder']">
-                                        <a t-att-href="'/pcloud/files?folder_id=%d&view_mode=' + viewMode" t-att-data-view-mode="viewMode" class="btn btn-primary">Abrir</a>
+                                        <a t-att-href="'/pcloud/files?folder_id=%d&amp;view_mode=' + viewMode" t-att-data-view-mode="viewMode" class="btn btn-primary">Abrir</a>
                                     </t>
                                     <t t-else="">
                                         <a t-att-href="'/pcloud/download?file_id=%d' % item['id']" class="btn btn-outline-primary">Descargar</a>
@@ -114,10 +113,12 @@
 
                     listViewBtn.addEventListener('click', function() {
                         setViewMode('list');
+                        window.history.pushState({}, '', '?view_mode=list');
                     });
 
                     kanbanViewBtn.addEventListener('click', function() {
                         setViewMode('kanban');
+                        window.history.pushState({}, '', '?view_mode=kanban');
                     });
 
                     searchInput.addEventListener('input', function() {
