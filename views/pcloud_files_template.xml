@@ -18,6 +18,7 @@
                         <form id="search-form" class="form-inline float-right">
                             <input type="hidden" name="folder_id" t-att-value="current_folder_id"/>
                             <input type="text" id="search-input" name="search" class="form-control mr-sm-2" placeholder="Buscar archivos..." t-att-value="request.params.get('search', '')"/>
+                            <button type="submit" class="btn btn-outline-success">Buscar</button>
                         </form>
                     </div>
                 </div>
@@ -35,19 +36,20 @@
                             <t t-foreach="contents" t-as="item">
                                 <tr>
                                     <td>
+                                        <img t-att-src="'/copier_company/static/src/img/' + item['icon']" alt="Icon" width="24"/>
                                         <t t-if="item['isfolder']">
-                                            <img t-att-src="'/copier_company/static/src/img/icons8-carpet-48.png'" alt="Carpeta" width="24"/>
                                             <a t-att-href="'/pcloud/files?folder_id=%d' % item['id']">
                                                 <t t-esc="item['name']"/>
                                             </a>
                                         </t>
                                         <t t-else="">
-                                            <img t-att-src="'/copier_company/static/src/img/' + item['icon']" alt="Archivo" width="24"/>
                                             <t t-esc="item['name']"/>
                                         </t>
                                     </td>
                                     <td>
-                                        <t t-esc="item['size']"/>
+                                        <t t-if="not item['isfolder']">
+                                            <t t-esc="item['size']"/>
+                                        </t>
                                     </td>
                                     <td>
                                         <t t-esc="item['modified']"/>

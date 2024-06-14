@@ -38,9 +38,9 @@ class PcloudController(http.Controller):
                     'name': item.get('name', 'Unknown'),
                     'isfolder': item.get('isfolder', False),
                     'id': item.get('folderid') if item.get('isfolder') else item.get('fileid'),
-                    'modified': item.get('modified', 'Unknown'),
                     'size': self._format_size(item.get('size', 0)),
-                    'icon': self._get_file_type(item.get('name', 'Unknown'))
+                    'modified': self._format_date(item.get('modified', '')),
+                    'icon': self._get_icon(item.get('name', ''), item.get('isfolder', False))
                 }
                 for item in filtered_contents
             ]
@@ -66,33 +66,36 @@ class PcloudController(http.Controller):
         
         return matching_contents
 
-    def _get_file_type(self, file_name):
-        ext = file_name.split('.')[-1].lower()
-        icons = {
+    def _format_size(self, size):
+        if size == 0:
+            return '0.00 B'
+        size_name = ("B", "KB", "MB", "GB", "TB")
+        i = int(math.floor(math.log(size, 1024)))
+        p = math.pow(1024, i)
+        s = round(size / p, 2)
+        return f"{s} {size_name[i]}"
+
+    def _format_date(self, date_str):
+        try:
+            date_obj = datetime.strptime(date_str, '%a, %d %b %Y %H:%M:%S %z')
+            return date_obj.strftime('%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            return date_str
+
+    def _get_icon(self, name, isfolder):
+        if isfolder:
+            return 'icons8-carpet-48.png'
+        ext = name.split('.')[-1].lower()
+        icon_map = {
+            'zip': 'icons8-zip-48.png',
+            'rar': 'icons8-winrar-48.png',
+            'pdf': 'icons8-pdf-48.png',
             'doc': 'icons8-ms-word-48.png',
             'docx': 'icons8-ms-word-48.png',
             'xls': 'icons8-microsoft-excel-2019-48.png',
             'xlsx': 'icons8-microsoft-excel-2019-48.png',
-            'ppt': 'icons8-powerpoint-48.png',
-            'pptx': 'icons8-powerpoint-48.png',
-            'pdf': 'icons8-pdf-48.png',
-            'txt': 'icons8-text-48.png',
-            'jpg': 'icons8-image-48.png',
-            'jpeg': 'icons8-image-48.png',
-            'png': 'icons8-image-48.png',
-            'gif': 'icons8-image-48.png',
-            'zip': 'icons8-zip-48.png',
-            'rar': 'icons8-winrar-48.png',
         }
-        return icons.get(ext, 'icons8-file-48.png')
-
-    def _format_size(self, size):
-        for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
-            if size < 1024.0:
-                return f"{size:.2f} {unit}"
-            size /= 1024.0
-        return f"{size:.2f} PB"
-
+        return icon_map.get(ext, 'icons8-file-48.png')
 
     @http.route('/pcloud/download', type='http', auth='public')
     def download_file(self, file_id, **kwargs):
