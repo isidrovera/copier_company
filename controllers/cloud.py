@@ -10,23 +10,22 @@ import logging
 _logger = logging.getLogger(__name__)
 
 class PcloudController(http.Controller):
-
     @http.route('/pcloud/files', type='http', auth='user', website=True)
     def list_files(self, folder_id=0, search='', **kwargs):
-        # Verificar suscripciones activas usando el mismo modelo y estado que en DescargaArchivosController
+        # Verificar suscripciones activas como en DescargaArchivosController
         partner = request.env.user.partner_id
         subscriptions_in_progress = request.env['sale.order'].sudo().search([
             ('partner_id', '=', partner.id),
             ('subscription_state', '=', '3_progress')
         ])
-        
+
         if not subscriptions_in_progress:
             return request.render('copier_company.no_subscription_message')
 
         config = request.env['pcloud.config'].search([], limit=1)
         if not config:
             return request.render('copier_company.no_config_template')
-        
+
         try:
             if search:
                 contents = self._search_files_recursive(config, search, folder_id)
@@ -36,10 +35,10 @@ class PcloudController(http.Controller):
             _logger.info('Contents: %s', contents)
             
             exclusions = [
-                '.cache', '.config', '.git', '.github', '.local', 
+                '.cache', '.config', '.git', '.github', '.local',
                 'Crypto Folder', 'System Volume Information', '.DS_Store', '.editorconfig', '.gitattributes',
                 '.gitignore', '.last_revision', '.mailmap', '.npmignore', '.npmrc', '.parentlock', '.travis.yml',
-                '.dockerignore', '.pydio_id', '.megaignore', ''
+                '.dockerignore','.pydio_id','.megaignore',''
             ]
             
             filtered_contents = [item for item in contents if item.get('name', 'Unknown') not in exclusions]
@@ -114,17 +113,17 @@ class PcloudController(http.Controller):
         except ValueError:
             return date_str
 
-    @http.route('/pcloud/download', type='http', auth='user')
+    @http.route('/pcloud/download', type='http', auth='public')
     def download_file(self, file_id, **kwargs):
         config = request.env['pcloud.config'].search([], limit=1)
         if not config or not file_id:
-            return redirect('/pcloud/files')
+            return request.redirect('/pcloud/files')
         
         try:
             file_id = int(file_id)
             download_url = config.download_pcloud_file(file_id)
             
-            if not download_url.startswith(('http', 'https')):
+            if not download_url.startswith(('http://', 'https://')):
                 download_url = 'https://' + download_url
             
             response = requests.get(download_url, stream=True)
@@ -138,4 +137,4 @@ class PcloudController(http.Controller):
             return request.make_response(response.content, headers)
         except Exception as e:
             _logger.error('Failed to download file: %s', str(e))
-            return redirect('/pcloud/files')
+            return request.redirect('/pcloud/files')
