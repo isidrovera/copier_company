@@ -6,9 +6,13 @@
             <field name="model">backup.config.settings</field>
             <field name="arch" type="xml">
                 <form string="Backup Settings">
+                    <header>
+                        <button string="Test Connection" type="object" name="test_db_connection" class="btn-primary"/>
+                    </header>
                     <sheet>
                         <group>
                             <group>
+                                <field name="name"/>
                                 <field name="pcloud_folder_id"/>
                                 <field name="odoo_password"/>
                                 <field name="cron_frequency"/>
@@ -25,6 +29,7 @@
             <field name="model">backup.config.settings</field>
             <field name="arch" type="xml">
                 <tree string="Backup Settings">
+                    <field name="name"/>
                     <field name="pcloud_folder_id"/>
                     <field name="odoo_password"/>
                     <field name="cron_frequency"/>
@@ -37,7 +42,7 @@
             <field name="name">Backup Settings</field>
             <field name="res_model">backup.config.settings</field>
             <field name="view_mode">tree,form</field>
-            <field name="view_id" ref="view_backup_config_settings_form"/>
+            <field name="view_id" ref="view_backup_config_settings_tree"/> <!-- Cambiado de form a tree -->
         </record>
 
         <!-- Menú para acceder a la configuración -->
