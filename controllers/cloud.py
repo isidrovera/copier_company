@@ -6,36 +6,27 @@ import mimetypes
 from werkzeug.utils import redirect
 from datetime import datetime
 import logging
-from datetime import datetime
+
 _logger = logging.getLogger(__name__)
 
 class PcloudController(http.Controller):
-    @http.route('/pcloud/files', type='http', auth='user', website=True)
+
+    @http.route('/pcloud/files', type='http', auth='public', website=True)
     def list_files(self, folder_id=0, search='', **kwargs):
-        # Verificar suscripciones activas como en DescargaArchivosController
-        partner = request.env.user.partner_id
-        subscriptions_in_progress = request.env['sale.order'].sudo().search([
-            ('partner_id', '=', partner.id),
-            ('subscription_state', '=', '3_progress')
-        ])
-
-        if not subscriptions_in_progress:
-            return request.render('copier_company.no_subscription_message')
-
         config = request.env['pcloud.config'].search([], limit=1)
         if not config:
             return request.render('copier_company.no_config_template')
-
+        
         try:
             if search:
-                contents = self._search_files_recursive(config, search, folder_id)
+                contents = self._search_files_recursive(config, search)
             else:
                 contents = config.list_pcloud_contents(folder_id=int(folder_id))
             
             _logger.info('Contents: %s', contents)
             
             exclusions = [
-                '.cache', '.config', '.git', '.github', '.local',
+                '.cache', '.config', '.git', '.github', '.local', 
                 'Crypto Folder', 'System Volume Information', '.DS_Store', '.editorconfig', '.gitattributes',
                 '.gitignore', '.last_revision', '.mailmap', '.npmignore', '.npmrc', '.parentlock', '.travis.yml',
                 '.dockerignore','.pydio_id','.megaignore',''
@@ -94,8 +85,6 @@ class PcloudController(http.Controller):
             'gif': 'icons8-image-48.png',
             'zip': 'icons8-zip-48.png',
             'rar': 'icons8-winrar-48.png',
-            'tar': 'icons8-tar-100.png',
-            'exe': 'icons8-ex-40.png',
         }
         return icons.get(ext, 'icons8-file-48.png')
 
@@ -107,21 +96,11 @@ class PcloudController(http.Controller):
         return f"{size:.2f} PB"
 
     def _format_date(self, date_str):
-        # Intenta una lista de formatos de fecha hasta que uno funcione
-        date_formats = [
-            '%a, %d %b %Y %H:%M:%S %z',  # Fri, 02 Feb 2024 14:26:10 +0000
-            '%Y-%m-%d %H:%M:%S',         # 2024-02-02 14:26:10
-            '%Y-%m-%dT%H:%M:%S',         # 2024-02-02T14:26:10
-            # Añade más formatos según lo que esperes recibir
-        ]
-        
-        for fmt in date_formats:
-            try:
-                return datetime.strptime(date_str, fmt).strftime('%d %b %Y, %H:%M')
-            except ValueError:
-                continue
-        
-        return date_str
+        try:
+            date_obj = datetime.strptime(date_str, '%a, %d %b %Y %H:%M:%S %z')
+            return date_obj.strftime('%d %b %Y, %H:%M')
+        except ValueError:
+            return date_str
 
     @http.route('/pcloud/download', type='http', auth='public')
     def download_file(self, file_id, **kwargs):
