@@ -1,0 +1,37 @@
+<odoo>
+    <record id="view_backup_config_settings" model="ir.ui.view">
+        <field name="name">backup.config.settings</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.view_res_config_settings"/>
+        <field name="arch" type="xml">
+            <div id="settings" name="Settings" position="inside">
+                <div class="app_settings_block" data-string="Backup Settings" string="Backup Settings">
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <label for="pcloud_folder_id"/>
+                                <field name="pcloud_folder_id"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <label for="odoo_password"/>
+                                <field name="odoo_password"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <label for="cron_frequency"/>
+                                <field name="cron_frequency"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </field>
+    </record>
+</odoo>
