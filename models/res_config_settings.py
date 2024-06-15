@@ -25,7 +25,9 @@ class BackupConfigSettings(models.Model):
         # Establecer locales antes de ejecutar el comando
         env = os.environ.copy()
         env['LANG'] = 'en_US.UTF-8'
+        env['LANGUAGE'] = 'en_US:en'
         env['LC_ALL'] = 'en_US.UTF-8'
+        env['LC_CTYPE'] = 'en_US.UTF-8'
 
         try:
             result = subprocess.run(test_cmd, shell=True, check=True, text=True, capture_output=True, env=env)
