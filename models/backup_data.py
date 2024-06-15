@@ -29,7 +29,7 @@ class BackupData(models.Model):
         odoo_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         db_name = self.env.cr.dbname
         username = self.env.user.login
-        password = self.env['ir.config_parameter'].sudo().get_param('my_backup_module.odoo_password')
+        password = self.env['backup.config.settings'].search([], limit=1).odoo_password
 
         # Conexión a Odoo
         odoo = Odoo(odoo_url)
@@ -45,7 +45,7 @@ class BackupData(models.Model):
             # Subir la copia de seguridad a pCloud
             pcloud_token = pcloud_config.access_token
             pcloud_url = f"{pcloud_config.hostname}/uploadfile"
-            folder_id = self.env['ir.config_parameter'].sudo().get_param('my_backup_module.pcloud_folder_id')
+            folder_id = self.env['backup.config.settings'].search([], limit=1).pcloud_folder_id
 
             with open(backup_path, 'rb') as file:
                 response = requests.post(
@@ -70,7 +70,7 @@ class BackupData(models.Model):
 
     @api.model
     def update_cron_frequency(self):
-        cron_frequency = self.env['ir.config_parameter'].sudo().get_param('my_backup_module.cron_frequency')
+        cron_frequency = self.env['backup.config.settings'].search([], limit=1).cron_frequency
         cron = self.env.ref('my_backup_module.ir_cron_backup')
         
         if cron_frequency == 'minutes':

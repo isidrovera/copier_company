@@ -1,12 +1,13 @@
 from odoo import models, fields
 
-class ResConfigSettings(models.TransientModel):
-    _inherit = 'res.config.settings'
+class BackupConfigSettings(models.Model):
+    _name = 'backup.config.settings'
+    _description = 'Backup Config Settings'
 
-    pcloud_folder_id = fields.Char(string="pCloud Folder ID", config_parameter='my_backup_module.pcloud_folder_id')
-    odoo_password = fields.Char(string="Odoo Password", config_parameter='my_backup_module.odoo_password')
+    pcloud_folder_id = fields.Char(string="pCloud Folder ID", required=True)
+    odoo_password = fields.Char(string="Odoo Password", required=True)
     cron_frequency = fields.Selection([
         ('minutes', 'Minutes'),
         ('hours', 'Hours'),
         ('days', 'Days'),
-    ], string="Cron Frequency", config_parameter='my_backup_module.cron_frequency', default='days')
+    ], string="Cron Frequency", default='days', required=True)

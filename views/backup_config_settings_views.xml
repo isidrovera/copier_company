@@ -1,37 +1,46 @@
 <odoo>
-    <record id="view_backup_config_settings" model="ir.ui.view">
-        <field name="name">backup.config.settings</field>
-        <field name="model">res.config.settings</field>
-        <field name="inherit_id" ref="base.view_res_config_settings"/>
-        <field name="arch" type="xml">
-            <div id="settings" name="Settings" position="inside">
-                <div class="app_settings_block" data-string="Backup Settings" string="Backup Settings">
-                    <div class="row mt16 o_settings_container">
-                        <div class="col-12 col-lg-6 o_setting_box">
-                            <div class="o_setting_left_pane">
-                                <label for="pcloud_folder_id"/>
+    <data>
+        <!-- Definición de la vista de formulario -->
+        <record id="view_backup_config_settings_form" model="ir.ui.view">
+            <field name="name">backup.config.settings.form</field>
+            <field name="model">backup.config.settings</field>
+            <field name="arch" type="xml">
+                <form string="Backup Settings">
+                    <sheet>
+                        <group>
+                            <group>
                                 <field name="pcloud_folder_id"/>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mt16 o_settings_container">
-                        <div class="col-12 col-lg-6 o_setting_box">
-                            <div class="o_setting_left_pane">
-                                <label for="odoo_password"/>
                                 <field name="odoo_password"/>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mt16 o_settings_container">
-                        <div class="col-12 col-lg-6 o_setting_box">
-                            <div class="o_setting_left_pane">
-                                <label for="cron_frequency"/>
                                 <field name="cron_frequency"/>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </field>
-    </record>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Definición de la vista de árbol -->
+        <record id="view_backup_config_settings_tree" model="ir.ui.view">
+            <field name="name">backup.config.settings.tree</field>
+            <field name="model">backup.config.settings</field>
+            <field name="arch" type="xml">
+                <tree string="Backup Settings">
+                    <field name="pcloud_folder_id"/>
+                    <field name="odoo_password"/>
+                    <field name="cron_frequency"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Acción para abrir la vista de configuración -->
+        <record id="action_backup_config_settings" model="ir.actions.act_window">
+            <field name="name">Backup Settings</field>
+            <field name="res_model">backup.config.settings</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="view_backup_config_settings_form"/>
+        </record>
+
+        <!-- Menú para acceder a la configuración -->
+        <menuitem id="menu_backup_config_settings" name="Backup Settings" parent="copier_company.menu_root" action="action_backup_config_settings" sequence="50"/>
+    </data>
 </odoo>
