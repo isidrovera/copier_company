@@ -28,7 +28,6 @@ class BackupData(models.Model):
             _logger.error("No pCloud configuration found.")
             return
 
-        odoo_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         db_name = self.env.cr.dbname
         username = self.env.user.login
         backup_config = self.env['backup.config.settings'].search([], limit=1)
@@ -79,7 +78,7 @@ class BackupData(models.Model):
             os.remove(zip_path)
         except subprocess.CalledProcessError as e:
             self.write({'status': 'failed'})
-            _logger.error(f"Backup creation failed: {e}")
+            _logger.error(f"Backup creation failed: {e.stderr}")
             raise e
         except Exception as e:
             self.write({'status': 'failed'})
