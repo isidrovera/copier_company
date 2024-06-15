@@ -1,8 +1,6 @@
 from odoo import models, fields, api
 import subprocess
 import os
-
-from odoo import models, fields, api
 import psycopg2
 
 class BackupConfigSettings(models.Model):
