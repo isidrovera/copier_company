@@ -96,6 +96,9 @@ class PcloudController(http.Controller):
             'rar': 'icons8-winrar-48.png',
             'tar': 'icons8-tar-100.png',
             'exe': 'icons8-ex-40.png',
+            'pjl': 'icons8-idioma-48.png',
+            'txt': 'icons8-edit-text-file-48.png',
+            'djf': 'icons8-documento-48.png',
         }
         return icons.get(ext, 'icons8-file-48.png')
 
