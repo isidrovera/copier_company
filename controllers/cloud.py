@@ -4,44 +4,149 @@ from odoo.http import request
 import os
 import mimetypes
 from werkzeug.utils import redirect
-from datetime import datetime
 import logging
 
 _logger = logging.getLogger(__name__)
 
+class CloudStorageController(http.Controller):
+    @staticmethod
+    def search_files(base_path, search_query):
+        """Método estático para buscar archivos que coincidan con el query de búsqueda en todos los subdirectorios."""
+        matches = []
+        for root, dirnames, filenames in os.walk(base_path):
+            for filename in filenames:
+                if search_query.lower() in filename.lower():
+                    # Asegurar que la ruta relativa sea segura y solo dentro del directorio permitido
+                    rel_path = os.path.relpath(os.path.join(root, filename), base_path)
+                    matches.append(rel_path)
+        return matches
+    def get_icon_class(self, filename):
+        """Función para obtener la clase CSS del ícono basada en la extensión del archivo."""
+        extension_to_icon = {
+            '.pdf': 'fa-file-pdf-o',
+            '.doc': 'fa-file-word-o',
+            '.docx': 'fa-file-word-o',
+            '.xls': 'fa-file-excel-o',
+            '.xlsx': 'fa-file-excel-o',
+            # Agrega más mapeos según sea necesario
+        }
+        extension = os.path.splitext(filename)[1].lower()
+        return extension_to_icon.get(extension, 'fa-file-o')
+
+    @http.route(['/cloud/storage', '/cloud/storage/<path:extra>'], auth='user', website=True)
+    def list_files(self, extra=''):
+        base_path = '/mnt/cloud'
+        path = os.path.normpath(os.path.join(base_path, extra))
+        
+        # Prevenir la salida del directorio base
+        if not path.startswith(base_path):
+            return request.not_found()
+
+        if not os.path.exists(path) or not os.path.isdir(path):
+            return request.not_found()
+        
+        files_dirs = [{
+            'name': f,
+            'is_dir': os.path.isdir(os.path.join(path, f)),
+            'path': os.path.join(extra, f)  # Asegúrate de que esta línea esté presente
+        } for f in sorted(os.listdir(path))]  # Asegúrate de que 'sorted' esté presente para mantener el orden en la lista
+        
+        return request.render('copier_company.cloud_storage_template', {
+            'files_dirs': files_dirs,
+            'current_path': extra,
+            'get_icon_class': self.get_icon_class,
+        })
+
+
+
+
+    @http.route(['/cloud/storage/search'], type='http', auth='user', website=True)
+    def search(self, query=''):
+        """Método para buscar archivos por el query proporcionado."""
+        base_path = '/mnt/cloud'
+        search_results = self.search_files(base_path, query)
+        return request.render('copier_company.cloud_storage_search_template', {
+            'search_results': search_results,
+            'query': query,
+            'get_icon_class': self.get_icon_class,
+        })
+
+    @http.route('/cloud/storage/download/<path:filename>', auth='user')
+    def download_file(self, filename):
+        """Método para descargar el archivo especificado."""
+        base_path = '/mnt/cloud'
+        file_path = os.path.normpath(os.path.join(base_path, filename))
+        
+        # Prevenir la descarga fuera del directorio base
+        if not file_path.startswith(base_path):
+            return request.not_found()
+
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+            with open(file_path, 'rb') as f:
+                file_content = f.read()
+            return request.make_response(file_content, [
+                ('Content-Type', mimetypes.guess_type(file_path)[0] or 'application/octet-stream'),
+                ('Content-Disposition', 'attachment; filename="%s"' % os.path.basename(file_path))
+            ])
+        return request.not_found()
+
+
+class PCloudController(http.Controller):
+
+    @http.route('/auth/callback', type='http', auth='public', csrf=False)
+    def pcloud_callback(self, **kwargs):
+        code = kwargs.get('code')
+        state = kwargs.get('state')
+
+        # Encuentra la configuración de pCloud en la base de datos
+        pcloud_config = request.env['pcloud.config'].search([], limit=1)
+        if not pcloud_config:
+            return "pCloud configuration not found."
+
+        # Intercambia el código de autorización por un token de acceso
+        try:
+            pcloud_config.get_access_token(code)
+            return request.render('copier_company.pcloud_success', {})
+        except Exception as e:
+            return request.render('copier_company.pcloud_error', {'error': str(e)})
+        
 class PcloudController(http.Controller):
 
+    def _recursive_search(self, config, folder_id, search_term):
+        contents = config.list_pcloud_contents(folder_id=folder_id)
+        results = []
+        for item in contents:
+            if item.get('name', 'Unknown').lower().find(search_term.lower()) != -1:
+                results.append(item)
+            if item.get('isfolder'):
+                results.extend(self._recursive_search(config, item.get('folderid'), search_term))
+        return results
+
     @http.route('/pcloud/files', type='http', auth='public', website=True)
-    def list_files(self, folder_id=0, search='', **kwargs):
+    def list_files(self, folder_id=0, search=None, **kwargs):
         config = request.env['pcloud.config'].search([], limit=1)
         if not config:
             return request.render('copier_company.no_config_template')
         
+        folder_id = int(folder_id) if folder_id else 0
         try:
             if search:
-                contents = self._search_files_recursive(config, search)
+                filtered_contents = self._recursive_search(config, folder_id, search)
             else:
-                contents = config.list_pcloud_contents(folder_id=int(folder_id))
-            
-            _logger.info('Contents: %s', contents)
-            
-            exclusions = [
-                '.cache', '.config', '.git', '.github', '.local', 
-                'Crypto Folder', 'System Volume Information', '.DS_Store', '.editorconfig', '.gitattributes',
-                '.gitignore', '.last_revision', '.mailmap', '.npmignore', '.npmrc', '.parentlock', '.travis.yml',
-                '.dockerignore','.pydio_id','.megaignore',''
-            ]
-            
-            filtered_contents = [item for item in contents if item.get('name', 'Unknown') not in exclusions]
+                contents = config.list_pcloud_contents(folder_id=folder_id)
+                exclusions = [
+                    '.cache', '.config', '.git', '.github', '.local', 
+                    'Crypto Folder', 'System Volume Information', '.DS_Store', '.editorconfig', '.gitattributes',
+                    '.gitignore', '.last_revision', '.mailmap', '.npmignore', '.npmrc', '.parentlock', '.travis.yml',
+                    '.dockerignore', '.pydio_id', '.megaignore', ''
+                ]
+                filtered_contents = [item for item in contents if item.get('name', 'Unknown') not in exclusions]
             
             processed_contents = [
                 {
                     'name': item.get('name', 'Unknown'),
                     'isfolder': item.get('isfolder', False),
-                    'id': item.get('folderid') if item.get('isfolder') else item.get('fileid'),
-                    'modified': self._format_date(item.get('modified', 'Unknown')),
-                    'size': self._format_size(item.get('size', 0)) if not item.get('isfolder') else '',
-                    'icon': 'icons8-carpeta-48.png' if item.get('isfolder') else self._get_file_type(item.get('name', 'Unknown'))
+                    'id': item.get('folderid') if item.get('isfolder') else item.get('fileid')
                 }
                 for item in filtered_contents
             ]
@@ -51,56 +156,9 @@ class PcloudController(http.Controller):
         
         return request.render('copier_company.pcloud_files_template', {
             'contents': processed_contents,
-            'current_folder_id': int(folder_id),
+            'current_folder_id': folder_id,
             'search': search
         })
-
-    def _search_files_recursive(self, config, search_term, folder_id=0):
-        contents = config.list_pcloud_contents(folder_id=folder_id)
-        matching_contents = []
-
-        for item in contents:
-            if search_term.lower() in item.get('name', '').lower():
-                matching_contents.append(item)
-            if item.get('isfolder'):
-                matching_contents.extend(self._search_files_recursive(config, search_term, item.get('folderid')))
-        
-        return matching_contents
-
-    def _get_file_type(self, file_name):
-        ext = file_name.split('.')[-1].lower()
-        icons = {
-            'doc': 'icons8-ms-word-48.png',
-            'docx': 'icons8-ms-word-48.png',
-            'xls': 'icons8-microsoft-excel-2019-48.png',
-            'xlsx': 'icons8-microsoft-excel-2019-48.png',
-            'xlsm': 'icons8-microsoft-excel-2019-48.png',
-            'ppt': 'icons8-powerpoint-48.png',
-            'pptx': 'icons8-powerpoint-48.png',
-            'pdf': 'icons8-pdf-48.png',
-            'txt': 'icons8-text-48.png',
-            'jpg': 'icons8-image-48.png',
-            'jpeg': 'icons8-image-48.png',
-            'png': 'icons8-image-48.png',
-            'gif': 'icons8-image-48.png',
-            'zip': 'icons8-zip-48.png',
-            'rar': 'icons8-winrar-48.png',
-        }
-        return icons.get(ext, 'icons8-file-48.png')
-
-    def _format_size(self, size):
-        for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
-            if size < 1024.0:
-                return f"{size:.2f} {unit}"
-            size /= 1024.0
-        return f"{size:.2f} PB"
-
-    def _format_date(self, date_str):
-        try:
-            date_obj = datetime.strptime(date_str, '%a, %d %b %Y %H:%M:%S %z')
-            return date_obj.strftime('%d %b %Y, %H:%M')
-        except ValueError:
-            return date_str
 
     @http.route('/pcloud/download', type='http', auth='public')
     def download_file(self, file_id, **kwargs):
