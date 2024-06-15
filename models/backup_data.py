@@ -71,7 +71,7 @@ class BackupData(models.Model):
     @api.model
     def update_cron_frequency(self):
         cron_frequency = self.env['backup.config.settings'].search([], limit=1).cron_frequency
-        cron = self.env.ref('my_backup_module.ir_cron_backup')
+        cron = self.env.ref('copier_company.ir_cron_backup')
         
         if cron_frequency == 'minutes':
             cron.write({'interval_number': 1, 'interval_type': 'minutes'})
