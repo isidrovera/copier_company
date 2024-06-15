@@ -6,6 +6,7 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
+
 class BackupData(models.Model):
     _name = 'backup.data'
     _description = 'Backup Data Record'
@@ -32,7 +33,7 @@ class BackupData(models.Model):
         password = self.env['backup.config.settings'].search([], limit=1).odoo_password
 
         # Conexión a Odoo
-        odoo = Odoo(odoo_url)
+        odoo = odoo(odoo_url)
         odoo.authenticate(db_name, username, password)
 
         # Generar la copia de seguridad
