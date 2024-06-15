@@ -20,17 +20,13 @@ class BackupConfigSettings(models.Model):
         username = self.env.user.login
         password = self.odoo_password
 
-        test_cmd = f"pg_isready -h localhost -U {username} -d {db_name}"
-
-        # Establecer locales antes de ejecutar el comando
-        env = os.environ.copy()
-        env['LANG'] = 'en_US.UTF-8'
-        env['LANGUAGE'] = 'en_US:en'
-        env['LC_ALL'] = 'en_US.UTF-8'
-        env['LC_CTYPE'] = 'en_US.UTF-8'
+        docker_cmd = (
+            f"docker run --rm -e LANG=en_US.UTF-8 -e LANGUAGE=en_US:en -e LC_ALL=en_US.UTF-8 "
+            f"postgres:13 sh -c 'pg_isready -h localhost -U {username} -d {db_name}'"
+        )
 
         try:
-            result = subprocess.run(test_cmd, shell=True, check=True, text=True, capture_output=True, env=env)
+            result = subprocess.run(docker_cmd, shell=True, check=True, text=True, capture_output=True)
             if result.returncode == 0:
                 message = "Database connection is successful!"
                 notification_type = 'success'
