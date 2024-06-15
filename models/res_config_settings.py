@@ -2,6 +2,9 @@ from odoo import models, fields, api
 import subprocess
 import os
 
+from odoo import models, fields, api
+import psycopg2
+
 class BackupConfigSettings(models.Model):
     _name = 'backup.config.settings'
     _description = 'Backup Config Settings'
@@ -20,21 +23,18 @@ class BackupConfigSettings(models.Model):
         username = self.env.user.login
         password = self.odoo_password
 
-        docker_cmd = (
-            f"docker run --rm -e LANG=en_US.UTF-8 -e LANGUAGE=en_US:en -e LC_ALL=en_US.UTF-8 "
-            f"postgres:13 sh -c 'pg_isready -h localhost -U {username} -d {db_name}'"
-        )
-
         try:
-            result = subprocess.run(docker_cmd, shell=True, check=True, text=True, capture_output=True)
-            if result.returncode == 0:
-                message = "Database connection is successful!"
-                notification_type = 'success'
-            else:
-                message = f"Database connection failed! Error: {result.stderr}"
-                notification_type = 'danger'
-        except subprocess.CalledProcessError as e:
-            message = f"Database connection test failed! Error: {e.stderr}"
+            conn = psycopg2.connect(
+                dbname=db_name,
+                user=username,
+                password=password,
+                host='localhost'
+            )
+            conn.close()
+            message = "Database connection is successful!"
+            notification_type = 'success'
+        except psycopg2.OperationalError as e:
+            message = f"Database connection failed! Error: {str(e)}"
             notification_type = 'danger'
 
         return {
