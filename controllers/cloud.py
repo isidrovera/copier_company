@@ -10,7 +10,7 @@ from datetime import datetime
 _logger = logging.getLogger(__name__)
 
 class PcloudController(http.Controller):
-    @http.route('/soporte/descargas', type='http', auth='user', website=True)
+    @http.route('/pcloud/files', type='http', auth='user', website=True)
     def list_files(self, folder_id=0, search='', **kwargs):
         # Verificar suscripciones activas como en DescargaArchivosController
         partner = request.env.user.partner_id
@@ -96,9 +96,6 @@ class PcloudController(http.Controller):
             'rar': 'icons8-winrar-48.png',
             'tar': 'icons8-tar-100.png',
             'exe': 'icons8-ex-40.png',
-            'pjl': 'icons8-idioma-48.png',
-            'txt': 'icons8-edit-text-file-48.png',
-            'djf': 'icons8-documento-48.png',
         }
         return icons.get(ext, 'icons8-file-48.png')
 
@@ -126,11 +123,11 @@ class PcloudController(http.Controller):
         
         return date_str
 
-    @http.route('/soporte/descarga', type='http', auth='public')
+    @http.route('/pcloud/download', type='http', auth='public')
     def download_file(self, file_id, **kwargs):
         config = request.env['pcloud.config'].search([], limit=1)
         if not config or not file_id:
-            return request.redirect('/soporte/descargas')
+            return request.redirect('/pcloud/files')
         
         try:
             file_id = int(file_id)
@@ -150,4 +147,4 @@ class PcloudController(http.Controller):
             return request.make_response(response.content, headers)
         except Exception as e:
             _logger.error('Failed to download file: %s', str(e))
-            return request.redirect('/soporte/descargas')
+            return request.redirect('/pcloud/files')

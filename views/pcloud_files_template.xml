@@ -5,7 +5,7 @@
             <div class="container-fluid">
                 <div class="row mt-4 mb-4">
                     <div class="col-6 col-md-3">
-                        <a href="/soporte/descargas?folder_id=0" class="btn btn-primary btn-block btn-md-inline">
+                        <a href="/pcloud/files?folder_id=0" class="btn btn-primary btn-block btn-md-inline">
                             <i class="fa fa-home"></i> Inicio
                         </a>
                         <t t-if="current_folder_id">
@@ -46,7 +46,7 @@
                                         <td>
                                             <img t-att-src="'/copier_company/static/src/img/' + item['icon']" alt="icon" style="width: 24px; height: 24px;"/>
                                             <t t-if="item['isfolder']">
-                                                <a t-att-href="'/soporte/descargas?folder_id=%d&amp;view_mode=%s' % (item['id'], view_mode)">
+                                                <a t-att-href="'/pcloud/files?folder_id=%d&amp;view_mode=%s' % (item['id'], view_mode)">
                                                     <t t-esc="item['name']"/>
                                                 </a>
                                             </t>
@@ -62,7 +62,7 @@
                                         </td>
                                         <td>
                                             <t t-if="not item['isfolder']">
-                                                <a t-att-href="'/soporte/descarga?file_id=%d' % item['id']" class="btn btn-outline-primary btn-block btn-md-inline">
+                                                <a t-att-href="'/pcloud/download?file_id=%d' % item['id']" class="btn btn-outline-primary btn-block btn-md-inline">
                                                     Descargar
                                                 </a>
                                             </t>
@@ -86,10 +86,10 @@
                                                 <strong>Modificado:</strong> <t t-esc="item['modified']"/>
                                             </p>
                                             <t t-if="item['isfolder']">
-                                                <a t-att-href="'/soporte/descargas?folder_id=%d&amp;view_mode=%s' % (item['id'], view_mode)" class="btn btn-primary">Abrir</a>
+                                                <a t-att-href="'/pcloud/files?folder_id=%d&amp;view_mode=%s' % (item['id'], view_mode)" class="btn btn-primary">Abrir</a>
                                             </t>
                                             <t t-if="not item['isfolder']">
-                                                <a t-att-href="'/soporte/descarga?file_id=%d' % item['id']" class="btn btn-outline-primary">Descargar</a>
+                                                <a t-att-href="'/pcloud/download?file_id=%d' % item['id']" class="btn btn-outline-primary">Descargar</a>
                                             </t>
                                         </div>
                                     </div>
