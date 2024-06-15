@@ -1,5 +1,6 @@
 from odoo import models, fields, api
 import subprocess
+import os
 
 class BackupConfigSettings(models.Model):
     _name = 'backup.config.settings'
@@ -21,8 +22,13 @@ class BackupConfigSettings(models.Model):
 
         test_cmd = f"pg_isready -h localhost -U {username} -d {db_name}"
 
+        # Establecer locales antes de ejecutar el comando
+        env = os.environ.copy()
+        env['LANG'] = 'en_US.UTF-8'
+        env['LC_ALL'] = 'en_US.UTF-8'
+
         try:
-            result = subprocess.run(test_cmd, shell=True, check=True, text=True, capture_output=True)
+            result = subprocess.run(test_cmd, shell=True, check=True, text=True, capture_output=True, env=env)
             if result.returncode == 0:
                 message = "Database connection is successful!"
                 notification_type = 'success'
