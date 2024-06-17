@@ -89,7 +89,7 @@ class BackupConfigSettings(models.Model):
         try:
             # Dump the database
             dump_file = os.path.join(temp_dir, 'dump.sql')
-            dump_cmd = f"PGPASSWORD={db_password} pg_dump -Fp -h localhost -U {db_user} {db_name} > {dump_file}"
+            dump_cmd = f"PGPASSWORD={db_password} pg_dump -h localhost -U {db_user} {db_name} > {dump_file}"
             result = subprocess.run(dump_cmd, shell=True, check=True, text=True, capture_output=True)
 
             if result.returncode != 0:
