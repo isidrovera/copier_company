@@ -58,7 +58,7 @@ class BackupConfigSettings(models.Model):
         return res
 
     def _update_cron(self):
-        cron = self.env.ref('your_module_name.ir_cron_backup')
+        cron = self.env.ref('copier_company.ir_cron_backup')
         interval_type = self.cron_frequency
         interval_number = 1
 
