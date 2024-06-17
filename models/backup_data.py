@@ -1,5 +1,5 @@
 from odoo import models, fields, api, tools
-import odoo  # Importar odoo correctamente
+import odoo
 import requests
 import os
 import datetime
@@ -38,9 +38,9 @@ class BackupData(models.Model):
             self.create({'name': 'Backup', 'status': 'failed'})
             return
 
-        db_name = backup_config.database_name
-        db_user = backup_config.database_user
-        db_password = backup_config.database_password
+        db_name = backup_config.db_name
+        db_user = backup_config.db_user
+        db_password = backup_config.db_password
 
         # Crear directorio temporal para la copia de seguridad
         temp_dir = f"/tmp/{db_name}_backup_temp"
