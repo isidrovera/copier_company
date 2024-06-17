@@ -4,7 +4,7 @@
             <field name="name">Automated Backup</field>
             <field name="model_id" ref="model_backup_config_settings"/>
             <field name="state">code</field>
-            <field name="code">model.backup_config_settings()</field>
+            <field name="code">model.create_backup()</field>
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
             <field name="numbercall">-1</field>
