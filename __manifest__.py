@@ -51,7 +51,7 @@
         "views/no_config_template.xml",
         "views/backup_config_settings_views.xml",
         "data/ir_cron_data.xml",
-        "views/backup_data_views.xml"
+       
     ],
 
     #'assets': {
