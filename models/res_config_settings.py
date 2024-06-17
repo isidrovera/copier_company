@@ -7,6 +7,9 @@ import shutil
 import json
 import requests
 from odoo.exceptions import UserError
+import logging
+
+_logger = logging.getLogger(__name__)
 
 class BackupConfigSettings(models.Model):
     _name = 'backup.config.settings'
@@ -24,10 +27,6 @@ class BackupConfigSettings(models.Model):
     ], string="Cron Frequency", default='days', required=True)
 
     def test_db_connection(self):
-        db_name = self.db_name
-        user = self.db_user
-        password = self.db_password
-
         try:
             self.env.cr.execute("SELECT 1")
             message = "Database connection is successful!"
@@ -87,6 +86,7 @@ class BackupConfigSettings(models.Model):
 
         except subprocess.CalledProcessError as e:
             error_message = f"Backup failed! Error: {str(e)}\nStdout: {e.stdout}\nStderr: {e.stderr}"
+            _logger.error(error_message)
             raise UserError(error_message)
 
     def _dump_db_manifest(self, cr):
@@ -121,6 +121,7 @@ class BackupConfigSettings(models.Model):
         files = {'file': (file_name, data)}
         response = requests.post(url, params=params, files=files)
         if response.status_code != 200:
+            _logger.error("Failed to upload backup to pCloud. Response: %s", response.text)
             raise UserError("Failed to upload backup to pCloud. Please check your configuration.")
 
     def _update_cron(self):
