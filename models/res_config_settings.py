@@ -2,7 +2,6 @@ from odoo import models, fields, api
 import os
 import base64
 import subprocess
-import tempfile
 import shutil
 import zipfile
 import json
@@ -70,6 +69,10 @@ class BackupConfigSettings(models.Model):
             })
 
     def create_backup(self):
+        # Verificar si las credenciales de la base de datos están configuradas
+        if not self.db_name or not self.db_user or not self.db_password:
+            raise UserError("Database credentials are not set properly in the configuration settings.")
+
         db_name = self.db_name
         db_user = self.db_user
         db_password = self.db_password
