@@ -4,6 +4,7 @@ import base64
 import subprocess
 import tempfile
 import shutil
+import zipfile
 import json
 import requests
 from odoo.exceptions import UserError
@@ -87,8 +88,8 @@ class BackupConfigSettings(models.Model):
 
         try:
             # Dump the database
-            dump_file = os.path.join(temp_dir, 'db.dump')
-            dump_cmd = f"PGPASSWORD={db_password} pg_dump -Fc -h localhost -U {db_user} {db_name} -f {dump_file}"
+            dump_file = os.path.join(temp_dir, 'dump.sql')
+            dump_cmd = f"PGPASSWORD={db_password} pg_dump -h localhost -U {db_user} {db_name} > {dump_file}"
             result = subprocess.run(dump_cmd, shell=True, check=True, text=True, capture_output=True)
 
             if result.returncode != 0:
