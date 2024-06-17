@@ -16,8 +16,6 @@ class BackupConfigSettings(models.Model):
     db_user = fields.Char(string="Database User", required=True)
     db_password = fields.Char(string="Database Password", required=True)
     pcloud_folder_id = fields.Char(string="pCloud Folder ID", required=True)
-    pcloud_token = fields.Char(string="pCloud Access Token", required=True)
-    pcloud_hostname = fields.Char(string="pCloud Hostname", required=True)
     cron_frequency = fields.Selection([
         ('minutes', 'Minutes'),
         ('hours', 'Hours'),
@@ -30,7 +28,6 @@ class BackupConfigSettings(models.Model):
         password = self.db_password
 
         try:
-            # Intentar conectarse a la base de datos
             self.env.cr.execute("SELECT 1")
             message = "Database connection is successful!"
             notification_type = 'success'
@@ -49,15 +46,73 @@ class BackupConfigSettings(models.Model):
             }
         }
 
+    def create_backup(self):
+        db_name = self.db_name
+        db_user = self.db_user
+        db_password = self.db_password
+        backup_file_path = f"/tmp/{db_name}_backup_{fields.Datetime.now().strftime('%Y%m%d_%H%M%S')}.dump"
+        dump_cmd = f"PGPASSWORD={db_password} pg_dump -Fc -h db -U {db_user} {db_name} -f {backup_file_path}"
+        
+        try:
+            result = subprocess.run(dump_cmd, shell=True, check=True, text=True, capture_output=True)
+            backup_data = open(backup_file_path, 'rb').read()
+            backup_file_name = f"{db_name}_backup.zip"
+
+            # Guardar la copia de seguridad en pCloud
+            self.upload_to_pcloud(backup_data, backup_file_name)
+
+            # Guardar la información de la copia de seguridad en un registro de Odoo
+            self.env['backup.history'].create({
+                'name': backup_file_name,
+                'backup_data': base64.b64encode(backup_data),
+            })
+
+            # Eliminar el archivo temporal
+            os.remove(backup_file_path)
+
+        except subprocess.CalledProcessError as e:
+            error_message = f"Backup failed! Error: {str(e)}\nStdout: {e.stdout}\nStderr: {e.stderr}"
+            raise UserError(error_message)
+
+    def upload_to_pcloud(self, data, file_name):
+        config = self.env['pcloud.config'].search([], limit=1)
+        if not config:
+            raise UserError("No pCloud configuration found.")
+
+        if not config.access_token:
+            raise UserError("pCloud is not connected. Please connect to pCloud first.")
+
+        url = f"{config.hostname}/uploadfile"
+        params = {
+            'access_token': config.access_token,
+            'folderid': self.pcloud_folder_id,
+            'filename': file_name,
+        }
+        files = {'file': (file_name, data)}
+        response = requests.post(url, params=params, files=files)
+        if response.status_code != 200:
+            raise UserError("Failed to upload backup to pCloud. Please check your configuration.")
+
+    def _update_cron(self):
+        cron = self.env.ref('copier_company.ir_cron_backup')
+        interval_type = self.cron_frequency
+        interval_number = 1
+
+        if cron:
+            cron.write({
+                'interval_number': interval_number,
+                'interval_type': interval_type,
+            })
+
     @api.model
     def create(self, vals):
         res = super(BackupConfigSettings, self).create(vals)
-        res.update_cron_frequency()
+        res._update_cron()
         return res
 
     def write(self, vals):
         res = super(BackupConfigSettings, self).write(vals)
-        self.update_cron_frequency()
+        self._update_cron()
         return res
 
 class BackupHistory(models.Model):
