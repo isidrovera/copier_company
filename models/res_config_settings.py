@@ -4,7 +4,6 @@ import base64
 import subprocess
 import tempfile
 import shutil
-import zipfile
 import json
 import requests
 from odoo.exceptions import UserError
@@ -47,16 +46,83 @@ class BackupConfigSettings(models.Model):
             }
         }
 
-    @api.model
-    def create(self, vals):
-        res = super(BackupConfigSettings, self).create(vals)
-        res._update_cron()
-        return res
+    def create_backup(self):
+        db_name = self.db_name
+        db_user = self.db_user
+        db_password = self.db_password
+        backup_file_path = f"/tmp/{db_name}_backup_{fields.Datetime.now().strftime('%Y%m%d_%H%M%S')}.dump"
+        dump_cmd = f"PGPASSWORD={db_password} pg_dump -Fc -h localhost -U {db_user} {db_name} -f {backup_file_path}"
+        
+        try:
+            result = subprocess.run(dump_cmd, shell=True, check=True, text=True, capture_output=True)
+            temp_dir = tempfile.mkdtemp()
+            filestore_path = os.path.join(os.path.dirname(odoo.tools.config['data_dir']), 'filestore', db_name)
+            shutil.copytree(filestore_path, os.path.join(temp_dir, 'filestore'))
+            with open(os.path.join(temp_dir, 'manifest.json'), 'w') as fh:
+                db = odoo.sql_db.db_connect(db_name)
+                with db.cursor() as cr:
+                    json.dump(self._dump_db_manifest(cr), fh, indent=4)
+            shutil.copy(backup_file_path, os.path.join(temp_dir, 'db.dump'))
 
-    def write(self, vals):
-        res = super(BackupConfigSettings, self).write(vals)
-        self._update_cron()
-        return res
+            # Crear archivo ZIP
+            zip_file = f"{db_name}_backup_{fields.Datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
+            zip_path = os.path.join("/tmp", zip_file)
+            shutil.make_archive(zip_path.replace('.zip', ''), 'zip', temp_dir)
+
+            # Guardar la copia de seguridad en pCloud
+            with open(zip_path, 'rb') as file:
+                backup_data = file.read()
+                self.upload_to_pcloud(backup_data, zip_file)
+
+            # Guardar la información de la copia de seguridad en un registro de Odoo
+            self.env['backup.history'].create({
+                'name': zip_file,
+                'backup_data': base64.b64encode(backup_data),
+            })
+
+            # Limpiar archivos temporales
+            shutil.rmtree(temp_dir)
+            os.remove(backup_file_path)
+
+        except subprocess.CalledProcessError as e:
+            error_message = f"Backup failed! Error: {str(e)}\nStdout: {e.stdout}\nStderr: {e.stderr}"
+            _logger.error(error_message)
+            raise UserError(error_message)
+
+    def _dump_db_manifest(self, cr):
+        pg_version = "%d.%d" % divmod(cr._obj.connection.server_version / 100, 100)
+        cr.execute("SELECT name, latest_version FROM ir_module_module WHERE state = 'installed'")
+        modules = dict(cr.fetchall())
+        manifest = {
+            'odoo_dump': '1',
+            'db_name': cr.dbname,
+            'version': odoo.release.version,
+            'version_info': odoo.release.version_info,
+            'major_version': odoo.release.major_version,
+            'pg_version': pg_version,
+            'modules': modules,
+        }
+        return manifest
+
+    def upload_to_pcloud(self, data, file_name):
+        config = self.env['pcloud.config'].search([], limit=1)
+        if not config:
+            raise UserError("No pCloud configuration found.")
+
+        if not config.access_token:
+            raise UserError("pCloud is not connected. Please connect to pCloud first.")
+
+        url = f"{config.hostname}/uploadfile"
+        params = {
+            'access_token': config.access_token,
+            'folderid': self.pcloud_folder_id,
+            'filename': file_name,
+        }
+        files = {'file': (file_name, data)}
+        response = requests.post(url, params=params, files=files)
+        if response.status_code != 200:
+            _logger.error("Failed to upload backup to pCloud. Response: %s", response.text)
+            raise UserError("Failed to upload backup to pCloud. Please check your configuration.")
 
     def _update_cron(self):
         cron = self.env.ref('copier_company.ir_cron_backup')
@@ -70,86 +136,20 @@ class BackupConfigSettings(models.Model):
             })
 
     @api.model
-    def create_backup(self):
-        backup_config = self.search([], limit=1)
-        if not backup_config:
-            _logger.error("No backup configuration settings found.")
-            return
+    def create(self, vals):
+        res = super(BackupConfigSettings, self).create(vals)
+        res._update_cron()
+        return res
 
-        db_name = backup_config.db_name
-        db_user = backup_config.db_user
-        db_password = backup_config.db_password
+    def write(self, vals):
+        res = super(BackupConfigSettings, self).write(vals)
+        self._update_cron()
+        return res
 
-        # Crear directorio temporal para la copia de seguridad
-        temp_dir = f"/tmp/{db_name}_backup_temp"
-        if os.path.exists(temp_dir):
-            shutil.rmtree(temp_dir)
-        os.makedirs(temp_dir, exist_ok=True)
+class BackupHistory(models.Model):
+    _name = 'backup.history'
+    _description = 'Backup History'
 
-        try:
-            # Dump the database
-            dump_file = os.path.join(temp_dir, 'dump.sql')
-            dump_cmd = f"PGPASSWORD={db_password} pg_dump -h localhost -U {db_user} {db_name} > {dump_file}"
-            result = subprocess.run(dump_cmd, shell=True, check=True, text=True, capture_output=True)
-
-            if result.returncode != 0:
-                error_message = f"Database dump failed! Error: {str(result.stderr)}"
-                raise UserError(error_message)
-
-            # Copy filestore
-            filestore_path = os.path.join(self.env['ir.config_parameter'].sudo().get_param('data_dir'), 'filestore', db_name)
-            filestore_backup_path = os.path.join(temp_dir, 'filestore')
-            shutil.copytree(filestore_path, filestore_backup_path)
-
-            # Create a manifest file
-            manifest = {
-                'db_name': db_name,
-                'version': odoo.release.version,
-                'backup_date': fields.Datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            }
-            with open(os.path.join(temp_dir, 'manifest.json'), 'w') as manifest_file:
-                json.dump(manifest, manifest_file)
-
-            # Create a zip file
-            backup_file_path = f"/tmp/{db_name}_backup_{fields.Datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
-            with zipfile.ZipFile(backup_file_path, 'w', zipfile.ZIP_DEFLATED) as backup_zip:
-                for root, dirs, files in os.walk(temp_dir):
-                    for file in files:
-                        backup_zip.write(os.path.join(root, file),
-                                         os.path.relpath(os.path.join(root, file),
-                                                         os.path.join(temp_dir, '..')))
-
-            # Upload the backup to pCloud
-            self.upload_to_pcloud(backup_file_path)
-
-            # Clean up temporary files
-            shutil.rmtree(temp_dir)
-            os.remove(backup_file_path)
-
-            _logger.info("Backup created and uploaded to pCloud successfully.")
-        except subprocess.CalledProcessError as e:
-            error_message = f"Backup failed! Error: {str(e)}\nStdout: {e.stdout}\nStderr: {e.stderr}"
-            _logger.error(error_message)
-            raise UserError(error_message)
-
-    def upload_to_pcloud(self, backup_file_path):
-        config = self.env['pcloud.config'].search([], limit=1)
-        if not config:
-            raise UserError("No pCloud configuration found.")
-
-        if not config.access_token:
-            raise UserError("pCloud is not connected. Please connect to pCloud first.")
-
-        url = f"{config.hostname}/uploadfile"
-        params = {
-            'access_token': config.access_token,
-            'folderid': self.pcloud_folder_id,
-            'filename': os.path.basename(backup_file_path),
-        }
-        with open(backup_file_path, 'rb') as file:
-            files = {'file': (os.path.basename(backup_file_path), file)}
-            response = requests.post(url, params=params, files=files)
-
-        if response.status_code != 200:
-            _logger.error("Failed to upload backup to pCloud. Response: %s", response.text)
-            raise UserError("Failed to upload backup to pCloud. Please check your configuration.")
+    name = fields.Char(string="Backup Name", required=True)
+    backup_data = fields.Binary(string="Backup Data")
+    backup_date = fields.Datetime(string="Backup Date", default=fields.Datetime.now, readonly=True)
