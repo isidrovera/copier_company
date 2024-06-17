@@ -1,13 +1,13 @@
 from odoo import models, fields, api, tools
-import odoo
-import requests
 import os
 import datetime
-import logging
 import subprocess
 import zipfile
 import shutil
 import json
+import requests
+from odoo.exceptions import UserError
+import logging
 
 _logger = logging.getLogger(__name__)
 
@@ -25,22 +25,16 @@ class BackupData(models.Model):
 
     @api.model
     def create_backup(self):
-        # Obtener configuración de pCloud
-        pcloud_config = self.env['pcloud.config'].search([], limit=1)
-        if not pcloud_config:
-            _logger.error("No pCloud configuration found.")
-            self.create({'name': 'Backup', 'status': 'failed'})
-            return
-
         backup_config = self.env['backup.config.settings'].search([], limit=1)
         if not backup_config:
-            _logger.error("No backup configuration settings found.")
+            _logger.error("Backup configuration settings not found.")
             self.create({'name': 'Backup', 'status': 'failed'})
             return
 
         db_name = backup_config.db_name
         db_user = backup_config.db_user
         db_password = backup_config.db_password
+        pcloud_folder_id = backup_config.pcloud_folder_id
 
         # Crear directorio temporal para la copia de seguridad
         temp_dir = f"/tmp/{db_name}_backup_temp"
@@ -50,9 +44,8 @@ class BackupData(models.Model):
 
         try:
             # Dump the database
-            dump_cmd = f"PGPASSWORD={db_password} pg_dump -Fc -h db -U {db_user} {db_name} -f {temp_dir}/dump.sql"
+            dump_cmd = f"PGPASSWORD={db_password} pg_dump -Fc -h localhost -U {db_user} {db_name} -f {temp_dir}/dump.sql"
             result = subprocess.run(dump_cmd, shell=True, check=True, text=True, capture_output=True)
-
             if result.returncode != 0:
                 error_message = f"Database dump failed! Error: {str(result.stderr)}"
                 raise UserError(error_message)
@@ -80,21 +73,22 @@ class BackupData(models.Model):
                                                          os.path.join(temp_dir, '..')))
 
             # Upload the backup to pCloud
-            self.upload_to_pcloud(backup_file_path)
+            self.upload_to_pcloud(backup_file_path, pcloud_folder_id)
 
             # Clean up temporary files
             shutil.rmtree(temp_dir)
             os.remove(backup_file_path)
 
             self.create({'name': 'Backup', 'status': 'completed'})
+            _logger.info("Backup created and uploaded to pCloud successfully.")
 
-        except subprocess.CalledProcessError as e:
+        except Exception as e:
             self.create({'name': 'Backup', 'status': 'failed'})
-            error_message = f"Backup failed! Error: {str(e)}\nStdout: {e.stdout}\nStderr: {e.stderr}"
+            error_message = f"Backup failed! Error: {str(e)}"
             _logger.error(error_message)
             raise UserError(error_message)
 
-    def upload_to_pcloud(self, backup_file_path):
+    def upload_to_pcloud(self, backup_file_path, pcloud_folder_id):
         config = self.env['pcloud.config'].search([], limit=1)
         if not config:
             raise UserError("No pCloud configuration found.")
@@ -105,15 +99,16 @@ class BackupData(models.Model):
         url = f"{config.hostname}/uploadfile"
         params = {
             'access_token': config.access_token,
-            'folderid': self.env['backup.config.settings'].search([], limit=1).pcloud_folder_id,
+            'folderid': pcloud_folder_id,
             'filename': os.path.basename(backup_file_path),
         }
         with open(backup_file_path, 'rb') as file:
             files = {'file': (os.path.basename(backup_file_path), file)}
             response = requests.post(url, params=params, files=files)
+            if response.status_code != 200:
+                raise UserError("Failed to upload backup to pCloud. Please check your configuration.")
 
-        if response.status_code != 200:
-            raise UserError("Failed to upload backup to pCloud. Please check your configuration.")
+
 
     @api.model
     def update_cron_frequency(self):
