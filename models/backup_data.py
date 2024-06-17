@@ -26,24 +26,29 @@ class BackupData(models.Model):
         pcloud_config = self.env['pcloud.config'].search([], limit=1)
         if not pcloud_config:
             _logger.error("No pCloud configuration found.")
+            self.create({'name': 'Backup', 'status': 'failed'})
             return
 
         db_name = self.env.cr.dbname
-        username = self.env.user.login
         backup_config = self.env['backup.config.settings'].search([], limit=1)
+        if not backup_config:
+            _logger.error("No backup configuration settings found.")
+            self.create({'name': 'Backup', 'status': 'failed'})
+            return
+
         password = backup_config.odoo_password
 
         # Generar la copia de seguridad utilizando pg_dump
         backup_file = f"{db_name}_backup_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.dump"
         backup_path = f"/tmp/{backup_file}"
-        dump_cmd = f"pg_dump -Fc -h localhost -U {username} {db_name} -f {backup_path}"
+        dump_cmd = f"pg_dump -Fc -h localhost -U odoo {db_name} -f {backup_path}"
 
         try:
             result = subprocess.run(dump_cmd, shell=True, check=True, text=True, capture_output=True)
             _logger.info(f"Backup command output: {result.stdout}")
             if result.returncode != 0:
                 _logger.error(f"Backup command failed with return code {result.returncode}: {result.stderr}")
-                self.write({'status': 'failed'})
+                self.create({'name': 'Backup', 'status': 'failed'})
                 return
 
             # Comprimir el archivo de copia de seguridad en un archivo ZIP
@@ -68,28 +73,31 @@ class BackupData(models.Model):
                 )
 
             if response.status_code == 200:
-                self.write({'status': 'completed'})
+                self.create({'name': 'Backup', 'status': 'completed'})
             else:
-                self.write({'status': 'failed'})
+                self.create({'name': 'Backup', 'status': 'failed'})
                 _logger.error(f"Failed to upload backup: {response.content}")
                 return
 
             # Eliminar la copia de seguridad comprimida local
             os.remove(zip_path)
         except subprocess.CalledProcessError as e:
-            self.write({'status': 'failed'})
+            self.create({'name': 'Backup', 'status': 'failed'})
             _logger.error(f"Backup creation failed: {e.stderr}")
             raise e
         except Exception as e:
-            self.write({'status': 'failed'})
+            self.create({'name': 'Backup', 'status': 'failed'})
             _logger.error(f"Unexpected error: {e}")
             raise e
 
     @api.model
     def update_cron_frequency(self):
         backup_config = self.env['backup.config.settings'].search([], limit=1)
+        if not backup_config:
+            _logger.error("No backup configuration settings found.")
+            return
         cron_frequency = backup_config.cron_frequency
-        cron = self.env.ref('my_backup_module.ir_cron_backup')
+        cron = self.env.ref('copier_company.ir_cron_backup')
         
         if cron_frequency == 'minutes':
             cron.write({'interval_number': 1, 'interval_type': 'minutes'})
