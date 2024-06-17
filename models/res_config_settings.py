@@ -13,9 +13,9 @@ class BackupConfigSettings(models.Model):
     _description = 'Backup Config Settings'
 
     name = fields.Char(string="Configuration Name", required=True)
-    database_name = fields.Char(string="Database Name", required=True)
-    database_user = fields.Char(string="Database User", required=True)
-    database_password = fields.Char(string="Database Password", required=True)
+    db_name = fields.Char(string="Database Name", required=True)
+    db_user = fields.Char(string="Database User", required=True)
+    db_password = fields.Char(string="Database Password", required=True)
     pcloud_folder_id = fields.Char(string="pCloud Folder ID", required=True)
     cron_frequency = fields.Selection([
         ('minutes', 'Minutes'),
@@ -48,9 +48,9 @@ class BackupConfigSettings(models.Model):
         }
 
     def create_backup(self):
-        db_name = self.database_name
-        db_user = self.database_user
-        db_password = self.database_password
+        db_name = self.db_name
+        db_user = self.db_user
+        db_password = self.db_password
         backup_file_path = f"/tmp/{db_name}_backup_{fields.Datetime.now().strftime('%Y%m%d_%H%M%S')}.dump"
         dump_cmd = f"PGPASSWORD={db_password} pg_dump -Fc -h localhost -U {db_user} {db_name} -f {backup_file_path}"
         
