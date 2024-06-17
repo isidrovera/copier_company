@@ -1,24 +1,14 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, tools
 import requests
 import os
 import datetime
 import logging
 import subprocess
 import zipfile
+import shutil
+import json
 
 _logger = logging.getLogger(__name__)
-
-from odoo import models, fields, api
-import requests
-import os
-import datetime
-import logging
-import subprocess
-import zipfile
-from odoo.exceptions import UserError
-
-_logger = logging.getLogger(__name__)
-
 
 class BackupData(models.Model):
     _name = 'backup.data'
@@ -65,7 +55,7 @@ class BackupData(models.Model):
                 raise UserError(error_message)
 
             # Copy filestore
-            filestore_path = odoo.tools.config.filestore(db_name)
+            filestore_path = tools.config.filestore(db_name)
             shutil.copytree(filestore_path, f"{temp_dir}/filestore")
 
             # Create a manifest file
