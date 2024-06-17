@@ -1,4 +1,5 @@
 from odoo import models, fields, api, tools
+import odoo  # Importar odoo correctamente
 import requests
 import os
 import datetime
