@@ -118,4 +118,3 @@ class BackupHistory(models.Model):
     name = fields.Char(string="Backup Name", required=True)
     backup_data = fields.Binary(string="Backup Data")
     backup_date = fields.Datetime(string="Backup Date", default=fields.Datetime.now, readonly=True)
-
