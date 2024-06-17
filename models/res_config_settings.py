@@ -57,7 +57,7 @@ class BackupConfigSettings(models.Model):
         try:
             result = subprocess.run(dump_cmd, shell=True, check=True, text=True, capture_output=True)
             temp_dir = tempfile.mkdtemp()
-            filestore_path = odoo.tools.config.filestore(db_name)
+            filestore_path = os.path.join(os.path.dirname(odoo.tools.config['data_dir']), 'filestore', db_name)
             shutil.copytree(filestore_path, os.path.join(temp_dir, 'filestore'))
             with open(os.path.join(temp_dir, 'manifest.json'), 'w') as fh:
                 db = odoo.sql_db.db_connect(db_name)
