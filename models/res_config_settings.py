@@ -26,6 +26,26 @@ class BackupConfigSettings(models.Model):
         ('days', 'Days'),
     ], string="Cron Frequency", default='days', required=True)
 
+    def test_db_connection(self):
+        try:
+            self.env.cr.execute("SELECT 1")
+            message = "Database connection is successful!"
+            notification_type = 'success'
+        except Exception as e:
+            message = f"Database connection failed! Error: {str(e)}"
+            notification_type = 'danger'
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Database Connection Test',
+                'message': message,
+                'type': notification_type,
+                'sticky': False,
+            }
+        }
+
     @api.model
     def create(self, vals):
         res = super(BackupConfigSettings, self).create(vals)
