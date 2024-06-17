@@ -67,10 +67,15 @@ class BackupConfigSettings(models.Model):
             })
 
     def create_backup(self):
+        # Obtén los valores de las credenciales
         db_name = self.db_name
         db_user = self.db_user
         db_password = self.db_password
         pcloud_folder_id = self.pcloud_folder_id
+
+        # Asegúrate de que todos los valores estén definidos
+        if not db_name or not db_user or not db_password or not pcloud_folder_id:
+            raise UserError("Please ensure all database and pCloud configurations are set correctly.")
 
         temp_dir = f"/tmp/{db_name}_backup_temp"
         if os.path.exists(temp_dir):
