@@ -47,7 +47,7 @@ class BackupConfigSettings(models.Model):
     def create_backup(self):
         db_name = self.env.cr.dbname
         backup_file_path = f"/tmp/{db_name}_backup_{fields.Datetime.now().strftime('%Y%m%d_%H%M%S')}.dump"
-        dump_cmd = f"pg_dump -Fc -h localhost -U __system__ {db_name} -f {backup_file_path}"
+        dump_cmd = f"pg_dump -Fc -h db -U odoo {db_name} -f {backup_file_path}"
         
         try:
             result = subprocess.run(dump_cmd, shell=True, check=True, text=True, capture_output=True)
