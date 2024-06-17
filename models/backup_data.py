@@ -44,6 +44,8 @@ class BackupData(models.Model):
 
         # Crear directorio temporal para la copia de seguridad
         temp_dir = f"/tmp/{db_name}_backup_temp"
+        if os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir)
         os.makedirs(temp_dir, exist_ok=True)
 
         try:
