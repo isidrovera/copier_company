@@ -1,13 +1,12 @@
 <odoo>
     <data>
-        <!-- Definición de la vista de formulario -->
         <record id="view_backup_config_settings_form" model="ir.ui.view">
             <field name="name">backup.config.settings.form</field>
             <field name="model">backup.config.settings</field>
             <field name="arch" type="xml">
                 <form string="Backup Settings">
                     <header>
-                        <button string="Test Connection" type="object" name="test_db_connection" class="btn-primary"/>
+                        <button string="Test Connection" type="object" name="test_db_connection" class="oe_highlight"/>
                     </header>
                     <sheet>
                         <group>
@@ -15,7 +14,7 @@
                                 <field name="name"/>
                                 <field name="db_name"/>
                                 <field name="db_user"/>
-                                <field name="db_password"/>
+                                <field name="db_password" password="True"/>
                                 <field name="pcloud_folder_id"/>
                                 <field name="cron_frequency"/>
                             </group>
@@ -25,7 +24,6 @@
             </field>
         </record>
 
-        <!-- Definición de la vista de árbol -->
         <record id="view_backup_config_settings_tree" model="ir.ui.view">
             <field name="name">backup.config.settings.tree</field>
             <field name="model">backup.config.settings</field>
@@ -41,15 +39,13 @@
             </field>
         </record>
 
-        <!-- Acción para abrir la vista de configuración -->
         <record id="action_backup_config_settings" model="ir.actions.act_window">
             <field name="name">Backup Settings</field>
             <field name="res_model">backup.config.settings</field>
             <field name="view_mode">tree,form</field>
-            <field name="view_id" ref="view_backup_config_settings_tree"/> <!-- Cambiado de form a tree -->
+            <field name="view_id" ref="view_backup_config_settings_tree"/>
         </record>
 
-        <!-- Menú para acceder a la configuración -->
-        <menuitem id="menu_backup_config_settings" name="Backup Settings" parent="copier_company.menu_root" action="action_backup_config_settings" sequence="50"/>
+        <menuitem id="menu_backup_config_settings" name="Backup Settings" parent="base.menu_custom" action="action_backup_config_settings" sequence="50"/>
     </data>
 </odoo>
