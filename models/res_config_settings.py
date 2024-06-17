@@ -3,6 +3,8 @@ import os
 import base64
 from odoo.service.db import dump_db
 from io import BytesIO
+import requests
+from odoo.exceptions import UserError
 
 class BackupConfigSettings(models.Model):
     _name = 'backup.config.settings'
@@ -16,6 +18,31 @@ class BackupConfigSettings(models.Model):
         ('hours', 'Hours'),
         ('days', 'Days'),
     ], string="Cron Frequency", default='days', required=True)
+
+    def test_db_connection(self):
+        db_name = self.env.cr.dbname
+        user = self.env.user.login
+        password = self.odoo_password
+
+        try:
+            # Intentar conectarse a la base de datos
+            self.env.cr.execute("SELECT 1")
+            message = "Database connection is successful!"
+            notification_type = 'success'
+        except Exception as e:
+            message = f"Database connection failed! Error: {str(e)}"
+            notification_type = 'danger'
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Database Connection Test',
+                'message': message,
+                'type': notification_type,
+                'sticky': False,
+            }
+        }
 
     def create_backup(self):
         db_name = self.env.cr.dbname
