@@ -1,140 +1,198 @@
 from odoo import models, fields, api
-import os
-import subprocess
-import shutil
-import zipfile
-import json
-from odoo.exceptions import UserError
+import requests
 import logging
 
 _logger = logging.getLogger(__name__)
 
-class BackupConfigSettings(models.Model):
-    _name = 'backup.config.settings'
-    _description = 'Backup Config Settings'
+class PCloudConfig(models.Model):
+    _name = 'pcloud.config'
+    _description = 'pCloud Configuration'
 
-    name = fields.Char(string="Configuration Name", required=True)
-    db_name = fields.Char(string="Database Name", required=True)
-    db_user = fields.Char(string="Database User", required=True)
-    db_password = fields.Char(string="Database Password", required=True)
-    pcloud_folder_id = fields.Char(string="pCloud Folder ID", required=True)
-    cron_frequency = fields.Selection([
-        ('minutes', 'Minutes'),
-        ('hours', 'Hours'),
-        ('days', 'Days'),
-    ], string="Cron Frequency", default='days', required=True)
+    name = fields.Char(string='Name', required=True)
+    client_id = fields.Char(string='Client ID', required=True)
+    client_secret = fields.Char(string='Client Secret', required=True)
+    access_token = fields.Char(string='Access Token', readonly=True)
+    redirect_uri = fields.Char(string='Redirect URI', required=True)
+    hostname = fields.Char(string='Hostname', readonly=True)
 
-    def test_db_connection(self):
-        try:
-            self.env.cr.execute("SELECT 1")
-            message = "Database connection is successful!"
-            notification_type = 'success'
-        except Exception as e:
-            message = f"Database connection failed! Error: {str(e)}"
-            notification_type = 'danger'
-
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': 'Database Connection Test',
-                'message': message,
-                'type': notification_type,
-                'sticky': False,
+    def get_authorization_url(self):
+        for record in self:
+            url = "https://my.pcloud.com/oauth2/authorize"
+            params = {
+                'client_id': record.client_id,
+                'response_type': 'code',
+                'redirect_uri': record.redirect_uri,
+                'state': 'random_state'
             }
-        }
+            return requests.Request('GET', url, params=params).prepare().url
 
-    @api.model
-    def create(self, vals):
-        res = super(BackupConfigSettings, self).create(vals)
-        res._update_cron()
-        return res
-
-    def write(self, vals):
-        res = super(BackupConfigSettings, self).write(vals)
-        self._update_cron()
-        return res
-
-    def _update_cron(self):
-        cron = self.env.ref('copier_company.ir_cron_backup')
-        interval_type = self.cron_frequency
-        interval_number = 1
-
-        if cron:
-            cron.write({
-                'interval_number': interval_number,
-                'interval_type': interval_type,
-            })
-
-    def create_backup(self):
-        db_name = self.db_name
-        db_user = self.db_user
-        db_password = self.db_password
-        pcloud_folder_id = self.pcloud_folder_id
-
-        temp_dir = f"/tmp/{db_name}_backup_temp"
-        if os.path.exists(temp_dir):
-            shutil.rmtree(temp_dir)
-        os.makedirs(temp_dir, exist_ok=True)
-
-        try:
-            dump_file = os.path.join(temp_dir, 'dump.sql')
-            dump_cmd = f"PGPASSWORD={db_password} pg_dump -Fp -h localhost -U {db_user} {db_name} > {dump_file}"
-            result = subprocess.run(dump_cmd, shell=True, check=True, text=True, capture_output=True)
-
-            if result.returncode != 0:
-                error_message = f"Database dump failed! Error: {str(result.stderr)}"
-                raise UserError(error_message)
-
-            filestore_path = os.path.join(self.env['ir.config_parameter'].sudo().get_param('data_dir'), 'filestore', db_name)
-            filestore_backup_path = os.path.join(temp_dir, 'filestore')
-            shutil.copytree(filestore_path, filestore_backup_path)
-
-            manifest = {
-                'db_name': db_name,
-                'version': odoo.release.version,
-                'backup_date': fields.Datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+    def get_access_token(self, code):
+        for record in self:
+            url = "https://api.pcloud.com/oauth2_token"
+            params = {
+                'client_id': record.client_id,
+                'client_secret': record.client_secret,
+                'code': code,
+                'redirect_uri': record.redirect_uri
             }
-            with open(os.path.join(temp_dir, 'manifest.json'), 'w') as manifest_file:
-                json.dump(manifest, manifest_file)
+            response = requests.get(url, params=params)
+            if response.status_code == 200:
+                data = response.json()
+                record.access_token = data['access_token']
+                record.hostname = data.get('hostname', 'https://api.pcloud.com')
+            else:
+                raise Exception("Failed to get access token")
 
-            backup_file_path = f"/tmp/{db_name}_backup_{fields.Datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
-            with zipfile.ZipFile(backup_file_path, 'w', zipfile.ZIP_DEFLATED) as backup_zip:
-                for root, dirs, files in os.walk(temp_dir):
-                    for file in files:
-                        backup_zip.write(os.path.join(root, file),
-                                         os.path.relpath(os.path.join(root, file),
-                                                         os.path.join(temp_dir, '..')))
+    def create_pcloud_folder(self, folder_name):
+        for record in self:
+            if not record.access_token:
+                raise Exception("No access token found. Please connect to pCloud first.")
+            
+            url = f"{record.hostname}/createfolder"
+            params = {
+                'access_token': record.access_token,
+                'name': folder_name,
+                'folderid': 0  # 0 para crear en la raíz
+            }
+            response = requests.get(url, params=params)
+            if response.status_code == 200:
+                return response.json()['metadata']['folderid']
+            else:
+                raise Exception("Failed to create folder")
 
-            # Upload the backup to pCloud
-            self.upload_to_pcloud(backup_file_path, pcloud_folder_id)
-
-            shutil.rmtree(temp_dir)
-            os.remove(backup_file_path)
-
-            _logger.info("Backup created and uploaded to pCloud successfully.")
-
-        except subprocess.CalledProcessError as e:
-            error_message = f"Backup failed! Error: {str(e)}\nStdout: {e.stdout}\nStderr: {e.stderr}"
-            _logger.error(error_message)
-            raise UserError(error_message)
-
-    def upload_to_pcloud(self, backup_file_path, pcloud_folder_id):
-        config = self.env['pcloud.config'].search([], limit=1)
-        if not config:
-            raise UserError("No pCloud configuration found.")
-
-        if not config.access_token:
-            raise UserError("pCloud is not connected. Please connect to pCloud first.")
-
-        url = f"{config.hostname}/uploadfile"
-        params = {
-            'access_token': config.access_token,
-            'folderid': pcloud_folder_id,
-            'filename': os.path.basename(backup_file_path),
-        }
-        with open(backup_file_path, 'rb') as file:
-            files = {'file': (os.path.basename(backup_file_path), file)}
+    def upload_file_to_pcloud(self, file_path, folder_id):
+        for record in self:
+            if not record.access_token:
+                raise Exception("No access token found. Please connect to pCloud first.")
+            
+            url = f"{record.hostname}/uploadfile"
+            params = {
+                'access_token': record.access_token,
+                'folderid': folder_id,
+            }
+            files = {'file': open(file_path, 'rb')}
             response = requests.post(url, params=params, files=files)
-            if response.status_code != 200:
-                raise UserError("Failed to upload backup to pCloud. Please check your configuration.")
+            if response.status_code == 200:
+                return response.json()['metadata'][0]['fileid']
+            else:
+                raise Exception("Failed to upload file")
+
+    def list_pcloud_folders(self, folder_id=0):
+        for record in self:
+            if not record.access_token:
+                raise Exception("No access token found. Please connect to pCloud first.")
+            
+            url = f"{record.hostname}/listfolder"
+            params = {
+                'access_token': record.access_token,
+                'folderid': folder_id,
+            }
+            response = requests.get(url, params=params)
+            if response.status_code == 200:
+                return response.json()['metadata']['contents']
+            else:
+                raise Exception("Failed to list folders")
+
+    def list_pcloud_contents(self, folder_id=0):
+        for record in self:
+            if not record.access_token:
+                raise Exception("No access token found. Please connect to pCloud first.")
+            
+            url = f"{record.hostname}/listfolder"
+            params = {
+                'access_token': record.access_token,
+                'folderid': folder_id,
+            }
+            response = requests.get(url, params=params)
+            if response.status_code == 200:
+                return response.json()['metadata']['contents']
+            else:
+                raise Exception("Failed to list folders")
+
+    def action_connect_to_pcloud(self):
+        for record in self:
+            authorization_url = record.get_authorization_url()
+            return {
+                'type': 'ir.actions.act_url',
+                'url': authorization_url,
+                'target': 'new',
+            }
+
+    def action_disconnect_from_pcloud(self):
+        for record in self:
+            record.access_token = False
+            record.hostname = False
+
+    def action_list_folders(self):
+        for record in self:
+            # Limpiar los registros anteriores
+            self.env['pcloud.folder.file'].search([]).unlink()
+            folders = record.list_pcloud_folders()
+            for folder in folders:
+                self.env['pcloud.folder.file'].create({
+                    'name': folder['name'],
+                    'is_folder': folder['isfolder'],
+                    'pcloud_config_id': record.id
+                })
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'pCloud Folders and Files',
+                'res_model': 'pcloud.folder.file',
+                'view_mode': 'tree,form',
+                'target': 'current',
+            }
+
+    def action_list_files(self):
+        for record in self:
+            # Limpiar los registros anteriores
+            self.env['pcloud.folder.file'].search([]).unlink()
+            files = record.list_pcloud_files()
+            for file in files:
+                self.env['pcloud.folder.file'].create({
+                    'name': file['name'],
+                    'is_folder': file['isfolder'],
+                    'pcloud_config_id': record.id
+                })
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'pCloud Folders and Files',
+                'res_model': 'pcloud.folder.file',
+                'view_mode': 'tree,form',
+                'target': 'current',
+            }
+    def get_pcloud_file_info(self, file_id):
+        for record in self:
+            if not record.access_token:
+                raise Exception("No access token found. Please connect to pCloud first.")
+            
+            url = f"{record.hostname}/getfilelink"
+            params = {
+                'access_token': record.access_token,
+                'fileid': file_id,
+            }
+            response = requests.get(url, params=params)
+            if response.status_code == 200:
+                return response.json()
+            else:
+                raise Exception("Failed to get file info")
+
+    def download_pcloud_file(self, file_id):
+        for record in self:
+            if not record.access_token:
+                raise Exception("No access token found. Please connect to pCloud first.")
+
+            url = f"{record.hostname}/getfilelink"
+            params = {
+                'access_token': record.access_token,
+                'fileid': file_id,
+            }
+            response = requests.get(url, params=params)
+            if response.status_code == 200:
+                data = response.json()
+                _logger.info('API Response: %s', data)  # Log the API response for debugging
+                download_url = data.get('hosts')[0] + data.get('path')
+                if not download_url:
+                    raise Exception("Failed to get file download link")
+                return download_url
+            else:
+                raise Exception("Failed to get file download link")

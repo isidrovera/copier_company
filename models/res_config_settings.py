@@ -1,6 +1,5 @@
 from odoo import models, fields, api
 import os
-import base64
 import subprocess
 import shutil
 import zipfile
@@ -108,10 +107,7 @@ class BackupConfigSettings(models.Model):
                                                          os.path.join(temp_dir, '..')))
 
             # Upload the backup to pCloud
-            pcloud_config = self.env['pcloud.config'].search([], limit=1)
-            if not pcloud_config:
-                raise UserError("No pCloud configuration found.")
-            pcloud_config.upload_file_to_pcloud(backup_file_path, pcloud_folder_id)
+            self.upload_to_pcloud(backup_file_path, pcloud_folder_id)
 
             shutil.rmtree(temp_dir)
             os.remove(backup_file_path)
@@ -122,3 +118,23 @@ class BackupConfigSettings(models.Model):
             error_message = f"Backup failed! Error: {str(e)}\nStdout: {e.stdout}\nStderr: {e.stderr}"
             _logger.error(error_message)
             raise UserError(error_message)
+
+    def upload_to_pcloud(self, backup_file_path, pcloud_folder_id):
+        config = self.env['pcloud.config'].search([], limit=1)
+        if not config:
+            raise UserError("No pCloud configuration found.")
+
+        if not config.access_token:
+            raise UserError("pCloud is not connected. Please connect to pCloud first.")
+
+        url = f"{config.hostname}/uploadfile"
+        params = {
+            'access_token': config.access_token,
+            'folderid': pcloud_folder_id,
+            'filename': os.path.basename(backup_file_path),
+        }
+        with open(backup_file_path, 'rb') as file:
+            files = {'file': (os.path.basename(backup_file_path), file)}
+            response = requests.post(url, params=params, files=files)
+            if response.status_code != 200:
+                raise UserError("Failed to upload backup to pCloud. Please check your configuration.")
