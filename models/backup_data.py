@@ -50,7 +50,7 @@ class BackupData(models.Model):
 
         try:
             # Dump the database
-            dump_cmd = f"PGPASSWORD={db_password} pg_dump -Fc -h db -U {db_user} {db_name} -f {temp_dir}/db.dump"
+            dump_cmd = f"PGPASSWORD={db_password} pg_dump -Fc -h db -U {db_user} {db_name} -f {temp_dir}/dump.sql"
             result = subprocess.run(dump_cmd, shell=True, check=True, text=True, capture_output=True)
 
             if result.returncode != 0:
