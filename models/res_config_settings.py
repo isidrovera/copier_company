@@ -5,10 +5,12 @@ import json
 import subprocess
 import zipfile
 import requests
+
 from odoo import models, fields, api, tools, _
 from odoo.exceptions import UserError
-import logging
+import odoo
 
+import logging
 _logger = logging.getLogger(__name__)
 
 class BackupConfigSettings(models.Model):
@@ -84,8 +86,7 @@ class BackupConfigSettings(models.Model):
                 for root, dirs, files in os.walk(temp_dir):
                     for file in files:
                         backup_zip.write(os.path.join(root, file),
-                                         os.path.relpath(os.path.join(root, file),
-                                                         os.path.join(temp_dir, '..')))
+                                         os.path.relpath(os.path.join(root, file), temp_dir))
 
             if not os.path.exists(backup_file_path):
                 raise UserError(f"El archivo ZIP de respaldo no se creó correctamente: {backup_file_path}")
