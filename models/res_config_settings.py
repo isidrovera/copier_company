@@ -69,13 +69,20 @@ class BackupConfigSettings(models.Model):
             })
 
     def create_backup(self):
-        # Verificar si las credenciales de la base de datos están configuradas
-        if not self.db_name or not self.db_user or not self.db_password:
+        backup_config = self.search([], limit=1)
+        if not backup_config:
+            _logger.error("No backup configuration settings found.")
+            raise UserError("No backup configuration settings found.")
+
+        _logger.debug(f"Backup config: {backup_config.read(['db_name', 'db_user', 'db_password'])}")
+
+        if not backup_config.db_name or not backup_config.db_user or not backup_config.db_password:
+            _logger.error("Database credentials are not set properly in the configuration settings.")
             raise UserError("Database credentials are not set properly in the configuration settings.")
 
-        db_name = self.db_name
-        db_user = self.db_user
-        db_password = self.db_password
+        db_name = backup_config.db_name
+        db_user = backup_config.db_user
+        db_password = backup_config.db_password
 
         temp_dir = f"/tmp/{db_name}_backup_temp"
         if os.path.exists(temp_dir):
@@ -111,7 +118,7 @@ class BackupConfigSettings(models.Model):
                                          os.path.relpath(os.path.join(root, file),
                                                          os.path.join(temp_dir, '..')))
 
-            self.upload_to_pcloud(backup_file_path)
+            self.upload_to_pcloud(backup_file_path, backup_config.pcloud_folder_id)
 
             shutil.rmtree(temp_dir)
             os.remove(backup_file_path)
@@ -127,7 +134,7 @@ class BackupConfigSettings(models.Model):
             _logger.error(error_message)
             raise UserError(error_message)
 
-    def upload_to_pcloud(self, backup_file_path):
+    def upload_to_pcloud(self, backup_file_path, pcloud_folder_id):
         config = self.env['pcloud.config'].search([], limit=1)
         if not config:
             raise UserError("No pCloud configuration found.")
@@ -138,7 +145,7 @@ class BackupConfigSettings(models.Model):
         url = f"{config.hostname}/uploadfile"
         params = {
             'access_token': config.access_token,
-            'folderid': self.pcloud_folder_id,
+            'folderid': pcloud_folder_id,
             'filename': os.path.basename(backup_file_path),
         }
         with open(backup_file_path, 'rb') as file:
