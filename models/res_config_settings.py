@@ -51,18 +51,14 @@ class BackupConfigSettings(models.Model):
             }
         }
 
-    @api.model
     def create_backup(self):
-        backup_config = self.search([], limit=1)
-        if not backup_config:
-            _logger.error("No se encontraron configuraciones de backup.")
-            raise UserError("No se encontraron configuraciones de backup.")
-
-        db_name = backup_config.db_name
-        db_user = backup_config.db_user
-        db_password = backup_config.db_password
-        db_host = backup_config.db_host
-        db_port = backup_config.db_port
+        self.ensure_one()
+        
+        db_name = self.db_name
+        db_user = self.db_user
+        db_password = self.db_password
+        db_host = self.db_host
+        db_port = self.db_port
 
         temp_dir = tempfile.mkdtemp()
         try:
@@ -94,7 +90,7 @@ class BackupConfigSettings(models.Model):
                                          os.path.relpath(os.path.join(root, file),
                                                          os.path.join(temp_dir, '..')))
 
-            self.upload_to_pcloud(backup_file_path, backup_config.pcloud_folder_id)
+            self.upload_to_pcloud(backup_file_path, self.pcloud_folder_id)
 
             shutil.rmtree(temp_dir)
             os.remove(backup_file_path)
@@ -132,11 +128,9 @@ class BackupConfigSettings(models.Model):
                 raise UserError("No se pudo subir el backup a pCloud. Por favor, revise su configuración.")
 
     def update_cron_frequency(self):
-        backup_config = self.search([], limit=1)
-        if not backup_config:
-            _logger.error("No se encontraron configuraciones de backup.")
-            return
-        cron_frequency = backup_config.cron_frequency
+        self.ensure_one()
+        
+        cron_frequency = self.cron_frequency
         cron = self.env.ref('copier_company.ir_cron_backup')
 
         if cron_frequency == 'minutes':
@@ -145,6 +139,7 @@ class BackupConfigSettings(models.Model):
             cron.write({'interval_number': 1, 'interval_type': 'hours'})
         else:
             cron.write({'interval_number': 1, 'interval_type': 'days'})
+
 
 class BackupHistory(models.Model):
     _name = 'backup.history'
