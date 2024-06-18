@@ -5,6 +5,7 @@ import json
 import subprocess
 import zipfile
 import requests
+import base64
 
 from odoo import models, fields, api, tools, _
 from odoo.exceptions import UserError
@@ -29,6 +30,10 @@ class BackupConfigSettings(models.Model):
         ('hours', 'Horas'),
         ('days', 'Días'),
     ], string="Frecuencia del Cron", default='days', required=True)
+    backup_format = fields.Selection([
+        ('zip', 'zip (incluye filestore)'),
+        ('custom', 'pg_dump custom format (sin filestore)'),
+    ], string="Formato de Backup", default='zip', required=True)
     
     def test_db_connection(self):
         try:
@@ -58,20 +63,25 @@ class BackupConfigSettings(models.Model):
         db_password = self.db_password
         db_host = self.db_host
         db_port = self.db_port
+        backup_format = self.backup_format
 
         temp_dir = tempfile.mkdtemp()
         try:
             dump_file = os.path.join(temp_dir, 'dump.sql')
             dump_cmd = f"PGPASSWORD={db_password} pg_dump -Fc -h {db_host} -p {db_port} -U {db_user} {db_name} -f {dump_file}"
+            if backup_format == 'custom':
+                dump_cmd = f"PGPASSWORD={db_password} pg_dump -Fc -h {db_host} -p {db_port} -U {db_user} {db_name} -f {dump_file}"
+
             result = subprocess.run(dump_cmd, shell=True, check=True, text=True, capture_output=True)
 
             if result.returncode != 0:
                 error_message = f"¡Falló el volcado de la base de datos! Error: {str(result.stderr)}"
                 raise UserError(error_message)
 
-            filestore_path = tools.config.filestore(db_name)
-            filestore_backup_path = os.path.join(temp_dir, 'filestore')
-            shutil.copytree(filestore_path, filestore_backup_path)
+            if backup_format == 'zip':
+                filestore_path = tools.config.filestore(db_name)
+                filestore_backup_path = os.path.join(temp_dir, 'filestore')
+                shutil.copytree(filestore_path, filestore_backup_path)
 
             # Crear un manifest detallado
             manifest = {
