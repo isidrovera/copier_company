@@ -5,6 +5,7 @@ import json
 import subprocess
 import zipfile
 import requests
+import base64
 
 from odoo import models, fields, api, tools, _
 from odoo.exceptions import UserError
@@ -109,8 +110,7 @@ class BackupConfigSettings(models.Model):
     def upload_to_pcloud(self, backup_file_path, pcloud_folder_id):
         config = self.env['pcloud.config'].search([], limit=1)
         if not config:
-            raise UserError("No se encontró la configuración de pCloud.")
-
+            raise UserError("No se encontró la configuración de pCloud. Asegúrese de que la configuración de pCloud esté creada y configurada correctamente.")
         if not config.access_token:
             raise UserError("pCloud no está conectado. Por favor, conéctese a pCloud primero.")
 
