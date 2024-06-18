@@ -85,8 +85,12 @@ class BackupConfigSettings(models.Model):
 
             # Crear un manifest detallado
             manifest = {
+                'odoo_dump': '1',
                 'db_name': db_name,
                 'version': odoo.release.version,
+                'version_info': list(odoo.release.version_info),
+                'major_version': odoo.release.major_version,
+                'pg_version': self._get_pg_version(),
                 'backup_date': fields.Datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                 'modules': self._get_installed_modules(),
             }
@@ -157,3 +161,8 @@ class BackupConfigSettings(models.Model):
     def _get_installed_modules(self):
         self.env.cr.execute("SELECT name, latest_version FROM ir_module_module WHERE state = 'installed'")
         return dict(self.env.cr.fetchall())
+
+    def _get_pg_version(self):
+        self.env.cr.execute("SHOW server_version")
+        pg_version = self.env.cr.fetchone()[0]
+        return pg_version
