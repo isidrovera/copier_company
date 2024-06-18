@@ -6,7 +6,6 @@ import subprocess
 import zipfile
 import requests
 import base64
-
 from odoo import models, fields, api, tools, _
 from odoo.exceptions import UserError
 import odoo
@@ -30,11 +29,7 @@ class BackupConfigSettings(models.Model):
         ('hours', 'Horas'),
         ('days', 'Días'),
     ], string="Frecuencia del Cron", default='days', required=True)
-    backup_format = fields.Selection([
-        ('zip', 'zip (incluye filestore)'),
-        ('custom', 'pg_dump custom format (sin filestore)'),
-    ], string="Formato de Backup", default='zip', required=True)
-    
+
     def test_db_connection(self):
         try:
             self.env.cr.execute("SELECT 1")
@@ -57,60 +52,43 @@ class BackupConfigSettings(models.Model):
 
     def create_backup(self):
         self.ensure_one()
-        
+
         db_name = self.db_name
         db_user = self.db_user
         db_password = self.db_password
         db_host = self.db_host
         db_port = self.db_port
-        backup_format = self.backup_format
 
         temp_dir = tempfile.mkdtemp()
         try:
             dump_file = os.path.join(temp_dir, 'dump.sql')
             dump_cmd = f"PGPASSWORD={db_password} pg_dump -Fc -h {db_host} -p {db_port} -U {db_user} {db_name} -f {dump_file}"
-            if backup_format == 'custom':
-                dump_cmd = f"PGPASSWORD={db_password} pg_dump -Fc -h {db_host} -p {db_port} -U {db_user} {db_name} -f {dump_file}"
-
             result = subprocess.run(dump_cmd, shell=True, check=True, text=True, capture_output=True)
 
             if result.returncode != 0:
                 error_message = f"¡Falló el volcado de la base de datos! Error: {str(result.stderr)}"
                 raise UserError(error_message)
 
-            if backup_format == 'zip':
-                filestore_path = tools.config.filestore(db_name)
-                filestore_backup_path = os.path.join(temp_dir, 'filestore')
-                shutil.copytree(filestore_path, filestore_backup_path)
+            filestore_path = tools.config.filestore(db_name)
+            filestore_backup_path = os.path.join(temp_dir, 'filestore')
+            shutil.copytree(filestore_path, filestore_backup_path)
 
-            # Crear un manifest detallado
-            manifest = {
-                'odoo_dump': '1',
-                'db_name': db_name,
-                'version': odoo.release.version,
-                'version_info': list(odoo.release.version_info),
-                'major_version': odoo.release.major_version,
-                'pg_version': self._get_pg_version(),
-                'backup_date': fields.Datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                'modules': self._get_installed_modules(),
-            }
+            manifest = self._generate_manifest(db_name)
             with open(os.path.join(temp_dir, 'manifest.json'), 'w') as manifest_file:
-                json.dump(manifest, manifest_file, indent=4)
+                json.dump(manifest, manifest_file)
 
             backup_file_path = f"/tmp/{db_name}_backup_{fields.Datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
             with zipfile.ZipFile(backup_file_path, 'w', zipfile.ZIP_DEFLATED) as backup_zip:
                 for root, dirs, files in os.walk(temp_dir):
                     for file in files:
                         backup_zip.write(os.path.join(root, file),
-                                         os.path.relpath(os.path.join(root, file), temp_dir))
+                                         os.path.relpath(os.path.join(root, file),
+                                                         temp_dir))
 
             if not os.path.exists(backup_file_path):
                 raise UserError(f"El archivo ZIP de respaldo no se creó correctamente: {backup_file_path}")
 
             self.upload_to_pcloud(backup_file_path, self.pcloud_folder_id)
-
-            shutil.rmtree(temp_dir)
-            os.remove(backup_file_path)
 
             _logger.info("Backup creado y subido a pCloud con éxito.")
         except subprocess.CalledProcessError as e:
@@ -124,6 +102,22 @@ class BackupConfigSettings(models.Model):
         finally:
             if os.path.exists(temp_dir):
                 shutil.rmtree(temp_dir)
+
+    def _generate_manifest(self, db_name):
+        self.env.cr.execute("SELECT name, latest_version FROM ir_module_module WHERE state = 'installed'")
+        modules = dict(self.env.cr.fetchall())
+        pg_version = "%d.%d" % divmod(self.env.cr._obj.connection.server_version / 100, 100)
+        manifest = {
+            'odoo_dump': "1",
+            'db_name': db_name,
+            'version': odoo.release.version,
+            'version_info': list(odoo.release.version_info),
+            'major_version': odoo.release.major_version,
+            'pg_version': pg_version,
+            'backup_date': fields.Datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'modules': modules
+        }
+        return manifest
 
     def upload_to_pcloud(self, backup_file_path, pcloud_folder_id):
         config = self.env['pcloud.config'].search([], limit=1)
@@ -147,7 +141,7 @@ class BackupConfigSettings(models.Model):
 
     def update_cron_frequency(self):
         self.ensure_one()
-        
+
         cron_frequency = self.cron_frequency
         cron = self.env.ref('copier_company.ir_cron_backup')
 
@@ -157,12 +151,3 @@ class BackupConfigSettings(models.Model):
             cron.write({'interval_number': 1, 'interval_type': 'hours'})
         else:
             cron.write({'interval_number': 1, 'interval_type': 'days'})
-
-    def _get_installed_modules(self):
-        self.env.cr.execute("SELECT name, latest_version FROM ir_module_module WHERE state = 'installed'")
-        return dict(self.env.cr.fetchall())
-
-    def _get_pg_version(self):
-        self.env.cr.execute("SHOW server_version")
-        pg_version = self.env.cr.fetchone()[0]
-        return pg_version
