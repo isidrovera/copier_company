@@ -19,6 +19,8 @@ class BackupConfigSettings(models.Model):
     db_name = fields.Char(string="Database Name", required=True)
     db_user = fields.Char(string="Database User", required=True)
     db_password = fields.Char(string="Database Password", required=True)
+    db_host = fields.Char(string="Database Host", required=True, default="db")
+    db_port = fields.Integer(string="Database Port", required=True, default=5432)
     pcloud_folder_id = fields.Char(string="pCloud Folder ID", required=True)
     cron_frequency = fields.Selection([
         ('minutes', 'Minutes'),
@@ -74,7 +76,7 @@ class BackupConfigSettings(models.Model):
             _logger.error("No backup configuration settings found.")
             raise UserError("No backup configuration settings found.")
 
-        _logger.debug(f"Backup config: {backup_config.read(['db_name', 'db_user', 'db_password'])}")
+        _logger.debug(f"Backup config: {backup_config.read(['db_name', 'db_user', 'db_password', 'db_host', 'db_port'])}")
 
         if not backup_config.db_name or not backup_config.db_user or not backup_config.db_password:
             _logger.error("Database credentials are not set properly in the configuration settings.")
@@ -83,6 +85,8 @@ class BackupConfigSettings(models.Model):
         db_name = backup_config.db_name
         db_user = backup_config.db_user
         db_password = backup_config.db_password
+        db_host = backup_config.db_host
+        db_port = backup_config.db_port
 
         temp_dir = f"/tmp/{db_name}_backup_temp"
         if os.path.exists(temp_dir):
@@ -91,7 +95,7 @@ class BackupConfigSettings(models.Model):
 
         try:
             dump_file = os.path.join(temp_dir, 'dump.sql')
-            dump_cmd = f"PGPASSWORD={db_password} pg_dump -Fc -h localhost -U {db_user} {db_name} -f {dump_file}"
+            dump_cmd = f"PGPASSWORD={db_password} pg_dump -Fc -h {db_host} -p {db_port} -U {db_user} {db_name} -f {dump_file}"
             result = subprocess.run(dump_cmd, shell=True, check=True, text=True, capture_output=True)
 
             if result.returncode != 0:

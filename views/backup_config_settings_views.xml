@@ -7,6 +7,7 @@
                 <form string="Backup Settings">
                     <header>
                         <button string="Test Connection" type="object" name="test_db_connection" class="oe_highlight"/>
+                        <button string="Create Backup Now" type="object" name="create_backup" class="btn-primary"/>
                     </header>
                     <sheet>
                         <group>
@@ -15,6 +16,8 @@
                                 <field name="db_name"/>
                                 <field name="db_user"/>
                                 <field name="db_password" password="True"/>
+                                <field name="db_host"/>
+                                <field name="db_port"/>
                                 <field name="pcloud_folder_id"/>
                                 <field name="cron_frequency"/>
                             </group>
@@ -33,6 +36,8 @@
                     <field name="db_name"/>
                     <field name="db_user"/>
                     <field name="db_password"/>
+                    <field name="db_host"/>
+                    <field name="db_port"/>
                     <field name="pcloud_folder_id"/>
                     <field name="cron_frequency"/>
                 </tree>
