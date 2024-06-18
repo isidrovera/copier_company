@@ -59,7 +59,7 @@ class PcloudController(http.Controller):
                 '.cache', '.config', '.git', '.github', '.local',
                 'Crypto Folder', 'System Volume Information', '.DS_Store', '.editorconfig', '.gitattributes',
                 '.gitignore', '.last_revision', '.mailmap', '.npmignore', '.npmrc', '.parentlock', '.travis.yml',
-                '.dockerignore','.pydio_id','.megaignore','Backups', 'Copier Company','pCloud Backup','Public Folder'
+                '.dockerignore','.pydio_id','.megaignore','Backups', 'Copier Company','pCloud Backup','Public Folder','backup_copiercompany','backup_soporte-it'
             ]
             
             filtered_contents = [item for item in contents if item.get('name', 'Unknown') not in exclusions]
