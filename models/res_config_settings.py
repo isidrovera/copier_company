@@ -1,47 +1,50 @@
-from odoo import models, fields, api
 import os
-import base64
-import subprocess
+import tempfile
 import shutil
-import zipfile
 import json
+import subprocess
+import zipfile
 import requests
-from odoo.exceptions import UserError
-import logging
 
+from odoo import models, fields, api, tools, _
+from odoo.exceptions import UserError
+import odoo
+
+import logging
 _logger = logging.getLogger(__name__)
+
 
 class BackupConfigSettings(models.Model):
     _name = 'backup.config.settings'
-    _description = 'Backup Config Settings'
+    _description = 'Configuración de Backup'
 
-    name = fields.Char(string="Configuration Name", required=True)
-    db_name = fields.Char(string="Database Name", required=True)
-    db_user = fields.Char(string="Database User", required=True)
-    db_password = fields.Char(string="Database Password", required=True)
-    db_host = fields.Char(string="Database Host", required=True, default="db")
-    db_port = fields.Integer(string="Database Port", required=True, default=5432)
-    pcloud_folder_id = fields.Char(string="pCloud Folder ID", required=True)
+    name = fields.Char('Nombre de Configuración', required=True)
+    db_name = fields.Char('Nombre de la Base de Datos', required=True)
+    db_user = fields.Char('Usuario de la Base de Datos', required=True)
+    db_password = fields.Char('Contraseña de la Base de Datos', required=True)
+    db_host = fields.Char('Host de la Base de Datos', required=True, default='db')
+    db_port = fields.Integer('Puerto de la Base de Datos', required=True, default=5432)
+    pcloud_folder_id = fields.Char('ID de Carpeta en pCloud', required=True)
     cron_frequency = fields.Selection([
-        ('minutes', 'Minutes'),
-        ('hours', 'Hours'),
-        ('days', 'Days'),
-    ], string="Cron Frequency", default='days', required=True)
-
+        ('minutes', 'Minutos'),
+        ('hours', 'Horas'),
+        ('days', 'Días'),
+    ], string="Frecuencia del Cron", default='days', required=True)
+    
     def test_db_connection(self):
         try:
             self.env.cr.execute("SELECT 1")
-            message = "Database connection is successful!"
+            message = "¡Conexión a la base de datos exitosa!"
             notification_type = 'success'
         except Exception as e:
-            message = f"Database connection failed! Error: {str(e)}"
+            message = f"¡Conexión a la base de datos fallida! Error: {str(e)}"
             notification_type = 'danger'
 
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': 'Database Connection Test',
+                'title': 'Prueba de Conexión a la Base de Datos',
                 'message': message,
                 'type': notification_type,
                 'sticky': False,
@@ -49,38 +52,11 @@ class BackupConfigSettings(models.Model):
         }
 
     @api.model
-    def create(self, vals):
-        res = super(BackupConfigSettings, self).create(vals)
-        res._update_cron()
-        return res
-
-    def write(self, vals):
-        res = super(BackupConfigSettings, self).write(vals)
-        self._update_cron()
-        return res
-
-    def _update_cron(self):
-        cron = self.env.ref('copier_company.ir_cron_backup')
-        interval_type = self.cron_frequency
-        interval_number = 1
-
-        if cron:
-            cron.write({
-                'interval_number': interval_number,
-                'interval_type': interval_type,
-            })
-
     def create_backup(self):
         backup_config = self.search([], limit=1)
         if not backup_config:
-            _logger.error("No backup configuration settings found.")
-            raise UserError("No backup configuration settings found.")
-
-        _logger.debug(f"Backup config: {backup_config.read(['db_name', 'db_user', 'db_password', 'db_host', 'db_port'])}")
-
-        if not backup_config.db_name or not backup_config.db_user or not backup_config.db_password:
-            _logger.error("Database credentials are not set properly in the configuration settings.")
-            raise UserError("Database credentials are not set properly in the configuration settings.")
+            _logger.error("No se encontraron configuraciones de backup.")
+            raise UserError("No se encontraron configuraciones de backup.")
 
         db_name = backup_config.db_name
         db_user = backup_config.db_user
@@ -88,21 +64,17 @@ class BackupConfigSettings(models.Model):
         db_host = backup_config.db_host
         db_port = backup_config.db_port
 
-        temp_dir = f"/tmp/{db_name}_backup_temp"
-        if os.path.exists(temp_dir):
-            shutil.rmtree(temp_dir)
-        os.makedirs(temp_dir, exist_ok=True)
-
+        temp_dir = tempfile.mkdtemp()
         try:
             dump_file = os.path.join(temp_dir, 'dump.sql')
             dump_cmd = f"PGPASSWORD={db_password} pg_dump -Fc -h {db_host} -p {db_port} -U {db_user} {db_name} -f {dump_file}"
             result = subprocess.run(dump_cmd, shell=True, check=True, text=True, capture_output=True)
 
             if result.returncode != 0:
-                error_message = f"Database dump failed! Error: {str(result.stderr)}"
+                error_message = f"¡Falló el volcado de la base de datos! Error: {str(result.stderr)}"
                 raise UserError(error_message)
 
-            filestore_path = os.path.join(self.env['ir.config_parameter'].sudo().get_param('data_dir'), 'filestore', db_name)
+            filestore_path = tools.config.filestore(db_name)
             filestore_backup_path = os.path.join(temp_dir, 'filestore')
             shutil.copytree(filestore_path, filestore_backup_path)
 
@@ -128,23 +100,23 @@ class BackupConfigSettings(models.Model):
             os.remove(backup_file_path)
 
             self.env['backup.history'].create({
-                'name': f"{db_name}_backup_{fields.Datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+                'name': f"{db_name}_backup_{fields.Datetime.now().strftime('%Y-%m-%d %H%M%S')}",
                 'backup_data': base64.b64encode(open(backup_file_path, 'rb').read()),
             })
 
-            _logger.info("Backup created and uploaded to pCloud successfully.")
+            _logger.info("Backup creado y subido a pCloud con éxito.")
         except subprocess.CalledProcessError as e:
-            error_message = f"Backup failed! Error: {str(e)}\nStdout: {e.stdout}\nStderr: {e.stderr}"
+            error_message = f"¡Backup fallido! Error: {str(e)}\nStdout: {e.stdout}\nStderr: {e.stderr}"
             _logger.error(error_message)
             raise UserError(error_message)
 
     def upload_to_pcloud(self, backup_file_path, pcloud_folder_id):
         config = self.env['pcloud.config'].search([], limit=1)
         if not config:
-            raise UserError("No pCloud configuration found.")
+            raise UserError("No se encontró la configuración de pCloud.")
 
         if not config.access_token:
-            raise UserError("pCloud is not connected. Please connect to pCloud first.")
+            raise UserError("pCloud no está conectado. Por favor, conéctese a pCloud primero.")
 
         url = f"{config.hostname}/uploadfile"
         params = {
@@ -156,13 +128,28 @@ class BackupConfigSettings(models.Model):
             files = {'file': (os.path.basename(backup_file_path), file)}
             response = requests.post(url, params=params, files=files)
             if response.status_code != 200:
-                _logger.error("Failed to upload backup to pCloud. Response: %s", response.text)
-                raise UserError("Failed to upload backup to pCloud. Please check your configuration.")
+                _logger.error("No se pudo subir el backup a pCloud. Respuesta: %s", response.text)
+                raise UserError("No se pudo subir el backup a pCloud. Por favor, revise su configuración.")
+
+    def update_cron_frequency(self):
+        backup_config = self.search([], limit=1)
+        if not backup_config:
+            _logger.error("No se encontraron configuraciones de backup.")
+            return
+        cron_frequency = backup_config.cron_frequency
+        cron = self.env.ref('copier_company.ir_cron_backup')
+
+        if cron_frequency == 'minutes':
+            cron.write({'interval_number': 1, 'interval_type': 'minutes'})
+        elif cron_frequency == 'hours':
+            cron.write({'interval_number': 1, 'interval_type': 'hours'})
+        else:
+            cron.write({'interval_number': 1, 'interval_type': 'days'})
 
 class BackupHistory(models.Model):
     _name = 'backup.history'
-    _description = 'Backup History'
+    _description = 'Historial de Backups'
 
-    name = fields.Char(string="Backup Name", required=True)
-    backup_data = fields.Binary(string="Backup Data")
-    backup_date = fields.Datetime(string="Backup Date", default=fields.Datetime.now, readonly=True)
+    name = fields.Char(string="Nombre del Backup", required=True)
+    backup_data = fields.Binary(string="Datos del Backup")
+    backup_date = fields.Datetime(string="Fecha del Backup", default=fields.Datetime.now, readonly=True)

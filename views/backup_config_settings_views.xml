@@ -4,10 +4,10 @@
             <field name="name">backup.config.settings.form</field>
             <field name="model">backup.config.settings</field>
             <field name="arch" type="xml">
-                <form string="Backup Settings">
+                <form string="Configuración de Backup">
                     <header>
-                        <button string="Test Connection" type="object" name="test_db_connection" class="oe_highlight"/>
-                        <button string="Create Backup Now" type="object" name="create_backup" class="btn-primary"/>
+                        <button string="Probar Conexión" type="object" name="test_db_connection" class="oe_highlight"/>
+                        <button string="Crear Backup Ahora" type="object" name="create_backup" class="btn-primary"/>
                     </header>
                     <sheet>
                         <group>
@@ -31,7 +31,7 @@
             <field name="name">backup.config.settings.tree</field>
             <field name="model">backup.config.settings</field>
             <field name="arch" type="xml">
-                <tree string="Backup Settings">
+                <tree string="Configuraciones de Backup">
                     <field name="name"/>
                     <field name="db_name"/>
                     <field name="db_user"/>
@@ -45,12 +45,12 @@
         </record>
 
         <record id="action_backup_config_settings" model="ir.actions.act_window">
-            <field name="name">Backup Settings</field>
+            <field name="name">Configuraciones de Backup</field>
             <field name="res_model">backup.config.settings</field>
             <field name="view_mode">tree,form</field>
             <field name="view_id" ref="view_backup_config_settings_tree"/>
         </record>
 
-        <menuitem id="menu_backup_config_settings" name="Backup Settings" parent="copier_company.menu_root" action="action_backup_config_settings" sequence="50"/>
+        <menuitem id="menu_backup_config_settings" name="Configuraciones de Backup" parent="copier_company.menu_root" action="action_backup_config_settings" sequence="50"/>
     </data>
 </odoo>
