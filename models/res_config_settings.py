@@ -14,7 +14,6 @@ import odoo
 import logging
 _logger = logging.getLogger(__name__)
 
-
 class BackupConfigSettings(models.Model):
     _name = 'backup.config.settings'
     _description = 'Configuración de Backup'
@@ -91,21 +90,31 @@ class BackupConfigSettings(models.Model):
                                          os.path.relpath(os.path.join(root, file),
                                                          os.path.join(temp_dir, '..')))
 
-            self.upload_to_pcloud(backup_file_path, self.pcloud_folder_id)
+            if not os.path.exists(backup_file_path):
+                raise UserError(f"El archivo ZIP de respaldo no se creó correctamente: {backup_file_path}")
 
-            shutil.rmtree(temp_dir)
-            os.remove(backup_file_path)
+            self.upload_to_pcloud(backup_file_path, self.pcloud_folder_id)
 
             self.env['backup.history'].create({
                 'name': f"{db_name}_backup_{fields.Datetime.now().strftime('%Y-%m-%d %H%M%S')}",
                 'backup_data': base64.b64encode(open(backup_file_path, 'rb').read()),
             })
 
+            shutil.rmtree(temp_dir)
+            os.remove(backup_file_path)
+
             _logger.info("Backup creado y subido a pCloud con éxito.")
         except subprocess.CalledProcessError as e:
             error_message = f"¡Backup fallido! Error: {str(e)}\nStdout: {e.stdout}\nStderr: {e.stderr}"
             _logger.error(error_message)
             raise UserError(error_message)
+        except Exception as e:
+            error_message = f"¡Backup fallido! Error: {str(e)}"
+            _logger.error(error_message)
+            raise UserError(error_message)
+        finally:
+            if os.path.exists(temp_dir):
+                shutil.rmtree(temp_dir)
 
     def upload_to_pcloud(self, backup_file_path, pcloud_folder_id):
         config = self.env['pcloud.config'].search([], limit=1)
@@ -139,7 +148,6 @@ class BackupConfigSettings(models.Model):
             cron.write({'interval_number': 1, 'interval_type': 'hours'})
         else:
             cron.write({'interval_number': 1, 'interval_type': 'days'})
-
 
 class BackupHistory(models.Model):
     _name = 'backup.history'
