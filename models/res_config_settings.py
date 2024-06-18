@@ -73,13 +73,15 @@ class BackupConfigSettings(models.Model):
             filestore_backup_path = os.path.join(temp_dir, 'filestore')
             shutil.copytree(filestore_path, filestore_backup_path)
 
+            # Crear un manifest detallado
             manifest = {
                 'db_name': db_name,
                 'version': odoo.release.version,
                 'backup_date': fields.Datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'modules': self._get_installed_modules(),
             }
             with open(os.path.join(temp_dir, 'manifest.json'), 'w') as manifest_file:
-                json.dump(manifest, manifest_file)
+                json.dump(manifest, manifest_file, indent=4)
 
             backup_file_path = f"/tmp/{db_name}_backup_{fields.Datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
             with zipfile.ZipFile(backup_file_path, 'w', zipfile.ZIP_DEFLATED) as backup_zip:
@@ -141,3 +143,7 @@ class BackupConfigSettings(models.Model):
             cron.write({'interval_number': 1, 'interval_type': 'hours'})
         else:
             cron.write({'interval_number': 1, 'interval_type': 'days'})
+
+    def _get_installed_modules(self):
+        self.env.cr.execute("SELECT name, latest_version FROM ir_module_module WHERE state = 'installed'")
+        return dict(self.env.cr.fetchall())
