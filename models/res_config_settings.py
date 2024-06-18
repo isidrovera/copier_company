@@ -5,13 +5,10 @@ import json
 import subprocess
 import zipfile
 import requests
-import base64
-
 from odoo import models, fields, api, tools, _
 from odoo.exceptions import UserError
-import odoo
-
 import logging
+
 _logger = logging.getLogger(__name__)
 
 class BackupConfigSettings(models.Model):
@@ -95,11 +92,6 @@ class BackupConfigSettings(models.Model):
 
             self.upload_to_pcloud(backup_file_path, self.pcloud_folder_id)
 
-            self.env['backup.history'].create({
-                'name': f"{db_name}_backup_{fields.Datetime.now().strftime('%Y-%m-%d %H%M%S')}",
-                'backup_data': base64.b64encode(open(backup_file_path, 'rb').read()),
-            })
-
             shutil.rmtree(temp_dir)
             os.remove(backup_file_path)
 
@@ -148,11 +140,3 @@ class BackupConfigSettings(models.Model):
             cron.write({'interval_number': 1, 'interval_type': 'hours'})
         else:
             cron.write({'interval_number': 1, 'interval_type': 'days'})
-
-class BackupHistory(models.Model):
-    _name = 'backup.history'
-    _description = 'Historial de Backups'
-
-    name = fields.Char(string="Nombre del Backup", required=True)
-    backup_data = fields.Binary(string="Datos del Backup")
-    backup_date = fields.Datetime(string="Fecha del Backup", default=fields.Datetime.now, readonly=True)
