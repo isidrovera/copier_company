@@ -12,20 +12,35 @@ class PdfViewerController(http.Controller):
     def pdf_viewer(self, file_id):
         config = request.env['pcloud.config'].search([], limit=1)
         if not config:
+            _logger.error("pCloud configuration not found.")
             return "pCloud configuration not found."
 
         try:
             file_id = int(file_id)
-            download_url = config.download_pcloud_file(file_id)
-            if download_url:
-                response = requests.get(download_url, stream=True)
-                response.raise_for_status()
-                pdf_content = response.content
-                headers = [
-                    ('Content-Type', 'application/pdf'),
-                    ('Content-Disposition', 'inline; filename="document.pdf"')
-                ]
-                return request.make_response(pdf_content, headers)
+            download_info = config.get_pcloud_file_info(file_id)
+            if not download_info:
+                _logger.error("Failed to get download information for file_id %s", file_id)
+                return "Failed to get download information."
+
+            download_url = download_info['hosts'][0] + download_info['path']
+            if not download_url.startswith('http://') and not download_url.startswith('https://'):
+                download_url = 'https://' + download_url
+
+            _logger.info("Download URL: %s", download_url)
+
+            response = requests.get(download_url, stream=True)
+            response.raise_for_status()
+            
+            if response.status_code != 200:
+                _logger.error("Failed to retrieve PDF: HTTP %s", response.status_code)
+                return "Failed to retrieve PDF."
+
+            pdf_content = response.content
+            headers = [
+                ('Content-Type', 'application/pdf'),
+                ('Content-Disposition', 'inline; filename="document.pdf"')
+            ]
+            return request.make_response(pdf_content, headers)
         except Exception as e:
             _logger.error('Failed to retrieve PDF: %s', str(e))
             return "Failed to retrieve PDF."
@@ -34,6 +49,7 @@ class PdfViewerController(http.Controller):
     def list_files(self, folder_id=0, search='', **kwargs):
         config = request.env['pcloud.config'].search([], limit=1)
         if not config:
+            _logger.error("pCloud configuration not found.")
             return request.render('copier_company.no_config_template')
 
         try:
@@ -67,9 +83,9 @@ class PdfViewerController(http.Controller):
 
     def _format_date(self, date_str):
         date_formats = [
-            '%a, %d %b %Y %H:%M:%S %z',  
-            '%Y-%m-%d %H:%M:%S',         
-            '%Y-%m-%dT%H:%M:%S',         
+            '%a, %d %b %Y %H:%M:%S %z',
+            '%Y-%m-%d %H:%M:%S',
+            '%Y-%m-%dT%H:%M:%S',
         ]
         
         for fmt in date_formats:
