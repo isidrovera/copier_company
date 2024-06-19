@@ -36,7 +36,7 @@
                                 <tr>
                                     <th>Nombre</th>
                                     <th>Tamaño</th>
-                                    <th id="modified-header">Fecha de Modificación</th>
+                                    <th id="modified-header">Fecha de Modificación <i id="sort-icon" class="fa"></i></th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -109,6 +109,7 @@
                     var kanbanView = document.getElementById('kanban-view');
                     var viewMode = localStorage.getItem('viewMode') || 'list';
                     var modifiedHeader = document.getElementById('modified-header');
+                    var sortIcon = document.getElementById('sort-icon');
                     var ascending = true;
 
                     function setViewMode(mode) {
@@ -168,6 +169,7 @@
                         });
 
                         ascending = !ascending;
+                        sortIcon.className = ascending ? 'fa fa-arrow-up' : 'fa fa-arrow-down';
 
                         rows.forEach(function(row) {
                             filesList.appendChild(row);
