@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="pcloud_files_template" name="PDF Files">
+        <t t-call="website.layout">
+            <div class="container mt-5">
+                <div class="row">
+                    <div class="col-12">
+                        <h1>Archivos PDF</h1>
+                        <form id="search-form" class="form-inline mb-4">
+                            <input type="hidden" name="folder_id" t-att-value="current_folder_id"/>
+                            <input type="text" name="search" id="search-input" class="form-control" placeholder="Buscar archivos..." t-att-value="search"/>
+                            <button type="submit" class="btn btn-primary ml-2">Buscar</button>
+                        </form>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Tamaño</th>
+                                    <th>Fecha de Modificación</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="contents" t-as="item">
+                                    <tr>
+                                        <td>
+                                            <t t-if="item['isfolder']">
+                                                <a t-att-href="'/pdf/files?folder_id=' + str(item['id'])">
+                                                    <t t-esc="item['name']"/>
+                                                </a>
+                                            </t>
+                                            <t t-else="">
+                                                <t t-esc="item['name']"/>
+                                            </t>
+                                        </td>
+                                        <td><t t-esc="item['size']"/></td>
+                                        <td><t t-esc="item['modified']"/></td>
+                                        <td>
+                                            <t t-if="not item['isfolder']">
+                                                <a t-att-href="'/pdf/viewer?file_id=' + str(item['id'])" class="btn btn-primary">Ver</a>
+                                            </t>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                document.addEventListener('DOMContentLoaded', function() {
+                    var searchInput = document.getElementById('search-input');
+                    searchInput.addEventListener('input', function() {
+                        var searchTerm = searchInput.value.toLowerCase();
+                        var rows = document.querySelectorAll('tbody tr');
+                        rows.forEach(function(row) {
+                            var fileName = row.querySelector('td:first-child').innerText.toLowerCase();
+                            row.style.display = fileName.includes(searchTerm) ? '' : 'none';
+                        });
+                    });
+                });
+            </script>
+        </t>
+    </template>
+
+    <template id="pdf_view_template" name="PDF View">
+        <t t-call="website.layout">
+            <div class="container mt-5">
+                <div class="row">
+                    <div class="col-12">
+                        <h1>Vista de PDF</h1>
+                        <iframe id="pdf-viewer" src="" width="100%" height="800px" style="border: none;"></iframe>
+                    </div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                document.addEventListener('DOMContentLoaded', function() {
+                    var urlParams = new URLSearchParams(window.location.search);
+                    var fileId = urlParams.get('file_id');
+                    if (fileId) {
+                        var iframe = document.getElementById('pdf-viewer');
+                        iframe.src = '/pdf/viewer?file_id=' + fileId;
+                        iframe.onload = function() {
+                            var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+                            iframeDocument.oncontextmenu = function() { return false; };
+                            iframeDocument.body.style.pointerEvents = 'none';
+                        };
+                    }
+                });
+            </script>
+        </t>
+    </template>
+</odoo>
