@@ -1,31 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <template id="pcloud_files_template" name="PDF Files">
+    <template id="pcloud_files_template" name="Descargas">
         <t t-call="website.layout">
-            <div class="container mt-5">
-                <div class="row">
-                    <div class="col-12">
-                        <h1>Archivos PDF</h1>
-                        <form id="search-form" class="form-inline mb-4">
+            <div class="container-fluid">
+                <div class="row mt-4 mb-4">
+                    <div class="col-6 col-md-3">
+                        <a href="/soporte/descargas?folder_id=0" class="btn btn-primary btn-block btn-md-inline">
+                            <i class="fa fa-home"></i> Inicio
+                        </a>
+                        <t t-if="current_folder_id">
+                            <a href="javascript:history.back()" class="btn btn-secondary btn-block btn-md-inline mt-2 mt-md-0">
+                                <i class="fa fa-arrow-left"></i> Atrás
+                            </a>
+                        </t>
+                    </div>
+                    <div class="col-12 col-md-6 text-center mt-2 mt-md-0">
+                        <form id="search-form" class="form-inline justify-content-center">
                             <input type="hidden" name="folder_id" t-att-value="current_folder_id"/>
-                            <input type="text" name="search" id="search-input" class="form-control" placeholder="Buscar archivos..." t-att-value="search"/>
-                            <button type="submit" class="btn btn-primary ml-2">Buscar</button>
+                            <input type="text" id="search-input" class="form-control" placeholder="Buscar archivos..." t-att-value="request.params.get('search', '')"/>
                         </form>
+                    </div>
+                    <div class="col-6 col-md-3 text-right mt-2 mt-md-0">
+                        <button id="list-view-btn" class="btn btn-outline-secondary" title="Vista de lista">
+                            <img src="/copier_company/static/src/img/list-view-icon.png" alt="Lista" style="width: 24px; height: 24px;"/>
+                        </button>
+                        <button id="kanban-view-btn" class="btn btn-outline-secondary" title="Vista Kanban">
+                            <img src="/copier_company/static/src/img/kanban-view-icon.png" alt="Kanban" style="width: 24px; height: 24px;"/>
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 table-responsive" id="list-view">
                         <table class="table table-striped">
                             <thead>
                                 <tr>
                                     <th>Nombre</th>
                                     <th>Tamaño</th>
-                                    <th>Fecha de Modificación</th>
+                                    <th id="modified-header">Fecha de Modificación <i id="sort-icon" class="fa"></i></th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="files-list">
                                 <t t-foreach="contents" t-as="item">
                                     <tr>
                                         <td>
+                                            <img t-att-src="'/copier_company/static/src/img/' + item['icon']" alt="icon" style="width: 24px; height: 24px;"/>
                                             <t t-if="item['isfolder']">
-                                                <a t-att-href="'/pdf/files?folder_id=' + str(item['id'])">
+                                                <a t-att-href="'/soporte/descargas?folder_id=%d&amp;view_mode=%s' % (item['id'], view_mode)">
                                                     <t t-esc="item['name']"/>
                                                 </a>
                                             </t>
@@ -33,11 +54,17 @@
                                                 <t t-esc="item['name']"/>
                                             </t>
                                         </td>
-                                        <td><t t-esc="item['size']"/></td>
-                                        <td><t t-esc="item['modified']"/></td>
+                                        <td>
+                                            <t t-esc="item['size']"/>
+                                        </td>
+                                        <td>
+                                            <t t-esc="item['modified']"/>
+                                        </td>
                                         <td>
                                             <t t-if="not item['isfolder']">
-                                                <a t-att-href="'/pdf/viewer?file_id=' + str(item['id'])" class="btn btn-primary">Ver</a>
+                                                <a t-att-href="'/soporte/descarga?file_id=%d' % item['id']" class="btn btn-outline-primary btn-block btn-md-inline">
+                                                    Descargar
+                                                </a>
                                             </t>
                                         </td>
                                     </tr>
@@ -45,62 +72,111 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="col-12 d-none" id="kanban-view">
+                        <div class="row">
+                            <t t-foreach="contents" t-as="item">
+                                <div class="col-6 col-md-4 col-lg-3 mb-4">
+                                    <div class="card">
+                                        <img class="card-img-top" t-att-src="'/copier_company/static/src/img/' + item['icon']" alt="icon" style="width: 48px; height: 48px; margin: auto;"/>
+                                        <div class="card-body">
+                                            <h5 class="card-title">
+                                                <t t-esc="item['name']"/>
+                                            </h5>
+                                            <p class="card-text">
+                                                <strong>Modificado:</strong> <t t-esc="item['modified']"/>
+                                            </p>
+                                            <t t-if="item['isfolder']">
+                                                <a t-att-href="'/soporte/descargas?folder_id=%d&amp;view_mode=%s' % (item['id'], view_mode)" class="btn btn-primary">Abrir</a>
+                                            </t>
+                                            <t t-if="not item['isfolder']">
+                                                <a t-att-href="'/soporte/descarga?file_id=%d' % item['id']" class="btn btn-outline-primary">Descargar</a>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
                 </div>
             </div>
             <script type="text/javascript">
                 document.addEventListener('DOMContentLoaded', function() {
                     var searchInput = document.getElementById('search-input');
+                    var filesList = document.getElementById('files-list');
+                    var listViewBtn = document.getElementById('list-view-btn');
+                    var kanbanViewBtn = document.getElementById('kanban-view-btn');
+                    var listView = document.getElementById('list-view');
+                    var kanbanView = document.getElementById('kanban-view');
+                    var viewMode = localStorage.getItem('viewMode') || 'list';
+                    var modifiedHeader = document.getElementById('modified-header');
+                    var sortIcon = document.getElementById('sort-icon');
+                    var ascending = true;
+
+                    function setViewMode(mode) {
+                        if (mode === 'list') {
+                            listView.classList.remove('d-none');
+                            kanbanView.classList.add('d-none');
+                            listViewBtn.classList.add('active');
+                            kanbanViewBtn.classList.remove('active');
+                        } else {
+                            listView.classList.add('d-none');
+                            kanbanView.classList.remove('d-none');
+                            listViewBtn.classList.remove('active');
+                            kanbanViewBtn.classList.add('active');
+                        }
+                        localStorage.setItem('viewMode', mode);
+                    }
+
+                    listViewBtn.addEventListener('click', function() {
+                        setViewMode('list');
+                    });
+
+                    kanbanViewBtn.addEventListener('click', function() {
+                        setViewMode('kanban');
+                    });
+
                     searchInput.addEventListener('input', function() {
                         var searchTerm = searchInput.value.toLowerCase();
-                        var rows = document.querySelectorAll('tbody tr');
+                        var rows = filesList.getElementsByTagName('tr');
+                        for (var i = 0; i &lt; rows.length; i++) {
+                            var row = rows[i];
+                            var fileName = row.getElementsByTagName('td')[0].innerText.toLowerCase();
+                            if (fileName.includes(searchTerm)) {
+                                row.style.display = '';
+                            } else {
+                                row.style.display = 'none';
+                            }
+                        }
+
+                        var cards = kanbanView.getElementsByClassName('card');
+                        for (var i = 0; i &lt; cards.length; i++) {
+                            var card = cards[i];
+                            var fileName = card.getElementsByClassName('card-title')[0].innerText.toLowerCase();
+                            if (fileName.includes(searchTerm)) {
+                                card.style.display = '';
+                            } else {
+                                card.style.display = 'none';
+                            }
+                        }
+                    });
+
+                    modifiedHeader.addEventListener('click', function() {
+                        var rows = Array.from(filesList.getElementsByTagName('tr'));
+                        rows.sort(function(a, b) {
+                            var dateA = new Date(a.getElementsByTagName('td')[2].innerText);
+                            var dateB = new Date(b.getElementsByTagName('td')[2].innerText);
+                            return ascending ? dateA - dateB : dateB - dateA;
+                        });
+
+                        ascending = !ascending;
+                        sortIcon.className = ascending ? 'fa fa-arrow-up' : 'fa fa-arrow-down';
+
                         rows.forEach(function(row) {
-                            var fileName = row.querySelector('td:first-child').innerText.toLowerCase();
-                            row.style.display = fileName.includes(searchTerm) ? '' : 'none';
+                            filesList.appendChild(row);
                         });
                     });
-                });
-            </script>
-        </t>
-    </template>
 
-    <template id="pdf_view_template" name="PDF View">
-        <t t-call="website.layout">
-            <div class="container mt-5">
-                <div class="row">
-                    <div class="col-12">
-                        <h1>Vista de PDF</h1>
-                        <div>
-                            <canvas id="pdf-canvas" width="100%"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <script src="/copier_company/static/src/js/pdf.js"></script>
-            <script src="/copier_company/static/src/js/pdf.worker.js"></script>
-            <script type="text/javascript">
-                document.addEventListener('DOMContentLoaded', function() {
-                    var urlParams = new URLSearchParams(window.location.search);
-                    var fileId = urlParams.get('file_id');
-                    if (fileId) {
-                        var downloadUrl = '/pdf/viewer?file_id=' + fileId;
-                        
-                        var loadingTask = pdfjsLib.getDocument(downloadUrl);
-                        loadingTask.promise.then(function(pdf) {
-                            pdf.getPage(1).then(function(page) {
-                                var scale = 1.5;
-                                var viewport = page.getViewport({ scale: scale });
-                                var canvas = document.getElementById('pdf-canvas');
-                                var context = canvas.getContext('2d');
-                                canvas.height = viewport.height;
-                                canvas.width = viewport.width;
-                                var renderContext = {
-                                    canvasContext: context,
-                                    viewport: viewport
-                                };
-                                page.render(renderContext);
-                            });
-                        });
-                    }
+                    setViewMode(viewMode);
                 });
             </script>
         </t>
