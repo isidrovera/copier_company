@@ -48,9 +48,7 @@
         'views/cloud_storage_template.xml',
         'views/pcloud_templates.xml',        
         'views/pcloud_files_template.xml',
-        'views/no_config_template.xml',
-        'views/backup_config_settings_views.xml',
-        'data/ir_cron_data.xml',
+        'views/no_config_template.xml',        
         
     ],
 
