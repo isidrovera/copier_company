@@ -36,7 +36,7 @@
                                 <tr>
                                     <th>Nombre</th>
                                     <th>Tamaño</th>
-                                    <th>Fecha de Modificación</th>
+                                    <th id="modified-header">Fecha de Modificación</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -108,6 +108,8 @@
                     var listView = document.getElementById('list-view');
                     var kanbanView = document.getElementById('kanban-view');
                     var viewMode = localStorage.getItem('viewMode') || 'list';
+                    var modifiedHeader = document.getElementById('modified-header');
+                    var ascending = true;
 
                     function setViewMode(mode) {
                         if (mode === 'list') {
@@ -155,6 +157,21 @@
                                 card.style.display = 'none';
                             }
                         }
+                    });
+
+                    modifiedHeader.addEventListener('click', function() {
+                        var rows = Array.from(filesList.getElementsByTagName('tr'));
+                        rows.sort(function(a, b) {
+                            var dateA = new Date(a.getElementsByTagName('td')[2].innerText);
+                            var dateB = new Date(b.getElementsByTagName('td')[2].innerText);
+                            return ascending ? dateA - dateB : dateB - dateA;
+                        });
+
+                        ascending = !ascending;
+
+                        rows.forEach(function(row) {
+                            filesList.appendChild(row);
+                        });
                     });
 
                     setViewMode(viewMode);
