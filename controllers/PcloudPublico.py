@@ -27,20 +27,9 @@ class PdfViewerController(http.Controller):
                 download_url = 'https://' + download_url
 
             _logger.info("Download URL: %s", download_url)
-
-            response = requests.get(download_url, stream=True)
-            response.raise_for_status()
-            
-            if response.status_code != 200:
-                _logger.error("Failed to retrieve PDF: HTTP %s", response.status_code)
-                return "Failed to retrieve PDF."
-
-            pdf_content = response.content
-            headers = [
-                ('Content-Type', 'application/pdf'),
-                ('Content-Disposition', 'inline; filename="document.pdf"')
-            ]
-            return request.make_response(pdf_content, headers)
+            return request.render('your_module_name.pdf_view_template', {
+                'pdf_url': download_url
+            })
         except Exception as e:
             _logger.error('Failed to retrieve PDF: %s', str(e))
             return "Failed to retrieve PDF."
