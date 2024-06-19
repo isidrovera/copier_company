@@ -27,7 +27,7 @@ class PdfViewerController(http.Controller):
                 download_url = 'https://' + download_url
 
             _logger.info("Download URL: %s", download_url)
-            return request.render('your_module_name.pdf_view_template', {
+            return request.render('copier_company.pdf_view_template', {
                 'pdf_url': download_url
             })
         except Exception as e:
