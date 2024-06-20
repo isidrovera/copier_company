@@ -8,7 +8,7 @@ _logger = logging.getLogger(__name__)
 
 class PdfViewerController(http.Controller):
 
-    @http.route('/pdf/viewer', type='http', auth='public', website=True)
+    @http.route('/pdf/viewer', type='http', auth='public')
     def pdf_viewer(self, file_id):
         config = request.env['pcloud.config'].search([], limit=1)
         if not config:
