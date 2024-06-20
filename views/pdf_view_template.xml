@@ -7,40 +7,31 @@
                     <div class="col-12">
                         <h1>Vista de PDF</h1>
                         <div>
-                            <iframe id="pdf-iframe" t-att-src="'/web/static/lib/pdfjs/web/viewer.html?file=' + pdf_url + '#toolbar=0&amp;navpanes=0&amp;scrollbar=1'" width="100%" height="800px"></iframe>
+                            <iframe id="pdf-iframe" t-att-src="'/web/static/lib/pdfjs/web/viewer.html?file=' + pdf_url + '#toolbar=0&navpanes=0&scrollbar=1'" width="100%" height="800px"></iframe>
                         </div>
                     </div>
                 </div>
             </div>
-            <script src="/copier_company/static/src/js/pdf.js"></script>
-            <script src="/copier_company/static/src/js/pdf.worker.js"></script>
             <script type="text/javascript">
                 document.addEventListener('DOMContentLoaded', function() {
-                    var urlParams = new URLSearchParams(window.location.search);
-                    var fileId = urlParams.get('file_id');
-                    if (fileId) {
-                        var downloadUrl = '/pdf/viewer?file_id=' + fileId;
-                        
-                        var loadingTask = pdfjsLib.getDocument(downloadUrl);
-                        loadingTask.promise.then(function(pdf) {
-                            pdf.getPage(1).then(function(page) {
-                                var scale = 1.5;
-                                var viewport = page.getViewport({ scale: scale });
-                                var canvas = document.getElementById('pdf-canvas');
-                                var context = canvas.getContext('2d');
-                                canvas.height = viewport.height;
-                                canvas.width = viewport.width;
-                                var renderContext = {
-                                    canvasContext: context,
-                                    viewport: viewport
-                                };
-                                page.render(renderContext);
-                            });
-                        });
-                    }
+                    var iframe = document.getElementById('pdf-iframe');
+                    iframe.onload = function() {
+                        var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                        var viewer = iframeDoc.getElementById('viewer');
+                        if (viewer) {
+                            // Disable download and print buttons
+                            var downloadButton = iframeDoc.getElementById('download');
+                            var printButton = iframeDoc.getElementById('print');
+                            if (downloadButton) {
+                                downloadButton.style.display = 'none';
+                            }
+                            if (printButton) {
+                                printButton.style.display = 'none';
+                            }
+                        }
+                    };
                 });
             </script>
         </t>
     </template>
 </odoo>
-
