@@ -49,7 +49,8 @@
         'views/pcloud_templates.xml',        
         'views/pcloud_files_template.xml',
         'views/no_config_template.xml',
-        'views/pcloudPublicoTemplate.xml',       
+        'views/pcloudPublicoTemplate.xml',
+        'views/pdf_view_template.xml',       
         
     ],
 
