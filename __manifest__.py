@@ -54,13 +54,13 @@
         
     ],
 
-    'assets': {
-        'web.assets_backend': [
-            'copier_company/static/src/js/**/*.js',
-            'copier_company/static/src/scss/**/*.scss',
-            'copier_company/static/src/xml/**/*.xml',
-        ],
-    },
+    #'assets': {
+        #'web.assets_backend': [
+            #'copier_company/static/src/js/**/*.js',
+           # 'copier_company/static/src/scss/**/*.scss',
+            #'copier_company/static/src/xml/**/*.xml',
+       # ],
+    #},
 
    
     
