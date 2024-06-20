@@ -6,10 +6,40 @@
                 <div class="row">
                     <div class="col-12">
                         <h1>Vista de PDF</h1>
-                        <iframe id="pdf-iframe" t-att-src="pdf_url" width="100%" height="800px" style="border: none;"></iframe>
+                        <div>
+                            <canvas id="pdf-canvas" width="100%"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
+            <script src="/copier_company/static/src/js/pdf.js"></script>
+            <script src="/copier_company/static/src/js/pdf.worker.js"></script>
+            <script type="text/javascript">
+                document.addEventListener('DOMContentLoaded', function() {
+                    var urlParams = new URLSearchParams(window.location.search);
+                    var fileId = urlParams.get('file_id');
+                    if (fileId) {
+                        var pdfUrl = '<t t-esc="pdf_url"/>';
+
+                        var loadingTask = pdfjsLib.getDocument(pdfUrl);
+                        loadingTask.promise.then(function(pdf) {
+                            pdf.getPage(1).then(function(page) {
+                                var scale = 1.5;
+                                var viewport = page.getViewport({ scale: scale });
+                                var canvas = document.getElementById('pdf-canvas');
+                                var context = canvas.getContext('2d');
+                                canvas.height = viewport.height;
+                                canvas.width = viewport.width;
+                                var renderContext = {
+                                    canvasContext: context,
+                                    viewport: viewport
+                                };
+                                page.render(renderContext);
+                            });
+                        });
+                    }
+                });
+            </script>
         </t>
     </template>
 </odoo>
