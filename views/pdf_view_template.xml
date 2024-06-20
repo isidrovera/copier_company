@@ -16,11 +16,9 @@
             <script src="/copier_company/static/src/js/pdf.worker.js"></script>
             <script type="text/javascript">
                 document.addEventListener('DOMContentLoaded', function() {
-                    var urlParams = new URLSearchParams(window.location.search);
-                    var fileId = urlParams.get('file_id');
-                    if (fileId) {
-                        var pdfUrl = '<t t-esc="pdf_url"/>';
+                    var pdfUrl = "<t t-esc='pdf_url'/>";
 
+                    if (pdfUrl) {
                         var loadingTask = pdfjsLib.getDocument(pdfUrl);
                         loadingTask.promise.then(function(pdf) {
                             pdf.getPage(1).then(function(page) {
@@ -36,7 +34,11 @@
                                 };
                                 page.render(renderContext);
                             });
+                        }).catch(function(error) {
+                            console.error('Error loading PDF:', error);
                         });
+                    } else {
+                        console.error('No PDF URL provided');
                     }
                 });
             </script>

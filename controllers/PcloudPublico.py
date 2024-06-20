@@ -1,9 +1,7 @@
 from odoo import http
 from odoo.http import request
-import requests
 import logging
-from datetime import datetime
-
+import datetime
 _logger = logging.getLogger(__name__)
 
 class PdfViewerController(http.Controller):
