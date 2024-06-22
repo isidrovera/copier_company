@@ -29,6 +29,20 @@
                         </button>
                     </div>
                 </div>
+
+                <!-- Botones para gestión de archivos, visibles solo para usuarios del grupo específico -->
+                <t t-if="request.env.user.has_group('copier_company.group_file_manager')">
+                    <div class="row mb-3">
+                        <div class="col-12 text-right">
+                            <button id="create-file-btn" class="btn btn-success">Crear Archivo</button>
+                            <button id="create-folder-btn" class="btn btn-info">Crear Carpeta</button>
+                            <button id="upload-file-btn" class="btn btn-primary">Subir Archivo</button>
+                            <button id="delete-file-btn" class="btn btn-danger">Eliminar Archivo</button>
+                            <button id="rename-file-btn" class="btn btn-warning">Renombrar Archivo</button>
+                        </div>
+                    </div>
+                </t>
+
                 <div class="row">
                     <div class="col-12 table-responsive" id="list-view">
                         <table class="table table-striped">
@@ -174,6 +188,51 @@
                         rows.forEach(function(row) {
                             filesList.appendChild(row);
                         });
+                    });
+
+                    // Botones de gestión de archivos
+                    var createFileBtn = document.getElementById('create-file-btn');
+                    var createFolderBtn = document.getElementById('create-folder-btn');
+                    var uploadFileBtn = document.getElementById('upload-file-btn');
+                    var deleteFileBtn = document.getElementById('delete-file-btn');
+                    var renameFileBtn = document.getElementById('rename-file-btn');
+
+                    createFileBtn && createFileBtn.addEventListener('click', function() {
+                        var fileName = prompt("Ingrese el nombre del nuevo archivo:");
+                        if (fileName) {
+                            // Lógica para crear el archivo
+                            alert("Archivo '" + fileName + "' creado.");
+                        }
+                    });
+
+                    createFolderBtn && createFolderBtn.addEventListener('click', function() {
+                        var folderName = prompt("Ingrese el nombre de la nueva carpeta:");
+                        if (folderName) {
+                            // Lógica para crear la carpeta
+                            alert("Carpeta '" + folderName + "' creada.");
+                        }
+                    });
+
+                    uploadFileBtn && uploadFileBtn.addEventListener('click', function() {
+                        // Lógica para subir un archivo
+                        alert("Archivo subido.");
+                    });
+
+                    deleteFileBtn && deleteFileBtn.addEventListener('click', function() {
+                        var fileName = prompt("Ingrese el nombre del archivo a eliminar:");
+                        if (fileName) {
+                            // Lógica para eliminar el archivo
+                            alert("Archivo '" + fileName + "' eliminado.");
+                        }
+                    });
+
+                    renameFileBtn && renameFileBtn.addEventListener('click', function() {
+                        var oldFileName = prompt("Ingrese el nombre del archivo a renombrar:");
+                        var newFileName = prompt("Ingrese el nuevo nombre del archivo:");
+                        if (oldFileName && newFileName) {
+                            // Lógica para renombrar el archivo
+                            alert("Archivo '" + oldFileName + "' renombrado a '" + newFileName + "'.");
+                        }
                     });
 
                     setViewMode(viewMode);
