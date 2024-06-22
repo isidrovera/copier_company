@@ -57,7 +57,7 @@ class PdfViewerController(http.Controller):
             _logger.error('Failed to list contents: %s', str(e))
             processed_contents = []
 
-        return request.render('copier_company.pcloud_pdf_template', {
+        return request.render('copier_company.pcloud_files_template', {
             'contents': processed_contents,
             'current_folder_id': int(folder_id),
             'search': search
