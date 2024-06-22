@@ -31,7 +31,7 @@
                 </div>
                 
                 <!-- Botones para gestión de archivos, visibles solo para usuarios del grupo específico -->
-                <t t-if="request.env.user.has_group('copier_company.group_file_manager')">
+                <t t-if="request.env.user.has_group('base.group_system')">
                     <div class="row mb-3">
                         <div class="col-12 text-right">
                             <button id="create-file-btn" class="btn btn-success">Crear Archivo</button>
