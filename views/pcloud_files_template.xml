@@ -37,8 +37,6 @@
                             <button id="create-file-btn" class="btn btn-success">Crear Archivo</button>
                             <button id="create-folder-btn" class="btn btn-info">Crear Carpeta</button>
                             <button id="upload-file-btn" class="btn btn-primary">Subir Archivo</button>
-                            <button id="delete-file-btn" class="btn btn-danger">Eliminar Archivo</button>
-                            <button id="rename-file-btn" class="btn btn-warning">Renombrar Archivo</button>
                         </div>
                     </div>
                 </t>
@@ -76,9 +74,17 @@
                                         </td>
                                         <td>
                                             <t t-if="not item['isfolder']">
-                                                <a t-att-href="'/soporte/descarga?file_id=%d' % item['id']" class="btn btn-outline-primary btn-block btn-md-inline">
+                                                <a t-att-href="'/soporte/descarga?file_id=%d' % item['id']" class="btn btn-outline-primary btn-md-inline">
                                                     Descargar
                                                 </a>
+                                            </t>
+                                            <t t-if="request.env.user.has_group('base.group_system')">
+                                                <button class="btn btn-danger btn-md-inline" onclick="deleteFile(<t t-esc='item.id' />)">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                                <button class="btn btn-warning btn-md-inline" onclick="renameFile(<t t-esc='item.id' />)">
+                                                    <i class="fa fa-pencil"></i>
+                                                </button>
                                             </t>
                                         </td>
                                     </tr>
@@ -104,6 +110,14 @@
                                             </t>
                                             <t t-if="not item['isfolder']">
                                                 <a t-att-href="'/soporte/descarga?file_id=%d' % item['id']" class="btn btn-outline-primary">Descargar</a>
+                                            </t>
+                                            <t t-if="request.env.user.has_group('base.group_system')">
+                                                <button class="btn btn-danger" onclick="deleteFile(<t t-esc='item.id' />)">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                                <button class="btn btn-warning" onclick="renameFile(<t t-esc='item.id' />)">
+                                                    <i class="fa fa-pencil"></i>
+                                                </button>
                                             </t>
                                         </div>
                                     </div>
@@ -190,59 +204,21 @@
                         });
                     });
 
-                    // Botones de gestión de archivos
-                    var createFileBtn = document.getElementById('create-file-btn');
-                    var createFolderBtn = document.getElementById('create-folder-btn');
-                    var uploadFileBtn = document.getElementById('upload-file-btn');
-                    var deleteFileBtn = document.getElementById('delete-file-btn');
-                    var renameFileBtn = document.getElementById('rename-file-btn');
-
-                    if (createFileBtn) {
-                        createFileBtn.addEventListener('click', function() {
-                            var fileName = prompt("Ingrese el nombre del nuevo archivo:");
-                            if (fileName) {
-                                // Lógica para crear el archivo
-                                alert("Archivo '" + fileName + "' creado.");
-                            }
-                        });
+                    // Funciones de gestión de archivos
+                    function deleteFile(fileId) {
+                        var confirmed = confirm("¿Está seguro de que desea eliminar este archivo?");
+                        if (confirmed) {
+                            // Lógica para eliminar el archivo
+                            alert("Archivo eliminado.");
+                        }
                     }
 
-                    if (createFolderBtn) {
-                        createFolderBtn.addEventListener('click', function() {
-                            var folderName = prompt("Ingrese el nombre de la nueva carpeta:");
-                            if (folderName) {
-                                // Lógica para crear la carpeta
-                                alert("Carpeta '" + folderName + "' creada.");
-                            }
-                        });
-                    }
-
-                    if (uploadFileBtn) {
-                        uploadFileBtn.addEventListener('click', function() {
-                            // Lógica para subir un archivo
-                            alert("Archivo subido.");
-                        });
-                    }
-
-                    if (deleteFileBtn) {
-                        deleteFileBtn.addEventListener('click', function() {
-                            var fileName = prompt("Ingrese el nombre del archivo a eliminar:");
-                            if (fileName) {
-                                // Lógica para eliminar el archivo
-                                alert("Archivo '" + fileName + "' eliminado.");
-                            }
-                        });
-                    }
-
-                    if (renameFileBtn) {
-                        renameFileBtn.addEventListener('click', function() {
-                            var oldFileName = prompt("Ingrese el nombre del archivo a renombrar:");
-                            var newFileName = prompt("Ingrese el nuevo nombre del archivo:");
-                            if (oldFileName &amp; newFileName) {
-                                // Lógica para renombrar el archivo
-                                alert("Archivo '" + oldFileName + "' renombrado a '" + newFileName + "'.");
-                            }
-                        });
+                    function renameFile(fileId) {
+                        var newFileName = prompt("Ingrese el nuevo nombre del archivo:");
+                        if (newFileName) {
+                            // Lógica para renombrar el archivo
+                            alert("Archivo renombrado a '" + newFileName + "'.");
+                        }
                     }
 
                     setViewMode(viewMode);
