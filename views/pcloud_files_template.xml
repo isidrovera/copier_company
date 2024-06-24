@@ -29,18 +29,6 @@
                         </button>
                     </div>
                 </div>
-                
-                <!-- Botones para gestión de archivos, visibles solo para usuarios del grupo específico -->
-                <t t-if="request.env.user.has_group('base.group_system')">
-                    <div class="row mb-3">
-                        <div class="col-12 text-right">
-                            <button id="create-file-btn" class="btn btn-success">Crear Archivo</button>
-                            <button id="create-folder-btn" class="btn btn-info">Crear Carpeta</button>
-                            <button id="upload-file-btn" class="btn btn-primary">Subir Archivo</button>
-                        </div>
-                    </div>
-                </t>
-
                 <div class="row">
                     <div class="col-12 table-responsive" id="list-view">
                         <table class="table table-striped">
@@ -73,16 +61,10 @@
                                             <t t-esc="item['modified']"/>
                                         </td>
                                         <td>
-                                            <a t-if="not item['isfolder']" t-att-href="'/soporte/descarga?file_id=%d' % item['id']" class="btn btn-outline-primary btn-md-inline">
-                                                Descargar
-                                            </a>
-                                            <t t-if="request.env.user.has_group('base.group_system')">
-                                                <button class="btn btn-danger btn-md-inline" onclick="deleteFile(&lt;t t-esc='item.id' /&gt;)">
-                                                    <i class="fa fa-trash"></i>
-                                                </button>
-                                                <button class="btn btn-warning btn-md-inline" onclick="renameFile(&lt;t t-esc='item.id' /&gt;)">
-                                                    <i class="fa fa-pencil"></i>
-                                                </button>
+                                            <t t-if="not item['isfolder']">
+                                                <a t-att-href="'/soporte/descarga?file_id=%d' % item['id']" class="btn btn-outline-primary btn-block btn-md-inline">
+                                                    Descargar
+                                                </a>
                                             </t>
                                         </td>
                                     </tr>
@@ -108,14 +90,6 @@
                                             </t>
                                             <t t-if="not item['isfolder']">
                                                 <a t-att-href="'/soporte/descarga?file_id=%d' % item['id']" class="btn btn-outline-primary">Descargar</a>
-                                            </t>
-                                            <t t-if="request.env.user.has_group('base.group_system')">
-                                                <button class="btn btn-danger" onclick="deleteFile(&lt;t t-esc='item.id' /&gt;)">
-                                                    <i class="fa fa-trash"></i>
-                                                </button>
-                                                <button class="btn btn-warning" onclick="renameFile(&lt;t t-esc='item.id' /&gt;)">
-                                                    <i class="fa fa-pencil"></i>
-                                                </button>
                                             </t>
                                         </div>
                                     </div>
@@ -201,23 +175,6 @@
                             filesList.appendChild(row);
                         });
                     });
-
-                    // Funciones de gestión de archivos
-                    function deleteFile(fileId) {
-                        var confirmed = confirm("¿Está seguro de que desea eliminar este archivo?");
-                        if (confirmed) {
-                            // Lógica para eliminar el archivo
-                            alert("Archivo eliminado.");
-                        }
-                    }
-
-                    function renameFile(fileId) {
-                        var newFileName = prompt("Ingrese el nuevo nombre del archivo:");
-                        if (newFileName) {
-                            // Lógica para renombrar el archivo
-                            alert("Archivo renombrado a '" + newFileName + "'.");
-                        }
-                    }
 
                     setViewMode(viewMode);
                 });
