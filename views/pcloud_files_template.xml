@@ -73,16 +73,14 @@
                                             <t t-esc="item['modified']"/>
                                         </td>
                                         <td>
-                                            <t t-if="not item['isfolder']">
-                                                <a t-att-href="'/soporte/descarga?file_id=%d' % item['id']" class="btn btn-outline-primary btn-md-inline">
-                                                    Descargar
-                                                </a>
-                                            </t>
+                                            <a t-if="not item['isfolder']" t-att-href="'/soporte/descarga?file_id=%d' % item['id']" class="btn btn-outline-primary btn-md-inline">
+                                                Descargar
+                                            </a>
                                             <t t-if="request.env.user.has_group('base.group_system')">
-                                                <button class="btn btn-danger btn-md-inline" onclick="deleteFile(<t t-esc='item.id' />)">
+                                                <button class="btn btn-danger btn-md-inline" onclick="deleteFile(&lt;t t-esc='item.id' /&gt;)">
                                                     <i class="fa fa-trash"></i>
                                                 </button>
-                                                <button class="btn btn-warning btn-md-inline" onclick="renameFile(<t t-esc='item.id' />)">
+                                                <button class="btn btn-warning btn-md-inline" onclick="renameFile(&lt;t t-esc='item.id' /&gt;)">
                                                     <i class="fa fa-pencil"></i>
                                                 </button>
                                             </t>
@@ -112,10 +110,10 @@
                                                 <a t-att-href="'/soporte/descarga?file_id=%d' % item['id']" class="btn btn-outline-primary">Descargar</a>
                                             </t>
                                             <t t-if="request.env.user.has_group('base.group_system')">
-                                                <button class="btn btn-danger" onclick="deleteFile(<t t-esc='item.id' />)">
+                                                <button class="btn btn-danger" onclick="deleteFile(&lt;t t-esc='item.id' /&gt;)">
                                                     <i class="fa fa-trash"></i>
                                                 </button>
-                                                <button class="btn btn-warning" onclick="renameFile(<t t-esc='item.id' />)">
+                                                <button class="btn btn-warning" onclick="renameFile(&lt;t t-esc='item.id' /&gt;)">
                                                     <i class="fa fa-pencil"></i>
                                                 </button>
                                             </t>
