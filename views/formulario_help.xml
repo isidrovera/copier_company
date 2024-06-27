@@ -2,63 +2,64 @@
     <template id="public_helpdesk_ticket_form" name="Public Helpdesk Ticket Form">
         <t t-call="website.layout">
             <div id="wrap" class="container mt-5">
-                <div class="jumbotron p-5 text-center">
-                    <h1 class="display-4">Crear Ticket de Ayuda</h1>
-                    <p class="lead">Por favor, completa los detalles a continuación para enviar tu ticket.</p>
+                <div class="jumbotron p-5 text-center bg-primary text-white">
+                    <h1 class="display-4">Bienvenido a nuestro Servicio de Ayuda</h1>
+                    <p class="lead">Estamos aquí para ayudarte con cualquier problema que tengas con tu impresora. Por favor, completa los detalles a continuación para enviar tu ticket.</p>
                 </div>
                 <div class="row justify-content-center">
                     <div class="col-md-8">
                         <form action="/public/helpdesk_ticket_submit" method="post" enctype="multipart/form-data" class="needs-validation" novalidate="novalidate">
                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                             <input type="hidden" name="copier_company_id" t-att-value="copier_company_id"/>
-                            <div class="form-group mb-3">                                <!-- Añadido mb-3 para margen inferior -->
-                                <label for="partner_name">Empresa</label>
+                            <div class="form-group mb-3">
+                                <label for="partner_name" class="form-label">Empresa</label>
                                 <input type="text" class="form-control" id="partner_name" name="partner_name" t-att-value="partner_name" readonly="readonly"/>
                             </div>
                             <div class="form-group mb-3">
-                                <label for="sede">Sede</label>
+                                <label for="sede" class="form-label">Sede</label>
                                 <input type="text" class="form-control" id="sede" name="sede" t-att-value="sede" readonly="readonly"/>
                             </div>
                             <div class="form-group mb-3">
-                                <label for="ubicacion">Ubicación</label>
+                                <label for="ubicacion" class="form-label">Ubicación</label>
                                 <input type="text" class="form-control" id="ubicacion" name="ubicacion" t-att-value="ubicacion" readonly="readonly"/>
                             </div>
                             <div class="form-group mb-3">
-                                <label for="product_name">Equipo</label>
+                                <label for="product_name" class="form-label">Equipo</label>
                                 <input type="text" class="form-control" id="product_name" name="product_name" t-att-value="product_name.name" readonly="readonly"/>
                             </div>
                             <div class="form-group mb-3">
-                                <label for="serie_id">Serie</label>
+                                <label for="serie_id" class="form-label">Serie</label>
                                 <input type="text" class="form-control" id="serie_id" name="serie_id" t-att-value="serie_id" readonly="readonly"/>
                             </div>
                             <div class="form-group mb-3">
-                                <label for="description">Problema</label>
-                                <textarea class="form-control" id="description" name="description" required="required"></textarea>
+                                <label for="description" class="form-label">Problema</label>
+                                <textarea class="form-control" id="description" name="description" required="required" placeholder="Describe el problema aquí..."></textarea>
                                 <div class="invalid-feedback">
                                 Por favor ingresa la descripción del problema.
                                 </div>
                             </div>
                             <div class="form-group mb-3">
-                                <label for="nombre_reporta">Nombre:</label>
-                                <input type="text" class="form-control" id="nombre_reporta" name="nombre_reporta" required="required"/>
+                                <label for="nombre_reporta" class="form-label">Nombre</label>
+                                <input type="text" class="form-control" id="nombre_reporta" name="nombre_reporta" required="required" placeholder="Tu nombre..."/>
                                 <div class="invalid-feedback">
                                 Por favor ingresa tu nombre.
                                 </div>
                             </div>
                             <div class="form-group mb-3">
-                                <label for="image">Adjuntar Imagen</label>
+                                <label for="image" class="form-label">Adjuntar Imagen</label>
                                 <input type="file" class="form-control-file" id="image" name="image" accept="image/*" capture="user" required="required"/>
                                 <div class="invalid-feedback">
                                 Por favor adjunta una imagen relacionada con el problema.
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary">Enviar</button>
+                            <button type="submit" class="btn btn-success w-100">Enviar</button>
                         </form>
                     </div>
                 </div>
             </div>
         </t>
     </template>
+
 
     <template id="helpdesk_ticket_confirmation" name="Helpdesk Ticket Confirmation">
         <t t-call="website.layout">
