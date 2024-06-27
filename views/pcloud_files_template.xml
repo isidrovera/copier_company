@@ -62,8 +62,8 @@
                                         </td>
                                         <td>
                                             <t t-if="not item['isfolder']">
-                                                <a t-att-href="'/soporte/descarga?file_id=%d' % item['id']" class="btn btn-outline-primary btn-block btn-md-inline">
-                                                    Descargar
+                                                <a t-att-href="'/soporte/descarga?file_id=%d' % item['id']" class="btn btn-outline-primary btn-block btn-md-inline" style="background-color: #28a745; color: white;">
+                                                    <i class="fa fa-download"></i> Descargar
                                                 </a>
                                             </t>
                                         </td>
@@ -89,7 +89,9 @@
                                                 <a t-att-href="'/soporte/descargas?folder_id=%d&amp;view_mode=%s' % (item['id'], view_mode)" class="btn btn-primary">Abrir</a>
                                             </t>
                                             <t t-if="not item['isfolder']">
-                                                <a t-att-href="'/soporte/descarga?file_id=%d' % item['id']" class="btn btn-outline-primary">Descargar</a>
+                                                <a t-att-href="'/soporte/descarga?file_id=%d' % item['id']" class="btn btn-outline-primary" style="background-color: #28a745; color: white;">
+                                                    <i class="fa fa-download"></i> Descargar
+                                                </a>
                                             </t>
                                         </div>
                                     </div>
