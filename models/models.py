@@ -83,7 +83,7 @@ class CopierCompany(models.Model):
 
     qr_code = fields.Binary(string='Código QR', readonly=True)
     def generar_qr_code(self):
-        base_url = "https://copiercompanysac.com//public/helpdesk_ticket"
+        base_url = "https://copiercompanysac.com/public/helpdesk_ticket"
         # Asumiendo una impresión de 300 DPI, calcula el box_size para un tamaño de 1.5 pulgadas
         # Para una cuarta parte de ese tamaño, dividimos por 4
         dpi = 300
