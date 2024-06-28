@@ -120,10 +120,10 @@ class CopierCompany(models.Model):
 
 
 class CopierEstados(models.Model):
-    _name = 'copier.estados
-    _description = 'Aqui se crean los tipos de estados de las maquinas que estan en alquiler'
-    _inherit = ['mail.thread', 'mail.activity.mixin']
-    name = fields.Char(string="Estado")
+    _name = 'copier.estados'
+    _description = 'Copier States'
+
+    name = fields.Char(string="Name", required=True)
 
 class CopierDuracionAlquiler(models.Model):
     
