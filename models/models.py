@@ -17,15 +17,22 @@ class CopierCompany(models.Model):
     
     serie_id = fields.Char(string='Serie', required=True)
     marca_id = fields.Many2one('marcas.maquinas',string='Marca', required=True,related='name.marca_id')
-    contometro = fields.Char(string='Contometro Inicial')
     cliente_id = fields.Many2one('res.partner',string='Cliente', required=True, )
     ubicacion = fields.Char(string='Ubicación')
     sede = fields.Char(string='Sede')
     ip_id = fields.Char(string="IP")
     accesorios_ids = fields.Many2many('accesorios.maquinas', string="Accesorios")
-    estado = fields.Many2one('copier.estados',string='Estado')
+    estado_maquina = fields.Selection([
+        ('disponible', 'Disponible'),
+        ('alquilada', 'Alquilada'),
+        ('mantenimiento', 'En Mantenimiento')
+    ], string="Estado de la Máquina", default='disponible', tracking=True)
     fecha_inicio_alquiler = fields.Date(string="Fecha de Inicio del Alquiler")
-    duracion_alquiler = fields.Many2one('copier.duracion', string="Duración del Alquiler")
+    duracion_alquiler = fields.Selection([
+        ('6_meses', '6 Meses'),
+        ('1_año', '1 Año'),
+        ('2_años', '2 Años')
+    ], string="Duración del Alquiler", default='1_año')
     fecha_fin_alquiler = fields.Date(string="Fecha de Fin del Alquiler", compute='_calcular_fecha_fin', store=True)
     @api.model
     def _default_currency(self):
@@ -83,7 +90,7 @@ class CopierCompany(models.Model):
 
     qr_code = fields.Binary(string='Código QR', readonly=True)
     def generar_qr_code(self):
-        base_url = "https://copiercompanysac.com/public/helpdesk_ticket"
+        base_url = "https://copiercompanysac.com//public/helpdesk_ticket"
         # Asumiendo una impresión de 300 DPI, calcula el box_size para un tamaño de 1.5 pulgadas
         # Para una cuarta parte de ese tamaño, dividimos por 4
         dpi = 300
@@ -115,7 +122,3 @@ class CopierCompany(models.Model):
             qr_image_base64 = base64.b64encode(img_byte_array.getvalue()).decode('utf-8')
 
             record.qr_code = qr_image_base64
-
-
-
-
