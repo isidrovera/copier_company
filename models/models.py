@@ -119,15 +119,3 @@ class CopierCompany(models.Model):
 
 
 
-class CopierEstados(models.Model):
-    _name = 'copier.estados'
-    _description = 'Copier States'
-
-    name = fields.Char(string="Name", required=True)
-
-class CopierDuracionAlquiler(models.Model):
-    
-    _name='copier.duracion'
-    _description = 'Aqui se crean el tiempo de duracion de alquiler'
-    name = fields.Char(string='Duración')
-    
