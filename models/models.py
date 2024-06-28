@@ -23,7 +23,7 @@ class CopierCompany(models.Model):
     sede = fields.Char(string='Sede')
     ip_id = fields.Char(string="IP")
     accesorios_ids = fields.Many2many('accesorios.maquinas', string="Accesorios")
-    estado = field.Many2one('copier.estados',string='Estado')
+    estado = fields.Many2one('copier.estados',string='Estado')
     fecha_inicio_alquiler = fields.Date(string="Fecha de Inicio del Alquiler")
     duracion_alquiler = fields.Many2one('copier.duracion', string="Duración del Alquiler")
     fecha_fin_alquiler = fields.Date(string="Fecha de Fin del Alquiler", compute='_calcular_fecha_fin', store=True)
