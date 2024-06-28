@@ -17,22 +17,15 @@ class CopierCompany(models.Model):
     
     serie_id = fields.Char(string='Serie', required=True)
     marca_id = fields.Many2one('marcas.maquinas',string='Marca', required=True,related='name.marca_id')
+    contometro = fields.Char(string='Contometro Inicial')
     cliente_id = fields.Many2one('res.partner',string='Cliente', required=True, )
     ubicacion = fields.Char(string='Ubicación')
     sede = fields.Char(string='Sede')
     ip_id = fields.Char(string="IP")
     accesorios_ids = fields.Many2many('accesorios.maquinas', string="Accesorios")
-    estado_maquina = fields.Selection([
-        ('disponible', 'Disponible'),
-        ('alquilada', 'Alquilada'),
-        ('mantenimiento', 'En Mantenimiento')
-    ], string="Estado de la Máquina", default='disponible', tracking=True)
+    estado = field.Many2one('copier.estados',string='Estado')
     fecha_inicio_alquiler = fields.Date(string="Fecha de Inicio del Alquiler")
-    duracion_alquiler = fields.Selection([
-        ('6_meses', '6 Meses'),
-        ('1_año', '1 Año'),
-        ('2_años', '2 Años')
-    ], string="Duración del Alquiler", default='1_año')
+    duracion_alquiler = fields.Many2one('copier.duracion', string="Duración del Alquiler")
     fecha_fin_alquiler = fields.Date(string="Fecha de Fin del Alquiler", compute='_calcular_fecha_fin', store=True)
     @api.model
     def _default_currency(self):
@@ -122,3 +115,19 @@ class CopierCompany(models.Model):
             qr_image_base64 = base64.b64encode(img_byte_array.getvalue()).decode('utf-8')
 
             record.qr_code = qr_image_base64
+
+
+
+
+class CopierEstados(models.Model):
+    _name = 'copier.estados
+    _description = 'Aqui se crean los tipos de estados de las maquinas que estan en alquiler'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+    name = fields.Char(string="Estado")
+
+class CopierDuracionAlquiler(models.Model):
+    
+    _name='copier.duracion'
+    _description = 'Aqui se crean el tiempo de duracion de alquiler'
+    name = fields.Char(string='Duración')
+    
