@@ -32,7 +32,15 @@
             <field name="model">marcas.maquinas</field>
             <field name="arch" type="xml">
                 <kanban>
-                    <field name="name"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_global_click">
+                                <div class="oe_kanban_content">
+                                    <strong><field name="name"/></strong>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
                 </kanban>
             </field>
         </record>
@@ -47,6 +55,8 @@
                 </search>
             </field>
         </record>
+
+        <!-- Acción -->
         <record id="accion_marcas_maquinas" model="ir.actions.act_window">
             <field name="name">Marcas de Maquinas</field>
             <field name="res_model">marcas.maquinas</field>
