@@ -34,8 +34,16 @@
       <field name="model">modelos.maquinas</field>
       <field name="arch" type="xml">
         <kanban>
-          <field name="name"/>
-          <field name="marca_id"/>
+          <templates>
+            <t t-name="kanban-box">
+              <div class="oe_kanban_global_click">
+                <div class="oe_kanban_content">
+                  <strong><field name="name"/></strong>
+                  <div><field name="marca_id"/></div>
+                </div>
+              </div>
+            </t>
+          </templates>
         </kanban>
       </field>
     </record>
@@ -56,7 +64,7 @@
     <record id="accion_modelos_maquinas" model="ir.actions.act_window">
       <field name="name">Modelos de Máquinas</field>
       <field name="res_model">modelos.maquinas</field>
-      <field name="view_mode">tree,form,kanban,search</field>
+      <field name="view_mode">tree,form,kanban</field>
     </record>
 
     <!-- Menú -->
