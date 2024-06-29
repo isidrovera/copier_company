@@ -128,7 +128,7 @@
                         var type = identificacionType.value;
                         var number = identificacionNumber.value;
                         
-                        if (type && number) {
+                        if (type AND number) {
                             if (type === "ruc") {
                                 fetch(`https://api.sunat.cloud/ruc/${number}`)
                                     .then(response =&lt; response.json())
