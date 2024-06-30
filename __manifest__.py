@@ -36,6 +36,7 @@
         'security/ir.model.access.csv',
         'static/src/js/script.js',
         'data/ir.secuencia.xml',
+        'data/copier_company_data.xml',
         'views/extend_form_view.xml',
         'views/pCloud.xml',        
         'views/vista_nube.xml',        

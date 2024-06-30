@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, modules
-from PIL import Image, ImageDraw, ImageFont
-import logging
+from odoo import models, fields, api
+from dateutil.relativedelta import relativedelta
 import qrcode
 import base64
 import io
-from dateutil.relativedelta import relativedelta
-
-_logger = logging.getLogger(__name__)
 
 class CopierCompany(models.Model):
     _name = 'copier.company'

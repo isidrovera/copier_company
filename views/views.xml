@@ -1,9 +1,8 @@
 <odoo>
   <data>
-    <!-- explicit list view definition -->
-
-    <record model="ir.ui.view" id="copier_company.list">
-      <field name="name">copier_company list</field>
+    <!-- Vista árbol -->
+    <record id="vista_arbol_copier_company" model="ir.ui.view">
+      <field name="name">copier.company.tree</field>
       <field name="model">copier.company</field>
       <field name="arch" type="xml">
         <tree>
@@ -19,8 +18,10 @@
         </tree>
       </field>
     </record>
-    <record id="view_maquinas_form" model="ir.ui.view">
-      <field name="name">.form.view_maquinas</field>
+
+    <!-- Vista formulario -->
+    <record id="vista_formulario_copier_company" model="ir.ui.view">
+      <field name="name">copier.company.form</field>
       <field name="model">copier.company</field>
       <field name="arch" type="xml">
         <form>
@@ -29,7 +30,7 @@
             <button name="generar_qr_code" string="Crear QR" type="object" class="oe_highlight"/>
           </header>
           <sheet>
-            <group >
+            <group>
               <group string="Datos de equipo">
                 <field name="marca_id"/>
                 <field name="name"/>
@@ -58,10 +59,9 @@
       </field>
     </record>
 
-    <!-- kanban view definition -->
-    
-    <record model="ir.ui.view" id="copier_company.kanban">
-      <field name="name">copier_company kanban</field>
+    <!-- Vista kanban -->
+    <record id="vista_kanban_copier_company" model="ir.ui.view">
+      <field name="name">copier.company.kanban</field>
       <field name="model">copier.company</field>
       <field name="arch" type="xml">
         <kanban>
@@ -95,7 +95,6 @@
                         <span class="o_field_value">Serie:</span>
                         <span class="o_field_value"><field name="serie_id"/></span>
                       </div>
-                      
                       <div>
                         <span class="o_field_value">Sede:</span>
                         <span class="o_field_value"><field name="sede"/></span>
@@ -114,38 +113,15 @@
       </field>
     </record>
 
-    <!-- actions opening views on models -->
-
-    <record model="ir.actions.act_window" id="copier_company.action_window">
+    <!-- Acción -->
+    <record id="accion_copier_company" model="ir.actions.act_window">
       <field name="name">Registrar Maquina</field>
       <field name="res_model">copier.company</field>
-      <field name="view_mode">tree,form,kanban</field>
+      <field name="view_mode">tree,form,kanban</field>            
     </record>
 
-    <!-- server action to the one above -->
-
-    <record model="ir.actions.server" id="copier_company.action_server">
-      <field name="name">copier_company server</field>
-      <field name="model_id" ref="model_copier_company"/>
-      <field name="state">code</field>
-      <field name="code">
-        action = {
-          "type": "ir.actions.act_window",
-          "view_mode": "tree,form,kanban",
-          "res_model": model._name,
-        }
-      </field>
-    </record>
-
-
-    <!-- Top menu item -->
-
-    <menuitem name="Gestión de Fotocopiadoras" id="copier_company.menu_root" web_icon="copier_company,static/description/icon.png"/>
-
-    <!-- menu categories -->
-
-    <menuitem name="Maquinas" id="copier_company.menu_1" parent="copier_company.menu_root" action="copier_company.action_window"/>
-
-    <!-- actions -->
+    <!-- Menú -->
+    <menuitem id="menu_copier_company" name="Gestión de Fotocopiadoras" web_icon="copier_company,static/description/icon.png"/>
+    <menuitem id="menu_maquinas" name="Maquinas" parent="menu_copier_company" action="accion_copier_company"/>
   </data>
 </odoo>

@@ -1,0 +1,25 @@
+<odoo>
+  <data noupdate="1">
+    <!-- Definir estados de la máquina -->
+    <record id="estado_disponible" model="copier.estados">
+      <field name="name">Disponible</field>
+    </record>
+    <record id="estado_alquilada" model="copier.estados">
+      <field name="name">Alquilada</field>
+    </record>
+    <record id="estado_mantenimiento" model="copier.estados">
+      <field name="name">En Mantenimiento</field>
+    </record>
+
+    <!-- Definir duraciones de alquiler -->
+    <record id="duracion_6_meses" model="copier.duracion">
+      <field name="name">6 Meses</field>
+    </record>
+    <record id="duracion_1_año" model="copier.duracion">
+      <field name="name">1 Año</field>
+    </record>
+    <record id="duracion_2_años" model="copier.duracion">
+      <field name="name">2 Años</field>
+    </record>
+  </data>
+</odoo>
