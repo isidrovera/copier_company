@@ -62,9 +62,12 @@
             <field name="res_model">marcas.maquinas</field>
             <field name="view_mode">tree,form,kanban</field>            
         </record>
+        <record id="accion_ajustes" model="ir.actions.act_window">                       
+        </record>
 
         <!-- Menús -->
-        <menuitem id="menu_marcas_maquinas" name="Marcas de Maquinas" parent="copier_company.menu_root" action="accion_marcas_maquinas"/>
+        <menuitem id="menu_ajustes" name="Ajustes" parent="copier_company.menu_root" action="accion_ajustes" sequence="30"/>
+        <menuitem id="menu_marcas_maquinas" name="Marcas de Maquinas" parent="menu_ajustes" action="accion_marcas_maquinas"/>
         
     </data>
 </odoo>
