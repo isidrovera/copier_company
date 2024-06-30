@@ -35,6 +35,7 @@
                         <field name="marca_id"/>
                         <field name="name"/>
                         <field name="serie_id"/>
+                    
                         <field name="cliente_id"/>
                         <field name="sede"/>
                         <field name="ubicacion"/>
@@ -43,7 +44,7 @@
                         <field name="fecha_inicio_alquiler"/>
                         <field name="fecha_fin_alquiler"/>
                         <field name="duracion_alquiler_id"/>
-                        <field name="accesorios_ids" widget="many2many_tags"/>
+                        <field t="accesorios_ids" widget="many2many_tags"/>
                         <field name="costo_copia_bn" widget="monetary" options="{'currency_field': 'moneda_id'}"/>
                         <field name="costo_copia_color" widget="monetary" options="{'currency_field': 'moneda_id'}"/>
                         <field name="volumen_mensual_bn"/>
