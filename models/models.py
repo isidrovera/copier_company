@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, SUPERUSER_ID
+from odoo import models, fields, api, modules
 from PIL import Image, ImageDraw, ImageFont
 import logging
 import qrcode
@@ -8,37 +8,25 @@ import base64
 import io
 from dateutil.relativedelta import relativedelta
 
-class CopierDuracion(models.Model):
-    _name = 'copier.duracion'
-    _description = 'Duración del Alquiler'
-
-    name = fields.Char(string='Duración', required=True)
+_logger = logging.getLogger(__name__)
 
 class CopierCompany(models.Model):
     _name = 'copier.company'
     _description = 'Aqui se registran las maquinas que estan en alquiler'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    
+       
     name = fields.Many2one('modelos.maquinas', string='Maquina')
     serie_id = fields.Char(string='Serie', required=True)
     marca_id = fields.Many2one('marcas.maquinas', string='Marca', required=True, related='name.marca_id')
-    contometro = fields.Char(string='Contometro Inicial')
     cliente_id = fields.Many2one('res.partner', string='Cliente', required=True)
     ubicacion = fields.Char(string='Ubicación')
     sede = fields.Char(string='Sede')
     ip_id = fields.Char(string="IP")
     accesorios_ids = fields.Many2many('accesorios.maquinas', string="Accesorios")
-    estado = fields.Many2one('copier.estados', string='Estado')
+    estado_maquina_id = fields.Many2one('copier.estados', string="Estado de la Máquina", default=lambda self: self.env.ref('copier_company.estado_disponible').id, tracking=True)
     fecha_inicio_alquiler = fields.Date(string="Fecha de Inicio del Alquiler")
-    duracion_alquiler = fields.Many2one('copier.duracion', string="Duración del Alquiler")
+    duracion_alquiler_id = fields.Many2one('copier.duracion', string="Duración del Alquiler", default=lambda self: self.env.ref('copier_company.duracion_1_año').id)
     fecha_fin_alquiler = fields.Date(string="Fecha de Fin del Alquiler", compute='_calcular_fecha_fin', store=True)
-    
-    moneda_id = fields.Many2one('res.currency', string='Moneda', default=lambda self: self._default_currency())
-    costo_copia_color = fields.Monetary(string="Costo por Copia (Color)", currency_field='moneda_id')
-    costo_copia_bn = fields.Monetary(string="Costo por Copia (B/N)", currency_field='moneda_id')
-    volumen_mensual_color = fields.Integer(string="Volumen Mensual (Color)")
-    volumen_mensual_bn = fields.Integer(string="Volumen Mensual (B/N)")
-    qr_code = fields.Binary(string='Código QR', readonly=True)
     
     @api.model
     def _default_currency(self):
@@ -49,18 +37,25 @@ class CopierCompany(models.Model):
                 return currency.id
         return self.env.company.currency_id.id
 
-    @api.depends('fecha_inicio_alquiler', 'duracion_alquiler')
+    moneda_id = fields.Many2one('res.currency', string='Moneda', default=_default_currency)
+    costo_copia_color = fields.Monetary(string="Costo por Copia (Color)", currency_field='moneda_id')
+    costo_copia_bn = fields.Monetary(string="Costo por Copia (B/N)", currency_field='moneda_id')
+    volumen_mensual_color = fields.Integer(string="Volumen Mensual (Color)")
+    volumen_mensual_bn = fields.Integer(string="Volumen Mensual (B/N)")
+
+    @api.depends('fecha_inicio_alquiler', 'duracion_alquiler_id')
     def _calcular_fecha_fin(self):
         for record in self:
-            if record.fecha_inicio_alquiler and record.duracion_alquiler:
+            if record.fecha_inicio_alquiler and record.duracion_alquiler_id:
                 start_date = fields.Date.from_string(record.fecha_inicio_alquiler)
-                if record.duracion_alquiler.name == '6_meses':
+                duracion = record.duracion_alquiler_id.name
+                if duracion == '6 Meses':
                     record.fecha_fin_alquiler = start_date + relativedelta(months=+6)
-                elif record.duracion_alquiler.name == '1_año':
+                elif duracion == '1 Año':
                     record.fecha_fin_alquiler = start_date + relativedelta(years=+1)
-                elif record.duracion_alquiler.name == '2_años':
+                elif duracion == '2 Años':
                     record.fecha_fin_alquiler = start_date + relativedelta(years=+2)
-
+    
     def crear_ticket(self):
         ticket = self.env['helpdesk.ticket']
         ticket_id = ticket.create({
@@ -78,16 +73,19 @@ class CopierCompany(models.Model):
             'target': 'current',
         }
 
+    qr_code = fields.Binary(string='Código QR', readonly=True)
+    
     def generar_qr_code(self):
-        base_url = "https://copiercompanysac.com/public/helpdesk_ticket"
+        base_url = "https://copiercompanysac.com//public/helpdesk_ticket"
         dpi = 300
         inches_for_qr = 1.5 / 4
         pixels_for_qr = int(dpi * inches_for_qr)
         version_size = 21
         box_size = max(1, pixels_for_qr // (version_size + (2 * 4)))
-        
+
         for record in self:
             data_to_encode = f"{base_url}?copier_company_id={record.id}"
+
             qr = qrcode.QRCode(
                 version=1,
                 error_correction=qrcode.constants.ERROR_CORRECT_L,
@@ -96,35 +94,11 @@ class CopierCompany(models.Model):
             )
             qr.add_data(data_to_encode)
             qr.make(fit=True)
+
             img = qr.make_image(fill_color="black", back_color="white")
+
             img_byte_array = io.BytesIO()
             img.save(img_byte_array, format='PNG')
             qr_image_base64 = base64.b64encode(img_byte_array.getvalue()).decode('utf-8')
+
             record.qr_code = qr_image_base64
-
-def migrate_duracion_alquiler(cr, registry):
-    env = api.Environment(cr, SUPERUSER_ID, {})
-    duracion_model = env['copier.duracion']
-    
-    duraciones = [
-        {'name': '6_meses'},
-        {'name': '1_año'},
-        {'name': '2_años'}
-    ]
-    for duracion in duraciones:
-        duracion_model.create(duracion)
-
-    records = env['copier.company'].search([])
-    for record in records:
-        if record.duracion_alquiler == '6_meses':
-            duracion_id = duracion_model.search([('name', '=', '6_meses')], limit=1)
-        elif record.duracion_alquiler == '1_año':
-            duracion_id = duracion_model.search([('name', '=', '1_año')], limit=1)
-        elif record.duracion_alquiler == '2_años':
-            duracion_id = duracion_model.search([('name', '=', '2_años')], limit=1)
-        
-        if duracion_id:
-            record.duracion_alquiler = duracion_id.id
-
-def pre_init_hook(cr):
-    migrate_duracion_alquiler(cr, registry)
