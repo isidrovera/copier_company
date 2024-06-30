@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data noupdate="1">
+
+        <!-- Vista Tree para accesorios.maquinas -->
+        <record id="view_accesorios_maquinas_tree" model="ir.ui.view">
+            <field name="name">accesorios.maquinas.tree</field>
+            <field name="model">accesorios.maquinas</field>
+            <field name="arch" type="xml">
+                <tree string="Accesorios de Máquinas">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Vista Form para accesorios.maquinas -->
+        <record id="view_accesorios_maquinas_form" model="ir.ui.view">
+            <field name="name">accesorios.maquinas.form</field>
+            <field name="model">accesorios.maquinas</field>
+            <field name="arch" type="xml">
+                <form string="Accesorio">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista Kanban para accesorios.maquinas -->
+        <record id="view_accesorios_maquinas_kanban" model="ir.ui.view">
+            <field name="name">accesorios.maquinas.kanban</field>
+            <field name="model">accesorios.maquinas</field>
+            <field name="arch" type="xml">
+                <kanban string="Accesorios de Máquinas">
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_global_click">
+                                <strong>
+                                    <field name="name"/>
+                                </strong>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <!-- Acción de ventana para accesorios.maquinas -->
+        <record id="action_accesorios_maquinas" model="ir.actions.act_window">
+            <field name="name">Accesorios de Máquinas</field>
+            <field name="res_model">accesorios.maquinas</field>
+            <field name="view_mode">tree,form,kanban</field>
+        </record>
+
+        <!-- Menú para accesorios.maquinas -->
+        <menuitem id="menu_accesorios_maquinas" name="Accesorios de Máquinas" parent="menu_ajustes" action="action_accesorios_maquinas" sequence="30"/>
+
+        <!-- Vista Tree para copier.estados -->
+        <record id="view_copier_estados_tree" model="ir.ui.view">
+            <field name="name">copier.estados.tree</field>
+            <field name="model">copier.estados</field>
+            <field name="arch" type="xml">
+                <tree string="Estados de Copiadoras">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Vista Form para copier.estados -->
+        <record id="view_copier_estados_form" model="ir.ui.view">
+            <field name="name">copier.estados.form</field>
+            <field name="model">copier.estados</field>
+            <field name="arch" type="xml">
+                <form string="Estado">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista Kanban para copier.estados -->
+        <record id="view_copier_estados_kanban" model="ir.ui.view">
+            <field name="name">copier.estados.kanban</field>
+            <field name="model">copier.estados</field>
+            <field name="arch" type="xml">
+                <kanban string="Estados de Copiadoras">
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_global_click">
+                                <strong>
+                                    <field name="name"/>
+                                </strong>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <!-- Acción de ventana para copier.estados -->
+        <record id="action_copier_estados" model="ir.actions.act_window">
+            <field name="name">Estados de Copiadoras</field>
+            <field name="res_model">copier.estados</field>
+            <field name="view_mode">tree,form,kanban</field>
+        </record>
+
+        <!-- Menú para copier.estados -->
+        <menuitem id="menu_copier_estados" name="Estados de Copiadoras" parent="menu_ajustes" action="action_copier_estados" sequence="40"/>
+
+        <!-- Vista Tree para copier.duracion -->
+        <record id="view_copier_duracion_tree" model="ir.ui.view">
+            <field name="name">copier.duracion.tree</field>
+            <field name="model">copier.duracion</field>
+            <field name="arch" type="xml">
+                <tree string="Duraciones de Alquiler">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Vista Form para copier.duracion -->
+        <record id="view_copier_duracion_form" model="ir.ui.view">
+            <field name="name">copier.duracion.form</field>
+            <field name="model">copier.duracion</field>
+            <field name="arch" type="xml">
+                <form string="Duración">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista Kanban para copier.duracion -->
+        <record id="view_copier_duracion_kanban" model="ir.ui.view">
+            <field name="name">copier.duracion.kanban</field>
+            <field name="model">copier.duracion</field>
+            <field name="arch" type="xml">
+                <kanban string="Duraciones de Alquiler">
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_global_click">
+                                <strong>
+                                    <field name="name"/>
+                                </strong>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <!-- Acción de ventana para copier.duracion -->
+        <record id="action_copier_duracion" model="ir.actions.act_window">
+            <field name="name">Duraciones de Alquiler</field>
+            <field name="res_model">copier.duracion</field>
+            <field name="view_mode">tree,form,kanban</field>
+        </record>
+
+        <!-- Menú para copier.duracion -->
+        <menuitem id="menu_copier_duracion" name="Duraciones de Alquiler" parent="menu_ajustes" action="action_copier_duracion" sequence="50"/>
+        
+    
+    </data>
+
+
+</odoo>
