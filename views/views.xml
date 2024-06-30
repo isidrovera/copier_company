@@ -20,44 +20,48 @@
       </field>
     </record>
     <record id="view_maquinas_form" model="ir.ui.view">
-      <field name="name">.form.view_maquinas</field>
-      <field name="model">copier.company</field>
-      <field name="arch" type="xml">
+    <field name="name">.form.view_maquinas</field>
+    <field name="model">copier.company</field>
+    <field name="arch" type="xml">
         <form>
-          <header>
-            <button name="crear_ticket" string="Crear Ticket" type="object" class="oe_highlight"/>
-            <button name="generar_qr_code" string="Crear QR" type="object" class="oe_highlight"/>
-            <field name="estado_maquina_id" widget="statusbar" options="{'clickable': '1'}"/>
-          </header>
-          <sheet>
-            <group >
-              <group string="Datos de equipo">
-                <field name="marca_id"/>
-                <field name="name"/>
-                <field name="serie_id"/>
-                <field name="cliente_id"/>
-                <field name="sede"/>
-                <field name="ubicacion"/>
-              </group>
-              <group string="Datos de alquiler">
-                <field name="fecha_inicio_alquiler"/>
-                <field name="fecha_fin_alquiler"/>
-                <field name="duracion_alquiler_id"/>
-                <field name="accesorios_ids" widget="many2many_tags"/>
-                <field name="costo_copia_bn" widget="monetary" options="{'currency_field': 'moneda_id', 'field_digits': 2}"/>
-                <field name="costo_copia_color" widget="monetary" options="{'currency_field': 'moneda_id', 'field_digits': 2}"/>
-                <field name="volumen_mensual_bn"/>
-                <field name="volumen_mensual_color"/>               
-              </group>
-            </group>
-          </sheet>
-          <div class="oe_chatter">
-            <field name="message_follower_ids" widget="mail_followers"></field>
-            <field name="message_ids" widget="mail_thread"></field>
-          </div>
+            <header>
+                <button name="crear_ticket" string="Crear Ticket" type="object" class="oe_highlight"/>
+                <button name="generar_qr_code" string="Crear QR" type="object" class="oe_highlight"/>
+                <field name="estado_maquina_id" widget="statusbar" options="{'clickable': '1'}"/>
+            </header>
+            <sheet>
+                <group>
+                    <group string="Datos de equipo">
+                        <field name="marca_id"/>
+                        <field name="name"/>
+                        <field name="serie_id"/>
+                        <field name="cliente_id"/>
+                        <field name="sede"/>
+                        <field name="ubicacion"/>
+                    </group>
+                    <group string="Datos de alquiler">
+                        <field name="fecha_inicio_alquiler"/>
+                        <field name="fecha_fin_alquiler"/>
+                        <field name="duracion_alquiler_id"/>
+                        <field name="accesorios_ids" widget="many2many_tags"/>
+                        <field name="costo_copia_bn" widget="monetary"/>
+                        <field name="costo_copia_color" widget="monetary"/>
+                        <field name="volumen_mensual_bn"/>
+                        <field name="volumen_mensual_color"/>
+                        <field name="renta_mensual_bn" widget="monetary"/>
+                        <field name="renta_mensual_color" widget="monetary"/>
+                        <field name="total_facturar_mensual" widget="monetary"/>
+                    </group>
+                </group>
+            </sheet>
+            <div class="oe_chatter">
+                <field name="message_follower_ids" widget="mail_followers"></field>
+                <field name="message_ids" widget="mail_thread"></field>
+            </div>
         </form>
-      </field>
-    </record>
+    </field>
+</record>
+
 
     <!-- kanban view definition -->
     

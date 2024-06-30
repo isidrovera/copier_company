@@ -1,10 +1,4 @@
-# -*- coding: utf-8 -*-
-
 from odoo import models, fields, api
-from dateutil.relativedelta import relativedelta
-import qrcode
-import base64
-import io
 
 class CopierCompany(models.Model):
     _name = 'copier.company'
@@ -23,7 +17,7 @@ class CopierCompany(models.Model):
     fecha_inicio_alquiler = fields.Date(string="Fecha de Inicio del Alquiler")
     duracion_alquiler_id = fields.Many2one('copier.duracion', string="Duración del Alquiler", default=lambda self: self.env.ref('copier_company.duracion_1_año').id)
     fecha_fin_alquiler = fields.Date(string="Fecha de Fin del Alquiler", compute='_calcular_fecha_fin', store=True)
-    
+
     @api.model
     def _default_currency(self):
         client_country = self.env['res.partner'].browse(self._context.get('default_cliente_id', False)).country_id
@@ -38,6 +32,16 @@ class CopierCompany(models.Model):
     costo_copia_bn = fields.Monetary(string="Costo por Copia (B/N)", currency_field='moneda_id')
     volumen_mensual_color = fields.Integer(string="Volumen Mensual (Color)")
     volumen_mensual_bn = fields.Integer(string="Volumen Mensual (B/N)")
+    renta_mensual_color = fields.Monetary(string="Renta Mensual (Color)", compute='_compute_renta_mensual', currency_field='moneda_id')
+    renta_mensual_bn = fields.Monetary(string="Renta Mensual (B/N)", compute='_compute_renta_mensual', currency_field='moneda_id')
+    total_facturar_mensual = fields.Monetary(string="Total a Facturar Mensual", compute='_compute_renta_mensual', currency_field='moneda_id')
+
+    @api.depends('volumen_mensual_color', 'volumen_mensual_bn', 'costo_copia_color', 'costo_copia_bn')
+    def _compute_renta_mensual(self):
+        for record in self:
+            record.renta_mensual_color = record.volumen_mensual_color * record.costo_copia_color
+            record.renta_mensual_bn = record.volumen_mensual_bn * record.costo_copia_bn
+            record.total_facturar_mensual = record.renta_mensual_color + record.renta_mensual_bn
 
     @api.depends('fecha_inicio_alquiler', 'duracion_alquiler_id')
     def _calcular_fecha_fin(self):
@@ -51,7 +55,7 @@ class CopierCompany(models.Model):
                     record.fecha_fin_alquiler = start_date + relativedelta(years=+1)
                 elif duracion == '2 Años':
                     record.fecha_fin_alquiler = start_date + relativedelta(years=+2)
-    
+
     def crear_ticket(self):
         ticket = self.env['helpdesk.ticket']
         ticket_id = ticket.create({
@@ -70,7 +74,7 @@ class CopierCompany(models.Model):
         }
 
     qr_code = fields.Binary(string='Código QR', readonly=True)
-    
+
     def generar_qr_code(self):
         base_url = "https://copiercompanysac.com//public/helpdesk_ticket"
         dpi = 300
