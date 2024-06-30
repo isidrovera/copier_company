@@ -1,4 +1,8 @@
 from odoo import models, fields, api
+from dateutil.relativedelta import relativedelta  # Importa relativedelta
+import qrcode
+import base64
+import io
 
 class CopierCompany(models.Model):
     _name = 'copier.company'
