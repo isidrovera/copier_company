@@ -62,7 +62,9 @@
             <field name="res_model">marcas.maquinas</field>
             <field name="view_mode">tree,form,kanban</field>            
         </record>
-        <record id="accion_ajustes" model="ir.actions.act_window">                       
+        <record id="accion_ajustes" model="ir.actions.act_window">
+            <field name="name">Ajustes</field>
+            <field name="res_model">marcas.maquinas</field>                     
         </record>
 
         <!-- Menús -->
