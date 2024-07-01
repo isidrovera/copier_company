@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 import requests
+from odoo.exceptions import UserError
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -43,14 +44,13 @@ class CotizacionAlquiler(models.Model):
     def _fetch_data_from_sunat(self):
         if not self.identificacion_number:
             return
+        if len(self.identificacion_number) != 11:
+            raise UserError(_('El número de RUC debe tener 11 dígitos.'))
         try:
-            _logger.debug(f"Fetching data from SUNAT for RUC: {self.identificacion_number}")
             response = requests.get(f"https://api.sunat.cloud/ruc/{self.identificacion_number}")
-            _logger.debug(f"Response status code: {response.status_code}")
             if response.status_code == 200:
                 data = response.json()
-                _logger.debug(f"Response data: {data}")
-                if data.get('success'):
+                if 'razonSocial' in data:
                     existing_partner = self.env['res.partner'].search([('vat', '=', self.identificacion_number)], limit=1)
                     if existing_partner:
                         self.empresa = existing_partner.id
@@ -62,30 +62,32 @@ class CotizacionAlquiler(models.Model):
                         }
                     else:
                         partner_vals = {
-                            'name': data['razon_social'],
-                            'street': data['domicilio_fiscal']['direccion'],
+                            'name': data['razonSocial'],
+                            'street': data.get('direccion', ''),
                             'vat': self.identificacion_number,
                         }
                         partner = self.env['res.partner'].create(partner_vals)
                         self.empresa = partner.id
-                        self.contacto = data['representante_legal']['nombre']
+                        self.contacto = data.get('nombre', '')
                 else:
-                    _logger.warning(f"Failed to fetch data for RUC: {self.identificacion_number}")
+                    _logger.warning(f"Datos no encontrados para el RUC: {self.identificacion_number}")
+                    raise UserError(_('Datos no encontrados para el RUC proporcionado.'))
             else:
-                _logger.warning(f"Failed to fetch data for RUC: {self.identificacion_number}")
+                _logger.error(f"Error al consultar el RUC en SUNAT: {response.text}")
+                raise UserError(_('Error al consultar el RUC en SUNAT.'))
         except Exception as e:
             _logger.error(f"Error fetching data from SUNAT: {e}")
+            raise UserError(_('Error al consultar el RUC en SUNAT.'))
 
     def _fetch_data_from_reniec(self):
         if not self.identificacion_number:
             return
+        if len(self.identificacion_number) != 8:
+            raise UserError(_('El número de DNI debe tener 8 dígitos.'))
         try:
-            _logger.debug(f"Fetching data from RENIEC for DNI: {self.identificacion_number}")
             response = requests.get(f"https://api.apis.net.pe/v1/dni?numero={self.identificacion_number}")
-            _logger.debug(f"Response status code: {response.status_code}")
             if response.status_code == 200:
                 data = response.json()
-                _logger.debug(f"Response data: {data}")
                 if 'nombres' in data and 'apellidoPaterno' in data and 'apellidoMaterno' in data:
                     existing_partner = self.env['res.partner'].search([('vat', '=', self.identificacion_number)], limit=1)
                     if existing_partner:
@@ -105,8 +107,11 @@ class CotizacionAlquiler(models.Model):
                         self.empresa = partner.id
                         self.contacto = f"{data['nombres']} {data['apellidoPaterno']} {data['apellidoMaterno']}"
                 else:
-                    _logger.warning(f"Failed to fetch data for DNI: {self.identificacion_number}")
+                    _logger.warning(f"Datos no encontrados para el DNI: {self.identificacion_number}")
+                    raise UserError(_('Datos no encontrados para el DNI proporcionado.'))
             else:
-                _logger.warning(f"Failed to fetch data for DNI: {self.identificacion_number}")
+                _logger.error(f"Error al consultar el DNI en RENIEC: {response.text}")
+                raise UserError(_('Error al consultar el DNI en RENIEC.'))
         except Exception as e:
             _logger.error(f"Error fetching data from RENIEC: {e}")
+            raise UserError(_('Error al consultar el DNI en RENIEC.'))
