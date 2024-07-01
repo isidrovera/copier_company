@@ -28,13 +28,13 @@ class CopierCompany(models.Model):
             [('name', '=', 'USD')], limit=1)
         return value and value.id or False
     currency_id = fields.Many2one('res.currency', string='Currency', default=_default_currency_id)
-    costo_copia_color = fields.Monetary(string="Costo por Copia (Color)", currency_field='moneda_id')
-    costo_copia_bn = fields.Monetary(string="Costo por Copia (B/N)", currency_field='moneda_id')
+    costo_copia_color = fields.Monetary(string="Costo por Copia (Color)", currency_field='currency_id')
+    costo_copia_bn = fields.Monetary(string="Costo por Copia (B/N)", currency_field='currency_id')
     volumen_mensual_color = fields.Integer(string="Volumen Mensual (Color)")
     volumen_mensual_bn = fields.Integer(string="Volumen Mensual (B/N)")
-    renta_mensual_color = fields.Monetary(string="Renta Mensual (Color)", compute='_compute_renta_mensual', currency_field='moneda_id')
-    renta_mensual_bn = fields.Monetary(string="Renta Mensual (B/N)", compute='_compute_renta_mensual', currency_field='moneda_id')
-    total_facturar_mensual = fields.Monetary(string="Total a Facturar Mensual", compute='_compute_renta_mensual', currency_field='moneda_id')
+    renta_mensual_color = fields.Monetary(string="Renta Mensual (Color)", compute='_compute_renta_mensual', currency_field='currency_id')
+    renta_mensual_bn = fields.Monetary(string="Renta Mensual (B/N)", compute='_compute_renta_mensual', currency_field='currency_id')
+    total_facturar_mensual = fields.Monetary(string="Total a Facturar Mensual", compute='_compute_renta_mensual', currency_field='currency_id')
 
     @api.depends('volumen_mensual_color', 'volumen_mensual_bn', 'costo_copia_color', 'costo_copia_bn')
     def _compute_renta_mensual(self):
