@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api, _
 import requests
+import socket
 from odoo.exceptions import UserError
 import logging
 
@@ -41,13 +42,26 @@ class CotizacionAlquiler(models.Model):
             elif self.identificacion_type == 'dni':
                 self._fetch_data_from_reniec()
 
+    def _verify_dns_resolution(self, url):
+        try:
+            host = url.split('//')[1].split('/')[0]
+            socket.gethostbyname(host)
+            return True
+        except socket.error as e:
+            _logger.error(f"DNS resolution error for {host}: {e}")
+            raise UserError(_('Error de resolución DNS para %s. Por favor, verifica tu configuración de DNS.') % host)
+
     def _fetch_data_from_sunat(self):
         if not self.identificacion_number:
             return
         if len(self.identificacion_number) != 11:
             raise UserError(_('El número de RUC debe tener 11 dígitos.'))
+        
+        sunat_url = f"https://api.sunat.cloud/ruc/{self.identificacion_number}"
+        self._verify_dns_resolution(sunat_url)
+        
         try:
-            response = requests.get(f"https://api.sunat.cloud/ruc/{self.identificacion_number}")
+            response = requests.get(sunat_url)
             if response.status_code == 200:
                 data = response.json()
                 if 'razonSocial' in data:
@@ -75,7 +89,7 @@ class CotizacionAlquiler(models.Model):
             else:
                 _logger.error(f"Error al consultar el RUC en SUNAT: {response.text}")
                 raise UserError(_('Error al consultar el RUC en SUNAT.'))
-        except Exception as e:
+        except requests.exceptions.RequestException as e:
             _logger.error(f"Error fetching data from SUNAT: {e}")
             raise UserError(_('Error al consultar el RUC en SUNAT.'))
 
@@ -84,8 +98,12 @@ class CotizacionAlquiler(models.Model):
             return
         if len(self.identificacion_number) != 8:
             raise UserError(_('El número de DNI debe tener 8 dígitos.'))
+        
+        reniec_url = f"https://api.apis.net.pe/v1/dni?numero={self.identificacion_number}"
+        self._verify_dns_resolution(reniec_url)
+        
         try:
-            response = requests.get(f"https://api.apis.net.pe/v1/dni?numero={self.identificacion_number}")
+            response = requests.get(reniec_url)
             if response.status_code == 200:
                 data = response.json()
                 if 'nombres' in data and 'apellidoPaterno' in data and 'apellidoMaterno' in data:
@@ -112,6 +130,6 @@ class CotizacionAlquiler(models.Model):
             else:
                 _logger.error(f"Error al consultar el DNI en RENIEC: {response.text}")
                 raise UserError(_('Error al consultar el DNI en RENIEC.'))
-        except Exception as e:
+        except requests.exceptions.RequestException as e:
             _logger.error(f"Error fetching data from RENIEC: {e}")
             raise UserError(_('Error al consultar el DNI en RENIEC.'))
