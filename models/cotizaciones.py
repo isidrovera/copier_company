@@ -45,6 +45,7 @@ class CotizacionAlquiler(models.Model):
     def _verify_dns_resolution(self, url):
         try:
             host = url.split('//')[1].split('/')[0]
+            _logger.info(f"Resolving DNS for host: {host}")
             socket.gethostbyname(host)
             return True
         except socket.error as e:
