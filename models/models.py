@@ -23,15 +23,11 @@ class CopierCompany(models.Model):
     fecha_fin_alquiler = fields.Date(string="Fecha de Fin del Alquiler", compute='_calcular_fecha_fin', store=True)
 
     @api.model
-    def _default_currency(self):
-        client_country = self.env['res.partner'].browse(self._context.get('default_cliente_id', False)).country_id
-        if client_country:
-            currency = self.env['res.currency'].search([('country_ids', '=', client_country.id)], limit=1)
-            if currency:
-                return currency.id
-        return self.env.company.currency_id.id
-
-    moneda_id = fields.Many2one('res.currency', string='Moneda', default=_default_currency)
+    def _default_currency_id(self):
+        value = self.env['res.currency'].search(
+            [('name', '=', 'USD')], limit=1)
+        return value and value.id or False
+    currency_id = fields.Many2one('res.currency', string='Currency', default=_default_currency_id)
     costo_copia_color = fields.Monetary(string="Costo por Copia (Color)", currency_field='moneda_id')
     costo_copia_bn = fields.Monetary(string="Costo por Copia (B/N)", currency_field='moneda_id')
     volumen_mensual_color = fields.Integer(string="Volumen Mensual (Color)")

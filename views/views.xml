@@ -45,13 +45,13 @@
                         <field name="fecha_fin_alquiler"/>
                         <field name="duracion_alquiler_id"/>
                         <field t="accesorios_ids" widget="many2many_tags"/>
-                        <field name="costo_copia_bn" widget="monetary" options="{'currency_field': 'moneda_id'}"/>
-                        <field name="costo_copia_color" widget="monetary" options="{'currency_field': 'moneda_id'}"/>
+                        <field name="costo_copia_bn" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        <field name="costo_copia_color" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                         <field name="volumen_mensual_bn"/>
                         <field name="volumen_mensual_color"/>
-                        <field name="renta_mensual_bn" widget="monetary" options="{'currency_field': 'moneda_id'}"/>
-                        <field name="renta_mensual_color" widget="monetary" options="{'currency_field': 'moneda_id'}"/>
-                        <field name="total_facturar_mensual" widget="monetary" options="{'currency_field': 'moneda_id'}"/>
+                        <field name="renta_mensual_bn" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        <field name="renta_mensual_color" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        <field name="total_facturar_mensual" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                     </group>
                 </group>
             </sheet>
