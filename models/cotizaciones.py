@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from odoo import models, fields, api
 import requests
 import logging
@@ -46,8 +45,10 @@ class CotizacionAlquiler(models.Model):
             return
         try:
             response = requests.get(f"https://api.sunat.cloud/ruc/{self.identificacion_number}")
+            _logger.debug(f"Response status code: {response.status_code}")
             if response.status_code == 200:
                 data = response.json()
+                _logger.debug(f"Response data: {data}")
                 if data.get('success'):
                     existing_partner = self.env['res.partner'].search([('vat', '=', self.identificacion_number)], limit=1)
                     if existing_partner:
@@ -67,6 +68,8 @@ class CotizacionAlquiler(models.Model):
                         partner = self.env['res.partner'].create(partner_vals)
                         self.empresa = partner.id
                         self.contacto = data['representante_legal']['nombre']
+            else:
+                _logger.warning(f"Failed to fetch data for RUC: {self.identificacion_number}")
         except Exception as e:
             _logger.error(f"Error fetching data from SUNAT: {e}")
 
@@ -75,8 +78,10 @@ class CotizacionAlquiler(models.Model):
             return
         try:
             response = requests.get(f"https://api.apis.net.pe/v1/dni?numero={self.identificacion_number}")
+            _logger.debug(f"Response status code: {response.status_code}")
             if response.status_code == 200:
                 data = response.json()
+                _logger.debug(f"Response data: {data}")
                 if data.get('success'):
                     existing_partner = self.env['res.partner'].search([('vat', '=', self.identificacion_number)], limit=1)
                     if existing_partner:
@@ -95,5 +100,7 @@ class CotizacionAlquiler(models.Model):
                         partner = self.env['res.partner'].create(partner_vals)
                         self.empresa = partner.id
                         self.contacto = f"{data['nombres']} {data['apellidoPaterno']} {data['apellidoMaterno']}"
+            else:
+                _logger.warning(f"Failed to fetch data for DNI: {self.identificacion_number}")
         except Exception as e:
             _logger.error(f"Error fetching data from RENIEC: {e}")
