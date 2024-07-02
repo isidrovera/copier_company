@@ -7,6 +7,7 @@ class ModelosMaquinas(models.Model):
     ]
     name = fields.Char(string='Modelo', required=True, index=True)
     marca_id = fields.Many2one('marcas.maquinas',string='Marca')
+    especificaciones = fields.Html(string="Especificaciones")
     active = fields.Boolean(string="Activo", default=True)
     
 class MarcasMaquinas(models.Model):
