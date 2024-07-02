@@ -36,17 +36,24 @@
                         <field name="name"/>
                         <field name="serie_id"/>
                         <field name="accesorios_ids" widget="many2many_tags"/>                    
-                        <field name="cliente_id"/>
+                        
+                    </group>
+                    <group string="Datos de cliente">
+												<field name="cliente_id"/>
                         <field name="sede"/>
                         <field name="ubicacion"/>
                     </group>
-                    <group string="Datos de alquiler">
-												<field name="currency_id"/>
+                </group>
+                <group>
+                    <group string="Facturación">
+                        <field name="currency_id"/>
                         <field name="fecha_inicio_alquiler"/>
                         <field name="fecha_fin_alquiler"/>
                         <field name="duracion_alquiler_id"/>                        
                         <field name="costo_copia_bn" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                         <field name="costo_copia_color" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                    </group>
+                    <group>												
                         <field name="volumen_mensual_bn"/>
                         <field name="volumen_mensual_color"/>
                         <field name="renta_mensual_bn" widget="monetary" options="{'currency_field': 'currency_id'}"/>
