@@ -1,5 +1,6 @@
 from odoo import models, fields, api
 from dateutil.relativedelta import relativedelta
+from odoo.modules.module import get_module_resource
 import qrcode
 import base64
 import io
@@ -79,7 +80,12 @@ class CopierCompany(models.Model):
 
     def generar_qr_code(self):
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
-        logo_path = os.path.join('copier_company', 'static', 'src', 'img', 'logo.png')
+        logo_path = get_module_resource('copier_company', 'static', 'src', 'img', 'logo.png')
+
+        # Verifica si el archivo existe
+        if not logo_path or not os.path.isfile(logo_path):
+            raise FileNotFoundError(f"Logo file not found: {logo_path}")
+
         logo = Image.open(logo_path)
 
         # Ajustamos el tamaño de la imagen del logo
