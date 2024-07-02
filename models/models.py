@@ -27,7 +27,7 @@ class CopierCompany(models.Model):
         value = self.env['res.currency'].search(
             [('name', '=', 'USD')], limit=1)
         return value and value.id or False
-    currency_id = fields.Many2one('res.currency', string='Currency', default=_default_currency_id)
+    currency_id = fields.Many2one('res.currency', string='Tipo de moneda', default=_default_currency_id)
     costo_copia_color = fields.Monetary(string="Costo por Copia (Color)", currency_field='currency_id')
     costo_copia_bn = fields.Monetary(string="Costo por Copia (B/N)", currency_field='currency_id')
     volumen_mensual_color = fields.Integer(string="Volumen Mensual (Color)")
