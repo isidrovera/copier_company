@@ -1,14 +1,16 @@
 from odoo import models, fields, api
-from dateutil.relativedelta import relativedelta  # Importa relativedelta
+from dateutil.relativedelta import relativedelta
 import qrcode
 import base64
 import io
+from PIL import Image
+import os
 
 class CopierCompany(models.Model):
     _name = 'copier.company'
     _description = 'Aqui se registran las maquinas que estan en alquiler'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-       
+
     name = fields.Many2one('modelos.maquinas', string='Maquina')
     serie_id = fields.Char(string='Serie', required=True)
     marca_id = fields.Many2one('marcas.maquinas', string='Marca', required=True, related='name.marca_id')
@@ -21,12 +23,14 @@ class CopierCompany(models.Model):
     fecha_inicio_alquiler = fields.Date(string="Fecha de Inicio del Alquiler")
     duracion_alquiler_id = fields.Many2one('copier.duracion', string="Duración del Alquiler", default=lambda self: self.env.ref('copier_company.duracion_1_año').id)
     fecha_fin_alquiler = fields.Date(string="Fecha de Fin del Alquiler", compute='_calcular_fecha_fin', store=True)
+    qr_code = fields.Binary(string='Código QR', readonly=True)
 
     @api.model
     def _default_currency_id(self):
         value = self.env['res.currency'].search(
             [('name', '=', 'PEN')], limit=1)
         return value and value.id or False
+
     currency_id = fields.Many2one('res.currency', string='Tipo de moneda', default=_default_currency_id)
     costo_copia_color = fields.Monetary(string="Costo por Copia (Color)", currency_field='currency_id')
     costo_copia_bn = fields.Monetary(string="Costo por Copia (B/N)", currency_field='currency_id')
@@ -73,32 +77,34 @@ class CopierCompany(models.Model):
             'target': 'current',
         }
 
-    qr_code = fields.Binary(string='Código QR', readonly=True)
-
     def generar_qr_code(self):
-        base_url = "https://copiercompanysac.com//public/helpdesk_ticket"
-        dpi = 300
-        inches_for_qr = 1.5 / 4
-        pixels_for_qr = int(dpi * inches_for_qr)
-        version_size = 21
-        box_size = max(1, pixels_for_qr // (version_size + (2 * 4)))
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        logo_path = os.path.join('copier_company', 'static', 'src', 'img', 'logo.png')
+        logo = Image.open(logo_path)
+
+        # Ajustamos el tamaño de la imagen del logo
+        hsize = int((float(logo.size[1]) * float(100 / float(logo.size[0]))))
+        logo = logo.resize((100, hsize), Image.ANTIALIAS)
 
         for record in self:
-            data_to_encode = f"{base_url}?copier_company_id={record.id}"
+            data_to_encode = f"{base_url}/public/helpdesk_ticket?copier_company_id={record.id}"
 
             qr = qrcode.QRCode(
                 version=1,
-                error_correction=qrcode.constants.ERROR_CORRECT_L,
-                box_size=box_size,
+                error_correction=qrcode.constants.ERROR_CORRECT_H,
+                box_size=10,
                 border=4,
             )
             qr.add_data(data_to_encode)
             qr.make(fit=True)
 
-            img = qr.make_image(fill_color="black", back_color="white")
+            qr_img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
+
+            pos = ((qr_img.size[0] - logo.size[0]) // 2, (qr_img.size[1] - logo.size[1]) // 2)
+            qr_img.paste(logo, pos, logo)
 
             img_byte_array = io.BytesIO()
-            img.save(img_byte_array, format='PNG')
+            qr_img.save(img_byte_array, format='PNG')
             qr_image_base64 = base64.b64encode(img_byte_array.getvalue()).decode('utf-8')
 
             record.qr_code = qr_image_base64
