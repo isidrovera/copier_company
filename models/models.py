@@ -1,4 +1,4 @@
-    from odoo import models, fields, api
+from odoo import models, fields, api
 from dateutil.relativedelta import relativedelta  # Importa relativedelta
 import qrcode
 import base64
