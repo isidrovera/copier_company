@@ -109,6 +109,10 @@ class CopierCompany(models.Model):
             pos = ((qr_img.size[0] - logo.size[0]) // 2, (qr_img.size[1] - logo.size[1]) // 2)
             qr_img.paste(logo, pos, logo)
 
+            # Redimensionar la imagen del QR a la mitad de su tamaño original
+            new_size = (qr_img.size[0] // 2, qr_img.size[1] // 2)
+            qr_img = qr_img.resize(new_size, Image.ANTIALIAS)
+
             img_byte_array = io.BytesIO()
             qr_img.save(img_byte_array, format='PNG')
             qr_image_base64 = base64.b64encode(img_byte_array.getvalue()).decode('utf-8')
