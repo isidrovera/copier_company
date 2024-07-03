@@ -36,7 +36,8 @@
                 <field name="name"/>
                 <field name="serie_id"/>
                 <field name="accesorios_ids" widget="many2many_tags"/>
-
+                <filed name="imagen_id"/>
+                <filed name="especificaciones_id"/>
               </group>
               <group string="Datos de cliente">
                 <field name="cliente_id"/>
@@ -66,17 +67,7 @@
                     <field name="total_facturar_mensual" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                   </group>
                 </group>
-              </page>
-              <page name="name" string="Datos">
-                <group>
-                  <group >
-                    <filed name="especificaciones_id"/>
-                  </group>
-                  <group >
-                    <filed name="imagen_id"/>
-                  </group>
-                </group>
-              </page>
+              </page>              
             </notebook>
           </sheet>
           <div class="oe_chatter">
