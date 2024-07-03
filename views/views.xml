@@ -37,8 +37,10 @@
                 <field name="name"/>
                 <field name="serie_id"/>
                 <field name="accesorios_ids" widget="many2many_tags"/>
-                <filed name="imagen_id"/>
-                <filed name="especificaciones_id"/>
+                <field name="imagen_id" 
+                widget="image"
+                />
+                <field name="especificaciones_id"/>
               </group>
               <group string="Datos de cliente">
                 <field name="cliente_id"/>
