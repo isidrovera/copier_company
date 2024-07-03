@@ -40,13 +40,27 @@ class CopierCompany(models.Model):
     renta_mensual_color = fields.Monetary(string="Renta Mensual (Color)", compute='_compute_renta_mensual', currency_field='currency_id')
     renta_mensual_bn = fields.Monetary(string="Renta Mensual (B/N)", compute='_compute_renta_mensual', currency_field='currency_id')
     total_facturar_mensual = fields.Monetary(string="Total a Facturar Mensual", compute='_compute_renta_mensual', currency_field='currency_id')
+    igv = fields.Float(string='IGV (%)', default=18.0)
+    descuento = fields.Float(string='Descuento (%)', default=0.0)
 
-    @api.depends('volumen_mensual_color', 'volumen_mensual_bn', 'costo_copia_color', 'costo_copia_bn')
+    @api.depends('volumen_mensual_color', 'volumen_mensual_bn', 'costo_copia_color', 'costo_copia_bn', 'igv', 'descuento')
     def _compute_renta_mensual(self):
         for record in self:
-            record.renta_mensual_color = record.volumen_mensual_color * record.costo_copia_color
-            record.renta_mensual_bn = record.volumen_mensual_bn * record.costo_copia_bn
-            record.total_facturar_mensual = record.renta_mensual_color + record.renta_mensual_bn
+            renta_mensual_color = record.volumen_mensual_color * record.costo_copia_color
+            renta_mensual_bn = record.volumen_mensual_bn * record.costo_copia_bn
+            subtotal = renta_mensual_color + renta_mensual_bn
+            
+            # Aplicar descuento
+            descuento_total = subtotal * (record.descuento / 100.0)
+            subtotal_descuento = subtotal - descuento_total
+            
+            # Aplicar IGV
+            igv_total = subtotal_descuento * (record.igv / 100.0)
+            total_con_igv = subtotal_descuento + igv_total
+            
+            record.renta_mensual_color = renta_mensual_color
+            record.renta_mensual_bn = renta_mensual_bn
+            record.total_facturar_mensual = total_con_igv
 
     @api.depends('fecha_inicio_alquiler', 'duracion_alquiler_id')
     def _calcular_fecha_fin(self):
