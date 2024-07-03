@@ -53,7 +53,7 @@
         'views/pcloudPublicoTemplate.xml',
         'views/pdf_view_template.xml',
         'views/ajustes_copier.xml',
-        'report/copier_company_report.xml',      
+        'reports/copier_company_report.xml',      
         
     ],
 
