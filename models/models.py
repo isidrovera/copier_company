@@ -135,4 +135,4 @@ class CopierCompany(models.Model):
 
             record.qr_code = qr_image_base64
     def action_print_report(self):
-        return self.env.ref('copier_company.report_cotizacion_alquiler').report_action(self)
+        return self.env.ref('copier_company.action_report_report_cotizacion_alquiler').report_action(self)
