@@ -1,13 +1,15 @@
 <odoo>
     <data>
-        <!-- Definir el reporte -->
-        <report id="report_cotizacion_alquiler"
-                model="copier.company"
-                string="Cotización de Alquiler"
-                name="copier_company.cotizacion_view"
-                file="copier_company.cotizacion_view"
-                report_type="qweb-pdf"
-                print_report_name="'Cotizacion - %s' % (object.name.name)"/>
+        <!-- Acción del reporte -->
+        <report
+            id="report_cotizacion_alquiler"
+            model="copier.company"
+            string="Cotización de Alquiler"
+            name="copier_company.cotizacion_view"
+            file="copier_company.cotizacion_view"
+            report_type="qweb-pdf"
+            print_report_name="'Cotización - %s' % (object.name.name)"
+        />
 
         <!-- Plantilla QWeb para el reporte de cotización -->
         <template id="cotizacion_view">
@@ -46,7 +48,7 @@
                             </style>
 
                             <div>
-                                <p style="text-align: right;">martes, <t t-esc="fields.Date.today()"/></p>
+                                <p style="text-align: right;"><t t-esc="doc.create_date.strftime('%A, %d de %B de %Y')"/></p>
                                 <p>Presente. -</p>
                                 <p><strong>Atención:</strong> <t t-esc="doc.cliente_id.name"/></p>
                                 <p>Asunto: Alquiler de fotocopiadora multifuncional formato A4.</p>
@@ -63,9 +65,9 @@
                                 <h3 class="section-title">Tarifa</h3>
                                 <ul>
                                     <li>Volumen mensual Copias/Impresiones Blanco y negro: <t t-esc="doc.volumen_mensual_bn"/></li>
-                                    <li>Costo por Copia/Impresión Blanco y Negro: S/. <t t-esc="doc.costo_copia_bn" /> no incluido IGV.</li>
+                                    <li>Costo por Copia/Impresión Blanco y Negro: S/. <t t-esc="doc.costo_copia_bn"/> no incluido IGV.</li>
                                     <li>Renta Mensual blanco negro incluido IGV: S/. <t t-esc="doc.renta_mensual_bn"/></li>
-                                    <li>Costo de copia excedente blanco y negro S/. <t t-esc="doc.costo_copia_bn" /> no incluido IGV.</li>
+                                    <li>Costo de copia excedente blanco y negro S/. <t t-esc="doc.costo_copia_bn"/> no incluido IGV.</li>
                                     <li>Costo de scanner: Gratis.</li>
                                     <li>Disponibilidad: 5 Días presentado orden de compra.</li>
                                 </ul>
