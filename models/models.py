@@ -13,6 +13,8 @@ class CopierCompany(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     name = fields.Many2one('modelos.maquinas', string='Maquina')
+    imagen = fields.Binary(related='name.imagen', string='Imagen')
+    especificaciones = fields.html(related='name.especificaciones', string='Especificaciones')
     serie_id = fields.Char(string='Serie', required=True)
     marca_id = fields.Many2one('marcas.maquinas', string='Marca', required=True, related='name.marca_id')
     cliente_id = fields.Many2one('res.partner', string='Cliente', required=True)
