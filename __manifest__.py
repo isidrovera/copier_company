@@ -52,7 +52,8 @@
         'views/no_config_template.xml',
         'views/pcloudPublicoTemplate.xml',
         'views/pdf_view_template.xml',
-        'views/ajustes_copier.xml',      
+        'views/ajustes_copier.xml',
+        'report/copier_company_report.xml',      
         
     ],
 
