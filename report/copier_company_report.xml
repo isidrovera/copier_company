@@ -59,7 +59,7 @@
                             </div>
 
                             <div>
-                                <img t-if="doc.imagen_id" t-att-src="'data:image/png;base64,%s' % doc.imagen_id" style="max-width: 300px; margin-top: 10px;"/>
+                                <span t-field="doc.imagen_id" t-options-widget="image" t-options="{&quot;width&quot;: 300, &quot;height&quot;: 300}" style="margin-top: 10px;"/>
                             </div>
 
                             <div>
