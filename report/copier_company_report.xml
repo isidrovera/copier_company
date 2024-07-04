@@ -61,7 +61,7 @@
                                 <p><strong>Atención:</strong> <t t-esc="doc.cliente_id.name"/></p>
                                 <p>Asunto: Alquiler de fotocopiadora multifuncional formato A4.</p>
                                 <p>Estimados Señores,</p>
-                                <p>Atendiendo su solicitud, tenemos el placer de enviarles nuestra COTIZACIÓN para el servicio de alquiler del siguiente equipo multifuncional:</p>
+                                <p>En respuesta a su solicitud, nos complace presentarles nuestra COTIZACIÓN para el servicio de alquiler del siguiente equipo multifuncional:</p>
                                 <p>1- <t t-esc="doc.name.name"/></p>
                             </div>
 
@@ -106,6 +106,22 @@
                                     <tr>
                                         <th>Costo de copia excedente Blanco y Negro</th>
                                         <td>S/. <t t-esc="doc.costo_copia_bn"/> (no incluido IGV)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Volumen mensual Copias/Impresiones Color</th>
+                                        <td><t t-esc="doc.volumen_mensual_color"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Costo por Copia/Impresión Color</th>
+                                        <td>S/. <t t-esc="doc.costo_copia_color"/> (no incluido IGV)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Renta Mensual (Color) incluido IGV</th>
+                                        <td>S/. <t t-esc="doc.renta_mensual_color"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Costo de copia excedente Color</th>
+                                        <td>S/. <t t-esc="doc.costo_copia_color"/> (no incluido IGV)</td>
                                     </tr>
                                     <tr>
                                         <th>Costo de scanner</th>
