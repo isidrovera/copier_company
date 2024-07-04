@@ -59,7 +59,9 @@
                             </div>
 
                             <div>
-                                <img t-if="doc.imagen_id" t-att-src="'data:image/png;base64,%s' % doc.imagen_id" style="max-width: 300px; margin-top: 10px;"/>
+                                <t t-if="doc.imagen_id">
+                                    <img t-att-src="'data:image/png;base64,%s' % doc.imagen_id.decode('utf-8')" style="max-width: 300px; margin-top: 10px;"/>
+                                </t>
                             </div>
 
                             <div>
