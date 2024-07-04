@@ -14,13 +14,11 @@ class CopierCompany(models.Model):
 
     name = fields.Many2one('modelos.maquinas', string='Maquina')
     secuencia = fields.Char('Formulario N°', default='New', copy=False, required=True, readonly=True)
-
     @api.model
     def create(self, vals):
-        if vals.get('secuencia', 'New') == 'New':
-            vals['secuencia'] = self.env['ir.sequence'].next_by_code('copier.company') or '/'
+        vals['secuencia'] = self.env['ir.sequence'].next_by_code('copier.company') or '/'
         return super(CopierCompany, self).create(vals)
-
+        
     imagen_id = fields.Binary(related='name.imagen', string='Imagen')
     especificaciones_id = fields.Html(related='name.especificaciones', string=' ')
     serie_id = fields.Char(string='Serie', required=True)
