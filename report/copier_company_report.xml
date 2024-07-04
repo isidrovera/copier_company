@@ -46,6 +46,13 @@
                                     background-color: #f2f2f2;
                                     text-align: left;
                                 }
+                                .image-container {
+                                    text-align: center;
+                                    margin-top: 10px;
+                                }
+                                .image-container img {
+                                    max-width: 390px;
+                                }
                             </style>
 
                             <div>
@@ -58,10 +65,14 @@
                                 <p>1- <t t-esc="doc.name.name"/></p>
                             </div>
 
-                            <div>
+                            <div class="image-container">
                                 <t t-if="doc.imagen_id">
-                                    <img t-att-src="'data:image/png;base64,%s' % doc.imagen_id.decode('utf-8')" style="max-width: 300px; margin-top: 10px;"/>
+                                    <img t-att-src="'data:image/png;base64,%s' % doc.imagen_id.decode('utf-8')"/>
                                 </t>
+                            </div>
+
+                            <div>
+                                <t t-raw="doc.especificaciones_id"/>
                             </div>
 
                             <div>
