@@ -14,7 +14,7 @@ class CopierCompany(models.Model):
 
     name = fields.Many2one('modelos.maquinas', string='Maquina')
     imagen_id = fields.Binary(related='name.imagen', string='Imagen')
-    especificaciones_id = fields.Html(related='name.especificaciones', string='Especificaciones')
+    especificaciones_id = fields.Html(related='name.especificaciones', string=' ')
     serie_id = fields.Char(string='Serie', required=True)
     marca_id = fields.Many2one('marcas.maquinas', string='Marca', required=True, related='name.marca_id')
     cliente_id = fields.Many2one('res.partner', string='Cliente', required=True)
