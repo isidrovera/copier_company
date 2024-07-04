@@ -7,7 +7,7 @@
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">copier_company.cotizacion_view</field>
             <field name="report_file">copier_company.cotizacion_view</field>
-            <field name="print_report_name">'Cotización - %s' % object.name.name</field>
+            <field name="print_report_name">'Cotización - %s' % object.secuencia</field>
             <field name="binding_model_id" ref="model_copier_company"/>
             <field name="binding_type">report</field>
         </record>
