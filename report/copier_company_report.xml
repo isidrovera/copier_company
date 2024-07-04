@@ -72,6 +72,7 @@
                             </div>
 
                             <div>
+                                <h3 class="section-title">Especificaciones del Equipo</h3>
                                 <t t-raw="doc.especificaciones_id"/>
                             </div>
 
@@ -85,6 +86,60 @@
                                     <li>Costo de scanner: Gratis.</li>
                                     <li>Disponibilidad: 5 Días presentado orden de compra.</li>
                                 </ul>
+                            </div>
+
+                            <div>
+                                <h3 class="section-title">Detalles Financieros</h3>
+                                <table class="info-table">
+                                    <tr>
+                                        <th>Fecha de Inicio del Alquiler</th>
+                                        <td><t t-esc="doc.fecha_inicio_alquiler"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Fecha de Fin del Alquiler</th>
+                                        <td><t t-esc="doc.fecha_fin_alquiler"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Moneda</th>
+                                        <td><t t-esc="doc.currency_id.name"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Costo por Copia (Color)</th>
+                                        <td><t t-esc="doc.costo_copia_color"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Costo por Copia (B/N)</th>
+                                        <td><t t-esc="doc.costo_copia_bn"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Volumen Mensual (Color)</th>
+                                        <td><t t-esc="doc.volumen_mensual_color"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Volumen Mensual (B/N)</th>
+                                        <td><t t-esc="doc.volumen_mensual_bn"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Renta Mensual (Color)</th>
+                                        <td><t t-esc="doc.renta_mensual_color"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Renta Mensual (B/N)</th>
+                                        <td><t t-esc="doc.renta_mensual_bn"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Total a Facturar Mensual</th>
+                                        <td><t t-esc="doc.total_facturar_mensual"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th>IGV (%)</th>
+                                        <td><t t-esc="doc.igv"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Descuento (%)</th>
+                                        <td><t t-esc="doc.descuento"/></td>
+                                    </tr>
+                                </table>
                             </div>
 
                             <div>
