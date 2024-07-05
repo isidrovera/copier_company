@@ -7,7 +7,7 @@
             <form action="/copier_company/submit" method="post" id="copier_form">
                 <div class="form-group">
                     <label for="name">Maquina</label>
-                    <select name="name" id="name" class="form-control" required>
+                    <select name="name" id="name" class="form-control" >
                         <t t-foreach="marcas" t-as="marca">
                             <option t-att-value="marca.id"><t t-esc="marca.name"/></option>
                         </t>
@@ -15,19 +15,19 @@
                 </div>
                 <div class="form-group">
                     <label for="serie_id">Serie</label>
-                    <input type="text" id="serie_id" name="serie_id" class="form-control" required/>
+                    <input type="text" id="serie_id" name="serie_id" class="form-control" />
                 </div>
                 <div class="form-group">
                     <label for="identificacion">Numero de Identificación</label>
-                    <input type="text" id="identificacion" name="identificacion" class="form-control" required/>
+                    <input type="text" id="identificacion" name="identificacion" class="form-control"/>
                 </div>
                 <div class="form-group">
                     <label for="tipo_identificacion">Tipo de identificación</label>
-                    <input type="text" id="tipo_identificacion" name="tipo_identificacion" class="form-control" readonly/>
+                    <input type="text" id="tipo_identificacion" name="tipo_identificacion" class="form-control"/>
                 </div>
                 <div class="form-group">
                     <label for="cliente_name">Nombre del Cliente</label>
-                    <input type="text" id="cliente_name" name="cliente_name" class="form-control" readonly/>
+                    <input type="text" id="cliente_name" name="cliente_name" class="form-control"/>
                 </div>
                 <div class="form-group">
                     <label for="tipo">Tipo de impresora</label>
