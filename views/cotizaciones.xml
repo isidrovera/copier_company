@@ -1,0 +1,60 @@
+<odoo>
+    <data>
+        <!-- Vista de formulario -->
+        <record id="view_cotizacion_alquiler_form" model="ir.ui.view">
+            <field name="name">cotizacion.alquiler.form</field>
+            <field name="model">cotizacion.alquiler</field>
+            <field name="arch" type="xml">
+                <form string="Cotización de Alquiler">
+                    <sheet>
+                        <group name="identificacion">
+                            <field name="identificacion_type"/>
+                            <field name="identificacion_number"/>
+                        </group>
+                        <group name="name" string="Información de la Cotización">
+                            <group>
+                                <field name="name"/>
+                                <field name="empresa"/>
+                                <field name="contacto"/>
+                                <field name="celular"/>
+                                <field name="correo"/>
+                            </group>
+                            <group>
+                                <field name="marca_id"/>
+                                <field name="tipo"/>
+                                <field name="cantidad"/>
+                                <field name="formato"/>
+                                <field name="detalles"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista de árbol -->
+        <record id="view_cotizacion_alquiler_tree" model="ir.ui.view">
+            <field name="name">cotizacion.alquiler.tree</field>
+            <field name="model">cotizacion.alquiler</field>
+            <field name="arch" type="xml">
+                <tree string="Cotizaciones de Alquiler">
+                    <field name="name"/>
+                    <field name="empresa"/>
+                    <field name="contacto"/>
+                    <field name="celular"/>
+                    <field name="correo"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Acciones de menú -->
+        <record id="action_cotizacion_alquiler" model="ir.actions.act_window">
+            <field name="name">Cotizaciones de Alquiler</field>
+            <field name="res_model">cotizacion.alquiler</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem id="menu_cotizacion_alquiler" name="Cotizaciones de Alquiler" parent="copier_company.menu_root"
+                  action="action_cotizacion_alquiler" sequence="20"/>
+    </data>
+</odoo>
