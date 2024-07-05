@@ -1,55 +1,49 @@
 from odoo import http
 from odoo.http import request
 
-class CopierCompanyController(http.Controller):
+class CopierCompany(http.Controller):
 
     @http.route('/copier_company/form', type='http', auth='public', website=True)
-    def copier_company_form(self, **kwargs):
-        # Renderizar el formulario
-        marcas = request.env['marcas.maquinas'].search([])
-        return request.render('copier_company.copier_company_form_template', {
-            'marcas': marcas
-        })
+    def copier_form(self, **kw):
+        marcas = request.env['marcas.maquinas'].sudo().search([])
+        return request.render('copier_company.copier_company_form_template', {'marcas': marcas})
 
-    @http.route('/copier_company/submit', type='http', auth='public', website=True, csrf=True, methods=['POST'])
-    def copier_company_submit(self, **post):
-        # Procesar los datos del formulario y crear el registro
-        cliente = request.env['res.partner'].search([('vat', '=', post['identificacion'])], limit=1)
+    @http.route('/copier_company/submit', type='http', auth='public', methods=['POST'], website=True)
+    def copier_submit(self, **post):
+        cliente = request.env['res.partner'].sudo().search([('vat', '=', post.get('identificacion'))], limit=1)
         if not cliente:
-            cliente = request.env['res.partner'].create({
-                'vat': post['identificacion'],
-                'name': 'Cargando...',
-                'l10n_latam_identification_type_id': int(post['tipo_identificacion'])
+            cliente = request.env['res.partner'].sudo().create({
+                'name': post.get('cliente_name'),
+                'vat': post.get('identificacion'),
+                'l10n_latam_identification_type_id': int(post.get('tipo_identificacion')),
             })
-            cliente._doc_number_change()
-
-        request.env['copier.company'].create({
-            'name': int(post['name']),
-            'serie_id': post['serie_id'],
-            'marca_id': int(post['marca_id']),
+        request.env['copier.company'].sudo().create({
+            'name': post.get('name'),
+            'serie_id': post.get('serie_id'),
             'cliente_id': cliente.id,
-            'tipo_identificacion': int(post['tipo_identificacion']),
-            'identificacion': post['identificacion'],
-            'tipo': post['tipo'],
-            'contacto': post['contacto'],
-            'celular': post['celular'],
-            'correo': post['correo'],
-            'detalles': post['detalles'],
-            'formato': post['formato'],
-            'volumen_mensual_color': int(post['volumen_mensual_color']),
-            'volumen_mensual_bn': int(post['volumen_mensual_bn']),
+            'tipo': post.get('tipo'),
+            'contacto': post.get('contacto'),
+            'celular': post.get('celular'),
+            'correo': post.get('correo'),
+            'detalles': post.get('detalles'),
+            'formato': post.get('formato'),
+            'volumen_mensual_color': post.get('volumen_mensual_color'),
+            'volumen_mensual_bn': post.get('volumen_mensual_bn'),
         })
+        return request.redirect('/copier_company/thank_you')
 
-        return request.redirect('/copier_company/form')
-
-    @http.route('/copier_company/fetch_cliente', type='json', auth='public')
-    def fetch_cliente(self, identificacion):
-        cliente = request.env['res.partner'].search([('vat', '=', identificacion)], limit=1)
-        if cliente:
+    @http.route('/copier_company/get_customer_data', type='json', auth='public', methods=['GET'])
+    def get_customer_data(self, tipo_identificacion, identificacion):
+        partner = request.env['res.partner'].sudo().search([
+            ('vat', '=', identificacion),
+            ('l10n_latam_identification_type_id.l10n_pe_vat_code', '=', tipo_identificacion)
+        ], limit=1)
+        if partner:
             return {
                 'success': True,
-                'name': cliente.name,
-                'tipo_identificacion': cliente.l10n_latam_identification_type_id.id,
+                'name': partner.name,
+                'contact': partner.phone,
+                'email': partner.email,
             }
         else:
             return {'success': False}
