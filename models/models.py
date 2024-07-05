@@ -50,8 +50,15 @@ class CopierCompany(models.Model):
                 
                 self.cliente_id = new_partner.id
                 self.tipo_identificacion = new_partner.l10n_latam_identification_type_id.id
-
-
+    
+    tipo = fields.Selection(string='Tipo de impresora', selection=[('monocroma', 'Blanco y negro'), ('color', 'Color')],
+                            default='monocroma', help='Aqui elija que tipo de equipo multifuncional necesita si blanco y negro o color.')
+       
+    contacto = fields.Char(string='Contacto')
+    celular = fields.Char(string='Telefono')
+    correo = fields.Char(string='Correo')
+    detalles = fields.Text(string='Detalle')
+    formato = fields.Selection(string='Formato', selection=[('a4', 'A4'), ('a3', 'A3')], default='a3', help='Elija el formato de papel')
     ubicacion = fields.Char(string='Ubicación')
     sede = fields.Char(string='Sede')
     ip_id = fields.Char(string="IP")

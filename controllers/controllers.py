@@ -66,36 +66,6 @@ class DescargaArchivosController(http.Controller):
 
 
 
-class PortalAlquilerController(http.Controller):
-    
-    @http.route('/portal/alquiler', auth='public', website=True)
-    def portal_alquiler_form(self, **kwargs):
-        marcas = request.env['marcas.maquinas'].sudo().search([])
-        # Elimina la siguiente línea, ya que no estás utilizando 'alquiler_id'
-        # alquiler = request.env['cotizacion.alquiler'].sudo().browse(alquiler_id)
-        return request.render('copier_company.portal_alquiler_form', {
-            'marcas': marcas
-        })
-
-    @http.route('/portal/alquiler/submit', type='http', auth='user', website=True, methods=['POST'])
-    def portal_alquiler_submit(self, **post):
-        alquiler_vals = {
-            'marca_id': int(post.get('marca_id')),
-            'tipo': post.get('tipo'),
-            'cantidad': post.get('cantidad'),
-            'empresa': post.get('empresa'),
-            'contacto': post.get('contacto'),
-            'celular': post.get('celular'),
-            'correo': post.get('correo'),
-            'detalles': post.get('detalles'),
-            'formato': post.get('formato'),
-        }
-        nuevo_alquiler = request.env['cotizacion.alquiler'].sudo().create(alquiler_vals)
-        # Aquí, puedes redirigir al usuario a una página de confirmación o de vuelta al formulario con un mensaje de éxito
-        return request.redirect('/ruta_de_confirmacion')
-    @http.route('/ruta_de_confirmacion', auth='public', website=True)
-    def confirmacion(self, **kwargs):
-        return request.render('copier_company.confirmacion_template', {})
 
 
 
