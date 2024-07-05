@@ -35,11 +35,16 @@ class CopierCompany(models.Model):
                 self.tipo_identificacion = partner.l10n_latam_identification_type_id.id
             else:
                 # Si el cliente no existe, crearlo y obtener los datos de la SUNAT
-                partner = self.env['res.partner'].create({'vat': self.identificacion})
-                self.cliente_id = partner.id
+                new_partner = self.env['res.partner'].create({
+                    'vat': self.identificacion,
+                    'name': 'Cargando...'  # Nombre temporal para evitar error de restricción
+                })
                 # Llamar a la lógica de res.partner para obtener los datos de la SUNAT
-                partner._compute_sunat_data()
-                self.tipo_identificacion = partner.l10n_latam_identification_type_id.id
+                new_partner._compute_sunat_data()
+                if new_partner.name == 'Cargando...':
+                    new_partner.name = new_partner.vat  # Asignar VAT como nombre si SUNAT no devolvió un nombre
+                self.cliente_id = new_partner.id
+                self.tipo_identificacion = new_partner.l10n_latam_identification_type_id.id
     ubicacion = fields.Char(string='Ubicación')
     sede = fields.Char(string='Sede')
     ip_id = fields.Char(string="IP")
