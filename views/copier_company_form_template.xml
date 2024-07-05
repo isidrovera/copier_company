@@ -79,7 +79,7 @@
         function obtenerDatosCliente() {
             var tipoIdentificacion = document.getElementById('tipo_identificacion').value;
             var identificacion = document.getElementById('identificacion').value;
-            if (identificacion) { fetch('/copier_company/get_customer_data?tipo_identificacion=' + tipoIdentificacion + '&identificacion=' + identificacion)
+            if (identificacion) { fetch('/copier_company/get_customer_data?tipo_identificacion=' + tipoIdentificacion + '&amp;identificacion=' + identificacion)
                     .then(response =&lt; response.json())
                     .then(data =&lt; {
                         if (data.success) {
