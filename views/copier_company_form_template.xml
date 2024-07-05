@@ -2,85 +2,84 @@
 <odoo>
 
     <template id="copier_company_form_template" name="Copier Company Form">
-    <form action="/copier_company/submit" method="POST">
-        <div class="row">
-            <div class="col-lg-6">
-                <div class="form-group">
-                    <label for="name">Maquina</label>
-                    <select class="form-control" id="name" name="name">
-                        <t t-foreach="marcas" t-as="marca">
-                            <option t-att-value="marca.id">
-                                <t t-esc="marca.name"/>
-                            </option>
-                        </t>
-                    </select>
+        <form action="/copier_company/submit" method="POST">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label for="name">Maquina</label>
+                        <select class="form-control" id="name" name="name">
+                            <t t-foreach="marcas" t-as="marca">
+                                <option t-att-value="marca.id">
+                                    <t t-esc="marca.name"/>
+                                </option>
+                            </t>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="tipo_identificacion">Tipo de Identificación</label>
+                        <select class="form-control" id="tipo_identificacion" name="tipo_identificacion">
+                            <option value="1">DNI</option>
+                            <option value="6">RUC</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="tipo">Tipo de impresora</label>
+                        <select class="form-control" id="tipo" name="tipo">
+                            <option value="monocroma">Blanco y negro</option>
+                            <option value="color">Color</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="contacto">Contacto</label>
+                        <input type="text" class="form-control" id="contacto" name="contacto" placeholder="Contacto"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="correo">Correo</label>
+                        <input type="email" class="form-control" id="correo" name="correo" placeholder="Correo"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="volumen_mensual_color">Volumen Mensual (Color)</label>
+                        <input type="number" class="form-control" id="volumen_mensual_color" name="volumen_mensual_color" placeholder="Volumen Mensual (Color)"/>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="tipo_identificacion">Tipo de Identificación</label>
-                    <select class="form-control" id="tipo_identificacion" name="tipo_identificacion">
-                        <option value="1">DNI</option>
-                        <option value="6">RUC</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="tipo">Tipo de impresora</label>
-                    <select class="form-control" id="tipo" name="tipo">
-                        <option value="monocroma">Blanco y negro</option>
-                        <option value="color">Color</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="contacto">Contacto</label>
-                    <input type="text" class="form-control" id="contacto" name="contacto" placeholder="Contacto"/>
-                </div>
-                <div class="form-group">
-                    <label for="correo">Correo</label>
-                    <input type="email" class="form-control" id="correo" name="correo" placeholder="Correo"/>
-                </div>
-                <div class="form-group">
-                    <label for="volumen_mensual_color">Volumen Mensual (Color)</label>
-                    <input type="number" class="form-control" id="volumen_mensual_color" name="volumen_mensual_color" placeholder="Volumen Mensual (Color)"/>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label for="identificacion">Numero de Identificación</label>
+                        <input type="text" class="form-control" id="identificacion" name="identificacion" placeholder="Numero de Identificación"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="cliente_name">Nombre del Cliente</label>
+                        <input type="text" class="form-control" id="cliente_name" name="cliente_name" placeholder="Nombre del Cliente"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="celular">Telefono</label>
+                        <input type="text" class="form-control" id="celular" name="celular" placeholder="Telefono"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="detalles">Detalle</label>
+                        <textarea class="form-control" id="detalles" name="detalles" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="formato">Formato</label>
+                        <select class="form-control" id="formato" name="formato">
+                            <option value="a4">A4</option>
+                            <option value="a3">A3</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="volumen_mensual_bn">Volumen Mensual (B/N)</label>
+                        <input type="number" class="form-control" id="volumen_mensual_bn" name="volumen_mensual_bn" placeholder="Volumen Mensual (B/N)"/>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="obtenerDatosCliente()">Obtener Datos</button>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <div class="form-group">
-                    <label for="identificacion">Numero de Identificación</label>
-                    <input type="text" class="form-control" id="identificacion" name="identificacion" placeholder="Numero de Identificación"/>
-                </div>
-                <div class="form-group">
-                    <label for="cliente_name">Nombre del Cliente</label>
-                    <input type="text" class="form-control" id="cliente_name" name="cliente_name" placeholder="Nombre del Cliente"/>
-                </div>
-                <div class="form-group">
-                    <label for="celular">Telefono</label>
-                    <input type="text" class="form-control" id="celular" name="celular" placeholder="Telefono"/>
-                </div>
-                <div class="form-group">
-                    <label for="detalles">Detalle</label>
-                    <textarea class="form-control" id="detalles" name="detalles" rows="3"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="formato">Formato</label>
-                    <select class="form-control" id="formato" name="formato">
-                        <option value="a4">A4</option>
-                        <option value="a3">A3</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="volumen_mensual_bn">Volumen Mensual (B/N)</label>
-                    <input type="number" class="form-control" id="volumen_mensual_bn" name="volumen_mensual_bn" placeholder="Volumen Mensual (B/N)">
-                </div>
-                <button type="button" class="btn btn-primary" onclick="obtenerDatosCliente()">Obtener Datos</button>
-            </div>
-        </div>
-        <button type="submit" class="btn btn-success">Enviar</button>
-    </form>
-    <script>
+            <button type="submit" class="btn btn-success">Enviar</button>
+        </form>
+        <script>
         function obtenerDatosCliente() {
             var tipoIdentificacion = document.getElementById('tipo_identificacion').value;
             var identificacion = document.getElementById('identificacion').value;
-            if (identificacion) {
-                fetch('/copier_company/get_customer_data?tipo_identificacion=' + tipoIdentificacion + '&identificacion=' + identificacion)
+            if (identificacion) { fetch('/copier_company/get_customer_data?tipo_identificacion=' + tipoIdentificacion + '&identificacion=' + identificacion)
                     .then(response =&lt; response.json())
                     .then(data =&lt; {
                         if (data.success) {
@@ -94,9 +93,6 @@
                 alert('Por favor, ingrese el número de identificación.');
             }
         }
-    </script>
-</template>
-
-
-
+        </script>
+    </template>
 </odoo>
