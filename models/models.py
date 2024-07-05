@@ -24,6 +24,8 @@ class CopierCompany(models.Model):
     serie_id = fields.Char(string='Serie', required=True)
     marca_id = fields.Many2one('marcas.maquinas', string='Marca', required=True, related='name.marca_id')
     cliente_id = fields.Many2one('res.partner', string='Cliente', required=True)
+    tipo_identificacion = fields.Many2one(related='cliente_id.l10n_latam_identification_type_id', string="Tipo de identificación", readonly=False)
+    identificacion = fields.Char(related='cliente_id.vat', string="Numero de identificación",readonly=False)
     ubicacion = fields.Char(string='Ubicación')
     sede = fields.Char(string='Sede')
     ip_id = fields.Char(string="IP")
