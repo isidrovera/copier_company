@@ -1,4 +1,3 @@
-// custom_script.js
 function obtenerDatosCliente() {
     var tipoIdentificacion = document.getElementById('tipo_identificacion').value;
     var identificacion = document.getElementById('identificacion').value;
@@ -22,10 +21,13 @@ function obtenerDatosCliente() {
             })
         })
         .then(response => {
-            console.log("Respuesta cruda: ", response);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
             return response.json();
         })
         .then(data => {
+            console.log("Datos procesados: ", data);
             if (data.result && data.result.success) {
                 document.getElementById('cliente_name').value = data.result.name;
                 document.getElementById('telefono').value = data.result.phone;
@@ -34,7 +36,6 @@ function obtenerDatosCliente() {
                 alert('No se encontraron datos para la identificación proporcionada.');
             }
         })
-        
         .catch(error => {
             console.error('Error fetching data: ', error);
             alert('Error al procesar la solicitud.');
@@ -43,4 +44,3 @@ function obtenerDatosCliente() {
         alert('Por favor, ingrese el número de identificación.');
     }
 }
-
