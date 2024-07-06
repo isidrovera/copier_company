@@ -54,13 +54,13 @@
         'views/pdf_view_template.xml',
         'views/ajustes_copier.xml',
         'report/copier_company_report.xml',
-        'views/copier_company_form_template.xml',    
+            
         
     ],
 
     'assets': {
         'web.assets_backend': [
-            'copier_company/static/src/js/custom_script.js',
+            'copier_company/static/src/js/**/*.js',
            # 'copier_company/static/src/scss/**/*.scss',
             #'copier_company/static/src/xml/**/*.xml',
         ],
