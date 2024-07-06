@@ -14,23 +14,29 @@ class CopierCompany(http.Controller):
         })
 
     @http.route('/copier_company/get_customer_data', type='json', auth="public")
-    def get_customer_data(self, tipo_identificacion, identificacion):
+    def get_customer_data(self, **kwargs):
+        tipo_identificacion = kwargs.get('tipo_identificacion')
+        identificacion = kwargs.get('identificacion')
         partner = request.env['res.partner'].sudo().search([
             ('l10n_latam_identification_type_id.l10n_pe_vat_code', '=', tipo_identificacion),
             ('vat', '=', identificacion)
         ], limit=1)
         if partner:
             return {
-                'success': True,
-                'name': partner.name,
-                'phone': partner.phone,
-                'email': partner.email,
-                # Añadir otros campos que necesites
+                'jsonrpc': '2.0',
+                'result': {
+                    'success': True,
+                    'name': partner.name,
+                    'phone': partner.phone,
+                    'email': partner.email
+                }
             }
-        return {'success': False}
+        return {
+            'jsonrpc': '2.0',
+            'result': {'success': False}
+        }
 
     @http.route('/copier_company/submit', type='http', auth="public", website=True)
     def copier_company_submit(self, **kwargs):
-        # Aquí deberías implementar la lógica para procesar y guardar los datos del formulario
-        # Por ahora, simplemente redirigiremos al usuario a una página de agradecimiento
+        # Implementa la lógica para procesar y guardar los datos del formulario
         return request.render('copier_company.confirmacion_template')
