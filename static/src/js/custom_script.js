@@ -26,7 +26,6 @@ function obtenerDatosCliente() {
             return response.json();
         })
         .then(data => {
-            console.log("Datos procesados: ", data);
             if (data.result && data.result.success) {
                 document.getElementById('cliente_name').value = data.result.name;
                 document.getElementById('telefono').value = data.result.phone;
@@ -35,6 +34,7 @@ function obtenerDatosCliente() {
                 alert('No se encontraron datos para la identificación proporcionada.');
             }
         })
+        
         .catch(error => {
             console.error('Error fetching data: ', error);
             alert('Error al procesar la solicitud.');
