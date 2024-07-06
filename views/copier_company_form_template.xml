@@ -10,7 +10,7 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="name">Maquina</label>
+                                        <label for="name">Máquina</label>
                                         <select class="form-control" id="name" name="name">
                                             <t t-foreach="marcas" t-as="marca">
                                                 <option t-att-value="marca.id">
@@ -30,8 +30,8 @@
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <label for="identificacion">Numero de Identificación</label>
-                                        <input type="text" class="form-control" id="identificacion" name="identificacion" placeholder="Numero de Identificación" onblur="obtenerDatosCliente()"/>
+                                        <label for="identificacion">Número de Identificación</label>
+                                        <input type="text" class="form-control" id="identificacion" name="identificacion" placeholder="Número de Identificación" onblur="obtenerDatosCliente()"/>
                                     </div>
                                     <div class="form-group">
                                         <label for="cliente_name">Nombre del Cliente</label>
@@ -87,44 +87,7 @@
                 </div>
             </div>
         </t>
-        <script>
-            function obtenerDatosCliente() {
-                var tipoIdentificacion = document.getElementById('tipo_identificacion').value;
-                var identificacion = document.getElementById('identificacion').value;
-                if (identificacion) {
-                    fetch('/copier_company/get_customer_data', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            jsonrpc: "2.0",
-                            method: "call",
-                            params: {
-                                tipo_identificacion: tipoIdentificacion,
-                                identificacion: identificacion
-                            },
-                            id: null
-                        })
-                    })
-                    .then(response =&lt; response.json())
-                    .then(data =&lt; {
-                        if (data.result &amp;&amp; data.result.success) {
-                            document.getElementById('cliente_name').value = data.result.name;
-                            document.getElementById('telefono').value = data.result.phone;
-                            document.getElementById('correo').value = data.result.email;
-                        } else {
-                            alert('No se encontraron datos para la identificación proporcionada.');
-                        }
-                    })
-                    .catch(error =&lt; {
-                        console.error('Error fetching data: ', error);
-                        alert('Error al procesar la solicitud.');
-                    });
-                } else {
-                    alert('Por favor, ingrese el número de identificación.');
-                }
-            }
-        </script>
+        <!-- Incluir el script JavaScript externo -->
+        <script src="/static/src/js/custom_script.js"></script>
     </template>
 </odoo>
