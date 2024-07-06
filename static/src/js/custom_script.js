@@ -2,6 +2,9 @@
 function obtenerDatosCliente() {
     var tipoIdentificacion = document.getElementById('tipo_identificacion').value;
     var identificacion = document.getElementById('identificacion').value;
+    console.log("Tipo de Identificación: ", tipoIdentificacion);
+    console.log("Identificación: ", identificacion);
+
     if (identificacion) {
         fetch('/copier_company/get_customer_data', {
             method: 'POST',
@@ -18,8 +21,12 @@ function obtenerDatosCliente() {
                 id: null
             })
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log("Respuesta cruda: ", response);
+            return response.json();
+        })
         .then(data => {
+            console.log("Datos procesados: ", data);
             if (data.result && data.result.success) {
                 document.getElementById('cliente_name').value = data.result.name;
                 document.getElementById('telefono').value = data.result.phone;
@@ -36,3 +43,4 @@ function obtenerDatosCliente() {
         alert('Por favor, ingrese el número de identificación.');
     }
 }
+
