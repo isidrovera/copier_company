@@ -59,12 +59,11 @@
     ],
 
     'assets': {
-        'web.assets_backend': [
-            'copier_company/static/src/js/**/*.js',
-           # 'copier_company/static/src/scss/**/*.scss',
-            #'copier_company/static/src/xml/**/*.xml',
+        'web.assets_frontend': [
+            'copier_company/static/src/js/custom_script.js',
         ],
     },
+
 
    
     
