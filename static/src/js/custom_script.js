@@ -38,17 +38,18 @@ function obtenerDatosCliente() {
         .then(data => {
             console.log("Datos procesados: ", data);
             if (data.result && data.result.success) {
-                // Asegúrate de que los IDs aquí coinciden con los IDs de tus campos en el formulario
+                console.log("Cliente encontrado: ", data.result.name);
                 clienteName.value = data.result.name;
                 telefono.value = data.result.phone;
                 correo.value = data.result.email;
                 errorElement.innerText = '';  // Limpiar cualquier mensaje de error previo
             } else {
+                console.warn('No se encontraron datos:', data);
                 errorElement.innerText = 'No se encontraron datos para la identificación proporcionada.';
             }
         })
         .catch(error => {
-            console.error('Error al procesar la solicitud: ', error);
+            console.error('Error al procesar la solicitud:', error);
             errorElement.innerText = 'Error al procesar la solicitud.';
         });
     } else {
