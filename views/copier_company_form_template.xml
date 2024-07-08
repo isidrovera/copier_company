@@ -2,7 +2,7 @@
 <odoo>
     <template id="copier_company_form_template" name="Cotizaciones">
         <t t-call="website.layout">
-            <div id="copier_form_container" class="container">
+            <div id="copier_form_container" class="container-form">
                 <div class="row">
                     <div class="col-lg-12">
                         <h2>Formulario de Información</h2>
@@ -10,22 +10,22 @@
                         <form action="/copier_company/submit" method="POST" id="copier_form">
                             <!-- Incluir el token CSRF -->
                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                            <input type="hidden" id="cliente_id" name="cliente_id"/>
+                            <input type="hidden" id="cliente_id" name="cliente_id" />
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="tipo_identificacion">Tipo de Identificación</label>
                                         <select class="form-control" id="tipo_identificacion" name="tipo_identificacion">
                                             <t t-foreach="tipos_identificacion" t-as="tipo">
-                                                <option t-att-value="tipo['value']">
-                                                    <t t-esc="tipo['name']"/>
+                                                <option t-att-value="tipo.l10n_pe_vat_code">
+                                                    <t t-esc="tipo.name"/>
                                                 </option>
                                             </t>
                                         </select>
                                     </div>
                                     <div class="form-group">
                                         <label for="identificacion">Número de Identificación</label>
-                                        <input type="text" class="form-control" id="identificacion" name="identificacion" placeholder="Número de Identificación"  onblur="obtenerDatosCliente()"/>
+                                        <input type="text" class="form-control" id="identificacion" name="identificacion" placeholder="Número de Identificación" onblur="obtenerDatosCliente()"/>
                                     </div>
                                     <div class="form-group">
                                         <label for="cliente_name">Nombre del Cliente</label>
@@ -37,7 +37,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="correo">Correo</label>
-                                        <input type="email" class="form-control" id="correo" name="correo" placeholder="Correo" />
+                                        <input type="email" class="form-control" id="correo" name="correo" placeholder="Correo"/>
                                     </div>
                                     <div class="form-group">
                                         <label for="telefono">Teléfono</label>
@@ -49,8 +49,8 @@
                                         <label for="name">Máquina</label>
                                         <select class="form-control" id="name" name="name">
                                             <t t-foreach="marcas" t-as="marca">
-                                                <option t-att-value="marca['id']">
-                                                    <t t-esc="marca['name']"/>
+                                                <option t-att-value="marca.id">
+                                                    <t t-esc="marca.name"/>
                                                 </option>
                                             </t>
                                         </select>
@@ -83,8 +83,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group text-center">
-                                <button type="submit" class="btn btn-success">Enviar</button>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-success mt-3 mb-3">Enviar</button>
                             </div>
                         </form>
                     </div>
