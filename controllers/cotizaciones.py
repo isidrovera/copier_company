@@ -37,8 +37,8 @@ class CopierCompany(http.Controller):
                     'result': {
                         'success': True,
                         'name': partner.name,
-                        'phone': partner.phone,
-                        'email': partner.email
+                        'phone': partner.phone or '',
+                        'email': partner.email or ''
                     }
                 }
             else:
@@ -59,8 +59,8 @@ class CopierCompany(http.Controller):
                     'result': {
                         'success': True,
                         'name': new_partner.name,
-                        'phone': new_partner.phone,
-                        'email': new_partner.email
+                        'phone': '',
+                        'email': ''
                     }
                 }
         except Exception as e:
@@ -70,4 +70,16 @@ class CopierCompany(http.Controller):
     @http.route('/copier_company/submit', type='http', auth="public", website=True)
     def copier_company_submit(self, **kwargs):
         _logger.info('Processing form submission')
-        return request.render('copier_company.confirmacion_template')
+        try:
+            cliente_id = int(kwargs.get('cliente_id'))
+            cliente = request.env['res.partner'].sudo().browse(cliente_id)
+            if cliente.exists():
+                cliente.write({
+                    'phone': kwargs.get('telefono'),
+                    'email': kwargs.get('correo'),
+                    'name': kwargs.get('cliente_name')
+                })
+            return request.render('copier_company.confirmacion_template')
+        except Exception as e:
+            _logger.error('Error processing form submission: %s', str(e))
+            return request.render('web.http_error', {'status_code': 'Error', 'status_message': str(e)})

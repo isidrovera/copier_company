@@ -3,9 +3,10 @@ function obtenerDatosCliente() {
     var clienteName = document.getElementById('cliente_name');
     var telefono = document.getElementById('telefono');
     var correo = document.getElementById('correo');
+    var clienteId = document.getElementById('cliente_id');
 
     // Verificar que los elementos existen en el DOM
-    if (!errorElement || !clienteName || !telefono || !correo) {
+    if (!errorElement || !clienteName || !telefono || !correo || !clienteId) {
         console.error('Uno o más elementos del DOM no se encontraron.');
         return; // Detener ejecución si algún elemento esencial falta
     }
@@ -42,6 +43,7 @@ function obtenerDatosCliente() {
                 clienteName.value = data.result.result.name;
                 telefono.value = data.result.result.phone;
                 correo.value = data.result.result.email;
+                clienteId.value = data.result.result.id;  // Actualizar el ID del cliente
                 errorElement.innerText = '';  // Limpiar cualquier mensaje de error previo
             } else {
                 console.warn('No se encontraron datos:', data);
