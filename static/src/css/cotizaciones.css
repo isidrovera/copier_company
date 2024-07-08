@@ -1,39 +1,43 @@
-#copier_form .container-form {
-    background-color: #f8f9fa; /* Color de fondo claro */
-    border-radius: 8px; /* Bordes redondeados */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra ligera para dar profundidad */
-    padding: 20px; /* Espaciado interno */
+/* Estilos específicos para el contenedor del formulario de Cotizaciones */
+#copier_form_container {
+    background-color: #f8f9fa; /* Color de fondo claro para destacar el formulario */
+    border-radius: 8px; /* Bordes redondeados para un diseño más amigable */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra ligera para añadir profundidad */
+    padding: 20px; /* Espaciado interno adecuado */
+    margin-top: 20px; /* Margen superior para separarlo de otros elementos */
+    margin-bottom: 20px; /* Margen inferior */
 }
 
 #copier_form h2 {
-    color: #0056b3; /* Color azul para el título */
-    font-weight: bold; /* Negrita para el título */
-    margin-bottom: 20px; /* Espacio después del título */
+    color: #0056b3; /* Color azul para el título, dando un aspecto corporativo */
+    font-weight: bold; /* Título en negrita para mayor presencia */
+    margin-bottom: 15px; /* Espacio debajo del título para separar del contenido */
 }
 
 #copier_form .form-group {
-    margin-bottom: 15px; /* Espaciado entre grupos de formulario */
+    margin-bottom: 15px; /* Espaciado entre los campos del formulario para no saturar */
 }
 
 #copier_form label {
-    font-weight: 600; /* Semi-negrita para etiquetas */
-    color: #333; /* Color oscuro para texto */
+    font-weight: 600; /* Etiquetas semi-negritas para destacar */
+    color: #333; /* Color oscuro para mejorar la legibilidad */
 }
 
 #copier_form .form-control {
-    border-radius: 5px; /* Bordes redondeados para inputs */
-    border: 1px solid #ced4da; /* Borde sutil */
+    border-radius: 5px; /* Campos de entrada con bordes redondeados para un estilo suave */
+    border: 1px solid #ced4da; /* Borde sutil para definir claramente los campos de entrada */
+    padding: 8px 12px; /* Padding interior para una escritura cómoda */
 }
 
 #copier_form .btn-success {
-    background-color: #28a745; /* Verde botón */
-    border-color: #28a745; /* Borde del mismo color */
-    padding: 10px 15px; /* Padding más generoso */
-    font-size: 16px; /* Tamaño de letra más grande */
-    border-radius: 5px; /* Bordes redondeados */
-    transition: background-color 0.3s ease; /* Transición suave para hover */
+    background-color: #28a745; /* Botón verde para acciones positivas (enviar formulario) */
+    border-color: #28a745;
+    padding: 10px 15px; /* Tamaño adecuado para fácil clic */
+    font-size: 16px; /* Tamaño de texto visible */
+    border-radius: 5px; /* Estética redondeada */
+    transition: background-color 0.3s ease; /* Transición suave al cambiar de estado */
 }
 
 #copier_form .btn-success:hover {
-    background-color: #218838; /* Verde oscuro en hover */
+    background-color: #218838; /* Cambio de color en hover para feedback visual */
 }
