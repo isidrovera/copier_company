@@ -16,10 +16,10 @@
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                     <input type="hidden" id="cliente_id" name="cliente_id" />
                                     <div class="row mb-3">
-                                        <div class="col-md-6">                                            
+                                        <div class="col-md-6">
                                             <div class="form-group mb-3">
                                                 <label for="tipo_identificacion">Tipo de Identificación</label>
-                                                <select class="form-control" id="tipo_identificacion" name="tipo_identificacion">
+                                                <select class="form-control" id="tipo_identificacion" name="tipo_identificacion" onchange="validarIdentificacion()">
                                                     <t t-foreach="tipos_identificacion" t-as="tipo">
                                                         <option t-att-value="tipo.l10n_pe_vat_code">
                                                             <t t-esc="tipo.name"/>
@@ -29,7 +29,7 @@
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label for="identificacion">Número de Identificación</label>
-                                                <input type="text" class="form-control" id="identificacion" name="identificacion" placeholder="Número de RUC / DNI" onblur="obtenerDatosCliente()" required="1"/>
+                                                <input type="text" class="form-control" id="identificacion" name="identificacion" placeholder="Número de RUC / DNI" onblur="validarIdentificacion()" required="1"/>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label for="cliente_name">Nombre del Cliente</label>
@@ -97,7 +97,9 @@
                 </div>
             </div>
         </t>
-        <!-- Incluir el script JavaScript externo -->
+        <!-- Incluir los scripts JavaScript externos -->
         <script src="/copier_company/static/src/js/custom_script.js"></script>
+        <script src="/copier_company/static/src/js/validacion_identificacion.js"></script>
     </template>
 </odoo>
+

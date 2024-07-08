@@ -62,6 +62,7 @@
     'assets': {
         'web.assets_frontend': [
             'copier_company/static/src/js/custom_script.js',
+            'copier_company/static/src/js/validacion_identificacion.js',
             '/copier_company/static/src/css/cotizaciones.css',
         ],
     },
