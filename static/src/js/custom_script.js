@@ -37,11 +37,11 @@ function obtenerDatosCliente() {
         .then(response => response.json())
         .then(data => {
             console.log("Datos procesados: ", data);
-            if (data.result && data.result.success) {
-                console.log("Cliente encontrado: ", data.result.name);
-                clienteName.value = data.result.name;
-                telefono.value = data.result.phone;
-                correo.value = data.result.email;
+            if (data.result && data.result.result && data.result.result.success) {
+                console.log("Cliente encontrado: ", data.result.result.name);
+                clienteName.value = data.result.result.name;
+                telefono.value = data.result.result.phone;
+                correo.value = data.result.result.email;
                 errorElement.innerText = '';  // Limpiar cualquier mensaje de error previo
             } else {
                 console.warn('No se encontraron datos:', data);

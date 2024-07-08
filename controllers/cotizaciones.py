@@ -53,6 +53,5 @@ class CopierCompany(http.Controller):
 
     @http.route('/copier_company/submit', type='http', auth="public", website=True)
     def copier_company_submit(self, **kwargs):
-        # Implementa la lógica para procesar y guardar los datos del formulario
         _logger.info('Processing form submission')
         return request.render('copier_company.confirmacion_template')
