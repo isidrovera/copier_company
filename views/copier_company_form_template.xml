@@ -11,22 +11,12 @@
                             </div>
                             <div class="card-body">
                                 <div id="error_message" class="text-danger mb-3"></div>
-                                <form action="/copier_company/submit" method="POST" id="copier_form">
+                                <form action="/cotizacion/submit" method="POST" id="copier_form">
                                     <!-- Incluir el token CSRF -->
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                     <input type="hidden" id="cliente_id" name="cliente_id" />
                                     <div class="row mb-3">
-                                        <div class="col-md-6">
-                                            <div class="form-group mb-3">
-                                                <label for="name">Máquina</label>
-                                                <select class="form-control" id="name" name="name">
-                                                    <t t-foreach="marcas" t-as="marca">
-                                                        <option t-att-value="marca.id">
-                                                            <t t-esc="marca.name"/>
-                                                        </option>
-                                                    </t>
-                                                </select>
-                                            </div>
+                                        <div class="col-md-6">                                            
                                             <div class="form-group mb-3">
                                                 <label for="tipo_identificacion">Tipo de Identificación</label>
                                                 <select class="form-control" id="tipo_identificacion" name="tipo_identificacion">
@@ -39,7 +29,7 @@
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label for="identificacion">Número de Identificación</label>
-                                                <input type="text" class="form-control" id="identificacion" name="identificacion" placeholder="Número de Identificación" onblur="obtenerDatosCliente()" required="1"/>
+                                                <input type="text" class="form-control" id="identificacion" name="identificacion" placeholder="Número de RUC / DNI" onblur="obtenerDatosCliente()" required="1"/>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label for="cliente_name">Nombre del Cliente</label>
@@ -59,6 +49,16 @@
                                             </div>
                                         </div>
                                         <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label for="name">Máquina</label>
+                                                <select class="form-control" id="name" name="name">
+                                                    <t t-foreach="marcas" t-as="marca">
+                                                        <option t-att-value="marca.id">
+                                                            <t t-esc="marca.name"/>
+                                                        </option>
+                                                    </t>
+                                                </select>
+                                            </div>
                                             <div class="form-group mb-3">
                                                 <label for="tipo">Tipo de impresora</label>
                                                 <select class="form-control" id="tipo" name="tipo">

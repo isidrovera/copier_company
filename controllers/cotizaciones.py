@@ -6,7 +6,7 @@ _logger = logging.getLogger(__name__)
 
 class CopierCompany(http.Controller):
 
-    @http.route('/copier_company/form', type='http', auth="public", website=True)
+    @http.route('/cotizacion/form', type='http', auth="public", website=True)
     def copier_company_form(self, **kwargs):
         try:
             marcas = request.env['marcas.maquinas'].sudo().search([])
@@ -69,7 +69,7 @@ class CopierCompany(http.Controller):
             _logger.error('Error searching or creating customer: %s', str(e))
             return {'jsonrpc': '2.0', 'error': {'code': 500, 'message': 'Internal Server Error', 'data': str(e)}}
 
-    @http.route('/copier_company/submit', type='http', auth="public", website=True, csrf=True)
+    @http.route('/cotizacion/submit', type='http', auth="public", website=True, csrf=True)
     def copier_company_submit(self, **kwargs):
         _logger.info('Processing form submission')
         try:
