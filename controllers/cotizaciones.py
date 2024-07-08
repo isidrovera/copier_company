@@ -42,13 +42,29 @@ class CopierCompany(http.Controller):
                     }
                 }
             else:
-                _logger.warning('No customer data found for ID type %s and ID %s', tipo_identificacion, identificacion)
+                # Crear un nuevo cliente si no existe
+                _logger.info('Customer not found, creating a new one')
+                new_partner = request.env['res.partner'].sudo().create({
+                    'vat': identificacion,
+                    'l10n_latam_identification_type_id': request.env['l10n_latam.identification.type'].search([('l10n_pe_vat_code', '=', tipo_identificacion)], limit=1).id,
+                    'name': 'Cargando...',
+                })
+                # Actualizar el nombre y otros datos del nuevo cliente
+                new_partner._doc_number_change()
+                if new_partner.name == 'Cargando...':
+                    new_partner.name = identificacion
+                
                 return {
                     'jsonrpc': '2.0',
-                    'result': {'success': False}
+                    'result': {
+                        'success': True,
+                        'name': new_partner.name,
+                        'phone': new_partner.phone,
+                        'email': new_partner.email
+                    }
                 }
         except Exception as e:
-            _logger.error('Error searching customer: %s', str(e))
+            _logger.error('Error searching or creating customer: %s', str(e))
             return {'jsonrpc': '2.0', 'error': {'code': 500, 'message': 'Internal Server Error', 'data': str(e)}}
 
     @http.route('/copier_company/submit', type='http', auth="public", website=True)
