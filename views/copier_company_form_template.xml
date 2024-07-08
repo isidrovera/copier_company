@@ -16,7 +16,7 @@
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                     <input type="hidden" id="cliente_id" name="cliente_id" />
                                     <div class="row mb-3">
-                                        <div class="col-md-6">
+                                        <div class="col-md-6">                                            
                                             <div class="form-group mb-3">
                                                 <label for="tipo_identificacion">Tipo de Identificación</label>
                                                 <select class="form-control" id="tipo_identificacion" name="tipo_identificacion" onchange="validarIdentificacion()">
