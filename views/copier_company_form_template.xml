@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="copier_company_form_template" name="Copier Company Form">
+    <template id="copier_company_form_template" name="Cotizaciones">
         <t t-call="website.layout">
             <div class="container mt-5">
                 <div class="row">
@@ -13,16 +13,6 @@
                             <input type="hidden" id="cliente_id" name="cliente_id" />
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="name">Máquina</label>
-                                        <select class="form-control" id="name" name="name">
-                                            <t t-foreach="marcas" t-as="marca">
-                                                <option t-att-value="marca.id">
-                                                    <t t-esc="marca.name"/>
-                                                </option>
-                                            </t>
-                                        </select>
-                                    </div>
                                     <div class="form-group">
                                         <label for="tipo_identificacion">Tipo de Identificación</label>
                                         <select class="form-control" id="tipo_identificacion" name="tipo_identificacion">
@@ -56,6 +46,16 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
+                                        <label for="name">Máquina</label>
+                                        <select class="form-control" id="name" name="name">
+                                            <t t-foreach="marcas" t-as="marca">
+                                                <option t-att-value="marca.id">
+                                                    <t t-esc="marca.name"/>
+                                                </option>
+                                            </t>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
                                         <label for="tipo">Tipo de impresora</label>
                                         <select class="form-control" id="tipo" name="tipo">
                                             <option value="monocroma">Blanco y negro</option>
@@ -84,14 +84,14 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <button type="submit" class="btn btn-success">Enviar</button>
+                                <button type="submit" class="btn btn-success mt-3 mb-3">Enviar</button>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
         </t>
-        <!-- Incluir el script JavaScript externo -->
+        <link rel="stylesheet" href="/copier_company/static/src/css/cotizaciones.css"/>
         <script src="/copier_company/static/src/js/custom_script.js"></script>
     </template>
 </odoo>

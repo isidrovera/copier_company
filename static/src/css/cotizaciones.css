@@ -1,0 +1,50 @@
+/* Estilos Generales del Formulario */
+.container {
+    background-color: #f8f9fa; /* Color de fondo claro */
+    border-radius: 8px; /* Bordes redondeados */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra ligera para dar profundidad */
+    padding: 20px; /* Espaciado interno */
+}
+
+h2 {
+    color: #0056b3; /* Color azul para el título */
+    font-weight: bold; /* Negrita para el título */
+    margin-bottom: 20px; /* Espacio después del título */
+}
+
+.form-group {
+    margin-bottom: 15px; /* Espaciado entre grupos de formulario */
+}
+
+label {
+    font-weight: 600; /* Semi-negrita para etiquetas */
+    color: #333; /* Color oscuro para texto */
+}
+
+.input, .form-control {
+    border-radius: 5px; /* Bordes redondeados para inputs */
+    border: 1px solid #ced4da; /* Borde sutil */
+}
+
+.btn-success {
+    background-color: #28a745; /* Verde botón */
+    border-color: #28a745; /* Borde del mismo color */
+    padding: 10px 15px; /* Padding más generoso */
+    font-size: 16px; /* Tamaño de letra más grande */
+    border-radius: 5px; /* Bordes redondeados */
+    transition: background-color 0.3s ease; /* Transición suave para hover */
+}
+
+.btn-success:hover {
+    background-color: #218838; /* Verde oscuro en hover */
+}
+
+/* Responsividad para dispositivos móviles */
+@media (max-width: 768px) {
+    .form-control, .btn {
+        width: 100%; /* Ancho completo en dispositivos pequeños */
+    }
+    .container {
+        padding: 15px; /* Menor padding en dispositivos pequeños */
+    }
+}
