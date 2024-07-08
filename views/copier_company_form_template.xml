@@ -6,7 +6,7 @@
                 <div class="row justify-content-center">
                     <div class="col-lg-8">
                         <div class="card shadow-sm">
-                            <div class="card-header bg-primary text-white">
+                            <div class="card-header" style="background-color: #3d6cb9; color: white;">
                                 <h2 class="mb-0">Formulario de Cotización</h2>
                             </div>
                             <div class="card-body">
@@ -15,9 +15,9 @@
                                     <!-- Incluir el token CSRF -->
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                     <input type="hidden" id="cliente_id" name="cliente_id" />
-                                    <div class="row">
+                                    <div class="row mb-3">
                                         <div class="col-md-6">
-                                            <div class="form-group">
+                                            <div class="form-group mb-3">
                                                 <label for="name">Máquina</label>
                                                 <select class="form-control" id="name" name="name">
                                                     <t t-foreach="marcas" t-as="marca">
@@ -27,7 +27,7 @@
                                                     </t>
                                                 </select>
                                             </div>
-                                            <div class="form-group">
+                                            <div class="form-group mb-3">
                                                 <label for="tipo_identificacion">Tipo de Identificación</label>
                                                 <select class="form-control" id="tipo_identificacion" name="tipo_identificacion">
                                                     <t t-foreach="tipos_identificacion" t-as="tipo">
@@ -37,57 +37,54 @@
                                                     </t>
                                                 </select>
                                             </div>
-                                            <div class="form-group">
+                                            <div class="form-group mb-3">
                                                 <label for="identificacion">Número de Identificación</label>
-                                                <input type="text" class="form-control" id="identificacion" name="identificacion" placeholder="Número de Identificación" onblur="obtenerDatosCliente()" 
-                                                required="1"
-                                                />
+                                                <input type="text" class="form-control" id="identificacion" name="identificacion" placeholder="Número de Identificación" onblur="obtenerDatosCliente()" required="1"/>
                                             </div>
-                                            <div class="form-group">
+                                            <div class="form-group mb-3">
                                                 <label for="cliente_name">Nombre del Cliente</label>
-                                                <input type="text" class="form-control" id="cliente_name" name="cliente_name" placeholder="Nombre del Cliente" readonly="1" />
+                                                <input type="text" class="form-control" id="cliente_name" name="cliente_name" placeholder="Nombre del Cliente" readonly="1"/>
                                             </div>
-                                            <div class="form-group">
+                                            <div class="form-group mb-3">
                                                 <label for="contacto">Contacto</label>
                                                 <input type="text" class="form-control" id="contacto" name="contacto" placeholder="Contacto" required="1"/>
                                             </div>
-                                            <div class="form-group">
+                                            <div class="form-group mb-3">
                                                 <label for="correo">Correo</label>
                                                 <input type="email" class="form-control" id="correo" name="correo" placeholder="Correo" required="1"/>
                                             </div>
-                                            <div class="form-group">
+                                            <div class="form-group mb-3">
                                                 <label for="telefono">Teléfono</label>
                                                 <input type="text" class="form-control" id="telefono" name="telefono" placeholder="Teléfono" required="1"/>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
-                                            <div class="form-group">
+                                            <div class="form-group mb-3">
                                                 <label for="tipo">Tipo de impresora</label>
                                                 <select class="form-control" id="tipo" name="tipo">
                                                     <option value="monocroma">Blanco y negro</option>
                                                     <option value="color">Color</option>
                                                 </select>
                                             </div>
-                                            <div class="form-group">
+                                            <div class="form-group mb-3">
                                                 <label for="formato">Formato</label>
                                                 <select class="form-control" id="formato" name="formato">
                                                     <option value="a4">A4</option>
                                                     <option value="a3">A3</option>
                                                 </select>
                                             </div>
-                                            <div class="form-group">
+                                            <div class="form-group mb-3">
                                                 <label for="volumen_mensual_color">Volumen Mensual (Color)</label>
                                                 <input type="number" class="form-control" id="volumen_mensual_color" name="volumen_mensual_color" placeholder="Volumen Mensual (Color)" required="1"/>
                                             </div>
-                                            <div class="form-group">
+                                            <div class="form-group mb-3">
                                                 <label for="volumen_mensual_bn">Volumen Mensual (B/N)</label>
                                                 <input type="number" class="form-control" id="volumen_mensual_bn" name="volumen_mensual_bn" placeholder="Volumen Mensual (B/N)" required="1"/>
                                             </div>
-                                            <div class="form-group">
+                                            <div class="form-group mb-3">
                                                 <label for="detalles">Detalle</label>
                                                 <textarea class="form-control" id="detalles" name="detalles" rows="3"></textarea>
                                             </div>
-                                            
                                         </div>
                                     </div>
                                     <div class="d-flex justify-content-end mt-3">
