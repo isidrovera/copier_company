@@ -7,7 +7,7 @@
                     <div class="col-lg-8">
                         <div class="card shadow-sm">
                             <div class="card-header bg-primary text-white">
-                                <h2 class="mb-0">Formulario de Información</h2>
+                                <h2 class="mb-0">Formulario de Cotización</h2>
                             </div>
                             <div class="card-body">
                                 <div id="error_message" class="text-danger mb-3"></div>
@@ -39,23 +39,25 @@
                                             </div>
                                             <div class="form-group">
                                                 <label for="identificacion">Número de Identificación</label>
-                                                <input type="text" class="form-control" id="identificacion" name="identificacion" placeholder="Número de Identificación" onblur="obtenerDatosCliente()"/>
+                                                <input type="text" class="form-control" id="identificacion" name="identificacion" placeholder="Número de Identificación" onblur="obtenerDatosCliente()" 
+                                                required="1"
+                                                />
                                             </div>
                                             <div class="form-group">
                                                 <label for="cliente_name">Nombre del Cliente</label>
-                                                <input type="text" class="form-control" id="cliente_name" name="cliente_name" placeholder="Nombre del Cliente" />
+                                                <input type="text" class="form-control" id="cliente_name" name="cliente_name" placeholder="Nombre del Cliente" readonly="1" />
                                             </div>
                                             <div class="form-group">
                                                 <label for="contacto">Contacto</label>
-                                                <input type="text" class="form-control" id="contacto" name="contacto" placeholder="Contacto"/>
+                                                <input type="text" class="form-control" id="contacto" name="contacto" placeholder="Contacto" required="1"/>
                                             </div>
                                             <div class="form-group">
                                                 <label for="correo">Correo</label>
-                                                <input type="email" class="form-control" id="correo" name="correo" placeholder="Correo"/>
+                                                <input type="email" class="form-control" id="correo" name="correo" placeholder="Correo" required="1"/>
                                             </div>
                                             <div class="form-group">
                                                 <label for="telefono">Teléfono</label>
-                                                <input type="text" class="form-control" id="telefono" name="telefono" placeholder="Teléfono"/>
+                                                <input type="text" class="form-control" id="telefono" name="telefono" placeholder="Teléfono" required="1"/>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -67,24 +69,25 @@
                                                 </select>
                                             </div>
                                             <div class="form-group">
-                                                <label for="volumen_mensual_color">Volumen Mensual (Color)</label>
-                                                <input type="number" class="form-control" id="volumen_mensual_color" name="volumen_mensual_color" placeholder="Volumen Mensual (Color)"/>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="volumen_mensual_bn">Volumen Mensual (B/N)</label>
-                                                <input type="number" class="form-control" id="volumen_mensual_bn" name="volumen_mensual_bn" placeholder="Volumen Mensual (B/N)"/>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="detalles">Detalle</label>
-                                                <textarea class="form-control" id="detalles" name="detalles" rows="3"></textarea>
-                                            </div>
-                                            <div class="form-group">
                                                 <label for="formato">Formato</label>
                                                 <select class="form-control" id="formato" name="formato">
                                                     <option value="a4">A4</option>
                                                     <option value="a3">A3</option>
                                                 </select>
                                             </div>
+                                            <div class="form-group">
+                                                <label for="volumen_mensual_color">Volumen Mensual (Color)</label>
+                                                <input type="number" class="form-control" id="volumen_mensual_color" name="volumen_mensual_color" placeholder="Volumen Mensual (Color)" required="1"/>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="volumen_mensual_bn">Volumen Mensual (B/N)</label>
+                                                <input type="number" class="form-control" id="volumen_mensual_bn" name="volumen_mensual_bn" placeholder="Volumen Mensual (B/N)" required="1"/>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="detalles">Detalle</label>
+                                                <textarea class="form-control" id="detalles" name="detalles" rows="3"></textarea>
+                                            </div>
+                                            
                                         </div>
                                     </div>
                                     <div class="d-flex justify-content-end mt-3">
