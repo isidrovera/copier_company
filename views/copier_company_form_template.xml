@@ -8,6 +8,8 @@
                         <h2>Formulario de Información</h2>
                         <div id="error_message" style="color: red; margin-top: 10px;"></div>
                         <form action="/copier_company/submit" method="POST" id="copier_form">
+                            <!-- Incluir el token CSRF -->
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                             <input type="hidden" id="cliente_id" name="cliente_id" />
                             <div class="row">
                                 <div class="col-md-6">

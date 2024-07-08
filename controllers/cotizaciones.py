@@ -36,6 +36,7 @@ class CopierCompany(http.Controller):
                     'jsonrpc': '2.0',
                     'result': {
                         'success': True,
+                        'id': partner.id,
                         'name': partner.name,
                         'phone': partner.phone or '',
                         'email': partner.email or ''
@@ -58,6 +59,7 @@ class CopierCompany(http.Controller):
                     'jsonrpc': '2.0',
                     'result': {
                         'success': True,
+                        'id': new_partner.id,
                         'name': new_partner.name,
                         'phone': '',
                         'email': ''
@@ -67,7 +69,7 @@ class CopierCompany(http.Controller):
             _logger.error('Error searching or creating customer: %s', str(e))
             return {'jsonrpc': '2.0', 'error': {'code': 500, 'message': 'Internal Server Error', 'data': str(e)}}
 
-    @http.route('/copier_company/submit', type='http', auth="public", website=True)
+    @http.route('/copier_company/submit', type='http', auth="public", website=True, csrf=True)
     def copier_company_submit(self, **kwargs):
         _logger.info('Processing form submission')
         try:
