@@ -81,6 +81,16 @@ class CopierCompany(http.Controller):
                     'email': kwargs.get('correo'),
                     'name': kwargs.get('cliente_name')
                 })
+                # Crear registro en copier.company
+                request.env['copier.company'].sudo().create({
+                    'name': kwargs.get('name'),                    
+                    'cliente_id': cliente_id,
+                    'tipo': kwargs.get('tipo'),                    
+                    'detalles': kwargs.get('detalles'),
+                    'formato': kwargs.get('formato'),
+                    'volumen_mensual_color': kwargs.get('volumen_mensual_color'),
+                    'volumen_mensual_bn': kwargs.get('volumen_mensual_bn')
+                })
             return request.render('copier_company.confirmacion_template')
         except Exception as e:
             _logger.error('Error processing form submission: %s', str(e))
