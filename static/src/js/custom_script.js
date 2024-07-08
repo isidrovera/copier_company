@@ -1,6 +1,17 @@
 function obtenerDatosCliente() {
+    var errorElement = document.getElementById('error_message');
+    var clienteName = document.getElementById('cliente_name');
+    var telefono = document.getElementById('telefono');
+    var correo = document.getElementById('correo');
+
+    // Verificar que los elementos existen en el DOM
+    if (!errorElement || !clienteName || !telefono || !correo) {
+        console.error('Uno o más elementos del DOM no se encontraron.');
+        return; // Detener ejecución si algún elemento esencial falta
+    }
+
     // Limpiar mensaje de error previo
-    document.getElementById('error_message').innerText = '';
+    errorElement.innerText = '';
 
     var tipoIdentificacion = document.getElementById('tipo_identificacion').value;
     var identificacion = document.getElementById('identificacion').value;
@@ -23,29 +34,22 @@ function obtenerDatosCliente() {
                 id: null
             })
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();  // Convertir la respuesta a JSON
-        })
+        .then(response => response.json())
         .then(data => {
             console.log("Datos procesados: ", data);
             if (data.result && data.result.success) {
-                // Asegúrate de que los IDs aquí coinciden con los IDs de tus campos en el formulario
-                document.getElementById('cliente_name').value = data.result.name;
-                document.getElementById('telefono').value = data.result.phone;
-                document.getElementById('correo').value = data.result.email;
+                clienteName.value = data.result.name;
+                telefono.value = data.result.phone;
+                correo.value = data.result.email;
             } else {
-                // Añadir mensaje de error en el DOM en lugar de una alerta
-                document.getElementById('error_message').innerText = 'No se encontraron datos para la identificación proporcionada.';
+                errorElement.innerText = 'No se encontraron datos para la identificación proporcionada.';
             }
         })
         .catch(error => {
             console.error('Error al procesar la solicitud: ', error);
-            document.getElementById('error_message').innerText = 'Error al procesar la solicitud.';
+            errorElement.innerText = 'Error al procesar la solicitud.';
         });
     } else {
-        document.getElementById('error_message').innerText = 'Por favor, ingrese el número de identificación.';
+        errorElement.innerText = 'Por favor, ingrese el número de identificación.';
     }
 }
