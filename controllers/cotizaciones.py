@@ -25,27 +25,31 @@ class CopierCompany(http.Controller):
         tipo_identificacion = kwargs.get('tipo_identificacion')
         identificacion = kwargs.get('identificacion')
         _logger.debug('Searching for customer with ID type %s and ID %s', tipo_identificacion, identificacion)
-        partner = request.env['res.partner'].sudo().search([
-            ('l10n_latam_identification_type_id.l10n_pe_vat_code', '=', tipo_identificacion),
-            ('vat', '=', identificacion)
-        ], limit=1)
-        if partner:
-            _logger.info('Customer found: %s', partner.name)
-            return {
-                'jsonrpc': '2.0',
-                'result': {
-                    'success': True,
-                    'name': partner.name,
-                    'phone': partner.phone,
-                    'email': partner.email
+        try:
+            partner = request.env['res.partner'].sudo().search([
+                ('l10n_latam_identification_type_id.l10n_pe_vat_code', '=', tipo_identificacion),
+                ('vat', '=', identificacion)
+            ], limit=1)
+            if partner:
+                _logger.info('Customer found: %s', partner.name)
+                return {
+                    'jsonrpc': '2.0',
+                    'result': {
+                        'success': True,
+                        'name': partner.name,
+                        'phone': partner.phone,
+                        'email': partner.email
+                    }
                 }
-            }
-        else:
-            _logger.warning('No customer data found for ID type %s and ID %s', tipo_identificacion, identificacion)
-            return {
-                'jsonrpc': '2.0',
-                'result': {'success': False}
-            }
+            else:
+                _logger.warning('No customer data found for ID type %s and ID %s', tipo_identificacion, identificacion)
+                return {
+                    'jsonrpc': '2.0',
+                    'result': {'success': False}
+                }
+        except Exception as e:
+            _logger.error('Error searching customer: %s', str(e))
+            return {'jsonrpc': '2.0', 'error': {'code': 500, 'message': 'Internal Server Error', 'data': str(e)}}
 
     @http.route('/copier_company/submit', type='http', auth="public", website=True)
     def copier_company_submit(self, **kwargs):

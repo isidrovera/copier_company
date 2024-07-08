@@ -24,10 +24,11 @@ function obtenerDatosCliente() {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            return response.json();
+            return response.json();  // Convertir la respuesta a JSON
         })
         .then(data => {
             console.log("Datos procesados: ", data);
+            // Acceder correctamente al resultado dentro del objeto de respuesta
             if (data.result && data.result.success) {
                 document.getElementById('cliente_name').value = data.result.name;
                 document.getElementById('telefono').value = data.result.phone;
