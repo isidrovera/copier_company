@@ -19,9 +19,9 @@
                                         <div class="col-md-6">                                            
                                             <div class="form-group mb-3">
                                                 <label for="tipo_identificacion">Tipo de Identificación</label>
-                                                <select class="form-control" id="tipo_identificacion" name="tipo_identificacion" onchange="validarIdentificacion()">
+                                                <select class="form-control" id="tipo_identificacion" name="tipo_identificacion">
                                                     <t t-foreach="tipos_identificacion" t-as="tipo">
-                                                        <option t-att-value="tipo.id">
+                                                        <option t-att-value="tipo.l10n_pe_vat_code">
                                                             <t t-esc="tipo.name"/>
                                                         </option>
                                                     </t>
@@ -29,7 +29,7 @@
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label for="identificacion">Número de Identificación</label>
-                                                <input type="text" class="form-control" id="identificacion" name="identificacion" placeholder="Número de RUC / DNI" onblur="validarIdentificacion(); obtenerDatosCliente()" required="1"/>
+                                                <input type="text" class="form-control" id="identificacion" name="identificacion" placeholder="Número de RUC / DNI" onblur="obtenerDatosCliente()" required="1"/>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label for="cliente_name">Nombre del Cliente</label>
@@ -99,5 +99,6 @@
         </t>
         <!-- Incluir el script JavaScript externo -->
         <script src="/copier_company/static/src/js/custom_script.js"></script>
+        
     </template>
 </odoo>
