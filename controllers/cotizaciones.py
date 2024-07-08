@@ -83,7 +83,7 @@ class CopierCompany(http.Controller):
                 })
                 # Crear registro en copier.company
                 request.env['copier.company'].sudo().create({
-                    'name': kwargs.get('name'),                    
+                    'name': int(kwargs.get('name')),                    
                     'cliente_id': cliente_id,
                     'tipo': kwargs.get('tipo'),                    
                     'detalles': kwargs.get('detalles'),
@@ -95,3 +95,4 @@ class CopierCompany(http.Controller):
         except Exception as e:
             _logger.error('Error processing form submission: %s', str(e))
             return request.render('web.http_error', {'status_code': 'Error', 'status_message': str(e)})
+
