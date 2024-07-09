@@ -68,7 +68,7 @@ class TicketCopier(models.Model):
             message = (f"*🏢 Copier Company*\n\n"
                        f"{saludo}, {ticket.nombre_reporta}.\n\n"
                        f"Hemos recibido su reporte sobre el equipo:\n"
-                       f"🖨️ *Modelo:* {ticket.producto_id.name}\n"
+                       f"🖨️ *Modelo:* {ticket.producto_id.name.name}\n"
                        f"🔢 *Serie:* {ticket.serie_id}\n"
                        f"⚠️ *Problema:* {ticket.name}\n\n"
                        f"Nuestro equipo de soporte técnico se pondrá en contacto con usted pronto para brindarle la asistencia necesaria.\n"
