@@ -65,12 +65,18 @@ class TicketCopier(models.Model):
             else:
                 saludo = "👋 Buenas noches"
 
-            message = (f"{saludo}, {ticket.nombre_reporta}.\n"
+            message = (f"*🏢 Copier Company*\n\n"
+                       f"{saludo}, {ticket.nombre_reporta}.\n\n"
                        f"Hemos recibido su reporte sobre el equipo:\n"
-                       f"🖨️ *Modelo:* {ticket.producto_id.name.name}\n"
+                       f"🖨️ *Modelo:* {ticket.producto_id.name}\n"
                        f"🔢 *Serie:* {ticket.serie_id}\n"
-                       f"⚠️ *Problema:* {ticket.name}\n"
-                       f"Nos pondremos en contacto con usted pronto para brindarle asistencia. Gracias.")
+                       f"⚠️ *Problema:* {ticket.name}\n\n"
+                       f"Nuestro equipo de soporte técnico se pondrá en contacto con usted pronto para brindarle la asistencia necesaria.\n"
+                       f"Gracias por confiar en Copier Company.\n\n"
+                       f"Atentamente,\n"
+                       f"📞 Soporte Técnico Copier Company\n"
+                       f"☎️ Tel: +51975399303\n"
+                       f"📧 Email: soporte@copiercompany.com")
 
             phone = ticket.responsable_mobile_clean
             ticket.send_whatsapp_message(phone, message)
