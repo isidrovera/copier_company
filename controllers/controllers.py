@@ -143,6 +143,7 @@ class PublicHelpdeskController(http.Controller):
                 'producto_id': copier_company.id,
                 'image': image_content,
                 'nombre_reporta': post.get('nombre_reporta'),
+                'celular_reporta': post.get('celular_reporta'),
             }
             new_ticket = request.env['helpdesk.ticket'].sudo().create(ticket_values)
 
@@ -185,6 +186,9 @@ class PublicHelpdeskController(http.Controller):
 
         response = request.render("copier_company.helpdesk_ticket_confirmation", {'whatsapp_script': script})
         return response
+
+
+        
 class PCloudController(http.Controller):
     @http.route('/pcloud/callback', type='http', auth='public', csrf=False)
     def pcloud_authenticate(self, **kw):
