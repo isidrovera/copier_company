@@ -11,17 +11,13 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Estilos para el área de búsqueda completa */
 .search-area {
     display: flex;
     justify-content: center;
-    /* Centrar el área de búsqueda horizontalmente */
     gap: 10px;
-    /* Añadir espacio entre los elementos de la búsqueda */
     margin-bottom: 20px;
 }
 
-/* Estilo para la barra de búsqueda y los botones */
 .search-bar,
 .search-btn,
 .clear-btn {
@@ -30,30 +26,23 @@ body {
     cursor: pointer;
 }
 
-/* Asegúrate de que la barra de búsqueda tenga bordes redondeados solo en los lados izquierdos */
 .search-bar {
     border-radius: 20px 0 0 20px;
     margin-right: -1px;
-    /* Alinea la barra de búsqueda con el botón de buscar */
 }
 
-/* Botón de buscar con bordes redondeados solo en el lado derecho */
 .search-btn {
     background: #007bff;
     color: white;
     border: none;
     border-radius: 0 20px 20px 0;
     margin-right: 10px;
-    /* Espacio entre botón Buscar y Limpiar */
 }
 
 .search-btn:hover {
     background: #0056b3;
 }
 
-
-
-/* Botón de limpiar con bordes redondeados */
 .clear-btn {
     background-color: #f0ad4e;
     border-radius: 20px;
@@ -81,31 +70,23 @@ body {
 .folder-icon,
 .file-icon {
     margin-right: 10px;
-    /* Espacio entre el icono y el texto */
 }
 
-/* Estilos para los íconos de tipo de archivo */
 .fa-folder {
     color: #fdd835;
-    /* Color amarillo para íconos de carpeta */
 }
 
 .icon-excel {
     color: #207245;
-    /* Color verde para archivos Excel */
 }
 
 .icon-word {
     color: #2b579a;
-    /* Color azul para archivos Word */
 }
 
 .icon-pdf {
     color: #ff0000;
-    /* Color rojo para archivos PDF */
 }
-
-/* Añadir más selectores de íconos para otros tipos de archivos según sea necesario */
 
 .file-name {
     flex-grow: 1;
@@ -113,16 +94,15 @@ body {
 
 .download-btn {
     cursor: pointer;
-    background: transparent;
+    background: #28a745;
     border: none;
-    color: #007bff;
+    color: white;
     padding: 5px 10px;
     border-radius: 20px;
-    /* bordes redondeados para el botón 'Descargar' */
 }
 
 .download-btn:hover {
-    color: #0056b3;
+    background: #218838;
 }
 
 .navigation {
@@ -134,64 +114,52 @@ body {
 .back-btn,
 .home-btn {
     cursor: pointer;
-    background: #ddd;
+    background: #007bff;
     border: none;
     padding: 5px 10px;
-    color: #000;
+    color: white;
     text-decoration: none;
     border-radius: 20px;
-    /* bordes redondeados para los botones de navegación */
 }
 
 .back-btn:hover,
 .home-btn:hover {
-    background: #ccc;
+    background: #0056b3;
 }
 
-/* Estilos existentes */
-
-/* ... */
-
-/* Media queries para responsividad */
-
 @media only screen and (max-width: 768px) {
-    /* Para tablets y dispositivos de tamaño medio */
     .search-area {
-      flex-direction: column; /* Los elementos de búsqueda se apilan verticalmente */
-      gap: 5px;
+        flex-direction: column;
+        gap: 5px;
     }
-  
+
     .search-bar,
     .search-btn,
     .clear-btn {
-      width: 100%; /* Los botones y la barra de búsqueda toman el ancho completo */
-      border-radius: 20px; /* Todos los bordes redondeados */
-      margin-right: 0; /* Eliminar el margen derecho */
+        width: 100%;
+        border-radius: 20px;
+        margin-right: 0;
     }
-  
+
     .file-dir-entry {
-      flex-direction: column; /* Apilar el nombre del archivo y el botón de descarga */
-      align-items: flex-start; /* Alinear elementos al inicio */
+        flex-direction: column;
+        align-items: flex-start;
     }
-  
+
     .file-name,
     .download-btn {
-      margin: 5px 0; /* Agregar un poco de margen arriba y abajo */
+        margin: 5px 0;
     }
-  }
-  
-  @media only screen and (max-width: 480px) {
-    /* Para teléfonos móviles */
+}
+
+@media only screen and (max-width: 480px) {
     .navigation,
     .file-dir-entry {
-      flex-direction: column; /* Apilar los elementos de navegación y los resultados de archivo */
+        flex-direction: column;
     }
-  
+
     .navigation a {
-      width: 100%; /* Los botones de navegación toman el ancho completo */
-      margin: 5px 0; /* Agregar un poco de margen arriba y abajo */
+        width: 100%;
+        margin: 5px 0;
     }
-  }
-  
-  /* Puedes agregar más media queries según sea necesario */
-  
+}
