@@ -143,6 +143,10 @@ body {
     filter: brightness(0) invert(1);
 }
 
+.view-btn:not(.active) img {
+    filter: none; /* Esto hará que los iconos no activos se vean negros */
+}
+
 @media only screen and (max-width: 768px) {
     .search-area {
         flex-direction: column;
