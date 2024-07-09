@@ -59,17 +59,17 @@ class TicketCopier(models.Model):
             current_hour = current_time.hour
 
             if 5 <= current_hour < 12:
-                saludo = "Buenos días"
+                saludo = "👋 Buenos días"
             elif 12 <= current_hour < 18:
-                saludo = "Buenas tardes"
+                saludo = "👋 Buenas tardes"
             else:
-                saludo = "Buenas noches"
+                saludo = "👋 Buenas noches"
 
             message = (f"{saludo}, {ticket.nombre_reporta}.\n"
                        f"Hemos recibido su reporte sobre el equipo:\n"
-                       f"Modelo: {ticket.producto_id.name.name}\n"
-                       f"Serie: {ticket.serie_id}\n"
-                       f"Problema: {ticket.name}\n"
+                       f"🖨️ *Modelo:* {ticket.producto_id.name.name}\n"
+                       f"🔢 *Serie:* {ticket.serie_id}\n"
+                       f"⚠️ *Problema:* {ticket.name}\n"
                        f"Nos pondremos en contacto con usted pronto para brindarle asistencia. Gracias.")
 
             phone = ticket.responsable_mobile_clean
