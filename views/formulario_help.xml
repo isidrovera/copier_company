@@ -33,28 +33,28 @@
                         </div>
                         <div class="form-group mb-3">
                             <label for="description" class="form-label">Problema</label>
-                            <textarea class="form-control" id="description" name="description" required="required" placeholder="Describe el problema aquí..."></textarea>
+                            <textarea class="form-control" id="description" name="description" required="1" placeholder="Describe el problema aquí..."></textarea>
                             <div class="invalid-feedback">
                                 Por favor ingresa la descripción del problema.
                             </div>
                         </div>
                         <div class="form-group mb-3">
                             <label for="nombre_reporta" class="form-label">Nombre</label>
-                            <input type="text" class="form-control" id="nombre_reporta" name="nombre_reporta" required="required" placeholder="Tu nombre..."/>
+                            <input type="text" class="form-control" id="nombre_reporta" name="nombre_reporta" required="1" placeholder="Tu nombre..."/>
                             <div class="invalid-feedback">
                                 Por favor ingresa tu nombre.
                             </div>
                         </div>
                         <div class="form-group mb-3">
                             <label for="celular_reporta" class="form-label">Celular</label>
-                            <input type="text" class="form-control" id="celular_reporta" name="celular_reporta" required="required" placeholder="Tu numero..."/>
+                            <input type="text" class="form-control" id="celular_reporta" name="celular_reporta" required="1" placeholder="Tu numero..."/>
                             <div class="invalid-feedback">
                                 Por favor ingresa tu número de celular.
                             </div>
                         </div>
                         <div class="form-group mb-3">
                             <label for="image" class="form-label">Adjuntar Imagen</label>
-                            <input type="file" class="form-control-file" id="image" name="image" accept="image/*" capture="user" required="required"/>
+                            <input type="file" class="form-control-file" id="image" name="image" accept="image/*" capture="user" required="1"/>
                             <div class="invalid-feedback">
                                 Por favor adjunta una imagen relacionada con el problema.
                             </div>
