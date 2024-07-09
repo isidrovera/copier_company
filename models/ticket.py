@@ -3,6 +3,7 @@ import logging
 import requests
 import json
 from datetime import datetime
+import pytz
 
 _logger = logging.getLogger(__name__)
 
@@ -53,7 +54,8 @@ class TicketCopier(models.Model):
     def create(self, vals):
         ticket = super(TicketCopier, self).create(vals)
         if ticket.celular_reporta:
-            current_hour = datetime.now().hour
+            lima_tz = pytz.timezone('America/Lima')
+            current_hour = datetime.now(lima_tz).hour
             if 5 <= current_hour < 12:
                 saludo = "Buenos días"
             elif 12 <= current_hour < 18:
@@ -61,9 +63,9 @@ class TicketCopier(models.Model):
             else:
                 saludo = "Buenas noches"
 
-            message = (f"{saludo}, {ticket.nombre_reporta}. "
+            message = (f"{saludo}, {ticket.nombre_reporta}.\n"
                        f"Hemos recibido su reporte sobre el equipo:\n"
-                       f"Modelo: {ticket.producto_id.name}\n"
+                       f"Modelo: {ticket.producto_id.name.name}\n"
                        f"Serie: {ticket.serie_id}\n"
                        f"Problema: {ticket.name}\n"
                        f"Nos pondremos en contacto con usted pronto para brindarle asistencia. Gracias.")
