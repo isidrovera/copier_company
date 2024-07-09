@@ -11,7 +11,7 @@ class TicketCopier(models.Model):
     _inherit = 'helpdesk.ticket'
     
     producto_id = fields.Many2one('copier.company', string='Maquina')
-    serie_id = fields.Char(related='producto_id.serie_id', string='Serie', readonly=True,)
+    serie_id = fields.Char(related='producto_id.serie_id', string='Serie', readonly=True)
     image = fields.Binary("Imagen", attachment=True, help="Imagen relacionada con el ticket.")
     nombre_reporta = fields.Char(string='Nombre de quien reporto')
     ubicacion = fields.Char(related='producto_id.ubicacion', readonly=True, store=True, string='Ubicacion')
@@ -55,7 +55,9 @@ class TicketCopier(models.Model):
         ticket = super(TicketCopier, self).create(vals)
         if ticket.celular_reporta:
             lima_tz = pytz.timezone('America/Lima')
-            current_hour = datetime.now(lima_tz).hour
+            current_time = datetime.now(lima_tz)
+            current_hour = current_time.hour
+
             if 5 <= current_hour < 12:
                 saludo = "Buenos días"
             elif 12 <= current_hour < 18:
