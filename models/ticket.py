@@ -30,7 +30,7 @@ class TicketCopier(models.Model):
                 record.responsable_mobile_clean = ''
 
     def send_whatsapp_message(self, phone, message):
-        url = 'https://whatsapp.copiercompanysac.com/lead'
+        url = 'https://whatsappapi.copiercompanysac.com/lead'
         data = {
             'phone': phone,
             'message': message
