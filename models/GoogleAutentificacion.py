@@ -14,12 +14,13 @@ class GoogleDriveIntegration(models.Model):
     name = fields.Char('Description')
     client_id = fields.Char('Client ID')
     client_secret = fields.Char('Client Secret')
-    redirect_uri = fields.Char('Redirect URI', compute='_compute_redirect_uri')
+    redirect_uri = fields.Char('Redirect URI', compute='_compute_redirect_uri', store=True)
     authorized = fields.Boolean('Authorized', default=False)
 
     @api.depends('client_id', 'client_secret')
     def _compute_redirect_uri(self):
-        self.redirect_uri = self.env['ir.config_parameter'].sudo().get_param('web.base.url') + '/auth/google/callback'
+        for record in self:
+            record.redirect_uri = self.env['ir.config_parameter'].sudo().get_param('web.base.url') + '/auth/google/callback'
 
     def authorize_google_drive(self):
         creds = None
@@ -52,4 +53,3 @@ class GoogleDriveIntegration(models.Model):
                 }
         self.authorized = True
         return True
-
