@@ -8,7 +8,7 @@ SCOPES = ['https://www.googleapis.com/auth/drive']
 
 class GoogleDriveController(http.Controller):
 
-    @http.route('/auth/google/callback', type='http', auth='public', csrf=False)
+    @http.route('/google_drive/authentication', type='http', auth='public', csrf=False)
     def google_auth_callback(self, **kw):
         integration = request.env['google.drive.integration'].search([], limit=1)
         if not integration:

@@ -22,7 +22,7 @@ class GoogleDriveIntegration(models.Model):
     def _compute_redirect_uri(self):
         for record in self:
             base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
-            record.redirect_uri = f"{base_url}/auth/google/callback"
+            record.redirect_uri = f"{base_url}/google_drive/authentication"
             print(f"Computed redirect URI: {record.redirect_uri}")  # Añadir esta línea para depuración
 
     def authorize_google_drive(self):
