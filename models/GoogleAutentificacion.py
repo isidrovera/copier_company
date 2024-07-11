@@ -23,6 +23,7 @@ class GoogleDriveIntegration(models.Model):
         for record in self:
             base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
             record.redirect_uri = f"{base_url}/auth/google/callback"
+            print(f"Computed redirect URI: {record.redirect_uri}")  # Añadir esta línea para depuración
 
     def authorize_google_drive(self):
         creds = None
@@ -54,6 +55,7 @@ class GoogleDriveIntegration(models.Model):
                     access_type='offline',
                     include_granted_scopes='true'
                 )
+                print(f"Authorization URL: {authorization_url}")  # Añadir esta línea para depuración
                 return {
                     'type': 'ir.actions.act_url',
                     'url': authorization_url,
