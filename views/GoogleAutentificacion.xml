@@ -13,6 +13,8 @@
                         <field name="redirect_uri" readonly="1"/>
                         <button name="authorize_google_drive" type="object" string="Authorize Google Drive"/>
                         <field name="authorized"/>
+                        <field name="access_token" readonly="1"/>
+                        <field name="refresh_token" readonly="1"/>
                     </group>
                 </sheet>
             </form>

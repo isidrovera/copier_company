@@ -2,7 +2,7 @@ from odoo import http
 from odoo.http import request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.oauth2.credentials import Credentials
-import os
+from google.auth.transport.requests import Request
 
 SCOPES = ['https://www.googleapis.com/auth/drive']
 
@@ -15,7 +15,7 @@ class GoogleDriveController(http.Controller):
             return "No integration configuration found"
 
         client_config = {
-            "installed": {
+            "web": {
                 "client_id": integration.client_id,
                 "client_secret": integration.client_secret,
                 "redirect_uris": [integration.redirect_uri],
@@ -28,8 +28,6 @@ class GoogleDriveController(http.Controller):
         flow = InstalledAppFlow.from_client_config(client_config, SCOPES, state=state)
         flow.fetch_token(authorization_response=request.httprequest.url)
         credentials = flow.credentials
-        token_path = '/mnt/extra-addons/google_drive_integration/token.json'
-        with open(token_path, 'w') as token:
-            token.write(credentials.to_json())
-        integration.authorized = True
+        integration.save_credentials(credentials)
+        
         return request.render('google_drive_integration.auth_callback', {})
