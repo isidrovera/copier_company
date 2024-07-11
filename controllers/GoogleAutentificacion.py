@@ -15,7 +15,7 @@ class GoogleDriveController(http.Controller):
             return "No integration configuration found"
 
         client_config = {
-            "web": {
+            "installed": {
                 "client_id": integration.client_id,
                 "client_secret": integration.client_secret,
                 "redirect_uris": [integration.redirect_uri],
@@ -31,3 +31,11 @@ class GoogleDriveController(http.Controller):
         integration.save_credentials(credentials)
         
         return request.render('google_drive_integration.auth_callback', {})
+
+    @http.route('/google_drive/list_files', type='http', auth='user', website=True)
+    def list_files(self, **kw):
+        integration = request.env['google.drive.integration'].search([], limit=1)
+        if not integration:
+            return "No integration configuration found"
+        files = integration.list_files()
+        return request.render('google_drive_integration.file_list', {'files': files})

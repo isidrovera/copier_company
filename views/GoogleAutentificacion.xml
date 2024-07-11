@@ -47,4 +47,29 @@
     <!-- Menú para Google Drive Integration -->
     <menuitem id="menu_google_drive_integration" name="Google Drive Integration"
               parent="copier_company.menu_root" action="action_google_drive_integration"/>
+
+    <!-- Vista de lista de archivos -->
+    <template id="file_list">
+        <t t-call="website.layout">
+            <div class="container">
+                <h2>Files in Google Drive</h2>
+                <ul>
+                    <t t-foreach="files" t-as="file">
+                        <li><t t-esc="file['name']"/> (<t t-esc="file['id']"/>)</li>
+                    </t>
+                </ul>
+            </div>
+        </t>
+    </template>
+
+    <!-- Plantilla de autenticación -->
+    <template id="auth_callback">
+        <t t-call="website.layout">
+            <div class="container">
+                <h2>Google Drive Authenticated</h2>
+                <p>Your Google Drive account has been successfully authenticated.</p>
+                <a href="/google_drive/list_files" class="btn btn-primary">List Files</a>
+            </div>
+        </t>
+    </template>
 </odoo>
