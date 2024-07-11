@@ -22,15 +22,13 @@
 
     # Siempre cargado
     'data': [
-        'views/views.xml',
-        'views/templates.xml',
+        'views/views.xml',        
         'views/ticket_copier.xml', 
         'views/descargas.xml',
         'views/marcas.xml',
         'views/portal.xml',        
         'views/descargas_portal.xml',
-        'views/modelos.xml',
-        'views/cotizaciones.xml',        
+        'views/modelos.xml',               
         'views/portal_suscripcion.xml',
         'views/vista_tree_portal.xml',
         'security/ir.model.access.csv',
@@ -38,8 +36,7 @@
         'data/ir.secuencia.xml',
         'data/copier_company_data.xml',
         'views/extend_form_view.xml',
-        'views/pCloud.xml',        
-        'views/vista_nube.xml',        
+        'views/pCloud.xml',     
         'views/portal_alquiler.xml',
         'views/confirmacion_formulario.xml',
         'views/formulario_help.xml',
