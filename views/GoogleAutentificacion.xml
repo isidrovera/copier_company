@@ -1,0 +1,30 @@
+<odoo>
+    <!-- Vista de formulario para Google Drive Integration -->
+    <record id="view_form_google_drive_integration" model="ir.ui.view">
+        <field name="name">google.drive.integration.form</field>
+        <field name="model">google.drive.integration</field>
+        <field name="arch" type="xml">
+            <form string="Google Drive Integration">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <button name="authorize_google_drive" type="object" string="Authorize Google Drive"/>
+                        <field name="authorized"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción para Google Drive Integration -->
+    <record id="action_google_drive_integration" model="ir.actions.act_window">
+        <field name="name">Google Drive Integration</field>
+        <field name="res_model">google.drive.integration</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_form_google_drive_integration"/>
+    </record>
+
+    <!-- Menú para Google Drive Integration -->
+    <menuitem id="menu_google_drive_integration" name="Google Drive Integration"
+              parent="copier_company.menu_root" action="action_google_drive_integration"/>
+</odoo>
