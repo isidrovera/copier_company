@@ -10,11 +10,26 @@ class GoogleDriveController(http.Controller):
 
     @http.route('/auth/google/callback', type='http', auth='public', csrf=False)
     def google_auth_callback(self, **kw):
+        integration = request.env['google.drive.integration'].search([], limit=1)
+        if not integration:
+            return "No integration configuration found"
+
+        client_config = {
+            "installed": {
+                "client_id": integration.client_id,
+                "client_secret": integration.client_secret,
+                "redirect_uris": [integration.redirect_uri],
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token"
+            }
+        }
+
         state = request.params.get('state')
-        flow = InstalledAppFlow.from_client_secrets_file(
-            '/mnt/extra-addons/google_drive_integration/credentials.json', SCOPES, state=state)
+        flow = InstalledAppFlow.from_client_config(client_config, SCOPES, state=state)
         flow.fetch_token(authorization_response=request.httprequest.url)
         credentials = flow.credentials
-        with open('/mnt/extra-addons/google_drive_integration/token.json', 'w') as token:
+        token_path = '/mnt/extra-addons/google_drive_integration/token.json'
+        with open(token_path, 'w') as token:
             token.write(credentials.to_json())
+        integration.authorized = True
         return request.render('google_drive_integration.auth_callback', {})

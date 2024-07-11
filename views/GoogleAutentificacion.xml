@@ -8,6 +8,9 @@
                 <sheet>
                     <group>
                         <field name="name"/>
+                        <field name="client_id"/>
+                        <field name="client_secret"/>
+                        <field name="redirect_uri" readonly="1"/>
                         <button name="authorize_google_drive" type="object" string="Authorize Google Drive"/>
                         <field name="authorized"/>
                     </group>
