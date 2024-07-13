@@ -47,7 +47,7 @@
         'views/ajustes_copier.xml',
         'report/copier_company_report.xml',
         'views/copier_company_form_template.xml',
-        'views/GoogleAutentificacion.xml',
+        
             
         
     ],
