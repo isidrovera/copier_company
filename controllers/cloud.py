@@ -3,6 +3,7 @@ import requests
 from odoo.http import request
 import os
 import mimetypes
+import tempfile
 from werkzeug.utils import redirect
 from datetime import datetime
 import logging
@@ -160,15 +161,27 @@ class PcloudController(http.Controller):
             if not download_url.startswith(('http://', 'https://')):
                 download_url = 'https://' + download_url
             
-            response = requests.get(download_url, stream=True)
-            response.raise_for_status()
+            with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+                response = requests.get(download_url, stream=True)
+                response.raise_for_status()
+
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        temp_file.write(chunk)
+                temp_file.flush()
             
             file_name = download_url.split('/')[-1]
             headers = [
                 ('Content-Type', 'application/octet-stream'),
                 ('Content-Disposition', f'attachment; filename={file_name}')
             ]
-            return request.make_response(response.content, headers)
+
+            with open(temp_file.name, 'rb') as f:
+                file_content = f.read()
+
+            os.remove(temp_file.name)
+
+            return request.make_response(file_content, headers)
         except Exception as e:
             _logger.error('Failed to download file: %s', str(e))
             return request.redirect('/soporte/descargas')
