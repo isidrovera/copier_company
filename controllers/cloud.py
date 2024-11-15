@@ -34,7 +34,7 @@ class PCloudController(http.Controller):
 class PcloudController(http.Controller):
     @http.route('/soporte/descargas', type='http', auth='user', website=True)
     def list_files(self, folder_id=0, search='', **kwargs):
-        # Verificar suscripciones activas como en DescargaArchivosController
+        # Verificar suscripciones activas
         partner = request.env.user.partner_id
         subscriptions_in_progress = request.env['sale.order'].sudo().search([
             ('partner_id', '=', partner.id),
@@ -56,14 +56,28 @@ class PcloudController(http.Controller):
             
             _logger.info('Contents: %s', contents)
             
-            exclusions = [
-                '.cache', '.config', '.git', '.github', '.local',
-                'Crypto Folder', 'System Volume Information', '.DS_Store', '.editorconfig', '.gitattributes',
-                '.gitignore', '.last_revision', '.mailmap', '.npmignore', '.npmrc', '.parentlock', '.travis.yml',
-                '.dockerignore','.pydio_id','.megaignore','Backups', 'Copier Company','pCloud Backup','Public Folder','backup_copiercompany','backup_soporte-it'
+            # Lista de carpetas permitidas
+            allowed_folders = [
+                'Konica Minolta',
+                'Ricoh',
+                'Canon',
+                
+                # Añade aquí más carpetas permitidas
             ]
             
-            filtered_contents = [item for item in contents if item.get('name', 'Unknown') not in exclusions]
+            # Filtra solo las carpetas y archivos permitidos
+            filtered_contents = []
+            for item in contents:
+                name = item.get('name', 'Unknown')
+                # Si es una carpeta, solo incluir si está en la lista de permitidas
+                if item.get('isfolder', False):
+                    if name in allowed_folders:
+                        filtered_contents.append(item)
+                # Si es un archivo y está dentro de una carpeta permitida
+                elif int(folder_id) != 0:  # Si no estamos en la raíz
+                    current_folder = next((folder for folder in contents if folder.get('folderid') == int(folder_id)), None)
+                    if current_folder and current_folder.get('name') in allowed_folders:
+                        filtered_contents.append(item)
             
             processed_contents = [
                 {
