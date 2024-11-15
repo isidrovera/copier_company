@@ -32,6 +32,24 @@ class PCloudController(http.Controller):
         
 
 class PcloudController(http.Controller):
+    def _is_in_allowed_path(self, config, folder_id, allowed_root_folders):
+        """
+        Verifica si el folder_id está dentro de una carpeta permitida
+        """
+        if folder_id == 0:
+            return True
+            
+        try:
+            current_id = folder_id
+            while current_id != 0:
+                folder_info = config.get_folder_info(current_id)
+                if folder_info.get('name') in allowed_root_folders:
+                    return True
+                current_id = folder_info.get('parentfolderid', 0)
+        except Exception as e:
+            _logger.error('Error checking folder path: %s', str(e))
+        return False
+
     @http.route('/soporte/descargas', type='http', auth='user', website=True)
     def list_files(self, folder_id=0, search='', **kwargs):
         # Verificar suscripciones activas
@@ -64,35 +82,20 @@ class PcloudController(http.Controller):
                 # Añade aquí más carpetas permitidas
             ]
             
-            filtered_contents = []
             current_folder_id = int(folder_id)
+            filtered_contents = []
 
-            # Si estamos en la raíz (folder_id = 0)
+            # Si estamos en la raíz
             if current_folder_id == 0:
-                # Solo mostrar las carpetas permitidas en la raíz
+                # Solo mostrar las carpetas permitidas
                 filtered_contents = [
                     item for item in contents 
                     if item.get('name', 'Unknown') in allowed_root_folders
                 ]
             else:
-                # Obtener información de la carpeta actual
-                try:
-                    folder_path = []
-                    temp_folder_id = current_folder_id
-                    
-                    # Recorrer hacia arriba hasta llegar a la raíz
-                    while temp_folder_id != 0:
-                        folder_info = config.get_folder_info(temp_folder_id)
-                        folder_path.insert(0, folder_info.get('name', 'Unknown'))
-                        temp_folder_id = folder_info.get('parentfolderid', 0)
-                    
-                    # Si alguna carpeta en la ruta está en allowed_root_folders,
-                    # mostrar todo el contenido
-                    if any(folder in allowed_root_folders for folder in folder_path):
-                        filtered_contents = contents
-                        
-                except Exception as e:
-                    _logger.error('Error getting folder path: %s', str(e))
+                # Si estamos dentro de una ruta permitida, mostrar todo el contenido
+                if self._is_in_allowed_path(config, current_folder_id, allowed_root_folders):
+                    filtered_contents = contents
             
             processed_contents = [
                 {
@@ -105,6 +108,9 @@ class PcloudController(http.Controller):
                 }
                 for item in filtered_contents
             ]
+
+            _logger.info('Processed Contents: %s', processed_contents)  # Añadido para debugging
+            
         except Exception as e:
             _logger.error('Failed to list contents: %s', str(e))
             processed_contents = []
