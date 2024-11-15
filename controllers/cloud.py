@@ -32,24 +32,6 @@ class PCloudController(http.Controller):
         
 
 class PcloudController(http.Controller):
-    def _is_in_allowed_path(self, config, folder_id, allowed_root_folders):
-        """
-        Verifica si el folder_id está dentro de una carpeta permitida
-        """
-        if folder_id == 0:
-            return True
-            
-        try:
-            current_id = folder_id
-            while current_id != 0:
-                folder_info = config.get_folder_info(current_id)
-                if folder_info.get('name') in allowed_root_folders:
-                    return True
-                current_id = folder_info.get('parentfolderid', 0)
-        except Exception as e:
-            _logger.error('Error checking folder path: %s', str(e))
-        return False
-
     @http.route('/soporte/descargas', type='http', auth='user', website=True)
     def list_files(self, folder_id=0, search='', **kwargs):
         # Verificar suscripciones activas
@@ -93,9 +75,14 @@ class PcloudController(http.Controller):
                     if item.get('name', 'Unknown') in allowed_root_folders
                 ]
             else:
-                # Si estamos dentro de una ruta permitida, mostrar todo el contenido
-                if self._is_in_allowed_path(config, current_folder_id, allowed_root_folders):
+                # Obtener la ruta de la carpeta actual hasta la raíz
+                folder_path = config.get_folder_path(current_folder_id)
+                
+                # Si alguna carpeta en la ruta está en allowed_root_folders, mostrar todo
+                if any(folder['name'] in allowed_root_folders for folder in folder_path):
                     filtered_contents = contents
+                else:
+                    _logger.info('Folder path not in allowed folders: %s', folder_path)
             
             processed_contents = [
                 {
@@ -109,7 +96,7 @@ class PcloudController(http.Controller):
                 for item in filtered_contents
             ]
 
-            _logger.info('Processed Contents: %s', processed_contents)  # Añadido para debugging
+            _logger.info('Processed Contents: %s', processed_contents)
             
         except Exception as e:
             _logger.error('Failed to list contents: %s', str(e))

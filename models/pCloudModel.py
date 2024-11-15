@@ -196,3 +196,39 @@ class PCloudConfig(models.Model):
                 return download_url
             else:
                 raise Exception("Failed to get file download link")
+
+
+    def get_folder_path(self, folder_id):
+        """
+        Obtiene la ruta completa de una carpeta hasta la raíz
+        """
+        if not self.access_token:
+            raise Exception("No access token found. Please connect to pCloud first.")
+        
+        folder_path = []
+        current_id = folder_id
+        
+        while current_id != 0:
+            url = f"{self.hostname}/listfolder"
+            params = {
+                'access_token': self.access_token,
+                'folderid': current_id,
+            }
+            
+            try:
+                response = requests.get(url, params=params)
+                if response.status_code == 200:
+                    folder_info = response.json()['metadata']
+                    folder_path.insert(0, {
+                        'id': current_id,
+                        'name': folder_info.get('name', 'Unknown'),
+                        'parentfolderid': folder_info.get('parentfolderid', 0)
+                    })
+                    current_id = folder_info.get('parentfolderid', 0)
+                else:
+                    break
+            except Exception as e:
+                _logger.error('Error getting folder info: %s', str(e))
+                break
+                
+        return folder_path
