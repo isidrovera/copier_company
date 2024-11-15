@@ -56,28 +56,43 @@ class PcloudController(http.Controller):
             
             _logger.info('Contents: %s', contents)
             
-            # Lista de carpetas permitidas
-            allowed_folders = [
+            # Lista de carpetas raíz permitidas
+            allowed_root_folders = [
                 'Konica Minolta',
                 'Ricoh',
                 'Canon',
-                
                 # Añade aquí más carpetas permitidas
             ]
             
-            # Filtra solo las carpetas y archivos permitidos
             filtered_contents = []
-            for item in contents:
-                name = item.get('name', 'Unknown')
-                # Si es una carpeta, solo incluir si está en la lista de permitidas
-                if item.get('isfolder', False):
-                    if name in allowed_folders:
-                        filtered_contents.append(item)
-                # Si es un archivo y está dentro de una carpeta permitida
-                elif int(folder_id) != 0:  # Si no estamos en la raíz
-                    current_folder = next((folder for folder in contents if folder.get('folderid') == int(folder_id)), None)
-                    if current_folder and current_folder.get('name') in allowed_folders:
-                        filtered_contents.append(item)
+            current_folder_id = int(folder_id)
+
+            # Si estamos en la raíz (folder_id = 0)
+            if current_folder_id == 0:
+                # Solo mostrar las carpetas permitidas en la raíz
+                filtered_contents = [
+                    item for item in contents 
+                    if item.get('name', 'Unknown') in allowed_root_folders
+                ]
+            else:
+                # Obtener información de la carpeta actual
+                try:
+                    folder_path = []
+                    temp_folder_id = current_folder_id
+                    
+                    # Recorrer hacia arriba hasta llegar a la raíz
+                    while temp_folder_id != 0:
+                        folder_info = config.get_folder_info(temp_folder_id)
+                        folder_path.insert(0, folder_info.get('name', 'Unknown'))
+                        temp_folder_id = folder_info.get('parentfolderid', 0)
+                    
+                    # Si alguna carpeta en la ruta está en allowed_root_folders,
+                    # mostrar todo el contenido
+                    if any(folder in allowed_root_folders for folder in folder_path):
+                        filtered_contents = contents
+                        
+                except Exception as e:
+                    _logger.error('Error getting folder path: %s', str(e))
             
             processed_contents = [
                 {
@@ -99,7 +114,6 @@ class PcloudController(http.Controller):
             'current_folder_id': int(folder_id),
             'search': search
         })
-
     def _search_files_recursive(self, config, search_term, folder_id=0):
         contents = config.list_pcloud_contents(folder_id=folder_id)
         matching_contents = []
