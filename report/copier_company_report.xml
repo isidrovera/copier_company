@@ -32,37 +32,6 @@
                                 color: #1f2937;
                             }
 
-                            .page {
-                                padding: 20px;
-                            }
-
-                            .main-header {
-                                background: #6676e9;
-                                color: #000000;
-                                padding: 2.5rem;
-                                border-radius: 12px;
-                                margin: 2rem 0;
-                                box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-                            }
-
-                            .flex-between {
-                                display: flex;
-                                justify-content: space-between;
-                                align-items: center;
-                            }
-
-                            .main-header h1 {
-                                font-size: 2rem;
-                                font-weight: 600;
-                                color: white;
-                            }
-
-                            .main-header p {
-                                color: white;
-                                font-size: 1.1rem;
-                                margin-top: 1rem;
-                            }
-
                             .section {
                                 background: white;
                                 border-radius: 10px;
@@ -87,26 +56,28 @@
                                 color: var(--secondary-blue);
                             }
 
-                            .data-grid {
-                                display: grid;
-                                gap: 1rem;
+                            table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                margin-top: 1rem;
+                                font-size: 1rem;
                             }
 
-                            .data-row {
-                                display: flex;
-                                justify-content: space-between;
+                            table thead tr {
+                                background: var(--primary-blue);
+                                color: white;
+                                text-align: left;
+                            }
+
+                            table th,
+                            table td {
                                 padding: 0.75rem;
-                                background: var(--light-bg);
-                                border-radius: 6px;
-                                border-left: 4px solid var(--accent-blue);
+                                text-align: center;
+                                border: 1px solid var(--border);
                             }
 
-                            .machine-image {
-                                max-width: 400px;
-                                border-radius: 10px;
-                                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                                margin: 1rem auto;
-                                display: block;
+                            table tbody tr:nth-child(odd) {
+                                background: var(--light-bg);
                             }
 
                             .total-section {
@@ -115,27 +86,8 @@
                                 padding: 1.5rem;
                                 border-radius: 8px;
                                 font-size: 1.2rem;
-                                margin-top: 1rem;
-                            }
-
-                            .benefits-list {
-                                list-style: none;
-                                padding: 0;
-                            }
-
-                            .benefits-list li {
-                                margin: 0.75rem 0;
-                                padding: 1rem;
-                                background: var(--light-bg);
-                                border-left: 4px solid var(--success-green);
-                                border-radius: 0 6px 6px 0;
-                            }
-
-                            @media print {
-                                .main-header {
-                                    -webkit-print-color-adjust: exact;
-                                    print-color-adjust: exact;
-                                }
+                                margin-top: 1.5rem;
+                                text-align: center;
                             }
                         </style>
                         <div class="main-header">
