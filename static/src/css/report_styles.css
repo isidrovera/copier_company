@@ -1,74 +1,88 @@
 /* static/src/css/report_styles.css */
 :root {
-    --primary: #1e40af;
-    --secondary: #1e3a8a;
-    --background: #ffffff;
-    --text-dark: #1e293b;
-    --text-light: #f8fafc;
-    --border: #cbd5e1;
-    --table-header: #334155;
-    --table-bg: #f8fafc;
+    --primary: #0f172a;
+    --secondary: #1e293b;
+    --accent: #4f46e5;
+    --background: #f8fafc;
+    --text: #1e293b;
+    --border: #e2e8f0;
+    --table-bg: #ffffff;
+    --table-alt: #f1f5f9;
 }
 
 .report-page {
-    color: var(--text-dark);
-    line-height: 1.6;
+    background-color: var(--background);
+    color: var(--text);
+    line-height: 1.8;
     font-size: 1rem;
-    background: var(--background);
+}
+
+.company-header {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 2.5rem;
 }
 
 .data-table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    margin: 1rem 0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    background: var(--table-bg);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 1.5rem 0;
 }
 
 .data-table th {
-    background: var(--table-header);
-    color: var(--text-light);
-    padding: 1rem;
-    text-align: left;
+    background: var(--primary);
+    color: white;
+    padding: 1.25rem;
     font-weight: 600;
-    font-size: 1.1rem;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.05em;
 }
 
 .data-table td {
-    padding: 1rem;
-    background: var(--table-bg);
+    padding: 1.25rem;
     border-bottom: 1px solid var(--border);
-    color: var(--text-dark);
-}
-
-.total-row td {
-    background: var(--primary) !important;
-    color: var(--text-light);
-    font-weight: 600;
-    font-size: 1.1rem;
-}
-
-.highlight-box {
     background: var(--table-bg);
-    border-left: 4px solid var(--primary);
-    padding: 1.5rem;
+}
+
+.data-table tr:nth-child(even) td {
+    background: var(--table-alt);
+}
+
+.data-table tr:last-child td {
+    border-bottom: none;
+}
+
+.info-section {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
     margin: 1.5rem 0;
-    color: var(--text-dark);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* Asegura contraste en todas las secciones */
-.info-card {
-    background: var(--background);
-    border: 1px solid var(--border);
-    color: var(--text-dark);
+.section-title {
+    color: var(--primary);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--accent);
 }
 
-.section-header {
-    background: var(--primary);
-    color: var(--text-light);
+.value-text {
+    color: var(--primary);
+    font-weight: 500;
 }
 
-.report-header {
-    background: linear-gradient(to right, var(--primary), var(--secondary));
-    color: var(--text-light);
+.label-text {
+    color: var(--secondary);
+    font-weight: 400;
 }
