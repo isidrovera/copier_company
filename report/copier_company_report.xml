@@ -2,12 +2,12 @@
     <data>
         <!-- Acción del reporte -->
         <record id="action_report_report_cotizacion_alquiler" model="ir.actions.report">
-            <field name="name">Cotización de Alquiler</field>
+            <field name="name">Propuesta Comercial de Alquiler</field>
             <field name="model">copier.company</field>
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">copier_company.cotizacion_view</field>
             <field name="report_file">copier_company.cotizacion_view</field>
-            <field name="print_report_name">'Cotización - %s' % object.secuencia</field>
+            <field name="print_report_name">'Propuesta Comercial - %s' % object.secuencia</field>
             <field name="binding_model_id" ref="model_copier_company"/>
             <field name="binding_type">report</field>
         </record>
@@ -19,166 +19,234 @@
                     <t t-call="web.external_layout">
                         <div class="page">
                             <style>
-                                .header {
-                                    font-size: 24px;
-                                    font-weight: bold;
-                                    margin-top: 20px;
-                                    text-align: left;
+                                /* Estilos modernos */
+                                :root {
+                                    --primary-color: #2563eb;
+                                    --secondary-color: #1e40af;
+                                    --accent-color: #dbeafe;
+                                    --text-color: #1f2937;
+                                    --border-radius: 8px;
                                 }
-                                .section-title {
-                                    font-size: 20px;
-                                    font-weight: bold;
-                                    background-color: black;
+
+                                .page {
+                                    color: var(--text-color);
+                                    line-height: 1.6;
+                                }
+
+                                .header-section {
+                                    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
                                     color: white;
-                                    padding: 5px;
-                                    margin-top: 20px;
+                                    padding: 2rem;
+                                    border-radius: var(--border-radius);
+                                    margin-bottom: 2rem;
+                                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
                                 }
+
+                                .section-title {
+                                    font-size: 1.5rem;
+                                    font-weight: 600;
+                                    color: var(--primary-color);
+                                    border-bottom: 3px solid var(--accent-color);
+                                    padding-bottom: 0.5rem;
+                                    margin: 2rem 0 1rem;
+                                }
+
                                 .info-table {
                                     width: 100%;
-                                    border-collapse: collapse;
-                                    margin-bottom: 20px;
+                                    border-collapse: separate;
+                                    border-spacing: 0;
+                                    border-radius: var(--border-radius);
+                                    overflow: hidden;
+                                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
                                 }
-                                .info-table th, .info-table td {
-                                    border: 1px solid #ddd;
-                                    padding: 8px;
-                                }
+
                                 .info-table th {
-                                    background-color: #f2f2f2;
+                                    background-color: var(--accent-color);
+                                    color: var(--primary-color);
+                                    font-weight: 600;
+                                    padding: 1rem;
                                     text-align: left;
                                 }
-                                .image-container {
-                                    text-align: center;
-                                    margin-top: 10px;
+
+                                .info-table td {
+                                    padding: 1rem;
+                                    border-bottom: 1px solid #e5e7eb;
                                 }
+
+                                .info-table tr:hover {
+                                    background-color: #f8fafc;
+                                }
+
+                                .image-container {
+                                    background-color: white;
+                                    padding: 1rem;
+                                    border-radius: var(--border-radius);
+                                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                                    margin: 2rem 0;
+                                }
+
                                 .image-container img {
-                                    max-width: 390px;
+                                    max-width: 100%;
+                                    height: auto;
+                                    border-radius: var(--border-radius);
+                                }
+
+                                .feature-list {
+                                    list-style: none;
+                                    padding: 0;
+                                }
+
+                                .feature-list li {
+                                    position: relative;
+                                    padding-left: 1.5rem;
+                                    margin-bottom: 0.5rem;
+                                }
+
+                                .feature-list li::before {
+                                    content: "→";
+                                    color: var(--primary-color);
+                                    position: absolute;
+                                    left: 0;
+                                }
+
+                                .highlight-box {
+                                    background-color: var(--accent-color);
+                                    border-left: 4px solid var(--primary-color);
+                                    padding: 1rem;
+                                    margin: 1rem 0;
+                                    border-radius: var(--border-radius);
                                 }
                             </style>
 
-                            <div>
-                                <p style="text-align: right;"><t t-esc="doc.create_date.strftime('%A, %d de %B de %Y')"/></p>
-                                <p>Presente. -</p>
-                                <p><strong>Atención:</strong> <t t-esc="doc.cliente_id.name"/></p>
-                                <p>Asunto: Alquiler de fotocopiadora multifuncional formato A4.</p>
-                                <p>Estimados Señores,</p>
-                                <p>En respuesta a su solicitud, nos complace presentarles nuestra COTIZACIÓN para el servicio de alquiler del siguiente equipo multifuncional:</p>
-                                <p>1- <t t-esc="doc.name.name"/></p>
+                            <!-- Encabezado -->
+                            <div class="header-section">
+                                <h1 style="font-size: 2rem; margin-bottom: 1rem;">Propuesta Comercial Personalizada</h1>
+                                <p style="font-size: 1.2rem; opacity: 0.9;"><t t-esc="doc.create_date.strftime('%A, %d de %B de %Y')"/></p>
+                                <p style="font-size: 1.1rem;">Preparado especialmente para: <strong><t t-esc="doc.cliente_id.name"/></strong></p>
                             </div>
 
+                            <!-- Introducción -->
+                            <div class="highlight-box">
+                                <p>Estimados señores,</p>
+                                <p>Nos complace presentarle nuestra solución integral de impresión diseñada específicamente para optimizar sus procesos documentales y maximizar su productividad empresarial.</p>
+                            </div>
+
+                            <!-- Equipo Propuesto -->
+                            <h2 class="section-title">Equipo Multifuncional Premium</h2>
+                            <p style="font-size: 1.2rem; color: var(--primary-color);"><t t-esc="doc.name.name"/></p>
+
+                            <!-- Imagen del Equipo -->
                             <div class="image-container">
                                 <t t-if="doc.imagen_id">
                                     <img t-att-src="'data:image/png;base64,%s' % doc.imagen_id.decode('utf-8')"/>
                                 </t>
                             </div>
 
-                            <div>
-                                <h3 class="section-title">Especificaciones del Equipo</h3>
+                            <!-- Especificaciones -->
+                            <h2 class="section-title">Características Técnicas Avanzadas</h2>
+                            <div class="highlight-box">
                                 <t t-raw="doc.especificaciones_id"/>
                             </div>
 
-                            <div>
-                                <h3 class="section-title">Detalles Financieros</h3>
-                                <table class="info-table">
-                                    <tr>
-                                        <th>Fecha de Inicio del Alquiler</th>
-                                        <td><t t-esc="doc.fecha_inicio_alquiler"/></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Fecha de Fin del Alquiler</th>
-                                        <td><t t-esc="doc.fecha_fin_alquiler"/></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Moneda</th>
-                                        <td><t t-esc="doc.currency_id.name"/></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Volumen mensual Copias/Impresiones Blanco y Negro</th>
-                                        <td><t t-esc="doc.volumen_mensual_bn"/></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Costo por Copia/Impresión Blanco y Negro</th>
-                                        <td>S/. <t t-esc="doc.costo_copia_bn"/> (no incluido IGV)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Renta Mensual (Blanco y Negro) incluido IGV</th>
-                                        <td>S/. <t t-esc="doc.renta_mensual_bn"/></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Costo de copia excedente Blanco y Negro</th>
-                                        <td>S/. <t t-esc="doc.costo_copia_bn"/> (no incluido IGV)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Volumen mensual Copias/Impresiones Color</th>
-                                        <td><t t-esc="doc.volumen_mensual_color"/></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Costo por Copia/Impresión Color</th>
-                                        <td>S/. <t t-esc="doc.costo_copia_color"/> (no incluido IGV)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Renta Mensual (Color) incluido IGV</th>
-                                        <td>S/. <t t-esc="doc.renta_mensual_color"/></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Costo de copia excedente Color</th>
-                                        <td>S/. <t t-esc="doc.costo_copia_color"/> (no incluido IGV)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Costo de scanner</th>
-                                        <td>Gratis</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Disponibilidad</th>
-                                        <td>5 Días presentando orden de compra</td>
-                                    </tr>
-                                    <tr>
-                                        <th>IGV (%)</th>
-                                        <td><t t-esc="doc.igv"/></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Descuento (%)</th>
-                                        <td><t t-esc="doc.descuento"/></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Total a Facturar Mensual</th>
-                                        <td>S/. <t t-esc="doc.total_facturar_mensual"/></td>
-                                    </tr>
-                                </table>
-                            </div>
+                            <!-- Detalles Financieros -->
+                            <h2 class="section-title">Propuesta Económica</h2>
+                            <table class="info-table">
+                                <tr>
+                                    <th colspan="2" style="background-color: var(--primary-color); color: white;">Términos del Servicio</th>
+                                </tr>
+                                <tr>
+                                    <th>Periodo de Servicio</th>
+                                    <td>Del <t t-esc="doc.fecha_inicio_alquiler"/> al <t t-esc="doc.fecha_fin_alquiler"/></td>
+                                </tr>
+                                <tr>
+                                    <th>Moneda</th>
+                                    <td><t t-esc="doc.currency_id.name"/></td>
+                                </tr>
+                                <tr>
+                                    <th colspan="2" style="background-color: var(--primary-color); color: white;">Servicios en Blanco y Negro</th>
+                                </tr>
+                                <tr>
+                                    <th>Volumen Mensual Incluido</th>
+                                    <td><t t-esc="doc.volumen_mensual_bn"/> impresiones</td>
+                                </tr>
+                                <tr>
+                                    <th>Costo por Impresión</th>
+                                    <td>S/. <t t-esc="doc.costo_copia_bn"/> + IGV</td>
+                                </tr>
+                                <tr>
+                                    <th>Renta Mensual</th>
+                                    <td>S/. <t t-esc="doc.renta_mensual_bn"/> (IGV incluido)</td>
+                                </tr>
+                                <tr>
+                                    <th colspan="2" style="background-color: var(--primary-color); color: white;">Servicios a Color</th>
+                                </tr>
+                                <tr>
+                                    <th>Volumen Mensual Incluido</th>
+                                    <td><t t-esc="doc.volumen_mensual_color"/> impresiones</td>
+                                </tr>
+                                <tr>
+                                    <th>Costo por Impresión</th>
+                                    <td>S/. <t t-esc="doc.costo_copia_color"/> + IGV</td>
+                                </tr>
+                                <tr>
+                                    <th>Renta Mensual</th>
+                                    <td>S/. <t t-esc="doc.renta_mensual_color"/> (IGV incluido)</td>
+                                </tr>
+                                <tr>
+                                    <th colspan="2" style="background-color: var(--primary-color); color: white;">Resumen Financiero</th>
+                                </tr>
+                                <tr>
+                                    <th>Descuento Especial</th>
+                                    <td><t t-esc="doc.descuento"/>%</td>
+                                </tr>
+                                <tr>
+                                    <th>IGV</th>
+                                    <td><t t-esc="doc.igv"/>%</td>
+                                </tr>
+                                <tr>
+                                    <th style="font-size: 1.2rem;">Inversión Mensual Total</th>
+                                    <td style="font-size: 1.2rem; font-weight: bold; color: var(--primary-color);">S/. <t t-esc="doc.total_facturar_mensual"/></td>
+                                </tr>
+                            </table>
 
-                            <div>
-                                <h3 class="section-title">Información Adicional</h3>
-                                <ul>
-                                    <li>Las tarifas en nuevos soles incluyen el impuesto General a las ventas (18%).</li>
-                                    <li>La facturación se realizará en nuevos soles.</li>
-                                    <li>Incluye instalación y capacitación.</li>
-                                    <li>Incluye renovación de maquinaria, insumos, repuestos y servicio técnico.</li>
+                            <!-- Beneficios Incluidos -->
+                            <h2 class="section-title">Beneficios Premium Incluidos</h2>
+                            <ul class="feature-list">
+                                <li>Servicio técnico preventivo y correctivo sin costo adicional</li>
+                                <li>Instalación y configuración profesional incluida</li>
+                                <li>Capacitación completa para su personal</li>
+                                <li>Insumos y repuestos originales incluidos</li>
+                                <li>Servicio de digitalización (scanner) sin costo</li>
+                                <li>Soporte técnico prioritario</li>
+                                <li>Garantía de reemplazo de equipo</li>
+                            </ul>
+
+                            <!-- Información de Pago -->
+                            <h2 class="section-title">Facilidades de Pago</h2>
+                            <div class="highlight-box">
+                                <p><strong>Opciones de pago disponibles:</strong></p>
+                                <ul class="feature-list">
+                                    <li>Cuenta BCP: 191-2334609-0-07</li>
+                                    <li>CCI: 002-19100233460900751</li>
+                                    <li>Cuenta de detracciones Banco de la Nación: 00802007582</li>
                                 </ul>
                             </div>
 
-                            <div>
-                                <h3 class="section-title">Condiciones Comerciales</h3>
-                                <ul>
-                                    <li>Los pagos pueden efectuarse en efectivo o depósito a:</li>
-                                    <li>Cuenta corriente soles BCP, 191-2334609-0-07 CCI: 002-19100233460900751</li>
-                                    <li>Cuenta de detracción: Banco de la Nación 00802007582</li>
-                                    <li>Firma del contrato Marco de Alquiler por 12 meses mínimo.</li>
-                                </ul>
-                            </div>
+                            <!-- Términos y Condiciones -->
+                            <h2 class="section-title">Términos y Condiciones del Servicio</h2>
+                            <ul class="feature-list">
+                                <li>Contrato mínimo de 12 meses</li>
+                                <li>Mantenimiento preventivo bimestral incluido</li>
+                                <li>Tiempo de respuesta técnica garantizado</li>
+                                <li>El cliente debe proporcionar el papel</li>
+                                <li>Disponibilidad de equipo en 5 días hábiles tras orden de compra</li>
+                            </ul>
 
-                            <div>
-                                <h3 class="section-title">Condiciones de Alquiler</h3>
-                                <ul>
-                                    <li>Los equipos se alquilan sin papel.</li>
-                                    <li>El periodo de alquiler se inicia con la entrega del equipo y finaliza con la recepción de este.</li>
-                                    <li>El equipo debe ser devuelto en las mismas condiciones en que fue entregado, sin más deterioro que el producido por el uso normal. En caso de presentarse cualquier daño, el cliente se hará responsable por el costo de las reparaciones según los cargos por daños vigentes a la devolución.</li>
-                                    <li>La inspección, mantenimiento, repuestos y consumibles del equipo son de exclusiva responsabilidad del ARRENDADOR.</li>
-                                    <li>Programa de mantenimiento cada 2 meses, mantenimiento preventivo.</li>
-                                </ul>
-                            </div>
-
-                            <div>
-                                <p>Sin otro particular, nos ponemos a su disposición para atender sus consultas o requerimientos. Atentamente.</p>
+                            <!-- Cierre -->
+                            <div class="highlight-box" style="margin-top: 2rem;">
+                                <p>Confiamos en que esta propuesta cumple con sus expectativas y necesidades. Estamos a su disposición para resolver cualquier consulta adicional y personalizar aún más nuestra oferta según sus requerimientos específicos.</p>
+                                <p style="margin-top: 1rem;">Atentamente,</p>
+                                <p style="font-weight: bold;">Su Equipo de Soluciones de Impresión</p>
                             </div>
                         </div>
                     </t>
