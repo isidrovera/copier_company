@@ -15,82 +15,90 @@
         <template id="cotizacion_view">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
-                    <t t-call="web.basic_layout">
+                    <t t-call="web.external_layout">
                         <style>
                             :root {
-                            --blue-primary: #1a4b8c;
-                            --blue-secondary: #2563eb;
-                            --gray-dark: #374151;
-                            --gray-medium: #6b7280;
-                            --success-green: #10b981;
-                            --warning-yellow: #f59e0b;
-                            --background-light: #f3f4f6;
-                            --border-color: #e5e7eb;
-                            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-                            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+                            --primary-blue: #1a365d;
+                            --secondary-blue: #2563eb;
+                            --accent-blue: #3b82f6;
+                            --success-green: #059669;
+                            --light-bg: #f3f4f6;
+                            --border: #e5e7eb;
                             }
 
-                            .header-section {
-                            background: linear-gradient(135deg, var(--blue-primary),
-                            var(--blue-secondary));
+                            body {
+                            font-family: 'Helvetica', 'Arial', sans-serif;
+                            line-height: 1.6;
+                            color: #1f2937;
+                            }
+
+                            .page {
+                            padding: 20px;
+                            }
+
+                            .main-header {
+                            background: linear-gradient(135deg, var(--primary-blue),
+                            var(--secondary-blue));
                             color: white;
                             padding: 2rem;
                             border-radius: 10px;
                             margin-bottom: 2rem;
+                            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
                             }
 
-                            .page-title {
-                            font-size: 2rem;
-                            font-weight: bold;
-                            text-align: center;
-                            margin-bottom: 1rem;
-                            }
-
-                            .info-section {
+                            .section {
                             background: white;
-                            border-radius: 8px;
+                            border-radius: 10px;
+                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
                             padding: 1.5rem;
-                            margin: 1rem 0;
-                            box-shadow: var(--shadow-md);
+                            margin-bottom: 1.5rem;
                             }
 
-                            .section-title {
+                            .section-header {
                             display: flex;
                             align-items: center;
-                            gap: 0.5rem;
-                            color: var(--blue-primary);
-                            border-bottom: 2px solid var(--blue-primary);
-                            padding-bottom: 0.5rem;
+                            gap: 0.75rem;
+                            border-bottom: 2px solid var(--accent-blue);
+                            padding-bottom: 0.75rem;
                             margin-bottom: 1rem;
+                            color: var(--primary-blue);
+                            font-size: 1.25rem;
+                            font-weight: bold;
                             }
 
-                            .section-title i {
-                            font-size: 1.25rem;
+                            .section-header i {
+                            color: var(--secondary-blue);
                             }
 
                             .data-grid {
                             display: grid;
                             gap: 1rem;
-                            margin: 1rem 0;
                             }
 
                             .data-row {
-                            display: grid;
-                            grid-template-columns: 1fr 1fr;
-                            padding: 1rem;
-                            background: var(--background-light);
+                            display: flex;
+                            justify-content: space-between;
+                            padding: 0.75rem;
+                            background: var(--light-bg);
                             border-radius: 6px;
-                            align-items: center;
+                            border-left: 4px solid var(--accent-blue);
                             }
 
-                            .label {
-                            font-weight: 600;
-                            color: var(--gray-dark);
+                            .machine-image {
+                            max-width: 400px;
+                            border-radius: 10px;
+                            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                            margin: 1rem auto;
+                            display: block;
                             }
 
-                            .value {
-                            color: var(--blue-secondary);
-                            font-weight: 500;
+                            .total-section {
+                            background: var(--primary-blue);
+                            color: white;
+                            padding: 1.5rem;
+                            border-radius: 8px;
+                            font-size: 1.2rem;
+                            margin-top: 1rem;
                             }
 
                             .benefits-list {
@@ -99,54 +107,44 @@
                             }
 
                             .benefits-list li {
-                            margin: 0.5rem 0;
+                            margin: 0.75rem 0;
                             padding: 1rem;
-                            background: var(--background-light);
+                            background: var(--light-bg);
                             border-left: 4px solid var(--success-green);
                             border-radius: 0 6px 6px 0;
                             }
 
-                            .conditions-list {
-                            padding-left: 1.5rem;
-                            }
-
-                            .conditions-list li {
-                            margin-bottom: 0.75rem;
-                            color: var(--gray-dark);
-                            }
-
                             @media print {
-                            .header-section {
+                            .main-header {
                             -webkit-print-color-adjust: exact;
                             print-color-adjust: exact;
                             }
                             }
                         </style>
-                        <div class="header-section">
-                            <div
-                                style="display: flex; justify-content: space-between; align-items: center;">
-                                <div class="page-title">
-                                    <i class="fa fa-file-text-o"></i> Propuesta Comercial N° <t
+                        <div class="main-header">
+                            <div class="flex-between">
+                                <h1 style="font-size: 1.75rem; margin: 0;"> Propuesta Comercial N° <t
                                         t-esc="doc.secuencia" />
-                                </div>
-                                <div t-if="doc.qr_code">
-                                    <img t-att-src="'data:image/png;base64,%s' % doc.qr_code"
-                                        style="width: 100px;" />
+                                </h1>
+                                <div>
+                                    <t t-if="doc.qr_code">
+                                        <img t-att-src="'data:image/png;base64,%s' % doc.qr_code"
+                                            style="width: 90px;" />
+                                    </t>
                                 </div>
                             </div>
-                            <div style="margin-top: 1rem;">
-                                <p>
-                                    <t t-esc="doc.create_date.strftime('%A, %d de %B de %Y')" />
-                                </p>
-                            </div>
+                            <p style="margin-top: 1rem;">
+                                <t t-esc="doc.create_date.strftime('%A, %d de %B de %Y')" />
+                            </p>
                         </div>
 
-                        <!-- Datos del cliente y presentación -->
-                        <div class="info-section">
-                            <div class="section-title">
-                                <i class="fa fa-user-circle"></i> Información del Cliente </div>
+                        <!-- Información del Cliente -->
+                        <div class="section">
+                            <div class="section-header">
+                                <i class="fa fa-user-circle"></i>
+                                <span>Información del Cliente</span>
+                            </div>
                             <div class="data-grid">
-                                <p>Estimados Señores,</p>
                                 <div class="data-row">
                                     <span class="label">Atención:</span>
                                     <span class="value">
@@ -166,48 +164,44 @@
                                     </span>
                                 </div>
                             </div>
-                            <p style="margin-top: 1rem;">En respuesta a su solicitud, nos complace
-                                presentarles nuestra COTIZACIÓN para el servicio de alquiler del
-                                siguiente equipo multifuncional:</p>
+                            <p style="margin-top: 1rem;" class="intro-text"> En respuesta a su
+                                solicitud, nos complace presentarles nuestra <strong>COTIZACIÓN</strong>
+                                para el servicio de alquiler del siguiente equipo multifuncional: </p>
                         </div>
 
-                        <!-- Detalles del Equipo -->
-                        <div class="info-section">
-                            <div class="section-title">
-                                <i class="fa fa-print"></i> Equipo Propuesto </div>
-                            <h3 style="color: var(--blue-primary); text-align: center;">
-                                <t t-esc="doc.name.name" />
-                            </h3>
+                        <!-- Equipo Propuesto -->
+                        <div class="section">
+                            <div class="section-header">
+                                <i class="fa fa-print"></i>
+                                <span>Equipo Multifuncional</span>
+                            </div>
                             <div style="text-align: center;">
+                                <h3 style="color: var(--primary-blue);">
+                                    <t t-esc="doc.name.name" />
+                                </h3>
                                 <t t-if="doc.imagen_id">
                                     <img
                                         t-att-src="'data:image/png;base64,%s' % doc.imagen_id.decode('utf-8')"
-                                        style="max-width: 400px; border-radius: 8px; margin: 1rem auto;" />
+                                        class="machine-image" />
                                 </t>
                             </div>
-                            <div class="specs-section">
-                                <t t-raw="doc.especificaciones_id" />
-                            </div>
+                            <t t-if="doc.especificaciones_id">
+                                <div class="specs-section">
+                                    <t t-raw="doc.especificaciones_id" />
+                                </div>
+                            </t>
                         </div>
-                        <!-- Propuesta Económica -->
-                        <div class="info-section">
-                            <div class="section-title">
-                                <i class="fa fa-calculator"></i> Propuesta Económica </div>
-
+                        <div class="section">
+                            <div class="section-header">
+                                <i class="fa fa-calculator"></i>
+                                <span>Propuesta Económica</span>
+                            </div>
                             <div class="data-grid">
                                 <div class="data-row">
-                                    <span class="label">Fecha Inicio:</span>
-                                    <span class="value">
-                                        <t t-esc="doc.fecha_inicio_alquiler" />
-                                    </span>
+                                    <span class="label">Periodo de Contrato:</span>
+                                    <span class="value">Del <t t-esc="doc.fecha_inicio_alquiler" />
+                                        al <t t-esc="doc.fecha_fin_alquiler" /></span>
                                 </div>
-                                <div class="data-row">
-                                    <span class="label">Fecha Fin:</span>
-                                    <span class="value">
-                                        <t t-esc="doc.fecha_fin_alquiler" />
-                                    </span>
-                                </div>
-
                                 <!-- Detalles B/N -->
                                 <div class="data-row">
                                     <span class="label">Volumen Mensual B/N:</span>
@@ -255,12 +249,10 @@
                                 </div>
                             </div>
 
-                            <!-- Total -->
-                            <div
-                                style="background: var(--blue-primary); color: white; padding: 1.5rem; border-radius: 8px; margin-top: 1rem;">
+                            <div class="total-section">
                                 <div
                                     style="display: flex; justify-content: space-between; align-items: center;">
-                                    <span style="font-size: 1.2rem;">Total Mensual (Inc. IGV):</span>
+                                    <span>Total Mensual (Inc. IGV):</span>
                                     <span style="font-size: 1.5rem; font-weight: bold;"> S/. <t
                                             t-esc="'%.2f' % doc.total_facturar_mensual" />
                                     </span>
@@ -268,51 +260,49 @@
                             </div>
                         </div>
 
-                        <!-- Información Adicional -->
-                        <div class="info-section">
-                            <div class="section-title">
-                                <i class="fa fa-info-circle"></i> Información Adicional </div>
+                        <!-- Condiciones y Beneficios -->
+                        <div class="section">
+                            <div class="section-header">
+                                <i class="fa fa-check-circle"></i>
+                                <span>Beneficios Incluidos</span>
+                            </div>
                             <ul class="benefits-list">
-                                <li>Las tarifas incluyen IGV (18%)</li>
-                                <li>Facturación en nuevos soles</li>
-                                <li>Incluye instalación y capacitación</li>
-                                <li>Incluye renovación de maquinaria, insumos y repuestos</li>
-                                <li>Servicio técnico incluido</li>
+                                <li>✓ Servicio técnico preventivo cada 2 meses</li>
+                                <li>✓ Insumos y repuestos originales</li>
+                                <li>✓ Instalación y capacitación incluida</li>
+                                <li>✓ Soporte técnico prioritario</li>
+                                <li>✓ Mantenimiento correctivo incluido</li>
                             </ul>
                         </div>
 
-                        <!-- Condiciones Comerciales -->
-                        <div class="info-section">
-                            <div class="section-title">
-                                <i class="fa fa-file-text"></i> Condiciones Comerciales </div>
-                            <ul class="conditions-list">
-                                <li>Formas de pago: <ul>
-                                        <li>Cuenta corriente BCP: 191-2334609-0-07</li>
-                                        <li>CCI: 002-19100233460900751</li>
-                                        <li>Cuenta de detracción Banco de la Nación: 00802007582</li>
-                                    </ul>
-                                </li>
-                                <li>Contrato marco de alquiler por <t
-                                        t-esc="doc.duracion_alquiler_id.name" /></li>
-                                <li>Los equipos se alquilan sin papel</li>
-                                <li>Mantenimiento preventivo cada 2 meses</li>
+                        <!-- Información de Pago -->
+                        <div class="section">
+                            <div class="section-header">
+                                <i class="fa fa-credit-card"></i>
+                                <span>Información de Pago</span>
+                            </div>
+                            <ul style="list-style: none; padding-left: 0;">
+                                <li class="data-row">Cuenta BCP: 191-2334609-0-07</li>
+                                <li class="data-row">CCI: 002-19100233460900751</li>
+                                <li class="data-row">Detracción BN: 00802007582</li>
                             </ul>
                         </div>
 
                         <!-- Firma -->
-                        <div style="margin-top: 3rem; margin-bottom: 2rem;">
+                        <div style="margin-top: 3rem;">
                             <p>Sin otro particular, quedamos a su disposición para cualquier
                                 consulta.</p>
                             <div style="margin-top: 2rem;">
                                 <p>Atentamente,</p>
-                                <div style="margin-top: 3rem;">
-                                    <p>____________________</p>
+                                <div style="margin-top: 4rem;">
+                                    <div style="width: 200px; border-top: 1px solid #000;"></div>
                                     <p>Ejecutivo Comercial</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="footer" style="text-align: center; color: var(--gray-medium);">
+                        <!-- Pie de página -->
+                        <div style="text-align: center; margin-top: 2rem; color: var(--secondary);">
                             <p>Propuesta válida por 15 días</p>
                             <p>Página <span class="page" /> de <span class="topage" /></p>
                         </div>
