@@ -17,7 +17,94 @@
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
                     <t t-call="web.external_layout">
-                        <link rel="stylesheet" type="text/css" href="/copier_company/static/src/css/report_styles.css"/>
+                        <style>
+                            :root {
+                                --primary: #1e293b;
+                                --secondary: #4b5563;
+                                --accent: #3b82f6;
+                                --background: #ffffff;
+                                --text: #111827;
+                                --border: #d1d5db;
+                                --table-bg: #f9fafb;
+                                --table-alt: #f3f4f6;
+                            }
+
+                            .report-page {
+                                background-color: var(--background);
+                                color: var(--text);
+                                line-height: 1.6;
+                                font-size: 1rem;
+                                padding: 1.5rem;
+                            }
+
+                            .data-table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                background: var(--table-bg);
+                                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                                border-radius: 10px;
+                                overflow: hidden;
+                                margin: 2rem 0;
+                            }
+
+                            .data-table th {
+                                background: var(--primary);
+                                color: white;
+                                padding: 1rem;
+                                font-weight: bold;
+                                text-transform: uppercase;
+                                font-size: 0.9rem;
+                                border-bottom: 2px solid var(--accent);
+                                text-align: left;
+                            }
+
+                            .data-table td {
+                                padding: 1rem;
+                                border-bottom: 1px solid var(--border);
+                                background: var(--table-bg);
+                            }
+
+                            .data-table tr:nth-child(even) td {
+                                background: var(--table-alt);
+                            }
+
+                            .data-table tr:last-child td {
+                                border-bottom: none;
+                            }
+
+                            .section-header {
+                                color: var(--primary);
+                                font-size: 1.2rem;
+                                font-weight: bold;
+                                margin: 1.5rem 0 0.5rem;
+                                border-bottom: 2px solid var(--accent);
+                                padding-bottom: 0.5rem;
+                            }
+
+                            .info-card {
+                                background: var(--table-bg);
+                                padding: 1.5rem;
+                                border-radius: 8px;
+                                margin: 1rem 0;
+                                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+                            }
+
+                            .feature-list {
+                                list-style: disc;
+                                padding-left: 2rem;
+                                color: var(--text);
+                            }
+
+                            .highlight-box {
+                                background: var(--table-alt);
+                                padding: 1rem;
+                                border-radius: 8px;
+                                font-style: italic;
+                                color: var(--secondary);
+                                margin-top: 2rem;
+                            }
+                        </style>
+
                         <div class="page report-page">
                             <div class="report-header">
                                 <div class="report-title">Propuesta Comercial Personalizada</div>
@@ -56,7 +143,7 @@
                                     <td>Moneda</td>
                                     <td><t t-esc="doc.currency_id.name"/></td>
                                 </tr>
-                                
+
                                 <!-- Servicios B/N -->
                                 <tr>
                                     <th colspan="2">Servicios en Blanco y Negro</th>
