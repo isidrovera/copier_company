@@ -37,16 +37,33 @@
                             }
 
                             .main-header {
-                            background: linear-gradient(135deg, var(--primary-blue),
-                            var(--secondary-blue));
-                            color: white;
-                            padding: 2rem;
-                            border-radius: 10px;
-                            margin-bottom: 2rem;
-                            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                                background: linear-gradient(135deg, #1a4b8c, #2563eb);
+                                color: white;
+                                padding: 2.5rem;
+                                border-radius: 12px;
+                                margin: 2rem 0;
+                                box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+                                position: relative;
+                                border: 1px solid rgba(255, 255, 255, 0.1);
+                            }
+                            .flex-between {
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                gap: 2rem;
+                            }
+                            .main-header h1 {
+                                font-size: 2rem;
+                                font-weight: 700;
+                                text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
                             }
 
-                            .section {
+                            .main-header p {
+                                font-size: 1.1rem;
+                                opacity: 0.9;
+                                margin-top: 1.5rem;
+                            }
+                                                        .section {
                             background: white;
                             border-radius: 10px;
                             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
