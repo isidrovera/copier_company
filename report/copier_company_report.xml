@@ -30,6 +30,8 @@
                                 font-family: 'Helvetica', 'Arial', sans-serif;
                                 line-height: 1.6;
                                 color: #1f2937;
+                                margin: 0;
+                                padding: 0;
                             }
 
                             .section {
@@ -80,6 +82,12 @@
                                 background: var(--light-bg);
                             }
 
+                            table tbody tr:hover {
+                                background: var(--secondary-blue);
+                                color: white;
+                                transition: background 0.3s ease;
+                            }
+
                             .total-section {
                                 background: var(--primary-blue);
                                 color: white;
@@ -88,6 +96,44 @@
                                 font-size: 1.2rem;
                                 margin-top: 1.5rem;
                                 text-align: center;
+                                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+                            }
+
+                            .total-section strong {
+                                font-size: 1.4rem;
+                                display: block;
+                                margin-bottom: 0.5rem;
+                            }
+
+                            .data-row {
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                padding: 0.75rem;
+                                background: var(--light-bg);
+                                border-radius: 6px;
+                                margin-bottom: 0.5rem;
+                                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                            }
+
+                            @media print {
+                                body {
+                                    font-size: 10pt;
+                                }
+
+                                .section {
+                                    page-break-inside: avoid;
+                                }
+
+                                .total-section {
+                                    -webkit-print-color-adjust: exact;
+                                    print-color-adjust: exact;
+                                }
+
+                                table thead tr {
+                                    -webkit-print-color-adjust: exact;
+                                    print-color-adjust: exact;
+                                }
                             }
                         </style>
                         <div class="main-header">
