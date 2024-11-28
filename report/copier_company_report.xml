@@ -125,13 +125,7 @@
                             <div class="flex-between">
                                 <h1 style="font-size: 1.75rem; margin: 0;"> Propuesta Comercial N° <t
                                         t-esc="doc.secuencia" />
-                                </h1>
-                                <div>
-                                    <t t-if="doc.qr_code">
-                                        <img t-att-src="'data:image/png;base64,%s' % doc.qr_code"
-                                            style="width: 90px;" />
-                                    </t>
-                                </div>
+                                </h1>                                
                             </div>
                             <p style="margin-top: 1rem;">
                                 <t t-esc="doc.create_date.strftime('%A, %d de %B de %Y')" />
@@ -179,11 +173,7 @@
                                 <h3 style="color: var(--primary-blue);">
                                     <t t-esc="doc.name.name" />
                                 </h3>
-                                <t t-if="doc.imagen_id">
-                                    <img
-                                        t-att-src="'data:image/png;base64,%s' % doc.imagen_id.decode('utf-8')"
-                                        class="machine-image" />
-                                </t>
+                                
                             </div>
                             <t t-if="doc.especificaciones_id">
                                 <div class="specs-section">
