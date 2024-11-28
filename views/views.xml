@@ -112,7 +112,7 @@
       <field name="name">copier_company.kanban</field>
       <field name="model">copier.company</field>
       <field name="arch" type="xml">
-        <kanban default_group_by="estado_maquina_id">
+        <kanban default_group_by="estado_maquina_id" class="o_kanban_mobile">
           <field name="name"/>
           <field name="marca_id"/>
           <field name="serie_id"/>
@@ -123,25 +123,25 @@
           <field name="imagen_id"/>
           <templates>
             <t t-name="kanban-box">
-              <div class="oe_kanban_card">
-                <div class="o_kanban_image">
-                  <field name="imagen_id" widget="image" class="o_kanban_image_fill_left"/>
+              <div class="oe_kanban_card oe_kanban_global_click">
+                <div class="o_kanban_image me-2">
+                  <field name="imagen_id" widget="image"/>
                 </div>
                 <div class="oe_kanban_details">
-                  <strong>
+                  <strong class="o_kanban_record_title">
                     <field name="name"/> - <field name="serie_id"/>
                   </strong>
-                  <ul>
-                    <li><strong>Cliente:</strong> <field name="cliente_id"/></li>
-                    <li><strong>Sede:</strong> <field name="sede"/></li>
-                    <li><strong>Ubicación:</strong> <field name="ubicacion"/></li>
-                  </ul>
-                  <div class="o_kanban_tags_section">
-                    <field name="estado_maquina_id" widget="label_selection" 
-                           options="{'classes': {'disponible': 'success', 'mantenimiento': 'warning', 'fuera_servicio': 'danger'}}"/>
+                  <div class="text-muted mb-2">
+                    <field name="marca_id"/>
                   </div>
-                  <div class="o_kanban_button">
-                    <button name="crear_ticket" type="object" class="btn btn-sm btn-primary">
+                  <ul class="list-unstyled">
+                    <li><i class="fa fa-user me-2"/>Cliente: <field name="cliente_id"/></li>
+                    <li><i class="fa fa-building me-2"/>Sede: <field name="sede"/></li>
+                    <li><i class="fa fa-map-marker me-2"/>Ubicación: <field name="ubicacion"/></li>
+                    <li><i class="fa fa-info-circle me-2"/>Estado: <field name="estado_maquina_id"/></li>
+                  </ul>
+                  <div class="o_kanban_footer mt-3">
+                    <button name="crear_ticket" type="object" class="btn btn-sm btn-primary me-2">
                       <i class="fa fa-wrench"/> Servicio
                     </button>
                     <button name="generar_qr_code" type="object" class="btn btn-sm btn-info">
