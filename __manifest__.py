@@ -57,6 +57,11 @@
             
             
         ],
+        'web.report_assets_common': [
+            'https://unpkg.com/modern-normalize@2.0.0/modern-normalize.css',
+            'https://unpkg.com/@tailwindcss/typography@0.5.10/dist/typography.min.css',
+            'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap',
+        ],
     },
 
 

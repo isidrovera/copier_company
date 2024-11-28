@@ -12,129 +12,131 @@
             <field name="binding_type">report</field>
         </record>
 
+        <template id="copier_company_external_layout">
+            <div class="header">
+                <div class="row">
+                    <div class="col-3">
+                        <t t-if="doc.company_id.logo">
+                            <img t-att-src="'data:image/png;base64,%s' % to_text(doc.company_id.logo)" style="max-height: 80px;"/>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </template>
+
         <template id="cotizacion_view">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
-                    <div class="article o_report_layout_standard">
+                    <t t-call="copier_company.copier_company_external_layout">
+                        <link href="https://unpkg.com/modern-normalize@2.0.0/modern-normalize.css" rel="stylesheet"/>
+                        <link href="https://unpkg.com/@tailwindcss/typography@0.5.10/dist/typography.min.css" rel="stylesheet"/>
                         <style>
-                            /* Estilos base y variables */
+                            @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;display=swap');
+                            
                             :root {
-                                --color-primary: #1a5fb4;
-                                --color-text: #2e3436;
-                                --color-border: #deddda;
-                                --color-background: #ffffff;
-                                --color-accent: #3584e4;
-                                --font-family: 'System-ui', -apple-system, sans-serif;
+                                --primary: #0f172a;
+                                --secondary: #334155;
+                                --accent: #3b82f6;
+                                --neutral: #e2e8f0;
+                                --success: #22c55e;
                             }
 
-                            .documento {
-                                font-family: var(--font-family);
-                                color: var(--color-text);
+                            .quote-container {
+                                font-family: 'Plus Jakarta Sans', sans-serif;
+                                color: var(--primary);
                                 line-height: 1.6;
+                                padding: 2rem;
                             }
 
-                            .encabezado-doc {
-                                text-align: center;
-                                margin-bottom: 2rem;
-                                padding: 1rem;
-                                background: var(--color-background);
-                                border-bottom: 3px solid var(--color-primary);
-                            }
-
-                            .titulo-principal {
-                                font-size: 24px;
-                                font-weight: bold;
-                                color: var(--color-primary);
-                            }
-
-                            .tabla-datos {
-                                width: 100%;
-                                margin: 1rem 0;
-                                border-collapse: collapse;
-                            }
-
-                            .tabla-datos th {
-                                background: var(--color-primary);
+                            .header-gradient {
+                                background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
                                 color: white;
-                                padding: 0.75rem;
-                                text-align: left;
+                                padding: 2rem;
+                                border-radius: 0.5rem;
+                                margin-bottom: 2rem;
                             }
 
-                            .tabla-datos td {
-                                padding: 0.75rem;
-                                border: 1px solid var(--color-border);
+                            .section-card {
+                                background: white;
+                                border-radius: 0.5rem;
+                                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                                padding: 1.5rem;
+                                margin-bottom: 1.5rem;
                             }
 
-                            .tabla-datos tr:nth-child(even) {
-                                background: #f6f5f4;
+                            .data-table {
+                                width: 100%;
+                                border-collapse: separate;
+                                border-spacing: 0;
+                                margin: 1rem 0;
                             }
 
-                            .seccion {
-                                margin: 2rem 0;
+                            .data-table th {
+                                background: var(--primary);
+                                color: white;
                                 padding: 1rem;
-                                border: 1px solid var(--color-border);
-                                border-radius: 4px;
+                                font-weight: 600;
+                                text-align: left;
+                                border-radius: 0.25rem 0.25rem 0 0;
                             }
 
-                            .titulo-seccion {
-                                font-size: 18px;
-                                font-weight: bold;
-                                color: var(--color-primary);
-                                margin-bottom: 1rem;
-                                padding-bottom: 0.5rem;
-                                border-bottom: 2px solid var(--color-accent);
+                            .data-table td {
+                                padding: 1rem;
+                                border-bottom: 1px solid var(--neutral);
                             }
 
-                            .imagen-equipo {
-                                max-width: 100%;
-                                height: auto;
-                                margin: 1rem auto;
-                                display: block;
+                            .data-table tr:last-child td {
+                                border-bottom: none;
                             }
 
-                            .lista-beneficios {
+                            .total-row {
+                                background: var(--accent);
+                                color: white;
+                                font-weight: 600;
+                            }
+
+                            .flex-list {
+                                display: grid;
+                                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                                gap: 1rem;
                                 list-style: none;
                                 padding: 0;
                             }
 
-                            .lista-beneficios li {
-                                padding: 0.5rem 0;
-                                margin-bottom: 0.5rem;
-                                border-bottom: 1px solid var(--color-border);
-                            }
-
-                            .total {
-                                font-weight: bold;
-                                background: var(--color-primary) !important;
-                                color: white;
+                            .flex-list li {
+                                padding: 0.75rem;
+                                background: #f8fafc;
+                                border-radius: 0.25rem;
+                                border: 1px solid var(--neutral);
                             }
                         </style>
-
-                        <!-- Contenido del Documento -->
-                        <div class="documento">
-                            <div class="encabezado-doc">
-                                <div class="titulo-principal">Propuesta Comercial</div>
-                                <div>Fecha: <t t-esc="doc.create_date.strftime('%d/%m/%Y')"/></div>
-                                <div>Cliente: <span t-field="doc.cliente_id.name"/></div>
+                        <div class="quote-container">
+                            <div class="header-gradient">
+                                <h1 class="text-3xl font-bold mb-2">Propuesta Comercial</h1>
+                                <div class="text-lg opacity-90">
+                                    <div>Fecha: <t t-esc="doc.create_date.strftime('%d/%m/%Y')"/></div>
+                                    <div>Cliente: <span t-field="doc.cliente_id.name"/></div>
+                                </div>
                             </div>
 
-                            <div class="seccion">
-                                <div class="titulo-seccion">Equipo Propuesto</div>
-                                <strong t-field="doc.name.name"/>
+                            <div class="section-card">
+                                <h2 class="text-2xl font-semibold mb-4">Equipo Propuesto</h2>
+                                <div class="font-medium text-lg mb-3" t-field="doc.name.name"/>
                                 <t t-if="doc.imagen_id">
-                                    <img class="imagen-equipo" t-att-src="'data:image/png;base64,%s' % doc.imagen_id.decode('utf-8')"/>
+                                    <img t-att-src="'data:image/png;base64,%s' % doc.imagen_id.decode('utf-8')" 
+                                         class="max-w-full h-auto rounded-lg shadow-md mb-4"/>
                                 </t>
-                                <div t-raw="doc.especificaciones_id"/>
+                                <div class="prose max-w-none" t-raw="doc.especificaciones_id"/>
                             </div>
 
-                            <div class="seccion">
-                                <div class="titulo-seccion">Propuesta Económica</div>
-                                <table class="tabla-datos">
+                            <div class="section-card">
+                                <h2 class="text-2xl font-semibold mb-4">Propuesta Económica</h2>
+                                <table class="data-table">
                                     <tr>
                                         <th colspan="2">Detalles del Servicio</th>
                                     </tr>
                                     <tr>
-                                        <td>Periodo</td>
+                                        <td>Periodo de Servicio</td>
                                         <td>Del <span t-field="doc.fecha_inicio_alquiler"/> al <span t-field="doc.fecha_fin_alquiler"/></td>
                                     </tr>
                                     <tr>
@@ -169,57 +171,55 @@
                                         <td>Descuento</td>
                                         <td><t t-esc="doc.descuento"/>%</td>
                                     </tr>
-                                    <tr class="total">
+                                    <tr class="total-row">
                                         <td>Total Mensual</td>
                                         <td>S/. <t t-esc="'%.2f' % doc.total_facturar_mensual"/></td>
                                     </tr>
                                 </table>
                             </div>
 
-                            <div class="seccion">
-                                <div class="titulo-seccion">Beneficios Incluidos</div>
-                                <ul class="lista-beneficios">
+                            <div class="section-card">
+                                <h2 class="text-2xl font-semibold mb-4">Beneficios Incluidos</h2>
+                                <ul class="flex-list">
                                     <li>✓ Servicio técnico preventivo y correctivo</li>
+                                    <li>✓ Instalación y configuración profesional</li>
+                                    <li>✓ Capacitación para usuarios</li>
                                     <li>✓ Insumos originales incluidos</li>
                                     <li>✓ Soporte técnico prioritario</li>
-                                    <li>✓ Capacitación para usuarios</li>
                                     <li>✓ Garantía total del equipo</li>
                                 </ul>
                             </div>
 
-                            <div class="seccion">
-                                <div class="titulo-seccion">Información Bancaria</div>
-                                <ul class="lista-beneficios">
+                            <div class="section-card">
+                                <h2 class="text-2xl font-semibold mb-4">Información Bancaria</h2>
+                                <ul class="flex-list">
                                     <li>BCP: 191-2334609-0-07</li>
                                     <li>CCI: 002-19100233460900751</li>
                                     <li>Detracciones BN: 00802007582</li>
                                 </ul>
                             </div>
 
-                            <div class="seccion">
-                                <div class="titulo-seccion">Condiciones</div>
-                                <ul class="lista-beneficios">
+                            <div class="section-card">
+                                <h2 class="text-2xl font-semibold mb-4">Condiciones del Servicio</h2>
+                                <ul class="flex-list">
                                     <li>• Contrato mínimo: <span t-field="doc.duracion_alquiler_id.name"/></li>
-                                    <li>• Tiempo de entrega: 5 días hábiles</li>
+                                    <li>• Mantenimiento preventivo bimestral</li>
+                                    <li>• Tiempo de respuesta garantizado</li>
                                     <li>• Papel no incluido</li>
-                                    <li>• IGV no incluido</li>
+                                    <li>• Entrega en 5 días hábiles</li>
                                 </ul>
                             </div>
 
-                            <div class="seccion" style="text-align: center;">
-                                <p>Gracias por su preferencia</p>
-                                <p><strong>Equipo Comercial</strong></p>
+                            <div class="section-card text-center">
+                                <p class="text-lg">Gracias por su preferencia</p>
+                                <p class="font-semibold text-lg mt-2">Equipo Comercial</p>
                             </div>
                         </div>
 
-                        <div class="footer">
-                            <div class="text-center">
-                                <ul class="list-inline">
-                                    <li class="list-inline-item">Página <span class="page"/> de <span class="topage"/></li>
-                                </ul>
-                            </div>
+                        <div class="footer text-center text-sm text-gray-600">
+                            <div>Página <span class="page"/> de <span class="topage"/></div>
                         </div>
-                    </div>
+                    </t>
                 </t>
             </t>
         </template>
