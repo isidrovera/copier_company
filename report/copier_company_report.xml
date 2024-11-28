@@ -209,65 +209,60 @@
                             </t>
                         </div>
 
+                        
                         <!-- Propuesta Económica -->
                         <div class="section">
                             <div class="section-header">
                                 <i class="fa fa-calculator"></i>
                                 <span>Propuesta Económica</span>
                             </div>
-                            <table style="width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 1rem;">
+                            <table>
                                 <thead>
-                                    <tr style="background: var(--primary-blue); color: white; text-align: left;">
-                                        <th style="padding: 0.75rem;">Detalle</th>
-                                        <th style="padding: 0.75rem; text-align: center;">Monto</th>
-                                        <th style="padding: 0.75rem; text-align: center;">Condición</th>
+                                    <tr>
+                                        <th>Detalle</th>
+                                        <th>Monto</th>
+                                        <th>Condición</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr style="background: var(--light-bg);">
-                                        <td style="padding: 0.75rem;">Periodo de Contrato</td>
-                                        <td style="padding: 0.75rem; text-align: center;">Del <t t-esc="doc.fecha_inicio_alquiler" /> al <t t-esc="doc.fecha_fin_alquiler" /></td>
-                                        <td style="padding: 0.75rem; text-align: center;">Plazo Fijo</td>
+                                    <tr>
+                                        <td>Volumen Mensual B/N</td>
+                                        <td><t t-esc="'{:,}'.format(doc.volumen_mensual_bn)" /> impresiones</td>
+                                        <td>Incluido</td>
                                     </tr>
                                     <tr>
-                                        <td style="padding: 0.75rem;">Volumen Mensual B/N</td>
-                                        <td style="padding: 0.75rem; text-align: center;"><t t-esc="'{:,}'.format(doc.volumen_mensual_bn)" /> impresiones</td>
-                                        <td style="padding: 0.75rem; text-align: center;">Incluido</td>
-                                    </tr>
-                                    <tr style="background: var(--light-bg);">
-                                        <td style="padding: 0.75rem;">Costo por Impresión B/N</td>
-                                        <td style="padding: 0.75rem; text-align: center;">S/. <t t-esc="'%.3f' % doc.costo_copia_bn" /> + IGV</td>
-                                        <td style="padding: 0.75rem; text-align: center;">Adicional</td>
+                                        <td>Costo por Impresión B/N</td>
+                                        <td>S/. <t t-esc="'%.3f' % doc.costo_copia_bn" /> + IGV</td>
+                                        <td>Adicional</td>
                                     </tr>
                                     <t t-if="doc.tipo == 'color'">
                                         <tr>
-                                            <td style="padding: 0.75rem;">Volumen Mensual Color</td>
-                                            <td style="padding: 0.75rem; text-align: center;"><t t-esc="'{:,}'.format(doc.volumen_mensual_color)" /> impresiones</td>
-                                            <td style="padding: 0.75rem; text-align: center;">Incluido</td>
+                                            <td>Volumen Mensual Color</td>
+                                            <td><t t-esc="'{:,}'.format(doc.volumen_mensual_color)" /> impresiones</td>
+                                            <td>Incluido</td>
                                         </tr>
-                                        <tr style="background: var(--light-bg);">
-                                            <td style="padding: 0.75rem;">Costo por Impresión Color</td>
-                                            <td style="padding: 0.75rem; text-align: center;">S/. <t t-esc="'%.3f' % doc.costo_copia_color" /> + IGV</td>
-                                            <td style="padding: 0.75rem; text-align: center;">Adicional</td>
+                                        <tr>
+                                            <td>Costo por Impresión Color</td>
+                                            <td>S/. <t t-esc="'%.3f' % doc.costo_copia_color" /> + IGV</td>
+                                            <td>Adicional</td>
                                         </tr>
                                     </t>
                                     <tr>
-                                        <td style="padding: 0.75rem;">IGV</td>
-                                        <td style="padding: 0.75rem; text-align: center;"><t t-esc="doc.igv" />%</td>
-                                        <td style="padding: 0.75rem; text-align: center;">Aplicable</td>
+                                        <td>IGV</td>
+                                        <td><t t-esc="doc.igv" />%</td>
+                                        <td>Aplicable</td>
                                     </tr>
-                                    <tr style="background: var(--light-bg);">
-                                        <td style="padding: 0.75rem;">Descuento</td>
-                                        <td style="padding: 0.75rem; text-align: center;"><t t-esc="doc.descuento" />%</td>
-                                        <td style="padding: 0.75rem; text-align: center;">Promoción</td>
+                                    <tr>
+                                        <td>Descuento</td>
+                                        <td><t t-esc="doc.descuento" />%</td>
+                                        <td>Promoción</td>
                                     </tr>
                                 </tbody>
                             </table>
-                            <div class="total-section" style="margin-top: 1.5rem;">
-                                <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <span>Total Mensual (Inc. IGV):</span>
-                                    <span style="font-size: 1.5rem; font-weight: bold;"> S/. <t t-esc="'%.2f' % doc.total_facturar_mensual" /></span>
-                                </div>
+                            <div class="total-section">
+                                <strong>Total Mensual (Inc. IGV):</strong>
+                                <br />
+                                S/. <t t-esc="'%.2f' % doc.total_facturar_mensual" />
                             </div>
                         </div>
 
