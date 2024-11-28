@@ -39,31 +39,47 @@
                             .main-header {
                                 background: linear-gradient(135deg, #1a4b8c, #2563eb);
                                 color: white;
-                                padding: 2.5rem;
-                                border-radius: 12px;
-                                margin: 2rem 0;
-                                box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+                                padding: 3rem;
+                                border-radius: 15px;
+                                margin: 2.5rem auto;
+                                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+                                max-width: 1200px;
                                 position: relative;
-                                border: 1px solid rgba(255, 255, 255, 0.1);
+                                z-index: 1;
+                                overflow: hidden;
                             }
+
+                            .main-header:before {
+                                content: '';
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                right: 0;
+                                bottom: 0;
+                                background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+                                z-index: -1;
+                            }
+
+                            .main-header h1 {
+                                font-size: 2.5rem;
+                                font-weight: 800;
+                                margin: 0;
+                                letter-spacing: 0.5px;
+                                text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+                            }
+
+                            .main-header p {
+                                font-size: 1.2rem;
+                                margin-top: 1.5rem;
+                                font-weight: 500;
+                            }
+
                             .flex-between {
                                 display: flex;
                                 justify-content: space-between;
                                 align-items: center;
-                                gap: 2rem;
                             }
-                            .main-header h1 {
-                                font-size: 2rem;
-                                font-weight: 700;
-                                text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-                            }
-
-                            .main-header p {
-                                font-size: 1.1rem;
-                                opacity: 0.9;
-                                margin-top: 1.5rem;
-                            }
-                                                        .section {
+                            .section {
                             background: white;
                             border-radius: 10px;
                             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
