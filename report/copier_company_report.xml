@@ -18,99 +18,170 @@
                     <t t-call="web.external_layout">
                         <div class="page">
                             <style>
-                                :root {
-                                    --primary: #2563eb;
-                                    --secondary: #475569;
-                                    --accent: #0891b2;
-                                    --success: #059669;
-                                    --warning: #d97706;
-                                    --background: #f8fafc;
-                                    --text: #1e293b;
-                                    --border: #e2e8f0;
-                                }
+                    :root {
+                        --primary: #1E3A8A;
+                        --secondary: #4B5563;
+                        --background: #F9FAFB;
+                        --text-dark: #111827;
+                        --text-light: #6B7280;
+                        --accent: #10B981;
+                        --warning: #F59E0B;
+                        --border: #E5E7EB;
+                    }
 
-                                body {
-                                    font-family: 'Roboto', sans-serif;
-                                    color: var(--text);
-                                    line-height: 1.6;
-                                }
+                    body {
+                        font-family: 'Arial', sans-serif;
+                        color: var(--text-dark);
+                        background-color: var(--background);
+                        margin: 0;
+                        padding: 0;
+                        line-height: 1.6;
+                    }
 
-                                .header-section {
-                                    display: flex;
-                                    justify-content: space-between;
-                                    align-items: center;
-                                    margin-bottom: 2rem;
-                                    padding: 1rem;
-                                    background: var(--background);
-                                    border-radius: 8px;
-                                }
+                    .container {
+                        padding: 2rem;
+                        max-width: 800px;
+                        margin: auto;
+                    }
 
-                                .section-title {
-                                    background: var(--primary);
-                                    color: white;
-                                    padding: 0.75rem 1rem;
-                                    border-radius: 6px;
-                                    margin: 1.5rem 0 1rem;
-                                    font-size: 1.25rem;
-                                    font-weight: 600;
-                                }
+                    .header {
+                        text-align: center;
+                        margin-bottom: 2rem;
+                        padding: 1.5rem;
+                        background: white;
+                        border-radius: 10px;
+                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    }
 
-                                .info-table {
-                                    width: 100%;
-                                    border-collapse: separate;
-                                    border-spacing: 0;
-                                    margin: 1rem 0;
-                                    border-radius: 8px;
-                                    overflow: hidden;
-                                    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-                                }
+                    h1 {
+                        color: var(--primary);
+                        font-size: 2rem;
+                        margin-bottom: 0.5rem;
+                    }
 
-                                .info-table th, .info-table td {
-                                    padding: 0.75rem 1rem;
-                                    border: 1px solid var(--border);
-                                }
+                    h2 {
+                        color: var(--secondary);
+                        font-size: 1.5rem;
+                        margin-bottom: 1rem;
+                    }
 
-                                .info-table th {
-                                    background: var(--accent);
-                                    color: white;
-                                    font-weight: 600;
-                                }
+                    h3 {
+                        color: var(--primary);
+                        font-size: 1.25rem;
+                        margin-bottom: 1rem;
+                        padding-bottom: 0.5rem;
+                        border-bottom: 2px solid var(--primary);
+                    }
 
-                                .image-container {
-                                    text-align: center;
-                                    margin: 2rem 0;
-                                }
+                    .info-section {
+                        margin-bottom: 2rem;
+                        padding: 1.5rem;
+                        background: white;
+                        border: 1px solid var(--border);
+                        border-radius: 10px;
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                    }
 
-                                .image-container img {
-                                    max-width: 400px;
-                                    border-radius: 8px;
-                                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                                }
+                    .data-table {
+                        width: 100%;
+                        border-collapse: separate;
+                        border-spacing: 0;
+                        margin: 1rem 0;
+                        font-size: 0.95rem;
+                    }
 
-                                .specs-section {
-                                    background: var(--background);
-                                    padding: 1rem;
-                                    border-radius: 8px;
-                                    margin: 1rem 0;
-                                }
+                    .data-table th, 
+                    .data-table td {
+                        border: 1px solid var(--border);
+                        padding: 0.75rem;
+                        text-align: left;
+                    }
 
-                                .conditions-list {
-                                    list-style: none;
-                                    padding-left: 1rem;
-                                }
+                    .data-table th {
+                        background-color: var(--primary);
+                        color: white;
+                        font-weight: 600;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    }
 
-                                .conditions-list li {
-                                    margin-bottom: 0.5rem;
-                                    position: relative;
-                                }
+                    .data-table tr:nth-child(even) {
+                        background-color: var(--background);
+                    }
 
-                                .conditions-list li:before {
-                                    content: "•";
-                                    position: absolute;
-                                    left: -1rem;
-                                    color: var(--primary);
-                                }
-                            </style>
+                    .data-table tr:hover {
+                        background-color: #f0f9ff;
+                    }
+
+                    .benefits {
+                        list-style: none;
+                        padding: 0;
+                    }
+
+                    .benefits li {
+                        margin: 0.75rem 0;
+                        padding: 1rem;
+                        background: white;
+                        border-left: 4px solid var(--accent);
+                        border-radius: 4px;
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                    }
+
+                    .benefits li:before {
+                        content: "✓";
+                        color: var(--accent);
+                        font-weight: bold;
+                    }
+
+                    .footer {
+                        margin-top: 3rem;
+                        padding-top: 1rem;
+                        border-top: 2px solid var(--border);
+                        text-align: center;
+                        font-size: 0.875rem;
+                        color: var(--text-light);
+                    }
+
+                    .image-container {
+                        text-align: center;
+                        margin: 1.5rem 0;
+                    }
+
+                    .image-container img {
+                        max-width: 100%;
+                        border-radius: 10px;
+                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    }
+
+                    .total-row {
+                        background-color: var(--primary) !important;
+                        color: white;
+                        font-weight: bold;
+                    }
+
+                    .client-info {
+                        display: flex;
+                        justify-content: space-between;
+                        margin-bottom: 1rem;
+                    }
+
+                    .specs-section {
+                        background: var(--background);
+                        padding: 1.5rem;
+                        border-radius: 8px;
+                        margin-top: 1rem;
+                    }
+
+                    @media print {
+                        .container {
+                            padding: 1rem;
+                            max-width: none;
+                        }
+                    }
+                </style>
                             <!-- Contenido del documento -->
                             <div class="header-section">
                                 <img t-att-src="'/web/binary/company_logo'" class="company-logo"/>
