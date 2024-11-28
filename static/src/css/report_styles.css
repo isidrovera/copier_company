@@ -39,13 +39,16 @@
 }
 
 .data-table th {
-    background: var(--primary);
-    color: white;
+    background: var(--primary); /* Mantén el color principal oscuro */
+    color: white; /* Asegúrate de que el texto sea blanco para contraste */
     padding: 1rem;
     font-weight: bold;
     text-transform: uppercase;
     font-size: 0.9rem;
+    border-bottom: 2px solid var(--accent); /* Añade un borde para separación */
+    text-align: left; /* Alinea el texto a la izquierda */
 }
+
 
 .data-table td {
     padding: 1rem;
