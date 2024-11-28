@@ -1,157 +1,184 @@
 <odoo>
   <data>
-    <!-- explicit list view definition -->
-
+    <!-- List View -->
     <record model="ir.ui.view" id="copier_company.list">
       <field name="name">copier_company list</field>
       <field name="model">copier.company</field>
       <field name="arch" type="xml">
-        <tree>
+        <tree decoration-info="estado_maquina_id.name == 'Disponible'" 
+              decoration-warning="estado_maquina_id.name == 'En Mantenimiento'"
+              decoration-danger="estado_maquina_id.name == 'Fuera de Servicio'">
+          <field name="secuencia"/>
           <field name="marca_id"/>
           <field name="name"/>
           <field name="serie_id"/>
           <field name="cliente_id"/>
           <field name="sede"/>
           <field name="ubicacion"/>
-          <button name="crear_ticket" string=" " type="object" class="oe_highlight" icon="fa-question-circle"/>
-          <button name="generar_qr_code" string=" " type="object" class="oe_highlight" icon="fa-qrcode"/>
-          <field name="qr_code" widget="binary"/>
+          <field name="estado_maquina_id"/>
+          <button name="crear_ticket" string="Crear ticket de servicio" type="object" 
+                  class="btn btn-primary" icon="fa-wrench"/>
+          <button name="generar_qr_code" string="Generar código QR" type="object" 
+                  class="btn btn-info" icon="fa-qrcode"/>
         </tree>
       </field>
     </record>
+
+    <!-- Form View -->
     <record id="view_maquinas_form" model="ir.ui.view">
-      <field name="name">.form.view_maquinas</field>
+      <field name="name">copier.company.form</field>
       <field name="model">copier.company</field>
       <field name="arch" type="xml">
         <form>
           <header>
-            <button name="crear_ticket" string="Crear Ticket" type="object" class="oe_highlight"/>
-            <button name="generar_qr_code" string="Crear QR" type="object" class="oe_highlight"/>
-            <button name="action_print_report" type="object" string="Imprimir Cotización" class="oe_highlight"/>
-            <field name="estado_maquina_id" widget="statusbar" options="{'clickable': '1'}"/>
+            <button name="crear_ticket" string="Crear Ticket" type="object" 
+                    class="btn-primary" icon="fa-wrench"/>
+            <button name="generar_qr_code" string="Generar QR" type="object" 
+                    class="btn-info" icon="fa-qrcode"/>
+            <button name="action_print_report" type="object" string="Imprimir Cotización" 
+                    class="btn-success" icon="fa-print"/>
+            <field name="estado_maquina_id" widget="statusbar" statusbar_visible="disponible,alquilado,mantenimiento,fuera_servicio"/>
           </header>
+          
           <sheet>
+            <div class="alert alert-info" role="alert">
+              <strong>Instrucciones:</strong>
+              <ul class="mb-0">
+                <li>Complete los datos del equipo y cliente</li>
+                <li>Configure el volumen mensual esperado</li>
+                <li>El sistema calculará automáticamente los montos</li>
+                <li>Genere el QR para facilitar reportes de servicio</li>
+                <li>Use el botón de cotización para imprimir el documento</li>
+              </ul>
+            </div>
+
+            <div class="oe_title">
+              <h1>
+                <field name="secuencia" readonly="1" class="oe_inline"/>
+              </h1>
+            </div>
+
             <group>
-              <group string="Datos de equipo">
-                <field name="secuencia"/>
-                <field name="marca_id"/>
-                <field name="name"/>
-                <field name="serie_id"/>
+              <group string="Datos del Equipo" class="bg-light rounded p-3">
+                <field name="marca_id" required="1"/>
+                <field name="name" required="1"/>
+                <field name="serie_id" required="1"/>
                 <field name="accesorios_ids" widget="many2many_tags"/>
-               
+                <field name="tipo" required="1"/>
               </group>
-              <group string="Datos de cliente">
-                <field name="cliente_id"/>
+              <group string="Datos del Cliente" class="bg-light rounded p-3">
+                <field name="cliente_id" required="1"/>
                 <field name="tipo_identificacion"/>
                 <field name="identificacion"/>
-                <field name="sede"/>
-                <field name="ubicacion"/>
+                <field name="sede" required="1"/>
+                <field name="ubicacion" required="1"/>
               </group>
             </group>
 
             <notebook>
-              <page name="name" string="Facturación">
+              <page name="facturacion" string="Facturación">
                 <group>
-                  <group>
+                  <group string="Configuración de Alquiler" class="bg-light rounded p-3">
                     <field name="currency_id"/>
-                    <field name="fecha_inicio_alquiler"/>
-                    <field name="fecha_fin_alquiler"/>
-                    <field name="duracion_alquiler_id"/>
-                    <field name="costo_copia_bn" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                    <field name="costo_copia_color" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                    <field name="fecha_inicio_alquiler" required="1"/>
+                    <field name="duracion_alquiler_id" required="1"/>
+                    <field name="fecha_fin_alquiler" readonly="1"/>
                   </group>
-                  <group>
-                    <field name="volumen_mensual_bn"/>
-                    <field name="volumen_mensual_color"/>
-                    <field name="renta_mensual_bn" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                    <field name="renta_mensual_color" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                  <group string="Costos y Volúmenes" class="bg-light rounded p-3">
+                    <field name="costo_copia_bn" widget="monetary" required="1"/>
+                    <field name="costo_copia_color" widget="monetary" attrs="{'invisible': [('tipo', '=', 'monocroma')]}"/>
+                    <field name="volumen_mensual_bn" required="1"/>
+                    <field name="volumen_mensual_color" attrs="{'invisible': [('tipo', '=', 'monocroma')]}"/>
+                  </group>
+                  <group string="Totales Calculados" class="bg-light rounded p-3">
+                    <field name="renta_mensual_bn" widget="monetary"/>
+                    <field name="renta_mensual_color" widget="monetary" attrs="{'invisible': [('tipo', '=', 'monocroma')]}"/>
                     <field name="igv"/>
                     <field name="descuento"/>
-                    <field name="total_facturar_mensual" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                    <field name="total_facturar_mensual" widget="monetary" class="oe_subtotal_footer_separator"/>
                   </group>
                 </group>
               </page>
-              <page name="name" string="Especificaciones">
+              
+              <page name="especificaciones" string="Especificaciones">
                 <group>
-                  <group>                       
-                <field name="especificaciones_id"/>
+                  <group class="bg-light rounded p-3">
+                    <field name="especificaciones_id"/>
                   </group>
                   <group>
-                    <field name="imagen_id" />
+                    <field name="imagen_id" widget="image"/>
+                    <field name="qr_code" widget="image" attrs="{'invisible': [('qr_code', '=', False)]}"/>
                   </group>
                 </group>
-              </page>                  
+              </page>
             </notebook>
           </sheet>
+          
           <div class="oe_chatter">
-            <field name="message_follower_ids" widget="mail_followers"></field>
-            <field name="message_ids" widget="mail_thread"></field>
+            <field name="message_follower_ids"/>
+            <field name="message_ids"/>
           </div>
         </form>
       </field>
     </record>
 
-
-
-    <!-- kanban view definition -->
-
+    <!-- Kanban View -->
     <record model="ir.ui.view" id="copier_company.kanban">
-      <field name="name">copier_company kanban</field>
+      <field name="name">copier_company.kanban</field>
       <field name="model">copier.company</field>
       <field name="arch" type="xml">
-        <kanban>
+        <kanban class="o_kanban_mobile" default_group_by="estado_maquina_id">
           <field name="name"/>
           <field name="marca_id"/>
           <field name="serie_id"/>
           <field name="cliente_id"/>
           <field name="sede"/>
           <field name="ubicacion"/>
+          <field name="estado_maquina_id"/>
+          <field name="imagen_id"/>
           <templates>
             <t t-name="kanban-box">
-              <div class="oe_kanban_card">
-                <div class="oe_kanban_global_click o_kanban_record">
-                  <div class="o_kanban_image">
-                    <img t-att-src="'/copier_company/static/src/img/machine_icon.png'" alt="Machine Image" style="width: 100px; height: auto; display: block; margin: 0 auto 10px auto;"/>
+              <div t-attf-class="oe_kanban_card oe_kanban_global_click">
+                <div class="o_dropdown_kanban dropdown">
+                  <a class="dropdown-toggle o_kanban_manage_toggle_button" data-toggle="dropdown" href="#" role="button">
+                    <i class="fa fa-ellipsis-v"/>
+                  </a>
+                  <div class="dropdown-menu" role="menu">
+                    <t t-if="widget.editable">
+                      <a type="edit" class="dropdown-item">Editar</a>
+                    </t>
+                    <t t-if="widget.deletable">
+                      <a type="delete" class="dropdown-item">Eliminar</a>
+                    </t>
+                    <ul class="oe_kanban_colorpicker"/>
                   </div>
-                  <div class="o_kanban_details">
-                    <div class="o_kanban_record_title">
-                      <strong>
-                        <field name="cliente_id"/>
-                      </strong>
-                    </div>
-                    <div class="o_kanban_record_body">
-                      <div>
-                        <span class="o_field_value">Marca:</span>
-                        <span class="o_field_value">
-                          <field name="marca_id"/>
-                        </span>
-                      </div>
-                      <div>
-                        <span class="o_field_value">Modelo:</span>
-                        <span class="o_field_value">
-                          <field name="name"/>
-                        </span>
-                      </div>
-                      <div>
-                        <span class="o_field_value">Serie:</span>
-                        <span class="o_field_value">
-                          <field name="serie_id"/>
-                        </span>
-                      </div>
+                </div>
 
-                      <div>
-                        <span class="o_field_value">Sede:</span>
-                        <span class="o_field_value">
-                          <field name="sede"/>
-                        </span>
-                      </div>
-                      <div>
-                        <span class="o_field_value">Ubicación:</span>
-                        <span class="o_field_value">
-                          <field name="ubicacion"/>
-                        </span>
-                      </div>
-                    </div>
+                <div class="o_kanban_image">
+                  <field name="imagen_id" widget="image" class="oe_avatar"/>
+                </div>
+                
+                <div class="oe_kanban_details">
+                  <strong class="o_kanban_record_title">
+                    <field name="name"/> - <field name="serie_id"/>
+                  </strong>
+                  <div class="o_kanban_tags_section">
+                    <span class="badge badge-pill badge-info">
+                      <field name="marca_id"/>
+                    </span>
+                  </div>
+                  <ul>
+                    <li><strong>Cliente: </strong><field name="cliente_id"/></li>
+                    <li><strong>Sede: </strong><field name="sede"/></li>
+                    <li><strong>Ubicación: </strong><field name="ubicacion"/></li>
+                  </ul>
+                  <div class="o_kanban_button">
+                    <button name="crear_ticket" type="object" class="btn btn-sm btn-primary">
+                      <i class="fa fa-wrench"/> Servicio
+                    </button>
+                    <button name="generar_qr_code" type="object" class="btn btn-sm btn-info">
+                      <i class="fa fa-qrcode"/> QR
+                    </button>
                   </div>
                 </div>
               </div>
@@ -161,38 +188,52 @@
       </field>
     </record>
 
-    <!-- actions opening views on models -->
-
-    <record model="ir.actions.act_window" id="copier_company.action_window">
-      <field name="name">Registrar Maquina</field>
-      <field name="res_model">copier.company</field>
-      <field name="view_mode">tree,form,kanban</field>
-    </record>
-
-    <!-- server action to the one above -->
-
-    <record model="ir.actions.server" id="copier_company.action_server">
-      <field name="name">copier_company server</field>
-      <field name="model_id" ref="model_copier_company"/>
-      <field name="state">code</field>
-      <field name="code">
-        action = {
-          "type": "ir.actions.act_window",
-          "view_mode": "tree,form,kanban",
-          "res_model": model._name,
-        }
+    <!-- Search View -->
+    <record id="copier_company_search" model="ir.ui.view">
+      <field name="name">copier.company.search</field>
+      <field name="model">copier.company</field>
+      <field name="arch" type="xml">
+        <search>
+          <field name="name"/>
+          <field name="serie_id"/>
+          <field name="cliente_id"/>
+          <field name="sede"/>
+          <field name="estado_maquina_id"/>
+          <filter string="Disponibles" name="disponible" domain="[('estado_maquina_id.name','=','Disponible')]"/>
+          <filter string="En Mantenimiento" name="mantenimiento" domain="[('estado_maquina_id.name','=','En Mantenimiento')]"/>
+          <group expand="0" string="Agrupar Por">
+            <filter string="Estado" name="estado" context="{'group_by':'estado_maquina_id'}"/>
+            <filter string="Cliente" name="cliente" context="{'group_by':'cliente_id'}"/>
+            <filter string="Marca" name="marca" context="{'group_by':'marca_id'}"/>
+          </group>
+        </search>
       </field>
     </record>
 
+    <!-- Action Window -->
+    <record model="ir.actions.act_window" id="copier_company.action_window">
+      <field name="name">Gestión de Máquinas</field>
+      <field name="res_model">copier.company</field>
+      <field name="view_mode">kanban,tree,form</field>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+          Registre su primera máquina fotocopiadora
+        </p>
+        <p>
+          Gestione sus máquinas, controle el alquiler y mantenga un seguimiento de los servicios.
+        </p>
+      </field>
+    </record>
 
-    <!-- Top menu item -->
+    <!-- Menu Items -->
+    <menuitem name="Gestión de Fotocopiadoras" 
+              id="copier_company.menu_root" 
+              web_icon="copier_company,static/description/icon.png"/>
 
-    <menuitem name="Gestión de Fotocopiadoras" id="copier_company.menu_root" web_icon="copier_company,static/description/icon.png"/>
-
-    <!-- menu categories -->
-
-    <menuitem name="Maquinas" id="copier_company.menu_1" parent="copier_company.menu_root" action="copier_company.action_window" sequence="10"/>
-
-    <!-- actions -->
+    <menuitem name="Máquinas" 
+              id="copier_company.menu_1" 
+              parent="copier_company.menu_root" 
+              action="copier_company.action_window" 
+              sequence="10"/>
   </data>
 </odoo>
