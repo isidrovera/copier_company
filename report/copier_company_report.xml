@@ -15,17 +15,6 @@
         <template id="cotizacion_view">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
-                    <div class="header">
-                        <div class="row">
-                            <div class="col-3">
-                                <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 45px;" alt="Logo"/>
-                            </div>
-                            <div class="col-9 text-right" style="margin-top:22px;">
-                                <span t-field="company.name"/>
-                            </div>
-                        </div>
-                    </div>
-                    
                     <div class="article o_report_layout_standard">
                         <style>
                             /* Estilos base y variables */
