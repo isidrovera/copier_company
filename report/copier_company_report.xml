@@ -1,6 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <!-- Acción del reporte -->
+        <!-- Report Action -->
         <record id="action_report_report_cotizacion_alquiler" model="ir.actions.report">
             <field name="name">Propuesta Comercial de Alquiler</field>
             <field name="model">copier.company</field>
@@ -12,37 +13,82 @@
             <field name="binding_type">report</field>
         </record>
 
-        <!-- Plantilla QWeb para el reporte de cotización -->
+        <!-- External Assets -->
+        <template id="assets_common_styles" inherit_id="web.report_assets_common">
+            <xpath expr="." position="inside">
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+            </xpath>
+        </template>
+
+        <!-- Enhanced Quotation Template -->
         <template id="cotizacion_view">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
                     <t t-call="web.external_layout">
                         <style>
+                            /* Base Variables */
                             :root {
-                                --primary: #1e293b;
-                                --secondary: #4b5563;
-                                --accent: #3b82f6;
+                                --primary: #0f172a;
+                                --secondary: #334155;
+                                --accent: #2563eb;
+                                --accent-light: #60a5fa;
                                 --background: #ffffff;
-                                --text: #111827;
-                                --border: #d1d5db;
-                                --table-bg: #f9fafb;
-                                --table-alt: #f3f4f6;
+                                --text: #1e293b;
+                                --border: #e2e8f0;
+                                --success: #22c55e;
+                                --table-bg: #f8fafc;
+                                --table-alt: #f1f5f9;
+                            }
+
+                            /* Global Styles */
+                            body {
+                                font-family: 'Inter', sans-serif;
                             }
 
                             .report-page {
                                 background-color: var(--background);
                                 color: var(--text);
-                                line-height: 1.6;
+                                line-height: 1.7;
                                 font-size: 1rem;
-                                padding: 1.5rem;
+                                padding: 2rem;
                             }
 
+                            /* Header Styles */
+                            .report-header {
+                                text-align: center;
+                                margin-bottom: 2rem;
+                            }
+
+                            .report-title {
+                                font-size: 2rem;
+                                font-weight: 700;
+                                color: var(--primary);
+                                margin-bottom: 1rem;
+                                position: relative;
+                                padding-bottom: 1rem;
+                            }
+
+                            .report-title::after {
+                                content: '';
+                                position: absolute;
+                                bottom: 0;
+                                left: 50%;
+                                transform: translateX(-50%);
+                                width: 100px;
+                                height: 4px;
+                                background: var(--accent);
+                                border-radius: 2px;
+                            }
+
+                            /* Table Styles */
                             .data-table {
                                 width: 100%;
-                                border-collapse: collapse;
+                                border-collapse: separate;
+                                border-spacing: 0;
                                 background: var(--table-bg);
-                                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                                border-radius: 10px;
+                                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                                border-radius: 12px;
                                 overflow: hidden;
                                 margin: 2rem 0;
                             }
@@ -50,61 +96,63 @@
                             .data-table th {
                                 background: var(--primary);
                                 color: white;
-                                padding: 1rem;
-                                font-weight: bold;
+                                padding: 1.25rem;
+                                font-weight: 600;
                                 text-transform: uppercase;
-                                font-size: 0.9rem;
-                                border-bottom: 2px solid var(--accent);
-                                text-align: left;
+                                font-size: 0.875rem;
+                                letter-spacing: 0.05em;
+                                border-bottom: 3px solid var(--accent);
                             }
 
                             .data-table td {
-                                padding: 1rem;
+                                padding: 1.25rem;
                                 border-bottom: 1px solid var(--border);
-                                background: var(--table-bg);
+                                transition: background-color 0.2s;
                             }
 
                             .data-table tr:nth-child(even) td {
                                 background: var(--table-alt);
                             }
 
-                            .data-table tr:last-child td {
-                                border-bottom: none;
-                            }
-
+                            /* Section Styles */
                             .section-header {
                                 color: var(--primary);
-                                font-size: 1.2rem;
-                                font-weight: bold;
-                                margin: 1.5rem 0 0.5rem;
-                                border-bottom: 2px solid var(--accent);
-                                padding-bottom: 0.5rem;
+                                font-size: 1.5rem;
+                                font-weight: 600;
+                                margin: 2rem 0 1rem;
+                                display: flex;
+                                align-items: center;
+                                gap: 0.75rem;
                             }
 
+                            .section-header i {
+                                color: var(--accent);
+                            }
+
+                            /* Card Styles */
                             .info-card {
                                 background: var(--table-bg);
-                                padding: 1.5rem;
-                                border-radius: 8px;
+                                padding: 2rem;
+                                border-radius: 12px;
                                 margin: 1rem 0;
-                                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+                                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                                border: 1px solid var(--border);
                             }
 
-                            .feature-list {
-                                list-style: disc;
-                                padding-left: 2rem;
-                                color: var(--text);
+                            .image-container {
+                                text-align: center;
+                                margin: 2rem 0;
                             }
 
-                            .highlight-box {
-                                background: var(--table-alt);
-                                padding: 1rem;
-                                border-radius: 8px;
-                                font-style: italic;
-                                color: var(--secondary);
-                                margin-top: 2rem;
+                            .image-container img {
+                                max-width: 100%;
+                                height: auto;
+                                border-radius: 12px;
+                                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
                             }
                         </style>
 
+                        <!-- Initial Content Section -->
                         <div class="page report-page">
                             <div class="report-header">
                                 <div class="report-title">Propuesta Comercial Personalizada</div>
@@ -112,25 +160,31 @@
                                 <div>Preparado para: <strong t-esc="doc.cliente_id.name"/></div>
                             </div>
 
-                            <div class="info-card">
-                                <p>Estimados señores,</p>
-                                <p>Nos complace presentarle nuestra solución integral de impresión diseñada para optimizar sus procesos documentales.</p>
+                            <!-- Equipment Section -->
+                            <div class="section-header">
+                                <i class="fas fa-print"></i>
+                                Equipo Multifuncional Premium
                             </div>
-
-                            <div class="section-header">Equipo Multifuncional Premium</div>
                             <div class="info-card">
                                 <strong t-esc="doc.name.name"/><br/>
                                 <t t-if="doc.imagen_id">
                                     <div class="image-container">
-                                        <img class="img-fluid" t-att-src="'data:image/png;base64,%s' % doc.imagen_id.decode('utf-8')"/>
+                                        <img t-att-src="'data:image/png;base64,%s' % doc.imagen_id.decode('utf-8')"/>
                                     </div>
                                 </t>
                             </div>
 
-                            <div class="section-header">Especificaciones Técnicas</div>
+                            <!-- Technical Specifications -->
+                            <div class="section-header">
+                                <i class="fas fa-cogs"></i>
+                                Especificaciones Técnicas
+                            </div>
                             <div class="info-card" t-raw="doc.especificaciones_id"/>
-
-                            <div class="section-header">Propuesta Económica</div>
+                            <!-- Economic Proposal Section -->
+                            <div class="section-header">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                                Propuesta Económica
+                            </div>
                             <table class="data-table">
                                 <tr>
                                     <th colspan="2">Términos del Servicio</th>
@@ -144,7 +198,7 @@
                                     <td><t t-esc="doc.currency_id.name"/></td>
                                 </tr>
 
-                                <!-- Servicios B/N -->
+                                <!-- B&W Services -->
                                 <tr>
                                     <th colspan="2">Servicios en Blanco y Negro</th>
                                 </tr>
@@ -161,7 +215,7 @@
                                     <td>S/. <t t-esc="'%.2f' % doc.renta_mensual_bn"/></td>
                                 </tr>
 
-                                <!-- Servicios Color (condicional) -->
+                                <!-- Color Services -->
                                 <t t-if="doc.tipo == 'color'">
                                     <tr>
                                         <th colspan="2">Servicios a Color</th>
@@ -180,7 +234,7 @@
                                     </tr>
                                 </t>
 
-                                <!-- Resumen -->
+                                <!-- Financial Summary -->
                                 <tr>
                                     <th colspan="2">Resumen Financiero</th>
                                 </tr>
@@ -198,36 +252,55 @@
                                 </tr>
                             </table>
 
-                            <div class="section-header">Beneficios Premium Incluidos</div>
+                            <!-- Premium Benefits -->
+                            <div class="section-header">
+                                <i class="fas fa-star"></i>
+                                Beneficios Premium Incluidos
+                            </div>
                             <ul class="feature-list">
-                                <li>Servicio técnico preventivo y correctivo</li>
-                                <li>Instalación y configuración profesional</li>
-                                <li>Capacitación para su personal</li>
-                                <li>Insumos y repuestos originales</li>
-                                <li>Servicio de digitalización incluido</li>
-                                <li>Soporte técnico prioritario</li>
-                                <li>Garantía de reemplazo</li>
+                                <li><i class="fas fa-tools"></i>Servicio técnico preventivo y correctivo</li>
+                                <li><i class="fas fa-cog"></i>Instalación y configuración profesional</li>
+                                <li><i class="fas fa-graduation-cap"></i>Capacitación para su personal</li>
+                                <li><i class="fas fa-box"></i>Insumos y repuestos originales</li>
+                                <li><i class="fas fa-scanner"></i>Servicio de digitalización incluido</li>
+                                <li><i class="fas fa-headset"></i>Soporte técnico prioritario</li>
+                                <li><i class="fas fa-shield-alt"></i>Garantía de reemplazo</li>
                             </ul>
 
-                            <div class="section-header">Información de Pago</div>
-                            <div class="info-card">
-                                <strong>Cuentas bancarias:</strong>
-                                <ul class="feature-list">
-                                    <li>BCP: 191-2334609-0-07</li>
-                                    <li>CCI: 002-19100233460900751</li>
-                                    <li>Detracciones BN: 00802007582</li>
-                                </ul>
+                            <!-- Payment Information -->
+                            <div class="section-header">
+                                <i class="fas fa-university"></i>
+                                Información de Pago
+                            </div>
+                            <div class="bank-info">
+                                <div class="bank-card">
+                                    <strong><i class="fas fa-building-columns"></i> BCP</strong>
+                                    191-2334609-0-07
+                                </div>
+                                <div class="bank-card">
+                                    <strong><i class="fas fa-money-bill-transfer"></i> CCI</strong>
+                                    002-19100233460900751
+                                </div>
+                                <div class="bank-card">
+                                    <strong><i class="fas fa-landmark"></i> Detracciones BN</strong>
+                                    00802007582
+                                </div>
                             </div>
 
-                            <div class="section-header">Términos y Condiciones</div>
+                            <!-- Terms and Conditions -->
+                            <div class="section-header">
+                                <i class="fas fa-file-contract"></i>
+                                Términos y Condiciones
+                            </div>
                             <ul class="feature-list">
-                                <li>Contrato mínimo: <t t-esc="doc.duracion_alquiler_id.name"/></li>
-                                <li>Mantenimiento preventivo bimestral</li>
-                                <li>Tiempo de respuesta garantizado</li>
-                                <li>Papel no incluido</li>
-                                <li>Entrega: 5 días hábiles</li>
+                                <li><i class="fas fa-calendar-alt"></i>Contrato mínimo: <t t-esc="doc.duracion_alquiler_id.name"/></li>
+                                <li><i class="fas fa-wrench"></i>Mantenimiento preventivo bimestral</li>
+                                <li><i class="fas fa-clock"></i>Tiempo de respuesta garantizado</li>
+                                <li><i class="fas fa-exclamation-circle"></i>Papel no incluido</li>
+                                <li><i class="fas fa-truck"></i>Entrega: 5 días hábiles</li>
                             </ul>
 
+                            <!-- Final Section -->
                             <div class="highlight-box">
                                 <p>Quedamos a su disposición para cualquier consulta adicional.</p>
                                 <p>Atentamente,</p>
