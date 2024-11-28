@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-         <record id="action_report_report_cotizacion_alquiler" model="ir.actions.report">
+        <record id="action_report_cotizacion_alquiler" model="ir.actions.report">
             <field name="name">Propuesta Comercial de Alquiler</field>
             <field name="model">copier.company</field>
             <field name="report_type">qweb-pdf</field>
@@ -16,233 +16,355 @@
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
                     <t t-call="web.basic_layout">
-                        <link href="https://unpkg.com/modern-normalize@2.0.0/modern-normalize.css" rel="stylesheet"/>
-                        <link href="https://unpkg.com/@tailwindcss/typography@0.5.10/dist/typography.min.css" rel="stylesheet"/>
                         <style>
-                            @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;display=swap');
-                            
+                            /* Variables y configuración base */
                             :root {
-                                --primary: #0f172a;
-                                --secondary: #334155;
-                                --accent: #3b82f6;
-                                --neutral: #e2e8f0;
-                                --success: #22c55e;
+                                --primary: #1e40af;
+                                --primary-light: #3b82f6;
+                                --secondary: #475569;
+                                --accent: #0ea5e9;
+                                --neutral: #f1f5f9;
+                                --success: #10b981;
+                                --warning: #f59e0b;
+                                --text-dark: #0f172a;
+                                --text-light: #64748b;
+                                --border: #e2e8f0;
                             }
 
+                            /* Contenedor principal */
                             .quote-container {
-                                font-family: 'Plus Jakarta Sans', sans-serif;
-                                color: var(--primary);
-                                line-height: 1.6;
-                                padding: 2rem;
+                                font-family: 'Inter', system-ui, sans-serif;
                                 max-width: 1200px;
                                 margin: 0 auto;
+                                padding: 2rem;
+                                color: var(--text-dark);
                             }
 
-                            .header-gradient {
-                                background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-                                color: white;
+                            /* Cabecera con diseño moderno */
+                            .header-section {
+                                display: grid;
+                                grid-template-columns: 2fr 1fr;
+                                gap: 2rem;
+                                margin-bottom: 3rem;
                                 padding: 2rem;
-                                border-radius: 0.5rem;
+                                background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+                                border-radius: 1rem;
+                                color: white;
+                                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                            }
+
+                            .header-title {
+                                font-size: 2.5rem;
+                                font-weight: 700;
+                                margin-bottom: 1rem;
+                                line-height: 1.2;
+                                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+                            }
+
+                            /* Tarjetas de información */
+                            .info-card {
+                                background: white;
+                                border-radius: 1rem;
+                                padding: 2rem;
                                 margin-bottom: 2rem;
                                 box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                                border: 1px solid var(--border);
+                                transition: transform 0.2s ease-in-out;
                             }
 
-                            .section-card {
-                                background: white;
-                                border-radius: 0.5rem;
-                                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-                                padding: 1.5rem;
-                                margin-bottom: 1.5rem;
-                                border: 1px solid var(--neutral);
+                            .info-card:hover {
+                                transform: translateY(-2px);
                             }
 
+                            /* Tablas mejoradas */
                             .data-table {
                                 width: 100%;
                                 border-collapse: separate;
                                 border-spacing: 0;
-                                margin: 1rem 0;
-                                border-radius: 0.5rem;
-                                overflow: hidden;
+                                margin: 1.5rem 0;
                             }
 
                             .data-table th {
                                 background: var(--primary);
                                 color: white;
-                                padding: 1rem;
+                                padding: 1.25rem;
                                 font-weight: 600;
-                                text-align: left;
+                                text-transform: uppercase;
+                                letter-spacing: 0.05em;
+                                font-size: 0.875rem;
+                                border-bottom: 4px solid var(--primary-light);
                             }
 
                             .data-table td {
-                                padding: 1rem;
-                                border-bottom: 1px solid var(--neutral);
+                                padding: 1.25rem;
+                                border-bottom: 1px solid var(--border);
+                                color: var(--text-light);
                             }
 
-                            .data-table tr:last-child td {
-                                border-bottom: none;
+                            .data-table tr:hover td {
+                                background: var(--neutral);
                             }
 
-                            .data-table tr:nth-child(even) td {
-                                background: rgba(0,0,0,0.02);
-                            }
-
-                            .total-row {
-                                background: var(--accent) !important;
+                            .total-row td {
+                                background: var(--primary-light) !important;
                                 color: white;
-                                font-weight: 600;
+                                font-weight: 700;
+                                font-size: 1.1rem;
                             }
 
-                            .flex-list {
+                            /* Lista de beneficios mejorada */
+                            .benefits-grid {
                                 display: grid;
-                                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                                gap: 1rem;
-                                list-style: none;
-                                padding: 0;
+                                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                                gap: 1.5rem;
+                                margin: 2rem 0;
                             }
 
-                            .flex-list li {
-                                padding: 0.75rem;
-                                background: #f8fafc;
-                                border-radius: 0.25rem;
-                                border: 1px solid var(--neutral);
+                            .benefit-item {
                                 display: flex;
                                 align-items: center;
-                                gap: 0.5rem;
+                                padding: 1rem;
+                                background: var(--neutral);
+                                border-radius: 0.75rem;
+                                border-left: 4px solid var(--primary);
                             }
 
-                            .flex-list li::before {
+                            .benefit-item::before {
                                 content: '✓';
-                                color: var(--success);
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                width: 24px;
+                                height: 24px;
+                                background: var(--success);
+                                color: white;
+                                border-radius: 50%;
+                                margin-right: 1rem;
                                 font-weight: bold;
                             }
 
-                            h2 {
-                                color: var(--primary);
-                                font-size: 1.5rem;
+                            /* Sección de equipos */
+                            .equipment-section {
+                                display: grid;
+                                grid-template-columns: 1fr 2fr;
+                                gap: 2rem;
+                                align-items: start;
+                            }
+
+                            .equipment-image {
+                                width: 100%;
+                                border-radius: 1rem;
+                                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                            }
+
+                            .equipment-specs {
+                                background: var(--neutral);
+                                padding: 2rem;
+                                border-radius: 1rem;
+                            }
+                            /* Detalles económicos y firmas */
+                            .pricing-details {
+                                background: white;
+                                border-radius: 1rem;
+                                overflow: hidden;
+                                position: relative;
+                            }
+
+                            .pricing-header {
+                                background: var(--primary);
+                                color: white;
+                                padding: 1.5rem;
+                                text-align: center;
+                                font-size: 1.25rem;
                                 font-weight: 600;
-                                margin-bottom: 1rem;
-                                padding-bottom: 0.5rem;
-                                border-bottom: 2px solid var(--accent);
                             }
 
-                            img {
-                                max-width: 100%;
-                                height: auto;
+                            .pricing-body {
+                                padding: 2rem;
+                            }
+
+                            /* Firma y pie de página */
+                            .signature-section {
+                                margin-top: 4rem;
+                                display: grid;
+                                grid-template-columns: 1fr 1fr;
+                                gap: 2rem;
+                            }
+
+                            .signature-line {
+                                border-top: 2px solid var(--border);
+                                padding-top: 1rem;
+                                text-align: center;
+                                color: var(--text-light);
+                            }
+
+                            /* Información bancaria */
+                            .bank-info {
+                                display: flex;
+                                flex-wrap: wrap;
+                                gap: 1rem;
+                                margin-top: 1rem;
+                            }
+
+                            .bank-card {
+                                flex: 1;
+                                min-width: 250px;
+                                padding: 1rem;
+                                background: var(--neutral);
                                 border-radius: 0.5rem;
-                                box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+                                border: 1px solid var(--border);
                             }
 
-                            .prose {
-                                color: var(--secondary);
+                            /* Diseño responsive */
+                            @media (max-width: 768px) {
+                                .header-section,
+                                .equipment-section {
+                                    grid-template-columns: 1fr;
+                                }
+                                
+                                .benefits-grid {
+                                    grid-template-columns: 1fr;
+                                }
                             }
                         </style>
+
                         <div class="quote-container">
-                            <div class="header-gradient">
-                                <h1 class="text-3xl font-bold mb-2">Propuesta Comercial</h1>
-                                <div class="text-lg opacity-90">
-                                    <div>Fecha: <t t-esc="doc.create_date.strftime('%d/%m/%Y')"/></div>
-                                    <div>Cliente: <span t-field="doc.cliente_id.name"/></div>
+                            <!-- Cabecera con gradiente -->
+                            <div class="header-section">
+                                <div>
+                                    <h1 class="header-title">Propuesta Comercial</h1>
+                                    <p class="text-lg">Soluciones de Impresión Profesional</p>
+                                </div>
+                                <div>
+                                    <div class="text-lg">
+                                        <p>Fecha: <t t-esc="doc.create_date.strftime('%d/%m/%Y')"/></p>
+                                        <p>Cliente: <span t-field="doc.cliente_id.name"/></p>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="section-card">
-                                <h2 class="text-2xl font-semibold mb-4">Equipo Propuesto</h2>
-                                <div class="font-medium text-lg mb-3" t-field="doc.name.name"/>
-                                <t t-if="doc.imagen_id">
-                                    <img t-att-src="'data:image/png;base64,%s' % doc.imagen_id.decode('utf-8')" 
-                                         class="max-w-full h-auto rounded-lg shadow-md mb-4"/>
-                                </t>
-                                <div class="prose max-w-none" t-raw="doc.especificaciones_id"/>
+                            <!-- Sección de Equipo -->
+                            <div class="info-card">
+                                <h2 class="text-2xl font-semibold mb-4">Equipo Multifuncional Premium</h2>
+                                <div class="equipment-section">
+                                    <t t-if="doc.imagen_id">
+                                        <img t-att-src="'data:image/png;base64,%s' % doc.imagen_id.decode('utf-8')" 
+                                             class="equipment-image"/>
+                                    </t>
+                                    <div class="equipment-specs">
+                                        <h3 class="text-xl font-medium mb-3" t-field="doc.name.name"/>
+                                        <div class="prose" t-raw="doc.especificaciones_id"/>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="section-card">
-                                <h2 class="text-2xl font-semibold mb-4">Propuesta Económica</h2>
-                                <table class="data-table">
-                                    <tr>
-                                        <th colspan="2">Detalles del Servicio</th>
-                                    </tr>
-                                    <tr>
-                                        <td>Periodo de Servicio</td>
-                                        <td>Del <span t-field="doc.fecha_inicio_alquiler"/> al <span t-field="doc.fecha_fin_alquiler"/></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Moneda</td>
-                                        <td><span t-field="doc.currency_id.name"/></td>
-                                    </tr>
-                                    <tr>
-                                        <th colspan="2">Servicio Blanco y Negro</th>
-                                    </tr>
-                                    <tr>
-                                        <td>Volumen Mensual</td>
-                                        <td><t t-esc="'{:,}'.format(doc.volumen_mensual_bn)"/> copias</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Costo por Copia</td>
-                                        <td>S/. <t t-esc="'%.3f' % doc.costo_copia_bn"/> + IGV</td>
-                                    </tr>
-                                    <t t-if="doc.tipo == 'color'">
+                            <!-- Propuesta Económica -->
+                            <div class="info-card pricing-details">
+                                <div class="pricing-header">
+                                    Propuesta Económica
+                                </div>
+                                <div class="pricing-body">
+                                    <table class="data-table">
                                         <tr>
-                                            <th colspan="2">Servicio Color</th>
+                                            <th colspan="2">Términos del Servicio</th>
+                                        </tr>
+                                        <tr>
+                                            <td>Periodo</td>
+                                            <td>Del <span t-field="doc.fecha_inicio_alquiler"/> al <span t-field="doc.fecha_fin_alquiler"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Moneda</td>
+                                            <td><span t-field="doc.currency_id.name"/></td>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="2">Servicio Blanco y Negro</th>
                                         </tr>
                                         <tr>
                                             <td>Volumen Mensual</td>
-                                            <td><t t-esc="'{:,}'.format(doc.volumen_mensual_color)"/> copias</td>
+                                            <td><t t-esc="'{:,}'.format(doc.volumen_mensual_bn)"/> impresiones</td>
                                         </tr>
                                         <tr>
-                                            <td>Costo por Copia</td>
-                                            <td>S/. <t t-esc="'%.3f' % doc.costo_copia_color"/> + IGV</td>
+                                            <td>Costo por Impresión</td>
+                                            <td>S/. <t t-esc="'%.3f' % doc.costo_copia_bn"/> + IGV</td>
                                         </tr>
-                                    </t>
-                                    <tr>
-                                        <td>Descuento</td>
-                                        <td><t t-esc="doc.descuento"/>%</td>
-                                    </tr>
-                                    <tr class="total-row">
-                                        <td>Total Mensual</td>
-                                        <td>S/. <t t-esc="'%.2f' % doc.total_facturar_mensual"/></td>
-                                    </tr>
-                                </table>
+                                        <t t-if="doc.tipo == 'color'">
+                                            <tr>
+                                                <th colspan="2">Servicio Color</th>
+                                            </tr>
+                                            <tr>
+                                                <td>Volumen Mensual</td>
+                                                <td><t t-esc="'{:,}'.format(doc.volumen_mensual_color)"/> impresiones</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Costo por Impresión</td>
+                                                <td>S/. <t t-esc="'%.3f' % doc.costo_copia_color"/> + IGV</td>
+                                            </tr>
+                                        </t>
+                                        <tr>
+                                            <td>Descuento Aplicado</td>
+                                            <td><t t-esc="doc.descuento"/>%</td>
+                                        </tr>
+                                        <tr class="total-row">
+                                            <td>Inversión Mensual Total</td>
+                                            <td>S/. <t t-esc="'%.2f' % doc.total_facturar_mensual"/></td>
+                                        </tr>
+                                    </table>
+                                </div>
                             </div>
 
-                            <div class="section-card">
-                                <h2 class="text-2xl font-semibold mb-4">Beneficios Incluidos</h2>
-                                <ul class="flex-list">
-                                    <li>✓ Servicio técnico preventivo y correctivo</li>
-                                    <li>✓ Instalación y configuración profesional</li>
-                                    <li>✓ Capacitación para usuarios</li>
-                                    <li>✓ Insumos originales incluidos</li>
-                                    <li>✓ Soporte técnico prioritario</li>
-                                    <li>✓ Garantía total del equipo</li>
-                                </ul>
+                            <!-- Beneficios -->
+                            <div class="info-card">
+                                <h2 class="text-2xl font-semibold mb-4">Beneficios Premium Incluidos</h2>
+                                <div class="benefits-grid">
+                                    <div class="benefit-item">Servicio técnico preventivo y correctivo</div>
+                                    <div class="benefit-item">Insumos originales incluidos</div>
+                                    <div class="benefit-item">Capacitación para usuarios</div>
+                                    <div class="benefit-item">Soporte técnico prioritario</div>
+                                    <div class="benefit-item">Garantía total del equipo</div>
+                                    <div class="benefit-item">Tiempo de respuesta garantizado</div>
+                                </div>
                             </div>
 
-                            <div class="section-card">
-                                <h2 class="text-2xl font-semibold mb-4">Información Bancaria</h2>
-                                <ul class="flex-list">
-                                    <li>BCP: 191-2334609-0-07</li>
-                                    <li>CCI: 002-19100233460900751</li>
-                                    <li>Detracciones BN: 00802007582</li>
-                                </ul>
+                            <!-- Información Bancaria -->
+                            <div class="info-card">
+                                <h2 class="text-2xl font-semibold mb-4">Información de Pago</h2>
+                                <div class="bank-info">
+                                    <div class="bank-card">
+                                        <strong>BCP:</strong> 191-2334609-0-07
+                                    </div>
+                                    <div class="bank-card">
+                                        <strong>CCI:</strong> 002-19100233460900751
+                                    </div>
+                                    <div class="bank-card">
+                                        <strong>Detracciones BN:</strong> 00802007582
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="section-card">
-                                <h2 class="text-2xl font-semibold mb-4">Condiciones del Servicio</h2>
-                                <ul class="flex-list">
-                                    <li>• Contrato mínimo: <span t-field="doc.duracion_alquiler_id.name"/></li>
-                                    <li>• Mantenimiento preventivo bimestral</li>
-                                    <li>• Tiempo de respuesta garantizado</li>
-                                    <li>• Papel no incluido</li>
-                                    <li>• Entrega en 5 días hábiles</li>
-                                </ul>
+                            <!-- Condiciones -->
+                            <div class="info-card">
+                                <h2 class="text-2xl font-semibold mb-4">Términos y Condiciones</h2>
+                                <div class="benefits-grid">
+                                    <div class="benefit-item">Contrato mínimo: <span t-field="doc.duracion_alquiler_id.name"/></div>
+                                    <div class="benefit-item">Mantenimiento preventivo bimestral</div>
+                                    <div class="benefit-item">Papel no incluido</div>
+                                    <div class="benefit-item">Entrega en 5 días hábiles</div>
+                                </div>
                             </div>
 
-                            <div class="section-card text-center">
-                                <p class="text-lg">Gracias por su preferencia</p>
-                                <p class="font-semibold text-lg mt-2">Equipo Comercial</p>
+                            <!-- Firmas -->
+                            <div class="signature-section">
+                                <div class="signature-line">
+                                    <p>Representante Comercial</p>
+                                </div>
+                                <div class="signature-line">
+                                    <p>Cliente</p>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="footer text-center text-sm text-gray-600">
+                        <!-- Pie de página -->
+                        <div class="text-center text-sm text-gray-600 mt-8">
                             <div>Página <span class="page"/> de <span class="topage"/></div>
                         </div>
                     </t>
