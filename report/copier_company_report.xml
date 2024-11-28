@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <!-- Report Action -->
-        <record id="action_report_report_cotizacion_alquiler" model="ir.actions.report">
-            <field name="name">Propuesta Comercial de Alquiler</field>
+        <record id="action_report_cotizacion_alquiler" model="ir.actions.report">
+            <field name="name">Propuesta Comercial</field>
             <field name="model">copier.company</field>
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">copier_company.cotizacion_view</field>
@@ -11,303 +10,228 @@
             <field name="print_report_name">'Propuesta Comercial - %s' % object.secuencia</field>
             <field name="binding_model_id" ref="model_copier_company"/>
             <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="base.paperformat_euro"/>
         </record>
 
-        <!-- External Assets -->
-        <template id="assets_common_styles" inherit_id="web.report_assets_common">
-            <xpath expr="." position="inside">
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
-                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-            </xpath>
-        </template>
-
-        <!-- Enhanced Quotation Template -->
         <template id="cotizacion_view">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
-                    <t t-call="web.external_layout">
+                    <div class="header">
+                        <div class="row">
+                            <div class="col-3">
+                                <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 45px;" alt="Logo"/>
+                            </div>
+                            <div class="col-9 text-right" style="margin-top:22px;">
+                                <span t-field="company.name"/>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="article o_report_layout_standard">
                         <style>
-                            /* Base Variables */
+                            /* Estilos base y variables */
                             :root {
-                                --primary: #0f172a;
-                                --secondary: #334155;
-                                --accent: #2563eb;
-                                --accent-light: #60a5fa;
-                                --background: #ffffff;
-                                --text: #1e293b;
-                                --border: #e2e8f0;
-                                --success: #22c55e;
-                                --table-bg: #f8fafc;
-                                --table-alt: #f1f5f9;
+                                --color-primary: #1a5fb4;
+                                --color-text: #2e3436;
+                                --color-border: #deddda;
+                                --color-background: #ffffff;
+                                --color-accent: #3584e4;
+                                --font-family: 'System-ui', -apple-system, sans-serif;
                             }
 
-                            /* Global Styles */
-                            body {
-                                font-family: 'Inter', sans-serif;
+                            .documento {
+                                font-family: var(--font-family);
+                                color: var(--color-text);
+                                line-height: 1.6;
                             }
 
-                            .report-page {
-                                background-color: var(--background);
-                                color: var(--text);
-                                line-height: 1.7;
-                                font-size: 1rem;
-                                padding: 2rem;
-                            }
-
-                            /* Header Styles */
-                            .report-header {
+                            .encabezado-doc {
                                 text-align: center;
                                 margin-bottom: 2rem;
+                                padding: 1rem;
+                                background: var(--color-background);
+                                border-bottom: 3px solid var(--color-primary);
                             }
 
-                            .report-title {
-                                font-size: 2rem;
-                                font-weight: 700;
-                                color: var(--primary);
-                                margin-bottom: 1rem;
-                                position: relative;
-                                padding-bottom: 1rem;
+                            .titulo-principal {
+                                font-size: 24px;
+                                font-weight: bold;
+                                color: var(--color-primary);
                             }
 
-                            .report-title::after {
-                                content: '';
-                                position: absolute;
-                                bottom: 0;
-                                left: 50%;
-                                transform: translateX(-50%);
-                                width: 100px;
-                                height: 4px;
-                                background: var(--accent);
-                                border-radius: 2px;
-                            }
-
-                            /* Table Styles */
-                            .data-table {
+                            .tabla-datos {
                                 width: 100%;
-                                border-collapse: separate;
-                                border-spacing: 0;
-                                background: var(--table-bg);
-                                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-                                border-radius: 12px;
-                                overflow: hidden;
-                                margin: 2rem 0;
-                            }
-
-                            .data-table th {
-                                background: var(--primary);
-                                color: white;
-                                padding: 1.25rem;
-                                font-weight: 600;
-                                text-transform: uppercase;
-                                font-size: 0.875rem;
-                                letter-spacing: 0.05em;
-                                border-bottom: 3px solid var(--accent);
-                            }
-
-                            .data-table td {
-                                padding: 1.25rem;
-                                border-bottom: 1px solid var(--border);
-                                transition: background-color 0.2s;
-                            }
-
-                            .data-table tr:nth-child(even) td {
-                                background: var(--table-alt);
-                            }
-
-                            /* Section Styles */
-                            .section-header {
-                                color: var(--primary);
-                                font-size: 1.5rem;
-                                font-weight: 600;
-                                margin: 2rem 0 1rem;
-                                display: flex;
-                                align-items: center;
-                                gap: 0.75rem;
-                            }
-
-                            .section-header i {
-                                color: var(--accent);
-                            }
-
-                            /* Card Styles */
-                            .info-card {
-                                background: var(--table-bg);
-                                padding: 2rem;
-                                border-radius: 12px;
                                 margin: 1rem 0;
-                                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-                                border: 1px solid var(--border);
+                                border-collapse: collapse;
                             }
 
-                            .image-container {
-                                text-align: center;
+                            .tabla-datos th {
+                                background: var(--color-primary);
+                                color: white;
+                                padding: 0.75rem;
+                                text-align: left;
+                            }
+
+                            .tabla-datos td {
+                                padding: 0.75rem;
+                                border: 1px solid var(--color-border);
+                            }
+
+                            .tabla-datos tr:nth-child(even) {
+                                background: #f6f5f4;
+                            }
+
+                            .seccion {
                                 margin: 2rem 0;
+                                padding: 1rem;
+                                border: 1px solid var(--color-border);
+                                border-radius: 4px;
                             }
 
-                            .image-container img {
+                            .titulo-seccion {
+                                font-size: 18px;
+                                font-weight: bold;
+                                color: var(--color-primary);
+                                margin-bottom: 1rem;
+                                padding-bottom: 0.5rem;
+                                border-bottom: 2px solid var(--color-accent);
+                            }
+
+                            .imagen-equipo {
                                 max-width: 100%;
                                 height: auto;
-                                border-radius: 12px;
-                                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                                margin: 1rem auto;
+                                display: block;
+                            }
+
+                            .lista-beneficios {
+                                list-style: none;
+                                padding: 0;
+                            }
+
+                            .lista-beneficios li {
+                                padding: 0.5rem 0;
+                                margin-bottom: 0.5rem;
+                                border-bottom: 1px solid var(--color-border);
+                            }
+
+                            .total {
+                                font-weight: bold;
+                                background: var(--color-primary) !important;
+                                color: white;
                             }
                         </style>
 
-                        <!-- Initial Content Section -->
-                        <div class="page report-page">
-                            <div class="report-header">
-                                <div class="report-title">Propuesta Comercial Personalizada</div>
-                                <div><t t-esc="doc.create_date.strftime('%d de %B de %Y')"/></div>
-                                <div>Preparado para: <strong t-esc="doc.cliente_id.name"/></div>
+                        <!-- Contenido del Documento -->
+                        <div class="documento">
+                            <div class="encabezado-doc">
+                                <div class="titulo-principal">Propuesta Comercial</div>
+                                <div>Fecha: <t t-esc="doc.create_date.strftime('%d/%m/%Y')"/></div>
+                                <div>Cliente: <span t-field="doc.cliente_id.name"/></div>
                             </div>
 
-                            <!-- Equipment Section -->
-                            <div class="section-header">
-                                <i class="fas fa-print"></i>
-                                Equipo Multifuncional Premium
-                            </div>
-                            <div class="info-card">
-                                <strong t-esc="doc.name.name"/><br/>
+                            <div class="seccion">
+                                <div class="titulo-seccion">Equipo Propuesto</div>
+                                <strong t-field="doc.name.name"/>
                                 <t t-if="doc.imagen_id">
-                                    <div class="image-container">
-                                        <img t-att-src="'data:image/png;base64,%s' % doc.imagen_id.decode('utf-8')"/>
-                                    </div>
+                                    <img class="imagen-equipo" t-att-src="'data:image/png;base64,%s' % doc.imagen_id.decode('utf-8')"/>
                                 </t>
+                                <div t-raw="doc.especificaciones_id"/>
                             </div>
 
-                            <!-- Technical Specifications -->
-                            <div class="section-header">
-                                <i class="fas fa-cogs"></i>
-                                Especificaciones Técnicas
-                            </div>
-                            <div class="info-card" t-raw="doc.especificaciones_id"/>
-                            <!-- Economic Proposal Section -->
-                            <div class="section-header">
-                                <i class="fas fa-file-invoice-dollar"></i>
-                                Propuesta Económica
-                            </div>
-                            <table class="data-table">
-                                <tr>
-                                    <th colspan="2">Términos del Servicio</th>
-                                </tr>
-                                <tr>
-                                    <td>Periodo de Servicio</td>
-                                    <td>Del <t t-esc="doc.fecha_inicio_alquiler"/> al <t t-esc="doc.fecha_fin_alquiler"/></td>
-                                </tr>
-                                <tr>
-                                    <td>Moneda</td>
-                                    <td><t t-esc="doc.currency_id.name"/></td>
-                                </tr>
-
-                                <!-- B&W Services -->
-                                <tr>
-                                    <th colspan="2">Servicios en Blanco y Negro</th>
-                                </tr>
-                                <tr>
-                                    <td>Volumen Mensual</td>
-                                    <td><t t-esc="'{:,}'.format(doc.volumen_mensual_bn)"/> impresiones</td>
-                                </tr>
-                                <tr>
-                                    <td>Costo por Impresión</td>
-                                    <td>S/. <t t-esc="'%.3f' % doc.costo_copia_bn"/> + IGV</td>
-                                </tr>
-                                <tr>
-                                    <td>Renta Mensual B/N</td>
-                                    <td>S/. <t t-esc="'%.2f' % doc.renta_mensual_bn"/></td>
-                                </tr>
-
-                                <!-- Color Services -->
-                                <t t-if="doc.tipo == 'color'">
+                            <div class="seccion">
+                                <div class="titulo-seccion">Propuesta Económica</div>
+                                <table class="tabla-datos">
                                     <tr>
-                                        <th colspan="2">Servicios a Color</th>
+                                        <th colspan="2">Detalles del Servicio</th>
+                                    </tr>
+                                    <tr>
+                                        <td>Periodo</td>
+                                        <td>Del <span t-field="doc.fecha_inicio_alquiler"/> al <span t-field="doc.fecha_fin_alquiler"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Moneda</td>
+                                        <td><span t-field="doc.currency_id.name"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="2">Servicio Blanco y Negro</th>
                                     </tr>
                                     <tr>
                                         <td>Volumen Mensual</td>
-                                        <td><t t-esc="'{:,}'.format(doc.volumen_mensual_color)"/> impresiones</td>
+                                        <td><t t-esc="'{:,}'.format(doc.volumen_mensual_bn)"/> copias</td>
                                     </tr>
                                     <tr>
-                                        <td>Costo por Impresión</td>
-                                        <td>S/. <t t-esc="'%.3f' % doc.costo_copia_color"/> + IGV</td>
+                                        <td>Costo por Copia</td>
+                                        <td>S/. <t t-esc="'%.3f' % doc.costo_copia_bn"/> + IGV</td>
                                     </tr>
+                                    <t t-if="doc.tipo == 'color'">
+                                        <tr>
+                                            <th colspan="2">Servicio Color</th>
+                                        </tr>
+                                        <tr>
+                                            <td>Volumen Mensual</td>
+                                            <td><t t-esc="'{:,}'.format(doc.volumen_mensual_color)"/> copias</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Costo por Copia</td>
+                                            <td>S/. <t t-esc="'%.3f' % doc.costo_copia_color"/> + IGV</td>
+                                        </tr>
+                                    </t>
                                     <tr>
-                                        <td>Renta Mensual Color</td>
-                                        <td>S/. <t t-esc="'%.2f' % doc.renta_mensual_color"/></td>
+                                        <td>Descuento</td>
+                                        <td><t t-esc="doc.descuento"/>%</td>
                                     </tr>
-                                </t>
-
-                                <!-- Financial Summary -->
-                                <tr>
-                                    <th colspan="2">Resumen Financiero</th>
-                                </tr>
-                                <tr>
-                                    <td>Descuento Aplicado</td>
-                                    <td><t t-esc="doc.descuento"/>%</td>
-                                </tr>
-                                <tr>
-                                    <td>IGV (<t t-esc="doc.igv"/>%)</td>
-                                    <td>Incluido</td>
-                                </tr>
-                                <tr class="total-row">
-                                    <td>Inversión Mensual Total</td>
-                                    <td>S/. <t t-esc="'%.2f' % doc.total_facturar_mensual"/></td>
-                                </tr>
-                            </table>
-
-                            <!-- Premium Benefits -->
-                            <div class="section-header">
-                                <i class="fas fa-star"></i>
-                                Beneficios Premium Incluidos
-                            </div>
-                            <ul class="feature-list">
-                                <li><i class="fas fa-tools"></i>Servicio técnico preventivo y correctivo</li>
-                                <li><i class="fas fa-cog"></i>Instalación y configuración profesional</li>
-                                <li><i class="fas fa-graduation-cap"></i>Capacitación para su personal</li>
-                                <li><i class="fas fa-box"></i>Insumos y repuestos originales</li>
-                                <li><i class="fas fa-scanner"></i>Servicio de digitalización incluido</li>
-                                <li><i class="fas fa-headset"></i>Soporte técnico prioritario</li>
-                                <li><i class="fas fa-shield-alt"></i>Garantía de reemplazo</li>
-                            </ul>
-
-                            <!-- Payment Information -->
-                            <div class="section-header">
-                                <i class="fas fa-university"></i>
-                                Información de Pago
-                            </div>
-                            <div class="bank-info">
-                                <div class="bank-card">
-                                    <strong><i class="fas fa-building-columns"></i> BCP</strong>
-                                    191-2334609-0-07
-                                </div>
-                                <div class="bank-card">
-                                    <strong><i class="fas fa-money-bill-transfer"></i> CCI</strong>
-                                    002-19100233460900751
-                                </div>
-                                <div class="bank-card">
-                                    <strong><i class="fas fa-landmark"></i> Detracciones BN</strong>
-                                    00802007582
-                                </div>
+                                    <tr class="total">
+                                        <td>Total Mensual</td>
+                                        <td>S/. <t t-esc="'%.2f' % doc.total_facturar_mensual"/></td>
+                                    </tr>
+                                </table>
                             </div>
 
-                            <!-- Terms and Conditions -->
-                            <div class="section-header">
-                                <i class="fas fa-file-contract"></i>
-                                Términos y Condiciones
+                            <div class="seccion">
+                                <div class="titulo-seccion">Beneficios Incluidos</div>
+                                <ul class="lista-beneficios">
+                                    <li>✓ Servicio técnico preventivo y correctivo</li>
+                                    <li>✓ Insumos originales incluidos</li>
+                                    <li>✓ Soporte técnico prioritario</li>
+                                    <li>✓ Capacitación para usuarios</li>
+                                    <li>✓ Garantía total del equipo</li>
+                                </ul>
                             </div>
-                            <ul class="feature-list">
-                                <li><i class="fas fa-calendar-alt"></i>Contrato mínimo: <t t-esc="doc.duracion_alquiler_id.name"/></li>
-                                <li><i class="fas fa-wrench"></i>Mantenimiento preventivo bimestral</li>
-                                <li><i class="fas fa-clock"></i>Tiempo de respuesta garantizado</li>
-                                <li><i class="fas fa-exclamation-circle"></i>Papel no incluido</li>
-                                <li><i class="fas fa-truck"></i>Entrega: 5 días hábiles</li>
-                            </ul>
 
-                            <!-- Final Section -->
-                            <div class="highlight-box">
-                                <p>Quedamos a su disposición para cualquier consulta adicional.</p>
-                                <p>Atentamente,</p>
-                                <p><strong>Equipo de Soluciones de Impresión</strong></p>
+                            <div class="seccion">
+                                <div class="titulo-seccion">Información Bancaria</div>
+                                <ul class="lista-beneficios">
+                                    <li>BCP: 191-2334609-0-07</li>
+                                    <li>CCI: 002-19100233460900751</li>
+                                    <li>Detracciones BN: 00802007582</li>
+                                </ul>
+                            </div>
+
+                            <div class="seccion">
+                                <div class="titulo-seccion">Condiciones</div>
+                                <ul class="lista-beneficios">
+                                    <li>• Contrato mínimo: <span t-field="doc.duracion_alquiler_id.name"/></li>
+                                    <li>• Tiempo de entrega: 5 días hábiles</li>
+                                    <li>• Papel no incluido</li>
+                                    <li>• IGV no incluido</li>
+                                </ul>
+                            </div>
+
+                            <div class="seccion" style="text-align: center;">
+                                <p>Gracias por su preferencia</p>
+                                <p><strong>Equipo Comercial</strong></p>
                             </div>
                         </div>
-                    </t>
+
+                        <div class="footer">
+                            <div class="text-center">
+                                <ul class="list-inline">
+                                    <li class="list-inline-item">Página <span class="page"/> de <span class="topage"/></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </t>
             </t>
         </template>
