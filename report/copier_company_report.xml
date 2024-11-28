@@ -18,52 +18,57 @@
                     <t t-call="web.basic_layout">
                         <style>
                             :root {
-                            --primary: #1E3A8A;
-                            --secondary: #4B5563;
-                            --background: #F9FAFB;
-                            --success: #059669;
-                            --border: #E5E7EB;
+                            --blue-primary: #1a4b8c;
+                            --blue-secondary: #2563eb;
+                            --gray-dark: #374151;
+                            --gray-medium: #6b7280;
+                            --success-green: #10b981;
+                            --warning-yellow: #f59e0b;
+                            --background-light: #f3f4f6;
+                            --border-color: #e5e7eb;
+                            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+                            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
                             }
 
-                            body {
-                            font-family: 'Inter', sans-serif;
-                            color: #1F2937;
-                            line-height: 1.6;
-                            }
-
-                            .quote-container {
-                            max-width: 1000px;
-                            margin: auto;
+                            .header-section {
+                            background: linear-gradient(135deg, var(--blue-primary),
+                            var(--blue-secondary));
+                            color: white;
                             padding: 2rem;
+                            border-radius: 10px;
+                            margin-bottom: 2rem;
                             }
 
-                            .section {
+                            .page-title {
+                            font-size: 2rem;
+                            font-weight: bold;
+                            text-align: center;
+                            margin-bottom: 1rem;
+                            }
+
+                            .info-section {
                             background: white;
-                            border-radius: 12px;
-                            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                            border-radius: 8px;
                             padding: 1.5rem;
-                            margin-bottom: 1.5rem;
+                            margin: 1rem 0;
+                            box-shadow: var(--shadow-md);
                             }
 
-                            .section-header {
+                            .section-title {
                             display: flex;
                             align-items: center;
                             gap: 0.5rem;
-                            color: var(--primary);
-                            font-size: 1.25rem;
-                            font-weight: 600;
-                            margin-bottom: 1rem;
+                            color: var(--blue-primary);
+                            border-bottom: 2px solid var(--blue-primary);
                             padding-bottom: 0.5rem;
-                            border-bottom: 2px solid var(--primary);
+                            margin-bottom: 1rem;
                             }
 
-                            .flex-between {
-                            display: flex;
-                            justify-content: space-between;
-                            align-items: center;
+                            .section-title i {
+                            font-size: 1.25rem;
                             }
 
-                            .grid-table {
+                            .data-grid {
                             display: grid;
                             gap: 1rem;
                             margin: 1rem 0;
@@ -72,228 +77,244 @@
                             .data-row {
                             display: grid;
                             grid-template-columns: 1fr 1fr;
-                            padding: 0.75rem;
-                            border: 1px solid var(--border);
+                            padding: 1rem;
+                            background: var(--background-light);
                             border-radius: 6px;
-                            }
-
-                            .data-row:nth-child(even) {
-                            background: var(--background);
+                            align-items: center;
                             }
 
                             .label {
-                            font-weight: 500;
-                            color: var(--secondary);
+                            font-weight: 600;
+                            color: var(--gray-dark);
                             }
 
                             .value {
-                            color: var(--primary);
+                            color: var(--blue-secondary);
                             font-weight: 500;
                             }
 
-                            .machine-image {
-                            width: 100%;
-                            max-width: 400px;
-                            border-radius: 8px;
-                            margin: 1rem auto;
-                            display: block;
+                            .benefits-list {
+                            list-style: none;
+                            padding: 0;
                             }
 
-                            /* Estilos condicionales */
-                            .color-enabled {
-                            display: t-if="doc.tipo == 'color'" style="display: block";
-                            }
-
-                            .total-section {
-                            background: var(--primary);
-                            color: white;
+                            .benefits-list li {
+                            margin: 0.5rem 0;
                             padding: 1rem;
-                            border-radius: 8px;
-                            margin-top: 1rem;
+                            background: var(--background-light);
+                            border-left: 4px solid var(--success-green);
+                            border-radius: 0 6px 6px 0;
+                            }
+
+                            .conditions-list {
+                            padding-left: 1.5rem;
+                            }
+
+                            .conditions-list li {
+                            margin-bottom: 0.75rem;
+                            color: var(--gray-dark);
                             }
 
                             @media print {
-                            .section {
-                            break-inside: avoid;
+                            .header-section {
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
                             }
                             }
                         </style>
-                        <div class="quote-container">
-                            <!-- Cabecera -->
-                            <div class="section">
-                                <div class="flex-between">
-                                    <div>
-                                        <h1
-                                            style="color: var(--primary); font-size: 1.5rem; margin: 0;">
-                                            Propuesta Comercial #<t t-esc="doc.secuencia" />
-                                        </h1>
-                                        <p style="color: var(--secondary);">
-                                            <t t-esc="doc.create_date.strftime('%d de %B, %Y')" />
-                                        </p>
-                                    </div>
-                                    <div style="text-align: right;">
-                                        <div t-if="doc.qr_code" style="margin-bottom: 1rem;">
-                                            <img
-                                                t-att-src="'data:image/png;base64,%s' % doc.qr_code"
-                                                style="width: 100px;" />
-                                        </div>
-                                    </div>
+                        <div class="header-section">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center;">
+                                <div class="page-title">
+                                    <i class="fa fa-file-text-o"></i> Propuesta Comercial N° <t
+                                        t-esc="doc.secuencia" />
+                                </div>
+                                <div t-if="doc.qr_code">
+                                    <img t-att-src="'data:image/png;base64,%s' % doc.qr_code"
+                                        style="width: 100px;" />
                                 </div>
                             </div>
+                            <div style="margin-top: 1rem;">
+                                <p>
+                                    <t t-esc="doc.create_date.strftime('%A, %d de %B de %Y')" />
+                                </p>
+                            </div>
+                        </div>
 
-                            <!-- Información del Cliente -->
-                            <div class="section">
-                                <div class="section-header">
-                                    <i class="fa fa-user-circle" />
-                                    <span>Información del Cliente</span>
+                        <!-- Datos del cliente y presentación -->
+                        <div class="info-section">
+                            <div class="section-title">
+                                <i class="fa fa-user-circle"></i> Información del Cliente </div>
+                            <div class="data-grid">
+                                <p>Estimados Señores,</p>
+                                <div class="data-row">
+                                    <span class="label">Atención:</span>
+                                    <span class="value">
+                                        <t t-esc="doc.cliente_id.name" />
+                                    </span>
                                 </div>
-                                <div class="grid-table">
-                                    <div class="data-row">
-                                        <span class="label">Cliente:</span>
-                                        <span class="value">
-                                            <t t-esc="doc.cliente_id.name" />
-                                        </span>
-                                    </div>
-                                    <div class="data-row">
-                                        <span class="label">RUC/DNI:</span>
-                                        <span class="value">
-                                            <t t-esc="doc.identificacion" />
-                                        </span>
-                                    </div>
-                                    <div class="data-row">
-                                        <span class="label">Contacto:</span>
-                                        <span class="value">
-                                            <t t-esc="doc.contacto" />
-                                        </span>
-                                    </div>
-                                    <div class="data-row">
-                                        <span class="label">Teléfono:</span>
-                                        <span class="value">
-                                            <t t-esc="doc.celular" />
-                                        </span>
-                                    </div>
+                                <div class="data-row">
+                                    <span class="label">RUC/DNI:</span>
+                                    <span class="value">
+                                        <t t-esc="doc.identificacion" />
+                                    </span>
+                                </div>
+                                <div class="data-row">
+                                    <span class="label">Dirección:</span>
+                                    <span class="value">
+                                        <t t-esc="doc.cliente_id.street" />
+                                    </span>
                                 </div>
                             </div>
+                            <p style="margin-top: 1rem;">En respuesta a su solicitud, nos complace
+                                presentarles nuestra COTIZACIÓN para el servicio de alquiler del
+                                siguiente equipo multifuncional:</p>
+                        </div>
 
-                            <!-- Equipo Propuesto -->
-                            <div class="section">
-                                <div class="section-header">
-                                    <i class="fa fa-print" />
-                                    <span>Equipo Multifuncional</span>
-                                </div>
-                                <div style="text-align: center;">
-                                    <h3 style="color: var(--primary);">
-                                        <t t-esc="doc.name.name" />
-                                    </h3>
-                                    <t t-if="doc.imagen_id">
-                                        <img
-                                            t-att-src="'data:image/png;base64,%s' % doc.imagen_id.decode('utf-8')"
-                                            class="machine-image" />
-                                    </t>
-                                </div>
-                                <t t-if="doc.especificaciones_id">
-                                    <div class="specs-section">
-                                        <t t-raw="doc.especificaciones_id" />
-                                    </div>
+                        <!-- Detalles del Equipo -->
+                        <div class="info-section">
+                            <div class="section-title">
+                                <i class="fa fa-print"></i> Equipo Propuesto </div>
+                            <h3 style="color: var(--blue-primary); text-align: center;">
+                                <t t-esc="doc.name.name" />
+                            </h3>
+                            <div style="text-align: center;">
+                                <t t-if="doc.imagen_id">
+                                    <img
+                                        t-att-src="'data:image/png;base64,%s' % doc.imagen_id.decode('utf-8')"
+                                        style="max-width: 400px; border-radius: 8px; margin: 1rem auto;" />
                                 </t>
                             </div>
-                            <div class="section">
-                                <div class="section-header">
-                                    <i class="fa fa-calculator" />
-                                    <span>Propuesta Económica</span>
+                            <div class="specs-section">
+                                <t t-raw="doc.especificaciones_id" />
+                            </div>
+                        </div>
+                        <!-- Propuesta Económica -->
+                        <div class="info-section">
+                            <div class="section-title">
+                                <i class="fa fa-calculator"></i> Propuesta Económica </div>
+
+                            <div class="data-grid">
+                                <div class="data-row">
+                                    <span class="label">Fecha Inicio:</span>
+                                    <span class="value">
+                                        <t t-esc="doc.fecha_inicio_alquiler" />
+                                    </span>
+                                </div>
+                                <div class="data-row">
+                                    <span class="label">Fecha Fin:</span>
+                                    <span class="value">
+                                        <t t-esc="doc.fecha_fin_alquiler" />
+                                    </span>
                                 </div>
 
                                 <!-- Detalles B/N -->
-                                <div class="grid-table">
+                                <div class="data-row">
+                                    <span class="label">Volumen Mensual B/N:</span>
+                                    <span class="value"><t
+                                            t-esc="'{:,}'.format(doc.volumen_mensual_bn)" />
+                                        impresiones</span>
+                                </div>
+                                <div class="data-row">
+                                    <span class="label">Costo por Impresión B/N:</span>
+                                    <span class="value">S/. <t t-esc="'%.3f' % doc.costo_copia_bn" />
+                                        + IGV</span>
+                                </div>
+                                <div class="data-row">
+                                    <span class="label">Renta Mensual B/N:</span>
+                                    <span class="value">S/. <t t-esc="'%.2f' % doc.renta_mensual_bn" /></span>
+                                </div>
+
+                                <!-- Detalles Color (Condicional) -->
+                                <t t-if="doc.tipo == 'color'">
                                     <div class="data-row">
-                                        <span class="label">Volumen Mensual B/N:</span>
+                                        <span class="label">Volumen Mensual Color:</span>
                                         <span class="value"><t
-                                                t-esc="'{:,}'.format(doc.volumen_mensual_bn)" />
+                                                t-esc="'{:,}'.format(doc.volumen_mensual_color)" />
                                             impresiones</span>
                                     </div>
                                     <div class="data-row">
-                                        <span class="label">Costo por Impresión B/N:</span>
+                                        <span class="label">Costo por Impresión Color:</span>
                                         <span class="value">S/. <t
-                                                t-esc="'%.3f' % doc.costo_copia_bn" /> + IGV</span>
+                                                t-esc="'%.3f' % doc.costo_copia_color" /> + IGV</span>
                                     </div>
                                     <div class="data-row">
-                                        <span class="label">Renta Mensual B/N:</span>
+                                        <span class="label">Renta Mensual Color:</span>
                                         <span class="value">S/. <t
-                                                t-esc="'%.2f' % doc.renta_mensual_bn" /></span>
+                                                t-esc="'%.2f' % doc.renta_mensual_color" /></span>
                                     </div>
+                                </t>
 
-                                    <!-- Detalles Color (Condicional) -->
-                                    <t t-if="doc.tipo == 'color'">
-                                        <div class="data-row color-enabled">
-                                            <span class="label">Volumen Mensual Color:</span>
-                                            <span class="value"><t
-                                                    t-esc="'{:,}'.format(doc.volumen_mensual_color)" />
-                                                impresiones</span>
-                                        </div>
-                                        <div class="data-row color-enabled">
-                                            <span class="label">Costo por Impresión Color:</span>
-                                            <span class="value">S/. <t
-                                                    t-esc="'%.3f' % doc.costo_copia_color" /> + IGV</span>
-                                        </div>
-                                        <div class="data-row color-enabled">
-                                            <span class="label">Renta Mensual Color:</span>
-                                            <span class="value">S/. <t
-                                                    t-esc="'%.2f' % doc.renta_mensual_color" /></span>
-                                        </div>
-                                    </t>
-
-                                    <div class="data-row">
-                                        <span class="label">IGV (%):</span>
-                                        <span class="value"><t t-esc="doc.igv" />%</span>
-                                    </div>
-                                    <div class="data-row">
-                                        <span class="label">Descuento:</span>
-                                        <span class="value"><t t-esc="doc.descuento" />%</span>
-                                    </div>
+                                <div class="data-row">
+                                    <span class="label">IGV:</span>
+                                    <span class="value"><t t-esc="doc.igv" />%</span>
                                 </div>
-
-                                <div class="total-section">
-                                    <div class="flex-between">
-                                        <span style="font-size: 1.2rem;">Total Mensual (Inc. IGV):</span>
-                                        <span style="font-size: 1.5rem; font-weight: bold;"> S/. <t
-                                                t-esc="'%.2f' % doc.total_facturar_mensual" />
-                                        </span>
-                                    </div>
+                                <div class="data-row">
+                                    <span class="label">Descuento:</span>
+                                    <span class="value"><t t-esc="doc.descuento" />%</span>
                                 </div>
                             </div>
 
-                            <!-- Términos y Condiciones -->
-                            <div class="section">
-                                <div class="section-header">
-                                    <i class="fa fa-file-text" />
-                                    <span>Términos y Condiciones</span>
-                                </div>
-                                <ul style="list-style-type: none; padding: 0;">
-                                    <li
-                                        style="margin-bottom: 0.5rem; padding: 0.75rem; background: var(--background); border-radius: 6px;">
-                                        ✓ Contrato mínimo: <t t-esc="doc.duracion_alquiler_id.name" />
-                                    </li>
-                                    <li
-                                        style="margin-bottom: 0.5rem; padding: 0.75rem; background: var(--background); border-radius: 6px;">
-                                        ✓ Incluye servicio técnico preventivo y correctivo
-                                    </li>
-                                    <li
-                                        style="margin-bottom: 0.5rem; padding: 0.75rem; background: var(--background); border-radius: 6px;">
-                                        ✓ Soporte técnico prioritario
-                                    </li>
-                                    <li
-                                        style="margin-bottom: 0.5rem; padding: 0.75rem; background: var(--background); border-radius: 6px;">
-                                        ✓ Insumos originales incluidos
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <!-- Pie de página -->
+                            <!-- Total -->
                             <div
-                                style="text-align: center; margin-top: 2rem; color: var(--secondary); font-size: 0.875rem;">
-                                <p>Propuesta válida por 15 días</p>
-                                <p>Página <span class="page" /> de <span class="topage" /></p>
+                                style="background: var(--blue-primary); color: white; padding: 1.5rem; border-radius: 8px; margin-top: 1rem;">
+                                <div
+                                    style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: 1.2rem;">Total Mensual (Inc. IGV):</span>
+                                    <span style="font-size: 1.5rem; font-weight: bold;"> S/. <t
+                                            t-esc="'%.2f' % doc.total_facturar_mensual" />
+                                    </span>
+                                </div>
                             </div>
+                        </div>
+
+                        <!-- Información Adicional -->
+                        <div class="info-section">
+                            <div class="section-title">
+                                <i class="fa fa-info-circle"></i> Información Adicional </div>
+                            <ul class="benefits-list">
+                                <li>Las tarifas incluyen IGV (18%)</li>
+                                <li>Facturación en nuevos soles</li>
+                                <li>Incluye instalación y capacitación</li>
+                                <li>Incluye renovación de maquinaria, insumos y repuestos</li>
+                                <li>Servicio técnico incluido</li>
+                            </ul>
+                        </div>
+
+                        <!-- Condiciones Comerciales -->
+                        <div class="info-section">
+                            <div class="section-title">
+                                <i class="fa fa-file-text"></i> Condiciones Comerciales </div>
+                            <ul class="conditions-list">
+                                <li>Formas de pago: <ul>
+                                        <li>Cuenta corriente BCP: 191-2334609-0-07</li>
+                                        <li>CCI: 002-19100233460900751</li>
+                                        <li>Cuenta de detracción Banco de la Nación: 00802007582</li>
+                                    </ul>
+                                </li>
+                                <li>Contrato marco de alquiler por <t
+                                        t-esc="doc.duracion_alquiler_id.name" /></li>
+                                <li>Los equipos se alquilan sin papel</li>
+                                <li>Mantenimiento preventivo cada 2 meses</li>
+                            </ul>
+                        </div>
+
+                        <!-- Firma -->
+                        <div style="margin-top: 3rem; margin-bottom: 2rem;">
+                            <p>Sin otro particular, quedamos a su disposición para cualquier
+                                consulta.</p>
+                            <div style="margin-top: 2rem;">
+                                <p>Atentamente,</p>
+                                <div style="margin-top: 3rem;">
+                                    <p>____________________</p>
+                                    <p>Ejecutivo Comercial</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="footer" style="text-align: center; color: var(--gray-medium);">
+                            <p>Propuesta válida por 15 días</p>
+                            <p>Página <span class="page" /> de <span class="topage" /></p>
                         </div>
                     </t>
                 </t>
