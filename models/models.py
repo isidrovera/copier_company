@@ -21,7 +21,23 @@ class CopierCompany(models.Model):
         return super(CopierCompany, self).create(vals)
     
     # Campos relacionados y básicos
-    imagen_id = fields.Binary(related='name.imagen', string='Imagen')
+    imagen_id = fields.Binary(
+        related='name.imagen',
+        string='Imagen',
+        related_sudo=False,  # Para asegurar que use los permisos del usuario
+        attachment=True      # Para manejar la imagen como adjunto
+    )
+    @api.depends('name', 'name.imagen')
+    def _compute_imagen(self):
+        for record in self:
+            if record.name and record.name.imagen:
+                record.imagen_id = record.name.imagen
+            else:
+                record.imagen_id = False
+
+    def action_clear_image(self):
+        self.ensure_one()
+        self.imagen_id = False
     especificaciones_id = fields.Html(related='name.especificaciones', string='Especificaciones')
     serie_id = fields.Char(string='Serie', tracking=True)
     marca_id = fields.Many2one('marcas.maquinas', string='Marca', related='name.marca_id')
