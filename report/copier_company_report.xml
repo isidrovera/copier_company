@@ -33,6 +33,23 @@
                                 margin: 0;
                                 padding: 0;
                             }
+                            .main-header {
+                            background: #1a4b8c;
+                            padding: 2rem;
+                            border-radius: 8px;
+                            }
+
+                            .main-header h1, 
+                            .main-header p,
+                            .main-header div {
+                            color: white !important;
+                            }
+
+                            .flex-between {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            }
 
                             .section {
                                 background: white;
@@ -134,6 +151,7 @@
                                     -webkit-print-color-adjust: exact;
                                     print-color-adjust: exact;
                                 }
+
                             }
                         </style>
                         <div class="main-header">
