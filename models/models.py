@@ -112,7 +112,7 @@ class CopierCompany(models.Model):
     
     # Campos técnicos
     detalles = fields.Text(string='Detalles técnicos')
-    qr_code = fields.Binary(string='Código QR', readonly=True)
+    qr_code = fields.Binary(string='Código QR', readonly=True, attachment=True)
     
     @api.onchange('tipo')
     def _onchange_tipo(self):
