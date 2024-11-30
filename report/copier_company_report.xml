@@ -11,11 +11,45 @@
             <field name="binding_model_id" ref="model_copier_company" />
             <field name="binding_type">report</field>
         </record>
+        <!-- Definimos primero el header y footer como templates separados -->
+        <template id="custom_header">
+            <div class="header" style="border-bottom: 1px solid #dee2e6; padding: 20px;">
+                <div class="row">
+                    <div class="col-3">
+                        <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 80px;" alt="Logo"/>
+                    </div>
+                    <div class="col-9 text-end">
+                        <div t-field="company.name" style="font-size: 1.5em; color: #1a4b8c;"/>
+                        <div t-field="company.street"/>
+                        <div t-field="company.phone"/>
+                        <div t-field="company.email"/>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <template id="custom_footer">
+            <div class="footer" style="border-top: 1px solid #dee2e6; padding: 20px;">
+                <div class="text-center">
+                    <div style="color: #1a4b8c; margin-bottom: 10px;">
+                        <strong>Propuesta válida por 15 días</strong>
+                    </div>
+                    <div t-field="company.name"/>
+                    <div t-field="company.street"/>
+                    <div>
+                        <span>Página </span>
+                        <span class="page"/>
+                        <span> de </span>
+                        <span class="topage"/>
+                    </div>
+                </div>
+            </div>
+        </template>
 
         <template id="cotizacion_view">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
-                    <t t-call="web.external_layout">
+                    <t t-call="copier_company.custom_header">
                         <style>
                             :root {
                                 --primary-blue: #1a365d;
@@ -324,27 +358,12 @@
                         </div>
 
                         <!-- Pie de página -->
-                        <!-- Reemplaza el div actual del pie de página con esto -->
-                        <div class="footer" style="position: fixed; bottom: 0; left: 0; right: 0; width: 100%; background-color: white;">
-                            <div style="padding: 20px; border-top: 1px solid var(--border);">
-                                <div style="text-align: center;">
-                                    <div style="color: var(--primary-blue); margin-bottom: 10px;">
-                                        <strong>Propuesta válida por 15 días</strong>
-                                    </div>
-                                    <div style="display: flex; justify-content: center; align-items: center; gap: 5px; color: var(--secondary-blue);">
-                                        <span>Página</span>
-                                        <span class="page"/>
-                                        <span>de</span>
-                                        <span class="topage"/>
-                                    </div>
-                                    <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
-                                        <div>Síguenos en nuestras redes sociales</div>
-                                        <div style="margin-top: 5px;">📞 (01) 123-4567 | ✉️ ventas@tuempresa.com</div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
-                    </t>
+
+                        <!-- Llamamos a nuestro footer personalizado -->
+                        <t t-call="copier_company.custom_footer"/>
+                    </div>                  
+                  </t>
                 </t>
             </t>
         </template>
