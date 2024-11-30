@@ -37,7 +37,6 @@ class CopierCompany(models.Model):
         string='URL de la imagen',
         readonly=True
     )
-    
     imagen_mostrar_related = fields.Binary(
         related='name.imagen_mostrar',
         string='Imagen de la máquina',
