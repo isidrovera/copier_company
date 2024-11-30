@@ -20,21 +20,17 @@ class CopierCompany(models.Model):
         vals['secuencia'] = self.env['ir.sequence'].next_by_code('copier.company') or '/'
         return super(CopierCompany, self).create(vals)
     
-    # Campos relacionados y básicos
     imagen_id = fields.Binary(
-        related='name.imagen',
-        string='Imagen',
-        related_sudo=False,  # Para asegurar que use los permisos del usuario
-        attachment=True      # Para manejar la imagen como adjunto
-    )
+    string='Imagen',
+    compute='_compute_imagen',
+    store=True,
+    attachment=True
+)
+
     @api.depends('name', 'name.imagen')
     def _compute_imagen(self):
         for record in self:
-            if record.name and record.name.imagen:
-                record.imagen_id = record.name.imagen
-            else:
-                record.imagen_id = False
-
+            record.imagen_id = record.name.imagen if record.name else False
     def action_clear_image(self):
         self.ensure_one()
         self.imagen_id = False

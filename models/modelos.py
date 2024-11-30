@@ -9,7 +9,9 @@ class ModelosMaquinas(models.Model):
     marca_id = fields.Many2one('marcas.maquinas',string='Marca')
     especificaciones = fields.Html(string="Especificaciones")
     active = fields.Boolean(string="Activo", default=True)    
-    imagen = fields.Binary(string='Imagen', attachment=True)
+    imagen = fields.Binary(string='Imagen', attachment=True, 
+    store=True
+    )
     
     
 class MarcasMaquinas(models.Model):
