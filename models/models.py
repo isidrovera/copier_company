@@ -22,28 +22,12 @@ class CopierCompany(models.Model):
     
     imagen_id = fields.Binary(
     related='name.imagen',
+    string="Imagen de la Máquina",
     store=True,
-    attachment=True
+    attachment=False
 )
 
-    @api.depends('name', 'name.imagen')
-    def _compute_imagen(self):
-        for record in self:
-            record.imagen_id = record.name.imagen if record.name else False
-
-    imagen_url_related = fields.Char(
-        related='name.imagen_url',
-        string='URL de la imagen',
-        readonly=True
-    )
-    imagen_mostrar_related = fields.Binary(
-        related='name.imagen_mostrar',
-        string='Imagen de la máquina',
-        readonly=True
-    )
-    def action_clear_image(self):
-        self.ensure_one()
-        self.imagen_id = False
+    
     especificaciones_id = fields.Html(related='name.especificaciones', string='Especificaciones')
     serie_id = fields.Char(string='Serie', tracking=True)
     marca_id = fields.Many2one('marcas.maquinas', string='Marca', related='name.marca_id')
