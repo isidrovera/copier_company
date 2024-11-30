@@ -12,6 +12,29 @@ class ModelosMaquinas(models.Model):
     imagen = fields.Binary(string='Imagen', attachment=True, 
     store=True
     )
+    imagen_url = fields.Char(
+        string='URL de la imagen',
+        help="Ingrese la URL de la imagen de la máquina"
+    )
+    imagen_mostrar = fields.Binary(
+        string='Vista previa',
+        compute='_compute_imagen_desde_url',
+        store=True
+    )
+
+    @api.depends('imagen_url')
+    def _compute_imagen_desde_url(self):
+        for record in self:
+            if record.imagen_url:
+                try:
+                    import requests
+                    response = requests.get(record.imagen_url)
+                    if response.status_code == 200:
+                        record.imagen_mostrar = base64.b64encode(response.content)
+                except Exception:
+                    record.imagen_mostrar = False
+            else:
+                record.imagen_mostrar = False
     
     
 class MarcasMaquinas(models.Model):

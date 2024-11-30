@@ -31,6 +31,18 @@ class CopierCompany(models.Model):
     def _compute_imagen(self):
         for record in self:
             record.imagen_id = record.name.imagen if record.name else False
+
+     imagen_url_related = fields.Char(
+        related='name.imagen_url',
+        string='URL de la imagen',
+        readonly=True
+    )
+    
+    imagen_mostrar_related = fields.Binary(
+        related='name.imagen_mostrar',
+        string='Imagen de la máquina',
+        readonly=True
+    )
     def action_clear_image(self):
         self.ensure_one()
         self.imagen_id = False
