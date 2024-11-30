@@ -21,8 +21,7 @@ class CopierCompany(models.Model):
         return super(CopierCompany, self).create(vals)
     
     imagen_id = fields.Binary(
-    string='Imagen',
-    compute='_compute_imagen',
+    related='name.imagen',
     store=True,
     attachment=True
 )
