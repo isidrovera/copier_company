@@ -21,21 +21,21 @@ class CopierCompany(models.Model):
         return super(CopierCompany, self).create(vals)
     
     imagen_id = fields.Binary(
-    related='name.imagen',
-    string="Imagen de la Máquina",
-    store=True
-)
+        related='name.imagen',
+        string="Imagen de la Máquina",
+        store=True,
+        readonly=True
+    )
     imagen_name = fields.Char(
-        string="Nombre del Archivo de Imagen",
-        compute="_compute_imagen_name",
-        store=False  # No se guarda en la base de datos
+        string="Nombre de la Imagen",
+        compute="_compute_imagen_name"
     )
 
     @api.depends('name')
     def _compute_imagen_name(self):
         for record in self:
-            if record.name and record.name.imagen:
-                record.imagen_name = f"{record.name.name or 'imagen'}.png"
+            if record.name and record.name.name:
+                record.imagen_name = f"{record.name.name.replace(' ', '_')}.png"
             else:
                 record.imagen_name = "default_image.png"
     
