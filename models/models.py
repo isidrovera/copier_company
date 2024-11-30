@@ -23,10 +23,21 @@ class CopierCompany(models.Model):
     imagen_id = fields.Binary(
     related='name.imagen',
     string="Imagen de la Máquina",
-    store=True,
-    attachment=False
+    store=True
 )
+    imagen_name = fields.Char(
+        string="Nombre del Archivo de Imagen",
+        compute="_compute_imagen_name",
+        store=False  # No se guarda en la base de datos
+    )
 
+    @api.depends('name')
+    def _compute_imagen_name(self):
+        for record in self:
+            if record.name and record.name.imagen:
+                record.imagen_name = f"{record.name.name or 'imagen'}.png"
+            else:
+                record.imagen_name = "default_image.png"
     
     especificaciones_id = fields.Html(related='name.especificaciones', string='Especificaciones')
     serie_id = fields.Char(string='Serie', tracking=True)
