@@ -13,52 +13,25 @@
             <field name="binding_type">report</field>
         </record>
 
-        <!-- Estilos Globales y Layout Personalizado -->
-        <template id="cotizacion_layout">
-            <div t-attf-class="header" style="border-bottom: 1px solid #dee2e6; padding: 20px;">
-                <div class="row">
-                    <div class="col-3" style="text-align: left;">
-                        <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 80px;" alt="Logo"/>
-                    </div>
-                    <div class="col-9" style="text-align: right; color: #1a4b8c;">
-                        <div style="font-size: 1.5em; font-weight: bold;" t-field="company.name"/>
-                        <div style="font-size: 1.1em;" t-field="company.street"/>
-                        <div t-field="company.phone"/>
-                        <div t-field="company.email"/>
-                    </div>
-                </div>
-            </div>
-
-            <div class="article o_report_layout_standard" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id">
-                <t t-raw="0"/>
-            </div>
-
-            <div class="footer" style="border-top: 1px solid #dee2e6; padding: 15px;">
-                <div class="text-center">
-                    <div style="color: #1a4b8c; margin-bottom: 10px;">
-                        <strong>Propuesta válida por 15 días</strong>
-                    </div>
-                    <div style="margin-bottom: 5px;">
-                        <span t-field="company.street"/> | 
-                        <span t-field="company.phone"/> |
-                        <span t-field="company.email"/>
-                    </div>
-                    <div>
-                        <span>Página </span>
-                        <span class="page"/>
-                        <span> de </span>
-                        <span class="topage"/>
-                    </div>
-                </div>
-            </div>
-        </template>
-
         <!-- Template Principal del Reporte -->
         <template id="cotizacion_view">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
-                    <t t-call="copier_company.cotizacion_layout">
-                        <div class="page">
+                    <div class="page">
+                        <!-- Header -->
+                        <div class="header" style="border-bottom: 1px solid #dee2e6; padding: 20px;">
+                            <div class="row">
+                                <div class="col-3" style="text-align: left;">
+                                    <img t-if="doc.company_id.logo" t-att-src="image_data_uri(doc.company_id.logo)" style="max-height: 80px;" alt="Logo"/>
+                                </div>
+                                <div class="col-9" style="text-align: right; color: #1a4b8c;">
+                                    <div style="font-size: 1.5em; font-weight: bold;" t-field="doc.company_id.name"/>
+                                    <div style="font-size: 1.1em;" t-field="doc.company_id.street"/>
+                                    <div t-field="doc.company_id.phone"/>
+                                    <div t-field="doc.company_id.email"/>
+                                </div>
+                            </div>
+                        </div>
                             <style>
                                 :root {
                                     --primary-blue: #1a365d;
@@ -360,6 +333,26 @@
                                     </div>
                                 </div>
                             </div>
+                            <!-- Footer -->
+                        <div class="footer" style="border-top: 1px solid #dee2e6; padding: 15px; position: fixed; bottom: 0; width: 100%; background-color: white;">
+                            <div class="text-center">
+                                <div style="color: #1a4b8c; margin-bottom: 10px;">
+                                    <strong>Propuesta válida por 15 días</strong>
+                                </div>
+                                <div style="margin-bottom: 5px;">
+                                    <span t-field="doc.company_id.name"/> | 
+                                    <span t-field="doc.company_id.street"/> | 
+                                    <span t-field="doc.company_id.phone"/>
+                                </div>
+                                <div>
+                                    <span>Página </span>
+                                    <span class="page"/>
+                                    <span> de </span>
+                                    <span class="topage"/>
+                                </div>
+                            </div>
+                        </div>
+
 
                         </div>
                     </t>
