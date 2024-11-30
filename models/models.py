@@ -20,24 +20,13 @@ class CopierCompany(models.Model):
         vals['secuencia'] = self.env['ir.sequence'].next_by_code('copier.company') or '/'
         return super(CopierCompany, self).create(vals)
     
-    imagen_id = fields.Binary(
-        related='name.imagen',
-        string="Imagen de la Máquina",
-        store=True,
-        readonly=True
-    )
-    imagen_name = fields.Char(
-        string="Nombre de la Imagen",
-        compute="_compute_imagen_name"
-    )
+    imagen_id = fields.Binary(string="Imagen de la Máquina", attachment=True)
 
-    @api.depends('name')
-    def _compute_imagen_name(self):
-        for record in self:
-            if record.name and record.name.name:
-                record.imagen_name = f"{record.name.name.replace(' ', '_')}.png"
-            else:
-                record.imagen_name = "default_image.png"
+    @api.onchange('name')
+    def _onchange_name(self):
+        if self.name:
+            # Copiar la imagen del modelo relacionado
+            self.imagen_id = self.name.imagen
     
     especificaciones_id = fields.Html(related='name.especificaciones', string='Especificaciones')
     serie_id = fields.Char(string='Serie', tracking=True)
