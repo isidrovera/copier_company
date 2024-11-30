@@ -32,7 +32,7 @@ class CopierCompany(models.Model):
         for record in self:
             record.imagen_id = record.name.imagen if record.name else False
 
-     imagen_url_related = fields.Char(
+    imagen_url_related = fields.Char(
         related='name.imagen_url',
         string='URL de la imagen',
         readonly=True
