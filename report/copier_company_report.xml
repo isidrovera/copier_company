@@ -324,9 +324,25 @@
                         </div>
 
                         <!-- Pie de página -->
-                        <div style="text-align: center; margin-top: 2rem; color: var(--secondary);">
-                            <p>Propuesta válida por 15 días</p>
-                            <p>Página <span class="page" /> de <span class="topage" /></p>
+                        <!-- Reemplaza el div actual del pie de página con esto -->
+                        <div class="footer" style="position: fixed; bottom: 0; left: 0; right: 0; width: 100%; background-color: white;">
+                            <div style="padding: 20px; border-top: 1px solid var(--border);">
+                                <div style="text-align: center;">
+                                    <div style="color: var(--primary-blue); margin-bottom: 10px;">
+                                        <strong>Propuesta válida por 15 días</strong>
+                                    </div>
+                                    <div style="display: flex; justify-content: center; align-items: center; gap: 5px; color: var(--secondary-blue);">
+                                        <span>Página</span>
+                                        <span class="page"/>
+                                        <span>de</span>
+                                        <span class="topage"/>
+                                    </div>
+                                    <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                                        <div>Síguenos en nuestras redes sociales</div>
+                                        <div style="margin-top: 5px;">📞 (01) 123-4567 | ✉️ ventas@tuempresa.com</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </t>
                 </t>
