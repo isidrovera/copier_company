@@ -1,4 +1,26 @@
-from odoo import models, fields, api
+from odoo import api, fields, models
+import requests
+import logging
+import base64
+
+_logger = logging.getLogger(__name__)
+
+class ImageFromURLMixin:
+    def get_image_from_url(self, url):
+        """
+        Obtiene y convierte una imagen desde una URL a base64
+        :param url: URL de la imagen
+        :return: Imagen codificada en base64
+        """
+        data = False
+        try:
+            response = requests.get(url.strip())
+            if response.status_code == 200:
+                data = base64.b64encode(response.content)
+        except Exception as e:
+            _logger.warning("No se pudo cargar la imagen desde la URL %s" % url)
+            _logger.exception(e)
+        return data
 
 class ModelosMaquinas(models.Model):
     _name = 'modelos.maquinas'
@@ -19,22 +41,17 @@ class ModelosMaquinas(models.Model):
     imagen_mostrar = fields.Binary(
         string='Vista previa',
         compute='_compute_imagen_desde_url',
-        store=True
+        store=True,
+        attachment=True
     )
 
     @api.depends('imagen_url')
     def _compute_imagen_desde_url(self):
         for record in self:
+            image = False
             if record.imagen_url:
-                try:
-                    import requests
-                    response = requests.get(record.imagen_url)
-                    if response.status_code == 200:
-                        record.imagen_mostrar = base64.b64encode(response.content)
-                except Exception:
-                    record.imagen_mostrar = False
-            else:
-                record.imagen_mostrar = False
+                image = self.get_image_from_url(record.imagen_url)
+            record.imagen_mostrar = image
     
     
 class MarcasMaquinas(models.Model):
