@@ -5,7 +5,10 @@ import base64
 
 _logger = logging.getLogger(__name__)
 
-class ImageFromURLMixin:
+class ImageFromURLMixin(models.AbstractModel):
+    _name = 'image.url.mixin'
+    _description = 'Mixin para cargar imágenes desde URL'
+
     def get_image_from_url(self, url):
         """
         Obtiene y convierte una imagen desde una URL a base64
@@ -13,6 +16,8 @@ class ImageFromURLMixin:
         :return: Imagen codificada en base64
         """
         data = False
+        if not url:
+            return data
         try:
             response = requests.get(url.strip())
             if response.status_code == 200:
