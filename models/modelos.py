@@ -53,10 +53,8 @@ class ModelosMaquinas(models.Model):
     @api.depends('imagen_url')
     def _compute_imagen_desde_url(self):
         for record in self:
-            image = False
-            if record.imagen_url:
-                image = self.get_image_from_url(record.imagen_url)
-            record.imagen_mostrar = image
+            record.imagen_mostrar = self.get_image_from_url(record.imagen_url)
+
     
     
 class MarcasMaquinas(models.Model):
