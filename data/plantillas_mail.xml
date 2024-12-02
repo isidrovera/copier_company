@@ -7,7 +7,7 @@
            <field name="email_from">{{ object.company_id.email }}</field>
            <field name="email_to">{{ object.cliente_id.email }}</field>
            <field name="subject">Propuesta de Solución de Impresión - {{ object.secuencia }}</field>
-           <field name="report_template" ref="copier_company.action_report_report_cotizacion_alquiler"/>
+           <field name="report_id" ref="copier_company.action_report_report_cotizacion_alquiler"/>
            <field name="report_name">Propuesta_{{ object.secuencia }}</field>
            <field name="body_html" type="html">
                <div style="margin: 0px; padding: 0px;">
