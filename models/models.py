@@ -4,6 +4,8 @@ from odoo.modules.module import get_module_resource
 import qrcode
 import base64
 import io
+from dateutil import tz
+from datetime import datetime
 from PIL import Image
 import os
 
@@ -27,6 +29,22 @@ class CopierCompany(models.Model):
         if self.name:
             # Copiar la imagen del modelo relacionado
             self.imagen_id = self.name.imagen
+
+    fecha_formateada = fields.Char('Fecha', compute='_compute_fecha_formateada', store=True)
+
+    @api.depends('create_date')
+    def _compute_fecha_formateada(self):
+        meses = {
+            1: 'enero', 2: 'febrero', 3: 'marzo', 4: 'abril',
+            5: 'mayo', 6: 'junio', 7: 'julio', 8: 'agosto',
+            9: 'septiembre', 10: 'octubre', 11: 'noviembre', 12: 'diciembre'
+        }
+        lima_tz = tz.gettz('America/Lima')
+        
+        for record in self:
+            if record.create_date:
+                fecha_lima = record.create_date.astimezone(lima_tz)
+                record.fecha_formateada = f"Lima {fecha_lima.day} de {meses[fecha_lima.month]} {fecha_lima.year}"
     
     especificaciones_id = fields.Html(related='name.especificaciones', string='Especificaciones')
     serie_id = fields.Char(string='Serie', tracking=True)
