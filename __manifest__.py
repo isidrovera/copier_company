@@ -30,6 +30,7 @@
         'views/vista_tree_portal.xml',
         'security/ir.model.access.csv',        
         'data/ir.secuencia.xml',
+        'data/plantillas_mail.xml',
         'data/copier_company_data.xml',        
         'views/pCloud.xml', 
         'views/confirmacion_formulario.xml',

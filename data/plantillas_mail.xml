@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<data>
+   <record id="email_template_propuesta_alquiler" model="mail.template">
+       <field name="name">Propuesta de Alquiler</field>
+       <field name="model_id" ref="model_copier_company"/>
+       <field name="subject">Propuesta de Solución de Impresión <t t-out="object.secuencia"/></field>
+       <field name="partner_to"><t t-out="object.cliente_id.id"/></field>
+       <field name="email_from"><t t-out="user.email_formatted"/></field>
+       <field name="reply_to"><t t-out="user.email_formatted"/></field>
+       <field name="report_template" ref="copier_company.action_report_report_cotizacion_alquiler"/>
+       <field name="report_name">Propuesta_<t t-out="object.secuencia"/></field>
+       <field name="body_html" type="html">
+           <div style="font-family: Arial, sans-serif; color: #333333;">
+               <p>Estimado/a <t t-out="object.cliente_id.name"/>,</p>
+
+               <p>Es un gusto saludarle. Adjunto encontrará nuestra propuesta detallada para el servicio de alquiler que hemos preparado especialmente para su empresa.</p>
+
+               <p>Si tiene alguna consulta o requiere información adicional, no dude en contactarnos.</p>
+
+               <p>Saludos cordiales,</p>
+               <br/>
+               <div>
+                   <strong><t t-out="user.name"/></strong><br/>
+                   <t t-out="user.company_id.name"/><br/>
+                   📱 <t t-out="user.phone or ''"/><br/>
+                   📧 <t t-out="user.email"/>
+               </div>
+           </div>
+       </field>
+   </record>
+</data>
