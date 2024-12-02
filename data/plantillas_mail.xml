@@ -8,7 +8,7 @@
            <field name="email_to">{{ object.cliente_id.email }}</field>
            <field name="subject">Propuesta de Solución de Impresión - {{ object.secuencia }}</field>
            <!-- Use 'report_template' instead of 'report_id' -->
-           <field name="report_template_ids" ref="copier_company.action_report_report_cotizacion_alquiler"/>
+           <field name="report_template_ids" ref="action_report_report_cotizacion_alquiler"/>
            
            <field name="body_html" type="html">
                <div style="margin: 0px; padding: 0px;">
