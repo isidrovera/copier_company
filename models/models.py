@@ -45,6 +45,11 @@ class CopierCompany(models.Model):
             if record.create_date:
                 fecha_lima = record.create_date.astimezone(lima_tz)
                 record.fecha_formateada = f"Lima {fecha_lima.day} de {meses[fecha_lima.month]} {fecha_lima.year}"
+
+    def enviar_correo_propuesta(self):
+        template = self.env.ref('copier_company.email_template_propuesta_alquiler')
+        if template:
+            template.send_mail(self.id, force_send=True)
     
     especificaciones_id = fields.Html(related='name.especificaciones', string='Especificaciones')
     serie_id = fields.Char(string='Serie', tracking=True)
