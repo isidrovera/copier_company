@@ -22,13 +22,8 @@ class CopierCompany(models.Model):
         vals['secuencia'] = self.env['ir.sequence'].next_by_code('copier.company') or '/'
         return super(CopierCompany, self).create(vals)
     
-    imagen_id = fields.Binary(string="Imagen de la Máquina", attachment=True)
+    imagen_id = fields.Binary(related='name.imagen',string="Imagen de la Máquina", attachment=True)
 
-    @api.onchange('name')
-    def _onchange_name(self):
-        if self.name:
-            # Copiar la imagen del modelo relacionado
-            self.imagen_id = self.name.imagen
 
     fecha_formateada = fields.Char('Fecha', compute='_compute_fecha_formateada', store=True)
 
