@@ -4,7 +4,7 @@
        <record id="email_template_propuesta_alquiler" model="mail.template">
            <field name="name">Propuesta de Alquiler</field>
            <field name="model_id" ref="model_copier_company"/>
-           <field name="email_from">{{ object.company_id.email }}</field>
+           <field name="email_from">{{ object.user.company_id.email }}</field>
            <field name="email_to">{{ object.cliente_id.email }}</field>
            <field name="subject">Propuesta de Solución de Impresión - {{ object.secuencia }}</field>
            <!-- Cambiamos report_id a report_template_ids -->
