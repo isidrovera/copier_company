@@ -9,7 +9,7 @@
            <field name="subject">Propuesta de Solución de Impresión - {{ object.secuencia }}</field>
            <!-- Cambiamos report_id a report_template_ids -->
            <field name="report_template_ids" eval="[(4, ref('copier_company.action_report_report_cotizacion_alquiler'))]"/>
-           <field name="report_name">Propuesta_{{ object.secuencia }}</field>
+           
            
            <field name="body_html" type="html">
                <div style="margin: 0px; padding: 0px;">
