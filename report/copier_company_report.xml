@@ -18,20 +18,20 @@
                     <t t-call="web.external_layout">
                         <style>
                             :root {
-                            --primary-blue: #1a365d;
-                            --secondary-blue: #2563eb;
-                            --accent-blue: #3b82f6;
-                            --success-green: #059669;
-                            --light-bg: #f3f4f6;
-                            --border: #e5e7eb;
+                                --primary-blue: #1a365d;
+                                --secondary-blue: #2563eb;
+                                --accent-blue: #3b82f6;
+                                --success-green: #059669;
+                                --light-bg: #f3f4f6;
+                                --border: #e5e7eb;
                             }
 
                             body {
-                            font-family: 'Helvetica', 'Arial', sans-serif;
-                            line-height: 1.6;
-                            color: #1f2937;
-                            margin: 0;
-                            padding: 0;
+                                font-family: 'Helvetica', 'Arial', sans-serif;
+                                line-height: 1.6;
+                                color: #1f2937;
+                                margin: 0;
+                                padding: 0;
                             }
                             .main-header {
                             background: #1a4b8c;
@@ -39,7 +39,7 @@
                             border-radius: 8px;
                             }
 
-                            .main-header h1,
+                            .main-header h1, 
                             .main-header p,
                             .main-header div {
                             color: white !important;
@@ -52,33 +52,33 @@
                             }
 
                             .section {
-                            background: white;
-                            border-radius: 10px;
-                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-                            padding: 1.5rem;
-                            margin-bottom: 1.5rem;
+                                background: white;
+                                border-radius: 10px;
+                                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                                padding: 1.5rem;
+                                margin-bottom: 1.5rem;
                             }
                             .benefits-list {
-                            list-style: none;
-                            padding: 0;
+                                list-style: none;
+                                padding: 0;
                             }
 
                             .benefits-list li {
-                            margin-bottom: 0.8rem;
-                            padding-left: 1.5rem;
-                            position: relative;
+                                margin-bottom: 0.8rem;
+                                padding-left: 1.5rem;
+                                position: relative;
                             }
 
                             .benefits-list li::before {
-                            content: "✓";
-                            position: absolute;
-                            left: 0;
-                            color: #059669; /* Verde */
-                            font-weight: bold;
+                                content: "✓";
+                                position: absolute;
+                                left: 0;
+                                color: #059669; /* Verde */
+                                font-weight: bold;
                             }
 
                             .benefits-list li:hover::before {
-                            color: #047857; /* Verde más oscuro al hover */
+                                color: #047857; /* Verde más oscuro al hover */
                             }
                             .payment-section {
                             background: #f8fafc;
@@ -155,138 +155,136 @@
                             }
 
                             .section-header {
-                            display: flex;
-                            align-items: center;
-                            gap: 0.75rem;
-                            border-bottom: 2px solid var(--accent-blue);
-                            padding-bottom: 0.75rem;
-                            margin-bottom: 1rem;
-                            color: var(--primary-blue);
-                            font-size: 1.25rem;
-                            font-weight: bold;
+                                display: flex;
+                                align-items: center;
+                                gap: 0.75rem;
+                                border-bottom: 2px solid var(--accent-blue);
+                                padding-bottom: 0.75rem;
+                                margin-bottom: 1rem;
+                                color: var(--primary-blue);
+                                font-size: 1.25rem;
+                                font-weight: bold;
                             }
 
                             .section-header i {
-                            color: var(--secondary-blue);
+                                color: var(--secondary-blue);
                             }
 
                             table {
-                            width: 100%;
-                            border-collapse: collapse;
-                            margin-top: 1rem;
-                            font-size: 1rem;
+                                width: 100%;
+                                border-collapse: collapse;
+                                margin-top: 1rem;
+                                font-size: 1rem;
                             }
 
                             table thead tr {
-                            background: var(--primary-blue);
-                            color: white;
-                            text-align: left;
+                                background: var(--primary-blue);
+                                color: white;
+                                text-align: left;
                             }
 
                             table th,
                             table td {
-                            padding: 0.75rem;
-                            text-align: center;
-                            border: 1px solid var(--border);
+                                padding: 0.75rem;
+                                text-align: center;
+                                border: 1px solid var(--border);
                             }
 
                             table tbody tr:nth-child(odd) {
-                            background: var(--light-bg);
+                                background: var(--light-bg);
                             }
 
                             table tbody tr:hover {
-                            background: var(--secondary-blue);
-                            color: white;
-                            transition: background 0.3s ease;
+                                background: var(--secondary-blue);
+                                color: white;
+                                transition: background 0.3s ease;
                             }
-                            .pricing-section table {
-                            width: 100%;
-                            border-collapse: separate;
-                            border-spacing: 0 8px;
-                            margin: 20px 0;
-                            font-family: 'Helvetica', 'Arial', sans-serif;
-                            }
-
-                            .pricing-section th {
-                            background: #1a4b8c;
-                            color: white;
-                            padding: 15px;
-                            font-size: 1.1em;
-                            text-transform: uppercase;
-                            text-align: left;
+                            .pricing-table {
+                                width: 100%;
+                                border-collapse: separate;
+                                border-spacing: 0 8px;
+                                margin: 20px 0;
                             }
 
-                            .pricing-section th i {
-                            margin-right: 8px;
+                            .pricing-table thead th {
+                                background: linear-gradient(135deg, #1a4b8c, #2563eb);
+                                color: white;
+                                padding: 15px;
+                                font-size: 1.1em;
+                                text-transform: uppercase;
+                                border: none;
                             }
 
-                            .pricing-section td {
-                            padding: 15px;
-                            border: none;
-                            background: white;
-                            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                            .pricing-table th:first-child {
+                                border-radius: 8px 0 0 8px;
                             }
 
-                            .pricing-section tr {
-                            transition: all 0.3s ease;
+                            .pricing-table th:last-child {
+                                border-radius: 0 8px 8px 0;
                             }
 
-                            .pricing-section tr:hover {
-                            transform: translateX(5px);
-                            background: #f8fafc;
+                            .pricing-table td {
+                                padding: 15px;
+                                border: none;
+                                background: white;
+                                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                                transition: all 0.3s ease;
                             }
 
-                            .pricing-section td:first-child {
-                            border-radius: 6px 0 0 6px;
-                            font-weight: 500;
+                            .pricing-table tr:hover td {
+                                background: #f8fafc;
+                                transform: translateX(5px);
                             }
 
-                            .pricing-section td:last-child {
-                            border-radius: 0 6px 6px 0;
+                            .pricing-table td:first-child {
+                                border-radius: 8px 0 0 8px;
+                                font-weight: 500;
                             }
 
-                            .pricing-section .amount {
-                            font-weight: bold;
-                            color: #2563eb;
+                            .pricing-table td:last-child {
+                                border-radius: 0 8px 8px 0;
+                            }
+
+                            .pricing-table .amount {
+                                font-weight: bold;
+                                color: #2563eb;
                             }
 
                             .badge {
-                            padding: 6px 12px;
-                            border-radius: 20px;
-                            font-size: 0.9em;
-                            font-weight: 500;
-                            display: inline-block;
+                                padding: 6px 12px;
+                                border-radius: 20px;
+                                font-size: 0.9em;
+                                font-weight: 500;
                             }
 
                             .badge.included {
-                            background: #059669;
-                            color: white;
+                                background: #059669;
+                                color: white;
                             }
 
                             .badge.additional {
-                            background: #eab308;
-                            color: white;
+                                background: #eab308;
+                                color: white;
                             }
 
                             .badge.applicable {
-                            background: #3b82f6;
-                            color: white;
+                                background: #3b82f6;
+                                color: white;
                             }
 
                             .badge.promotion {
-                            background: #ec4899;
-                            color: white;
+                                background: #ec4899;
+                                color: white;
                             }
 
-                            .highlight-row {
-                            background: #f8fafc !important;
+                            .pricing-table td i {
+                                margin-right: 8px;
+                                color: #64748b;
                             }
 
-                            td i {
-                            margin-right: 8px;
-                            color: #64748b;
+                            .pricing-table th i {
+                                margin-right: 8px;
                             }
-
                             .total-section {
                             background: linear-gradient(135deg, #1a4b8c, #2563eb);
                             border-radius: 12px;
@@ -335,40 +333,40 @@
                             }
 
                             .total-section strong {
-                            font-size: 1.4rem;
-                            display: block;
-                            margin-bottom: 0.5rem;
+                                font-size: 1.4rem;
+                                display: block;
+                                margin-bottom: 0.5rem;
                             }
 
                             .data-row {
-                            display: flex;
-                            justify-content: space-between;
-                            align-items: center;
-                            padding: 0.75rem;
-                            background: var(--light-bg);
-                            border-radius: 6px;
-                            margin-bottom: 0.5rem;
-                            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                padding: 0.75rem;
+                                background: var(--light-bg);
+                                border-radius: 6px;
+                                margin-bottom: 0.5rem;
+                                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
                             }
 
                             @media print {
-                            body {
-                            font-size: 10pt;
-                            }
+                                body {
+                                    font-size: 10pt;
+                                }
 
-                            .section {
-                            page-break-inside: avoid;
-                            }
+                                .section {
+                                    page-break-inside: avoid;
+                                }
 
-                            .total-section {
-                            -webkit-print-color-adjust: exact;
-                            print-color-adjust: exact;
-                            }
+                                .total-section {
+                                    -webkit-print-color-adjust: exact;
+                                    print-color-adjust: exact;
+                                }
 
-                            table thead tr {
-                            -webkit-print-color-adjust: exact;
-                            print-color-adjust: exact;
-                            }
+                                table thead tr {
+                                    -webkit-print-color-adjust: exact;
+                                    print-color-adjust: exact;
+                                }
 
                             }
                         </style>
@@ -385,7 +383,7 @@
                                 </div>
                             </div>
                             <p style="margin-top: 1rem;">
-                                <t t-esc="doc.fecha_formateada" />
+                                <t t-esc="doc.fecha_formateada"/>
                             </p>
                         </div>
 
@@ -415,10 +413,9 @@
                                     </span>
                                 </div>
                             </div>
-                            <p style="margin-top: 1rem;" class="intro-text"> Nos complace presentar
-                                nuestra <strong>PROPUESTA COMERCIAL</strong> detallando las
-                                especificaciones y condiciones para el arrendamiento del siguiente
-                                equipo multifuncional de última generación: </p>
+                            <p style="margin-top: 1rem;" class="intro-text">
+                            Nos complace presentar nuestra <strong>PROPUESTA COMERCIAL</strong> detallando las especificaciones y condiciones para el arrendamiento del siguiente equipo multifuncional de última generación:
+                            </p>
                         </div>
 
                         <!-- Equipo Propuesto -->
@@ -444,99 +441,63 @@
                             </t>
                         </div>
 
-
+                        
                         <!-- Propuesta Económica -->
-                        <div class="section pricing-section">
+                        <div class="section">
                             <div class="section-header">
                                 <i class="fa fa-calculator"></i>
                                 <span>Propuesta Económica</span>
                             </div>
-                            <div class="modern-table">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th><i class="fa fa-file-text"></i> Detalle</th>
-                                            <th><i class="fa fa-money"></i> Monto</th>
-                                            <th><i class="fa fa-check-circle"></i> Condición</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- Volumen Mensual B/N -->
-                                        <tr class="highlight-row">
-                                            <td><i class="fa fa-print"></i> Volumen Mensual B/N</td>
-                                            <td class="amount">
-                                                <t
-                                                    t-esc="'{:,}'.format(doc.volumen_mensual_bn or 0)" />
-                                                impresiones </td>
-                                            <td>
-                                                <span class="badge included">Incluido</span>
-                                            </td>
-                                        </tr>
-                                        <!-- Costo por Impresión B/N -->
-                                        <tr>
-                                            <td><i class="fa fa-tag"></i> Costo por Impresión B/N</td>
-                                            <td class="amount">S/. <t
-                                                    t-esc="'%.3f' % (doc.costo_copia_bn or 0.0)" />
-                                                + IGV</td>
-                                            <td>
-                                                <span class="badge additional">Adicional</span>
-                                            </td>
-                                        </tr>
-                                        <!-- Volumen Mensual y Costo Color -->
-                                        <t t-if="doc.tipo == 'color'">
-                                            <tr class="highlight-row">
-                                                <td><i class="fa fa-paint-brush"></i> Volumen
-                                                    Mensual Color</td>
-                                                <td class="amount">
-                                                    <t
-                                                        t-esc="'{:,}'.format(doc.volumen_mensual_color or 0)" />
-                                                    impresiones </td>
-                                                <td>
-                                                    <span class="badge included">Incluido</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><i class="fa fa-tag"></i> Costo por Impresión
-                                                    Color</td>
-                                                <td class="amount">S/. <t
-                                                        t-esc="'%.3f' % (doc.costo_copia_color or 0.0)" />
-                                                    + IGV</td>
-                                                <td>
-                                                    <span class="badge additional">Adicional</span>
-                                                </td>
-                                            </tr>
-                                        </t>
-                                        <!-- IGV -->
-                                        <tr>
-                                            <td><i class="fa fa-percent"></i> IGV</td>
-                                            <td class="amount"><t t-esc="doc.igv or 0" />%</td>
-                                            <td>
-                                                <span class="badge applicable">Aplicable</span>
-                                            </td>
-                                        </tr>
-                                        <!-- Descuento -->
-                                        <tr>
-                                            <td><i class="fa fa-gift"></i> Descuento</td>
-                                            <td class="amount"><t t-esc="doc.descuento or 0" />%</td>
-                                            <td>
-                                                <span class="badge promotion">Promoción</span>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-
-                        <div class="total-section">
+                            <table class="pricing-table">
+                            <thead>
+                                <tr>
+                                    <th><i class="fa fa-file-text"></i> Detalle</th>
+                                    <th><i class="fa fa-money"></i> Monto</th>
+                                    <th><i class="fa fa-check-circle"></i> Condición</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><i class="fa fa-print"></i> Volumen Mensual B/N</td>
+                                    <td class="amount"><t t-esc="'{:,}'.format(doc.volumen_mensual_bn)"/> impresiones</td>
+                                    <td><span class="badge included">Incluido</span></td>
+                                </tr>
+                                <tr>
+                                    <td><i class="fa fa-tag"></i> Costo por Impresión B/N</td>
+                                    <td class="amount">S/. <t t-esc="'%.3f' % doc.costo_copia_bn"/> + IGV</td>
+                                    <td><span class="badge additional">Adicional</span></td>
+                                </tr>
+                                <t t-if="doc.tipo == 'color'">
+                                    <tr>
+                                        <td><i class="fa fa-paint-brush"></i> Volumen Mensual Color</td>
+                                        <td class="amount"><t t-esc="'{:,}'.format(doc.volumen_mensual_color)"/> impresiones</td>
+                                        <td><span class="badge included">Incluido</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="fa fa-tag"></i> Costo por Impresión Color</td>
+                                        <td class="amount">S/. <t t-esc="'%.3f' % doc.costo_copia_color"/> + IGV</td>
+                                        <td><span class="badge additional">Adicional</span></td>
+                                    </tr>
+                                </t>
+                                <tr>
+                                    <td><i class="fa fa-percent"></i> IGV</td>
+                                    <td class="amount"><t t-esc="doc.igv"/>%</td>
+                                    <td><span class="badge applicable">Aplicable</span></td>
+                                </tr>
+                                <tr>
+                                    <td><i class="fa fa-gift"></i> Descuento</td>
+                                    <td class="amount"><t t-esc="doc.descuento"/>%</td>
+                                    <td><span class="badge promotion">Promoción</span></td>
+                                </tr>
+                            </tbody>
+                            </table>
+                            <div class="total-section">
                             <div class="total-header">TOTAL MENSUAL</div>
-                                <div class="total-amount">
-                                    <span class="currency">S/.</span>
-                                    <span class="amount">
-                                        <t t-esc="'%.2f' % doc.total_facturar_mensual" />
-                                    </span>
-                                    <span class="tax-note">Inc. IGV</span>
-                                </div>
+                            <div class="total-amount">
+                                <span class="currency">S/.</span>
+                                <span class="amount"><t t-esc="'%.2f' % doc.total_facturar_mensual"/></span>
+                                <span class="tax-note">Inc. IGV</span>
+                            </div>
                             </div>
                         </div>
 
@@ -563,42 +524,42 @@
 
                         <!-- Información de Pago -->
                         <div class="section payment-section">
-                            <div class="section-header">
-                                <i class="fa fa-credit-card"></i>
-                                <span>Información de Pago</span>
-                            </div>
-
-                            <div class="bank-accounts">
-                                <!-- BCP -->
-                                <div class="bank-account">
-                                    <div class="bank-logo">
-                                        <i class="fa fa-university"></i>
-                                        <span class="bank-name">BCP</span>
-                                    </div>
-                                    <div class="account-details">
-                                        <div class="account-type">Cuenta Corriente - Soles</div>
-                                        <div class="account-number">191-2334609-0-07</div>
-                                        <div class="cci-number">CCI: 002-19100233460900751</div>
-                                    </div>
+                        <div class="section-header">
+                            <i class="fa fa-credit-card"></i>
+                            <span>Información de Pago</span>
+                        </div>
+                        
+                        <div class="bank-accounts">
+                            <!-- BCP -->
+                            <div class="bank-account">
+                                <div class="bank-logo">
+                                    <i class="fa fa-university"></i>
+                                    <span class="bank-name">BCP</span>
                                 </div>
-
-                                <!-- Banco de la Nación -->
-                                <div class="bank-account">
-                                    <div class="bank-logo">
-                                        <i class="fa fa-university"></i>
-                                        <span class="bank-name">Banco de la Nación</span>
-                                    </div>
-                                    <div class="account-details">
-                                        <div class="account-type">Cuenta de Detracción</div>
-                                        <div class="account-number">00802007582</div>
-                                    </div>
+                                <div class="account-details">
+                                    <div class="account-type">Cuenta Corriente - Soles</div>
+                                    <div class="account-number">191-2334609-0-07</div>
+                                    <div class="cci-number">CCI: 002-19100233460900751</div>
                                 </div>
                             </div>
 
-                            <div class="company-info">
-                                <i class="fa fa-building"></i>
-                                <span>A nombre de: COPIER COMPANY SAC</span>
+                            <!-- Banco de la Nación -->
+                            <div class="bank-account">
+                                <div class="bank-logo">
+                                    <i class="fa fa-university"></i>
+                                    <span class="bank-name">Banco de la Nación</span>
+                                </div>
+                                <div class="account-details">
+                                    <div class="account-type">Cuenta de Detracción</div>
+                                    <div class="account-number">00802007582</div>
+                                </div>
                             </div>
+                        </div>
+
+                        <div class="company-info">
+                            <i class="fa fa-building"></i>
+                            <span>A nombre de: COPIER COMPANY SAC</span>
+                        </div>
                         </div>
 
                         <!-- Firma -->
