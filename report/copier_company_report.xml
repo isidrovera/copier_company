@@ -210,22 +210,35 @@
                             color: white;
                             }
                             .total-amount {
-                            color: #FFFFFF; /* Blanco brillante */
+                            font-size: 2.5rem;
+                            font-weight: bold;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 0.5rem;
+                            color: white;
                             }
 
-                            .currency, .amount {
-                            color: #FFFFFF;
-                            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+                            .currency {
+                            font-size: 1.75rem;
+                            opacity: 0.9;
+                            color: #250fd7;
+                            }
+
+                            .amount {
+                            font-size: 3rem;
+                            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+                            color: #250fd7;
                             }
 
                             .tax-note {
-                            color: #E2E8F0; /* Gris claro */
+                            font-size: 0.875rem;
+                            opacity: 0.8;
+                            margin-top: 0.5rem;
+                            display: block;
+                            color: #250fd7;
                             }
 
-                            .total-header {
-                            color: #F8FAFC; /* Blanco humo */
-                            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-                            }
                             .total-section strong {
                                 font-size: 1.4rem;
                                 display: block;
