@@ -201,14 +201,38 @@
                             }
 
                             .total-section {
-                                background: var(--primary-blue);
-                                color: #1529b7;
-                                padding: 1.5rem;
-                                border-radius: 8px;
-                                font-size: 1.2rem;
-                                margin-top: 1.5rem;
-                                text-align: center;
-                                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+                            background: linear-gradient(135deg, #1a4b8c, #2563eb);
+                            border-radius: 12px;
+                            padding: 2rem;
+                            margin-top: 2rem;
+                            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+                            text-align: center;
+                            color: white;
+                            }
+                            .total-amount {
+                            font-size: 2.5rem;
+                            font-weight: bold;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 0.5rem;
+                            }
+
+                            .currency {
+                            font-size: 1.75rem;
+                            opacity: 0.9;
+                            }
+
+                            .amount {
+                            font-size: 3rem;
+                            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+                            }
+
+                            .tax-note {
+                            font-size: 0.875rem;
+                            opacity: 0.8;
+                            margin-top: 0.5rem;
+                            display: block;
                             }
 
                             .total-section strong {
@@ -371,9 +395,12 @@
                                 </tbody>
                             </table>
                             <div class="total-section">
-                                <strong>Total Mensual (Inc. IGV):</strong>
-                                <br />
-                                S/. <t t-esc="'%.2f' % doc.total_facturar_mensual" />
+                            <div class="total-header">TOTAL MENSUAL</div>
+                            <div class="total-amount">
+                                <span class="currency">S/.</span>
+                                <span class="amount"><t t-esc="'%.2f' % doc.total_facturar_mensual"/></span>
+                                <span class="tax-note">Inc. IGV</span>
+                            </div>
                             </div>
                         </div>
 
