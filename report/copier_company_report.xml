@@ -199,6 +199,93 @@
                                 color: white;
                                 transition: background 0.3s ease;
                             }
+                            .pricing-section table {
+                            width: 100%;
+                            border-collapse: separate;
+                            border-spacing: 0 8px;
+                            margin: 20px 0;
+                            font-family: 'Helvetica', 'Arial', sans-serif;
+                            }
+
+                            .pricing-section th {
+                            background: #1a4b8c;
+                            color: white;
+                            padding: 15px;
+                            font-size: 1.1em;
+                            text-transform: uppercase;
+                            text-align: left;
+                            }
+
+                            .pricing-section th i {
+                            margin-right: 8px;
+                            }
+
+                            .pricing-section td {
+                            padding: 15px;
+                            border: none;
+                            background: white;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                            }
+
+                            .pricing-section tr {
+                            transition: all 0.3s ease;
+                            }
+
+                            .pricing-section tr:hover {
+                            transform: translateX(5px);
+                            background: #f8fafc;
+                            }
+
+                            .pricing-section td:first-child {
+                            border-radius: 6px 0 0 6px;
+                            font-weight: 500;
+                            }
+
+                            .pricing-section td:last-child {
+                            border-radius: 0 6px 6px 0;
+                            }
+
+                            .pricing-section .amount {
+                            font-weight: bold;
+                            color: #2563eb;
+                            }
+
+                            .badge {
+                            padding: 6px 12px;
+                            border-radius: 20px;
+                            font-size: 0.9em;
+                            font-weight: 500;
+                            display: inline-block;
+                            }
+
+                            .badge.included {
+                            background: #059669;
+                            color: white;
+                            }
+
+                            .badge.additional {
+                            background: #eab308;
+                            color: white;
+                            }
+
+                            .badge.applicable {
+                            background: #3b82f6;
+                            color: white;
+                            }
+
+                            .badge.promotion {
+                            background: #ec4899;
+                            color: white;
+                            }
+
+                            .highlight-row {
+                            background: #f8fafc !important;
+                            }
+
+                            td i {
+                            margin-right: 8px;
+                            color: #64748b;
+                            }
 
                             .total-section {
                             background: linear-gradient(135deg, #1a4b8c, #2563eb);
@@ -358,54 +445,57 @@
 
                         
                         <!-- Propuesta Económica -->
-                        <div class="section">
+                        <div class="section pricing-section">
                             <div class="section-header">
                                 <i class="fa fa-calculator"></i>
                                 <span>Propuesta Económica</span>
                             </div>
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Detalle</th>
-                                        <th>Monto</th>
-                                        <th>Condición</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Volumen Mensual B/N</td>
-                                        <td><t t-esc="'{:,}'.format(doc.volumen_mensual_bn)" /> impresiones</td>
-                                        <td>Incluido</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Costo por Impresión B/N</td>
-                                        <td>S/. <t t-esc="'%.3f' % doc.costo_copia_bn" /> + IGV</td>
-                                        <td>Adicional</td>
-                                    </tr>
-                                    <t t-if="doc.tipo == 'color'">
+                            <div class="modern-table">
+                                <table>
+                                    <thead>
                                         <tr>
-                                            <td>Volumen Mensual Color</td>
-                                            <td><t t-esc="'{:,}'.format(doc.volumen_mensual_color)" /> impresiones</td>
-                                            <td>Incluido</td>
+                                            <th><i class="fa fa-file-text"></i> Detalle</th>
+                                            <th><i class="fa fa-money"></i> Monto</th>
+                                            <th><i class="fa fa-check-circle"></i> Condición</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="highlight-row">
+                                            <td><i class="fa fa-print"></i> Volumen Mensual B/N</td>
+                                            <td class="amount"><t t-esc="'{:,}'.format(doc.volumen_mensual_bn)"/> impresiones</td>
+                                            <td><span class="badge included">Incluido</span></td>
                                         </tr>
                                         <tr>
-                                            <td>Costo por Impresión Color</td>
-                                            <td>S/. <t t-esc="'%.3f' % doc.costo_copia_color" /> + IGV</td>
-                                            <td>Adicional</td>
+                                            <td><i class="fa fa-tag"></i> Costo por Impresión B/N</td>
+                                            <td class="amount">S/. <t t-esc="'%.3f' % doc.costo_copia_bn"/> + IGV</td>
+                                            <td><span class="badge additional">Adicional</span></td>
                                         </tr>
-                                    </t>
-                                    <tr>
-                                        <td>IGV</td>
-                                        <td><t t-esc="doc.igv" />%</td>
-                                        <td>Aplicable</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Descuento</td>
-                                        <td><t t-esc="doc.descuento" />%</td>
-                                        <td>Promoción</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                        <t t-if="doc.tipo == 'color'">
+                                            <tr class="highlight-row">
+                                                <td><i class="fa fa-paint-brush"></i> Volumen Mensual Color</td>
+                                                <td class="amount"><t t-esc="'{:,}'.format(doc.volumen_mensual_color)"/> impresiones</td>
+                                                <td><span class="badge included">Incluido</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><i class="fa fa-tag"></i> Costo por Impresión Color</td>
+                                                <td class="amount">S/. <t t-esc="'%.3f' % doc.costo_copia_color"/> + IGV</td>
+                                                <td><span class="badge additional">Adicional</span></td>
+                                            </tr>
+                                        </t>
+                                        <tr>
+                                            <td><i class="fa fa-percent"></i> IGV</td>
+                                            <td class="amount"><t t-esc="doc.igv"/>%</td>
+                                            <td><span class="badge applicable">Aplicable</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><i class="fa fa-gift"></i> Descuento</td>
+                                            <td class="amount"><t t-esc="doc.descuento"/>%</td>
+                                            <td><span class="badge promotion">Promoción</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            </div>
                             <div class="total-section">
                             <div class="total-header">TOTAL MENSUAL</div>
                             <div class="total-amount">
