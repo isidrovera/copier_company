@@ -80,6 +80,79 @@
                             .benefits-list li:hover::before {
                                 color: #047857; /* Verde más oscuro al hover */
                             }
+                            .payment-section {
+                            background: #f8fafc;
+                            padding: 2rem;
+                            }
+
+                            .bank-accounts {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 1.5rem;
+                            margin: 1.5rem 0;
+                            }
+
+                            .bank-account {
+                            background: white;
+                            border: 1px solid #e2e8f0;
+                            border-radius: 8px;
+                            padding: 1.5rem;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                            transition: transform 0.2s;
+                            }
+
+                            .bank-account:hover {
+                            transform: translateY(-2px);
+                            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                            }
+
+                            .bank-logo {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.5rem;
+                            margin-bottom: 1rem;
+                            }
+
+                            .bank-name {
+                            font-size: 1.25rem;
+                            font-weight: bold;
+                            color: #1a4b8c;
+                            }
+
+                            .account-details {
+                            padding-left: 2rem;
+                            }
+
+                            .account-type {
+                            color: #64748b;
+                            font-size: 0.875rem;
+                            margin-bottom: 0.5rem;
+                            }
+
+                            .account-number {
+                            font-size: 1.25rem;
+                            font-weight: bold;
+                            color: #334155;
+                            margin-bottom: 0.25rem;
+                            }
+
+                            .cci-number {
+                            color: #64748b;
+                            font-size: 0.875rem;
+                            }
+
+                            .company-info {
+                            background: #1a4b8c;
+                            color: white;
+                            padding: 1rem;
+                            border-radius: 6px;
+                            text-align: center;
+                            margin-top: 1rem;
+                            }
+
+                            .company-info i {
+                            margin-right: 0.5rem;
+                            }
 
                             .section-header {
                                 display: flex;
@@ -326,16 +399,43 @@
                         </div>
 
                         <!-- Información de Pago -->
-                        <div class="section">
-                            <div class="section-header">
-                                <i class="fa fa-credit-card"></i>
-                                <span>Información de Pago</span>
+                        <div class="section payment-section">
+                        <div class="section-header">
+                            <i class="fa fa-credit-card"></i>
+                            <span>Información de Pago</span>
+                        </div>
+                        
+                        <div class="bank-accounts">
+                            <!-- BCP -->
+                            <div class="bank-account">
+                                <div class="bank-logo">
+                                    <i class="fa fa-university"></i>
+                                    <span class="bank-name">BCP</span>
+                                </div>
+                                <div class="account-details">
+                                    <div class="account-type">Cuenta Corriente - Soles</div>
+                                    <div class="account-number">191-2334609-0-07</div>
+                                    <div class="cci-number">CCI: 002-19100233460900751</div>
+                                </div>
                             </div>
-                            <ul style="list-style: none; padding-left: 0;">
-                                <li class="data-row">Cuenta BCP: 191-2334609-0-07</li>
-                                <li class="data-row">CCI: 002-19100233460900751</li>
-                                <li class="data-row">Detracción BN: 00802007582</li>
-                            </ul>
+
+                            <!-- Banco de la Nación -->
+                            <div class="bank-account">
+                                <div class="bank-logo">
+                                    <i class="fa fa-university"></i>
+                                    <span class="bank-name">Banco de la Nación</span>
+                                </div>
+                                <div class="account-details">
+                                    <div class="account-type">Cuenta de Detracción</div>
+                                    <div class="account-number">00802007582</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="company-info">
+                            <i class="fa fa-building"></i>
+                            <span>A nombre de: COPIER COMPANY SAC</span>
+                        </div>
                         </div>
 
                         <!-- Firma -->
