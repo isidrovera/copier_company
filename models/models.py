@@ -45,6 +45,8 @@ class CopierCompany(models.Model):
         template = self.env.ref('copier_company.email_template_propuesta_alquiler')
         if template:
             template.send_mail(self.id, force_send=True)
+            estado_enviado = self.env.ref('copier_company.estado_enviado')
+            self.write({'estado_maquina_id': estado_enviado.id})
     
     especificaciones_id = fields.Html(related='name.especificaciones', string='Especificaciones')
     serie_id = fields.Char(string='Serie', tracking=True)

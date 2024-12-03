@@ -58,6 +58,28 @@
                                 padding: 1.5rem;
                                 margin-bottom: 1.5rem;
                             }
+                            .benefits-list {
+                                list-style: none;
+                                padding: 0;
+                            }
+
+                            .benefits-list li {
+                                margin-bottom: 0.8rem;
+                                padding-left: 1.5rem;
+                                position: relative;
+                            }
+
+                            .benefits-list li::before {
+                                content: "✓";
+                                position: absolute;
+                                left: 0;
+                                color: #059669; /* Verde */
+                                font-weight: bold;
+                            }
+
+                            .benefits-list li:hover::before {
+                                color: #047857; /* Verde más oscuro al hover */
+                            }
 
                             .section-header {
                                 display: flex;
@@ -289,11 +311,11 @@
                                 <span>Beneficios Incluidos</span>
                             </div>
                             <ul class="benefits-list">
-                                <li>✓ Servicio técnico preventivo cada 2 meses</li>
-                                <li>✓ Insumos y repuestos originales</li>
-                                <li>✓ Instalación y capacitación incluida</li>
-                                <li>✓ Soporte técnico prioritario</li>
-                                <li>✓ Mantenimiento correctivo incluido</li>
+                                <li>Servicio técnico preventivo cada 2 meses</li>
+                                <li>Insumos y repuestos originales</li>
+                                <li>Instalación y capacitación incluida</li>
+                                <li>Soporte técnico prioritario</li>
+                                <li>Mantenimiento correctivo incluido</li>
                             </ul>
                         </div>
 
@@ -323,11 +345,6 @@
                             </div>
                         </div>
 
-                        <!-- Pie de página -->
-                        <div style="text-align: center; margin-top: 2rem; color: var(--secondary);">
-                            <p>Propuesta válida por 15 días</p>
-                            <p>Página <span class="page" /> de <span class="topage" /></p>
-                        </div>
                     </t>
                 </t>
             </t>
