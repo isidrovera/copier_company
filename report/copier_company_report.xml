@@ -450,61 +450,63 @@
                                 <i class="fa fa-calculator"></i>
                                 <span>Propuesta Económica</span>
                             </div>
-                            <div class="modern-table">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th><i class="fa fa-file-text"></i> Detalle</th>
-                                            <th><i class="fa fa-money"></i> Monto</th>
-                                            <th><i class="fa fa-check-circle"></i> Condición</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr class="highlight-row">
-                                            <td><i class="fa fa-print"></i> Volumen Mensual B/N</td>
-                                            <td class="amount"><t t-esc="'{:,}'.format(doc.volumen_mensual_bn)"/> impresiones</td>
-                                            <td><span class="badge included">Incluido</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td><i class="fa fa-tag"></i> Costo por Impresión B/N</td>
-                                            <td class="amount">S/. <t t-esc="'%.3f' % doc.costo_copia_bn"/> + IGV</td>
-                                            <td><span class="badge additional">Adicional</span></td>
-                                        </tr>
-                                        <t t-if="doc.tipo == 'color'">
+                                <div class="modern-table">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th><i class="fa fa-file-text"></i> Detalle</th>
+                                                <th><i class="fa fa-money"></i> Monto</th>
+                                                <th><i class="fa fa-check-circle"></i> Condición</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
                                             <tr class="highlight-row">
-                                                <td><i class="fa fa-paint-brush"></i> Volumen Mensual Color</td>
-                                                <td class="amount"><t t-esc="'{:,}'.format(doc.volumen_mensual_color)"/> impresiones</td>
+                                                <td><i class="fa fa-print"></i> Volumen Mensual B/N</td>
+                                                <td class="amount"><t t-esc="'{:,}'.format(doc.volumen_mensual_bn)"/> impresiones</td>
                                                 <td><span class="badge included">Incluido</span></td>
                                             </tr>
                                             <tr>
-                                                <td><i class="fa fa-tag"></i> Costo por Impresión Color</td>
-                                                <td class="amount">S/. <t t-esc="'%.3f' % doc.costo_copia_color"/> + IGV</td>
+                                                <td><i class="fa fa-tag"></i> Costo por Impresión B/N</td>
+                                                <td class="amount">S/. <t t-esc="'%.3f' % doc.costo_copia_bn"/> + IGV</td>
                                                 <td><span class="badge additional">Adicional</span></td>
                                             </tr>
-                                        </t>
-                                        <tr>
-                                            <td><i class="fa fa-percent"></i> IGV</td>
-                                            <td class="amount"><t t-esc="doc.igv"/>%</td>
-                                            <td><span class="badge applicable">Aplicable</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td><i class="fa fa-gift"></i> Descuento</td>
-                                            <td class="amount"><t t-esc="doc.descuento"/>%</td>
-                                            <td><span class="badge promotion">Promoción</span></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            </div>
-                            <div class="total-section">
-                            <div class="total-header">TOTAL MENSUAL</div>
-                            <div class="total-amount">
-                                <span class="currency">S/.</span>
-                                <span class="amount"><t t-esc="'%.2f' % doc.total_facturar_mensual"/></span>
-                                <span class="tax-note">Inc. IGV</span>
-                            </div>
+                                            <t t-if="doc.tipo == 'color'">
+                                                <tr class="highlight-row">
+                                                    <td><i class="fa fa-paint-brush"></i> Volumen Mensual Color</td>
+                                                    <td class="amount"><t t-esc="'{:,}'.format(doc.volumen_mensual_color)"/> impresiones</td>
+                                                    <td><span class="badge included">Incluido</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><i class="fa fa-tag"></i> Costo por Impresión Color</td>
+                                                    <td class="amount">S/. <t t-esc="'%.3f' % doc.costo_copia_color"/> + IGV</td>
+                                                    <td><span class="badge additional">Adicional</span></td>
+                                                </tr>
+                                            </t>
+                                            <tr>
+                                                <td><i class="fa fa-percent"></i> IGV</td>
+                                                <td class="amount"><t t-esc="doc.igv"/>%</td>
+                                                <td><span class="badge applicable">Aplicable</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><i class="fa fa-gift"></i> Descuento</td>
+                                                <td class="amount"><t t-esc="doc.descuento"/>%</td>
+                                                <td><span class="badge promotion">Promoción</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
+                            
+                            <div class="total-section">
+                                <div class="total-header">TOTAL MENSUAL</div>
+                                    <div class="total-amount">
+                                        <span class="currency">S/.</span>
+                                        <span class="amount"><t t-esc="'%.2f' % doc.total_facturar_mensual"/></span>
+                                        <span class="tax-note">Inc. IGV</span>
+                                    </div>
+                                </div>
+                            </div>
 
                         <!-- Condiciones y Beneficios -->
                         <div class="section">
