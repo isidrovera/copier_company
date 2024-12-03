@@ -165,6 +165,31 @@
                                 font-size: 1.25rem;
                                 font-weight: bold;
                             }
+                            .pricing-details {
+                                padding: 20px;
+                                background: #f8fafc;
+                                border-radius: 8px;
+                            }
+
+                            .pricing-details h4 {
+                                color: #1a4b8c;
+                                margin-top: 20px;
+                                margin-bottom: 15px;
+                                font-size: 1.1em;
+                                font-weight: bold;
+                            }
+
+                            .text-success {
+                                color: #059669;
+                            }
+
+                            .tariff-section, .additional-info, .conditions {
+                                margin-bottom: 25px;
+                                padding: 15px;
+                                background: white;
+                                border-radius: 6px;
+                                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                            }
 
                             .section-header i {
                                 color: var(--secondary-blue);
@@ -504,24 +529,46 @@
 
                         <!-- Condiciones y Beneficios -->
                         <div class="section">
-                            <div class="section-header">
-                                <i class="fa fa-check-circle"></i>
-                                <span>Beneficios Incluidos en el Alquiler</span>
-                            </div>
-                            <ul class="benefits-list">
-                                <li>Scanner ilimitado sin costo adicional</li>
-                                <li>Solo paga por impresión y copia en base al contador mensual</li>
-                                <li>Instalación y configuración inicial completa</li>
-                                <li>Insumos originales incluidos (tóner, revelador, cilindro)</li>
-                                <li>Repuestos y mano de obra incluida</li>
-                                <li>Soporte técnico presencial y remoto</li>
-                                <li>Capacitación para usuarios nuevos y recurrente</li>
-                                <li>Mantenimientos preventivos programados</li>
-                                <li>Atención técnica prioritaria por fallas</li>
-                                <li>Reemplazo de equipo en caso de fallas recurrentes</li>
-                                <li>El cliente solo proporciona el papel</li>
-                            </ul>
+                        <div class="section-header">
+                            <i class="fa fa-info-circle"></i>
+                            <span>Detalles de Tarifa</span>
                         </div>
+                        <div class="pricing-details">
+                            <!-- Tarifa Principal -->
+                            <div class="tariff-section">
+                                <h4>TARIFA</h4>
+                                <ul class="benefits-list">
+                                    <li>Volumen mensual Copias/Impresiones: <strong><t t-esc="'{:,}'.format(doc.volumen_mensual_bn)"/> B/N</strong></li>
+                                    <li>Costo por Copia/Impresión: <strong>S/. <t t-esc="'%.3f' % doc.costo_copia_bn"/> + IGV</strong></li>
+                                    <li>Costo de copia excedente: <strong>S/. <t t-esc="'%.3f' % doc.costo_copia_bn"/> + IGV</strong></li>
+                                    <li>Scanner: <strong class="text-success">Gratis</strong></li>
+                                    <li>Disponibilidad: <strong>5 días presentada la orden de compra</strong></li>
+                                </ul>
+                            </div>
+
+                            <!-- Información Adicional -->
+                            <div class="additional-info">
+                                <h4>INFORMACIÓN ADICIONAL</h4>
+                                <ul class="benefits-list">
+                                    <li>Tarifas en nuevos soles incluyen IGV (18%)</li>
+                                    <li>Facturación en nuevos soles</li>
+                                    <li>Incluye instalación y capacitación</li>
+                                    <li>Incluye renovación de maquinaria, insumos, repuestos y servicio técnico</li>
+                                </ul>
+                            </div>
+
+                            <!-- Condiciones -->
+                            <div class="conditions">
+                                <h4>CONDICIONES DE ALQUILER</h4>
+                                <ul class="benefits-list">
+                                    <li>Los equipos se alquilan sin papel</li>
+                                    <li>Periodo de alquiler: desde entrega hasta recepción del equipo</li>
+                                    <li>Mantenimiento preventivo cada 2 meses</li>
+                                    <li>Contrato marco mínimo de <t t-esc="doc.duracion_alquiler_id.name"/></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
 
                         <!-- Información de Pago -->
                         <div class="section payment-section">
