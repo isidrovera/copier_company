@@ -160,25 +160,33 @@ class CopierCompany(models.Model):
             # Enviar mensaje a cada número
             for phone in formatted_phones:
                 try:
+                    # Preparar datos y archivos para la solicitud POST
                     files = {
-                        'file': (
-                            attachment_name,
-                            pdf_content,
-                            'application/pdf'
-                        )
+                        'file': (attachment_name, pdf_content, 'application/pdf')
                     }
                     data = {
                         'phone': phone,
                         'type': 'media',
                         'message': message
                     }
+
+                    # Registrar los datos enviados para debugging
+                    _logger.info("Datos enviados a la API: %s", data)
+
+                    # Realizar la solicitud POST
                     response = requests.post(
                         WHATSAPP_API_URL,
                         data=data,
                         files=files,
-                        timeout=30
+                        timeout=60
                     )
-                    response_data = response.json()
+
+                    # Procesar la respuesta
+                    try:
+                        response_data = response.json()
+                    except ValueError:
+                        raise Exception(f"Respuesta no válida de la API: {response.text}")
+
                     if response.status_code == 200 and response_data.get('success'):
                         success_count += 1
                         self.message_post(
@@ -209,18 +217,12 @@ class CopierCompany(models.Model):
                 }
             }
 
+        except UserError as ue:
+            _logger.error('Error de usuario: %s', str(ue))
+            raise
         except Exception as e:
-            _logger.error('Error general en send_whatsapp_report: %s', str(e))
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'message': str(e),
-                    'type': 'danger',
-                    'sticky': True,
-                }
-            }
-
+            _logger.exception('Error inesperado al enviar el reporte por WhatsApp: %s', str(e))
+            raise UserError(f"Ocurrió un error al enviar el reporte por WhatsApp: {str(e)}")
 
     
     # Campos de alquiler
