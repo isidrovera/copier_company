@@ -129,28 +129,18 @@ class CopierCompany(models.Model):
             if not self.cliente_id.mobile:
                 raise UserError('El cliente no tiene número de teléfono registrado')
 
-            # Generar el PDF usando el sistema de reportes de Odoo
+            # Generar el PDF
             try:
                 report = self.env.ref('copier_company.action_report_report_cotizacion_alquiler')
-                # Generar el PDF como un archivo adjunto
-                pdf_content, content_type = report._render_qweb_pdf([self.id])
+                # Asegurarse de pasar el id como entero dentro de una lista
+                pdf_content, _ = report._render_qweb_pdf([self.id])
                 
                 if not pdf_content:
                     raise UserError('No se pudo generar el PDF')
-                    
-                # Opcional: Guardar el PDF como adjunto
-                attachment = self.env['ir.attachment'].create({
-                    'name': f'Cotizacion_{self.secuencia}.pdf',
-                    'type': 'binary',
-                    'datas': base64.b64encode(pdf_content),
-                    'res_model': self._name,
-                    'res_id': self.id,
-                    'mimetype': 'application/pdf'
-                })
-                
+
             except Exception as e:
                 _logger.error('Error al generar PDF: %s', str(e))
-                raise UserError(f'Error al generar el PDF: {str(e)}')
+                raise UserError('Error al generar el PDF del reporte: ' + str(e))
 
             # Procesar números de teléfono
             phones = self.cliente_id.mobile.split(';')
@@ -197,16 +187,14 @@ class CopierCompany(models.Model):
                         timeout=30
                     )
                     
-                    response_data = response.json()
-                    if response.status_code == 200 and response_data.get('success'):
+                    if response.status_code == 200:
                         success_count += 1
                         self.message_post(
                             body=f"✅ Reporte enviado por WhatsApp al número {phone}",
-                            message_type='notification',
-                            attachment_ids=[attachment.id] if attachment else []
+                            message_type='notification'
                         )
                     else:
-                        raise Exception(response_data.get('message', 'Error desconocido en la API'))
+                        raise Exception(f"Error en la API: {response.text}")
                         
                 except Exception as e:
                     error_msg = str(e)
