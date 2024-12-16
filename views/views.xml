@@ -31,6 +31,14 @@
             <button name="generar_qr_code" string="Generar QR" type="object" class="btn-info"/>
             <button name="action_print_report" string="Imprimir Cotización" type="object" class="btn-success"/>
             <button name="enviar_correo_propuesta" string="Enviar Propuesta" type="object" class="oe_highlight"/>
+            <button 
+                    name="send_whatsapp_report" 
+                    type="object" 
+                    class="btn btn-success"
+                    icon="fa-whatsapp"
+                    string=" Enviar por WhatsApp"                    
+                    style="background-color: #25D366 !important; border-color: #25D366 !important;"
+                />
             <field name="estado_maquina_id" widget="statusbar" options="{'clickable': '1'}"/>
           </header>
           <sheet>

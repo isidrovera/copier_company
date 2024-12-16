@@ -8,6 +8,9 @@ from dateutil import tz
 from datetime import datetime
 from PIL import Image
 import os
+import re
+from odoo.exceptions import UserError
+import requests
 
 class CopierCompany(models.Model):
     _name = 'copier.company'
@@ -79,6 +82,126 @@ class CopierCompany(models.Model):
     estado_maquina_id = fields.Many2one('copier.estados', string="Estado de la Máquina",
                                        default=lambda self: self.env.ref('copier_company.estado_disponible').id,
                                        tracking=True)
+
+    def format_phone_number(self, phone):
+        if not phone:
+            return False
+        # Eliminar espacios en blanco y el carácter '+'
+        phone = phone.strip().replace(' ', '').replace('+', '')
+        # Eliminar cualquier otro carácter que no sea número
+        phone = re.sub(r'[^0-9]', '', phone)
+        
+        # Si el número no empieza con '51' y tiene 9 dígitos, agregar '51'
+        if not phone.startswith('51') and len(phone) == 9:
+            phone = f'51{phone}'
+        
+        return phone
+
+    def get_formatted_phones(self):
+        """Obtiene y formatea los números de teléfono del cliente"""
+        if not self.cliente_id.mobile:
+            return False
+            
+        # Dividir números por punto y coma y formatear cada uno
+        phones = self.cliente_id.mobile.split(';')
+        formatted_phones = []
+        
+        for phone in phones:
+            formatted = self.format_phone_number(phone)
+            if formatted:
+                formatted_phones.append(formatted)
+                
+        return formatted_phones
+
+    def send_whatsapp_report(self):
+        """Envía el reporte por WhatsApp"""
+        import requests
+        import base64
+        from odoo.exceptions import UserError
+
+        # URL directa de tu API de WhatsApp
+        WHATSAPP_API_URL = 'https://whatsappapi.copiercompanysac.com/api/message'  # Cambia esto por tu URL real
+
+        # Generar el PDF del reporte
+        report = self.env.ref('copier_company.action_report_report_cotizacion_alquiler')
+        pdf_content, _ = report._render_qweb_pdf(self.id)
+        
+        # Verificar y formatear número de teléfono
+        if not self.cliente_id.mobile:
+            raise UserError('El cliente no tiene número de teléfono registrado')
+        
+        # Procesar números de teléfono
+        phones = self.cliente_id.mobile.split(';')
+        formatted_phones = []
+        
+        for phone in phones:
+            # Limpiar el número
+            clean_phone = phone.strip().replace(' ', '').replace('+', '')
+            clean_phone = ''.join(filter(str.isdigit, clean_phone))
+            
+            # Agregar 51 si no está presente y el número tiene 9 dígitos
+            if not clean_phone.startswith('51') and len(clean_phone) == 9:
+                clean_phone = f'51{clean_phone}'
+            
+            if clean_phone:
+                formatted_phones.append(clean_phone)
+        
+        if not formatted_phones:
+            raise UserError('No se encontraron números de teléfono válidos')
+        
+        # Preparar mensaje y archivo
+        message = f"Hola, te envío la cotización {self.secuencia}"
+        
+        # Enviar a cada número
+        success_count = 0
+        for phone in formatted_phones:
+            try:
+                files = {
+                    'file': (
+                        f'Cotizacion_{self.secuencia}.pdf',
+                        pdf_content,
+                        'application/pdf'
+                    )
+                }
+                
+                data = {
+                    'phone': phone,
+                    'type': 'media',
+                    'message': message
+                }
+                
+                response = requests.post(
+                    WHATSAPP_API_URL,
+                    data=data,
+                    files=files,
+                    timeout=30
+                )
+                
+                if response.status_code == 200:
+                    success_count += 1
+                    self.message_post(
+                        body=f"Reporte enviado por WhatsApp al número {phone}",
+                        message_type='notification'
+                    )
+                else:
+                    raise Exception(f"Error en la API: {response.text}")
+                    
+            except Exception as e:
+                self.message_post(
+                    body=f"Error al enviar WhatsApp al número {phone}: {str(e)}",
+                    message_type='notification'
+                )
+        
+        # Mostrar mensaje de resultado
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'message': f'Reporte enviado por WhatsApp a {success_count} número(s)',
+                'type': 'success' if success_count > 0 else 'warning',
+                'sticky': False,
+            }
+        }
     
     # Campos de alquiler
     fecha_inicio_alquiler = fields.Date(string="Fecha de Inicio del Alquiler", tracking=True)
