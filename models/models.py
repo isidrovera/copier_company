@@ -131,36 +131,31 @@ class CopierCompany(models.Model):
             if not formatted_phones:
                 raise UserError('No se encontraron números de teléfono válidos para el cliente.')
 
-            # Generar el reporte PDF
-            try:
-                report = self.env.ref('copier_company.action_report_report_cotizacion_alquiler')
-                pdf_content, _ = report._render_qweb_pdf([self.id])
-                if not pdf_content:
-                    raise UserError('No se pudo generar el contenido del PDF.')
-                
-                # Crear adjunto para Odoo
-                attachment_name = f'Propuesta_Comercial_{self.secuencia}.pdf'
-                attachment = self.env['ir.attachment'].create({
-                    'name': attachment_name,
-                    'type': 'binary',
-                    'datas': base64.b64encode(pdf_content),
-                    'res_model': self._name,
-                    'res_id': self.id,
-                    'mimetype': 'application/pdf'
-                })
+            # Generar el reporte usando el método action_print_report
+            report_action = self.env.ref('copier_company.action_report_report_cotizacion_alquiler')
+            pdf_content, _ = report_action.render_qweb_pdf(self.ids)
+            if not pdf_content:
+                raise UserError('No se pudo generar el contenido del PDF.')
 
-            except Exception as e:
-                _logger.error('Error al generar el PDF: %s', str(e))
-                raise UserError(f'Error al generar el PDF: {str(e)}')
+            # Crear el adjunto en Odoo
+            attachment_name = f'Propuesta_Comercial_{self.secuencia}.pdf'
+            attachment = self.env['ir.attachment'].create({
+                'name': attachment_name,
+                'type': 'binary',
+                'datas': base64.b64encode(pdf_content),
+                'res_model': self._name,
+                'res_id': self.id,
+                'mimetype': 'application/pdf'
+            })
 
-            # Preparar datos del mensaje
+            # Preparar mensaje
             message = f"Hola, te enviamos la propuesta comercial {self.secuencia}. Por favor, revisa el adjunto."
 
             # URL de la API de WhatsApp
             WHATSAPP_API_URL = 'https://whatsappapi.copiercompanysac.com/api/message'
             success_count = 0
 
-            # Enviar el mensaje a cada número de teléfono
+            # Enviar mensaje a cada número
             for phone in formatted_phones:
                 try:
                     files = {
@@ -224,6 +219,7 @@ class CopierCompany(models.Model):
                 }
             }
 
+    
     # Campos de alquiler
     fecha_inicio_alquiler = fields.Date(string="Fecha de Inicio del Alquiler", tracking=True)
     duracion_alquiler_id = fields.Many2one('copier.duracion', string="Duración del Alquiler",
