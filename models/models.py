@@ -129,15 +129,26 @@ class CopierCompany(models.Model):
             if not self.cliente_id.mobile:
                 raise UserError('El cliente no tiene número de teléfono registrado')
 
-            # Generar el PDF
+            # Generar el PDF usando el report_action
             try:
-                report = self.env.ref('copier_company.action_report_report_cotizacion_alquiler')
-                # Asegurarse de pasar el id como entero dentro de una lista
-                pdf_content, _ = report._render_qweb_pdf([self.id])
+                # Obtener la acción del reporte de forma segura
+                report_action = self.env.ref('copier_company.action_report_report_cotizacion_alquiler', raise_if_not_found=True)
+                if not report_action:
+                    raise UserError('No se encontró la plantilla del reporte')
+
+                # Generar el PDF
+                pdf_content, _ = report_action.with_context(
+                    active_model=self._name,
+                    active_id=self.id,
+                    active_ids=[self.id]
+                )._render_qweb_pdf(self.id)
                 
                 if not pdf_content:
-                    raise UserError('No se pudo generar el PDF')
+                    raise UserError('No se pudo generar el contenido del PDF')
 
+            except ValueError as e:
+                _logger.error('Error al obtener el reporte: %s', str(e))
+                raise UserError('Error al encontrar la plantilla del reporte')
             except Exception as e:
                 _logger.error('Error al generar PDF: %s', str(e))
                 raise UserError('Error al generar el PDF del reporte: ' + str(e))
