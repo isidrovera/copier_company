@@ -131,9 +131,11 @@ class CopierCompany(models.Model):
             if not formatted_phones:
                 raise UserError('No se encontraron números de teléfono válidos para el cliente.')
 
-            # Generar el reporte usando el método action_print_report
+            # Generar el reporte reutilizando el método action_print_report
             report_action = self.env.ref('copier_company.action_report_report_cotizacion_alquiler')
-            pdf_content, _ = report_action.render_qweb_pdf(self.ids)
+            pdf_content, _ = self.env['ir.actions.report']._render_qweb_pdf(
+                report_action.id, self.ids
+            )
             if not pdf_content:
                 raise UserError('No se pudo generar el contenido del PDF.')
 
@@ -218,6 +220,7 @@ class CopierCompany(models.Model):
                     'sticky': True,
                 }
             }
+
 
     
     # Campos de alquiler
