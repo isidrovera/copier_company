@@ -131,14 +131,13 @@ class CopierCompany(models.Model):
 
             # Generar el PDF
             try:
-                # Generamos el PDF usando el report action
+                # Generar el PDF usando el report action
                 pdf_data = self.env['ir.actions.report']._render_qweb_pdf(
                     'copier_company.action_report_report_cotizacion_alquiler',
-                    res_ids=[self.id],
-                    data={'disableFontReflection': True}
+                    [self.id]
                 )
                 
-                if not pdf_data or not pdf_data[0]:
+                if not pdf_data:
                     raise UserError('No se pudo generar el contenido del PDF')
 
                 pdf_content = pdf_data[0]
@@ -183,21 +182,24 @@ class CopierCompany(models.Model):
             success_count = 0
             for phone in formatted_phones:
                 try:
-                    # Preparar los datos multipart
-                    form_data = aiohttp.FormData()
-                    form_data.add_field('phone', phone)
-                    form_data.add_field('type', 'media')
-                    form_data.add_field('message', message)
-                    form_data.add_field(
-                        'file',
-                        pdf_content,
-                        filename=attachment_name,
-                        content_type='application/pdf'
-                    )
-
+                    files = {
+                        'file': (
+                            attachment_name,
+                            pdf_content,
+                            'application/pdf'
+                        )
+                    }
+                    
+                    data = {
+                        'phone': phone,
+                        'type': 'media',
+                        'message': message
+                    }
+                    
                     response = requests.post(
                         WHATSAPP_API_URL,
-                        data=form_data,
+                        data=data,
+                        files=files,
                         timeout=30
                     )
                     
@@ -210,8 +212,7 @@ class CopierCompany(models.Model):
                             attachment_ids=[attachment.id]
                         )
                     else:
-                        error_msg = response_data.get('message', 'Error desconocido')
-                        raise Exception(f"Error en la API: {error_msg}")
+                        raise Exception(response_data.get('message', 'Error desconocido en la API'))
                         
                 except Exception as e:
                     error_msg = str(e)
