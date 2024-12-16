@@ -10,7 +10,11 @@ from PIL import Image
 import os
 import re
 from odoo.exceptions import UserError
+
 import requests
+import logging
+
+_logger = logging.getLogger(__name__)
 
 class CopierCompany(models.Model):
     _name = 'copier.company'
@@ -115,93 +119,110 @@ class CopierCompany(models.Model):
 
     def send_whatsapp_report(self):
         """Envía el reporte por WhatsApp"""
-        import requests
-        import base64
-        from odoo.exceptions import UserError
+        try:
+            # URL de la API de WhatsApp
+            WHATSAPP_API_URL = 'https://whatsappapi.copiercompanysac.com/api/message'
 
-        # URL directa de tu API de WhatsApp
-        WHATSAPP_API_URL = 'https://whatsappapi.copiercompanysac.com/api/message'  # Cambia esto por tu URL real
+            # Verificar cliente y número
+            if not self.cliente_id:
+                raise UserError('No hay cliente seleccionado')
+            if not self.cliente_id.mobile:
+                raise UserError('El cliente no tiene número de teléfono registrado')
 
-        # Generar el PDF del reporte
-        report = self.env.ref('copier_company.action_report_report_cotizacion_alquiler')
-        pdf_content, _ = report._render_qweb_pdf(self.id)
-        
-        # Verificar y formatear número de teléfono
-        if not self.cliente_id.mobile:
-            raise UserError('El cliente no tiene número de teléfono registrado')
-        
-        # Procesar números de teléfono
-        phones = self.cliente_id.mobile.split(';')
-        formatted_phones = []
-        
-        for phone in phones:
-            # Limpiar el número
-            clean_phone = phone.strip().replace(' ', '').replace('+', '')
-            clean_phone = ''.join(filter(str.isdigit, clean_phone))
-            
-            # Agregar 51 si no está presente y el número tiene 9 dígitos
-            if not clean_phone.startswith('51') and len(clean_phone) == 9:
-                clean_phone = f'51{clean_phone}'
-            
-            if clean_phone:
-                formatted_phones.append(clean_phone)
-        
-        if not formatted_phones:
-            raise UserError('No se encontraron números de teléfono válidos')
-        
-        # Preparar mensaje y archivo
-        message = f"Hola, te envío la cotización {self.secuencia}"
-        
-        # Enviar a cada número
-        success_count = 0
-        for phone in formatted_phones:
+            # Generar el PDF
             try:
-                files = {
-                    'file': (
-                        f'Cotizacion_{self.secuencia}.pdf',
-                        pdf_content,
-                        'application/pdf'
+                report_action = self.env.ref('copier_company.action_report_report_cotizacion_alquiler')
+                pdf_content, _ = report_action.with_context(must_skip_send_to_printer=True)._render_qweb_pdf(self.id)
+            except Exception as e:
+                _logger.error('Error al generar PDF: %s', str(e))
+                raise UserError('Error al generar el PDF del reporte: ' + str(e))
+
+            # Procesar números de teléfono
+            phones = self.cliente_id.mobile.split(';')
+            formatted_phones = []
+            
+            for phone in phones:
+                # Limpiar el número
+                clean_phone = phone.strip().replace(' ', '').replace('+', '')
+                clean_phone = ''.join(filter(str.isdigit, clean_phone))
+                
+                # Agregar 51 si no está presente y el número tiene 9 dígitos
+                if not clean_phone.startswith('51') and len(clean_phone) == 9:
+                    clean_phone = f'51{clean_phone}'
+                
+                if clean_phone:
+                    formatted_phones.append(clean_phone)
+            
+            if not formatted_phones:
+                raise UserError('No se encontraron números de teléfono válidos')
+            
+            # Preparar mensaje
+            message = f"Hola, te envío la cotización {self.secuencia}"
+            
+            # Enviar a cada número
+            success_count = 0
+            for phone in formatted_phones:
+                try:
+                    files = {
+                        'file': (
+                            f'Cotizacion_{self.secuencia}.pdf',
+                            pdf_content,
+                            'application/pdf'
+                        )
+                    }
+                    
+                    data = {
+                        'phone': phone,
+                        'type': 'media',
+                        'message': message
+                    }
+                    
+                    response = requests.post(
+                        WHATSAPP_API_URL,
+                        data=data,
+                        files=files,
+                        timeout=30
                     )
-                }
-                
-                data = {
-                    'phone': phone,
-                    'type': 'media',
-                    'message': message
-                }
-                
-                response = requests.post(
-                    WHATSAPP_API_URL,
-                    data=data,
-                    files=files,
-                    timeout=30
-                )
-                
-                if response.status_code == 200:
-                    success_count += 1
+                    
+                    if response.status_code == 200:
+                        success_count += 1
+                        self.message_post(
+                            body=f"✅ Reporte enviado por WhatsApp al número {phone}",
+                            message_type='notification'
+                        )
+                    else:
+                        raise Exception(f"Error en la API: {response.text}")
+                        
+                except Exception as e:
+                    error_msg = str(e)
+                    _logger.error('Error al enviar WhatsApp a %s: %s', phone, error_msg)
                     self.message_post(
-                        body=f"Reporte enviado por WhatsApp al número {phone}",
+                        body=f"❌ Error al enviar WhatsApp al número {phone}: {error_msg}",
                         message_type='notification'
                     )
-                else:
-                    raise Exception(f"Error en la API: {response.text}")
-                    
-            except Exception as e:
-                self.message_post(
-                    body=f"Error al enviar WhatsApp al número {phone}: {str(e)}",
-                    message_type='notification'
-                )
-        
-        # Mostrar mensaje de resultado
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'message': f'Reporte enviado por WhatsApp a {success_count} número(s)',
-                'type': 'success' if success_count > 0 else 'warning',
-                'sticky': False,
+            
+            # Mostrar mensaje de resultado
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'message': f'Reporte enviado por WhatsApp a {success_count} número(s)',
+                    'type': 'success' if success_count > 0 else 'warning',
+                    'sticky': False,
+                }
             }
-        }
+
+        except Exception as e:
+            _logger.error('Error general en send_whatsapp_report: %s', str(e))
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'message': f'Error: {str(e)}',
+                    'type': 'danger',
+                    'sticky': True,
+                }
+            }
     
     # Campos de alquiler
     fecha_inicio_alquiler = fields.Date(string="Fecha de Inicio del Alquiler", tracking=True)
