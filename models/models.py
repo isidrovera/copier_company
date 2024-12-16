@@ -131,17 +131,16 @@ class CopierCompany(models.Model):
 
             # Generar el PDF
             try:
-                # Obtener el reporte usando el nombre correcto según el XML
-                report = self.env.ref('copier_company.action_report_report_cotizacion_alquiler')
+                # Obtener el reporte
+                report = self.env['ir.actions.report']._get_report_from_name('copier_company.cotizacion_view')
                 if not report:
                     raise UserError('No se encontró la plantilla del reporte')
 
-                # Generar el PDF
-                report_values = report.render_qweb_pdf([self.id])
-                if not report_values or not report_values[0]:
-                    raise UserError('Error al generar el contenido del PDF')
+                # Generar el PDF usando el método _render
+                pdf_content = report._render([self.id])[0]
                 
-                pdf_content = report_values[0]
+                if not pdf_content:
+                    raise UserError('No se pudo generar el contenido del PDF')
 
                 # Crear el adjunto
                 attachment_name = f'Propuesta_Comercial_{self.secuencia}.pdf'
@@ -164,11 +163,9 @@ class CopierCompany(models.Model):
             formatted_phones = []
             
             for phone in phones:
-                # Limpiar el número
                 clean_phone = phone.strip().replace(' ', '').replace('+', '')
                 clean_phone = ''.join(filter(str.isdigit, clean_phone))
                 
-                # Agregar 51 si no está presente y el número tiene 9 dígitos
                 if not clean_phone.startswith('51') and len(clean_phone) == 9:
                     clean_phone = f'51{clean_phone}'
                 
@@ -224,7 +221,6 @@ class CopierCompany(models.Model):
                         message_type='notification'
                     )
             
-            # Mostrar mensaje de resultado
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
