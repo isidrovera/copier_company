@@ -131,16 +131,17 @@ class CopierCompany(models.Model):
 
             # Generar el PDF
             try:
-                # Obtener el reporte usando el nombre correcto del XML
-                report = self.env['ir.actions.report']._get_report_from_name('copier_company.cotizacion_view')
+                # Obtener el reporte usando el nombre correcto según el XML
+                report = self.env.ref('copier_company.action_report_report_cotizacion_alquiler')
                 if not report:
                     raise UserError('No se encontró la plantilla del reporte')
 
-                # Generar PDF usando el nuevo sistema de reportes
-                pdf_content, _ = report._render_qweb_pdf([self.id])
+                # Generar el PDF
+                report_values = report.render_qweb_pdf([self.id])
+                if not report_values or not report_values[0]:
+                    raise UserError('Error al generar el contenido del PDF')
                 
-                if not pdf_content:
-                    raise UserError('No se pudo generar el contenido del PDF')
+                pdf_content = report_values[0]
 
                 # Crear el adjunto
                 attachment_name = f'Propuesta_Comercial_{self.secuencia}.pdf'
@@ -158,13 +159,16 @@ class CopierCompany(models.Model):
                 raise UserError(f'Error al generar el PDF: {str(e)}')
 
             # Procesar números de teléfono
-            phones = self.cliente_id.mobile.split(';')
+            mobile = str(self.cliente_id.mobile) if self.cliente_id.mobile else ''
+            phones = mobile.split(';')
             formatted_phones = []
             
             for phone in phones:
+                # Limpiar el número
                 clean_phone = phone.strip().replace(' ', '').replace('+', '')
                 clean_phone = ''.join(filter(str.isdigit, clean_phone))
                 
+                # Agregar 51 si no está presente y el número tiene 9 dígitos
                 if not clean_phone.startswith('51') and len(clean_phone) == 9:
                     clean_phone = f'51{clean_phone}'
                 
@@ -220,6 +224,7 @@ class CopierCompany(models.Model):
                         message_type='notification'
                     )
             
+            # Mostrar mensaje de resultado
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
@@ -396,26 +401,17 @@ class CotizacionAlquilerReport(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        """
-        Obtiene los valores para el reporte de cotización
-        :param docids: IDs de los documentos a procesar
-        :param data: Datos adicionales (opcional)
-        :return: Diccionario con los valores para el reporte
-        """
-        report = self.env['ir.actions.report']._get_report_from_name('copier_company.cotizacion_view')
-        
-        # Obtener los registros
-        docs = self.env[report.model].browse(docids)
-        
-        # Si necesitas añadir datos adicionales específicos, podrías hacerlo aquí
-        # Por ejemplo, cálculos adicionales, datos de configuración, etc.
+        """Prepara los valores para el reporte"""
+        # Obtener los registros directamente
+        docs = self.env['copier.company'].browse(docids)
         
         return {
             'doc_ids': docids,
-            'doc_model': report.model,
+            'doc_model': 'copier.company',
             'docs': docs,
             'data': data,
-            # Puedes añadir más valores al contexto si los necesitas
             'company': self.env.company,
-            'get_formatted_amount': lambda amount: '{:,.2f}'.format(amount),  # Función helper para formatear montos
+            # Helper functions
+            'format_currency': lambda amount: '{:,.2f}'.format(amount or 0.0),
+            'format_number': lambda number: '{:,}'.format(number or 0),
         }
