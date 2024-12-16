@@ -131,27 +131,32 @@ class CopierCompany(models.Model):
 
             # Generar el PDF usando el report_action
             try:
-                # Obtener la acción del reporte de forma segura
-                report_action = self.env.ref('copier_company.action_report_report_cotizacion_alquiler', raise_if_not_found=True)
-                if not report_action:
-                    raise UserError('No se encontró la plantilla del reporte')
-
-                # Generar el PDF
-                pdf_content, _ = report_action.with_context(
+                # Obtener la acción del reporte usando el ID correcto
+                report = self.env.ref('copier_company.action_report_report_cotizacion_alquiler')
+                # Generar el PDF con el contexto correcto
+                pdf_content, _ = report.with_context(
                     active_model=self._name,
                     active_id=self.id,
                     active_ids=[self.id]
-                )._render_qweb_pdf(self.id)
+                )._render_qweb_pdf([self.id])
                 
                 if not pdf_content:
-                    raise UserError('No se pudo generar el contenido del PDF')
+                    raise UserError('No se pudo generar el PDF')
 
-            except ValueError as e:
-                _logger.error('Error al obtener el reporte: %s', str(e))
-                raise UserError('Error al encontrar la plantilla del reporte')
+                # Opcional: Guardar como adjunto
+                attachment_name = f'Propuesta Comercial - {self.secuencia}.pdf'
+                attachment = self.env['ir.attachment'].create({
+                    'name': attachment_name,
+                    'type': 'binary',
+                    'datas': base64.b64encode(pdf_content),
+                    'res_model': self._name,
+                    'res_id': self.id,
+                    'mimetype': 'application/pdf'
+                })
+
             except Exception as e:
                 _logger.error('Error al generar PDF: %s', str(e))
-                raise UserError('Error al generar el PDF del reporte: ' + str(e))
+                raise UserError('Error al generar el PDF: ' + str(e))
 
             # Procesar números de teléfono
             phones = self.cliente_id.mobile.split(';')
@@ -171,7 +176,7 @@ class CopierCompany(models.Model):
                 raise UserError('No se encontraron números de teléfono válidos')
             
             # Preparar mensaje
-            message = f"Hola, te envío la cotización {self.secuencia}"
+            message = f"Hola, te envío la propuesta comercial {self.secuencia}"
             
             # Enviar a cada número
             success_count = 0
@@ -179,7 +184,7 @@ class CopierCompany(models.Model):
                 try:
                     files = {
                         'file': (
-                            f'Cotizacion_{self.secuencia}.pdf',
+                            attachment_name,
                             pdf_content,
                             'application/pdf'
                         )
@@ -201,8 +206,9 @@ class CopierCompany(models.Model):
                     if response.status_code == 200:
                         success_count += 1
                         self.message_post(
-                            body=f"✅ Reporte enviado por WhatsApp al número {phone}",
-                            message_type='notification'
+                            body=f"✅ Propuesta comercial enviada por WhatsApp al número {phone}",
+                            message_type='notification',
+                            attachment_ids=[attachment.id]
                         )
                     else:
                         raise Exception(f"Error en la API: {response.text}")
@@ -219,7 +225,7 @@ class CopierCompany(models.Model):
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
-                    'message': f'Reporte enviado por WhatsApp a {success_count} número(s)',
+                    'message': f'Propuesta comercial enviada por WhatsApp a {success_count} número(s)',
                     'type': 'success' if success_count > 0 else 'warning',
                     'sticky': False,
                 }
