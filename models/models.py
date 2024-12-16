@@ -132,14 +132,13 @@ class CopierCompany(models.Model):
             # Generar el PDF
             try:
                 # Obtener el reporte
-                report = self.env['ir.actions.report']._get_report_from_name('copier_company.cotizacion_view')
+                report = self.env.ref('copier_company.action_report_report_cotizacion_alquiler')
                 if not report:
                     raise UserError('No se encontró la plantilla del reporte')
 
-                # Generar el PDF usando el método _render
-                pdf_content = report._render([self.id])[0]
-                
-                if not pdf_content:
+                # Generar el PDF usando el método _render con los argumentos correctos
+                data, format = report._render(res_ids=[self.id])
+                if not data:
                     raise UserError('No se pudo generar el contenido del PDF')
 
                 # Crear el adjunto
@@ -147,7 +146,7 @@ class CopierCompany(models.Model):
                 attachment = self.env['ir.attachment'].create({
                     'name': attachment_name,
                     'type': 'binary',
-                    'datas': base64.b64encode(pdf_content),
+                    'datas': base64.b64encode(data),
                     'res_model': self._name,
                     'res_id': self.id,
                     'mimetype': 'application/pdf'
@@ -185,12 +184,12 @@ class CopierCompany(models.Model):
                     files = {
                         'file': (
                             attachment_name,
-                            pdf_content,
+                            data,
                             'application/pdf'
                         )
                     }
                     
-                    data = {
+                    form_data = {
                         'phone': phone,
                         'type': 'media',
                         'message': message
@@ -198,7 +197,7 @@ class CopierCompany(models.Model):
                     
                     response = requests.post(
                         WHATSAPP_API_URL,
-                        data=data,
+                        data=form_data,
                         files=files,
                         timeout=30
                     )
@@ -242,6 +241,7 @@ class CopierCompany(models.Model):
                     'sticky': True,
                 }
             }
+   
     # Campos de alquiler
     fecha_inicio_alquiler = fields.Date(string="Fecha de Inicio del Alquiler", tracking=True)
     duracion_alquiler_id = fields.Many2one('copier.duracion', string="Duración del Alquiler",
