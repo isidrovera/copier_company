@@ -131,16 +131,25 @@ class CopierCompany(models.Model):
 
             # Generar el PDF
             try:
-                report = self.env.ref('copier_company.action_report_report_cotizacion_alquiler')
-                pdf_content, _ = report.sudo().render_qweb_pdf([self.id])
+                report_name = 'copier_company.action_report_report_cotizacion_alquiler'
+                report = self.env.ref(report_name)
                 
+                if not report:
+                    raise UserError(f'No se encontró el reporte: {report_name}')
+                
+                # Generar PDF usando el método correcto
+                pdf_content = report._render([self.id])[0]
+                
+                if not pdf_content:
+                    raise UserError('No se pudo generar el contenido del PDF')
+
                 # Crear el adjunto
-                report_name = f'Propuesta_Comercial_{self.secuencia}.pdf'
+                attachment_name = f'Propuesta_Comercial_{self.secuencia}.pdf'
                 attachment = self.env['ir.attachment'].create({
-                    'name': report_name,
+                    'name': attachment_name,
                     'type': 'binary',
                     'datas': base64.b64encode(pdf_content),
-                    'store_fname': report_name,
+                    'store_fname': attachment_name,
                     'res_model': self._name,
                     'res_id': self.id,
                     'mimetype': 'application/pdf'
@@ -176,7 +185,7 @@ class CopierCompany(models.Model):
                 try:
                     files = {
                         'file': (
-                            report_name,
+                            attachment_name,
                             pdf_content,
                             'application/pdf'
                         )
