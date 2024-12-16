@@ -132,14 +132,12 @@ class CopierCompany(models.Model):
             # Generar el PDF
             try:
                 # Obtener el reporte
-                report_name = 'copier_company.action_report_report_cotizacion_alquiler'
-                report = self.env.ref(report_name)
-                
+                report = self.env['ir.actions.report']._get_report_from_name('copier_company.report_cotizacion_alquiler')
                 if not report:
-                    raise UserError(f'No se encontró el reporte: {report_name}')
-                
-                # Generar PDF usando el método _render con los argumentos correctos
-                pdf_content, content_type = report._render_qweb_pdf(res_ids=[self.id])
+                    raise UserError('No se encontró la plantilla del reporte')
+
+                # Generar el PDF usando el nuevo sistema de reportes
+                pdf_content, _ = report._render_qweb_pdf(self.ids)
                 
                 if not pdf_content:
                     raise UserError('No se pudo generar el contenido del PDF')
@@ -392,3 +390,20 @@ class CopierCompany(models.Model):
 
     def action_print_report(self):
         return self.env.ref('copier_company.action_report_report_cotizacion_alquiler').report_action(self)
+class CotizacionAlquilerReport(models.AbstractModel):
+    _name = 'report.copier_company.report_cotizacion_alquiler'
+    _description = 'Reporte de Cotización de Alquiler'
+
+    @api.model
+    def _get_report_values(self, docids, data=None):
+        report = self.env['ir.actions.report']._get_report_from_name('copier_company.report_cotizacion_alquiler')
+        
+        # Obtener los registros
+        docs = self.env[report.model].browse(docids)
+        
+        return {
+            'doc_ids': docids,
+            'doc_model': report.model,
+            'docs': docs,
+            'data': data,
+        }
