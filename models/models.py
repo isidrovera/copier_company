@@ -131,21 +131,24 @@ class CopierCompany(models.Model):
 
             # Generar el PDF
             try:
-                # Generar el PDF usando el método _render con todos los argumentos requeridos
-                data = self.env['ir.actions.report']._render(
-                    report_ref='copier_company.cotizacion_view',
-                    res_ids=[self.id]
-                )[0]
+                # Generamos el PDF usando el report action
+                pdf_data = self.env['ir.actions.report']._render_qweb_pdf(
+                    'copier_company.action_report_report_cotizacion_alquiler',
+                    res_ids=[self.id],
+                    data={'disableFontReflection': True}
+                )
                 
-                if not data:
+                if not pdf_data or not pdf_data[0]:
                     raise UserError('No se pudo generar el contenido del PDF')
+
+                pdf_content = pdf_data[0]
 
                 # Crear el adjunto
                 attachment_name = f'Propuesta_Comercial_{self.secuencia}.pdf'
                 attachment = self.env['ir.attachment'].create({
                     'name': attachment_name,
                     'type': 'binary',
-                    'datas': base64.b64encode(data),
+                    'datas': base64.b64encode(pdf_content),
                     'res_model': self._name,
                     'res_id': self.id,
                     'mimetype': 'application/pdf'
@@ -180,28 +183,26 @@ class CopierCompany(models.Model):
             success_count = 0
             for phone in formatted_phones:
                 try:
-                    files = {
-                        'file': (
-                            attachment_name,
-                            data,
-                            'application/pdf'
-                        )
-                    }
-                    
-                    form_data = {
-                        'phone': phone,
-                        'type': 'media',
-                        'message': message
-                    }
-                    
+                    # Preparar los datos multipart
+                    form_data = aiohttp.FormData()
+                    form_data.add_field('phone', phone)
+                    form_data.add_field('type', 'media')
+                    form_data.add_field('message', message)
+                    form_data.add_field(
+                        'file',
+                        pdf_content,
+                        filename=attachment_name,
+                        content_type='application/pdf'
+                    )
+
                     response = requests.post(
                         WHATSAPP_API_URL,
                         data=form_data,
-                        files=files,
                         timeout=30
                     )
                     
-                    if response.status_code == 200:
+                    response_data = response.json()
+                    if response.status_code == 200 and response_data.get('success'):
                         success_count += 1
                         self.message_post(
                             body=f"✅ Propuesta comercial enviada por WhatsApp al número {phone}",
@@ -209,7 +210,8 @@ class CopierCompany(models.Model):
                             attachment_ids=[attachment.id]
                         )
                     else:
-                        raise Exception(f"Error en la API: {response.text}")
+                        error_msg = response_data.get('message', 'Error desconocido')
+                        raise Exception(f"Error en la API: {error_msg}")
                         
                 except Exception as e:
                     error_msg = str(e)
@@ -240,7 +242,6 @@ class CopierCompany(models.Model):
                     'sticky': True,
                 }
             }
-   
     # Campos de alquiler
     fecha_inicio_alquiler = fields.Date(string="Fecha de Inicio del Alquiler", tracking=True)
     duracion_alquiler_id = fields.Many2one('copier.duracion', string="Duración del Alquiler",
