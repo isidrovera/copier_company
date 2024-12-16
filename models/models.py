@@ -129,26 +129,18 @@ class CopierCompany(models.Model):
             if not self.cliente_id.mobile:
                 raise UserError('El cliente no tiene número de teléfono registrado')
 
-            # Generar el PDF usando el report_action
+            # Generar el PDF
             try:
-                # Obtener la acción del reporte usando el ID correcto
                 report = self.env.ref('copier_company.action_report_report_cotizacion_alquiler')
-                # Generar el PDF con el contexto correcto
-                pdf_content, _ = report.with_context(
-                    active_model=self._name,
-                    active_id=self.id,
-                    active_ids=[self.id]
-                )._render_qweb_pdf([self.id])
+                pdf_content, _ = report.sudo().render_qweb_pdf([self.id])
                 
-                if not pdf_content:
-                    raise UserError('No se pudo generar el PDF')
-
-                # Opcional: Guardar como adjunto
-                attachment_name = f'Propuesta Comercial - {self.secuencia}.pdf'
+                # Crear el adjunto
+                report_name = f'Propuesta_Comercial_{self.secuencia}.pdf'
                 attachment = self.env['ir.attachment'].create({
-                    'name': attachment_name,
+                    'name': report_name,
                     'type': 'binary',
                     'datas': base64.b64encode(pdf_content),
+                    'store_fname': report_name,
                     'res_model': self._name,
                     'res_id': self.id,
                     'mimetype': 'application/pdf'
@@ -156,7 +148,7 @@ class CopierCompany(models.Model):
 
             except Exception as e:
                 _logger.error('Error al generar PDF: %s', str(e))
-                raise UserError('Error al generar el PDF: ' + str(e))
+                raise UserError(f'Error al generar el PDF: {str(e)}')
 
             # Procesar números de teléfono
             phones = self.cliente_id.mobile.split(';')
@@ -184,7 +176,7 @@ class CopierCompany(models.Model):
                 try:
                     files = {
                         'file': (
-                            attachment_name,
+                            report_name,
                             pdf_content,
                             'application/pdf'
                         )
