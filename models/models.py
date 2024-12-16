@@ -131,14 +131,15 @@ class CopierCompany(models.Model):
 
             # Generar el PDF
             try:
+                # Obtener el reporte
                 report_name = 'copier_company.action_report_report_cotizacion_alquiler'
                 report = self.env.ref(report_name)
                 
                 if not report:
                     raise UserError(f'No se encontró el reporte: {report_name}')
                 
-                # Generar PDF usando el método correcto
-                pdf_content = report._render([self.id])[0]
+                # Generar PDF usando el método _render con los argumentos correctos
+                pdf_content, content_type = report._render_qweb_pdf(res_ids=[self.id])
                 
                 if not pdf_content:
                     raise UserError('No se pudo generar el contenido del PDF')
@@ -149,7 +150,6 @@ class CopierCompany(models.Model):
                     'name': attachment_name,
                     'type': 'binary',
                     'datas': base64.b64encode(pdf_content),
-                    'store_fname': attachment_name,
                     'res_model': self._name,
                     'res_id': self.id,
                     'mimetype': 'application/pdf'
