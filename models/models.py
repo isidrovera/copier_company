@@ -118,31 +118,27 @@ class CopierCompany(models.Model):
         return formatted_phones
 
     def send_whatsapp_report(self):
-        """Envía el reporte por WhatsApp"""
+        """Envía el reporte por WhatsApp a los números del cliente."""
         try:
-            # URL de la API de WhatsApp
-            WHATSAPP_API_URL = 'https://whatsappapi.copiercompanysac.com/api/message'
-
-            # Verificar cliente y número
+            # Verificar cliente y número de teléfono
             if not self.cliente_id:
-                raise UserError('No hay cliente seleccionado')
+                raise UserError('No hay cliente seleccionado.')
             if not self.cliente_id.mobile:
-                raise UserError('El cliente no tiene número de teléfono registrado')
+                raise UserError('El cliente no tiene un número de teléfono registrado.')
 
-            # Generar el PDF
+            # Formatear números de teléfono
+            formatted_phones = self.get_formatted_phones()
+            if not formatted_phones:
+                raise UserError('No se encontraron números de teléfono válidos para el cliente.')
+
+            # Generar el reporte PDF
             try:
-                # Generar el PDF usando el report action
-                pdf_data = self.env['ir.actions.report']._render_qweb_pdf(
-                    'copier_company.action_report_report_cotizacion_alquiler',
-                    [self.id]
-                )
+                report = self.env.ref('copier_company.action_report_report_cotizacion_alquiler')
+                pdf_content, _ = report._render_qweb_pdf([self.id])
+                if not pdf_content:
+                    raise UserError('No se pudo generar el contenido del PDF.')
                 
-                if not pdf_data:
-                    raise UserError('No se pudo generar el contenido del PDF')
-
-                pdf_content = pdf_data[0]
-
-                # Crear el adjunto
+                # Crear adjunto para Odoo
                 attachment_name = f'Propuesta_Comercial_{self.secuencia}.pdf'
                 attachment = self.env['ir.attachment'].create({
                     'name': attachment_name,
@@ -154,32 +150,17 @@ class CopierCompany(models.Model):
                 })
 
             except Exception as e:
-                _logger.error('Error al generar PDF: %s', str(e))
+                _logger.error('Error al generar el PDF: %s', str(e))
                 raise UserError(f'Error al generar el PDF: {str(e)}')
 
-            # Procesar números de teléfono
-            mobile = str(self.cliente_id.mobile) if self.cliente_id.mobile else ''
-            phones = mobile.split(';')
-            formatted_phones = []
-            
-            for phone in phones:
-                clean_phone = phone.strip().replace(' ', '').replace('+', '')
-                clean_phone = ''.join(filter(str.isdigit, clean_phone))
-                
-                if not clean_phone.startswith('51') and len(clean_phone) == 9:
-                    clean_phone = f'51{clean_phone}'
-                
-                if clean_phone:
-                    formatted_phones.append(clean_phone)
-            
-            if not formatted_phones:
-                raise UserError('No se encontraron números de teléfono válidos')
-            
-            # Preparar mensaje
-            message = f"Hola, te envío la propuesta comercial {self.secuencia}"
-            
-            # Enviar a cada número
+            # Preparar datos del mensaje
+            message = f"Hola, te enviamos la propuesta comercial {self.secuencia}. Por favor, revisa el adjunto."
+
+            # URL de la API de WhatsApp
+            WHATSAPP_API_URL = 'https://whatsappapi.copiercompanysac.com/api/message'
             success_count = 0
+
+            # Enviar el mensaje a cada número de teléfono
             for phone in formatted_phones:
                 try:
                     files = {
@@ -189,31 +170,29 @@ class CopierCompany(models.Model):
                             'application/pdf'
                         )
                     }
-                    
                     data = {
                         'phone': phone,
                         'type': 'media',
                         'message': message
                     }
-                    
                     response = requests.post(
                         WHATSAPP_API_URL,
                         data=data,
                         files=files,
                         timeout=30
                     )
-                    
                     response_data = response.json()
                     if response.status_code == 200 and response_data.get('success'):
                         success_count += 1
                         self.message_post(
-                            body=f"✅ Propuesta comercial enviada por WhatsApp al número {phone}",
+                            body=f"✅ Propuesta comercial enviada por WhatsApp al número {phone}.",
                             message_type='notification',
                             attachment_ids=[attachment.id]
                         )
                     else:
-                        raise Exception(response_data.get('message', 'Error desconocido en la API'))
-                        
+                        error_message = response_data.get('message', 'Error desconocido en la API.')
+                        raise Exception(error_message)
+
                 except Exception as e:
                     error_msg = str(e)
                     _logger.error('Error al enviar WhatsApp a %s: %s', phone, error_msg)
@@ -221,12 +200,13 @@ class CopierCompany(models.Model):
                         body=f"❌ Error al enviar WhatsApp al número {phone}: {error_msg}",
                         message_type='notification'
                     )
-            
+
+            # Notificación de resumen
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
-                    'message': f'Propuesta comercial enviada por WhatsApp a {success_count} número(s)',
+                    'message': f"Propuesta comercial enviada por WhatsApp a {success_count} número(s).",
                     'type': 'success' if success_count > 0 else 'warning',
                     'sticky': False,
                 }
@@ -243,6 +223,7 @@ class CopierCompany(models.Model):
                     'sticky': True,
                 }
             }
+
     # Campos de alquiler
     fecha_inicio_alquiler = fields.Date(string="Fecha de Inicio del Alquiler", tracking=True)
     duracion_alquiler_id = fields.Many2one('copier.duracion', string="Duración del Alquiler",
