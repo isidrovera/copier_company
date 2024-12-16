@@ -131,13 +131,12 @@ class CopierCompany(models.Model):
 
             # Generar el PDF
             try:
-                # Obtener el reporte
-                report = self.env.ref('copier_company.action_report_report_cotizacion_alquiler')
-                if not report:
-                    raise UserError('No se encontró la plantilla del reporte')
-
-                # Generar el PDF usando el método _render con los argumentos correctos
-                data, format = report._render(res_ids=[self.id])
+                # Generar el PDF usando el método _render con todos los argumentos requeridos
+                data = self.env['ir.actions.report']._render(
+                    report_ref='copier_company.cotizacion_view',
+                    res_ids=[self.id]
+                )[0]
+                
                 if not data:
                     raise UserError('No se pudo generar el contenido del PDF')
 
