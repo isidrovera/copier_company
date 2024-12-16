@@ -131,13 +131,13 @@ class CopierCompany(models.Model):
 
             # Generar el PDF
             try:
-                # Obtener el reporte
-                report = self.env['ir.actions.report']._get_report_from_name('copier_company.action_report_report_cotizacion_alquiler')
+                # Obtener el reporte usando el nombre correcto del XML
+                report = self.env['ir.actions.report']._get_report_from_name('copier_company.cotizacion_view')
                 if not report:
                     raise UserError('No se encontró la plantilla del reporte')
 
-                # Generar el PDF usando el nuevo sistema de reportes
-                pdf_content, _ = report._render_qweb_pdf(self.ids)
+                # Generar PDF usando el nuevo sistema de reportes
+                pdf_content, _ = report._render_qweb_pdf([self.id])
                 
                 if not pdf_content:
                     raise UserError('No se pudo generar el contenido del PDF')
@@ -391,19 +391,31 @@ class CopierCompany(models.Model):
     def action_print_report(self):
         return self.env.ref('copier_company.action_report_report_cotizacion_alquiler').report_action(self)
 class CotizacionAlquilerReport(models.AbstractModel):
-    _name = 'report.copier_company.report_cotizacion_alquiler'
+    _name = 'report.copier_company.cotizacion_view'
     _description = 'Reporte de Cotización de Alquiler'
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        report = self.env['ir.actions.report']._get_report_from_name('copier_company.action_report_report_cotizacion_alquiler')
+        """
+        Obtiene los valores para el reporte de cotización
+        :param docids: IDs de los documentos a procesar
+        :param data: Datos adicionales (opcional)
+        :return: Diccionario con los valores para el reporte
+        """
+        report = self.env['ir.actions.report']._get_report_from_name('copier_company.cotizacion_view')
         
         # Obtener los registros
         docs = self.env[report.model].browse(docids)
+        
+        # Si necesitas añadir datos adicionales específicos, podrías hacerlo aquí
+        # Por ejemplo, cálculos adicionales, datos de configuración, etc.
         
         return {
             'doc_ids': docids,
             'doc_model': report.model,
             'docs': docs,
             'data': data,
+            # Puedes añadir más valores al contexto si los necesitas
+            'company': self.env.company,
+            'get_formatted_amount': lambda amount: '{:,.2f}'.format(amount),  # Función helper para formatear montos
         }
