@@ -131,7 +131,7 @@ class CopierCompany(models.Model):
             if not formatted_phones:
                 raise UserError('No se encontraron números de teléfono válidos para el cliente.')
 
-            # Generar el reporte reutilizando el método action_print_report
+            # Generar el reporte y guardarlo temporalmente
             report_action = self.env.ref('copier_company.action_report_report_cotizacion_alquiler')
             pdf_content, _ = self.env['ir.actions.report']._render_qweb_pdf(
                 report_action.id, self.ids
@@ -139,16 +139,10 @@ class CopierCompany(models.Model):
             if not pdf_content:
                 raise UserError('No se pudo generar el contenido del PDF.')
 
-            # Crear el adjunto en Odoo
-            attachment_name = f'Propuesta_Comercial_{self.secuencia}.pdf'
-            attachment = self.env['ir.attachment'].create({
-                'name': attachment_name,
-                'type': 'binary',
-                'datas': base64.b64encode(pdf_content),
-                'res_model': self._name,
-                'res_id': self.id,
-                'mimetype': 'application/pdf'
-            })
+            # Guardar el archivo PDF temporalmente
+            temp_pdf_path = f"/tmp/Propuesta_Comercial_{self.secuencia}.pdf"
+            with open(temp_pdf_path, 'wb') as temp_pdf:
+                temp_pdf.write(pdf_content)
 
             # Preparar mensaje
             message = f"Hola, te enviamos la propuesta comercial {self.secuencia}. Por favor, revisa el adjunto."
@@ -162,7 +156,7 @@ class CopierCompany(models.Model):
                 try:
                     # Preparar datos y archivos para la solicitud POST
                     files = {
-                        'file': (attachment_name, pdf_content, 'application/pdf')
+                        'file': (f"Propuesta_Comercial_{self.secuencia}.pdf", open(temp_pdf_path, 'rb'), 'application/pdf')
                     }
                     data = {
                         'phone': phone,
@@ -191,8 +185,7 @@ class CopierCompany(models.Model):
                         success_count += 1
                         self.message_post(
                             body=f"✅ Propuesta comercial enviada por WhatsApp al número {phone}.",
-                            message_type='notification',
-                            attachment_ids=[attachment.id]
+                            message_type='notification'
                         )
                     else:
                         error_message = response_data.get('message', 'Error desconocido en la API.')
@@ -205,6 +198,10 @@ class CopierCompany(models.Model):
                         body=f"❌ Error al enviar WhatsApp al número {phone}: {error_msg}",
                         message_type='notification'
                     )
+
+            # Eliminar el archivo temporal
+            if os.path.exists(temp_pdf_path):
+                os.remove(temp_pdf_path)
 
             # Notificación de resumen
             return {
@@ -224,7 +221,6 @@ class CopierCompany(models.Model):
             _logger.exception('Error inesperado al enviar el reporte por WhatsApp: %s', str(e))
             raise UserError(f"Ocurrió un error al enviar el reporte por WhatsApp: {str(e)}")
 
-    
     # Campos de alquiler
     fecha_inicio_alquiler = fields.Date(string="Fecha de Inicio del Alquiler", tracking=True)
     duracion_alquiler_id = fields.Many2one('copier.duracion', string="Duración del Alquiler",
