@@ -132,7 +132,7 @@ class CopierCompany(models.Model):
             # Generar el PDF
             try:
                 # Obtener el reporte
-                report = self.env['ir.actions.report']._get_report_from_name('copier_company.report_cotizacion_alquiler')
+                report = self.env['ir.actions.report']._get_report_from_name('copier_company.action_report_report_cotizacion_alquiler')
                 if not report:
                     raise UserError('No se encontró la plantilla del reporte')
 
@@ -396,7 +396,7 @@ class CotizacionAlquilerReport(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        report = self.env['ir.actions.report']._get_report_from_name('copier_company.report_cotizacion_alquiler')
+        report = self.env['ir.actions.report']._get_report_from_name('copier_company.action_report_report_cotizacion_alquiler')
         
         # Obtener los registros
         docs = self.env[report.model].browse(docids)
