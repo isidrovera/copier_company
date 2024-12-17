@@ -12,15 +12,26 @@
     'author': "Isidro",
     'website': "https://copiercompanysac.com",
 
-    # Las categorías se pueden usar para filtrar módulos en el listado de módulos
     'category': 'Gestión de Equipos',
     'version': '0.1',
 
-    # Módulos necesarios para que este funcione correctamente
-    'depends': ['base', 'mail', 'contacts', 'helpdesk',
-                'sale_management', 'portal', 'sale_subscription', 'website','web'],
+    # Añadimos las dependencias externas
+    'external_dependencies': {
+        'python': ['requests', 'requests_toolbelt'],
+    },
 
-    # Siempre cargado
+    'depends': [
+        'base', 
+        'mail', 
+        'contacts', 
+        'helpdesk',
+        'sale_management', 
+        'portal', 
+        'sale_subscription', 
+        'website',
+        'web'
+    ],
+
     'data': [
         'views/views.xml',        
         'views/ticket_copier.xml',         
@@ -44,9 +55,6 @@
         'report/copier_company_report.xml',
         'views/copier_company_form_template.xml',
         'views/security_control_views.xml',
-        
-            
-        
     ],
 
     'assets': {
@@ -54,9 +62,6 @@
             'copier_company/static/src/js/custom_script.js',
             'copier_company/static/src/js/PcloudDescargas.js',
             'copier_company/static/src/css/PcloudDescargas.css',
-            #'copier_company/static/src/css/report_styles.css',
-            
-            
         ],
         'web.report_assets_common': [
             'https://unpkg.com/modern-normalize@2.0.0/modern-normalize.css',
@@ -64,9 +69,6 @@
             'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap',
         ],
     },
-
-
-   
     
     'application': True,
     'installable': True,

@@ -126,7 +126,6 @@ class CopierCompany(models.Model):
             if not self.cliente_id.mobile:
                 raise UserError('El cliente no tiene un número de teléfono registrado.')
 
-            # Formatear números de teléfono
             formatted_phones = self.get_formatted_phones()
             if not formatted_phones:
                 raise UserError('No se encontraron números de teléfono válidos para el cliente.')
@@ -136,58 +135,48 @@ class CopierCompany(models.Model):
             pdf_content, _ = self.env['ir.actions.report']._render_qweb_pdf(
                 report_action.id, self.ids
             )
-            
-            if not pdf_content:
-                raise UserError('No se pudo generar el contenido del PDF.')
 
-            # Log del tamaño del PDF
-            _logger.info("PDF generado correctamente, tamaño: %d bytes", len(pdf_content))
-
-            # Guardar el archivo PDF temporalmente
             filename = f"Propuesta_Comercial_{self.secuencia}.pdf"
             temp_pdf_path = os.path.join('/tmp', filename)
-            
+
             try:
                 with open(temp_pdf_path, 'wb') as temp_pdf:
                     temp_pdf.write(pdf_content)
-                
-                # Verificar que el archivo se creó correctamente
-                file_size = os.path.getsize(temp_pdf_path)
-                _logger.info("Archivo temporal creado: %s, tamaño: %d bytes", temp_pdf_path, file_size)
 
-                # URL de la API de WhatsApp
+                file_size = os.path.getsize(temp_pdf_path)
+                _logger.info(f"Archivo temporal creado: {temp_pdf_path}, tamaño: {file_size} bytes")
+
                 WHATSAPP_API_URL = 'https://whatsappapi.copiercompanysac.com/api/message'
                 success_count = 0
 
-                # Enviar mensaje a cada número
                 for phone in formatted_phones:
                     try:
+                        # Modificación aquí: Usar MultipartEncoder para un mejor control del formato
+                        from requests_toolbelt import MultipartEncoder
+                        
                         with open(temp_pdf_path, 'rb') as pdf_file:
-                            # Preparar la solicitud
-                            files = {
-                                'file': (filename, pdf_file, 'application/pdf')
-                            }
-                            data = {
-                                'phone': phone,
-                                'type': 'media',
-                                'message': f"Hola, te enviamos la propuesta comercial {self.secuencia}. Por favor, revisa el adjunto."
+                            multipart_data = MultipartEncoder(
+                                fields={
+                                    'type': 'media',
+                                    'phone': phone,
+                                    'message': f"Hola, te enviamos la propuesta comercial {self.secuencia}. Por favor, revisa el adjunto.",
+                                    'file': (filename, pdf_file, 'application/pdf')
+                                }
+                            )
+
+                            headers = {
+                                'Content-Type': multipart_data.content_type
                             }
 
-                            # Log detallado de la solicitud
-                            _logger.info("Enviando solicitud a WhatsApp API:")
-                            _logger.info("URL: %s", WHATSAPP_API_URL)
-                            _logger.info("Datos: %s", data)
-                            _logger.info("Archivo: nombre=%s, tipo=application/pdf", filename)
-
-                            # Realizar la solicitud POST
+                            _logger.info("Enviando solicitud con headers: %s", headers)
+                            
                             response = requests.post(
                                 WHATSAPP_API_URL,
-                                data=data,
-                                files=files,
+                                data=multipart_data,
+                                headers=headers,
                                 timeout=60
                             )
 
-                            # Log de la respuesta
                             _logger.info("Respuesta de la API: status_code=%d, content=%s",
                                     response.status_code, response.text)
 
@@ -199,21 +188,18 @@ class CopierCompany(models.Model):
                                     message_type='notification'
                                 )
                             else:
-                                error_message = response_data.get('message', 'Error desconocido en la API.')
-                                raise Exception(error_message)
+                                raise Exception(response_data.get('message', 'Error desconocido en la API.'))
 
                     except Exception as e:
-                        _logger.error("Error detallado al enviar WhatsApp:", exc_info=True)
+                        _logger.exception("Error detallado al enviar WhatsApp:")
                         self.message_post(
                             body=f"❌ Error al enviar WhatsApp al número {phone}: {str(e)}",
                             message_type='notification'
                         )
 
             finally:
-                # Limpiar archivo temporal
                 if os.path.exists(temp_pdf_path):
                     os.remove(temp_pdf_path)
-                    _logger.info("Archivo temporal eliminado: %s", temp_pdf_path)
 
             return {
                 'type': 'ir.actions.client',
@@ -225,11 +211,9 @@ class CopierCompany(models.Model):
                 }
             }
 
-        except UserError as ue:
-            raise
         except Exception as e:
             _logger.exception("Error inesperado al enviar el reporte por WhatsApp:")
-            raise UserError(f"Error al enviar el reporte por WhatsApp: {str(e)}")
+            raise UserError(str(e))
 
     # Campos de alquiler
     fecha_inicio_alquiler = fields.Date(string="Fecha de Inicio del Alquiler", tracking=True)
