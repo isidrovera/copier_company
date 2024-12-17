@@ -24,12 +24,7 @@
                             <div class="flex-between">
                                 <h1 style="font-size: 1.75rem; margin: 0;">
                                     Propuesta Comercial N° <t t-esc="doc.secuencia" />
-                                </h1>
-                                <div>
-                                    <t t-if="doc.qr_code">
-                                        <img t-att-src="'data:image/png;base64,%s' % doc.qr_code" style="width: 90px;" />
-                                    </t>
-                                </div>
+                                </h1>                                
                             </div>
                             <p style="margin-top: 1rem;">
                                 <t t-esc="doc.fecha_formateada"/>
