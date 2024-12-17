@@ -147,7 +147,19 @@ class CopierCompany(models.Model):
 
                 for phone in formatted_phones:
                     try:
-                        # Crear el form-data exactamente como en curl
+                        # Crear el mensaje corporativo
+                        message = f"""¡Gracias por confiar en Copier Company!
+
+        Te enviamos la *Propuesta Comercial {self.secuencia}* solicitada. 
+
+        Por favor, revisa el documento adjunto. Si tienes alguna consulta o requieres información adicional, estaremos encantados de ayudarte.
+
+        *Saludos cordiales,*
+        Equipo Copier Company
+        
+        📧 info@copiercompanysac.com
+        🌐 https://copiercompanysac.com"""
+
                         with open(temp_pdf_path, 'rb') as pdf_file:
                             files = {
                                 'file': (filename, pdf_file, 'application/pdf')
@@ -156,7 +168,7 @@ class CopierCompany(models.Model):
                             data = {
                                 'phone': phone,
                                 'type': 'media',
-                                'message': f"Hola, te enviamos la propuesta comercial {self.secuencia}. Por favor, revisa el adjunto."
+                                'message': message
                             }
 
                             _logger.info("Enviando a WhatsApp API - Datos: %s", data)
