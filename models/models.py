@@ -118,24 +118,21 @@ class CopierCompany(models.Model):
         return formatted_phones
 
     def send_whatsapp_report(self):
-        """Envía el reporte por WhatsApp a los números del cliente."""
         try:
-            # Verificaciones iniciales...
-            if not self.cliente_id:
-                raise UserError('No hay cliente seleccionado.')
-            if not self.cliente_id.mobile:
-                raise UserError('El cliente no tiene un número de teléfono registrado.')
+            if not self.cliente_id or not self.cliente_id.mobile:
+                raise UserError('Se requiere un cliente con número de teléfono.')
 
             formatted_phones = self.get_formatted_phones()
             if not formatted_phones:
-                raise UserError('No se encontraron números de teléfono válidos para el cliente.')
+                raise UserError('No se encontraron números de teléfono válidos.')
 
-            # Generar el reporte
+            # Generar el PDF
             report_action = self.env.ref('copier_company.action_report_report_cotizacion_alquiler')
             pdf_content, _ = self.env['ir.actions.report']._render_qweb_pdf(
                 report_action.id, self.ids
             )
 
+            # Guardar PDF temporalmente
             filename = f"Propuesta_Comercial_{self.secuencia}.pdf"
             temp_pdf_path = os.path.join('/tmp', filename)
 
@@ -143,41 +140,34 @@ class CopierCompany(models.Model):
                 with open(temp_pdf_path, 'wb') as temp_pdf:
                     temp_pdf.write(pdf_content)
 
-                file_size = os.path.getsize(temp_pdf_path)
-                _logger.info(f"Archivo temporal creado: {temp_pdf_path}, tamaño: {file_size} bytes")
+                _logger.info(f"PDF generado: {temp_pdf_path}, tamaño: {os.path.getsize(temp_pdf_path)} bytes")
 
                 WHATSAPP_API_URL = 'https://whatsappapi.copiercompanysac.com/api/message'
                 success_count = 0
 
                 for phone in formatted_phones:
                     try:
-                        # Modificación aquí: Usar MultipartEncoder para un mejor control del formato
-                        from requests_toolbelt import MultipartEncoder
-                        
+                        # Crear el form-data exactamente como en curl
                         with open(temp_pdf_path, 'rb') as pdf_file:
-                            multipart_data = MultipartEncoder(
-                                fields={
-                                    'type': 'media',
-                                    'phone': phone,
-                                    'message': f"Hola, te enviamos la propuesta comercial {self.secuencia}. Por favor, revisa el adjunto.",
-                                    'file': (filename, pdf_file, 'application/pdf')
-                                }
-                            )
-
-                            headers = {
-                                'Content-Type': multipart_data.content_type
+                            files = {
+                                'file': (filename, pdf_file, 'application/pdf')
+                            }
+                            
+                            data = {
+                                'phone': phone,
+                                'type': 'media',
+                                'message': f"Hola, te enviamos la propuesta comercial {self.secuencia}. Por favor, revisa el adjunto."
                             }
 
-                            _logger.info("Enviando solicitud con headers: %s", headers)
-                            
+                            _logger.info("Enviando a WhatsApp API - Datos: %s", data)
+
                             response = requests.post(
                                 WHATSAPP_API_URL,
-                                data=multipart_data,
-                                headers=headers,
-                                timeout=60
+                                data=data,
+                                files=files
                             )
 
-                            _logger.info("Respuesta de la API: status_code=%d, content=%s",
+                            _logger.info("Respuesta API: Status=%s, Contenido=%s", 
                                     response.status_code, response.text)
 
                             response_data = response.json()
@@ -188,10 +178,10 @@ class CopierCompany(models.Model):
                                     message_type='notification'
                                 )
                             else:
-                                raise Exception(response_data.get('message', 'Error desconocido en la API.'))
+                                raise Exception(response_data.get('message', 'Error en la API'))
 
                     except Exception as e:
-                        _logger.exception("Error detallado al enviar WhatsApp:")
+                        _logger.error(f"Error al enviar WhatsApp a {phone}: {str(e)}")
                         self.message_post(
                             body=f"❌ Error al enviar WhatsApp al número {phone}: {str(e)}",
                             message_type='notification'
@@ -200,6 +190,7 @@ class CopierCompany(models.Model):
             finally:
                 if os.path.exists(temp_pdf_path):
                     os.remove(temp_pdf_path)
+                    _logger.info(f"Archivo temporal eliminado: {temp_pdf_path}")
 
             return {
                 'type': 'ir.actions.client',
@@ -212,8 +203,8 @@ class CopierCompany(models.Model):
             }
 
         except Exception as e:
-            _logger.exception("Error inesperado al enviar el reporte por WhatsApp:")
-            raise UserError(str(e))
+            _logger.exception("Error en el envío del reporte:")
+            raise UserError(f"Error al enviar el reporte: {str(e)}")
 
     # Campos de alquiler
     fecha_inicio_alquiler = fields.Date(string="Fecha de Inicio del Alquiler", tracking=True)
