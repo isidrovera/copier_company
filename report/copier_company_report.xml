@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
+        <!-- Definición del reporte -->
         <record id="action_report_report_cotizacion_alquiler" model="ir.actions.report">
             <field name="name">Propuesta Comercial de Alquiler</field>
             <field name="model">copier.company</field>
@@ -10,206 +11,243 @@
             <field name="print_report_name">'Propuesta Comercial - %s' % object.secuencia</field>
             <field name="binding_model_id" ref="model_copier_company" />
             <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="base.paperformat_euro"/>
         </record>
 
+        <!-- Template del reporte -->
         <template id="cotizacion_view">
-            <t t-call="web.html_container">
+            <t t-call="web.basic_layout">
                 <t t-foreach="docs" t-as="doc">
-                    <t t-call="web.external_layout">
-                        <!-- Enlazamos el archivo CSS -->
-                        <link rel="stylesheet" href="/copier_company/static/src/css/cotizacion_styles.css"/>
-                        
-                        <!-- Aquí va todo el contenido HTML del reporte original pero sin los estilos inline -->
-                        <div class="main-header">
-                            <div class="flex-between">
-                                <h1 style="font-size: 1.75rem; margin: 0;">
-                                    Propuesta Comercial N° <t t-esc="doc.secuencia" />
-                                </h1>                                
+                    <!-- Header personalizado -->
+                    <div class="custom-header">
+                        <img t-att-src="'/copier_company/static/src/img/logo.png'" style="height: 60px;"/>
+                        <div style="float: right;">
+                            <div t-if="doc.qr_code">
+                                <img t-att-src="'data:image/png;base64,%s' % doc.qr_code" style="width: 70px;"/>
                             </div>
-                            <p style="margin-top: 1rem;">
-                                <t t-esc="doc.fecha_formateada"/>
-                            </p>
                         </div>
+                    </div>
 
-                        <!-- Información del Cliente -->
-                        <div class="section">
-                            <div class="section-header">
-                                <i class="fa fa-user-circle"></i>
-                                <span>Información del Cliente</span>
-                            </div>
-                            <div class="data-grid">
-                                <div class="data-row">
-                                    <span class="label">Atención:</span>
-                                    <span class="value">
-                                        <t t-esc="doc.cliente_id.name" />
-                                    </span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="label">RUC/DNI:</span>
-                                    <span class="value">
-                                        <t t-esc="doc.identificacion" />
-                                    </span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="label">Dirección:</span>
-                                    <span class="value">
-                                        <t t-esc="doc.cliente_id.street" />
-                                    </span>
-                                </div>
-                            </div>
-                            <p style="margin-top: 1rem;" class="intro-text">
-                            Nos complace presentar nuestra <strong>PROPUESTA COMERCIAL</strong> detallando las especificaciones y condiciones para el arrendamiento del siguiente equipo multifuncional de última generación:
-                            </p>
+                    <!-- Footer personalizado -->
+                    <div class="custom-footer">
+                        <div class="company-info" style="font-size: 0.8em;">
+                            <div>COPIER COMPANY SAC</div>
+                            <div>Teléfono: (01) 123-4567 | Email: ventas@copiercompany.com</div>
+                            <div>Página <span class="page"/> de <span class="topage"/></div>
                         </div>
+                    </div>
 
-                        <!-- Equipo Propuesto -->
-                        <div class="section">
-                            <div class="section-header">
-                                <i class="fa fa-print"></i>
-                                <span>Equipo Multifuncional</span>
+                    <!-- Página 1: Cabecera -->
+                    <div class="page">
+                        <div class="page-content">
+                            <div class="main-header">
+                                <div class="flex-between">
+                                    <h1 style="font-size: 1.75rem; margin: 0;">
+                                        Propuesta Comercial N° <t t-esc="doc.secuencia"/>
+                                    </h1>
+                                </div>
+                                <p style="margin-top: 1rem;">
+                                    <t t-esc="doc.fecha_formateada"/>
+                                </p>
                             </div>
-                            <div style="text-align: center;">
-                                <h3 style="color: var(--primary-blue);">
-                                    <t t-esc="doc.name.name" />
-                                </h3>
-                                <t t-if="doc.imagen_id">
-                                    <img
-                                        t-att-src="'data:image/png;base64,%s' % doc.imagen_id.decode('utf-8')"
-                                        class="machine-image" />
+                        </div>
+                    </div>
+
+                    <!-- Página 2: Información del Cliente -->
+                    <div class="page">
+                        <div class="page-content">
+                            <div class="section">
+                                <div class="section-header">
+                                    <i class="fa fa-user-circle"></i>
+                                    <span>Información del Cliente</span>
+                                </div>
+                                <div class="data-grid">
+                                    <div class="data-row">
+                                        <span class="label">Atención:</span>
+                                        <span class="value">
+                                            <t t-esc="doc.cliente_id.name"/>
+                                        </span>
+                                    </div>
+                                    <div class="data-row">
+                                        <span class="label">RUC/DNI:</span>
+                                        <span class="value">
+                                            <t t-esc="doc.identificacion"/>
+                                        </span>
+                                    </div>
+                                    <div class="data-row">
+                                        <span class="label">Dirección:</span>
+                                        <span class="value">
+                                            <t t-esc="doc.cliente_id.street"/>
+                                        </span>
+                                    </div>
+                                </div>
+                                <p class="intro-text">
+                                    Nos complace presentar nuestra <strong>PROPUESTA COMERCIAL</strong> detallando las especificaciones y condiciones para el arrendamiento del siguiente equipo multifuncional de última generación:
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Página 3: Equipo Propuesto -->
+                    <div class="page">
+                        <div class="page-content">
+                            <div class="section">
+                                <div class="section-header">
+                                    <i class="fa fa-print"></i>
+                                    <span>Equipo Multifuncional</span>
+                                </div>
+                                <div style="text-align: center;">
+                                    <h3 style="color: var(--primary-blue);">
+                                        <t t-esc="doc.name.name"/>
+                                    </h3>
+                                    <t t-if="doc.imagen_id">
+                                        <img t-att-src="'data:image/png;base64,%s' % doc.imagen_id.decode('utf-8')"
+                                             class="machine-image"/>
+                                    </t>
+                                </div>
+                                <t t-if="doc.especificaciones_id">
+                                    <div class="specs-section">
+                                        <t t-raw="doc.especificaciones_id"/>
+                                    </div>
                                 </t>
                             </div>
-                            <t t-if="doc.especificaciones_id">
-                                <div class="specs-section">
-                                    <t t-raw="doc.especificaciones_id" />
+                        </div>
+                    </div>
+
+                    <!-- Página 4: Detalles de Tarifa -->
+                    <div class="page">
+                        <div class="page-content">
+                            <div class="section">
+                                <div class="section-header">
+                                    <i class="fa fa-info-circle"></i>
+                                    <span>Detalles de Tarifa</span>
                                 </div>
-                            </t>
+                                <div class="pricing-details">
+                                    <!-- Tarifa Principal -->
+                                    <div class="tariff-section">
+                                        <h4><i class="fa fa-print"></i> TARIFA BLANCO Y NEGRO</h4>
+                                        <ul class="benefits-list">
+                                            <li>Volumen mensual: <strong><t t-esc="'{:,}'.format(doc.volumen_mensual_bn)"/> impresiones</strong></li>
+                                            <li>Costo por impresión: <strong>S/. <t t-esc="'%.3f' % doc.costo_copia_bn"/> + IGV</strong></li>
+                                            <li>Excedente por impresión: <strong>S/. <t t-esc="'%.3f' % doc.costo_copia_bn"/> + IGV</strong></li>
+                                            <li>Renta mensual B/N: <strong>S/. <t t-esc="'%.2f' % doc.renta_mensual_bn"/> Inc. IGV</strong></li>
+                                        </ul>
+
+                                        <t t-if="doc.tipo == 'color'">
+                                            <h4 class="mt-4"><i class="fa fa-paint-brush"></i> TARIFA COLOR</h4>
+                                            <ul class="benefits-list">
+                                                <li>Volumen mensual: <strong><t t-esc="'{:,}'.format(doc.volumen_mensual_color)"/> impresiones</strong></li>
+                                                <li>Costo por impresión: <strong>S/. <t t-esc="'%.3f' % doc.costo_copia_color"/> + IGV</strong></li>
+                                                <li>Excedente por impresión: <strong>S/. <t t-esc="'%.3f' % doc.costo_copia_color"/> + IGV</strong></li>
+                                                <li>Renta mensual Color: <strong>S/. <t t-esc="'%.2f' % doc.renta_mensual_color"/> Inc. IGV</strong></li>
+                                            </ul>
+                                        </t>
+
+                                        <div class="total-section">
+                                            <div class="total-header">TOTAL MENSUAL A FACTURAR</div>
+                                            <div class="total-amount">
+                                                <span class="currency">S/.</span>
+                                                <span class="amount"><t t-esc="'%.2f' % doc.total_facturar_mensual"/></span>
+                                                <span class="tax-note">Inc. IGV</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="additional-features mt-4">
+                                            <ul class="benefits-list">
+                                                <li class="highlight"><strong class="text-success">Scanner ilimitado sin costo adicional</strong></li>
+                                                <li>Disponibilidad: <strong>5 días presentada la orden de compra</strong></li>
+                                                <li>IGV: <strong><t t-esc="doc.igv"/>%</strong></li>
+                                                <t t-if="doc.descuento > 0">
+                                                    <li>Descuento aplicado: <strong><t t-esc="doc.descuento"/>%</strong></li>
+                                                </t>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <div class="additional-info">
+                                        <h4>INFORMACIÓN ADICIONAL</h4>
+                                        <ul class="benefits-list">
+                                            <li>Tarifas en nuevos soles incluyen IGV (18%)</li>
+                                            <li>Facturación mensual en nuevos soles</li>
+                                            <li>Incluye instalación y capacitación</li>
+                                            <li>Incluye renovación de maquinaria, insumos, repuestos y servicio técnico</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="conditions">
+                                        <h4>CONDICIONES DE ALQUILER</h4>
+                                        <ul class="benefits-list">
+                                            <li>Los equipos se alquilan sin papel</li>
+                                            <li>Periodo de alquiler: desde entrega hasta recepción del equipo</li>
+                                            <li>Mantenimiento preventivo cada 2 meses</li>
+                                            <li>Contrato marco mínimo de <t t-esc="doc.duracion_alquiler_id.name"/></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                    </div>
 
-                        
-                        
+                    <!-- Página 5: Información de Pago -->
+                    <div class="page">
+                        <div class="page-content">
+                            <div class="section payment-section">
+                                <div class="section-header">
+                                    <i class="fa fa-credit-card"></i>
+                                    <span>Información de Pago</span>
+                                </div>
+                                
+                                <div class="bank-accounts">
+                                    <!-- BCP -->
+                                    <div class="bank-account">
+                                        <div class="bank-logo">
+                                            <i class="fa fa-university"></i>
+                                            <span class="bank-name">BCP</span>
+                                        </div>
+                                        <div class="account-details">
+                                            <div class="account-type">Cuenta Corriente - Soles</div>
+                                            <div class="account-number">191-2334609-0-07</div>
+                                            <div class="cci-number">CCI: 002-19100233460900751</div>
+                                        </div>
+                                    </div>
 
-                        <div class="section">
-                        <div class="section-header">
-                            <i class="fa fa-info-circle"></i>
-                            <span>Detalles de Tarifa</span>
-                        </div>
-                        <div class="pricing-details">
-                            <!-- Tarifa Principal -->
-                            <div class="tariff-section">
-                                <h4><i class="fa fa-print"></i> TARIFA BLANCO Y NEGRO</h4>
-                                <ul class="benefits-list">
-                                    <li>Volumen mensual: <strong><t t-esc="'{:,}'.format(doc.volumen_mensual_bn)"/> impresiones</strong></li>
-                                    <li>Costo por impresión: <strong>S/. <t t-esc="'%.3f' % doc.costo_copia_bn"/> + IGV</strong></li>
-                                    <li>Excedente por impresión: <strong>S/. <t t-esc="'%.3f' % doc.costo_copia_bn"/> + IGV</strong></li>
-                                    <li>Renta mensual B/N: <strong>S/. <t t-esc="'%.2f' % doc.renta_mensual_bn"/> Inc. IGV</strong></li>
-                                </ul>
-
-                                <t t-if="doc.tipo == 'color'">
-                                    <h4 class="mt-4"><i class="fa fa-paint-brush"></i> TARIFA COLOR</h4>
-                                    <ul class="benefits-list">
-                                        <li>Volumen mensual: <strong><t t-esc="'{:,}'.format(doc.volumen_mensual_color)"/> impresiones</strong></li>
-                                        <li>Costo por impresión: <strong>S/. <t t-esc="'%.3f' % doc.costo_copia_color"/> + IGV</strong></li>
-                                        <li>Excedente por impresión: <strong>S/. <t t-esc="'%.3f' % doc.costo_copia_color"/> + IGV</strong></li>
-                                        <li>Renta mensual Color: <strong>S/. <t t-esc="'%.2f' % doc.renta_mensual_color"/> Inc. IGV</strong></li>
-                                    </ul>
-                                </t>
-
-                                <div class="total-section">
-                                    <div class="total-header">TOTAL MENSUAL A FACTURAR</div>
-                                    <div class="total-amount">
-                                        <span class="currency">S/.</span>
-                                        <span class="amount"><t t-esc="'%.2f' % doc.total_facturar_mensual"/></span>
-                                        <span class="tax-note">Inc. IGV</span>
+                                    <!-- Banco de la Nación -->
+                                    <div class="bank-account">
+                                        <div class="bank-logo">
+                                            <i class="fa fa-university"></i>
+                                            <span class="bank-name">Banco de la Nación</span>
+                                        </div>
+                                        <div class="account-details">
+                                            <div class="account-type">Cuenta de Detracción</div>
+                                            <div class="account-number">00802007582</div>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="additional-features mt-4">
-                                    <ul class="benefits-list">
-                                        <li class="highlight"><strong class="text-success">Scanner ilimitado sin costo adicional</strong></li>
-                                        <li>Disponibilidad: <strong>5 días presentada la orden de compra</strong></li>
-                                        <li>IGV: <strong><t t-esc="doc.igv"/>%</strong></li>
-                                        <t t-if="doc.descuento > 0">
-                                            <li>Descuento aplicado: <strong><t t-esc="doc.descuento"/>%</strong></li>
-                                        </t>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <div class="additional-info">
-                                <h4>INFORMACIÓN ADICIONAL</h4>
-                                <ul class="benefits-list">
-                                    <li>Tarifas en nuevos soles incluyen IGV (18%)</li>
-                                    <li>Facturación mensual en nuevos soles</li>
-                                    <li>Incluye instalación y capacitación</li>
-                                    <li>Incluye renovación de maquinaria, insumos, repuestos y servicio técnico</li>
-                                </ul>
-                            </div>
-
-                            <div class="conditions">
-                                <h4>CONDICIONES DE ALQUILER</h4>
-                                <ul class="benefits-list">
-                                    <li>Los equipos se alquilan sin papel</li>
-                                    <li>Periodo de alquiler: desde entrega hasta recepción del equipo</li>
-                                    <li>Mantenimiento preventivo cada 2 meses</li>
-                                    <li>Contrato marco mínimo de <t t-esc="doc.duracion_alquiler_id.name"/></li>
-                                </ul>
-                            </div>
-                        </div>
-                        </div>
-                        <!-- Información de Pago -->
-                        <div class="section payment-section">
-                        <div class="section-header">
-                            <i class="fa fa-credit-card"></i>
-                            <span>Información de Pago</span>
-                        </div>
-                        
-                        <div class="bank-accounts">
-                            <!-- BCP -->
-                            <div class="bank-account">
-                                <div class="bank-logo">
-                                    <i class="fa fa-university"></i>
-                                    <span class="bank-name">BCP</span>
-                                </div>
-                                <div class="account-details">
-                                    <div class="account-type">Cuenta Corriente - Soles</div>
-                                    <div class="account-number">191-2334609-0-07</div>
-                                    <div class="cci-number">CCI: 002-19100233460900751</div>
-                                </div>
-                            </div>
-
-                            <!-- Banco de la Nación -->
-                            <div class="bank-account">
-                                <div class="bank-logo">
-                                    <i class="fa fa-university"></i>
-                                    <span class="bank-name">Banco de la Nación</span>
-                                </div>
-                                <div class="account-details">
-                                    <div class="account-type">Cuenta de Detracción</div>
-                                    <div class="account-number">00802007582</div>
+                                <div class="company-info">
+                                    <i class="fa fa-building"></i>
+                                    <span>A nombre de: COPIER COMPANY SAC</span>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="company-info">
-                            <i class="fa fa-building"></i>
-                            <span>A nombre de: COPIER COMPANY SAC</span>
-                        </div>
-                        </div>
-
-                        <!-- Firma -->
-                        <div style="margin-top: 3rem;">
-                            <p>Sin otro particular, quedamos a su disposición para cualquier
-                                consulta.</p>
-                            <div style="margin-top: 2rem;">
-                                <p>Atentamente,</p>
-                                <div style="margin-top: 4rem;">
-                                    <div style="width: 200px; border-top: 1px solid #000;"></div>
-                                    <p>Ejecutivo Comercial</p>
+                    <!-- Página 6: Firma -->
+                    <div class="page">
+                        <div class="page-content">
+                            <div style="margin-top: 3rem;">
+                                <p>Sin otro particular, quedamos a su disposición para cualquier consulta.</p>
+                                <div style="margin-top: 2rem;">
+                                    <p>Atentamente,</p>
+                                    <div style="margin-top: 4rem;">
+                                        <div style="width: 200px; border-top: 1px solid #000;"></div>
+                                        <p>Ejecutivo Comercial</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                    </t>
                 </t>
             </t>
         </template>

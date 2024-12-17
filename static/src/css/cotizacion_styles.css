@@ -1,5 +1,7 @@
 /* Archivo: /static/src/css/cotizacion_styles.css */
 
+
+/* Variables globales */
 :root {
     --primary-blue: #1a365d;
     --secondary-blue: #2563eb;
@@ -9,6 +11,7 @@
     --border: #e5e7eb;
 }
 
+/* Estilos base */
 body {
     font-family: 'Helvetica', 'Arial', sans-serif;
     line-height: 1.6;
@@ -17,16 +20,48 @@ body {
     padding: 0;
 }
 
+/* Control de páginas */
+.page {
+    padding: 20px;
+    margin: 0;
+    position: relative;
+    min-height: 100vh;
+}
+
+/* Header y Footer personalizados */
+.custom-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    padding: 20px;
+    background: white;
+}
+
+.custom-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    padding: 20px;
+    text-align: center;
+    background: white;
+}
+
+.page-content {
+    padding-top: 120px;
+    padding-bottom: 100px;
+}
+
+/* Cabecera principal */
 .main-header {
     background: #1a4b8c;
     padding: 2rem;
     border-radius: 8px;
-}
-
-.main-header h1, 
-.main-header p,
-.main-header div {
-    color: white !important;
+    margin-bottom: 30px;
+    color: white;
 }
 
 .flex-between {
@@ -35,14 +70,29 @@ body {
     align-items: center;
 }
 
+/* Secciones */
 .section {
     background: white;
     border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     padding: 1.5rem;
     margin-bottom: 1.5rem;
+    page-break-inside: avoid;
 }
 
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 2px solid var(--accent-blue);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+    color: var(--primary-blue);
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+/* Lista de beneficios */
 .benefits-list {
     list-style: none;
     padding: 0;
@@ -62,65 +112,7 @@ body {
     font-weight: bold;
 }
 
-.benefits-list li:hover::before {
-    color: #047857;
-}
-
-.payment-section {
-    background: #f8fafc;
-    padding: 2rem;
-}
-
-.bank-accounts {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    margin: 1.5rem 0;
-}
-
-.bank-account {
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    transition: transform 0.2s;
-}
-
-.bank-account:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-
-.bank-logo {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.bank-name {
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #1a4b8c;
-}
-
-.account-details {
-    padding-left: 2rem;
-}
-
-.section-header {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    border-bottom: 2px solid var(--accent-blue);
-    padding-bottom: 0.75rem;
-    margin-bottom: 1rem;
-    color: var(--primary-blue);
-    font-size: 1.25rem;
-    font-weight: bold;
-}
-
+/* Sección de precios */
 .pricing-details {
     padding: 20px;
     background: #f8fafc;
@@ -164,25 +156,104 @@ body {
     color: #250fd7;
 }
 
-.text-success {
-    color: #059669;
+/* Sección de pagos */
+.payment-section {
+    background: #f8fafc;
+    padding: 2rem;
 }
 
+.bank-accounts {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.bank-account {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.bank-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.bank-name {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #1a4b8c;
+}
+
+/* Firma */
+.signature-section {
+    margin-top: 3rem;
+    page-break-inside: avoid;
+}
+
+.signature-line {
+    width: 200px;
+    border-top: 1px solid #000;
+    margin-top: 4rem;
+}
+
+/* Grid de datos */
+.data-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.data-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem;
+    background: var(--light-bg);
+    border-radius: 6px;
+}
+
+/* Imagen de la máquina */
+.machine-image {
+    max-width: 100%;
+    height: auto;
+    margin: 1rem 0;
+}
+
+/* Estilos de impresión */
 @media print {
+    @page {
+        margin: 0.5cm;
+        size: A4;
+    }
+
     body {
         font-size: 10pt;
     }
 
-    .section {
-        page-break-inside: avoid;
+    .page {
+        page-break-after: always;
     }
 
-    .total-section {
+    .page:last-child {
+        page-break-after: auto;
+    }
+
+    .custom-header,
+    .custom-footer {
+        position: fixed;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
 
-    table thead tr {
+    .section {
+        break-inside: avoid;
+    }
+
+    .total-section {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
