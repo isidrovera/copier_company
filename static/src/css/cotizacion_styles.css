@@ -1,0 +1,189 @@
+/* Archivo: /static/src/css/cotizacion_styles.css */
+
+:root {
+    --primary-blue: #1a365d;
+    --secondary-blue: #2563eb;
+    --accent-blue: #3b82f6;
+    --success-green: #059669;
+    --light-bg: #f3f4f6;
+    --border: #e5e7eb;
+}
+
+body {
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    line-height: 1.6;
+    color: #1f2937;
+    margin: 0;
+    padding: 0;
+}
+
+.main-header {
+    background: #1a4b8c;
+    padding: 2rem;
+    border-radius: 8px;
+}
+
+.main-header h1, 
+.main-header p,
+.main-header div {
+    color: white !important;
+}
+
+.flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.section {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.benefits-list {
+    list-style: none;
+    padding: 0;
+}
+
+.benefits-list li {
+    margin-bottom: 0.8rem;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.benefits-list li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #059669;
+    font-weight: bold;
+}
+
+.benefits-list li:hover::before {
+    color: #047857;
+}
+
+.payment-section {
+    background: #f8fafc;
+    padding: 2rem;
+}
+
+.bank-accounts {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.bank-account {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+}
+
+.bank-account:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.bank-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.bank-name {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #1a4b8c;
+}
+
+.account-details {
+    padding-left: 2rem;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 2px solid var(--accent-blue);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+    color: var(--primary-blue);
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.pricing-details {
+    padding: 20px;
+    background: #f8fafc;
+    border-radius: 8px;
+}
+
+.pricing-details h4 {
+    color: #1a4b8c;
+    margin-top: 20px;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.total-section {
+    background: linear-gradient(135deg, #1a4b8c, #2563eb);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-top: 2rem;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    text-align: center;
+    color: white;
+}
+
+.total-header {
+    font-size: 1.25rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+    opacity: 0.9;
+    color: #250fd7;
+}
+
+.total-amount {
+    font-size: 2.5rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: #250fd7;
+}
+
+.text-success {
+    color: #059669;
+}
+
+@media print {
+    body {
+        font-size: 10pt;
+    }
+
+    .section {
+        page-break-inside: avoid;
+    }
+
+    .total-section {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    table thead tr {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}

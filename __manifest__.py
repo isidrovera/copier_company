@@ -62,6 +62,8 @@
             'copier_company/static/src/js/custom_script.js',
             'copier_company/static/src/js/PcloudDescargas.js',
             'copier_company/static/src/css/PcloudDescargas.css',
+            'copier_company/static/src/css/cotizacion_styles.css',
+
         ],
         'web.report_assets_common': [
             'https://unpkg.com/modern-normalize@2.0.0/modern-normalize.css',
