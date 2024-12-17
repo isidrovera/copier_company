@@ -120,7 +120,7 @@ class CopierCompany(models.Model):
     def send_whatsapp_report(self):
         """Envía el reporte por WhatsApp a los números del cliente."""
         try:
-            # Verificar cliente y número de teléfono
+            # Verificaciones iniciales...
             if not self.cliente_id:
                 raise UserError('No hay cliente seleccionado.')
             if not self.cliente_id.mobile:
@@ -131,79 +131,90 @@ class CopierCompany(models.Model):
             if not formatted_phones:
                 raise UserError('No se encontraron números de teléfono válidos para el cliente.')
 
-            # Generar el reporte y guardarlo temporalmente
+            # Generar el reporte
             report_action = self.env.ref('copier_company.action_report_report_cotizacion_alquiler')
             pdf_content, _ = self.env['ir.actions.report']._render_qweb_pdf(
                 report_action.id, self.ids
             )
+            
             if not pdf_content:
                 raise UserError('No se pudo generar el contenido del PDF.')
 
+            # Log del tamaño del PDF
+            _logger.info("PDF generado correctamente, tamaño: %d bytes", len(pdf_content))
+
             # Guardar el archivo PDF temporalmente
-            temp_pdf_path = f"/tmp/Propuesta_Comercial_{self.secuencia}.pdf"
-            with open(temp_pdf_path, 'wb') as temp_pdf:
-                temp_pdf.write(pdf_content)
+            filename = f"Propuesta_Comercial_{self.secuencia}.pdf"
+            temp_pdf_path = os.path.join('/tmp', filename)
+            
+            try:
+                with open(temp_pdf_path, 'wb') as temp_pdf:
+                    temp_pdf.write(pdf_content)
+                
+                # Verificar que el archivo se creó correctamente
+                file_size = os.path.getsize(temp_pdf_path)
+                _logger.info("Archivo temporal creado: %s, tamaño: %d bytes", temp_pdf_path, file_size)
 
-            # Preparar mensaje
-            message = f"Hola, te enviamos la propuesta comercial {self.secuencia}. Por favor, revisa el adjunto."
+                # URL de la API de WhatsApp
+                WHATSAPP_API_URL = 'https://whatsappapi.copiercompanysac.com/api/message'
+                success_count = 0
 
-            # URL de la API de WhatsApp
-            WHATSAPP_API_URL = 'https://whatsappapi.copiercompanysac.com/api/message'
-            success_count = 0
-
-            # Enviar mensaje a cada número
-            for phone in formatted_phones:
-                try:
-                    # Preparar datos y archivos para la solicitud POST
-                    files = {
-                        'file': (f"Propuesta_Comercial_{self.secuencia}.pdf", open(temp_pdf_path, 'rb'), 'application/pdf')
-                    }
-                    data = {
-                        'phone': phone,
-                        'type': 'media',
-                        'message': message
-                    }
-
-                    # Registrar los datos enviados para debugging
-                    _logger.info("Datos enviados a la API: %s", data)
-
-                    # Realizar la solicitud POST
-                    response = requests.post(
-                        WHATSAPP_API_URL,
-                        data=data,
-                        files=files,
-                        timeout=60
-                    )
-
-                    # Procesar la respuesta
+                # Enviar mensaje a cada número
+                for phone in formatted_phones:
                     try:
-                        response_data = response.json()
-                    except ValueError:
-                        raise Exception(f"Respuesta no válida de la API: {response.text}")
+                        with open(temp_pdf_path, 'rb') as pdf_file:
+                            # Preparar la solicitud
+                            files = {
+                                'file': (filename, pdf_file, 'application/pdf')
+                            }
+                            data = {
+                                'phone': phone,
+                                'type': 'media',
+                                'message': f"Hola, te enviamos la propuesta comercial {self.secuencia}. Por favor, revisa el adjunto."
+                            }
 
-                    if response.status_code == 200 and response_data.get('success'):
-                        success_count += 1
+                            # Log detallado de la solicitud
+                            _logger.info("Enviando solicitud a WhatsApp API:")
+                            _logger.info("URL: %s", WHATSAPP_API_URL)
+                            _logger.info("Datos: %s", data)
+                            _logger.info("Archivo: nombre=%s, tipo=application/pdf", filename)
+
+                            # Realizar la solicitud POST
+                            response = requests.post(
+                                WHATSAPP_API_URL,
+                                data=data,
+                                files=files,
+                                timeout=60
+                            )
+
+                            # Log de la respuesta
+                            _logger.info("Respuesta de la API: status_code=%d, content=%s",
+                                    response.status_code, response.text)
+
+                            response_data = response.json()
+                            if response.status_code == 200 and response_data.get('success'):
+                                success_count += 1
+                                self.message_post(
+                                    body=f"✅ Propuesta comercial enviada por WhatsApp al número {phone}.",
+                                    message_type='notification'
+                                )
+                            else:
+                                error_message = response_data.get('message', 'Error desconocido en la API.')
+                                raise Exception(error_message)
+
+                    except Exception as e:
+                        _logger.error("Error detallado al enviar WhatsApp:", exc_info=True)
                         self.message_post(
-                            body=f"✅ Propuesta comercial enviada por WhatsApp al número {phone}.",
+                            body=f"❌ Error al enviar WhatsApp al número {phone}: {str(e)}",
                             message_type='notification'
                         )
-                    else:
-                        error_message = response_data.get('message', 'Error desconocido en la API.')
-                        raise Exception(error_message)
 
-                except Exception as e:
-                    error_msg = str(e)
-                    _logger.error('Error al enviar WhatsApp a %s: %s', phone, error_msg)
-                    self.message_post(
-                        body=f"❌ Error al enviar WhatsApp al número {phone}: {error_msg}",
-                        message_type='notification'
-                    )
+            finally:
+                # Limpiar archivo temporal
+                if os.path.exists(temp_pdf_path):
+                    os.remove(temp_pdf_path)
+                    _logger.info("Archivo temporal eliminado: %s", temp_pdf_path)
 
-            # Eliminar el archivo temporal
-            if os.path.exists(temp_pdf_path):
-                os.remove(temp_pdf_path)
-
-            # Notificación de resumen
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
@@ -215,11 +226,10 @@ class CopierCompany(models.Model):
             }
 
         except UserError as ue:
-            _logger.error('Error de usuario: %s', str(ue))
             raise
         except Exception as e:
-            _logger.exception('Error inesperado al enviar el reporte por WhatsApp: %s', str(e))
-            raise UserError(f"Ocurrió un error al enviar el reporte por WhatsApp: {str(e)}")
+            _logger.exception("Error inesperado al enviar el reporte por WhatsApp:")
+            raise UserError(f"Error al enviar el reporte por WhatsApp: {str(e)}")
 
     # Campos de alquiler
     fecha_inicio_alquiler = fields.Date(string="Fecha de Inicio del Alquiler", tracking=True)
