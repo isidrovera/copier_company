@@ -51,7 +51,7 @@ class CopierCounter(models.Model):
     # Contadores B/N
     contador_anterior_bn = fields.Integer(
         'Contador Anterior B/N',
-        readonly=True
+        readonly=True, store=True,
     )
     contador_actual_bn = fields.Integer(
         'Contador Actual B/N',
@@ -79,7 +79,7 @@ class CopierCounter(models.Model):
     # Contadores Color
     contador_anterior_color = fields.Integer(
         'Contador Anterior Color',
-        readonly=True
+        readonly=True, store=True,
     )
     contador_actual_color = fields.Integer(
         'Contador Actual Color',
