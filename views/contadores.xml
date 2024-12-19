@@ -92,6 +92,7 @@
                 <field name="contador_actual_color" sum="Total Color"/>
                 <field name="total_copias_color" sum="Total Copias Color"/>
                 <field name="copias_facturables_color" sum="Total Facturable Color"/>
+                <field name="total_sin_igv" sum="Total Sin IGV"/>
                 <field name="subtotal" sum="Subtotal" widget="monetary"/>
                 <field name="total" sum="Total" widget="monetary"/>
                 <field name="currency_id" invisible="1"/>
@@ -178,6 +179,7 @@
                         <page string="Totales" name="totales">
                             <group>
                                 <group class="oe_subtotal_footer">
+                                    <field name="total_sin_igv" widget="monetary"/>
                                     <field name="subtotal" widget="monetary"/>
                                     <field name="igv" widget="monetary"/>
                                     <field name="total" class="oe_subtotal_footer_separator" widget="monetary"/>

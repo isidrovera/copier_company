@@ -3,6 +3,10 @@ from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from odoo.exceptions import UserError
 import calendar
+import logging
+
+_logger = logging.getLogger(__name__)
+
 
 class CopierCounter(models.Model):
     _name = 'copier.counter'
@@ -278,6 +282,9 @@ class CopierCounter(models.Model):
             name = f"{record.cliente_id.name or ''} - {record.serie or ''} - {record.mes_facturacion or ''}"
             result.append((record.id, name))
         return result
+    
+
+
     @api.model
     def generate_monthly_readings(self):
         """
@@ -306,9 +313,13 @@ class CopierCounter(models.Model):
                     else:
                         fecha_facturacion = fecha_facturacion.replace(month=today.month + 1)
 
-                # Si cae domingo, mover al sábado
-                if fecha_facturacion.weekday() == 6:
-                    fecha_facturacion -= timedelta(days=1)
+                # Determinar si crear hoy basado en la lógica actualizada
+                crear_hoy = False
+                if fecha_facturacion.weekday() == 6:  # Si es domingo
+                    fecha_facturacion -= timedelta(days=1)  # Mover al sábado
+                    crear_hoy = today == fecha_facturacion  # Crear si hoy es sábado
+                else:
+                    crear_hoy = today == fecha_facturacion  # Crear el mismo día para L-V
 
                 # Verificar si ya existe lectura para este período
                 existing_reading = self.search([
@@ -317,18 +328,18 @@ class CopierCounter(models.Model):
                 ], limit=1)
 
                 if existing_reading:
-                    _logger.info(f"Ya existe lectura para la máquina {machine.serie_id} en fecha {fecha_facturacion}")
+                    _logger.info(f"Ya existe lectura para la máquina {machine.serie_id} "
+                               f"en fecha {fecha_facturacion}")
                     continue
 
-                # Si es fecha de crear nueva lectura (1 día antes de la fecha de facturación)
-                if today == fecha_facturacion - timedelta(days=1):
+                # Crear nueva lectura si corresponde
+                if crear_hoy:
                     # Obtener última lectura confirmada
                     ultima_lectura = self.search([
                         ('maquina_id', '=', machine.id),
                         ('state', '=', 'confirmed')
                     ], limit=1, order='fecha desc, id desc')
 
-                    # Crear nueva lectura
                     self.create({
                         'maquina_id': machine.id,
                         'fecha': today,
@@ -336,33 +347,39 @@ class CopierCounter(models.Model):
                         'contador_anterior_bn': ultima_lectura.contador_actual_bn if ultima_lectura else 0,
                         'contador_anterior_color': ultima_lectura.contador_actual_color if ultima_lectura else 0
                     })
-                    _logger.info(f"Creada nueva lectura para máquina {machine.serie_id}")
+                    _logger.info(
+                        f"Creada nueva lectura para máquina {machine.serie_id} "
+                        f"con fecha de facturación {fecha_facturacion}"
+                    )
 
             except Exception as e:
                 _logger.error(f"Error al procesar máquina {machine.serie_id}: {str(e)}")
                 continue
 
     def _get_next_reading_date(self):
-        """Calcula la próxima fecha de lectura para una máquina"""
+        """
+        Calcula la próxima fecha de lectura/facturación para una máquina
+        """
         self.ensure_one()
         today = fields.Date.today()
         
         if not self.maquina_id.dia_facturacion:
             return False
             
+        # Calcular fecha de facturación
         dia = min(self.maquina_id.dia_facturacion, 
                  (today.replace(day=1) + relativedelta(months=1, days=-1)).day)
-        fecha = today.replace(day=dia)
+        fecha_facturacion = today.replace(day=dia)
         
         # Ajustar al mes siguiente si ya pasó la fecha
-        if today > fecha:
+        if today > fecha_facturacion:
             if today.month == 12:
-                fecha = fecha.replace(year=today.year + 1, month=1)
+                fecha_facturacion = fecha_facturacion.replace(year=today.year + 1, month=1)
             else:
-                fecha = fecha.replace(month=today.month + 1)
+                fecha_facturacion = fecha_facturacion.replace(month=today.month + 1)
                 
-        # Si cae domingo, mover al sábado
-        if fecha.weekday() == 6:
-            fecha -= timedelta(days=1)
+        # Si es domingo, mover al sábado
+        if fecha_facturacion.weekday() == 6:
+            fecha_facturacion -= timedelta(days=1)
             
-        return fecha
+        return fecha_facturacion
