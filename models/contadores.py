@@ -278,3 +278,91 @@ class CopierCounter(models.Model):
             name = f"{record.cliente_id.name or ''} - {record.serie or ''} - {record.mes_facturacion or ''}"
             result.append((record.id, name))
         return result
+    @api.model
+    def generate_monthly_readings(self):
+        """
+        Método para generar lecturas mensuales automáticamente.
+        Se ejecuta mediante el cron job.
+        """
+        today = fields.Date.today()
+        
+        # Buscar máquinas activas en alquiler
+        machines = self.env['copier.company'].search([
+            ('estado_maquina_id.name', '=', 'Alquilada'),
+            ('dia_facturacion', '!=', False)
+        ])
+
+        for machine in machines:
+            try:
+                # Calcular fecha de facturación
+                dia = min(machine.dia_facturacion, 
+                         (today.replace(day=1) + relativedelta(months=1, days=-1)).day)
+                fecha_facturacion = today.replace(day=dia)
+
+                # Ajustar al mes siguiente si ya pasó la fecha
+                if today > fecha_facturacion:
+                    if today.month == 12:
+                        fecha_facturacion = fecha_facturacion.replace(year=today.year + 1, month=1)
+                    else:
+                        fecha_facturacion = fecha_facturacion.replace(month=today.month + 1)
+
+                # Si cae domingo, mover al sábado
+                if fecha_facturacion.weekday() == 6:
+                    fecha_facturacion -= timedelta(days=1)
+
+                # Verificar si ya existe lectura para este período
+                existing_reading = self.search([
+                    ('maquina_id', '=', machine.id),
+                    ('fecha_facturacion', '=', fecha_facturacion)
+                ], limit=1)
+
+                if existing_reading:
+                    _logger.info(f"Ya existe lectura para la máquina {machine.serie_id} en fecha {fecha_facturacion}")
+                    continue
+
+                # Si es fecha de crear nueva lectura (1 día antes de la fecha de facturación)
+                if today == fecha_facturacion - timedelta(days=1):
+                    # Obtener última lectura confirmada
+                    ultima_lectura = self.search([
+                        ('maquina_id', '=', machine.id),
+                        ('state', '=', 'confirmed')
+                    ], limit=1, order='fecha desc, id desc')
+
+                    # Crear nueva lectura
+                    self.create({
+                        'maquina_id': machine.id,
+                        'fecha': today,
+                        'fecha_facturacion': fecha_facturacion,
+                        'contador_anterior_bn': ultima_lectura.contador_actual_bn if ultima_lectura else 0,
+                        'contador_anterior_color': ultima_lectura.contador_actual_color if ultima_lectura else 0
+                    })
+                    _logger.info(f"Creada nueva lectura para máquina {machine.serie_id}")
+
+            except Exception as e:
+                _logger.error(f"Error al procesar máquina {machine.serie_id}: {str(e)}")
+                continue
+
+    def _get_next_reading_date(self):
+        """Calcula la próxima fecha de lectura para una máquina"""
+        self.ensure_one()
+        today = fields.Date.today()
+        
+        if not self.maquina_id.dia_facturacion:
+            return False
+            
+        dia = min(self.maquina_id.dia_facturacion, 
+                 (today.replace(day=1) + relativedelta(months=1, days=-1)).day)
+        fecha = today.replace(day=dia)
+        
+        # Ajustar al mes siguiente si ya pasó la fecha
+        if today > fecha:
+            if today.month == 12:
+                fecha = fecha.replace(year=today.year + 1, month=1)
+            else:
+                fecha = fecha.replace(month=today.month + 1)
+                
+        # Si cae domingo, mover al sábado
+        if fecha.weekday() == 6:
+            fecha -= timedelta(days=1)
+            
+        return fecha
