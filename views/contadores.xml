@@ -254,14 +254,19 @@
         action = {
             'type': 'ir.actions.report',
             'report_type': 'qweb-pdf',
-            'report_name': 'copier_company.action_report_counter_readings',
-            'report_file': 'copier_company.action_report_counter_readings',
-            'data': {'ids': records.ids},
+            'report_name': 'copier_company.report_counter_readings',  # Nombre del reporte definido en tu XML
+            'data': {'ids': records.ids},  # Pasa los IDs seleccionados
         }
-        action
+        return action
         </field>
     </record>
-
+    <!-- Botón para ejecutar la acción del servidor -->
+    <record id="action_counter_report_server_act" model="ir.actions.act_window">
+        <field name="name">Generar Reporte de Lecturas</field>
+        <field name="res_model">copier.counter</field>
+        <field name="view_mode">tree</field>
+        <field name="binding_model_id" ref="model_copier_counter"/>
+    </record>
 
     <!-- Menu Items -->
     <menuitem id="menu_copier_counter"
