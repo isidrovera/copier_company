@@ -5,25 +5,25 @@
         <field name="name">copier.counter.kanban</field>
         <field name="model">copier.counter</field>
         <field name="arch" type="xml">
-            <kanban 
-                class="o_kanban_mobile" 
+            <kanban
+                class="o_kanban_mobile"
                 sample="1"
                 default_group_by="state">
-                <field name="name"/>
-                <field name="cliente_id"/>
-                <field name="serie"/>
-                <field name="fecha_facturacion"/>
-                <field name="mes_facturacion"/>
-                <field name="state"/>
-                <field name="total"/>
-                <field name="currency_id"/>
+                <field name="name" />
+                <field name="cliente_id" />
+                <field name="serie" />
+                <field name="fecha_facturacion" />
+                <field name="mes_facturacion" />
+                <field name="state" />
+                <field name="total" />
+                <field name="currency_id" />
                 <progressbar
-                    field="state" 
+                    field="state"
                     colors='{
                         "draft": "success",
                         "confirmed": "info",
                         "invoiced": "warning",
-                        "cancelled": "danger"}'/>
+                        "cancelled": "danger"}' />
                 <templates>
                     <t t-name="kanban-box">
                         <div class="oe_kanban_global_click p-0">
@@ -31,37 +31,42 @@
                                 <div class="o_kanban_record_top mb-2">
                                     <div class="o_kanban_record_headings">
                                         <strong class="o_kanban_record_title">
-                                            <span class="text-primary"><field name="name"/></span>
+                                            <span class="text-primary">
+                                                <field name="name" />
+                                            </span>
                                         </strong>
                                     </div>
                                 </div>
                                 <div class="row mb-2">
                                     <div class="col-6">
-                                        <strong>Cliente:</strong> <field name="cliente_id"/>
+                                        <strong>Cliente:</strong>
+                                        <field name="cliente_id" />
                                     </div>
                                     <div class="col-6">
-                                        <strong>Serie:</strong> <field name="serie"/>
+                                        <strong>Serie:</strong>
+                                        <field name="serie" />
                                     </div>
                                 </div>
                                 <div class="row mb-2">
                                     <div class="col-6">
-                                        <field name="mes_facturacion"/>
+                                        <field name="mes_facturacion" />
                                     </div>
                                     <div class="col-6 text-end">
-                                        <field name="total" widget="monetary"/>
+                                        <field name="total" widget="monetary" />
                                     </div>
                                 </div>
                                 <div class="o_kanban_record_bottom">
                                     <div class="oe_kanban_bottom_left">
-                                        <span t-attf-class="badge rounded-pill bg-#{
+                                        <span
+                                            t-attf-class="badge rounded-pill bg-#{
                                             record.state.raw_value == 'confirmed' ? 'success' : 
                                             record.state.raw_value == 'draft' ? 'info' : 
                                             record.state.raw_value == 'invoiced' ? 'warning' : 'danger'}">
-                                            <field name="state"/>
+                                            <field name="state" />
                                         </span>
                                     </div>
                                     <div class="oe_kanban_bottom_right">
-                                        <field name="fecha_facturacion" widget="date"/>
+                                        <field name="fecha_facturacion" widget="date" />
                                     </div>
                                 </div>
                             </div>
@@ -78,30 +83,30 @@
         <field name="model">copier.counter</field>
         <field name="arch" type="xml">
             <tree decoration-info="state == 'draft'"
-                  decoration-success="state == 'confirmed'"
-                  decoration-warning="state == 'invoiced'"
-                  decoration-danger="state == 'cancelled'"
-                  sample="1">
-                  
-                <field name="name" widget="many2one_avatar_user"/>
-                <field name="cliente_id"/>
-                <field name="serie"/>
-                <field name="mes_facturacion"/>
-                <field name="contador_actual_bn" sum="Total B/N"/>
-                <field name="total_copias_bn" sum="Total Copias B/N"/>
-                <field name="copias_facturables_bn" sum="Total Facturable B/N"/>
-                <field name="contador_actual_color" sum="Total Color"/>
-                <field name="total_copias_color" sum="Total Copias Color"/>
-                <field name="copias_facturables_color" sum="Total Facturable Color"/>
-                <field name="total_sin_igv" sum="Total Sin IGV"/>
-                <field name="subtotal" sum="Subtotal" widget="monetary"/>
-                <field name="total" sum="Total" widget="monetary"/>
-                <field name="currency_id" invisible="1"/>
+                decoration-success="state == 'confirmed'"
+                decoration-warning="state == 'invoiced'"
+                decoration-danger="state == 'cancelled'"
+                sample="1">
+
+                <field name="name" widget="many2one_avatar_user" />
+                <field name="cliente_id" />
+                <field name="serie" />
+                <field name="mes_facturacion" />
+                <field name="contador_actual_bn" sum="Total B/N" />
+                <field name="total_copias_bn" sum="Total Copias B/N" />
+                <field name="copias_facturables_bn" sum="Total Facturable B/N" />
+                <field name="contador_actual_color" sum="Total Color" />
+                <field name="total_copias_color" sum="Total Copias Color" />
+                <field name="copias_facturables_color" sum="Total Facturable Color" />
+                <field name="total_sin_igv" sum="Total Sin IGV" />
+                <field name="subtotal" sum="Subtotal" widget="monetary" />
+                <field name="total" sum="Total" widget="monetary" />
+                <field name="currency_id" invisible="1" />
                 <field name="state" widget="badge"
                     decoration-info="state == 'draft'"
                     decoration-success="state == 'confirmed'"
                     decoration-warning="state == 'invoiced'"
-                    decoration-danger="state == 'cancelled'"/>
+                    decoration-danger="state == 'cancelled'" />
             </tree>
         </field>
     </record>
@@ -113,87 +118,89 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="action_confirm" 
-                            string="Confirmar" 
-                            type="object" 
-                            class="oe_highlight"
-                            invisible="state != 'draft'"/>
-                    <button name="action_draft" 
-                            string="Volver a Borrador" 
-                            type="object"
-                            invisible="state != 'confirmed'"/>
-                    <button name="action_cancel" 
-                            string="Cancelar" 
-                            type="object"
-                            invisible="state not in ('draft', 'confirmed')"/>
-                    <button string="Reporte" name="action_print_report" type="object" class="oe_highlight"/>
-                    <field name="state" widget="statusbar" 
-                           statusbar_visible="draft,confirmed,invoiced"/>
+                    <button name="action_confirm"
+                        string="Confirmar"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="state != 'draft'" />
+                    <button name="action_draft"
+                        string="Volver a Borrador"
+                        type="object"
+                        invisible="state != 'confirmed'" />
+                    <button name="action_cancel"
+                        string="Cancelar"
+                        type="object"
+                        invisible="state not in ('draft', 'confirmed')" />
+                    <button string="Reporte" name="action_print_report" type="object"
+                        class="oe_highlight" />
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="draft,confirmed,invoiced" />
                 </header>
                 <sheet>
                     <div class="oe_title">
                         <h1>
-                            <field name="name" readonly="1"/>
+                            <field name="name" readonly="1" />
                         </h1>
                     </div>
                     <group>
                         <group>
-                            <field name="maquina_id" readonly="state != 'draft'"/>
-                            <field name="cliente_id"/>
-                            <field name="serie"/>
-                            <field name="fecha" readonly="state != 'draft'"/>
-                            <field name="fecha_facturacion" readonly="state != 'draft'"/>
-                            <field name="mes_facturacion"/>
+                            <field name="maquina_id" readonly="state != 'draft'" />
+                            <field name="cliente_id" />
+                            <field name="serie" />
+                            <field name="fecha" readonly="state != 'draft'" />
+                            <field name="fecha_facturacion" readonly="state != 'draft'" />
+                            <field name="mes_facturacion" />
                         </group>
                         <group>
-                            <field name="precio_bn"/>
-                            <field name="precio_color"/>
-                            <field name="currency_id" invisible="1"/>
+                            <field name="precio_bn" />
+                            <field name="precio_color" />
+                            <field name="currency_id" invisible="1" />
                         </group>
                     </group>
                     <notebook>
                         <page string="Contadores B/N" name="contadores_bn">
                             <group>
                                 <group>
-                                    <field name="contador_anterior_bn"/>
-                                    <field name="contador_actual_bn" readonly="state != 'draft'"/>
-                                    <field name="precios_incluyen_igv"/>
-                                    <field name="total_copias_bn"/>
+                                    <field name="contador_anterior_bn" />
+                                    <field name="contador_actual_bn" readonly="state != 'draft'" />
+                                    <field name="precios_incluyen_igv" />
+                                    <field name="total_copias_bn" />
                                 </group>
                                 <group>
-                                    <field name="exceso_bn"/>
-                                    <field name="copias_facturables_bn"/>
+                                    <field name="exceso_bn" />
+                                    <field name="copias_facturables_bn" />
                                 </group>
                             </group>
                         </page>
                         <page string="Contadores Color" name="contadores_color">
                             <group>
                                 <group>
-                                    <field name="contador_anterior_color"/>
-                                    <field name="contador_actual_color" readonly="state != 'draft'"/>
-                                    <field name="total_copias_color"/>
+                                    <field name="contador_anterior_color" />
+                                    <field name="contador_actual_color" readonly="state != 'draft'" />
+                                    <field name="total_copias_color" />
                                 </group>
                                 <group>
-                                    <field name="exceso_color"/>
-                                    <field name="copias_facturables_color"/>
+                                    <field name="exceso_color" />
+                                    <field name="copias_facturables_color" />
                                 </group>
                             </group>
                         </page>
                         <page string="Totales" name="totales">
                             <group>
                                 <group class="oe_subtotal_footer">
-                                    <field name="total_sin_igv" widget="monetary"/>
-                                    <field name="subtotal" widget="monetary"/>
-                                    <field name="igv" widget="monetary"/>
-                                    <field name="total" class="oe_subtotal_footer_separator" widget="monetary"/>
+                                    <field name="total_sin_igv" widget="monetary" />
+                                    <field name="subtotal" widget="monetary" />
+                                    <field name="igv" widget="monetary" />
+                                    <field name="total" class="oe_subtotal_footer_separator"
+                                        widget="monetary" />
                                 </group>
                             </group>
                         </page>
                     </notebook>
                 </sheet>
                 <div class="oe_chatter">
-                    <field name="message_follower_ids"/>
-                    <field name="message_ids"/>
+                    <field name="message_follower_ids" />
+                    <field name="message_ids" />
                 </div>
             </form>
         </field>
@@ -205,22 +212,22 @@
         <field name="model">copier.counter</field>
         <field name="arch" type="xml">
             <search>
-                <field name="name"/>
-                <field name="cliente_id"/>
-                <field name="serie"/>
-                <field name="mes_facturacion"/>
-                <filter string="Borradores" name="draft" domain="[('state','=','draft')]"/>
-                <filter string="Confirmados" name="confirmed" domain="[('state','=','confirmed')]"/>
-                <filter string="Facturados" name="invoiced" domain="[('state','=','invoiced')]"/>
-                <filter string="Cancelados" name="cancelled" domain="[('state','=','cancelled')]"/>
-                <separator/>
+                <field name="name" />
+                <field name="cliente_id" />
+                <field name="serie" />
+                <field name="mes_facturacion" />
+                <filter string="Borradores" name="draft" domain="[('state','=','draft')]" />
+                <filter string="Confirmados" name="confirmed" domain="[('state','=','confirmed')]" />
+                <filter string="Facturados" name="invoiced" domain="[('state','=','invoiced')]" />
+                <filter string="Cancelados" name="cancelled" domain="[('state','=','cancelled')]" />
+                <separator />
                 <filter string="Mes Actual" name="current_month"
-                        domain="[('fecha_facturacion','&gt;=', context_today().strftime('%Y-%m-01')),
-                                ('fecha_facturacion','&lt;=', (context_today() + relativedelta(months=1, days=-1)).strftime('%Y-%m-%d'))]"/>
+                    domain="[('fecha_facturacion','&gt;=', context_today().strftime('%Y-%m-01')),
+                                ('fecha_facturacion','&lt;=', (context_today() + relativedelta(months=1, days=-1)).strftime('%Y-%m-%d'))]" />
                 <group expand="0" string="Agrupar Por">
-                    <filter string="Cliente" name="cliente" context="{'group_by':'cliente_id'}"/>
-                    <filter string="Estado" name="state" context="{'group_by':'state'}"/>
-                    <filter string="Mes" name="mes" context="{'group_by':'mes_facturacion'}"/>
+                    <filter string="Cliente" name="cliente" context="{'group_by':'cliente_id'}" />
+                    <filter string="Estado" name="state" context="{'group_by':'state'}" />
+                    <filter string="Mes" name="mes" context="{'group_by':'mes_facturacion'}" />
                 </group>
             </search>
         </field>
@@ -238,40 +245,42 @@
                 Registra el primer contador!
             </p>
             <p>
-                Crea un nuevo registro de contador para comenzar a gestionar las lecturas de las máquinas.
+                Crea un nuevo registro de contador para comenzar a gestionar las lecturas de las
+                máquinas.
             </p>
         </field>
     </record>
     <!-- Acción del Servidor -->
     <record id="action_counter_report_server" model="ir.actions.server">
         <field name="name">Generar Reporte de Lecturas</field>
-        <field name="model_id" ref="model_copier_counter"/>
-        <field name="binding_model_id" ref="model_copier_counter"/>
+        <field name="model_id" ref="model_copier_counter" />
+        <field name="binding_model_id" ref="model_copier_counter" />
         <field name="binding_view_types">list</field>
         <field name="state">code</field>
         <field name="code">
-    if records:
-        action = {
+            if records:
+            action = {
             'type': 'ir.actions.report',
             'report_type': 'qweb-pdf',
-            'report_name': 'copier_company.report_counter_readings',  # Nombre del reporte definido en tu XML
-            'data': {'ids': records.ids},  # Pasa los IDs seleccionados
-        }
-        return action
+            'report_name': 'copier_company.report_counter_readings',
+            'data': {'ids': records.ids},
+            }
+            return action
         </field>
     </record>
+
     <!-- Botón para ejecutar la acción del servidor -->
     <record id="action_counter_report_server_act" model="ir.actions.act_window">
         <field name="name">Generar Reporte de Lecturas</field>
         <field name="res_model">copier.counter</field>
         <field name="view_mode">tree</field>
-        <field name="binding_model_id" ref="model_copier_counter"/>
+        <field name="binding_model_id" ref="model_copier_counter" />
     </record>
 
     <!-- Menu Items -->
     <menuitem id="menu_copier_counter"
-              name="Contadores"
-              parent="copier_company.menu_root"
-              action="action_copier_counter"
-              sequence="20"/>
+        name="Contadores"
+        parent="copier_company.menu_root"
+        action="action_copier_counter"
+        sequence="20" />
 </odoo>
