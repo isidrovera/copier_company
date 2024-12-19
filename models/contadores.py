@@ -400,3 +400,17 @@ class CopierCounter(models.Model):
             fecha_facturacion -= timedelta(days=1)
             
         return fecha_facturacion
+
+class ReportCounterReadings(models.AbstractModel):
+    _name = 'report.copier_company.report_counter_readings'
+    _description = 'Reporte de Lecturas'
+
+    @api.model
+    def _get_report_values(self, docids, data=None):
+        docs = self.env['copier.counter'].browse(docids)
+        company = self.env.company  # Obtiene la información de la compañía actual
+
+        return {
+            'docs': docs,
+            'company': company,
+        }
