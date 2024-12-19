@@ -301,18 +301,10 @@ class CopierCounter(models.Model):
     def action_print_report(self):
         """Método para la acción del servidor que genera el reporte"""
         return self.env.ref('copier_company.action_report_counter_readings').report_action(self)
-    @api.model
+   
     def action_generate_report(self):
-        """Generar reporte de lecturas para los registros seleccionados"""
-        records = self
-        if records:
-            return {
-                'type': 'ir.actions.report',
-                'report_type': 'qweb-pdf',
-                'report_name': 'copier_company.action_report_counter_readings',  # Reporte definido en XML
-                'data': {'ids': records.ids},
-            }
-        return False
+        return self.env.ref('copier_company.action_report_counter_readings').report_action(self)
+
 
     @api.model
     def generate_monthly_readings(self):
@@ -420,9 +412,24 @@ class ReportCounterReadings(models.AbstractModel):
     @api.model
     def _get_report_values(self, docids, data=None):
         docs = self.env['copier.counter'].browse(docids)
-        company = self.env.company  # Obtiene la información de la compañía actual
+
+        # Validar que todos los registros pertenezcan al mismo cliente
+        clientes = docs.mapped('cliente_id')
+        if len(clientes) > 1:
+            raise UserError("Debe seleccionar registros de un solo cliente para generar el reporte.")
+
+        # Agrupar por tipo de máquina
+        maquinas_mono = docs.filtered(lambda x: x.maquina_id.tipo == 'monocroma')
+        maquinas_color = docs.filtered(lambda x: x.maquina_id.tipo == 'color')
+
+        # Calcular el total general
+        total_general = sum(docs.mapped('total'))
 
         return {
             'docs': docs,
-            'company': company,
+            'company': self.env.company,
+            'cliente': clientes[0] if clientes else None,  # Cliente único
+            'maquinas_mono': maquinas_mono,
+            'maquinas_color': maquinas_color,
+            'total_general': total_general,
         }
