@@ -75,15 +75,16 @@
                     <!-- Encabezado -->
                     <div class="header-gradient">
                         <div class="row">
+                            <div class="col-6 text-end">
+                                <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" 
+                                     style="max-height: 70px" alt="Logo de la empresa"/>
+                            </div>
                             <div class="col-6">
                                 <h2 style="color: white; margin: 0; font-weight: 600;">
                                     <i class="fa fa-file-text me-2" />Reporte de Lecturas
                                 </h2>
                             </div>
-                            <div class="col-6 text-end">
-                                <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" 
-                                     style="max-height: 70px" alt="Logo de la empresa"/>
-                            </div>
+                            
                         </div>
                     </div>
 
