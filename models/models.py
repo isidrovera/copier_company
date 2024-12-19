@@ -250,7 +250,7 @@ class CopierCompany(models.Model):
                                            store=True)
     igv = fields.Float(string='IGV (%)', default=18.0)
     descuento = fields.Float(string='Descuento (%)', default=0.0)
-    
+    dia_facturacion = fields.Integer(string='Día de Facturación', default=30)
     # Campos técnicos
     detalles = fields.Text(string='Detalles técnicos')
     qr_code = fields.Binary(string='Código QR', readonly=True, attachment=True)
