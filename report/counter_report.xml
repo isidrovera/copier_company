@@ -120,7 +120,7 @@
                                     <tbody>
                                         <t t-foreach="maquinas_mono" t-as="maquina">
                                             <tr>
-                                                <td><t t-esc="maquina.maquina_id.name" /></td>
+                                                <td><t t-esc="maquina.maquina_id.name.name" /></td>
                                                 <td><t t-esc="maquina.serie" /></td>
                                                 <td>
                                                     <span t-field="maquina.fecha" t-options='{"format": "dd/MM/yyyy"}' />
@@ -166,7 +166,7 @@
                                     <tbody>
                                         <t t-foreach="maquinas_color" t-as="maquina">
                                             <tr>
-                                                <td><t t-esc="maquina.maquina_id.name" /></td>
+                                                <td><t t-esc="maquina.maquina_id.name.name" /></td>
                                                 <td><t t-esc="maquina.serie" /></td>
                                                 <td>
                                                     <span t-field="maquina.fecha" t-options='{"format": "dd/MM/yyyy"}' />
