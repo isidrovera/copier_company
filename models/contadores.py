@@ -301,6 +301,18 @@ class CopierCounter(models.Model):
     def action_print_report(self):
         """Método para la acción del servidor que genera el reporte"""
         return self.env.ref('copier_company.action_report_counter_readings').report_action(self)
+    @api.model
+    def action_generate_report(self):
+        """Generar reporte de lecturas para los registros seleccionados"""
+        records = self
+        if records:
+            return {
+                'type': 'ir.actions.report',
+                'report_type': 'qweb-pdf',
+                'report_name': 'copier_company.report_counter_readings',  # Reporte definido en XML
+                'data': {'ids': records.ids},
+            }
+        return False
 
     @api.model
     def generate_monthly_readings(self):
