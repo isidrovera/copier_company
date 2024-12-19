@@ -92,7 +92,7 @@
                                     <i class="fa fa-calendar me-2" />Fecha
                                 </h4>
                                 <p style="color: #64748b;">
-                                    <t t-esc="context_timestamp(datetime.now()).strftime('%d/%m/%Y')" />
+                                    <t t-esc="time.strftime('%d/%m/%Y')" />
                                 </p>
                             </div>
                         </div>
