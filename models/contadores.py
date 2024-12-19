@@ -255,12 +255,19 @@ class CopierCounter(models.Model):
                 'precio_bn', 'precio_color')
     def _compute_totales(self):
         for record in self:
+            # Calcular subtotal (suma de B/N y Color)
             subtotal_bn = record.copias_facturables_bn * record.precio_bn
             subtotal_color = record.copias_facturables_color * record.precio_color
             record.subtotal = subtotal_bn + subtotal_color
-            record.total_sin_igv = record.subtotal  # Nuevo campo
-            record.igv = record.subtotal * 0.18
-            record.total = record.subtotal + record.igv
+            
+            # El total sin IGV es el subtotal dividido entre 1.18
+            record.total_sin_igv = record.subtotal / 1.18
+            
+            # El IGV es la diferencia entre subtotal y total sin IGV
+            record.igv = record.subtotal - record.total_sin_igv
+            
+            # El total es el subtotal (incluye IGV)
+            record.total = record.subtotal
 
     def action_confirm(self):
         self.ensure_one()
