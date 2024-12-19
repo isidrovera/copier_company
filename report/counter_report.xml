@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Definición del Reporte -->
+    <record id="action_report_counter_readings" model="ir.actions.report">
+        <field name="name">Reporte de Lecturas</field>
+        <field name="model">copier.counter</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">copier_company.report_counter_readings</field>
+        <field name="report_file">copier_company.report_counter_readings</field>
+        <field name="print_report_name">'Lecturas - %s' % (object.cliente_id.name)</field>
+    </record>
+
+    <!-- Template del Reporte con Estilos -->
+    <template id="report_counter_readings">
+        <t t-name="copier_company.report_counter_readings">
+            <t t-call="web.basic_layout">
+                <t t-foreach="docs" t-as="o">
+                    <!-- Definición de Variables -->
+                    <t t-if="o_index == 0">
+                        <t t-set="cliente" t-value="o.cliente_id"/>
+                        <t t-set="maquinas_mono" t-value="docs.filtered(lambda x: x.maquina_id.tipo == 'monocroma')"/>
+                        <t t-set="maquinas_color" t-value="docs.filtered(lambda x: x.maquina_id.tipo == 'color')"/>
+                        <t t-set="total_general" t-value="sum(docs.mapped('total'))"/>
+                    </t>
+
+                    <div class="page">
+                        <!-- Encabezado con Estilos -->
+                        <div style="
+                            background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+                            border-radius: 16px;
+                            padding: 2rem;
+                            margin-bottom: 2rem;
+                            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                        ">
+                            <div class="row">
+                                <div class="col-6">
+                                    <h2 style="color: white; margin: 0; font-weight: 600;">
+                                        <i class="fa fa-file-text me-2"/>Reporte de Lecturas
+                                    </h2>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 70px"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información del Cliente -->
+                        <div style="
+                            background-color: #f8fafc;
+                            border-radius: 16px;
+                            padding: 1.5rem;
+                            margin-bottom: 2rem;
+                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                        ">
+                            <div class="row">
+                                <div class="col-6">
+                                    <h4 style="color: #1e293b; font-weight: 600;">
+                                        <i class="fa fa-building me-2"/>Información del Cliente
+                                    </h4>
+                                    <p style="margin-bottom: 0.5rem;">
+                                        <strong t-field="cliente.name"/>
+                                    </p>
+                                    <p t-if="cliente.vat" style="color: #64748b;">
+                                        RUC/DNI: <t t-esc="cliente.vat"/>
+                                    </p>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <h4 style="color: #1e293b; font-weight: 600;">
+                                        <i class="fa fa-calendar me-2"/>Fecha
+                                    </h4>
+                                    <p style="color: #64748b;">
+                                        <t t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección Máquinas Monocromáticas -->
+                        <t t-if="maquinas_mono">
+                            <div style="
+                                background-color: white;
+                                border-radius: 16px;
+                                padding: 1.5rem;
+                                margin-bottom: 2rem;
+                                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                            ">
+                                <h4 style="color: #1e293b; font-weight: 600; margin-bottom: 1.5rem;">
+                                    <i class="fa fa-print me-2"/>Máquinas Monocromáticas
+                                    <span style="
+                                        background-color: #64748b;
+                                        color: white;
+                                        padding: 0.5rem 1rem;
+                                        border-radius: 9999px;
+                                        font-size: 0.875rem;
+                                    ">B/N</span>
+                                </h4>
+                                <!-- Tabla Monocromática -->
+                                <table class="table table-sm" style="margin-bottom: 0;">
+                                    <thead>
+                                        <tr style="background-color: #f8fafc;">
+                                            <th style="padding: 1rem;">Modelo</th>
+                                            <th>Serie</th>
+                                            <th>Fecha</th>
+                                            <th class="text-end">Cont. Anterior</th>
+                                            <th class="text-end">Cont. Actual</th>
+                                            <th class="text-end">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="maquinas_mono" t-as="maquina">
+                                            <tr>
+                                                <td><t t-esc="maquina.maquina_id.name.name"/></td>
+                                                <td><t t-esc="maquina.serie"/></td>
+                                                <td><span t-field="maquina.fecha" t-options='{"format": "dd/MM/yyyy"}'/></td>
+                                                <td class="text-end"><t t-esc="'{:,}'.format(maquina.contador_anterior_bn)"/></td>
+                                                <td class="text-end"><t t-esc="'{:,}'.format(maquina.contador_actual_bn)"/></td>
+                                                <td class="text-end">
+                                                    <span t-field="maquina.total" t-options='{"widget": "monetary"}'/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+
+                        <!-- Sección Máquinas Color -->
+                        <t t-if="maquinas_color">
+                            <div style="
+                                background-color: white;
+                                border-radius: 16px;
+                                padding: 1.5rem;
+                                margin-bottom: 2rem;
+                                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                            ">
+                                <h4 style="color: #1e293b; font-weight: 600; margin-bottom: 1.5rem;">
+                                    <i class="fa fa-palette me-2"/>Máquinas Color
+                                    <span style="
+                                        background-color: #0ea5e9;
+                                        color: white;
+                                        padding: 0.5rem 1rem;
+                                        border-radius: 9999px;
+                                        font-size: 0.875rem;
+                                    ">Color</span>
+                                </h4>
+                                <!-- Tabla Color -->
+                                <table class="table table-sm" style="margin-bottom: 0;">
+                                    <thead>
+                                        <tr style="background-color: #f8fafc;">
+                                            <th>Modelo</th>
+                                            <th>Serie</th>
+                                            <th>Fecha</th>
+                                            <th class="text-end">Cont. Anterior B/N</th>
+                                            <th class="text-end">Cont. Actual B/N</th>
+                                            <th class="text-end">Cont. Anterior Color</th>
+                                            <th class="text-end">Cont. Actual Color</th>
+                                            <th class="text-end">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="maquinas_color" t-as="maquina">
+                                            <tr>
+                                                <td><t t-esc="maquina.maquina_id.name.name"/></td>
+                                                <td><t t-esc="maquina.serie"/></td>
+                                                <td><span t-field="maquina.fecha" t-options='{"format": "dd/MM/yyyy"}'/></td>
+                                                <td class="text-end"><t t-esc="'{:,}'.format(maquina.contador_anterior_bn)"/></td>
+                                                <td class="text-end"><t t-esc="'{:,}'.format(maquina.contador_actual_bn)"/></td>
+                                                <td class="text-end"><t t-esc="'{:,}'.format(maquina.contador_anterior_color)"/></td>
+                                                <td class="text-end"><t t-esc="'{:,}'.format(maquina.contador_actual_color)"/></td>
+                                                <td class="text-end">
+                                                    <span t-field="maquina.total" t-options='{"widget": "monetary"}'/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+
+                        <!-- Total General -->
+                        <div style="
+                            background-color: #f8fafc;
+                            border-radius: 16px;
+                            padding: 1.5rem;
+                            margin-top: 2rem;
+                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                        ">
+                            <div class="row justify-content-end">
+                                <div class="col-4">
+                                    <table class="table table-sm" style="margin-bottom: 0;">
+                                        <tr>
+                                            <td style="border: none;"><strong>Total a Pagar:</strong></td>
+                                            <td class="text-end" style="border: none;">
+                                                <strong style="color: #1d4ed8; font-size: 1.25rem;">
+                                                    <span t-esc="total_general" 
+                                                          t-options='{"widget": "monetary", "display_currency": docs[0].currency_id}'/>
+                                                </strong>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

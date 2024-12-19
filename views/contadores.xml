@@ -82,6 +82,12 @@
                   decoration-warning="state == 'invoiced'"
                   decoration-danger="state == 'cancelled'"
                   sample="1">
+                  <header>
+                    <button name="%(action_counter_report_server)d" 
+                            string="Generar Reporte" 
+                            type="action"
+                            icon="fa-file-pdf-o"/>
+                </header>
                 <field name="name" widget="many2one_avatar_user"/>
                 <field name="cliente_id"/>
                 <field name="serie"/>
@@ -238,6 +244,25 @@
             <p>
                 Crea un nuevo registro de contador para comenzar a gestionar las lecturas de las máquinas.
             </p>
+        </field>
+    </record>
+    <!-- Acción del Servidor -->
+    <record id="action_counter_report_server" model="ir.actions.server">
+        <field name="name">Generar Reporte de Lecturas</field>
+        <field name="model_id" ref="model_copier_counter"/>
+        <field name="binding_model_id" ref="model_copier_counter"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+            if records:
+                action = {
+                    'type': 'ir.actions.report',
+                    'report_type': 'qweb-pdf',
+                    'report_name': 'copier_company.report_counter_readings',
+                    'report_file': 'copier_company.report_counter_readings',
+                    'data': {'ids': records.ids},
+                }
+                return action
         </field>
     </record>
 

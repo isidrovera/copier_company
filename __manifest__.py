@@ -54,6 +54,7 @@
         'views/ajustes_copier.xml',
         'views/contadores.xml',
         'report/copier_company_report.xml',
+        'report/counter_report.xml',
         'views/copier_company_form_template.xml',
         'views/security_control_views.xml',
     ],
