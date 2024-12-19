@@ -22,7 +22,7 @@
         <field name="report_name">copier_company.report_counter_readings</field>
         <field name="report_file">copier_company.report_counter_readings</field>
         <field name="paperformat_id" ref="copier_company.paperformat_counter_landscape"/>
-        <field name="print_report_name">'Lecturas - %s - %s' % {{object.cliente_id.name or '', time.strftime('%d-%m-%Y')}}</field>
+        <field name="print_report_name">'Lecturas - %s - %s' % (object.cliente_id.name or '', time.strftime('%d-%m-%Y'))</field>
     </record>
     <!-- Template del Reporte -->
     <template id="report_counter_readings">
@@ -135,10 +135,10 @@
                                     <thead>
                                         <tr style="background-color: #f8fafc;">
                                             <th scope="col" style="padding: 1rem;">Modelo</th>
-                                            <th scope="col">Serie</th>
-                                            <th scope="col">Fecha</th>
+                                            <th scope="col">Serie</th>                                            
                                             <th scope="col" class="text-end">Cont. Anterior</th>
                                             <th scope="col" class="text-end">Cont. Actual</th>
+                                            <th scope="col" class="text-end">Total BN</th>
                                             <th scope="col" class="text-end">Total</th>
                                         </tr>
                                     </thead>
@@ -147,14 +147,15 @@
                                             <tr>
                                                 <td><t t-esc="maquina.maquina_id.name.name" /></td>
                                                 <td><t t-esc="maquina.serie" /></td>
-                                                <td>
-                                                    <span t-field="maquina.fecha" t-options='{"format": "dd/MM/yyyy"}' />
-                                                </td>
+                                                
                                                 <td class="text-end">
                                                     <t t-esc="'{:,}'.format(maquina.contador_anterior_bn)" />
                                                 </td>
                                                 <td class="text-end">
                                                     <t t-esc="'{:,}'.format(maquina.contador_actual_bn)" />
+                                                </td>
+                                                <td class="text-end">
+                                                    <t t-esc="'{:,}'.format(maquina.total_copias_bn)" />
                                                 </td>
                                                 <td class="text-end">
                                                     <span t-field="maquina.total" t-options='{"widget": "monetary", "display_currency": maquina.currency_id}' />
@@ -179,12 +180,13 @@
                                     <thead>
                                         <tr style="background-color: #f8fafc;">
                                             <th scope="col">Modelo</th>
-                                            <th scope="col">Serie</th>
-                                            <th scope="col">Fecha</th>
+                                            <th scope="col">Serie</th>                                            
                                             <th scope="col" class="text-end">Cont. Anterior B/N</th>
                                             <th scope="col" class="text-end">Cont. Actual B/N</th>
                                             <th scope="col" class="text-end">Cont. Anterior Color</th>
                                             <th scope="col" class="text-end">Cont. Actual Color</th>
+                                            <th scope="col" class="text-end">Total BN</th>
+                                            <th scope="col" class="text-end">Total Color</th>
                                             <th scope="col" class="text-end">Total</th>
                                         </tr>
                                     </thead>
@@ -193,9 +195,7 @@
                                             <tr>
                                                 <td><t t-esc="maquina.maquina_id.name.name" /></td>
                                                 <td><t t-esc="maquina.serie" /></td>
-                                                <td>
-                                                    <span t-field="maquina.fecha" t-options='{"format": "dd/MM/yyyy"}' />
-                                                </td>
+                                                
                                                 <td class="text-end">
                                                     <t t-esc="'{:,}'.format(maquina.contador_anterior_bn)" />
                                                 </td>
@@ -207,6 +207,12 @@
                                                 </td>
                                                 <td class="text-end">
                                                     <t t-esc="'{:,}'.format(maquina.contador_actual_color)" />
+                                                </td>
+                                                <td class="text-end">
+                                                    <t t-esc="'{:,}'.format(maquina.total_copias_bn)" />
+                                                </td>
+                                                <td class="text-end">
+                                                    <t t-esc="'{:,}'.format(maquina.total_copias_color)" />
                                                 </td>
                                                 <td class="text-end">
                                                     <span t-field="maquina.total" t-options='{"widget": "monetary", "display_currency": maquina.currency_id}' />
