@@ -82,12 +82,7 @@
                   decoration-warning="state == 'invoiced'"
                   decoration-danger="state == 'cancelled'"
                   sample="1">
-                  <header>
-                    <button name="%(action_counter_report_server)d" 
-                            string="Generar Reporte" 
-                            type="action"
-                            icon="fa-file-pdf-o"/>
-                </header>
+                  
                 <field name="name" widget="many2one_avatar_user"/>
                 <field name="cliente_id"/>
                 <field name="serie"/>
