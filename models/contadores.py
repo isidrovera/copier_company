@@ -309,7 +309,7 @@ class CopierCounter(models.Model):
             return {
                 'type': 'ir.actions.report',
                 'report_type': 'qweb-pdf',
-                'report_name': 'copier_company.report_counter_readings',  # Reporte definido en XML
+                'report_name': 'copier_company.action_report_counter_readings',  # Reporte definido en XML
                 'data': {'ids': records.ids},
             }
         return False
