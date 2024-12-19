@@ -126,6 +126,7 @@
                             string="Cancelar" 
                             type="object"
                             invisible="state not in ('draft', 'confirmed')"/>
+                    <button string="Reporte" name="action_print_report" type="object" class="oe_highlight"/>
                     <field name="state" widget="statusbar" 
                            statusbar_visible="draft,confirmed,invoiced"/>
                 </header>
