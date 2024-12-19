@@ -249,17 +249,18 @@
         <field name="binding_view_types">list</field>
         <field name="state">code</field>
         <field name="code">
-            if records:
-                action = {
-                    'type': 'ir.actions.report',
-                    'report_type': 'qweb-pdf',
-                    'report_name': 'copier_company.report_counter_readings',
-                    'report_file': 'copier_company.report_counter_readings',
-                    'data': {'ids': records.ids},
-                }
-                return action
+    if records:
+        action = {
+            'type': 'ir.actions.report',
+            'report_type': 'qweb-pdf',
+            'report_name': 'copier_company.report_counter_readings',
+            'report_file': 'copier_company.report_counter_readings',
+            'data': {'ids': records.ids},
+        }
+        action
         </field>
     </record>
+
 
     <!-- Menu Items -->
     <menuitem id="menu_copier_counter"
