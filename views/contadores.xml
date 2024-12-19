@@ -48,16 +48,15 @@
                                         <field name="mes_facturacion"/>
                                     </div>
                                     <div class="col-6 text-end">
-                                        <field name="total" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                        <field name="total" widget="monetary"/>
                                     </div>
                                 </div>
                                 <div class="o_kanban_record_bottom">
                                     <div class="oe_kanban_bottom_left">
-                                        <span class="badge rounded-pill" t-attf-class="bg-#{
-                                            'success' if record.state.raw_value == 'confirmed'
-                                            else 'info' if record.state.raw_value == 'draft'
-                                            else 'warning' if record.state.raw_value == 'invoiced'
-                                            else 'danger'}">
+                                        <span t-attf-class="badge rounded-pill bg-#{
+                                            record.state.raw_value == 'confirmed' ? 'success' : 
+                                            record.state.raw_value == 'draft' ? 'info' : 
+                                            record.state.raw_value == 'invoiced' ? 'warning' : 'danger'}">
                                             <field name="state"/>
                                         </span>
                                     </div>
