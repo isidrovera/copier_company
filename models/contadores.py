@@ -250,24 +250,32 @@ class CopierCounter(models.Model):
                 record.total_copias_color,
                 record.maquina_id.volumen_mensual_color or 0
             )
-
+    precios_incluyen_igv = fields.Boolean(
+        'Precios Incluyen IGV',
+        default=True,
+        help="Si está marcado, los precios ya incluyen IGV y se calculará el monto base dividiendo entre 1.18"
+    )
     @api.depends('copias_facturables_bn', 'copias_facturables_color',
-                'precio_bn', 'precio_color')
+                'precio_bn', 'precio_color', 'precios_incluyen_igv')
     def _compute_totales(self):
         for record in self:
             # Calcular subtotal (suma de B/N y Color)
             subtotal_bn = record.copias_facturables_bn * record.precio_bn
             subtotal_color = record.copias_facturables_color * record.precio_color
-            record.subtotal = subtotal_bn + subtotal_color
-            
-            # El total sin IGV es el subtotal dividido entre 1.18
-            record.total_sin_igv = record.subtotal / 1.18
-            
-            # El IGV es la diferencia entre subtotal y total sin IGV
-            record.igv = record.subtotal - record.total_sin_igv
-            
-            # El total es el subtotal (incluye IGV)
-            record.total = record.subtotal
+            subtotal_bruto = subtotal_bn + subtotal_color
+
+            if record.precios_incluyen_igv:
+                # Si los precios incluyen IGV
+                record.subtotal = subtotal_bruto
+                record.total_sin_igv = subtotal_bruto / 1.18
+                record.igv = record.subtotal - record.total_sin_igv
+                record.total = record.subtotal
+            else:
+                # Si los precios NO incluyen IGV
+                record.total_sin_igv = subtotal_bruto
+                record.subtotal = subtotal_bruto
+                record.igv = subtotal_bruto * 0.18
+                record.total = subtotal_bruto * 1.18
 
     def action_confirm(self):
         self.ensure_one()
