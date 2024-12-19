@@ -5,12 +5,12 @@
         <field name="name">Counter Report Landscape</field>
         <field name="format">A4</field>
         <field name="orientation">Landscape</field>
-        <field name="margin_top">10</field>
+        <field name="margin_top">1</field>
         <field name="margin_bottom">23</field>
         <field name="margin_left">7</field>
         <field name="margin_right">7</field>
         <field name="header_line" eval="False"/>
-        <field name="header_spacing">15</field>
+        <field name="header_spacing">1</field>
         <field name="dpi">90</field>
     </record>
 
@@ -64,7 +64,7 @@
                         background-color: #0ea5e9;
                     }
                     .company-logo {
-                        max-height: 120px;  /* Reducido de 90px */
+                        max-height: 180px;  /* Reducido de 90px */
                         width: auto;
                     }
                     .client-info-row {
@@ -85,17 +85,17 @@
                             <div class="col-2">
                                 <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" 
                                     class="company-logo" alt="Logo de la empresa"/>
-                            </div>
-                            <div class="col-10">
-                                <h2 style="color: #1429c5; margin: 0; font-weight: 600; font-size: 1.5rem;">
-                                    Reporte de Lecturas
-                                </h2>
-                            </div>
+                            </div>                            
                         </div>
                     </div>
                     <!-- Información del Cliente -->
                     <div class="info-container">
                         <div class="row">
+                            <div class="col-10">
+                                <h2 style="color: #1429c5; margin: 0; font-weight: 600; font-size: 1.5rem;">
+                                    Reporte de Lecturas
+                                </h2>
+                            </div>
                             <div class="col-6">
                                 <h4 style="color: #1e293b; font-weight: 600;">
                                     <i class="fa fa-building me-2" />Información del Cliente
