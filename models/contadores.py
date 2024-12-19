@@ -109,15 +109,17 @@ class CopierCounter(models.Model):
         related='maquina_id.currency_id',
         string='Moneda'
     )
-    precio_bn = fields.Float(
+    precio_bn = fields.Monetary(
         'Precio B/N',
         related='maquina_id.costo_copia_bn',
-        readonly=True
+        readonly=True,
+        currency_field='currency_id'
     )
-    precio_color = fields.Float(
+    precio_color = fields.Monetary(
         'Precio Color',
         related='maquina_id.costo_copia_color',
-        readonly=True
+        readonly=True,
+        currency_field='currency_id'
     )
     subtotal = fields.Monetary(
         'Subtotal',
@@ -177,6 +179,25 @@ class CopierCounter(models.Model):
             else:
                 self.contador_anterior_bn = 0
                 self.contador_anterior_color = 0
+                
+            # Establecer fecha de facturación según configuración de la máquina
+            if self.maquina_id.dia_facturacion:
+                fecha_base = fields.Date.today()
+                dia = min(self.maquina_id.dia_facturacion, calendar.monthrange(fecha_base.year, fecha_base.month)[1])
+                fecha_facturacion = fecha_base.replace(day=dia)
+                
+                # Si ya pasó la fecha de este mes, ir al siguiente
+                if fecha_base > fecha_facturacion:
+                    if fecha_base.month == 12:
+                        fecha_facturacion = fecha_facturacion.replace(year=fecha_base.year + 1, month=1)
+                    else:
+                        fecha_facturacion = fecha_facturacion.replace(month=fecha_base.month + 1)
+                
+                # Si cae domingo, mover al sábado
+                if fecha_facturacion.weekday() == 6:  # 6 = domingo
+                    fecha_facturacion -= timedelta(days=1)
+                
+                self.fecha_facturacion = fecha_facturacion
 
     @api.depends('contador_actual_bn', 'contador_anterior_bn',
                 'contador_actual_color', 'contador_anterior_color')
