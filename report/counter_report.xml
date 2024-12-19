@@ -73,18 +73,18 @@
 
                 <div class="page">
                     <!-- Encabezado -->
+                    <!-- Encabezado -->
                     <div class="header-gradient">
-                        <div class="row">
-                            <div class="col-6 text-end">
+                        <div class="row align-items-center">
+                            <div class="col-2">
                                 <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" 
-                                     style="max-height: 70px" alt="Logo de la empresa"/>
+                                    style="max-height: 90px; max-width: 100%;" alt="Logo de la empresa"/>
                             </div>
-                            <div class="col-6">
-                                <h2 style="color: red; margin: 0; font-weight: 600;">
+                            <div class="col-10">
+                                <h2 style="color: white; margin: 0; font-weight: 600; text-align: center;">
                                     <i class="fa fa-file-text me-2" />Reporte de Lecturas
                                 </h2>
                             </div>
-                            
                         </div>
                     </div>
 
