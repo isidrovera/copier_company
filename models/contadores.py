@@ -298,7 +298,9 @@ class CopierCounter(models.Model):
             result.append((record.id, name))
         return result
     
-
+    def action_print_report(self):
+        """Método para la acción del servidor que genera el reporte"""
+        return self.env.ref('copier_company.action_report_counter_readings').report_action(self)
 
     @api.model
     def generate_monthly_readings(self):
