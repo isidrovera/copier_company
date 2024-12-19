@@ -1,21 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-     <!-- Definición del Reporte -->
-    <record id="action_report_counter_readings" model="ir.actions.report">
-        <field name="name">Reporte de Lecturas</field>
-        <field name="model">copier.counter</field>
-        <field name="report_type">qweb-pdf</field>
-        <field name="report_name">copier_company.report_counter_readings</field>
-        <field name="report_file">copier_company.report_counter_readings</field>
-        <field name="paperformat_id" ref="base.paperformat_euro_landscape"/>
-        <field name="print_report_name">'Lecturas - %s - %s' % (object.cliente_id.name, time.strftime('%d-%m-%Y'))</field>
-        <field name="binding_model_id" ref="model_copier_counter"/>
-        <field name="binding_type">report</field>
-    </record>
-
-    <!-- Formato de Papel Personalizado -->
-    <record id="paperformat_euro_landscape" model="report.paperformat">
-        <field name="name">European A4 Landscape</field>
+     <!-- Definición del formato de papel personalizado -->
+    <record id="paperformat_counter_landscape" model="report.paperformat">
+        <field name="name">Counter Report Landscape</field>
         <field name="default" eval="True"/>
         <field name="format">A4</field>
         <field name="page_height">210</field>
@@ -28,6 +15,17 @@
         <field name="header_line" eval="False"/>
         <field name="header_spacing">35</field>
         <field name="dpi">90</field>
+    </record>
+
+    <!-- Definición del Reporte -->
+    <record id="action_report_counter_readings" model="ir.actions.report">
+        <field name="name">Reporte de Lecturas</field>
+        <field name="model">copier.counter</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">copier_company.report_counter_readings</field>
+        <field name="report_file">copier_company.report_counter_readings</field>
+        <field name="paperformat_id" ref="copier_company.paperformat_counter_landscape"/>
+        <field name="print_report_name">'Lecturas - %s - %s' % (object.cliente_id.name or '', time.strftime('%d-%m-%Y'))</field>
     </record>
     <!-- Template del Reporte -->
     <template id="report_counter_readings">
