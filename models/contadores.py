@@ -324,7 +324,7 @@ class CopierCounter(models.Model):
             try:
                 # Calcular fecha de facturación
                 dia = min(machine.dia_facturacion, 
-                         (today.replace(day=1) + relativedelta(months=1, days=-1)).day)
+                        (today.replace(day=1) + relativedelta(months=1, days=-1)).day)
                 fecha_facturacion = today.replace(day=dia)
 
                 # Ajustar al mes siguiente si ya pasó la fecha
@@ -338,36 +338,48 @@ class CopierCounter(models.Model):
                 crear_hoy = False
                 if fecha_facturacion.weekday() == 6:  # Si es domingo
                     fecha_facturacion -= timedelta(days=1)  # Mover al sábado
-                    crear_hoy = today == fecha_facturacion  # Crear si hoy es sábado
+                    crear_hoy = today == fecha_facturacion
                 else:
-                    crear_hoy = today == fecha_facturacion  # Crear el mismo día para L-V
+                    crear_hoy = today == fecha_facturacion
 
                 # Verificar si ya existe lectura para este período
-                existing_reading = self.search([
+                existing_reading = self.env['copier.counter'].search([
                     ('maquina_id', '=', machine.id),
                     ('fecha_facturacion', '=', fecha_facturacion)
                 ], limit=1)
 
                 if existing_reading:
                     _logger.info(f"Ya existe lectura para la máquina {machine.serie_id} "
-                               f"en fecha {fecha_facturacion}")
+                            f"en fecha {fecha_facturacion}")
                     continue
 
                 # Crear nueva lectura si corresponde
                 if crear_hoy:
                     # Obtener última lectura confirmada
-                    ultima_lectura = self.search([
+                    ultima_lectura = self.env['copier.counter'].search([
                         ('maquina_id', '=', machine.id),
                         ('state', '=', 'confirmed')
                     ], limit=1, order='fecha desc, id desc')
 
-                    self.create({
+                    # Valores por defecto para los contadores
+                    contador_anterior_bn = ultima_lectura.contador_actual_bn if ultima_lectura else 0
+                    contador_anterior_color = ultima_lectura.contador_actual_color if ultima_lectura else 0
+                    
+                    # Crear registro con valores por defecto para contadores actuales
+                    vals = {
                         'maquina_id': machine.id,
                         'fecha': today,
                         'fecha_facturacion': fecha_facturacion,
-                        'contador_anterior_bn': ultima_lectura.contador_actual_bn if ultima_lectura else 0,
-                        'contador_anterior_color': ultima_lectura.contador_actual_color if ultima_lectura else 0
-                    })
+                        'contador_anterior_bn': contador_anterior_bn,
+                        'contador_anterior_color': contador_anterior_color,
+                        'contador_actual_bn': contador_anterior_bn,  # Inicializar con el mismo valor
+                        'contador_actual_color': contador_anterior_color,  # Inicializar con el mismo valor
+                        'state': 'draft'  # Asegurarnos que se crea en estado borrador
+                    }
+                    
+                    self.env['copier.counter'].create(vals)
+                    self.env.cr.commit()  # Commit después de cada creación exitosa
+                    
                     _logger.info(
                         f"Creada nueva lectura para máquina {machine.serie_id} "
                         f"con fecha de facturación {fecha_facturacion}"
@@ -375,7 +387,10 @@ class CopierCounter(models.Model):
 
             except Exception as e:
                 _logger.error(f"Error al procesar máquina {machine.serie_id}: {str(e)}")
+                self.env.cr.rollback()  # Rollback en caso de error
                 continue
+
+        return True
 
     def _get_next_reading_date(self):
         """
