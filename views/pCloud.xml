@@ -30,20 +30,20 @@
             <field name="name">pcloud.config.tree</field>
             <field name="model">pcloud.config</field>
             <field name="arch" type="xml">
-                <tree string="pCloud Configurations">
+                <list string="pCloud Configurations">
                     <field name="name"/>
                     <field name="client_id"/>
                     <field name="client_secret"/>
                     <field name="redirect_uri"/>
                     <field name="access_token"/>
                     <field name="hostname"/>
-                </tree>
+                </list>
             </field>
         </record>
         <record id="view_pcloud_config_form_action" model="ir.actions.act_window">
             <field name="name">pCloud Configuration</field>
             <field name="res_model">pcloud.config</field>
-            <field name="view_mode">tree,form</field>            
+            <field name="view_mode">list,form</field>            
         </record>
 
         <!-- Definición del menú -->

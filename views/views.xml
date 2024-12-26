@@ -5,7 +5,7 @@
       <field name="name">copier_company.list</field>
       <field name="model">copier.company</field>
       <field name="arch" type="xml">
-        <tree>
+        <list>
           <field name="secuencia"/>
           <field name="marca_id"/>
           <field name="name"/>
@@ -16,7 +16,7 @@
           <field name="estado_maquina_id"/>
           <button name="crear_ticket" string="Servicio" type="object" icon="fa-wrench" class="btn-primary"/>
           <button name="generar_qr_code" string="QR" type="object" icon="fa-qrcode" class="btn-info"/>
-        </tree>
+        </list>
       </field>
     </record>
 
@@ -194,7 +194,7 @@
     <record model="ir.actions.act_window" id="copier_company.action_window">
       <field name="name">Gestión de Máquinas</field>
       <field name="res_model">copier.company</field>
-      <field name="view_mode">kanban,tree,form</field>
+      <field name="view_mode">kanban,list,form</field>
       <field name="help" type="html">
         <p class="o_view_nocontent_smiling_face">
           ¡Registre su primera máquina!

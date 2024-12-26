@@ -138,7 +138,7 @@ class PCloudConfig(models.Model):
                 'type': 'ir.actions.act_window',
                 'name': 'pCloud Folders and Files',
                 'res_model': 'pcloud.folder.file',
-                'view_mode': 'tree,form',
+                'view_mode': 'list,form',
                 'target': 'current',
             }
 
@@ -157,7 +157,7 @@ class PCloudConfig(models.Model):
                 'type': 'ir.actions.act_window',
                 'name': 'pCloud Folders and Files',
                 'res_model': 'pcloud.folder.file',
-                'view_mode': 'tree,form',
+                'view_mode': 'list,form',
                 'target': 'current',
             }
     def get_pcloud_file_info(self, file_id):

@@ -8,9 +8,9 @@
             <field name="name">accesorios.maquinas.tree</field>
             <field name="model">accesorios.maquinas</field>
             <field name="arch" type="xml">
-                <tree string="Accesorios de Máquinas">
+                <list string="Accesorios de Máquinas">
                     <field name="name"/>
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -52,7 +52,7 @@
         <record id="action_accesorios_maquinas" model="ir.actions.act_window">
             <field name="name">Accesorios de Máquinas</field>
             <field name="res_model">accesorios.maquinas</field>
-            <field name="view_mode">tree,form,kanban</field>
+            <field name="view_mode">list,form,kanban</field>
         </record>
 
         <!-- Menú para accesorios.maquinas -->
@@ -63,9 +63,9 @@
             <field name="name">copier.estados.tree</field>
             <field name="model">copier.estados</field>
             <field name="arch" type="xml">
-                <tree string="Estados de Copiadoras">
+                <list string="Estados de Copiadoras">
                     <field name="name"/>
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -107,7 +107,7 @@
         <record id="action_copier_estados" model="ir.actions.act_window">
             <field name="name">Estados de Copiadoras</field>
             <field name="res_model">copier.estados</field>
-            <field name="view_mode">tree,form,kanban</field>
+            <field name="view_mode">list,form,kanban</field>
         </record>
 
         <!-- Menú para copier.estados -->
@@ -118,9 +118,9 @@
             <field name="name">copier.duracion.tree</field>
             <field name="model">copier.duracion</field>
             <field name="arch" type="xml">
-                <tree string="Duraciones de Alquiler">
+                <list string="Duraciones de Alquiler">
                     <field name="name"/>
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -162,7 +162,7 @@
         <record id="action_copier_duracion" model="ir.actions.act_window">
             <field name="name">Duraciones de Alquiler</field>
             <field name="res_model">copier.duracion</field>
-            <field name="view_mode">tree,form,kanban</field>
+            <field name="view_mode">list,form,kanban</field>
         </record>
 
         <!-- Menú para copier.duracion -->

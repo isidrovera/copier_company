@@ -69,13 +69,13 @@
             <field name="name">security.control.tree</field>
             <field name="model">security.control</field>
             <field name="arch" type="xml">
-                <tree string="Controles de Seguridad">
+                <list string="Controles de Seguridad">
                     <field name="name"/>
                     <field name="active"/>
                     <field name="hide_db_selector"/>
                     <field name="hide_public_signup"/>
                     <field name="hide_password_reset"/>
-                </tree>
+                </list>
             </field>
         </record>
 

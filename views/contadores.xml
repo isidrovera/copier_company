@@ -82,7 +82,7 @@
         <field name="name">copier.counter.tree</field>
         <field name="model">copier.counter</field>
         <field name="arch" type="xml">
-            <tree decoration-info="state == 'draft'"
+            <list decoration-info="state == 'draft'"
                 decoration-success="state == 'confirmed'"
                 decoration-warning="state == 'invoiced'"
                 decoration-danger="state == 'cancelled'"
@@ -107,7 +107,7 @@
                     decoration-success="state == 'confirmed'"
                     decoration-warning="state == 'invoiced'"
                     decoration-danger="state == 'cancelled'" />
-            </tree>
+            </list>
         </field>
     </record>
 
