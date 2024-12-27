@@ -30,7 +30,6 @@
         'sale_subscription', 
         'website',
         'web',
-        'social',
         'industry_fsm',
         'approvals',
         'im_livechat',
