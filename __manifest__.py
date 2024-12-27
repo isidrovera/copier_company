@@ -41,6 +41,10 @@
         'views/vista_tree_portal.xml',
         'security/ir.model.access.csv',        
         'data/ir.secuencia.xml',
+        'report/copier_company_report.xml',
+        'report/counter_report.xml',
+        'views/copier_company_form_template.xml',
+        'views/security_control_views.xml',
         'data/plantillas_mail.xml',
         'data/copier_company_data.xml',        
         'views/pCloud.xml', 
@@ -53,10 +57,7 @@
         'views/no_config_template.xml',
         'views/ajustes_copier.xml',
         'views/contadores.xml',
-        'report/copier_company_report.xml',
-        'report/counter_report.xml',
-        'views/copier_company_form_template.xml',
-        'views/security_control_views.xml',
+        
     ],
 
     'assets': {
