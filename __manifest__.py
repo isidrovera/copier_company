@@ -30,20 +30,7 @@
         'sale_subscription', 
         'website',
         'web',
-        'social',
-        'industry_fsm',
-        'approvals',
-        'im_livechat',
-        'whatsapp',
-        'backup_pcloud',
-        'stock',
-        'documents',
-        'crm',
-        'purchase',
-        'mass_mailing',
-        'website_sale',
-        'stock_barcode',
-
+        
     ],
 
     'data': [
