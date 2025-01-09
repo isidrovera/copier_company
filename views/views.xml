@@ -42,6 +42,13 @@
             <field name="estado_maquina_id" widget="statusbar" options="{'clickable': '1'}"/>
           </header>
           <sheet>
+            <div class="oe_button_box" name="button_box">
+                <button class="oe_stat_button" type="object" 
+                        name="action_view_counters" icon="fa-calculator">
+                    <field string="Lecturas" name="counter_count" widget="statinfo"/>
+                </button>
+            </div>
+
             <div class="alert alert-info">
               <strong>Instrucciones:</strong>
               <ul>
@@ -232,7 +239,7 @@
     <record model="ir.actions.act_window" id="copier_company.action_window">
       <field name="name">Gestión de Máquinas</field>
       <field name="res_model">copier.company</field>
-      <field name="view_mode">kanban,list,form</field>
+      <field name="view_mode">list,kanban,form</field>
       <field name="help" type="html">
         <p class="o_view_nocontent_smiling_face">
           ¡Registre su primera máquina!

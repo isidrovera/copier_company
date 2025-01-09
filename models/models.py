@@ -367,6 +367,30 @@ class CopierCompany(models.Model):
 
     def action_print_report(self):
         return self.env.ref('copier_company.action_report_report_cotizacion_alquiler').report_action(self)
+
+    # Campo compute para el contador
+    counter_count = fields.Integer(
+        string='Lecturas',
+        compute='_compute_counter_count'
+    )
+    
+    def _compute_counter_count(self):
+        for record in self:
+            record.counter_count = self.env['copier.counter'].search_count([
+                ('maquina_id', '=', record.id)
+            ])
+    
+    # Acción para el botón
+    def action_view_counters(self):
+        self.ensure_one()
+        return {
+            'name': 'Lecturas',
+            'type': 'ir.actions.act_window',
+            'res_model': 'copier.counter',
+            'view_mode': 'list,form',
+            'domain': [('maquina_id', '=', self.id)],
+            'context': {'default_maquina_id': self.id},
+        }
 class CotizacionAlquilerReport(models.AbstractModel):
     _name = 'report.copier_company.cotizacion_view'
     _description = 'Reporte de Cotización de Alquiler'
