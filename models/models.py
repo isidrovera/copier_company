@@ -410,6 +410,11 @@ class CopierCompany(models.Model):
         string='Responsable de Renovación',
         tracking=True
     )
+    historial_renovaciones = fields.One2many(
+        'copier.renewal.history',
+        'copier_id',
+        string='Historial de Renovaciones'
+    )
 
     @api.model
     def _cron_check_contract_expiration(self):
