@@ -331,7 +331,14 @@ class CopierCompany(models.Model):
             'type': 'ir.actions.act_window',
             'target': 'current',
         }
-
+    qr_code_filename = fields.Char(
+    string="Nombre archivo QR",
+    compute='_compute_qr_filename'
+)
+    @api.depends('secuencia')
+    def _compute_qr_filename(self):
+        for record in self:
+            record.qr_code_filename = f'qr_code_{record.secuencia}.png'
     def generar_qr_code(self):
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         logo_path = get_module_resource('copier_company', 'static', 'src', 'img', 'logo.png')
