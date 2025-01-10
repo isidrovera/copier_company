@@ -31,6 +31,12 @@
             <button name="generar_qr_code" string="Generar QR" type="object" class="btn-info"/>
             <button name="action_print_report" string="Imprimir Cotización" type="object" class="btn-success"/>
             <button name="enviar_correo_propuesta" string="Enviar Propuesta" type="object" class="oe_highlight"/>
+             <field name="estado_renovacion" widget="statusbar" statusbar_visible="vigente,por_vencer,renovado,finalizado"/>
+    <button name="action_renovar_contrato" 
+            string="Renovar Contrato" 
+            type="object" 
+            class="oe_highlight"
+            />
             <button 
                     name="send_whatsapp_report" 
                     type="object" 
