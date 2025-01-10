@@ -341,7 +341,12 @@ class CopierCompany(models.Model):
             
         logo = Image.open(logo_path)
         logo_size = (100, int((float(logo.size[1]) * float(100/float(logo.size[0])))))
-        logo = logo.resize(logo_size, Image.ANTIALIAS)
+        # Primer cambio aquí
+        try:
+            resampling_filter = Image.Resampling.LANCZOS
+        except AttributeError:
+            resampling_filter = Image.ANTIALIAS
+        logo = logo.resize(logo_size, resampling_filter)
         
         for record in self:
             qr = qrcode.QRCode(
@@ -358,8 +363,8 @@ class CopierCompany(models.Model):
             pos = ((qr_img.size[0] - logo.size[0]) // 2, (qr_img.size[1] - logo.size[1]) // 2)
             qr_img.paste(logo, pos, logo)
             
-            # Reducir tamaño del QR
-            qr_img = qr_img.resize((qr_img.size[0] // 2, qr_img.size[1] // 2), Image.ANTIALIAS)
+            # Segundo cambio aquí (mismo filtro de remuestreo)
+            qr_img = qr_img.resize((qr_img.size[0] // 2, qr_img.size[1] // 2), resampling_filter)
             
             buffer = io.BytesIO()
             qr_img.save(buffer, format='PNG')
