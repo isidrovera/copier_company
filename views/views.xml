@@ -102,6 +102,17 @@
                   </group>
                 </group>
               </page>
+              <page string="Historial de Renovaciones">
+                  <field name="historial_renovaciones">
+                      <list>
+                          <field name="fecha_renovacion"/>
+                          <field name="fecha_anterior"/>
+                          <field name="fecha_fin_anterior"/>
+                          <field name="duracion_anterior_id"/>
+                          <field name="notas"/>
+                      </list>
+                  </field>
+              </page>
               
               <page name="especificaciones" string="Especificaciones">
                 <group>

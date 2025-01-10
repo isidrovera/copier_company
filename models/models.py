@@ -391,6 +391,154 @@ class CopierCompany(models.Model):
             'domain': [('maquina_id', '=', self.id)],
             'context': {'default_maquina_id': self.id},
         }
+    # Nuevos campos para manejar renovaciones
+    estado_renovacion = fields.Selection([
+        ('vigente', 'Contrato Vigente'),
+        ('por_vencer', 'Por Vencer'),
+        ('renovado', 'Renovado'),
+        ('finalizado', 'Finalizado')
+    ], string='Estado de Renovación', default='vigente', tracking=True)
+    
+    dias_notificacion = fields.Integer(
+        string='Días para Notificación', 
+        default=30,
+        help='Días antes del vencimiento para comenzar las notificaciones'
+    )
+    
+    responsable_id = fields.Many2one(
+        'res.users', 
+        string='Responsable de Renovación',
+        tracking=True
+    )
+
+    @api.model
+    def _cron_check_contract_expiration(self):
+        """
+        Cron job que se ejecuta diariamente para verificar contratos próximos a vencer
+        y notificar al equipo interno
+        """
+        # Obtener usuarios a notificar (puede ser un grupo específico)
+        grupo_ventas = self.env.ref('sales_team.group_sale_salesman', False)
+        usuarios_a_notificar = grupo_ventas.users if grupo_ventas else self.env['res.users'].search([])
+
+        # Buscar contratos próximos a vencer
+        hoy = fields.Date.today()
+        contratos = self.search([
+            ('estado_renovacion', '=', 'vigente'),
+            ('fecha_fin_alquiler', '!=', False)
+        ])
+
+        for contrato in contratos:
+            dias_restantes = (contrato.fecha_fin_alquiler - hoy).days
+            
+            # Verificar si el contrato está próximo a vencer según los días configurados
+            if 0 < dias_restantes <= contrato.dias_notificacion:
+                contrato.estado_renovacion = 'por_vencer'
+                
+                # Crear actividad para el responsable o equipo de ventas
+                if contrato.responsable_id:
+                    contrato._crear_actividad_renovacion(contrato.responsable_id)
+                else:
+                    # Si no hay responsable asignado, crear actividad para todo el equipo de ventas
+                    for usuario in usuarios_a_notificar:
+                        contrato._crear_actividad_renovacion(usuario)
+                
+                # Crear nota en el chatter
+                contrato._crear_nota_vencimiento(dias_restantes)
+            
+            # Si el contrato ya venció, actualizar estado
+            elif dias_restantes <= 0 and contrato.estado_renovacion != 'finalizado':
+                contrato.estado_renovacion = 'finalizado'
+                contrato.message_post(
+                    body="⚠️ CONTRATO VENCIDO\nEl contrato ha llegado a su fecha de finalización.",
+                    message_type='notification'
+                )
+
+    def _crear_actividad_renovacion(self, usuario):
+        """Crea una actividad para la renovación del contrato"""
+        self.env['mail.activity'].create({
+            'activity_type_id': self.env.ref('mail.mail_activity_data_todo').id,
+            'summary': f'Renovación de Contrato - {self.name.name}',
+            'note': f'''
+                📅 Contrato próximo a vencer
+                
+                • Cliente: {self.cliente_id.name}
+                • Máquina: {self.name.name}
+                • Serie: {self.serie_id}
+                • Fecha de vencimiento: {self.fecha_fin_alquiler}
+                • Días restantes: {(self.fecha_fin_alquiler - fields.Date.today()).days}
+                
+                Por favor, gestionar la renovación del contrato.
+            ''',
+            'user_id': usuario.id,
+            'res_id': self.id,
+            'res_model_id': self.env['ir.model']._get('copier.company').id,
+            'date_deadline': fields.Date.today() + timedelta(days=5)
+        })
+
+    def _crear_nota_vencimiento(self, dias_restantes):
+        """Crea una nota en el chatter sobre el vencimiento próximo"""
+        self.message_post(
+            body=f'''
+            🔔 ALERTA DE VENCIMIENTO DE CONTRATO
+            
+            El contrato está próximo a vencer:
+            • Cliente: {self.cliente_id.name}
+            • Máquina: {self.name.name}
+            • Serie: {self.serie_id}
+            • Días restantes: {dias_restantes}
+            • Fecha de vencimiento: {self.fecha_fin_alquiler}
+            
+            Se ha creado una actividad para gestionar la renovación.
+            ''',
+            message_type='notification'
+        )
+
+    def action_renovar_contrato(self):
+        """
+        Acción para renovar el contrato
+        """
+        self.ensure_one()
+        
+        # Actualizar fechas del contrato
+        self.fecha_inicio_alquiler = self.fecha_fin_alquiler + relativedelta(days=1)
+        self._calcular_fecha_fin()
+        
+        # Actualizar estado
+        self.estado_renovacion = 'renovado'
+        
+        # Registrar en el chatter
+        self.message_post(
+            body=f'''
+            ✅ CONTRATO RENOVADO
+            
+            Se ha renovado el contrato por {self.duracion_alquiler_id.name} adicionales.
+            • Nueva fecha de inicio: {self.fecha_inicio_alquiler}
+            • Nueva fecha de finalización: {self.fecha_fin_alquiler}
+            ''',
+            message_type='notification'
+        )
+        
+        # Marcar actividades relacionadas como completadas
+        actividades = self.env['mail.activity'].search([
+            ('res_id', '=', self.id),
+            ('res_model', '=', 'copier.company'),
+            ('summary', 'ilike', 'Renovación de Contrato')
+        ])
+        for actividad in actividades:
+            actividad.action_done()
+class CopierRenewalHistory(models.Model):
+    _name = 'copier.renewal.history'
+    _description = 'Historial de Renovaciones de Contratos'
+    _order = 'fecha_renovacion desc'
+
+    copier_id = fields.Many2one('copier.company', string='Máquina', required=True)
+    fecha_renovacion = fields.Date(string='Fecha de Renovación', default=fields.Date.today)
+    fecha_anterior = fields.Date(string='Fecha Inicio Anterior')
+    fecha_fin_anterior = fields.Date(string='Fecha Fin Anterior')
+    duracion_anterior_id = fields.Many2one('copier.duracion', string='Duración Anterior')
+    notas = fields.Text(string='Notas')
+
 class CotizacionAlquilerReport(models.AbstractModel):
     _name = 'report.copier_company.cotizacion_view'
     _description = 'Reporte de Cotización de Alquiler'
