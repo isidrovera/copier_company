@@ -527,47 +527,69 @@ class CopierCompany(models.Model):
 
     def action_renovar_contrato(self):
         """
-        Acción para renovar el contrato
+        Acción para renovar el contrato y registrar en el historial
         """
         self.ensure_one()
+        _logger.info(f"Iniciando renovación de contrato para {self.name.name}")
         
-        # Actualizar fechas del contrato
-        self.fecha_inicio_alquiler = self.fecha_fin_alquiler + relativedelta(days=1)
-        self._calcular_fecha_fin()
-        
-        # Actualizar estado
-        self.estado_renovacion = 'renovado'
-        
-        # Registrar en el chatter
-        self.message_post(
-            body=f'''
-            ✅ CONTRATO RENOVADO
+        try:
+            # Crear registro en el historial de renovaciones
+            self.env['copier.renewal.history'].create({
+                'copier_id': self.id,
+                'fecha_anterior': self.fecha_inicio_alquiler,
+                'fecha_fin_anterior': self.fecha_fin_alquiler,
+                'duracion_anterior_id': self.duracion_alquiler_id.id,
+                'notas': f'Renovación desde {self.fecha_inicio_alquiler} hasta {self.fecha_fin_alquiler}'
+            })
+            _logger.info("Historial de renovación creado exitosamente")
             
-            Se ha renovado el contrato por {self.duracion_alquiler_id.name} adicionales.
-            • Nueva fecha de inicio: {self.fecha_inicio_alquiler}
-            • Nueva fecha de finalización: {self.fecha_fin_alquiler}
-            ''',
-            message_type='notification'
-        )
-        
-        # Marcar actividades relacionadas como completadas
-        actividades = self.env['mail.activity'].search([
-            ('res_id', '=', self.id),
-            ('res_model', '=', 'copier.company'),
-            ('summary', 'ilike', 'Renovación de Contrato')
-        ])
-        for actividad in actividades:
-            actividad.action_done()
+            # Actualizar fechas del contrato
+            antigua_fecha_fin = self.fecha_fin_alquiler
+            self.fecha_inicio_alquiler = antigua_fecha_fin + relativedelta(days=1)
+            self._calcular_fecha_fin()
+            
+            # Actualizar estado
+            self.estado_renovacion = 'renovado'
+            
+            # Registrar en el chatter
+            self.message_post(
+                body=f"""
+                ✅ CONTRATO RENOVADO
+                
+                Se ha renovado el contrato:
+                • Período anterior: {antigua_fecha_fin}
+                • Nuevo período: {self.fecha_inicio_alquiler} - {self.fecha_fin_alquiler}
+                • Duración: {self.duracion_alquiler_id.name}
+                """,
+                message_type='notification'
+            )
+            
+            _logger.info(f"Renovación completada exitosamente para {self.name.name}")
+            
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Éxito',
+                    'message': 'El contrato ha sido renovado exitosamente',
+                    'type': 'success',
+                    'sticky': False,
+                }
+            }
+            
+        except Exception as e:
+            _logger.error(f"Error durante la renovación del contrato: {str(e)}")
+            raise UserError(f"Error al renovar el contrato: {str(e)}")
 class CopierRenewalHistory(models.Model):
     _name = 'copier.renewal.history'
     _description = 'Historial de Renovaciones de Contratos'
     _order = 'fecha_renovacion desc'
 
-    copier_id = fields.Many2one('copier.company', string='Máquina', required=True)
+    copier_id = fields.Many2one('copier.company', string='Máquina', required=True, ondelete='cascade')
     fecha_renovacion = fields.Date(string='Fecha de Renovación', default=fields.Date.today)
-    fecha_anterior = fields.Date(string='Fecha Inicio Anterior')
-    fecha_fin_anterior = fields.Date(string='Fecha Fin Anterior')
-    duracion_anterior_id = fields.Many2one('copier.duracion', string='Duración Anterior')
+    fecha_anterior = fields.Date(string='Fecha Inicio Anterior', required=True)
+    fecha_fin_anterior = fields.Date(string='Fecha Fin Anterior', required=True)
+    duracion_anterior_id = fields.Many2one('copier.duracion', string='Duración Anterior', required=True)
     notas = fields.Text(string='Notas')
 
 class CotizacionAlquilerReport(models.AbstractModel):
