@@ -422,65 +422,91 @@ class CopierCompany(models.Model):
         Cron job que se ejecuta diariamente para verificar contratos próximos a vencer
         y notificar al equipo interno
         """
-        # Obtener usuarios a notificar (puede ser un grupo específico)
-        grupo_ventas = self.env.ref('sales_team.group_sale_salesman', False)
-        usuarios_a_notificar = grupo_ventas.users if grupo_ventas else self.env['res.users'].search([])
-
-        # Buscar contratos próximos a vencer
+        _logger.info("Iniciando verificación de contratos próximos a vencer")
+        
         hoy = fields.Date.today()
+        # Buscar contratos que no estén finalizados
         contratos = self.search([
-            ('estado_renovacion', '=', 'vigente'),
+            ('estado_renovacion', 'in', ['vigente', 'por_vencer']),
             ('fecha_fin_alquiler', '!=', False)
         ])
-
+        
+        _logger.info(f"Encontrados {len(contratos)} contratos para revisar")
+        
         for contrato in contratos:
-            dias_restantes = (contrato.fecha_fin_alquiler - hoy).days
-            
-            # Verificar si el contrato está próximo a vencer según los días configurados
-            if 0 < dias_restantes <= contrato.dias_notificacion:
-                contrato.estado_renovacion = 'por_vencer'
+            try:
+                dias_restantes = (contrato.fecha_fin_alquiler - hoy).days
+                _logger.info(f"Contrato {contrato.name.name} - Días restantes: {dias_restantes}")
                 
-                # Crear actividad para el responsable o equipo de ventas
-                if contrato.responsable_id:
-                    contrato._crear_actividad_renovacion(contrato.responsable_id)
-                else:
-                    # Si no hay responsable asignado, crear actividad para todo el equipo de ventas
-                    for usuario in usuarios_a_notificar:
-                        contrato._crear_actividad_renovacion(usuario)
+                # Si está dentro del período de notificación y aún no está marcado como por vencer
+                if 0 < dias_restantes <= contrato.dias_notificacion and contrato.estado_renovacion != 'por_vencer':
+                    _logger.info(f"Marcando contrato {contrato.name.name} como por vencer")
+                    contrato.estado_renovacion = 'por_vencer'
+                    
+                    # Crear nota en el chatter
+                    contrato.message_post(
+                        body=f"""
+                        🔔 ALERTA DE VENCIMIENTO DE CONTRATO
+                        
+                        El contrato está próximo a vencer:
+                        • Cliente: {contrato.cliente_id.name}
+                        • Máquina: {contrato.name.name}
+                        • Serie: {contrato.serie_id}
+                        • Días restantes: {dias_restantes}
+                        • Fecha de vencimiento: {contrato.fecha_fin_alquiler}
+                        
+                        Por favor, gestionar la renovación del contrato.
+                        """,
+                        message_type='notification'
+                    )
+                    
+                    # Crear actividad para el responsable o equipo de ventas
+                    if contrato.responsable_id:
+                        contrato._crear_actividad_renovacion(contrato.responsable_id)
+                    else:
+                        grupo_ventas = self.env.ref('sales_team.group_sale_salesman', False)
+                        if grupo_ventas and grupo_ventas.users:
+                            for usuario in grupo_ventas.users:
+                                contrato._crear_actividad_renovacion(usuario)
                 
-                # Crear nota en el chatter
-                contrato._crear_nota_vencimiento(dias_restantes)
-            
-            # Si el contrato ya venció, actualizar estado
-            elif dias_restantes <= 0 and contrato.estado_renovacion != 'finalizado':
-                contrato.estado_renovacion = 'finalizado'
-                contrato.message_post(
-                    body="⚠️ CONTRATO VENCIDO\nEl contrato ha llegado a su fecha de finalización.",
-                    message_type='notification'
-                )
-
+                # Si el contrato ya venció
+                elif dias_restantes <= 0 and contrato.estado_renovacion != 'finalizado':
+                    _logger.info(f"Marcando contrato {contrato.name.name} como finalizado")
+                    contrato.estado_renovacion = 'finalizado'
+                    contrato.message_post(
+                        body="⚠️ CONTRATO VENCIDO\nEl contrato ha llegado a su fecha de finalización.",
+                        message_type='notification'
+                    )
+                    
+            except Exception as e:
+                _logger.error(f"Error procesando contrato {contrato.name.name}: {str(e)}")
+                
+        _logger.info("Finalizada la verificación de contratos")
     def _crear_actividad_renovacion(self, usuario):
         """Crea una actividad para la renovación del contrato"""
-        self.env['mail.activity'].create({
-            'activity_type_id': self.env.ref('mail.mail_activity_data_todo').id,
-            'summary': f'Renovación de Contrato - {self.name.name}',
-            'note': f'''
-                📅 Contrato próximo a vencer
-                
-                • Cliente: {self.cliente_id.name}
-                • Máquina: {self.name.name}
-                • Serie: {self.serie_id}
-                • Fecha de vencimiento: {self.fecha_fin_alquiler}
-                • Días restantes: {(self.fecha_fin_alquiler - fields.Date.today()).days}
-                
-                Por favor, gestionar la renovación del contrato.
-            ''',
-            'user_id': usuario.id,
-            'res_id': self.id,
-            'res_model_id': self.env['ir.model']._get('copier.company').id,
-            'date_deadline': fields.Date.today() + timedelta(days=5)
-        })
-
+        try:
+            self.env['mail.activity'].create({
+                'activity_type_id': self.env.ref('mail.mail_activity_data_todo').id,
+                'summary': f'Renovación de Contrato - {self.name.name}',
+                'note': f'''
+                    📅 Contrato próximo a vencer
+                    
+                    • Cliente: {self.cliente_id.name}
+                    • Máquina: {self.name.name}
+                    • Serie: {self.serie_id}
+                    • Fecha de vencimiento: {self.fecha_fin_alquiler}
+                    • Días restantes: {(self.fecha_fin_alquiler - fields.Date.today()).days}
+                    
+                    Por favor, gestionar la renovación del contrato.
+                ''',
+                'user_id': usuario.id,
+                'res_id': self.id,
+                'res_model_id': self.env['ir.model']._get('copier.company').id,
+                'date_deadline': fields.Date.today() + timedelta(days=5)
+            })
+            _logger.info(f"Actividad creada para el usuario {usuario.name}")
+        except Exception as e:
+            _logger.error(f"Error creando actividad: {str(e)}")
     def _crear_nota_vencimiento(self, dias_restantes):
         """Crea una nota en el chatter sobre el vencimiento próximo"""
         self.message_post(
