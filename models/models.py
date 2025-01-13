@@ -592,6 +592,25 @@ class CopierCompany(models.Model):
         except Exception as e:
             _logger.error(f"Error durante la renovación del contrato: {str(e)}")
             raise UserError(f"Error al renovar el contrato: {str(e)}")
+
+
+     # Agregar el nuevo campo para plan compartido
+    volumen_compartido_id = fields.Many2one(
+        'copier.volumen.compartido',
+        string='Plan de Volumen Compartido',
+        domain="[('cliente_id', '=', cliente_id)]"
+    )
+    
+    usa_volumen_compartido = fields.Boolean(
+        string='Usa Volumen Compartido',
+        compute='_compute_usa_volumen_compartido',
+        store=True
+    )
+
+    @api.depends('volumen_compartido_id')
+    def _compute_usa_volumen_compartido(self):
+        for record in self:
+            record.usa_volumen_compartido = bool(record.volumen_compartido_id)
 class CopierRenewalHistory(models.Model):
     _name = 'copier.renewal.history'
     _description = 'Historial de Renovaciones de Contratos'

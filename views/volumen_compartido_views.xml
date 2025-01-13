@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista de formulario para volumen compartido -->
+    <record id="copier_volumen_compartido_form_view" model="ir.ui.view">
+        <field name="name">copier.volumen.compartido.form</field>
+        <field name="model">copier.volumen.compartido</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="nombre" placeholder="Nombre del Plan"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="cliente_id" options="{'no_create': True}" required="1"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                        <group>
+                            <field name="volumen_mensual_bn"/>
+                            <field name="volumen_mensual_color"/>
+                            <field name="maquinas_count"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Máquinas Asociadas" name="maquinas">
+                            <field name="maquinas_ids" mode="list" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="serie_id"/>
+                                    <field name="ubicacion"/>
+                                    <field name="estado_maquina_id"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" groups="base.group_user"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista de lista para volumen compartido -->
+    <record id="copier_volumen_compartido_list_view" model="ir.ui.view">
+        <field name="name">copier.volumen.compartido.list</field>
+        <field name="model">copier.volumen.compartido</field>
+        <field name="arch" type="xml">
+            <list string="Planes de Volumen Compartido">
+                <field name="nombre"/>
+                <field name="cliente_id"/>
+                <field name="volumen_mensual_bn"/>
+                <field name="volumen_mensual_color"/>
+                <field name="maquinas_count"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista de búsqueda para volumen compartido -->
+    <record id="copier_volumen_compartido_search_view" model="ir.ui.view">
+        <field name="name">copier.volumen.compartido.search</field>
+        <field name="model">copier.volumen.compartido</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="nombre"/>
+                <field name="cliente_id"/>
+                <filter string="Activos" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Inactivos" name="inactive" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Agrupar Por">
+                    <filter name="group_by_cliente" string="Cliente" context="{'group_by': 'cliente_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Acción de ventana para volumen compartido -->
+    <record id="action_copier_volumen_compartido" model="ir.actions.act_window">
+        <field name="name">Planes de Volumen Compartido</field>
+        <field name="res_model">copier.volumen.compartido</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="copier_volumen_compartido_search_view"/>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear un nuevo plan de volumen compartido
+            </p>
+            <p>
+                Los planes de volumen compartido permiten que múltiples máquinas
+                de un mismo cliente compartan un volumen mensual de copias.
+            </p>
+        </field>
+    </record>
+
+    <!-- Vista de formulario actualizada para copier.company -->
+    <record id="view_copier_company_form" model="ir.ui.view">
+        <field name="name">copier.company.form</field>
+        <field name="model">copier.company</field>
+        <field name="arch" type="xml">
+            <form>
+                <!-- Contenido existente -->
+                <group>
+                    <group>
+                        <!-- Campos existentes -->
+                        <field name="volumen_compartido_id" 
+                               options="{'no_create': True}"
+                               domain="[('cliente_id', '=', cliente_id)]"/>
+                        <field name="usa_volumen_compartido" invisible="1"/>
+                        <field name="volumen_mensual_bn" invisible="usa_volumen_compartido"/>
+                        <field name="volumen_mensual_color" invisible="usa_volumen_compartido"/>
+                    </group>
+                    <!-- Resto de los grupos y campos -->
+                </group>
+                <!-- Resto del contenido -->
+            </form>
+        </field>
+    </record>
+
+    <!-- Menú para volumen compartido -->
+    <menuitem id="menu_copier_volumen_compartido"
+              name="Planes Compartidos"
+              action="action_copier_volumen_compartido"
+              parent="menu_ajustes"
+              sequence="30"/>
+</odoo>

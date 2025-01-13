@@ -228,28 +228,68 @@ class CopierCounter(models.Model):
             record.total_copias_bn = (record.contador_actual_bn or 0) - (record.contador_anterior_bn or 0)
             record.total_copias_color = (record.contador_actual_color or 0) - (record.contador_anterior_color or 0)
 
-    @api.depends('total_copias_bn', 'total_copias_color',
-                'maquina_id.volumen_mensual_bn', 'maquina_id.volumen_mensual_color')
+    @api.depends('total_copias_bn', 'total_copias_color', 
+                'maquina_id.volumen_compartido_id')
     def _compute_excesos(self):
         for record in self:
-            record.exceso_bn = max(0, record.total_copias_bn - (record.maquina_id.volumen_mensual_bn or 0))
-            record.exceso_color = max(0, record.total_copias_color - (record.maquina_id.volumen_mensual_color or 0))
+            if record.maquina_id.usa_volumen_compartido:
+                plan = record.maquina_id.volumen_compartido_id
+                
+                # Obtener todas las lecturas del mismo mes para máquinas del plan
+                fecha_inicio = record.fecha_facturacion.replace(day=1)
+                fecha_fin = (fecha_inicio + relativedelta(months=1, days=-1))
+                
+                # Buscar todas las lecturas confirmadas del mes para el mismo plan
+                lecturas_mes = self.search([
+                    ('maquina_id.volumen_compartido_id', '=', plan.id),
+                    ('fecha_facturacion', '>=', fecha_inicio),
+                    ('fecha_facturacion', '<=', fecha_fin),
+                    ('state', '=', 'confirmed')
+                ])
+                
+                # Calcular totales del mes para todas las máquinas
+                total_mes_bn = sum(lecturas_mes.mapped('total_copias_bn'))
+                total_mes_color = sum(lecturas_mes.mapped('total_copias_color'))
+                
+                # Calcular excesos totales
+                exceso_total_bn = max(0, total_mes_bn - plan.volumen_mensual_bn)
+                exceso_total_color = max(0, total_mes_color - plan.volumen_mensual_color)
+                
+                # Calcular la proporción de uso de esta máquina
+                if exceso_total_bn > 0:
+                    proporcion_bn = record.total_copias_bn / total_mes_bn if total_mes_bn else 0
+                    record.exceso_bn = int(exceso_total_bn * proporcion_bn)
+                else:
+                    record.exceso_bn = 0
+                    
+                if exceso_total_color > 0:
+                    proporcion_color = record.total_copias_color / total_mes_color if total_mes_color else 0
+                    record.exceso_color = int(exceso_total_color * proporcion_color)
+                else:
+                    record.exceso_color = 0
+            else:
+                # Cálculo normal para máquinas individuales
+                record.exceso_bn = max(0, record.total_copias_bn - record.maquina_id.volumen_mensual_bn)
+                record.exceso_color = max(0, record.total_copias_color - record.maquina_id.volumen_mensual_color)
 
     @api.depends('total_copias_bn', 'total_copias_color',
-                'maquina_id.volumen_mensual_bn', 'maquina_id.volumen_mensual_color')
+                'maquina_id.volumen_compartido_id', 'exceso_bn', 'exceso_color')
     def _compute_facturables(self):
         for record in self:
-            # Para B/N - siempre se factura al menos el volumen mensual
-            record.copias_facturables_bn = max(
-                record.total_copias_bn,
-                record.maquina_id.volumen_mensual_bn or 0
-            )
-            
-            # Para Color - igual que B/N, facturar al menos el volumen mensual
-            record.copias_facturables_color = max(
-                record.total_copias_color,
-                record.maquina_id.volumen_mensual_color or 0
-            )
+            if record.maquina_id.usa_volumen_compartido:
+                # Para planes compartidos, facturamos el total de copias realizadas
+                record.copias_facturables_bn = record.total_copias_bn
+                record.copias_facturables_color = record.total_copias_color
+            else:
+                # Cálculo normal para máquinas individuales
+                record.copias_facturables_bn = max(
+                    record.total_copias_bn,
+                    record.maquina_id.volumen_mensual_bn or 0
+                )
+                record.copias_facturables_color = max(
+                    record.total_copias_color,
+                    record.maquina_id.volumen_mensual_color or 0
+                )
     precios_incluyen_igv = fields.Boolean(
         'Precios Incluyen IGV',
         default=True,
@@ -448,3 +488,41 @@ class ReportCounterReadings(models.AbstractModel):
             'maquinas_color': maquinas_color,
             'total_general': total_general,
         }
+
+
+class CopierVolumenCompartido(models.Model):
+    _name = 'copier.volumen.compartido'
+    _description = 'Volumen Compartido entre Máquinas'
+    _rec_name = 'nombre'
+
+    nombre = fields.Char('Nombre del Plan', required=True)
+    cliente_id = fields.Many2one('res.partner', string='Cliente', required=True)
+    active = fields.Boolean(default=True)
+    
+    # Volúmenes compartidos mensuales
+    volumen_mensual_bn = fields.Integer(
+        string='Volumen Mensual B/N Compartido',
+        help='Cantidad total de copias B/N a compartir entre las máquinas'
+    )
+    volumen_mensual_color = fields.Integer(
+        string='Volumen Mensual Color Compartido',
+        help='Cantidad total de copias color a compartir entre las máquinas'
+    )
+
+    # Campos informativos
+    maquinas_count = fields.Integer(
+        string='Cantidad de Máquinas',
+        compute='_compute_maquinas_count'
+    )
+
+    @api.depends('maquinas_ids')
+    def _compute_maquinas_count(self):
+        for record in self:
+            record.maquinas_count = len(record.maquinas_ids)
+
+    def name_get(self):
+        result = []
+        for record in self:
+            name = f'{record.nombre} - {record.cliente_id.name}'
+            result.append((record.id, name))
+        return result
