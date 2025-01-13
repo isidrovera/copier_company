@@ -594,11 +594,12 @@ class CopierCompany(models.Model):
             raise UserError(f"Error al renovar el contrato: {str(e)}")
 
 
-     # Agregar el nuevo campo para plan compartido
+    # Campo para plan compartido
     volumen_compartido_id = fields.Many2one(
         'copier.volumen.compartido',
         string='Plan de Volumen Compartido',
-        domain="[('cliente_id', '=', cliente_id)]"
+        domain="[('cliente_id', '=', cliente_id)]",
+        tracking=True
     )
     
     usa_volumen_compartido = fields.Boolean(
@@ -611,6 +612,11 @@ class CopierCompany(models.Model):
     def _compute_usa_volumen_compartido(self):
         for record in self:
             record.usa_volumen_compartido = bool(record.volumen_compartido_id)
+
+    @api.onchange('cliente_id')
+    def _onchange_cliente_id(self):
+        if self.cliente_id != self.volumen_compartido_id.cliente_id:
+            self.volumen_compartido_id = False
 class CopierRenewalHistory(models.Model):
     _name = 'copier.renewal.history'
     _description = 'Historial de Renovaciones de Contratos'

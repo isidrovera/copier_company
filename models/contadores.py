@@ -509,10 +509,18 @@ class CopierVolumenCompartido(models.Model):
         help='Cantidad total de copias color a compartir entre las máquinas'
     )
 
-    # Campos informativos
+    # Relación con las máquinas (One2many)
+    maquinas_ids = fields.One2many(
+        'copier.company',
+        'volumen_compartido_id',
+        string='Máquinas en el Plan'
+    )
+
+    # Campo computado para contar máquinas
     maquinas_count = fields.Integer(
         string='Cantidad de Máquinas',
-        compute='_compute_maquinas_count'
+        compute='_compute_maquinas_count',
+        store=True
     )
 
     @api.depends('maquinas_ids')
