@@ -493,30 +493,30 @@ class ReportCounterReadings(models.AbstractModel):
 class CopierVolumenCompartido(models.Model):
     _name = 'copier.volumen.compartido'
     _description = 'Volumen Compartido entre Máquinas'
+    _inherit = ['mail.thread']
     _rec_name = 'nombre'
 
-    nombre = fields.Char('Nombre del Plan', required=True)
-    cliente_id = fields.Many2one('res.partner', string='Cliente', required=True)
-    active = fields.Boolean(default=True)
+    nombre = fields.Char('Nombre del Plan', required=True, tracking=True)
+    cliente_id = fields.Many2one('res.partner', string='Cliente', required=True, tracking=True)
+    active = fields.Boolean(default=True, tracking=True)
     
-    # Volúmenes compartidos mensuales
     volumen_mensual_bn = fields.Integer(
         string='Volumen Mensual B/N Compartido',
-        help='Cantidad total de copias B/N a compartir entre las máquinas'
+        help='Cantidad total de copias B/N a compartir entre las máquinas',
+        tracking=True
     )
     volumen_mensual_color = fields.Integer(
         string='Volumen Mensual Color Compartido',
-        help='Cantidad total de copias color a compartir entre las máquinas'
+        help='Cantidad total de copias color a compartir entre las máquinas',
+        tracking=True
     )
 
-    # Relación con las máquinas (One2many)
     maquinas_ids = fields.One2many(
         'copier.company',
         'volumen_compartido_id',
         string='Máquinas en el Plan'
     )
 
-    # Campo computado para contar máquinas
     maquinas_count = fields.Integer(
         string='Cantidad de Máquinas',
         compute='_compute_maquinas_count',
@@ -534,3 +534,18 @@ class CopierVolumenCompartido(models.Model):
             name = f'{record.nombre} - {record.cliente_id.name}'
             result.append((record.id, name))
         return result
+
+    @api.model
+    def _get_thread_with_access(self, res_id, access_token=False, **kwargs):
+        """ Implementación del método requerido por el sistema de mensajería """
+        if not res_id:
+            return False
+        try:
+            record = self.browse(int(res_id)).exists()
+            if not record:
+                return False
+            record.check_access_rights('read')
+            record.check_access_rule('read')
+            return record
+        except AccessError:
+            return False
