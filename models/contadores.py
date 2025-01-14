@@ -72,11 +72,11 @@ class CopierCounter(models.Model):
             precio_bn = record.precio_bn / 1.18 if record.precio_bn_incluye_igv else record.precio_bn
             precio_color = record.precio_color / 1.18 if record.precio_color_incluye_igv else record.precio_color
 
-            subtotal_bn = record.copias_facturables_bn * precio_bn
-            subtotal_color = record.copias_facturables_color * precio_color
+            subtotal_bn = record.total_copias_bn * precio_bn
+            subtotal_color = record.total_copias_color * precio_color
             subtotal = subtotal_bn + subtotal_color
 
-            igv = subtotal * 0.18
+            igv = subtotal * 0.18 if not record.precios_incluyen_igv else 0
             total = subtotal + igv
 
             record.subtotal = subtotal
@@ -102,7 +102,6 @@ class CopierCounter(models.Model):
                 record.exceso_bn = int(exceso_bn * proporcion_bn)
             else:
                 record.exceso_bn = max(0, record.total_copias_bn - record.maquina_id.volumen_mensual_bn)
-
 
 
     def action_confirm(self):
