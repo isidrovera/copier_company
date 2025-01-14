@@ -273,13 +273,38 @@ class CopierCounter(models.Model):
                 record.exceso_color = max(0, record.total_copias_color - record.maquina_id.volumen_mensual_color)
 
     @api.depends('total_copias_bn', 'total_copias_color', 
-                'maquina_id.volumen_compartido_id', 'exceso_bn', 'exceso_color')
+                'maquina_id.volumen_compartido_id')
     def _compute_facturables(self):
         for record in self:
             if record.maquina_id.usar_volumen_compartido and record.maquina_id.volumen_compartido_id:
-                # Para planes compartidos, facturamos el total de copias realizadas
-                record.copias_facturables_bn = record.total_copias_bn
-                record.copias_facturables_color = record.total_copias_color
+                plan = record.maquina_id.volumen_compartido_id
+                
+                # Obtener todas las lecturas del mismo mes para máquinas del plan
+                fecha_inicio = record.fecha_facturacion.replace(day=1)
+                fecha_fin = (fecha_inicio + relativedelta(months=1, days=-1))
+                
+                lecturas_mes = self.search([
+                    ('maquina_id.volumen_compartido_id', '=', plan.id),
+                    ('fecha_facturacion', '>=', fecha_inicio),
+                    ('fecha_facturacion', '<=', fecha_fin),
+                    ('state', '=', 'confirmed')
+                ])
+                
+                # Distribuir el volumen compartido proporcionalmente
+                total_bn_grupo = sum(lecturas_mes.mapped('total_copias_bn'))
+                total_color_grupo = sum(lecturas_mes.mapped('total_copias_color'))
+                
+                if total_bn_grupo > 0:
+                    proporcion_bn = record.total_copias_bn / total_bn_grupo
+                    record.copias_facturables_bn = int(plan.volumen_mensual_bn * proporcion_bn)
+                else:
+                    record.copias_facturables_bn = record.total_copias_bn
+                
+                if total_color_grupo > 0:
+                    proporcion_color = record.total_copias_color / total_color_grupo
+                    record.copias_facturables_color = int(plan.volumen_mensual_color * proporcion_color)
+                else:
+                    record.copias_facturables_color = record.total_copias_color
             else:
                 # Cálculo normal para máquinas individuales
                 record.copias_facturables_bn = max(
@@ -307,36 +332,21 @@ class CopierCounter(models.Model):
     )
 
     @api.depends('copias_facturables_bn', 'copias_facturables_color',
-                'precio_bn', 'precio_color',
-                'precio_bn_incluye_igv', 'precio_color_incluye_igv')
+                'precio_bn', 'precio_color')
     def _compute_totales(self):
         for record in self:
-            # Cálculo B/N
-            if record.precio_bn_incluye_igv:
-                # Si el precio ya incluye IGV, calculamos el subtotal sin IGV
-                precio_bn_sin_igv = record.precio_bn / 1.18
-                subtotal_bn = record.copias_facturables_bn * precio_bn_sin_igv
-                total_bn = record.copias_facturables_bn * record.precio_bn
-            else:
-                # Si el precio no incluye IGV, calculamos normalmente
-                subtotal_bn = record.copias_facturables_bn * record.precio_bn
-                total_bn = subtotal_bn * 1.18
-
-            # Cálculo Color
-            if record.precio_color_incluye_igv:
-                # Si el precio ya incluye IGV, calculamos el subtotal sin IGV
-                precio_color_sin_igv = record.precio_color / 1.18
-                subtotal_color = record.copias_facturables_color * precio_color_sin_igv
-                total_color = record.copias_facturables_color * record.precio_color
-            else:
-                # Si el precio no incluye IGV, calculamos normalmente
-                subtotal_color = record.copias_facturables_color * record.precio_color
-                total_color = subtotal_color * 1.18
+            # Cálculo B/N (sin IGV)
+            subtotal_bn = record.copias_facturables_bn * record.precio_bn
+            total_bn = subtotal_bn * 1.18
+            
+            # Cálculo Color (con IGV incluido)
+            total_color = record.copias_facturables_color * record.precio_color
+            subtotal_color = total_color
 
             # Asignar valores
             record.subtotal = subtotal_bn + subtotal_color
             record.total_sin_igv = subtotal_bn + subtotal_color
-            record.igv = (total_bn + total_color) - (subtotal_bn + subtotal_color)
+            record.igv = total_bn - subtotal_bn
             record.total = total_bn + total_color
 
     def action_confirm(self):
