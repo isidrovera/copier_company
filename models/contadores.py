@@ -68,7 +68,6 @@ class CopierCounter(models.Model):
     @api.depends('total_copias_bn', 'total_copias_color', 'precio_bn', 'precio_color', 'precio_bn_incluye_igv', 'precio_color_incluye_igv')
     def _compute_totales(self):
         for record in self:
-            # Calcular precios según inclusión de IGV
             precio_bn = record.precio_bn / 1.18 if record.precio_bn_incluye_igv else record.precio_bn
             precio_color = record.precio_color / 1.18 if record.precio_color_incluye_igv else record.precio_color
 
@@ -83,19 +82,24 @@ class CopierCounter(models.Model):
             record.igv = igv
             record.total = total
 
-    @api.depends('total_copias_bn', 'total_copias_color', 'maquina_id.volumen_compartido_id')
+    @api.depends('total_copias_bn', 'total_copias_color', 'maquina_id.volumen_compartido_id', 'cliente_id')
     def _compute_excesos(self):
         for record in self:
-            if record.maquina_id.usar_volumen_compartido:
-                plan = record.maquina_id.volumen_compartido_id
+            plan = record.maquina_id.volumen_compartido_id or self.env['copier.volumen.compartido'].search([
+                ('cliente_id', '=', record.cliente_id.id), ('active', '=', True)
+            ], limit=1)
+
+            if plan:
                 fecha_inicio = record.fecha_facturacion.replace(day=1)
                 fecha_fin = (fecha_inicio + relativedelta(months=1, days=-1))
+
                 lecturas_mes = self.search([
                     ('maquina_id.volumen_compartido_id', '=', plan.id),
                     ('fecha_facturacion', '>=', fecha_inicio),
                     ('fecha_facturacion', '<=', fecha_fin),
                     ('state', '=', 'confirmed')
                 ])
+
                 total_bn = sum(lecturas_mes.mapped('total_copias_bn'))
                 exceso_bn = max(0, total_bn - plan.volumen_mensual_bn)
                 proporcion_bn = record.total_copias_bn / total_bn if total_bn else 0
