@@ -42,6 +42,17 @@ class CopierCounter(models.Model):
     subtotal = fields.Monetary('Subtotal', compute='_compute_totales', store=True, currency_field='currency_id')
     igv = fields.Monetary('IGV (18%)', compute='_compute_totales', store=True, currency_field='currency_id')
     total = fields.Monetary('Total', compute='_compute_totales', store=True, currency_field='currency_id')
+    precio_bn_incluye_igv = fields.Boolean(
+    string='Precio B/N incluye IGV',
+    default=True,
+    help='Indica si el precio por copia B/N incluye IGV'
+)
+
+    precio_color_incluye_igv = fields.Boolean(
+        string='Precio Color incluye IGV',
+        default=True,
+        help='Indica si el precio por copia Color incluye IGV'
+    )
 
     state = fields.Selection([
         ('draft', 'Borrador'),
