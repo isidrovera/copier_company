@@ -89,13 +89,17 @@ class CopierCounter(models.Model):
         record.total = total
 
 
-    @api.depends('total_copias_bn', 'maquina_id.volumen_compartido_id')
+    @api.depends('total_copias_bn', 'maquina_id.volumen_compartido_id', 'cliente_id')
     def _compute_excesos(self):
         for record in self:
-            plan = record.maquina_id.volumen_compartido_id
+            # 1. Verificar si el equipo o el cliente tiene volumen compartido
+            plan = record.maquina_id.volumen_compartido_id or self.env['copier.volumen.compartido'].search([
+                ('cliente_id', '=', record.cliente_id.id), 
+                ('active', '=', True)
+            ], limit=1)
 
             if plan:
-                # Sumar todas las copias B/N de las máquinas del mismo plan
+                # 2. Sumar todas las copias B/N de las máquinas del plan
                 fecha_inicio = record.fecha_facturacion.replace(day=1)
                 fecha_fin = (fecha_inicio + relativedelta(months=1, days=-1))
 
@@ -108,14 +112,20 @@ class CopierCounter(models.Model):
 
                 total_bn_grupo = sum(lecturas_mes.mapped('total_copias_bn'))
 
-                # Calcular exceso
-                exceso_total_bn = max(0, total_bn_grupo - plan.volumen_mensual_bn)
-
-                # Distribuir exceso proporcionalmente
-                proporcion_bn = record.total_copias_bn / total_bn_grupo if total_bn_grupo else 0
-                record.exceso_bn = int(exceso_total_bn * proporcion_bn)
+                # 3. Comparar con el volumen contratado
+                if total_bn_grupo <= plan.volumen_mensual_bn:
+                    # Cobrar el volumen contratado aunque no se consuma
+                    record.copias_facturables_bn = int((plan.volumen_mensual_bn / len(plan.maquinas_ids)))
+                    record.exceso_bn = 0
+                else:
+                    # Si excede, calcular el exceso proporcionalmente
+                    exceso_total_bn = total_bn_grupo - plan.volumen_mensual_bn
+                    proporcion_bn = record.total_copias_bn / total_bn_grupo if total_bn_grupo else 0
+                    record.copias_facturables_bn = record.total_copias_bn
+                    record.exceso_bn = int(exceso_total_bn * proporcion_bn)
             else:
-                # Si no está en volumen compartido, cálculo individual
+                # Si no hay plan compartido, cálculo individual
+                record.copias_facturables_bn = max(record.total_copias_bn, record.maquina_id.volumen_mensual_bn)
                 record.exceso_bn = max(0, record.total_copias_bn - record.maquina_id.volumen_mensual_bn)
 
 
