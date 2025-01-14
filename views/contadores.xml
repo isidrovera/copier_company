@@ -153,9 +153,13 @@
                         </group>
                         <group>
                             <field name="precio_bn" />
+                            <field name="precio_bn_incluye_igv" widget="boolean_toggle"/>
                             <field name="precio_color" />
+                            <field name="precio_color_incluye_igv" widget="boolean_toggle"/>
                             <field name="currency_id" invisible="1" />
                         </group>
+                        
+                        
                     </group>
                     <notebook>
                         <page string="Contadores B/N" name="contadores_bn">

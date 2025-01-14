@@ -295,27 +295,49 @@ class CopierCounter(models.Model):
         default=True,
         help="Si está marcado, los precios ya incluyen IGV y se calculará el monto base dividiendo entre 1.18"
     )
+    precio_bn_incluye_igv = fields.Boolean(
+        string='Precio B/N incluye IGV',
+        default=True,
+        help='Marcar si el precio B/N ya incluye IGV'
+    )
+    precio_color_incluye_igv = fields.Boolean(
+        string='Precio Color incluye IGV',
+        default=False,
+        help='Marcar si el precio Color ya incluye IGV'
+    )
+
     @api.depends('copias_facturables_bn', 'copias_facturables_color',
-                'precio_bn', 'precio_color', 'precios_incluyen_igv')
+                'precio_bn', 'precio_color',
+                'precio_bn_incluye_igv', 'precio_color_incluye_igv')
     def _compute_totales(self):
         for record in self:
-            # Calcular subtotal (suma de B/N y Color)
-            subtotal_bn = record.copias_facturables_bn * record.precio_bn
-            subtotal_color = record.copias_facturables_color * record.precio_color
-            subtotal_bruto = subtotal_bn + subtotal_color
-
-            if record.precios_incluyen_igv:
-                # Si los precios incluyen IGV
-                record.subtotal = subtotal_bruto
-                record.total_sin_igv = subtotal_bruto / 1.18
-                record.igv = record.subtotal - record.total_sin_igv
-                record.total = record.subtotal
+            # Cálculo B/N
+            if record.precio_bn_incluye_igv:
+                # Si el precio ya incluye IGV, calculamos el subtotal sin IGV
+                precio_bn_sin_igv = record.precio_bn / 1.18
+                subtotal_bn = record.copias_facturables_bn * precio_bn_sin_igv
+                total_bn = record.copias_facturables_bn * record.precio_bn
             else:
-                # Si los precios NO incluyen IGV
-                record.total_sin_igv = subtotal_bruto
-                record.subtotal = subtotal_bruto
-                record.igv = subtotal_bruto * 0.18
-                record.total = subtotal_bruto * 1.18
+                # Si el precio no incluye IGV, calculamos normalmente
+                subtotal_bn = record.copias_facturables_bn * record.precio_bn
+                total_bn = subtotal_bn * 1.18
+
+            # Cálculo Color
+            if record.precio_color_incluye_igv:
+                # Si el precio ya incluye IGV, calculamos el subtotal sin IGV
+                precio_color_sin_igv = record.precio_color / 1.18
+                subtotal_color = record.copias_facturables_color * precio_color_sin_igv
+                total_color = record.copias_facturables_color * record.precio_color
+            else:
+                # Si el precio no incluye IGV, calculamos normalmente
+                subtotal_color = record.copias_facturables_color * record.precio_color
+                total_color = subtotal_color * 1.18
+
+            # Asignar valores
+            record.subtotal = subtotal_bn + subtotal_color
+            record.total_sin_igv = subtotal_bn + subtotal_color
+            record.igv = (total_bn + total_color) - (subtotal_bn + subtotal_color)
+            record.total = total_bn + total_color
 
     def action_confirm(self):
         self.ensure_one()
