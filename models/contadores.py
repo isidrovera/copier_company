@@ -232,7 +232,7 @@ class CopierCounter(models.Model):
                 'maquina_id.volumen_compartido_id')
     def _compute_excesos(self):
         for record in self:
-            if record.maquina_id.usa_volumen_compartido:
+            if record.maquina_id.usar_volumen_compartido and record.maquina_id.volumen_compartido_id:
                 plan = record.maquina_id.volumen_compartido_id
                 
                 # Obtener todas las lecturas del mismo mes para máquinas del plan
@@ -272,11 +272,11 @@ class CopierCounter(models.Model):
                 record.exceso_bn = max(0, record.total_copias_bn - record.maquina_id.volumen_mensual_bn)
                 record.exceso_color = max(0, record.total_copias_color - record.maquina_id.volumen_mensual_color)
 
-    @api.depends('total_copias_bn', 'total_copias_color',
+    @api.depends('total_copias_bn', 'total_copias_color', 
                 'maquina_id.volumen_compartido_id', 'exceso_bn', 'exceso_color')
     def _compute_facturables(self):
         for record in self:
-            if record.maquina_id.usa_volumen_compartido:
+            if record.maquina_id.usar_volumen_compartido and record.maquina_id.volumen_compartido_id:
                 # Para planes compartidos, facturamos el total de copias realizadas
                 record.copias_facturables_bn = record.total_copias_bn
                 record.copias_facturables_color = record.total_copias_color
