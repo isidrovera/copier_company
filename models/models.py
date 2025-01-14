@@ -592,6 +592,66 @@ class CopierCompany(models.Model):
         except Exception as e:
             _logger.error(f"Error durante la renovación del contrato: {str(e)}")
             raise UserError(f"Error al renovar el contrato: {str(e)}")
+
+
+    # Campos para manejo de volumen compartido
+    volumen_compartido_id = fields.Many2one(
+        'copier.volumen.compartido',
+        string='Plan de Volumen Compartido',
+        domain="[('cliente_id', '=', cliente_id)]",
+        tracking=True
+    )
+    
+    usar_volumen_compartido = fields.Boolean(
+        string='Usar Volumen Compartido',
+        default=False,
+        tracking=True,
+        help='Activar para usar el plan de volumen compartido'
+    )
+
+    # Campos computados para volúmenes efectivos
+    volumen_efectivo_bn = fields.Integer(
+        string='Volumen Efectivo B/N',
+        compute='_compute_volumenes_efectivos',
+        store=True,
+        help='Volumen efectivo a considerar (individual o compartido)'
+    )
+
+    volumen_efectivo_color = fields.Integer(
+        string='Volumen Efectivo Color',
+        compute='_compute_volumenes_efectivos',
+        store=True,
+        help='Volumen efectivo a considerar (individual o compartido)'
+    )
+
+    @api.depends('usar_volumen_compartido', 'volumen_compartido_id', 
+                'volumen_mensual_bn', 'volumen_mensual_color')
+    def _compute_volumenes_efectivos(self):
+        for record in self:
+            if record.usar_volumen_compartido and record.volumen_compartido_id:
+                record.volumen_efectivo_bn = record.volumen_compartido_id.volumen_mensual_bn
+                record.volumen_efectivo_color = record.volumen_compartido_id.volumen_mensual_color
+            else:
+                record.volumen_efectivo_bn = record.volumen_mensual_bn
+                record.volumen_efectivo_color = record.volumen_mensual_color
+
+    @api.onchange('cliente_id')
+    def _onchange_cliente_id(self):
+        # Limpiar el plan compartido si cambia el cliente
+        self.volumen_compartido_id = False
+        self.usar_volumen_compartido = False
+
+    @api.onchange('volumen_compartido_id')
+    def _onchange_volumen_compartido(self):
+        if self.volumen_compartido_id:
+            self.usar_volumen_compartido = True
+        else:
+            self.usar_volumen_compartido = False
+
+    @api.onchange('usar_volumen_compartido')
+    def _onchange_usar_volumen_compartido(self):
+        if not self.usar_volumen_compartido:
+            self.volumen_compartido_id = False
 class CopierRenewalHistory(models.Model):
     _name = 'copier.renewal.history'
     _description = 'Historial de Renovaciones de Contratos'

@@ -228,54 +228,136 @@ class CopierCounter(models.Model):
             record.total_copias_bn = (record.contador_actual_bn or 0) - (record.contador_anterior_bn or 0)
             record.total_copias_color = (record.contador_actual_color or 0) - (record.contador_anterior_color or 0)
 
-    @api.depends('total_copias_bn', 'total_copias_color',
-                'maquina_id.volumen_mensual_bn', 'maquina_id.volumen_mensual_color')
+    @api.depends('total_copias_bn', 'total_copias_color', 
+                'maquina_id.volumen_compartido_id')
     def _compute_excesos(self):
         for record in self:
-            record.exceso_bn = max(0, record.total_copias_bn - (record.maquina_id.volumen_mensual_bn or 0))
-            record.exceso_color = max(0, record.total_copias_color - (record.maquina_id.volumen_mensual_color or 0))
+            if record.maquina_id.usar_volumen_compartido and record.maquina_id.volumen_compartido_id:
+                plan = record.maquina_id.volumen_compartido_id
+                
+                # Obtener todas las lecturas del mismo mes para máquinas del plan
+                fecha_inicio = record.fecha_facturacion.replace(day=1)
+                fecha_fin = (fecha_inicio + relativedelta(months=1, days=-1))
+                
+                # Buscar todas las lecturas confirmadas del mes para el mismo plan
+                lecturas_mes = self.search([
+                    ('maquina_id.volumen_compartido_id', '=', plan.id),
+                    ('fecha_facturacion', '>=', fecha_inicio),
+                    ('fecha_facturacion', '<=', fecha_fin),
+                    ('state', '=', 'confirmed')
+                ])
+                
+                # Calcular totales del mes para todas las máquinas
+                total_mes_bn = sum(lecturas_mes.mapped('total_copias_bn'))
+                total_mes_color = sum(lecturas_mes.mapped('total_copias_color'))
+                
+                # Calcular excesos totales
+                exceso_total_bn = max(0, total_mes_bn - plan.volumen_mensual_bn)
+                exceso_total_color = max(0, total_mes_color - plan.volumen_mensual_color)
+                
+                # Calcular la proporción de uso de esta máquina
+                if exceso_total_bn > 0:
+                    proporcion_bn = record.total_copias_bn / total_mes_bn if total_mes_bn else 0
+                    record.exceso_bn = int(exceso_total_bn * proporcion_bn)
+                else:
+                    record.exceso_bn = 0
+                    
+                if exceso_total_color > 0:
+                    proporcion_color = record.total_copias_color / total_mes_color if total_mes_color else 0
+                    record.exceso_color = int(exceso_total_color * proporcion_color)
+                else:
+                    record.exceso_color = 0
+            else:
+                # Cálculo normal para máquinas individuales
+                record.exceso_bn = max(0, record.total_copias_bn - record.maquina_id.volumen_mensual_bn)
+                record.exceso_color = max(0, record.total_copias_color - record.maquina_id.volumen_mensual_color)
 
-    @api.depends('total_copias_bn', 'total_copias_color',
-                'maquina_id.volumen_mensual_bn', 'maquina_id.volumen_mensual_color')
+    @api.depends('total_copias_bn', 'total_copias_color', 
+                'maquina_id.volumen_compartido_id')
     def _compute_facturables(self):
         for record in self:
-            # Para B/N - siempre se factura al menos el volumen mensual
-            record.copias_facturables_bn = max(
-                record.total_copias_bn,
-                record.maquina_id.volumen_mensual_bn or 0
-            )
-            
-            # Para Color - igual que B/N, facturar al menos el volumen mensual
-            record.copias_facturables_color = max(
-                record.total_copias_color,
-                record.maquina_id.volumen_mensual_color or 0
-            )
+            if record.maquina_id.usar_volumen_compartido and record.maquina_id.volumen_compartido_id:
+                plan = record.maquina_id.volumen_compartido_id
+                
+                # Obtener todas las lecturas del mismo mes para máquinas del plan
+                fecha_inicio = record.fecha_facturacion.replace(day=1)
+                fecha_fin = (fecha_inicio + relativedelta(months=1, days=-1))
+                
+                lecturas_mes = self.search([
+                    ('maquina_id.volumen_compartido_id', '=', plan.id),
+                    ('fecha_facturacion', '>=', fecha_inicio),
+                    ('fecha_facturacion', '<=', fecha_fin),
+                    ('state', 'in', ['draft', 'confirmed'])
+                ])
+                
+                # Total de copias del grupo
+                total_bn_grupo = sum(lecturas_mes.mapped('total_copias_bn'))
+                total_color_grupo = sum(lecturas_mes.mapped('total_copias_color'))
+                
+                # Volúmenes del plan
+                volumen_bn = plan.volumen_mensual_bn or 0
+                volumen_color = plan.volumen_mensual_color or 0
+                
+                # Cálculo B/N
+                if total_bn_grupo > 0:
+                    if total_bn_grupo > volumen_bn:
+                        proporcion = record.total_copias_bn / total_bn_grupo
+                        record.copias_facturables_bn = int(volumen_bn * proporcion)
+                    else:
+                        record.copias_facturables_bn = record.total_copias_bn
+                else:
+                    record.copias_facturables_bn = 0
+
+                # Cálculo Color
+                if total_color_grupo > 0 and volumen_color > 0:
+                    if total_color_grupo > volumen_color:
+                        proporcion = record.total_copias_color / total_color_grupo
+                        record.copias_facturables_color = int(volumen_color * proporcion)
+                    else:
+                        record.copias_facturables_color = record.total_copias_color
+                else:
+                    record.copias_facturables_color = record.total_copias_color
+            else:
+                record.copias_facturables_bn = record.total_copias_bn
+                record.copias_facturables_color = record.total_copias_color
+
     precios_incluyen_igv = fields.Boolean(
         'Precios Incluyen IGV',
         default=True,
         help="Si está marcado, los precios ya incluyen IGV y se calculará el monto base dividiendo entre 1.18"
     )
+    precio_bn_incluye_igv = fields.Boolean(
+        string='Precio B/N incluye IGV',
+        default=True,
+        help='Marcar si el precio B/N ya incluye IGV'
+    )
+    precio_color_incluye_igv = fields.Boolean(
+        string='Precio Color incluye IGV',
+        default=False,
+        help='Marcar si el precio Color ya incluye IGV'
+    )
+
     @api.depends('copias_facturables_bn', 'copias_facturables_color',
-                'precio_bn', 'precio_color', 'precios_incluyen_igv')
+                'precio_bn', 'precio_color')
     def _compute_totales(self):
         for record in self:
-            # Calcular subtotal (suma de B/N y Color)
+            # Cálculo B/N (sin IGV)
+            exceso_bn = max(0, record.total_copias_bn - record.copias_facturables_bn)
+            
             subtotal_bn = record.copias_facturables_bn * record.precio_bn
-            subtotal_color = record.copias_facturables_color * record.precio_color
-            subtotal_bruto = subtotal_bn + subtotal_color
+            subtotal_exceso_bn = exceso_bn * record.precio_bn
+            total_bn = (subtotal_bn + subtotal_exceso_bn) * 1.18
+            
+            # Cálculo Color (con IGV incluido)
+            exceso_color = max(0, record.total_copias_color - record.copias_facturables_color)
+            total_color = (record.copias_facturables_color + exceso_color) * record.precio_color
+            subtotal_color = total_color / 1.18
 
-            if record.precios_incluyen_igv:
-                # Si los precios incluyen IGV
-                record.subtotal = subtotal_bruto
-                record.total_sin_igv = subtotal_bruto / 1.18
-                record.igv = record.subtotal - record.total_sin_igv
-                record.total = record.subtotal
-            else:
-                # Si los precios NO incluyen IGV
-                record.total_sin_igv = subtotal_bruto
-                record.subtotal = subtotal_bruto
-                record.igv = subtotal_bruto * 0.18
-                record.total = subtotal_bruto * 1.18
+            # Asignar valores
+            record.subtotal = subtotal_bn + subtotal_exceso_bn + subtotal_color
+            record.total_sin_igv = record.subtotal
+            record.igv = total_bn - (subtotal_bn + subtotal_exceso_bn)
+            record.total = total_bn + total_color
 
     def action_confirm(self):
         self.ensure_one()
@@ -448,3 +530,64 @@ class ReportCounterReadings(models.AbstractModel):
             'maquinas_color': maquinas_color,
             'total_general': total_general,
         }
+
+
+class CopierVolumenCompartido(models.Model):
+    _name = 'copier.volumen.compartido'
+    _description = 'Volumen Compartido entre Máquinas'
+    _inherit = ['mail.thread']
+    _rec_name = 'nombre'
+
+    nombre = fields.Char('Nombre del Plan', required=True, tracking=True)
+    cliente_id = fields.Many2one('res.partner', string='Cliente', required=True, tracking=True)
+    active = fields.Boolean(default=True, tracking=True)
+    
+    volumen_mensual_bn = fields.Integer(
+        string='Volumen Mensual B/N Compartido',
+        help='Cantidad total de copias B/N a compartir entre las máquinas',
+        tracking=True
+    )
+    volumen_mensual_color = fields.Integer(
+        string='Volumen Mensual Color Compartido',
+        help='Cantidad total de copias color a compartir entre las máquinas',
+        tracking=True
+    )
+
+    maquinas_ids = fields.One2many(
+        'copier.company',
+        'volumen_compartido_id',
+        string='Máquinas en el Plan'
+    )
+
+    maquinas_count = fields.Integer(
+        string='Cantidad de Máquinas',
+        compute='_compute_maquinas_count',
+        store=True
+    )
+
+    @api.depends('maquinas_ids')
+    def _compute_maquinas_count(self):
+        for record in self:
+            record.maquinas_count = len(record.maquinas_ids)
+
+    def name_get(self):
+        result = []
+        for record in self:
+            name = f'{record.nombre} - {record.cliente_id.name}'
+            result.append((record.id, name))
+        return result
+
+    @api.model
+    def _get_thread_with_access(self, res_id, access_token=False, **kwargs):
+        """ Implementación del método requerido por el sistema de mensajería """
+        if not res_id:
+            return False
+        try:
+            record = self.browse(int(res_id)).exists()
+            if not record:
+                return False
+            record.check_access_rights('read')
+            record.check_access_rule('read')
+            return record
+        except AccessError:
+            return False
