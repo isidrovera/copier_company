@@ -7,6 +7,7 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
+
 class CopierCounter(models.Model):
     _name = 'copier.counter'
     _description = 'Control de Contadores de Máquinas'
@@ -38,21 +39,12 @@ class CopierCounter(models.Model):
     precio_color = fields.Monetary('Precio Color', related='maquina_id.costo_copia_color', readonly=True, currency_field='currency_id')
 
     precios_incluyen_igv = fields.Boolean('Precios Incluyen IGV', default=True)
+    precio_bn_incluye_igv = fields.Boolean('Precio B/N incluye IGV', default=True)
+    precio_color_incluye_igv = fields.Boolean('Precio Color incluye IGV', default=True)
     total_sin_igv = fields.Monetary('Total sin IGV', compute='_compute_totales', store=True, currency_field='currency_id')
     subtotal = fields.Monetary('Subtotal', compute='_compute_totales', store=True, currency_field='currency_id')
     igv = fields.Monetary('IGV (18%)', compute='_compute_totales', store=True, currency_field='currency_id')
     total = fields.Monetary('Total', compute='_compute_totales', store=True, currency_field='currency_id')
-    precio_bn_incluye_igv = fields.Boolean(
-    string='Precio B/N incluye IGV',
-    default=True,
-    help='Indica si el precio por copia B/N incluye IGV'
-)
-
-    precio_color_incluye_igv = fields.Boolean(
-        string='Precio Color incluye IGV',
-        default=True,
-        help='Indica si el precio por copia Color incluye IGV'
-    )
 
     state = fields.Selection([
         ('draft', 'Borrador'),
@@ -73,21 +65,21 @@ class CopierCounter(models.Model):
             record.total_copias_bn = max(0, record.contador_actual_bn - record.contador_anterior_bn)
             record.total_copias_color = max(0, record.contador_actual_color - record.contador_anterior_color)
 
-    @api.depends('total_copias_bn', 'total_copias_color', 'precio_bn', 'precio_color', 'precios_incluyen_igv')
+    @api.depends('total_copias_bn', 'total_copias_color', 'precio_bn', 'precio_color', 'precio_bn_incluye_igv', 'precio_color_incluye_igv')
     def _compute_totales(self):
         for record in self:
-            subtotal_bn = record.copias_facturables_bn * record.precio_bn
-            subtotal_color = record.copias_facturables_color * record.precio_color
+            # Calcular precios según inclusión de IGV
+            precio_bn = record.precio_bn / 1.18 if record.precio_bn_incluye_igv else record.precio_bn
+            precio_color = record.precio_color / 1.18 if record.precio_color_incluye_igv else record.precio_color
+
+            subtotal_bn = record.copias_facturables_bn * precio_bn
+            subtotal_color = record.copias_facturables_color * precio_color
             subtotal = subtotal_bn + subtotal_color
-            if record.precios_incluyen_igv:
-                base_imponible = subtotal / 1.18
-                igv = subtotal - base_imponible
-                total = subtotal
-            else:
-                base_imponible = subtotal
-                igv = subtotal * 0.18
-                total = subtotal + igv
-            record.subtotal = base_imponible
+
+            igv = subtotal * 0.18
+            total = subtotal + igv
+
+            record.subtotal = subtotal
             record.igv = igv
             record.total = total
 
@@ -105,15 +97,11 @@ class CopierCounter(models.Model):
                     ('state', '=', 'confirmed')
                 ])
                 total_bn = sum(lecturas_mes.mapped('total_copias_bn'))
-                total_color = sum(lecturas_mes.mapped('total_copias_color'))
                 exceso_bn = max(0, total_bn - plan.volumen_mensual_bn)
-                exceso_color = max(0, total_color - plan.volumen_mensual_color)
-                record.exceso_bn = exceso_bn
-                record.exceso_color = exceso_color
+                proporcion_bn = record.total_copias_bn / total_bn if total_bn else 0
+                record.exceso_bn = int(exceso_bn * proporcion_bn)
             else:
                 record.exceso_bn = max(0, record.total_copias_bn - record.maquina_id.volumen_mensual_bn)
-                record.exceso_color = max(0, record.total_copias_color - record.maquina_id.volumen_mensual_color)
-
 
 
 
