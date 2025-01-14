@@ -99,22 +99,6 @@
                     <field name="costo_copia_color" invisible="tipo == 'monocroma'"/>
                     <field name="volumen_mensual_bn"/>
                     <field name="volumen_mensual_color" invisible="tipo == 'monocroma'"/>
-
-                    <field name="usar_volumen_compartido" widget="boolean_toggle"/>
-                        <field name="volumen_compartido_id" 
-                               invisible="not usar_volumen_compartido"
-                               required="usar_volumen_compartido"
-                               options="{'no_create': True}"/>
-                        <field name="volumen_mensual_bn" 
-                               invisible="usar_volumen_compartido"/>
-                        <field name="volumen_mensual_color" 
-                               invisible="usar_volumen_compartido"/>
-                        <field name="volumen_efectivo_bn" 
-                               invisible="not usar_volumen_compartido"
-                               readonly="1"/>
-                        <field name="volumen_efectivo_color" 
-                               invisible="not usar_volumen_compartido"
-                               readonly="1"/>
                   </group>
                   <group string="Totales">
                     <field name="renta_mensual_bn"/>
