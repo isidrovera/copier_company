@@ -90,31 +90,7 @@
                 de un mismo cliente compartan un volumen mensual de copias.
             </p>
         </field>
-    </record>
-
-    <!-- Vista de formulario actualizada para copier.company -->
-    <record id="view_copier_company_form" model="ir.ui.view">
-        <field name="name">copier.company.form</field>
-        <field name="model">copier.company</field>
-        <field name="arch" type="xml">
-            <form>
-                <!-- Contenido existente -->
-                <group>
-                    <group>
-                        <!-- Campos existentes -->
-                        <field name="volumen_compartido_id" 
-                               options="{'no_create': True}"
-                               domain="[('cliente_id', '=', cliente_id)]"/>
-                        <field name="usa_volumen_compartido" invisible="1"/>
-                        <field name="volumen_mensual_bn" invisible="usa_volumen_compartido"/>
-                        <field name="volumen_mensual_color" invisible="usa_volumen_compartido"/>
-                    </group>
-                    <!-- Resto de los grupos y campos -->
-                </group>
-                <!-- Resto del contenido -->
-            </form>
-        </field>
-    </record>
+    </record>  
 
     <!-- Menú para volumen compartido -->
     <menuitem id="menu_copier_volumen_compartido"
