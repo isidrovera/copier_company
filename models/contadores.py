@@ -65,31 +65,38 @@ class CopierCounter(models.Model):
             record.total_copias_bn = max(0, record.contador_actual_bn - record.contador_anterior_bn)
             record.total_copias_color = max(0, record.contador_actual_color - record.contador_anterior_color)
 
-    @api.depends('total_copias_bn', 'total_copias_color', 'precio_bn', 'precio_color', 'precio_bn_incluye_igv', 'precio_color_incluye_igv')
+    @api.depends('copias_facturables_bn', 'exceso_bn', 'precio_bn', 'precio_bn_incluye_igv')
     def _compute_totales(self):
         for record in self:
-            precio_bn = record.precio_bn / 1.18 if record.precio_bn_incluye_igv else record.precio_bn
-            precio_color = record.precio_color / 1.18 if record.precio_color_incluye_igv else record.precio_color
+            # 1. Calcular subtotal de copias facturables
+            subtotal_bn = record.copias_facturables_bn * record.precio_bn
+            subtotal_exceso_bn = record.exceso_bn * record.precio_bn
 
-            subtotal_bn = record.total_copias_bn * precio_bn
-            subtotal_color = record.total_copias_color * precio_color
-            subtotal = subtotal_bn + subtotal_color
+            # 2. Sumar subtotal
+            subtotal = subtotal_bn + subtotal_exceso_bn
 
-            igv = subtotal * 0.18 if not record.precios_incluyen_igv else 0
-            total = subtotal + igv
+            # 3. Calcular IGV dinámico
+            if record.precio_bn_incluye_igv:
+                base_imponible = subtotal / 1.18
+                igv = subtotal - base_imponible
+                total = subtotal
+            else:
+                base_imponible = subtotal
+                igv = subtotal * 0.18
+                total = subtotal + igv
 
-            record.subtotal = subtotal
+            record.subtotal = base_imponible
             record.igv = igv
             record.total = total
 
-    @api.depends('total_copias_bn', 'total_copias_color', 'maquina_id.volumen_compartido_id', 'cliente_id')
+
+    @api.depends('total_copias_bn', 'total_copias_color', 'maquina_id.volumen_compartido_id')
     def _compute_excesos(self):
         for record in self:
-            plan = record.maquina_id.volumen_compartido_id or self.env['copier.volumen.compartido'].search([
-                ('cliente_id', '=', record.cliente_id.id), ('active', '=', True)
-            ], limit=1)
+            plan = record.maquina_id.volumen_compartido_id
 
             if plan:
+                # 1. Sumar todas las copias de las máquinas del mismo volumen compartido
                 fecha_inicio = record.fecha_facturacion.replace(day=1)
                 fecha_fin = (fecha_inicio + relativedelta(months=1, days=-1))
 
@@ -100,12 +107,20 @@ class CopierCounter(models.Model):
                     ('state', '=', 'confirmed')
                 ])
 
-                total_bn = sum(lecturas_mes.mapped('total_copias_bn'))
-                exceso_bn = max(0, total_bn - plan.volumen_mensual_bn)
-                proporcion_bn = record.total_copias_bn / total_bn if total_bn else 0
-                record.exceso_bn = int(exceso_bn * proporcion_bn)
+                # 2. Sumar copias de todas las máquinas
+                total_bn_grupo = sum(lecturas_mes.mapped('total_copias_bn'))
+
+                # 3. Calcular exceso del grupo
+                exceso_total_bn = max(0, total_bn_grupo - plan.volumen_mensual_bn)
+
+                # 4. Distribuir el exceso de forma proporcional
+                proporcion_bn = record.total_copias_bn / total_bn_grupo if total_bn_grupo else 0
+                record.exceso_bn = int(exceso_total_bn * proporcion_bn)
+
             else:
+                # Si no tiene volumen compartido, calcular exceso individual
                 record.exceso_bn = max(0, record.total_copias_bn - record.maquina_id.volumen_mensual_bn)
+
 
 
     def action_confirm(self):
