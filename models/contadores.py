@@ -111,7 +111,20 @@ class CopierCounter(models.Model):
         store=True,
         help="Total de copias color a facturar (mínimo mensual o real)"
     )
-    
+    precio_bn_sin_igv = fields.Monetary(
+        'Precio B/N sin IGV',
+        compute='_compute_precios_base',
+        store=True,
+        currency_field='currency_id'
+    )
+
+    precio_color_sin_igv = fields.Monetary(
+        'Precio Color sin IGV',
+        compute='_compute_precios_base',
+        store=True,
+        currency_field='currency_id'
+    )
+
 
     # Campos financieros
     currency_id = fields.Many2one(
@@ -427,7 +440,7 @@ class CopierCounter(models.Model):
         return fecha_facturacion
 
 
-
+        
 
 class ReportCounterReadings(models.AbstractModel):
     _name = 'report.copier_company.report_counter_readings'

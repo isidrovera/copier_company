@@ -13,7 +13,8 @@ from odoo.exceptions import UserError
 
 import requests
 
-import logginglogger = logging.getLogger(__name__)
+import logging
+_logger = logging.getLogger(__name__)
 
 class CopierCompany(models.Model):
     _name = 'copier.company'
@@ -620,7 +621,7 @@ class CopierCompany(models.Model):
         return precio
 
 
-        
+
 class CopierRenewalHistory(models.Model):
     _name = 'copier.renewal.history'
     _description = 'Historial de Renovaciones de Contratos'
