@@ -12,9 +12,7 @@ import re
 from odoo.exceptions import UserError
 
 import requests
-import logging
-
-_logger = logging.getLogger(__name__)
+import logginglogger = logging.getLogger(__name__)
 
 class CopierCompany(models.Model):
     _name = 'copier.company'
@@ -249,6 +247,20 @@ class CopierCompany(models.Model):
                                            currency_field='currency_id',
                                            store=True)
     igv = fields.Float(string='IGV (%)', default=18.0)
+
+    precio_bn_incluye_igv = fields.Boolean(
+        'Precio B/N Incluye IGV',
+        default=False,
+        tracking=True,
+        help="Si está marcado, el precio B/N ingresado ya incluye IGV"
+    )
+
+    precio_color_incluye_igv = fields.Boolean(
+        'Precio Color Incluye IGV',
+        default=False,
+        tracking=True,
+        help="Si está marcado, el precio Color ingresado ya incluye IGV"
+    )
     descuento = fields.Float(string='Descuento (%)', default=0.0)
     dia_facturacion = fields.Integer(string='Día de Facturación', default=30)
     # Campos técnicos
@@ -592,6 +604,19 @@ class CopierCompany(models.Model):
         except Exception as e:
             _logger.error(f"Error durante la renovación del contrato: {str(e)}")
             raise UserError(f"Error al renovar el contrato: {str(e)}")
+
+
+    def get_precio_bn_sin_igv(self, precio):
+        self.ensure_one()
+        if self.precio_bn_incluye_igv:
+            return precio / 1.18
+        return precio
+
+    def get_precio_color_sin_igv(self, precio):
+        self.ensure_one()
+        if self.precio_color_incluye_igv:
+            return precio / 1.18
+        return precio
 class CopierRenewalHistory(models.Model):
     _name = 'copier.renewal.history'
     _description = 'Historial de Renovaciones de Contratos'
