@@ -54,7 +54,13 @@ class CopierCompany(models.Model):
             template.send_mail(self.id, force_send=True)
             estado_enviado = self.env.ref('copier_company.estado_enviado')
             self.write({'estado_maquina_id': estado_enviado.id})
-    
+    usar_volumen_compartido = fields.Boolean(
+    string='Usar Volumen Compartido',
+    default=False,
+    tracking=True,
+    help="Permite compartir el volumen mensual entre varias máquinas del cliente."
+)
+
     especificaciones_id = fields.Html(related='name.especificaciones', string='Especificaciones')
     serie_id = fields.Char(string='Serie', tracking=True)
     marca_id = fields.Many2one('marcas.maquinas', string='Marca', related='name.marca_id')
