@@ -618,6 +618,9 @@ class CopierCompany(models.Model):
         if self.precio_color_incluye_igv:
             return precio / 1.18
         return precio
+
+
+        
 class CopierRenewalHistory(models.Model):
     _name = 'copier.renewal.history'
     _description = 'Historial de Renovaciones de Contratos'
