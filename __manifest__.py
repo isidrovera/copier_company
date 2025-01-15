@@ -59,7 +59,6 @@
         'views/ajustes_copier.xml',
         'views/contadores.xml',
         
-        
     ],
 
     'assets': {
