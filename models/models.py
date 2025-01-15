@@ -12,6 +12,7 @@ import re
 from odoo.exceptions import UserError
 
 import requests
+
 import logginglogger = logging.getLogger(__name__)
 
 class CopierCompany(models.Model):

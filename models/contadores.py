@@ -4,7 +4,6 @@ from dateutil.relativedelta import relativedelta
 from odoo.exceptions import UserError
 import calendar
 import logging
-
 _logger = logging.getLogger(__name__)
 
 
