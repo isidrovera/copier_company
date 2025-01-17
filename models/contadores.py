@@ -185,12 +185,13 @@ class CopierCounter(models.Model):
     def _compute_precios_base(self):
         for record in self:
             if record.maquina_id:
-                # Si el precio incluye IGV, calculamos el precio base
+                # Para B/N - verificar si incluye IGV desde la configuración de la máquina
                 if record.maquina_id.precio_bn_incluye_igv:
                     record.precio_bn_sin_igv = record.maquina_id.costo_copia_bn / 1.18
                 else:
                     record.precio_bn_sin_igv = record.maquina_id.costo_copia_bn
 
+                # Para Color - verificar si incluye IGV desde la configuración de la máquina
                 if record.maquina_id.precio_color_incluye_igv:
                     record.precio_color_sin_igv = record.maquina_id.costo_copia_color / 1.18
                 else:
@@ -288,15 +289,19 @@ class CopierCounter(models.Model):
         default=True,
         help="Si está marcado, los precios ya incluyen IGV y se calculará el monto base dividiendo entre 1.18"
     )
-    @api.depends('copias_facturables_bn', 'copias_facturables_color',
+     @api.depends('copias_facturables_bn', 'copias_facturables_color',
                 'precio_bn_sin_igv', 'precio_color_sin_igv')
     def _compute_totales(self):
+        """
+        Calcula los totales considerando dinámicamente si cada tipo de copia incluye IGV o no,
+        basándose en la configuración de la máquina.
+        """
         for record in self:
-            # Calcular subtotales sin IGV para B/N y Color
+            # Calcular subtotales usando precios sin IGV (ya procesados en _compute_precios_base)
             subtotal_bn = record.copias_facturables_bn * record.precio_bn_sin_igv
             subtotal_color = record.copias_facturables_color * record.precio_color_sin_igv
             
-            # Total sin IGV
+            # Total sin IGV (subtotal)
             record.total_sin_igv = subtotal_bn + subtotal_color
             record.subtotal = record.total_sin_igv
             
@@ -306,7 +311,14 @@ class CopierCounter(models.Model):
             # Total con IGV
             record.total = record.subtotal + record.igv
 
-    # Eliminar el campo precios_incluyen_igv ya que ahora se maneja desde la máquina
+    def _get_precio_sin_igv(self, precio, incluye_igv):
+        """
+        Método auxiliar para calcular el precio sin IGV
+        """
+        if incluye_igv:
+            return precio / 1.18
+        return precio
+
     _sql_constraints = [
         ('check_contadores_bn', 'CHECK(contador_actual_bn >= contador_anterior_bn)',
          'El contador actual B/N no puede ser menor al anterior'),
