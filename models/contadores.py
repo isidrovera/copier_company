@@ -289,7 +289,7 @@ class CopierCounter(models.Model):
         default=True,
         help="Si está marcado, los precios ya incluyen IGV y se calculará el monto base dividiendo entre 1.18"
     )
-     @api.depends('copias_facturables_bn', 'copias_facturables_color',
+    @api.depends('copias_facturables_bn', 'copias_facturables_color',
                 'precio_bn_sin_igv', 'precio_color_sin_igv')
     def _compute_totales(self):
         """
