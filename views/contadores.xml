@@ -98,7 +98,7 @@
                 <field name="contador_actual_color" sum="Total Color" />
                 <field name="total_copias_color" sum="Total Copias Color" />
                 <field name="copias_facturables_color" sum="Total Facturable Color" />
-                <field name="total_sin_igv" sum="Total Sin IGV" />
+                
                 <field name="subtotal" sum="Subtotal" widget="monetary" />
                 <field name="total" sum="Total" widget="monetary" />
                 <field name="currency_id" invisible="1" />
@@ -152,8 +152,8 @@
                             <field name="mes_facturacion" />
                         </group>
                         <group>
-                            <field name="precio_bn" />
-                            <field name="precio_color" />
+                            
+                            
                             <field name="currency_id" invisible="1" />
                         </group>
                     </group>
@@ -163,7 +163,7 @@
                                 <group>
                                     <field name="contador_anterior_bn" />
                                     <field name="contador_actual_bn" readonly="state != 'draft'" />
-                                    <field name="precios_incluyen_igv" />
+                                    
                                     <field name="total_copias_bn" />
                                 </group>
                                 <group>
