@@ -111,18 +111,17 @@ class CopierCounter(models.Model):
         store=True,
         help="Total de copias color a facturar (mínimo mensual o real)"
     )
-    precio_bn_sin_igv = fields.Monetary(
+    precio_bn_sin_igv = fields.Float(
         'Precio B/N sin IGV',
-        compute='_compute_precios_sin_igv',  # Cambiar de _compute_precios_base a _compute_precios_sin_igv
+        compute='_compute_precios_sin_igv',
         store=True,
-        currency_field='currency_id'
+        digits=(16, 6)  # Aumentamos la precisión decimal
     )
-
-    precio_color_sin_igv = fields.Monetary(
+    precio_color_sin_igv = fields.Float(
         'Precio Color sin IGV',
-        compute='_compute_precios_sin_igv',  # Cambiar de _compute_precios_base a _compute_precios_sin_igv
+        compute='_compute_precios_sin_igv',
         store=True,
-        currency_field='currency_id'
+        digits=(16, 6)  # Aumentamos la precisión decimal
     )
 
 
@@ -162,19 +161,19 @@ class CopierCounter(models.Model):
     ], string='Estado', default='draft', tracking=True)
 
     @api.depends('maquina_id', 
-            'maquina_id.precio_bn_incluye_igv', 
-            'maquina_id.precio_color_incluye_igv',
-            'maquina_id.costo_copia_bn', 
-            'maquina_id.costo_copia_color')
+                'maquina_id.precio_bn_incluye_igv', 
+                'maquina_id.precio_color_incluye_igv',
+                'maquina_id.costo_copia_bn', 
+                'maquina_id.costo_copia_color')
     def _compute_precios_sin_igv(self):
-        """Convierte los precios a su valor sin IGV cuando sea necesario"""
+        """Convierte los precios a su valor sin IGV manteniendo precisión completa"""
         for record in self:
             if record.maquina_id:
                 # Obtener precios de la máquina
-                precio_bn = record.maquina_id.costo_copia_bn or 0.0
-                precio_color = record.maquina_id.costo_copia_color or 0.0
+                precio_bn = float(record.maquina_id.costo_copia_bn or 0.0)
+                precio_color = float(record.maquina_id.costo_copia_color or 0.0)
 
-                # Convertir a precio sin IGV si incluye IGV
+                # Convertir a precio sin IGV si incluye IGV (manteniendo toda la precisión)
                 record.precio_bn_sin_igv = precio_bn / 1.18 if record.maquina_id.precio_bn_incluye_igv else precio_bn
                 record.precio_color_sin_igv = precio_color / 1.18 if record.maquina_id.precio_color_incluye_igv else precio_color
             else:
@@ -267,18 +266,18 @@ class CopierCounter(models.Model):
             )
    
     @api.depends('copias_facturables_bn', 'copias_facturables_color',
-            'precio_bn_sin_igv', 'precio_color_sin_igv')
+                'precio_bn_sin_igv', 'precio_color_sin_igv')
     def _compute_totales(self):
-        """Calcula totales usando los precios sin IGV"""
+        """Calcula totales usando los precios sin IGV con precisión completa"""
         for record in self:
-            # Calcular subtotal (todos los precios ya están sin IGV)
-            record.subtotal = (record.copias_facturables_bn * record.precio_bn_sin_igv +
-                            record.copias_facturables_color * record.precio_color_sin_igv)
+            # Calcular subtotal usando precios sin IGV con toda la precisión
+            subtotal_bn = record.copias_facturables_bn * record.precio_bn_sin_igv
+            subtotal_color = record.copias_facturables_color * record.precio_color_sin_igv
             
-            # Calcular IGV y total
-            record.igv = record.subtotal * 0.18
-            record.total = record.subtotal * 1.18
-
+            # Asignar valores redondeando solo al final para los campos monetarios
+            record.subtotal = round(subtotal_bn + subtotal_color, 2)
+            record.igv = round(record.subtotal * 0.18, 2)
+            record.total = round(record.subtotal * 1.18, 2)
   
 
     def action_confirm(self):
