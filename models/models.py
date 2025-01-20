@@ -232,8 +232,9 @@ class CopierCompany(models.Model):
                                       currency_field='currency_id', 
                                       default=0.20)
     costo_copia_bn = fields.Monetary(string="Costo por Copia (B/N)", 
-                                   currency_field='currency_id',
-                                   default=0.04)
+                                currency_field='currency_id',
+                                default=0.04,
+                                digits=(16,3))  # Permite 3 decimales
     volumen_mensual_color = fields.Integer(string="Volumen Mensual (Color)")
     volumen_mensual_bn = fields.Integer(string="Volumen Mensual (B/N)")
     renta_mensual_color = fields.Monetary(string="Renta Mensual (Color)", 
