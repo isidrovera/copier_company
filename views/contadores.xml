@@ -89,7 +89,8 @@
                 sample="1">
 
                 <!--<field name="name" widget="many2one_avatar_user" />-->
-                <field name="cliente_id" />
+                <field name="cliente_id" optional="hide" />
+                <field name="maquina_id" />
                 <field name="serie" />
                 <field name="mes_facturacion" />
                 <field name="contador_actual_bn" sum="Total B/N" optional="hide"/>
