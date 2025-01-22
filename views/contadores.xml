@@ -101,7 +101,7 @@
                 
                 <field name="subtotal" sum="Subtotal" widget="monetary" />
                 <field name="total" sum="Total" widget="monetary" />
-                <field name="currency_id" invisible="1" />
+                <field name="currency_id" invisible='True' />
                 <field name="state" widget="badge"
                     decoration-info="state == 'draft'"
                     decoration-success="state == 'confirmed'"
