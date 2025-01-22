@@ -92,14 +92,14 @@
                 <field name="cliente_id" />
                 <field name="serie" />
                 <field name="mes_facturacion" />
-                <field name="contador_actual_bn" sum="Total B/N" />
+                <field name="contador_actual_bn" sum="Total B/N" optional="hide"/>
                 <field name="total_copias_bn" sum="Total Copias B/N" />
-                <field name="copias_facturables_bn" sum="Total Facturable B/N" />
-                <field name="contador_actual_color" sum="Total Color" />
+                <field name="copias_facturables_bn" sum="Total Facturable B/N" optional="hide"/>
+                <field name="contador_actual_color" sum="Total Color" optional="hide"/>
                 <field name="total_copias_color" sum="Total Copias Color" />
                 <field name="copias_facturables_color" sum="Total Facturable Color" />
                 
-                <field name="subtotal" sum="Subtotal" widget="monetary" />
+                <field name="subtotal" sum="Subtotal" widget="monetary" optional="hide"/>
                 <field name="total" sum="Total" widget="monetary" />
                 <field name="currency_id" optional="hide"/>
                 <field name="state" widget="badge"
