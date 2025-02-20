@@ -1,27 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Heredar la vista de providers para manejar el caso cuando no hay providers -->
-    <template id="providers_extended" inherit_id="auth_oauth.providers">
-        <xpath expr="//em[contains(@t-attf-class, 'len(providers)')]" position="attributes">
-            <attribute name="t-attf-class">d-block text-center text-muted small my-3</attribute>
-        </xpath>
-    </template>
-
-    <!-- Heredar la vista de campos de registro -->
     <template id="auth_signup_fields_extended" inherit_id="auth_signup.fields">
-        <xpath expr="//input[@name='login']" position="attributes">
-            <attribute name="type">email</attribute>
-            <attribute name="pattern">[a-zA-Z0-9._%+-]+@(gmail|hotmail|outlook|yahoo)\.com</attribute>
-            <attribute name="title">Use un correo de Gmail, Hotmail, Outlook o Yahoo</attribute>
-            <attribute name="autocomplete">off</attribute>
+        <!-- Modificar el campo de email -->
+        <xpath expr="//div[hasclass('field-login')]" position="replace">
+            <div class="mb-3 field-login">
+                <label for="login">Su correo electrónico</label>
+                <input type="email" 
+                       name="login" 
+                       t-att-value="login" 
+                       id="login" 
+                       class="form-control form-control-sm"
+                       pattern="[a-zA-Z0-9._%+-]+@(gmail|hotmail|outlook|yahoo)\.com$"
+                       title="Use un correo de Gmail, Hotmail, Outlook o Yahoo"
+                       required="required"
+                       autocomplete="off"/>
+            </div>
         </xpath>
 
-        <!-- Añadir reCAPTCHA antes del campo de confirmación de contraseña -->
-        <xpath expr="//div[hasclass('field-confirm_password')]" position="before">
+        <!-- Añadir reCAPTCHA y scripts necesarios -->
+        <xpath expr="//div[hasclass('field-confirm_password')]" position="after">
+            <!-- Cargar script de reCAPTCHA directamente en la plantilla -->
+            <t t-if="not hasattr(request, 'recaptcha_loaded')">
+                <script src="https://www.google.com/recaptcha/api.js" async="async" defer="defer"/>
+                <t t-set="request.recaptcha_loaded" t-value="True"/>
+            </t>
+
             <div class="mb-3 field-recaptcha">
                 <div class="g-recaptcha" 
                      t-att-data-sitekey="request.env['ir.config_parameter'].sudo().get_param('recaptcha.site_key')"
                      data-callback="enableSignupSubmit">
+                </div>
+            </div>
+
+            <!-- Script inline para manejar el reCAPTCHA -->
+            <script type="text/javascript">
+                function enableSignupSubmit(token) {
+                    var submitButton = document.querySelector('button[type="submit"]');
+                    if (submitButton) {
+                        submitButton.disabled = false;
+                    }
+                }
+                
+                document.addEventListener('DOMContentLoaded', function() {
+                    var submitButton = document.querySelector('button[type="submit"]');
+                    if (submitButton) {
+                        submitButton.setAttribute('disabled', 'disabled');
+                    }
+                });
+            </script>
+
+            <!-- Términos y condiciones -->
+            <div class="mb-3 field-terms">
+                <div class="form-check">
+                    <input type="checkbox" id="terms" name="terms" class="form-check-input" required="required"/>
+                    <label class="form-check-label" for="terms">
+                        Acepto los términos y condiciones
+                    </label>
                 </div>
             </div>
         </xpath>
