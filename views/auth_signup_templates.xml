@@ -17,9 +17,26 @@
             </div>
         </xpath>
 
-        <!-- Añadir reCAPTCHA y términos -->
-        <xpath expr="//div[hasclass('field-confirm_password')]" position="after">
-            <div class="mb-3 field-recaptcha">
+        <xpath expr="//div[hasclass('field-name')]" position="replace">
+            <div class="mb-3 field-name">
+                <label for="name">Su nombre</label>
+                <input type="text" 
+                       name="name" 
+                       t-att-value="name" 
+                       id="name" 
+                       class="form-control form-control-sm"
+                       required="required"
+                       minlength="3"
+                       maxlength="50"
+                       pattern="[A-Za-zÀ-ÿ\s]{3,50}"
+                       title="El nombre debe contener solo letras y espacios (3-50 caracteres)"
+                       placeholder="Por ejemplo, Juan Pérez"/>
+            </div>
+        </xpath>
+
+        <!-- Añadir reCAPTCHA y términos antes del botón de registro -->
+        <xpath expr="//button[@type='submit']" position="before">
+            <div class="mb-3 field-recaptcha text-center">
                 <div class="g-recaptcha" 
                      t-att-data-sitekey="request.env['ir.config_parameter'].sudo().get_param('recaptcha.site_key')"
                      data-callback="enableSignupSubmit">
@@ -28,7 +45,11 @@
 
             <div class="mb-3 field-terms">
                 <div class="form-check">
-                    <input type="checkbox" id="terms" name="terms" class="form-check-input" required="required"/>
+                    <input type="checkbox" 
+                           id="terms" 
+                           name="terms" 
+                           class="form-check-input" 
+                           required="required"/>
                     <label class="form-check-label" for="terms">
                         Acepto los términos y condiciones
                     </label>
