@@ -1,3 +1,4 @@
+# controllers/main.py
 from odoo import http, _
 from odoo.addons.auth_signup.controllers.main import AuthSignupHome
 from odoo.http import request
@@ -8,30 +9,34 @@ class ExtendedAuthSignup(AuthSignupHome):
     @http.route()
     def web_auth_signup(self, *args, **kw):
         if request.httprequest.method == 'POST':
-            # Verificar términos y condiciones
-            if not kw.get('terms'):
+            error = self._validate_signup_form(kw)
+            if error:
                 qcontext = self.get_auth_signup_qcontext()
-                qcontext['error'] = _("Debe aceptar los términos y condiciones")
-                return request.render('auth_signup.signup', qcontext)
-
-            # Verificar reCAPTCHA
-            if not self._verify_recaptcha():
-                qcontext = self.get_auth_signup_qcontext()
-                qcontext['error'] = _("Por favor complete el reCAPTCHA")
-                return request.render('auth_signup.signup', qcontext)
-
-            try:
-                # Verificar IP
-                request.env['res.users'].sudo()._check_signup_ip(request.httprequest.remote_addr)
-            except Exception as e:
-                qcontext = self.get_auth_signup_qcontext()
-                qcontext['error'] = str(e)
+                qcontext['error'] = error
                 return request.render('auth_signup.signup', qcontext)
 
         return super().web_auth_signup(*args, **kw)
 
+    def _validate_signup_form(self, data):
+        # Validar reCAPTCHA
+        if not self._verify_recaptcha():
+            return _("Por favor complete el reCAPTCHA")
+
+        # Validar términos y condiciones
+        if not data.get('terms'):
+            return _("Debe aceptar los términos y condiciones")
+
+        # Validar nombre
+        name = data.get('name', '').strip()
+        if not name or len(name) < 3:
+            return _("El nombre debe tener al menos 3 caracteres")
+        
+        if not all(c.isalpha() or c.isspace() for c in name):
+            return _("El nombre solo debe contener letras y espacios")
+
+        return None
+
     def _verify_recaptcha(self):
-        """Verificar respuesta del reCAPTCHA"""
         recaptcha_response = request.params.get('g-recaptcha-response')
         if not recaptcha_response:
             return False
@@ -43,7 +48,6 @@ class ExtendedAuthSignup(AuthSignupHome):
                 'response': recaptcha_response,
                 'remoteip': request.httprequest.remote_addr
             })
-            result = response.json()
-            return result.get('success', False)
+            return response.json().get('success', False)
         except Exception:
             return False
