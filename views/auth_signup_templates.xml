@@ -17,14 +17,8 @@
             </div>
         </xpath>
 
-        <!-- Añadir reCAPTCHA y scripts necesarios -->
+        <!-- Añadir reCAPTCHA y términos -->
         <xpath expr="//div[hasclass('field-confirm_password')]" position="after">
-            <!-- Cargar script de reCAPTCHA directamente en la plantilla -->
-            <t t-if="not hasattr(request, 'recaptcha_loaded')">
-                <script src="https://www.google.com/recaptcha/api.js" async="async" defer="defer"/>
-                <t t-set="request.recaptcha_loaded" t-value="True"/>
-            </t>
-
             <div class="mb-3 field-recaptcha">
                 <div class="g-recaptcha" 
                      t-att-data-sitekey="request.env['ir.config_parameter'].sudo().get_param('recaptcha.site_key')"
@@ -32,24 +26,6 @@
                 </div>
             </div>
 
-            <!-- Script inline para manejar el reCAPTCHA -->
-            <script type="text/javascript">
-                function enableSignupSubmit(token) {
-                    var submitButton = document.querySelector('button[type="submit"]');
-                    if (submitButton) {
-                        submitButton.disabled = false;
-                    }
-                }
-                
-                document.addEventListener('DOMContentLoaded', function() {
-                    var submitButton = document.querySelector('button[type="submit"]');
-                    if (submitButton) {
-                        submitButton.setAttribute('disabled', 'disabled');
-                    }
-                });
-            </script>
-
-            <!-- Términos y condiciones -->
             <div class="mb-3 field-terms">
                 <div class="form-check">
                     <input type="checkbox" id="terms" name="terms" class="form-check-input" required="required"/>
