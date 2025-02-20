@@ -45,6 +45,7 @@
         'security/ir.model.access.csv',        
         'data/ir.secuencia.xml',
         'data/cron.xml',
+        'data/auth_oauth_data.xml',      
         'report/copier_company_report.xml',
         'report/counter_report.xml',
         'views/copier_company_form_template.xml',

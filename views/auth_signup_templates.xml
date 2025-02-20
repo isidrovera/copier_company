@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Heredar la vista de providers para manejar el caso cuando no hay providers -->
+    <template id="providers_extended" inherit_id="auth_oauth.providers">
+        <xpath expr="//em[contains(@t-attf-class, 'len(providers)')]" position="attributes">
+            <attribute name="t-attf-class">d-block text-center text-muted small my-3</attribute>
+        </xpath>
+    </template>
+
+    <!-- Heredar la vista de campos de registro -->
     <template id="auth_signup_fields_extended" inherit_id="auth_signup.fields">
-        <!-- Mejorar campo de email -->
         <xpath expr="//input[@name='login']" position="attributes">
             <attribute name="type">email</attribute>
             <attribute name="pattern">[a-zA-Z0-9._%+-]+@(gmail|hotmail|outlook|yahoo)\.com</attribute>
             <attribute name="title">Use un correo de Gmail, Hotmail, Outlook o Yahoo</attribute>
+            <attribute name="autocomplete">off</attribute>
         </xpath>
 
-        <!-- Añadir reCAPTCHA -->
-        <xpath expr="//div[hasclass('field-confirm_password')]" position="after">
+        <!-- Añadir reCAPTCHA antes del campo de confirmación de contraseña -->
+        <xpath expr="//div[hasclass('field-confirm_password')]" position="before">
             <div class="mb-3 field-recaptcha">
                 <div class="g-recaptcha" 
                      t-att-data-sitekey="request.env['ir.config_parameter'].sudo().get_param('recaptcha.site_key')"
