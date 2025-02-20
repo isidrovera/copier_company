@@ -44,6 +44,7 @@
         'views/vista_tree_portal.xml',
         'security/ir.model.access.csv',        
         'data/ir.secuencia.xml',
+        'data/cron.xml',
         'report/copier_company_report.xml',
         'report/counter_report.xml',
         'views/copier_company_form_template.xml',
@@ -60,6 +61,7 @@
         'views/no_config_template.xml',
         'views/ajustes_copier.xml',
         'views/contadores.xml',
+        'views/auth_signup_templates.xml',
         
         
     ],
