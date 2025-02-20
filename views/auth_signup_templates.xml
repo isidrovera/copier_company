@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="auth_signup_fields_extended" inherit_id="auth_signup.fields">
+        <!-- Mejorar campo de email -->
+        <xpath expr="//input[@name='login']" position="attributes">
+            <attribute name="type">email</attribute>
+            <attribute name="pattern">[a-zA-Z0-9._%+-]+@(gmail|hotmail|outlook|yahoo)\.com</attribute>
+            <attribute name="title">Use un correo de Gmail, Hotmail, Outlook o Yahoo</attribute>
+        </xpath>
+
+        <!-- Añadir reCAPTCHA -->
+        <xpath expr="//div[hasclass('field-confirm_password')]" position="after">
+            <div class="mb-3 field-recaptcha">
+                <div class="g-recaptcha" 
+                     t-att-data-sitekey="request.env['ir.config_parameter'].sudo().get_param('recaptcha.site_key')"
+                     data-callback="enableSignupSubmit">
+                </div>
+            </div>
+        </xpath>
+    </template>
+</odoo>

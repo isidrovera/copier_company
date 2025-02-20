@@ -7,3 +7,4 @@ from . import pCloudModel
 from . import pcloud_folder_file
 from . import security_control
 from . import contadores
+from . import res_users
