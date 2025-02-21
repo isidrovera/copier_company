@@ -659,8 +659,4 @@ class CotizacionAlquilerReport(models.AbstractModel):
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
-    allow_downloads = fields.Boolean(
-        string='Permitir Descargas',
-        default=False,
-        help='Indica si este contacto tiene permiso para realizar descargas'
-    )
+    demo  = fields.Char()
