@@ -656,7 +656,3 @@ class CotizacionAlquilerReport(models.AbstractModel):
         }
 
         
-class ResPartner(models.Model):
-    _inherit = 'res.partner'
-
-    demo  = fields.Char()
