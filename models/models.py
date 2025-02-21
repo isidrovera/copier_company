@@ -655,3 +655,12 @@ class CotizacionAlquilerReport(models.AbstractModel):
             'format_number': lambda number: '{:,}'.format(number or 0),
         }
 
+        
+class ResPartner(models.Model):
+    _inherit = 'res.partner'
+
+    allow_downloads = fields.Boolean(
+        string='Permitir Descargas',
+        default=False,
+        help='Indica si este contacto tiene permiso para realizar descargas'
+    )
