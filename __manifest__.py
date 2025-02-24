@@ -69,8 +69,7 @@
     'assets': {
         'web.assets_frontend': [
             'copier_company/static/src/js/custom_script.js',
-            'copier_company/static/src/js/PcloudDescargas.js',
-            'copier_company/src/js/signup_validation.js',
+            'copier_company/static/src/js/PcloudDescargas.js',            
             'copier_company/static/src/css/PcloudDescargas.css',
             'copier_company/static/src/css/cotizacion_styles.css',
 
