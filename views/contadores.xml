@@ -157,6 +157,21 @@
                             
                             <field name="currency_id" invisible="1" />
                         </group>
+                        <group>
+                            <field name="informe_por_usuario"/>
+                            <button name="cargar_usuarios_asociados" 
+                                    string="Cargar Usuarios Asociados"
+                                    type="object" class="btn-primary"
+                                    invisible="not informe_por_usuario or state != 'draft'"/>
+                        </group>
+
+                        <field name="usuario_detalle_ids" invisible="not informe_por_usuario">
+                            <tree editable="bottom">
+                                <field name="usuario_id" readonly="1"/>
+                                <field name="cantidad_copias"/>
+                            </tree>
+                        </field>
+
                     </group>
                     <notebook>
                         <page string="Contadores B/N" name="contadores_bn">

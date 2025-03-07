@@ -423,6 +423,28 @@ class CopierCounter(models.Model):
             
         return fecha_facturacion
 
+    informe_por_usuario = fields.Boolean('Informe detallado por usuarios', default=False)
+    usuario_detalle_ids = fields.One2many(
+        'copier.counter.user.detail',
+        'contador_id',
+        string='Detalle mensual por usuario'
+    )
+
+    def cargar_usuarios_asociados(self):
+        self.ensure_one()
+        if not self.maquina_id:
+            raise UserError('Primero selecciona la máquina asociada.')
+        
+        self.usuario_detalle_ids.unlink()  # Limpia registros previos
+        usuarios = self.env['copier.machine.user'].search([
+            ('maquina_id', '=', self.maquina_id.id)
+        ])
+        detalles = [(0, 0, {
+            'usuario_id': usuario.id,
+            'cantidad_copias': 0  # Inicializa en 0 para ingresar manualmente
+        }) for usuario in usuarios]
+
+        self.usuario_detalle_ids = detalles
 
         
 
@@ -454,3 +476,21 @@ class ReportCounterReadings(models.AbstractModel):
             'maquinas_color': maquinas_color,
             'total_general': total_general,
         }
+
+class CopierMachineUser(models.Model):
+    _name = 'copier.machine.user'
+    _description = 'Usuarios Internos por Máquina'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+
+    name = fields.Char('Nombre Empresa/Usuario', required=True)
+    clave = fields.Char('Clave')
+    correo = fields.Char('Correo Electrónico')
+    maquina_id = fields.Many2one('copier.company', string='Máquina Asociada', required=True)
+
+class CopierCounterUserDetail(models.Model):
+    _name = 'copier.counter.user.detail'
+    _description = 'Detalle mensual de copias por usuario'
+
+    contador_id = fields.Many2one('copier.counter', string='Contador General', required=True, ondelete='cascade')
+    usuario_id = fields.Many2one('copier.machine.user', string='Empresa/Usuario', required=True)
+    cantidad_copias = fields.Integer('Total Copias', required=True)
