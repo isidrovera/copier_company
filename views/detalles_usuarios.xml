@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vistas para Usuarios Internos por Máquina -->
+
+    <record id="view_copier_machine_user_form" model="ir.ui.view">
+        <field name="name">copier.machine.user.form</field>
+        <field name="model">copier.machine.user</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Nombre Empresa o Usuario"/></h1>
+                    </div>
+                    <group>
+                        <field name="maquina_id" required="1"/>
+                        <field name="clave"/>
+                        <field name="correo"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_copier_machine_user_list" model="ir.ui.view">
+        <field name="name">copier.machine.user.list</field>
+        <field name="model">copier.machine.user</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="maquina_id"/>
+                <field name="clave"/>
+                <field name="correo"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_copier_machine_user_search" model="ir.ui.view">
+        <field name="name">copier.machine.user.search</field>
+        <field name="model">copier.machine.user</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="maquina_id"/>
+                <group expand="0" string="Agrupar Por">
+                    <filter name="group_by_maquina" string="Máquina" context="{'group_by': 'maquina_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_copier_machine_user" model="ir.actions.act_window">
+        <field name="name">Usuarios Internos</field>
+        <field name="res_model">copier.machine.user</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_copier_machine_user_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear usuarios internos asociados a cada máquina.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_copier_machine_user"
+              name="Usuarios Internos"
+              action="action_copier_machine_user"
+              parent="copier_company.menu_root"
+              sequence="35"/>
+
+
+    <!-- Vistas para Detalle mensual por usuario -->
+
+    <record id="view_copier_counter_user_detail_form" model="ir.ui.view">
+        <field name="name">copier.counter.user.detail.form</field>
+        <field name="model">copier.counter.user.detail</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="contador_id" required="1"/>
+                        <field name="usuario_id" required="1"/>
+                        <field name="cantidad_copias" required="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_copier_counter_user_detail_list" model="ir.ui.view">
+        <field name="name">copier.counter.user.detail.list</field>
+        <field name="model">copier.counter.user.detail</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="contador_id"/>
+                <field name="usuario_id"/>
+                <field name="cantidad_copias"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_copier_counter_user_detail_search" model="ir.ui.view">
+        <field name="name">copier.counter.user.detail.search</field>
+        <field name="model">copier.counter.user.detail</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="contador_id"/>
+                <field name="usuario_id"/>
+                <group expand="0" string="Agrupar Por">
+                    <filter name="group_by_contador" string="Contador" context="{'group_by':'contador_id'}"/>
+                    <filter name="group_by_usuario" string="Usuario" context="{'group_by':'usuario_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_copier_counter_user_detail" model="ir.actions.act_window">
+        <field name="name">Detalles de Copias por Usuario</field>
+        <field name="res_model">copier.counter.user.detail</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_copier_counter_user_detail_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Registra detalles mensuales de copias por usuario.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_copier_counter_user_detail"
+              name="Detalle Copias Usuarios"
+              action="action_copier_counter_user_detail"
+              parent="copier_company.menu_root"
+              sequence="36"/>
+
+</odoo>

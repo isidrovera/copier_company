@@ -60,6 +60,7 @@
         'views/no_config_template.xml',
         'views/ajustes_copier.xml',
         'views/contadores.xml',
+        'views/detalles_usuarios.xml',
         
         
         
