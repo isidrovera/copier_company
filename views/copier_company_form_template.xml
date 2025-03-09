@@ -2,93 +2,197 @@
 <odoo>
     <template id="copier_company_form_template" name="Cotizaciones">
         <t t-call="website.layout">
-            <div class="container mt-5">
+            <div class="container py-5">
                 <div class="row justify-content-center">
-                    <div class="col-lg-8">
-                        <div class="card shadow-sm">
-                            <div class="card-header" style="background-color: #3d6cb9; color: white;">
-                                <h2 class="mb-0">Formulario de Cotización</h2>
+                    <div class="col-lg-10">
+                        <div class="card shadow rounded-lg overflow-hidden">
+                            <div class="card-header py-3" style="background-color: #3d6cb9;">
+                                <div class="d-flex align-items-center">
+                                    <i class="fa fa-file-invoice text-white me-2 fa-lg"></i>
+                                    <h2 class="mb-0 text-white">Formulario de Cotización</h2>
+                                </div>
                             </div>
-                            <div class="card-body">
-                                <div id="error_message" class="text-danger mb-3"></div>
-                                <form action="/cotizacion/submit" method="POST" id="copier_form">
+                            <div class="card-body bg-light p-4">
+                                <div id="error_message" class="alert alert-danger d-none"></div>
+                                <form action="/cotizacion/submit" method="POST" id="copier_form" class="needs-validation" novalidate="novalidate">
                                     <!-- Incluir el token CSRF -->
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                     <input type="hidden" id="cliente_id" name="cliente_id" />
-                                    <div class="row mb-3">
-                                        <div class="col-md-6">                                            
-                                            <div class="form-group mb-3">
-                                                <label for="tipo_identificacion">Tipo de Identificación</label>
-                                                <select class="form-control" id="tipo_identificacion" name="tipo_identificacion">
-                                                    <t t-foreach="tipos_identificacion" t-as="tipo">
-                                                        <option t-att-value="tipo.l10n_pe_vat_code">
-                                                            <t t-esc="tipo.name"/>
-                                                        </option>
-                                                    </t>
-                                                </select>
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="identificacion">Número de Identificación</label>
-                                                <input type="text" class="form-control" id="identificacion" name="identificacion" placeholder="Número de RUC / DNI" onblur="obtenerDatosCliente()" required="1"/>
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="cliente_name">Nombre del Cliente</label>
-                                                <input type="text" class="form-control" id="cliente_name" name="cliente_name" placeholder="Nombre del Cliente" readonly="1"/>
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="contacto">Contacto</label>
-                                                <input type="text" class="form-control" id="contacto" name="contacto" placeholder="Contacto" required="1"/>
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="correo">Correo</label>
-                                                <input type="email" class="form-control" id="correo" name="correo" placeholder="Correo" required="1"/>
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="telefono">Teléfono</label>
-                                                <input type="text" class="form-control" id="telefono" name="telefono" placeholder="Teléfono" required="1"/>
+                                    
+                                    <div class="row g-4">
+                                        <!-- Columna izquierda - Información del cliente -->
+                                        <div class="col-md-6">
+                                            <div class="card shadow-sm h-100">
+                                                <div class="card-header bg-white">
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="fa fa-user-tie text-primary me-2"></i>
+                                                        <h5 class="mb-0">Información del Cliente</h5>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="form-group mb-3">
+                                                        <label for="tipo_identificacion" class="form-label">
+                                                            <i class="fa fa-id-card text-secondary me-1"></i> Tipo de Identificación
+                                                        </label>
+                                                        <select class="form-select" id="tipo_identificacion" name="tipo_identificacion">
+                                                            <t t-foreach="tipos_identificacion" t-as="tipo">
+                                                                <option t-att-value="tipo.l10n_pe_vat_code">
+                                                                    <t t-esc="tipo.name"/>
+                                                                </option>
+                                                            </t>
+                                                        </select>
+                                                    </div>
+                                                    
+                                                    <div class="form-group mb-3">
+                                                        <label for="identificacion" class="form-label">
+                                                            <i class="fa fa-fingerprint text-secondary me-1"></i> Número de Identificación
+                                                        </label>
+                                                        <div class="input-group">
+                                                            <input type="text" class="form-control" id="identificacion" name="identificacion" 
+                                                                placeholder="Ingrese RUC / DNI" onblur="obtenerDatosCliente()" required="1"/>
+                                                            <span class="input-group-text"><i class="fa fa-search"></i></span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="form-group mb-3">
+                                                        <label for="cliente_name" class="form-label">
+                                                            <i class="fa fa-building text-secondary me-1"></i> Nombre del Cliente
+                                                        </label>
+                                                        <input type="text" class="form-control bg-light" id="cliente_name" 
+                                                            name="cliente_name" placeholder="Nombre del Cliente" readonly="1"/>
+                                                    </div>
+                                                    
+                                                    <div class="form-group mb-3">
+                                                        <label for="contacto" class="form-label">
+                                                            <i class="fa fa-user text-secondary me-1"></i> Contacto
+                                                        </label>
+                                                        <input type="text" class="form-control" id="contacto" 
+                                                            name="contacto" placeholder="Nombre del contacto" required="1"/>
+                                                    </div>
+                                                    
+                                                    <div class="form-group mb-3">
+                                                        <label for="correo" class="form-label">
+                                                            <i class="fa fa-envelope text-secondary me-1"></i> Correo Electrónico
+                                                        </label>
+                                                        <input type="email" class="form-control" id="correo" 
+                                                            name="correo" placeholder="ejemplo@empresa.com" required="1"/>
+                                                    </div>
+                                                    
+                                                    <div class="form-group mb-3">
+                                                        <label for="telefono" class="form-label">
+                                                            <i class="fa fa-phone-alt text-secondary me-1"></i> Teléfono
+                                                        </label>
+                                                        <input type="text" class="form-control" id="telefono" 
+                                                            name="telefono" placeholder="+51 999 999 999" required="1"/>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
+                                        
+                                        <!-- Columna derecha - Detalles de la máquina -->
                                         <div class="col-md-6">
-                                            <div class="form-group mb-3">
-                                                <label for="name">Máquina</label>
-                                                <select class="form-control" id="name" name="name">
-                                                    <t t-foreach="marcas" t-as="marca">
-                                                        <option t-att-value="marca.id">
-                                                            <t t-esc="marca.name"/>
-                                                        </option>
-                                                    </t>
-                                                </select>
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="tipo">Tipo de impresora</label>
-                                                <select class="form-control" id="tipo" name="tipo">
-                                                    <option value="monocroma">Blanco y negro</option>
-                                                    <option value="color">Color</option>
-                                                </select>
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="formato">Formato</label>
-                                                <select class="form-control" id="formato" name="formato">
-                                                    <option value="a4">A4</option>
-                                                    <option value="a3">A3</option>
-                                                </select>
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="volumen_mensual_color">Volumen Mensual (Color)</label>
-                                                <input type="number" class="form-control" id="volumen_mensual_color" name="volumen_mensual_color" placeholder="Volumen Mensual (Color)" required="1"/>
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="volumen_mensual_bn">Volumen Mensual (B/N)</label>
-                                                <input type="number" class="form-control" id="volumen_mensual_bn" name="volumen_mensual_bn" placeholder="Volumen Mensual (B/N)" required="1"/>
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="detalles">Detalle</label>
-                                                <textarea class="form-control" id="detalles" name="detalles" rows="3"></textarea>
+                                            <div class="card shadow-sm h-100">
+                                                <div class="card-header bg-white">
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="fa fa-print text-primary me-2"></i>
+                                                        <h5 class="mb-0">Detalles de la Impresora</h5>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="form-group mb-3">
+                                                        <label for="name" class="form-label">
+                                                            <i class="fa fa-tag text-secondary me-1"></i> Máquina
+                                                        </label>
+                                                        <select class="form-select" id="name" name="name">
+                                                            <t t-foreach="marcas" t-as="marca">
+                                                                <option t-att-value="marca.id">
+                                                                    <t t-esc="marca.name"/>
+                                                                </option>
+                                                            </t>
+                                                        </select>
+                                                    </div>
+                                                    
+                                                    <div class="form-group mb-3">
+                                                        <label for="tipo" class="form-label">
+                                                            <i class="fa fa-palette text-secondary me-1"></i> Tipo de impresora
+                                                        </label>
+                                                        <div class="d-flex">
+                                                            <div class="form-check form-check-inline">
+                                                                <input class="form-check-input" type="radio" 
+                                                                    name="tipo" id="tipo_mono" value="monocroma" checked="checked"/>
+                                                                <label class="form-check-label" for="tipo_mono">
+                                                                    Blanco y negro
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check form-check-inline">
+                                                                <input class="form-check-input" type="radio" 
+                                                                    name="tipo" id="tipo_color" value="color"/>
+                                                                <label class="form-check-label" for="tipo_color">
+                                                                    Color
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="form-group mb-3">
+                                                        <label for="formato" class="form-label">
+                                                            <i class="fa fa-expand-alt text-secondary me-1"></i> Formato
+                                                        </label>
+                                                        <div class="d-flex">
+                                                            <div class="form-check form-check-inline">
+                                                                <input class="form-check-input" type="radio" 
+                                                                    name="formato" id="formato_a4" value="a4" checked="checked"/>
+                                                                <label class="form-check-label" for="formato_a4">A4</label>
+                                                            </div>
+                                                            <div class="form-check form-check-inline">
+                                                                <input class="form-check-input" type="radio" 
+                                                                    name="formato" id="formato_a3" value="a3"/>
+                                                                <label class="form-check-label" for="formato_a3">A3</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="form-group mb-3">
+                                                        <label for="volumen_mensual_color" class="form-label">
+                                                            <i class="fa fa-chart-line text-secondary me-1"></i> Volumen Mensual (Color)
+                                                        </label>
+                                                        <div class="input-group">
+                                                            <input type="number" class="form-control" id="volumen_mensual_color" 
+                                                                name="volumen_mensual_color" placeholder="0" required="1"/>
+                                                            <span class="input-group-text">páginas</span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="form-group mb-3">
+                                                        <label for="volumen_mensual_bn" class="form-label">
+                                                            <i class="fa fa-chart-bar text-secondary me-1"></i> Volumen Mensual (B/N)
+                                                        </label>
+                                                        <div class="input-group">
+                                                            <input type="number" class="form-control" id="volumen_mensual_bn" 
+                                                                name="volumen_mensual_bn" placeholder="0" required="1"/>
+                                                            <span class="input-group-text">páginas</span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="form-group mb-3">
+                                                        <label for="detalles" class="form-label">
+                                                            <i class="fa fa-comment-alt text-secondary me-1"></i> Detalles adicionales
+                                                        </label>
+                                                        <textarea class="form-control" id="detalles" name="detalles" 
+                                                            rows="3" placeholder="Ingrese cualquier información adicional relevante..."></textarea>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="d-flex justify-content-end mt-3">
-                                        <button type="submit" class="btn btn-success">Enviar</button>
+                                    
+                                    <div class="d-flex justify-content-end mt-4">
+                                        <button type="button" class="btn btn-light me-2">
+                                            <i class="fa fa-times me-1"></i> Cancelar
+                                        </button>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fa fa-paper-plane me-1"></i> Enviar Cotización
+                                        </button>
                                     </div>
                                 </form>
                             </div>
@@ -99,5 +203,35 @@
         </t>
         <!-- Incluir el script JavaScript externo -->
         <script src="/copier_company/static/src/js/custom_script.js"></script>
+        
+        <!-- Script para validaciones y mejoras de UX -->
+        <script type="text/javascript">
+            $(document).ready(function() {
+                // Mostrar el error_message si contiene contenido
+                $("#error_message").each(function() {
+                    if($(this).html().trim().length > 0) {
+                        $(this).removeClass('d-none');
+                    }
+                });
+                
+                // Validación del formulario
+                $('#copier_form').on('submit', function(e) {
+                    if (this.checkValidity() === false) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                    $(this).addClass('was-validated');
+                });
+                
+                // Cambiar estilo de input cuando tiene contenido
+                $('.form-control').on('input', function() {
+                    if($(this).val().length > 0) {
+                        $(this).addClass('is-valid');
+                    } else {
+                        $(this).removeClass('is-valid');
+                    }
+                });
+            });
+        </script>
     </template>
 </odoo>
