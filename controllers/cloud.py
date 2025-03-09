@@ -32,7 +32,7 @@ class PCloudController(http.Controller):
         
 
 class PcloudController(http.Controller):
-    @http.route('/soporte/descargas', type='http', auth='user', website=True)
+    @http.route('/soporte/descargas', type='http', auth='public', website=True)
     def list_files(self, folder_id=0, search='', **kwargs):
         # Comprobar el booleano has_licence en el partner
         partner = request.env.user.partner_id
