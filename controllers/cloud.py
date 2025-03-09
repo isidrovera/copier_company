@@ -34,20 +34,15 @@ class PCloudController(http.Controller):
 class PcloudController(http.Controller):
     @http.route('/soporte/descargas', type='http', auth='user', website=True)
     def list_files(self, folder_id=0, search='', **kwargs):
-        # Verificar suscripciones activas
+        # Comprobar el booleano has_licence en el partner
         partner = request.env.user.partner_id
-        subscriptions_in_progress = request.env['sale.order'].sudo().search([
-            ('partner_id', '=', partner.id),
-            ('subscription_state', '=', '3_progress')
-        ])
-
-        if not subscriptions_in_progress:
+        if not partner.has_licence:
             return request.render('copier_company.no_subscription_message')
-
+    
         config = request.env['pcloud.config'].search([], limit=1)
         if not config:
             return request.render('copier_company.no_config_template')
-
+    
         try:
             if search:
                 contents = self._search_files_recursive(config, search, folder_id)
@@ -66,7 +61,7 @@ class PcloudController(http.Controller):
             
             current_folder_id = int(folder_id)
             filtered_contents = []
-
+    
             # Si estamos en la raíz
             if current_folder_id == 0:
                 # Solo mostrar las carpetas permitidas
@@ -95,7 +90,7 @@ class PcloudController(http.Controller):
                 }
                 for item in filtered_contents
             ]
-
+    
             _logger.info('Processed Contents: %s', processed_contents)
             
         except Exception as e:
@@ -107,6 +102,7 @@ class PcloudController(http.Controller):
             'current_folder_id': int(folder_id),
             'search': search
         })
+
     def _search_files_recursive(self, config, search_term, folder_id=0):
         contents = config.list_pcloud_contents(folder_id=folder_id)
         matching_contents = []
