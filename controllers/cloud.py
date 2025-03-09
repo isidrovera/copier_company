@@ -36,7 +36,7 @@ class PcloudController(http.Controller):
     def list_files(self, folder_id=0, search='', **kwargs):
         # Comprobar el booleano has_licence en el partner
         partner = request.env.user.partner_id
-        if not partner.has_licence:
+        if not partner.has_license:
             return request.render('copier_company.no_subscription_message')
     
         config = request.env['pcloud.config'].search([], limit=1)
