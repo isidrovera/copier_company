@@ -64,6 +64,8 @@ class PublicHelpdeskController(http.Controller):
                 'celular_reporta': post.get('celular_reporta'),
             }
             new_ticket = request.env['helpdesk.ticket'].sudo().create(ticket_values)
+            request.env.cr.commit()  # Forzamos el commit para procesar los correos
+
 
             _logger.info('Ticket creado con ID: %s', new_ticket.id)
 
