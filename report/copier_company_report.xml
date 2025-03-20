@@ -101,7 +101,7 @@
                                     <li>Volumen mensual: <strong><t t-esc="'{:,}'.format(doc.volumen_mensual_bn)"/> impresiones</strong></li>
                                     <li>Costo por impresión: <strong>S/. <t t-esc="'%.3f' % doc.costo_copia_bn"/> + IGV</strong></li>
                                     <li>Excedente por impresión: <strong>S/. <t t-esc="'%.3f' % doc.costo_copia_bn"/> + IGV</strong></li>
-                                    <li>Renta mensual B/N: <strong>S/. <t t-esc="'%.2f' % doc.renta_mensual_bn"/> Inc. IGV</strong></li>
+                                    <li>Renta mensual B/N: <strong>S/. <t t-esc="'%.2f' % doc.renta_mensual_bn"/> Sin IGV</strong></li>
                                 </ul>
 
                                 <t t-if="doc.tipo == 'color'">
@@ -110,7 +110,7 @@
                                         <li>Volumen mensual: <strong><t t-esc="'{:,}'.format(doc.volumen_mensual_color)"/> impresiones</strong></li>
                                         <li>Costo por impresión: <strong>S/. <t t-esc="'%.3f' % doc.costo_copia_color"/> + IGV</strong></li>
                                         <li>Excedente por impresión: <strong>S/. <t t-esc="'%.3f' % doc.costo_copia_color"/> + IGV</strong></li>
-                                        <li>Renta mensual Color: <strong>S/. <t t-esc="'%.2f' % doc.renta_mensual_color"/> Inc. IGV</strong></li>
+                                        <li>Renta mensual Color: <strong>S/. <t t-esc="'%.2f' % doc.renta_mensual_color"/> Sin IGV</strong></li>
                                     </ul>
                                 </t>
 
