@@ -67,8 +67,10 @@ class PublicHelpdeskController(http.Controller):
 
             _logger.info('Ticket creado con ID: %s', new_ticket.id)
 
-            # Llamamos al método del modelo para enviar el correo de forma inmediata
+            # Enviar el correo de confirmación de forma inmediata
             new_ticket.send_confirmation_mail()
+            # Luego, enviar el mensaje de WhatsApp
+            new_ticket.send_whatsapp_confirmation()
 
             return request.redirect('/public/helpdesk_ticket_confirmation?ticket_id={}'.format(new_ticket.id))
 

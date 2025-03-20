@@ -30,7 +30,7 @@ class TicketCopier(models.Model):
                 record.responsable_mobile_clean = ''
 
     def send_whatsapp_message(self, phone, message):
-        url = 'https://whatsappapi.copiercompanysac.com/lead'
+        url = 'https://whatsappapi.copiercompanysac.com/api/message'
         data = {
             'phone': phone,
             'message': message
@@ -61,10 +61,9 @@ class TicketCopier(models.Model):
         else:
             _logger.warning("No se encontró la plantilla de correo 'helpdesk.new_ticket_request_email_template'")
 
-    @api.model
-    def create(self, vals):
-        ticket = super(TicketCopier, self).create(vals)
-        if ticket.celular_reporta:
+    def send_whatsapp_confirmation(self):
+        """Envía el mensaje de WhatsApp de forma inmediata usando la lógica definida."""
+        if self.celular_reporta:
             lima_tz = pytz.timezone('America/Lima')
             current_time = datetime.now(lima_tz)
             current_hour = current_time.hour
@@ -78,11 +77,11 @@ class TicketCopier(models.Model):
 
             message = (
                 f"*🏢 Copier Company*\n\n"
-                f"{saludo}, {ticket.nombre_reporta}.\n\n"
+                f"{saludo}, {self.nombre_reporta}.\n\n"
                 f"Hemos recibido su reporte sobre el equipo:\n"
-                f"🖨️ *Modelo:* {ticket.producto_id.name.name}\n"
-                f"🔢 *Serie:* {ticket.serie_id}\n"
-                f"⚠️ *Problema:* {ticket.name}\n\n"
+                f"🖨️ *Modelo:* {self.producto_id.name.name}\n"
+                f"🔢 *Serie:* {self.serie_id}\n"
+                f"⚠️ *Problema:* {self.name}\n\n"
                 f"Nuestro equipo de soporte técnico se pondrá en contacto con usted pronto para brindarle la asistencia necesaria.\n"
                 f"Gracias por confiar en Copier Company.\n\n"
                 f"Atentamente,\n"
@@ -90,7 +89,10 @@ class TicketCopier(models.Model):
                 f"☎️ Tel: +51975399303\n"
                 f"📧 Email: soporte@copiercompany.com"
             )
+            phone = self.responsable_mobile_clean
+            self.send_whatsapp_message(phone, message)
 
-            phone = ticket.responsable_mobile_clean
-            ticket.send_whatsapp_message(phone, message)
+    @api.model
+    def create(self, vals):
+        ticket = super(TicketCopier, self).create(vals)
         return ticket
