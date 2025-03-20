@@ -1,73 +1,135 @@
 <odoo>
     <template id="public_helpdesk_ticket_form" name="Public Helpdesk Ticket Form">
-        <t t-call="website.layout">
-            <div id="wrap" class="container mt-5">
-                <div class="jumbotron p-5 text-center" style="background-color: #007BFF; color: white;">
-                    <h1 class="display-4">Bienvenido a nuestro Servicio de Ayuda</h1>
-                    <p class="lead">Estamos aquí para ayudarte con cualquier problema que tengas con tu impresora. Por favor, completa los detalles a continuación para enviar tu ticket.</p>
-                </div>
-                <div class="row justify-content-center">
-                    <div class="col-md-8">
-                        <form action="/public/helpdesk_ticket_submit" method="post" enctype="multipart/form-data" class="needs-validation">
-                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                            <input type="hidden" name="copier_company_id" t-att-value="copier_company_id"/>
-                            
-                            <div class="form-group mb-3">
-                                <label for="partner_name" class="form-label">Empresa</label>
-                                <input type="text" class="form-control" id="partner_name" name="partner_name" t-att-value="partner_name" readonly="readonly"/>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="sede" class="form-label">Sede</label>
-                                <input type="text" class="form-control" id="sede" name="sede" t-att-value="sede" readonly="readonly"/>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="ubicacion" class="form-label">Ubicación</label>
-                                <input type="text" class="form-control" id="ubicacion" name="ubicacion" t-att-value="ubicacion" readonly="readonly"/>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="product_name" class="form-label">Equipo</label>
-                                <input type="text" class="form-control" id="product_name" name="product_name" t-att-value="product_name.name" readonly="readonly"/>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="serie_id" class="form-label">Serie</label>
-                                <input type="text" class="form-control" id="serie_id" name="serie_id" t-att-value="serie_id" readonly="readonly"/>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="description" class="form-label">Problema</label>
-                                <textarea class="form-control" id="description" name="description" required="1" placeholder="Describe el problema aquí..."></textarea>
-                                <div class="invalid-feedback">
-                                    Por favor ingresa la descripción del problema.
+    <t t-call="website.layout">
+        <div id="wrap" class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <!-- Encabezado minimalista -->
+                    <div class="text-center mb-5">
+                        <i class="fa fa-headset mb-3" style="font-size: 3rem; color: #3498db;"></i>
+                        <h1 class="h3 mb-2">Servicio de Soporte Técnico</h1>
+                        <p class="text-muted">Complete el formulario para reportar un problema con su impresora</p>
+                    </div>
+                    
+                    <!-- Tarjeta para el formulario -->
+                    <div class="card border-0 shadow-sm rounded-lg">
+                        <div class="card-body p-4">
+                            <form action="/public/helpdesk_ticket_submit" method="post" enctype="multipart/form-data" class="needs-validation">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <input type="hidden" name="copier_company_id" t-att-value="copier_company_id"/>
+                                
+                                <!-- Información del equipo -->
+                                <div class="mb-4">
+                                    <h5 class="mb-3 text-secondary">
+                                        <i class="fa fa-info-circle me-2"></i>Información del equipo
+                                    </h5>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="form-floating mb-3">
+                                                <input type="text" class="form-control" id="partner_name" name="partner_name" t-att-value="partner_name" readonly="readonly"/>
+                                                <label for="partner_name">Empresa</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-floating mb-3">
+                                                <input type="text" class="form-control" id="sede" name="sede" t-att-value="sede" readonly="readonly"/>
+                                                <label for="sede">Sede</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="form-floating mb-3">
+                                                <input type="text" class="form-control" id="ubicacion" name="ubicacion" t-att-value="ubicacion" readonly="readonly"/>
+                                                <label for="ubicacion">Ubicación</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-floating mb-3">
+                                                <input type="text" class="form-control" id="product_name" name="product_name" t-att-value="product_name.name" readonly="readonly"/>
+                                                <label for="product_name">Equipo</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="serie_id" name="serie_id" t-att-value="serie_id" readonly="readonly"/>
+                                        <label for="serie_id">Número de Serie</label>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="nombre_reporta" class="form-label">Nombre</label>
-                                <input type="text" class="form-control" id="nombre_reporta" name="nombre_reporta" required="1" placeholder="Tu nombre..."/>
-                                <div class="invalid-feedback">
-                                    Por favor ingresa tu nombre.
+                                
+                                <!-- Detalles del problema -->
+                                <div class="mb-4">
+                                    <h5 class="mb-3 text-secondary">
+                                        <i class="fa fa-exclamation-triangle me-2"></i>Detalles del problema
+                                    </h5>
+                                    <div class="form-floating mb-3">
+                                        <textarea class="form-control" id="description" name="description" required="1" placeholder="Describe el problema aquí..." style="height: 120px"></textarea>
+                                        <label for="description">Descripción del problema</label>
+                                        <div class="invalid-feedback">
+                                            Por favor ingresa la descripción del problema.
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="image" class="form-label text-muted">
+                                            <i class="fa fa-camera me-1"></i>Adjuntar imagen del problema (opcional)
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="file" class="form-control" id="image" name="image" accept="image/*"/>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="celular_reporta" class="form-label">Celular</label>
-                                <input type="text" class="form-control" id="celular_reporta" name="celular_reporta" required="1" placeholder="Tu número..."/>
-                                <div class="invalid-feedback">
-                                    Por favor ingresa tu número de celular.
+                                
+                                <!-- Información de contacto -->
+                                <div class="mb-4">
+                                    <h5 class="mb-3 text-secondary">
+                                        <i class="fa fa-user me-2"></i>Información de contacto
+                                    </h5>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="form-floating mb-3">
+                                                <input type="text" class="form-control" id="nombre_reporta" name="nombre_reporta" required="1" placeholder="Tu nombre..."/>
+                                                <label for="nombre_reporta">Nombre completo</label>
+                                                <div class="invalid-feedback">
+                                                    Por favor ingresa tu nombre.
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-floating mb-3">
+                                                <input type="text" class="form-control" id="celular_reporta" name="celular_reporta" required="1" placeholder="Tu número..."/>
+                                                <label for="celular_reporta">Teléfono de contacto</label>
+                                                <div class="invalid-feedback">
+                                                    Por favor ingresa tu número de celular.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="image" class="form-label">Adjuntar Imagen</label>
-                                <input type="file" class="form-control-file" id="image" name="image" accept="image/*"/>
-                                <div class="invalid-feedback">
-                                    Por favor adjunta una imagen relacionada con el problema.
+                                
+                                <!-- Botón de envío -->
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary py-3">
+                                        <i class="fa fa-paper-plane me-2"></i>Enviar reporte
+                                    </button>
                                 </div>
-                            </div>
-                            <button type="submit" class="btn btn-success w-100 mb-3">Enviar</button>
-                        </form>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Nota informativa -->
+                    <div class="text-center mt-4">
+                        <p class="text-muted small">
+                            <i class="fa fa-clock me-1"></i>Nuestro equipo atenderá su solicitud en un plazo máximo de 24 horas.
+                        </p>
                     </div>
                 </div>
             </div>
-        </t>
-    </template>
-    
+        </div>
+    </t>
+</template>
 
 
     <template id="helpdesk_ticket_confirmation" name="Helpdesk Ticket Confirmation">
