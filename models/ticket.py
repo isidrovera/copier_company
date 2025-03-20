@@ -50,6 +50,17 @@ class TicketCopier(models.Model):
             _logger.error(error_msg)
             return {"error": error_msg}
 
+    def send_confirmation_mail(self):
+        """Envía el correo de confirmación de forma inmediata usando la plantilla definida."""
+        # Se asume que la plantilla tiene external_id 'helpdesk.new_ticket_request_email_template'
+        template = self.env.ref('helpdesk.new_ticket_request_email_template')
+        if template:
+            template.sudo().send_mail(self.id, force_send=True)
+            # Forzamos el commit para que el correo se envíe de inmediato
+            self.env.cr.commit()
+        else:
+            _logger.warning("No se encontró la plantilla de correo 'helpdesk.new_ticket_request_email_template'")
+
     @api.model
     def create(self, vals):
         ticket = super(TicketCopier, self).create(vals)
@@ -65,18 +76,20 @@ class TicketCopier(models.Model):
             else:
                 saludo = "👋 Buenas noches"
 
-            message = (f"*🏢 Copier Company*\n\n"
-                       f"{saludo}, {ticket.nombre_reporta}.\n\n"
-                       f"Hemos recibido su reporte sobre el equipo:\n"
-                       f"🖨️ *Modelo:* {ticket.producto_id.name.name}\n"
-                       f"🔢 *Serie:* {ticket.serie_id}\n"
-                       f"⚠️ *Problema:* {ticket.name}\n\n"
-                       f"Nuestro equipo de soporte técnico se pondrá en contacto con usted pronto para brindarle la asistencia necesaria.\n"
-                       f"Gracias por confiar en Copier Company.\n\n"
-                       f"Atentamente,\n"
-                       f"📞 Soporte Técnico Copier Company\n"
-                       f"☎️ Tel: +51975399303\n"
-                       f"📧 Email: soporte@copiercompany.com")
+            message = (
+                f"*🏢 Copier Company*\n\n"
+                f"{saludo}, {ticket.nombre_reporta}.\n\n"
+                f"Hemos recibido su reporte sobre el equipo:\n"
+                f"🖨️ *Modelo:* {ticket.producto_id.name.name}\n"
+                f"🔢 *Serie:* {ticket.serie_id}\n"
+                f"⚠️ *Problema:* {ticket.name}\n\n"
+                f"Nuestro equipo de soporte técnico se pondrá en contacto con usted pronto para brindarle la asistencia necesaria.\n"
+                f"Gracias por confiar en Copier Company.\n\n"
+                f"Atentamente,\n"
+                f"📞 Soporte Técnico Copier Company\n"
+                f"☎️ Tel: +51975399303\n"
+                f"📧 Email: soporte@copiercompany.com"
+            )
 
             phone = ticket.responsable_mobile_clean
             ticket.send_whatsapp_message(phone, message)

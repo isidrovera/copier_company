@@ -64,10 +64,11 @@ class PublicHelpdeskController(http.Controller):
                 'celular_reporta': post.get('celular_reporta'),
             }
             new_ticket = request.env['helpdesk.ticket'].sudo().create(ticket_values)
-            request.env.cr.commit()  # Forzamos el commit para procesar los correos
-
 
             _logger.info('Ticket creado con ID: %s', new_ticket.id)
+
+            # Llamamos al método del modelo para enviar el correo de forma inmediata
+            new_ticket.send_confirmation_mail()
 
             return request.redirect('/public/helpdesk_ticket_confirmation?ticket_id={}'.format(new_ticket.id))
 
@@ -87,7 +88,6 @@ class PublicHelpdeskController(http.Controller):
             _logger.warning('No se encontró el ticket con ID: %s', ticket_id)
 
         return request.render("copier_company.helpdesk_ticket_confirmation")
-
 
 
 class ExternalPageController(http.Controller):
