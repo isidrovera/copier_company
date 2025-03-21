@@ -2,102 +2,256 @@
 <odoo>
     <template id="copier_company_form_template" name="Cotizaciones">
         <t t-call="website.layout">
-            <div class="container mt-5">
+            <div class="container py-5">
                 <div class="row justify-content-center">
-                    <div class="col-lg-8">
-                        <div class="card shadow-sm">
-                            <div class="card-header" style="background-color: #3d6cb9; color: white;">
-                                <h2 class="mb-0">Formulario de Cotización</h2>
+                    <div class="col-lg-10">
+                        <div class="card shadow border-0 rounded-lg overflow-hidden">
+                            <!-- Encabezado con gradiente y logo -->
+                            <div class="card-header py-3" style="background: linear-gradient(135deg, #2563eb, #3b82f6); color: white;">
+                                <div class="d-flex align-items-center">
+                                    <i class="fa fa-print fa-2x me-3"></i>
+                                    <h2 class="mb-0 fw-bold">Solicitud de Cotización</h2>
+                                </div>
+                                <p class="mb-0 mt-2 text-white-50">Complete el formulario para recibir una cotización personalizada</p>
                             </div>
-                            <div class="card-body">
-                                <div id="error_message" class="text-danger mb-3"></div>
-                                <form action="/cotizacion/submit" method="POST" id="copier_form">
-                                    <!-- Incluir el token CSRF -->
+                            
+                            <div class="card-body p-4">
+                                <div id="error_message" class="alert alert-danger d-none"></div>
+                                
+                                <!-- Barra de progreso -->
+                                <div class="progress mb-4" style="height: 5px;">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: 0%;" id="form_progress"></div>
+                                </div>
+                                
+                                <form action="/cotizacion/submit" method="POST" id="copier_form" class="needs-validation" novalidate="novalidate">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                     <input type="hidden" id="cliente_id" name="cliente_id" />
-                                    <div class="row mb-3">
-                                        <div class="col-md-6">                                            
-                                            <div class="form-group mb-3">
-                                                <label for="tipo_identificacion">Tipo de Identificación</label>
-                                                <select class="form-control" id="tipo_identificacion" name="tipo_identificacion">
-                                                    <t t-foreach="tipos_identificacion" t-as="tipo">
-                                                        <option t-att-value="tipo.l10n_pe_vat_code">
-                                                            <t t-esc="tipo.name"/>
-                                                        </option>
-                                                    </t>
-                                                </select>
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="identificacion">Número de Identificación</label>
-                                                <input type="text" class="form-control" id="identificacion" name="identificacion" placeholder="Número de RUC / DNI" onblur="obtenerDatosCliente()" required="1"/>
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="cliente_name">Nombre del Cliente</label>
-                                                <input type="text" class="form-control" id="cliente_name" name="cliente_name" placeholder="Nombre del Cliente" readonly="1"/>
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="contacto">Contacto</label>
-                                                <input type="text" class="form-control" id="contacto" name="contacto" placeholder="Contacto" required="1"/>
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="correo">Correo</label>
-                                                <input type="email" class="form-control" id="correo" name="correo" placeholder="Correo" required="1"/>
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="telefono">Teléfono</label>
-                                                <input type="text" class="form-control" id="telefono" name="telefono" placeholder="Teléfono" required="1"/>
-                                            </div>
+                                    
+                                    <!-- Sección: Información del Cliente -->
+                                    <div class="card mb-4 border-0 shadow-sm">
+                                        <div class="card-header bg-light py-3">
+                                            <h5 class="mb-0">
+                                                <i class="fa fa-user-circle me-2 text-primary"></i>Información del Cliente
+                                            </h5>
                                         </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group mb-3">
-                                                <label for="name">Máquina</label>
-                                                <select class="form-control" id="name" name="name">
-                                                    <t t-foreach="marcas" t-as="marca">
-                                                        <option t-att-value="marca.id">
-                                                            <t t-esc="marca.name"/>
-                                                        </option>
-                                                    </t>
-                                                </select>
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="tipo">Tipo de impresora</label>
-                                                <select class="form-control" id="tipo" name="tipo">
-                                                    <option value="monocroma">Blanco y negro</option>
-                                                    <option value="color">Color</option>
-                                                </select>
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="formato">Formato</label>
-                                                <select class="form-control" id="formato" name="formato">
-                                                    <option value="a4">A4</option>
-                                                    <option value="a3">A3</option>
-                                                </select>
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="volumen_mensual_color">Volumen Mensual (Color)</label>
-                                                <input type="number" class="form-control" id="volumen_mensual_color" name="volumen_mensual_color" placeholder="Volumen Mensual (Color)" required="1"/>
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="volumen_mensual_bn">Volumen Mensual (B/N)</label>
-                                                <input type="number" class="form-control" id="volumen_mensual_bn" name="volumen_mensual_bn" placeholder="Volumen Mensual (B/N)" required="1"/>
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="detalles">Detalle</label>
-                                                <textarea class="form-control" id="detalles" name="detalles" rows="3"></textarea>
+                                        <div class="card-body p-4">
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <div class="form-floating mb-3">
+                                                        <select class="form-select" id="tipo_identificacion" name="tipo_identificacion">
+                                                            <t t-foreach="tipos_identificacion" t-as="tipo">
+                                                                <option t-att-value="tipo.l10n_pe_vat_code">
+                                                                    <t t-esc="tipo.name"/>
+                                                                </option>
+                                                            </t>
+                                                        </select>
+                                                        <label for="tipo_identificacion">Tipo de Identificación</label>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-md-6">
+                                                    <div class="form-floating mb-3">
+                                                        <input type="text" class="form-control" id="identificacion" name="identificacion" placeholder="Número de RUC / DNI" onblur="obtenerDatosCliente()" required="1"/>
+                                                        <label for="identificacion">
+                                                            <i class="fa fa-id-card me-1 text-secondary"></i>Número de Identificación
+                                                        </label>
+                                                        <div class="invalid-feedback">Por favor ingrese un número de identificación válido</div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-md-12">
+                                                    <div class="form-floating mb-3">
+                                                        <input type="text" class="form-control" id="cliente_name" name="cliente_name" placeholder="Nombre del Cliente" readonly="1"/>
+                                                        <label for="cliente_name">
+                                                            <i class="fa fa-building me-1 text-secondary"></i>Nombre/Razón Social
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-md-4">
+                                                    <div class="form-floating mb-3">
+                                                        <input type="text" class="form-control" id="contacto" name="contacto" placeholder="Contacto" required="1"/>
+                                                        <label for="contacto">
+                                                            <i class="fa fa-user me-1 text-secondary"></i>Persona de Contacto
+                                                        </label>
+                                                        <div class="invalid-feedback">Por favor ingrese un nombre de contacto</div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-md-4">
+                                                    <div class="form-floating mb-3">
+                                                        <input type="email" class="form-control" id="correo" name="correo" placeholder="Correo" required="1"/>
+                                                        <label for="correo">
+                                                            <i class="fa fa-envelope me-1 text-secondary"></i>Correo Electrónico
+                                                        </label>
+                                                        <div class="invalid-feedback">Por favor ingrese un correo válido</div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-md-4">
+                                                    <div class="form-floating mb-3">
+                                                        <input type="text" class="form-control" id="telefono" name="telefono" placeholder="Teléfono" required="1"/>
+                                                        <label for="telefono">
+                                                            <i class="fa fa-phone me-1 text-secondary"></i>Teléfono
+                                                        </label>
+                                                        <div class="invalid-feedback">Por favor ingrese un número de teléfono</div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="d-flex justify-content-end mt-3">
-                                        <button type="submit" class="btn btn-success">Enviar</button>
+                                    
+                                    <!-- Sección: Información del Equipo -->
+                                    <div class="card mb-4 border-0 shadow-sm">
+                                        <div class="card-header bg-light py-3">
+                                            <h5 class="mb-0">
+                                                <i class="fa fa-print me-2 text-primary"></i>Especificaciones del Equipo
+                                            </h5>
+                                        </div>
+                                        <div class="card-body p-4">
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <div class="form-floating mb-3">
+                                                        <select class="form-select" id="name" name="name">
+                                                            <t t-foreach="marcas" t-as="marca">
+                                                                <option t-att-value="marca.id">
+                                                                    <t t-esc="marca.name"/>
+                                                                </option>
+                                                            </t>
+                                                        </select>
+                                                        <label for="name">
+                                                            <i class="fa fa-tag me-1 text-secondary"></i>Modelo de Fotocopiadora
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-md-6">
+                                                    <div class="form-floating mb-3">
+                                                        <select class="form-select" id="tipo" name="tipo">
+                                                            <option value="monocroma">Blanco y negro</option>
+                                                            <option value="color">Color</option>
+                                                        </select>
+                                                        <label for="tipo">
+                                                            <i class="fa fa-adjust me-1 text-secondary"></i>Tipo de Impresión
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-md-4">
+                                                    <div class="form-floating mb-3">
+                                                        <select class="form-select" id="formato" name="formato">
+                                                            <option value="a4">A4</option>
+                                                            <option value="a3">A3</option>
+                                                        </select>
+                                                        <label for="formato">
+                                                            <i class="fa fa-file me-1 text-secondary"></i>Formato de Papel
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-md-4">
+                                                    <div class="form-floating mb-3">
+                                                        <input type="number" min="0" class="form-control" id="volumen_mensual_color" name="volumen_mensual_color" placeholder="Volumen Mensual (Color)" required="1"/>
+                                                        <label for="volumen_mensual_color">
+                                                            <i class="fa fa-tint me-1 text-secondary"></i>Impresiones Color/Mes
+                                                        </label>
+                                                        <div class="invalid-feedback">Por favor ingrese un volumen válido</div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-md-4">
+                                                    <div class="form-floating mb-3">
+                                                        <input type="number" min="0" class="form-control" id="volumen_mensual_bn" name="volumen_mensual_bn" placeholder="Volumen Mensual (B/N)" required="1"/>
+                                                        <label for="volumen_mensual_bn">
+                                                            <i class="fa fa-align-justify me-1 text-secondary"></i>Impresiones B/N/Mes
+                                                        </label>
+                                                        <div class="invalid-feedback">Por favor ingrese un volumen válido</div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-md-12">
+                                                    <div class="form-floating mb-3">
+                                                        <textarea class="form-control" id="detalles" name="detalles" rows="4" style="height: 120px;" placeholder="Detalles adicionales"></textarea>
+                                                        <label for="detalles">
+                                                            <i class="fa fa-comment me-1 text-secondary"></i>Requerimientos Adicionales
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Botones de acción -->
+                                    <div class="d-flex justify-content-between align-items-center mt-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="terminos" required="1"/>
+                                            <label class="form-check-label" for="terminos">
+                                                Acepto los términos y condiciones
+                                            </label>
+                                            <div class="invalid-feedback">Debe aceptar los términos y condiciones</div>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary btn-lg px-4">
+                                            <i class="fa fa-paper-plane me-2"></i>Solicitar Cotización
+                                        </button>
                                     </div>
                                 </form>
+                            </div>
+                            
+                            <!-- Footer -->
+                            <div class="card-footer text-center py-3 bg-light">
+                                <small class="text-muted">Recibirá su cotización personalizada en un plazo de 24 horas hábiles</small>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </t>
-        <!-- Incluir el script JavaScript externo -->
+        
+        <!-- Scripts -->
         <script src="/copier_company/static/src/js/custom_script.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Validación del formulario
+                const form = document.getElementById('copier_form');
+                
+                // Actualizar barra de progreso al completar campos
+                const formInputs = form.querySelectorAll('input, select, textarea');
+                const progressBar = document.getElementById('form_progress');
+                
+                function updateProgress() {
+                    const total = formInputs.length;
+                    let completed = 0;
+                    
+                    formInputs.forEach(input =&lt; {
+                        if (input.value.trim() !== '') {
+                            completed++;
+                        }
+                    });
+                    
+                    const percentage = Math.floor((completed / total) * 100);
+                    progressBar.style.width = percentage + '%';
+                }
+                
+                formInputs.forEach(input =&lt; {
+                    input.addEventListener('change', updateProgress);
+                    input.addEventListener('input', updateProgress);
+                });
+                
+                // Validación de Bootstrap
+                form.addEventListener('submit', function(event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        
+                        // Mostrar mensaje de error
+                        const errorDiv = document.getElementById('error_message');
+                        errorDiv.classList.remove('d-none');
+                        errorDiv.innerHTML = 'Por favor complete todos los campos obligatorios.';
+                    }
+                    
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        </script>
     </template>
 </odoo>
