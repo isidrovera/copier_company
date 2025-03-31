@@ -250,4 +250,75 @@
             </div>
         </t>
     </template>
+    <!-- Template para la creación pública de tickets desde QR -->
+<template id="portal_public_create_ticket" name="Create Ticket from QR">
+    <t t-call="website.layout">
+        <div class="container py-5">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="card shadow">
+                        <div class="card-header bg-primary text-white">
+                            <h3 class="mb-0">Crear ticket de soporte</h3>
+                        </div>
+                        <div class="card-body">
+                            <!-- Mensaje de éxito o error -->
+                            <div t-if="success_message" class="alert alert-success">
+                                <span t-esc="success_message"/>
+                            </div>
+                            <div t-if="error_message" class="alert alert-danger">
+                                <span t-esc="error_message"/>
+                            </div>
+                            
+                            <!-- Información del equipo -->
+                            <div class="mb-4">
+                                <h5>Información del equipo</h5>
+                                <div class="row">
+                                    <div class="col-md-4 text-center" t-if="equipment.imagen_id">
+                                        <img class="img-fluid rounded" t-att-src="image_data_uri(equipment.imagen_id)" alt="Imagen de la Máquina"/>
+                                    </div>
+                                    <div t-att-class="equipment.imagen_id and 'col-md-8' or 'col-md-12'">
+                                        <p><strong>Modelo:</strong> <span t-field="equipment.name.name"/></p>
+                                        <p><strong>Serie:</strong> <span t-field="equipment.serie_id"/></p>
+                                        <p><strong>Tipo:</strong> 
+                                            <span t-if="equipment.tipo == 'monocroma'">Blanco y negro</span>
+                                            <span t-else="">Color</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Formulario de ticket -->
+                            <form method="post" t-if="not success_message">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Nombre completo</label>
+                                    <input type="text" class="form-control" name="name" id="name" required="required"/>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Correo electrónico</label>
+                                    <input type="email" class="form-control" name="email" id="email" required="required"/>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">Teléfono</label>
+                                    <input type="tel" class="form-control" name="phone" id="phone"/>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Descripción del problema</label>
+                                    <textarea class="form-control" name="description" id="description" rows="5" required="required"></textarea>
+                                </div>
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-primary">Enviar ticket</button>
+                                </div>
+                            </form>
+                            
+                            <!-- Botones adicionales -->
+                            <div class="mt-4 text-center">
+                                <a href="/" class="btn btn-secondary">Volver a la página principal</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</template>
 </odoo>
