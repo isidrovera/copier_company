@@ -370,44 +370,42 @@
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
+                                                <!-- Encabezados dinámicos basados en campos disponibles -->
                                                 <th>Fecha</th>
-                                                <th>Contador B/N</th>
-                                                <t t-if="equipment.tipo == 'color'">
-                                                    <th>Contador Color</th>
-                                                </t>
-                                                <th>Consumo B/N</th>
-                                                <t t-if="equipment.tipo == 'color'">
-                                                    <th>Consumo Color</th>
-                                                </t>
-                                                <th>Técnico</th>
-                                                <th>Notas</th>
+                                                <th t-if="'lectura_bn' in counter_fields">Contador B/N</th>
+                                                <th t-if="'lectura_color' in counter_fields and equipment.tipo == 'color'">Contador Color</th>
+                                                <th t-if="'consumo_bn' in counter_fields">Consumo B/N</th>
+                                                <th t-if="'consumo_color' in counter_fields and equipment.tipo == 'color'">Consumo Color</th>
+                                                <th t-if="'tecnico_id' in counter_fields">Técnico</th>
+                                                <th t-if="'notas' in counter_fields">Notas</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr t-foreach="counters" t-as="counter">
                                                 <td>
-                                                    <span t-field="counter.fecha_lectura"/>
+                                                    <t t-if="'fecha_lectura' in counter_fields">
+                                                        <span t-field="counter.fecha_lectura"/>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <span t-field="counter.create_date"/>
+                                                    </t>
                                                 </td>
-                                                <td>
+                                                <td t-if="'lectura_bn' in counter_fields">
                                                     <span t-field="counter.lectura_bn"/>
                                                 </td>
-                                                <t t-if="equipment.tipo == 'color'">
-                                                    <td>
-                                                        <span t-field="counter.lectura_color"/>
-                                                    </td>
-                                                </t>
-                                                <td>
+                                                <td t-if="'lectura_color' in counter_fields and equipment.tipo == 'color'">
+                                                    <span t-field="counter.lectura_color"/>
+                                                </td>
+                                                <td t-if="'consumo_bn' in counter_fields">
                                                     <span t-field="counter.consumo_bn"/>
                                                 </td>
-                                                <t t-if="equipment.tipo == 'color'">
-                                                    <td>
-                                                        <span t-field="counter.consumo_color"/>
-                                                    </td>
-                                                </t>
-                                                <td>
+                                                <td t-if="'consumo_color' in counter_fields and equipment.tipo == 'color'">
+                                                    <span t-field="counter.consumo_color"/>
+                                                </td>
+                                                <td t-if="'tecnico_id' in counter_fields">
                                                     <span t-field="counter.tecnico_id.name"/>
                                                 </td>
-                                                <td>
+                                                <td t-if="'notas' in counter_fields">
                                                     <span t-field="counter.notas"/>
                                                 </td>
                                             </tr>
