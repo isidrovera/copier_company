@@ -255,7 +255,7 @@ class CopierCompanyPortal(CustomerPortal):
             _logger.exception("¡EXCEPCIÓN GENERAL en portal_create_equipment_ticket!: %s", str(e))
             return request.redirect('/my')
         
-   @http.route(['/my/copier/equipment/<int:equipment_id>/counters'], type='http', auth="user", website=True)
+    @http.route(['/my/copier/equipment/<int:equipment_id>/counters'], type='http', auth="user", website=True)
     def portal_equipment_counters(self, equipment_id, **kw):
         """Muestra el historial de contadores para un equipo específico"""
         _logger.info("=== INICIANDO portal_equipment_counters ===")
