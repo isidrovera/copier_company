@@ -1,34 +1,40 @@
 /** @odoo-module **/
 
-import { onWillStart } from "@odoo/owl";
+import { registry } from '@web/core/registry';
+import { onMounted } from "@odoo/owl";
 
-// Función para crear elementos que faltan en el DOM
-function createMissingElements() {
-    const possibleMissingIds = [
-        'o_portal_navbar_content',
-        'o_portal_navbar_content_menu', 
-        'o_portal_search_panel'
-    ];
-    
-    for (const id of possibleMissingIds) {
-        if (!document.getElementById(id)) {
-            const div = document.createElement('div');
-            div.id = id;
-            div.style.display = 'none';
-            document.body.appendChild(div);
-            console.log('Added missing element:', id);
-        }
-    }
-}
-
-// Hook para ejecutar la función
-onWillStart(() => {
-    document.addEventListener('DOMContentLoaded', () => {
-        createMissingElements();
-        
-        // También ejecutar después de que la página haya cargado completamente
-        window.addEventListener('load', () => {
-            setTimeout(createMissingElements, 100);
+const fixPortalElements = {
+    start() {
+        onMounted(() => {
+            // Función para comprobar y arreglar elementos faltantes
+            const fixMissingElements = () => {
+                // Crea divs vacíos para posibles elementos faltantes en el portal
+                const possibleMissingIds = [
+                    'o_portal_navbar_content',
+                    'o_portal_navbar_content_menu',
+                    'o_portal_search_panel'
+                ];
+                
+                for (const id of possibleMissingIds) {
+                    if (!document.getElementById(id)) {
+                        const div = document.createElement('div');
+                        div.id = id;
+                        div.style.display = 'none';
+                        document.body.appendChild(div);
+                        console.log('Added missing element:', id);
+                    }
+                }
+            };
+            
+            // Ejecutar inmediatamente
+            fixMissingElements();
+            
+            // Y también después de que cargue completamente la página
+            window.addEventListener('load', () => {
+                setTimeout(fixMissingElements, 100);
+            });
         });
-    });
-});
+    },
+};
+
+registry.category('website_backend_start').add('copier_company.fix_portal_elements', fixPortalElements);
