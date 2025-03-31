@@ -1,13 +1,20 @@
+/**
+ * Copier Company Portal Fix
+ * Prevents errors related to textContent property on null elements
+ * Version: 1.0.1
+ */
 (function() {
-    console.log("[Copier Company] Inicializando portal_fix.js - Versión mejorada");
+    console.log("[Copier Company] Inicializando portal_fix.js - Versión 1.0.1");
     
-    // Función para crear elementos faltantes de manera más robusta
-    function ensureElementExists(selector, createIfMissing = true) {
+    // Función para crear elementos faltantes de manera segura
+    function ensureElementExists(selector, parentSelector = 'body', createIfMissing = true) {
+        const parent = document.querySelector(parentSelector) || document.body;
         let element = document.querySelector(selector);
         
         if (!element && createIfMissing) {
             console.warn(`[Copier Company] Elemento no encontrado: ${selector}. Creando.`);
             
+            // Crear elemento
             element = document.createElement('div');
             if (selector.startsWith('#')) {
                 element.id = selector.substring(1);
@@ -15,8 +22,12 @@
                 element.className = selector.substring(1);
             }
             
+            // Marcar como elemento de reserva
+            element.setAttribute('data-copier-fallback', 'true');
             element.style.display = 'none';
-            document.body.appendChild(element);
+            
+            // Añadir al DOM
+            parent.appendChild(element);
         }
         
         return element;
@@ -26,36 +37,44 @@
     function initPortalElements() {
         console.log("[Copier Company] Inicializando elementos del portal");
         
-        const elementsToEnsure = [
-            '#o_portal_navbar_content',
-            '.o_portal_docs',
-            '.o_portal_navbar',
-            '#portal_my_items',
-            '.o_portal_my_doc_table'
-        ];
+        // Elementos críticos del portal
+        ensureElementExists('#o_portal_navbar_content', 'header');
+        ensureElementExists('.o_portal_docs', 'main');
+        ensureElementExists('#portal_service_category', '.o_portal_docs');
         
-        elementsToEnsure.forEach(ensureElementExists);
+        // Elementos específicos de la sección equipos
+        if (window.location.pathname.includes('/my/copier/equipment')) {
+            ensureElementExists('.o_portal_my_doc_table', 'main');
+        }
     }
     
     // Parche para manejar textContent de manera segura
     function patchTextContentAccess() {
+        // Guardar el descriptor original
         const originalTextContentDescriptor = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
         
+        // Reemplazar con versión segura
         Object.defineProperty(Node.prototype, 'textContent', {
             set: function(value) {
-                if (!this) {
-                    console.warn("[Copier Company] Intento de establecer textContent en un elemento nulo.");
+                if (this === null || this === undefined) {
+                    console.warn("[Copier Company] Intento de establecer textContent en un elemento nulo");
                     return;
                 }
+                
                 try {
-                    originalTextContentDescriptor.set.call(this, value);
+                    return originalTextContentDescriptor.set.call(this, value);
                 } catch (error) {
                     console.error("[Copier Company] Error al establecer textContent:", error);
                 }
             },
             get: function() {
+                if (this === null || this === undefined) {
+                    console.warn("[Copier Company] Intento de leer textContent de un elemento nulo");
+                    return '';
+                }
+                
                 try {
-                    return this ? originalTextContentDescriptor.get.call(this) : '';
+                    return originalTextContentDescriptor.get.call(this);
                 } catch (error) {
                     console.error("[Copier Company] Error al obtener textContent:", error);
                     return '';
@@ -65,41 +84,75 @@
         });
     }
     
-    // Aplicar parches globales
-    function applyGlobalPatches() {
-        // Manejar errores no capturados
+    // Parche para funciones de Odoo relacionadas con renderizado del portal
+    function patchOdooPortalFunctions() {
+        // Si el objeto portal existe
+        if (window.odoo && window.odoo.portal) {
+            const originalUpdateRightmenu = window.odoo.portal.updateRightMenu;
+            
+            // Sobreescribir updateRightMenu para hacerlo más seguro
+            window.odoo.portal.updateRightMenu = function() {
+                try {
+                    // Asegurar que los elementos existan antes de llamar a la función original
+                    ensureElementExists('#o_portal_navbar_content', 'header');
+                    return originalUpdateRightmenu.apply(this, arguments);
+                } catch (error) {
+                    console.error("[Copier Company] Error en updateRightMenu:", error);
+                }
+            };
+        }
+    }
+    
+    // Manejar errores no capturados
+    function setupErrorHandlers() {
         window.addEventListener('error', function(event) {
-            if (event.message && event.message.includes('textContent')) {
-                console.warn("[Copier Company] Error global capturado:", event);
+            if (event.message && (
+                event.message.includes('textContent') || 
+                event.message.includes('Cannot set properties of null')
+            )) {
+                console.warn("[Copier Company] Error prevenido:", event.message);
                 event.preventDefault();
-                return false;
+                return true; // Prevenir propagación
             }
         }, true);
         
-        // Manejar promesas no manejadas
         window.addEventListener('unhandledrejection', function(event) {
-            console.warn("[Copier Company] Promesa no manejada:", event.reason);
-            event.preventDefault();
+            if (event.reason && event.reason.message && (
+                event.reason.message.includes('textContent') ||
+                event.reason.message.includes('Cannot set properties of null')
+            )) {
+                console.warn("[Copier Company] Promesa no manejada prevenida:", event.reason.message);
+                event.preventDefault();
+            }
         });
     }
     
-    // Inicialización
+    // Inicialización completa
     function initialize() {
         try {
-            initPortalElements();
+            // Aplicar todos los parches y mejoras
+            setupErrorHandlers();
             patchTextContentAccess();
-            applyGlobalPatches();
+            initPortalElements();
+            patchOdooPortalFunctions();
             
-            console.log("[Copier Company] Inicialización completada");
+            // Reintento después de la carga completa
+            setTimeout(initPortalElements, 500);
+            
+            console.log("[Copier Company] Inicialización completada con éxito");
         } catch (error) {
             console.error("[Copier Company] Error en la inicialización:", error);
         }
     }
     
-    // Ejecutar en diferentes etapas de carga para asegurar estabilidad
+    // Ejecutar en diferentes etapas para máxima compatibilidad
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initialize);
     } else {
-        window.addEventListener('load', initialize);
+        initialize();
+        // Segundo intento después de que todo esté cargado
+        window.addEventListener('load', function() {
+            setTimeout(initPortalElements, 1000);
+        });
     }
 })();

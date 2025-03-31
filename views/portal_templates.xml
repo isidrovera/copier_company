@@ -22,6 +22,20 @@
             </div>
         </field>
     </record>
+     <record id="portal_my_home_equipment_fix" model="ir.ui.view">
+        <field name="name">Portal My Home Equipment Fix</field>
+        <field name="model">ir.ui.view</field>
+        <field name="inherit_id" ref="portal.portal_my_home"/>
+        <field name="priority">55</field>
+        <field name="arch" type="xml">
+            <!-- Primero, asegurar que el div portal_service_category exista -->
+            <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+                <div id="portal_service_category" t-if="not portal_service_category" class="mt32">
+                    <!-- Este div se llenará con contenido más adelante -->
+                </div>
+            </xpath>
+        </field>
+    </record>
     
     <!-- Template para la página de listado de equipos -->
     <template id="portal_my_copier_equipments" name="My Rental Equipments">
