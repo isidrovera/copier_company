@@ -61,6 +61,7 @@
         'views/ajustes_copier.xml',
         'views/contadores.xml',
         'views/detalles_usuarios.xml',
+        'views/portal_templates.xml',
         
         
         
