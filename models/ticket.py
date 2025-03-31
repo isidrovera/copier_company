@@ -12,6 +12,8 @@ class TicketCopier(models.Model):
     
     producto_id = fields.Many2one('copier.company', string='Maquina')
     serie_id = fields.Char(related='producto_id.serie_id', string='Serie', readonly=True)
+    contometro_black = fields.Char('Contometro black')
+    contometro_color = fields.Char('Contometro color')
     image = fields.Binary("Imagen", attachment=True, help="Imagen relacionada con el ticket.")
     nombre_reporta = fields.Char(string='Nombre de quien reporto')
     ubicacion = fields.Char(related='producto_id.ubicacion', readonly=True, store=True, string='Ubicacion')
