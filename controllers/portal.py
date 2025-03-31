@@ -255,7 +255,7 @@ class CopierCompanyPortal(CustomerPortal):
             _logger.exception("¡EXCEPCIÓN GENERAL en portal_create_equipment_ticket!: %s", str(e))
             return request.redirect('/my')
         
-    @http.route(['/my/copier/equipment/<int:equipment_id>/counters'], type='http', auth="user", website=True)
+   @http.route(['/my/copier/equipment/<int:equipment_id>/counters'], type='http', auth="user", website=True)
     def portal_equipment_counters(self, equipment_id, **kw):
         """Muestra el historial de contadores para un equipo específico"""
         _logger.info("=== INICIANDO portal_equipment_counters ===")
@@ -281,35 +281,21 @@ class CopierCompanyPortal(CustomerPortal):
                 try:
                     _logger.info("Buscando contadores para el equipo ID: %s", equipment_id)
                     
-                    # Obtener los campos del modelo para verificar cuáles existen
-                    counter_fields = request.env['copier.counter'].fields_get()
-                    _logger.info("Campos disponibles en copier.counter: %s", list(counter_fields.keys()))
-                    
-                    # Determinar el campo de fecha y el orden
-                    date_field = 'fecha_lectura' if 'fecha_lectura' in counter_fields else 'create_date'
-                    order_field = f"{date_field} desc"
-                    
-                    # Buscar contadores
+                    # Buscar contadores usando el campo correcto
                     counters = request.env['copier.counter'].search([
                         ('maquina_id', '=', equipment_id)
-                    ], order=order_field)
+                    ], order='fecha desc')
                     
                     _logger.info("Contadores encontrados: %s", len(counters))
                     # Log detallado de contadores
                     for counter in counters[:10]:  # Limitar a 10 para logs
-                        # Verificar cada campo dinámicamente
-                        counter_info = {
-                            'id': counter.id,
-                            'fecha': counter[date_field] if hasattr(counter, date_field) else 'N/A',
-                        }
-                        
-                        # Añadir campos de lecturas si existen
-                        if hasattr(counter, 'lectura_bn'):
-                            counter_info['lectura_bn'] = counter.lectura_bn
-                        if hasattr(counter, 'lectura_color'):
-                            counter_info['lectura_color'] = counter.lectura_color
-                        
-                        _logger.info("Contador: %s", counter_info)
+                        _logger.info("Contador: ID=%s, Fecha=%s, B/N Anterior=%s, B/N Actual=%s, Color Anterior=%s, Color Actual=%s", 
+                                    counter.id, 
+                                    counter.fecha, 
+                                    counter.contador_anterior_bn,
+                                    counter.contador_actual_bn,
+                                    counter.contador_anterior_color,
+                                    counter.contador_actual_color)
                 except Exception as e:
                     _logger.exception("Error al buscar contadores: %s", str(e))
                     counters = request.env['copier.counter'].browse([])
@@ -319,7 +305,6 @@ class CopierCompanyPortal(CustomerPortal):
                 'counters': counters,
                 'page_name': 'equipment_counters',
                 'today': fields.Date.today(),
-                'counter_fields': request.env['copier.counter'].fields_get() if 'copier.counter' in request.env else {},
             })
             
             # Verificar existencia del template

@@ -370,54 +370,108 @@
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
-                                                <!-- Encabezados dinámicos basados en campos disponibles -->
+                                                <th>Referencia</th>
                                                 <th>Fecha</th>
-                                                <th t-if="'lectura_bn' in counter_fields">Contador B/N</th>
-                                                <th t-if="'lectura_color' in counter_fields and equipment.tipo == 'color'">Contador Color</th>
-                                                <th t-if="'consumo_bn' in counter_fields">Consumo B/N</th>
-                                                <th t-if="'consumo_color' in counter_fields and equipment.tipo == 'color'">Consumo Color</th>
-                                                <th t-if="'tecnico_id' in counter_fields">Técnico</th>
-                                                <th t-if="'notas' in counter_fields">Notas</th>
+                                                <th>Mes Facturación</th>
+                                                <th>Anterior B/N</th>
+                                                <th>Actual B/N</th>
+                                                <th>Total B/N</th>
+                                                <th t-if="equipment.tipo == 'color'">Anterior Color</th>
+                                                <th t-if="equipment.tipo == 'color'">Actual Color</th>
+                                                <th t-if="equipment.tipo == 'color'">Total Color</th>
+                                                <th>Estado</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr t-foreach="counters" t-as="counter">
                                                 <td>
-                                                    <t t-if="'fecha_lectura' in counter_fields">
-                                                        <span t-field="counter.fecha_lectura"/>
-                                                    </t>
-                                                    <t t-else="">
-                                                        <span t-field="counter.create_date"/>
-                                                    </t>
+                                                    <span t-field="counter.name"/>
                                                 </td>
-                                                <td t-if="'lectura_bn' in counter_fields">
-                                                    <span t-field="counter.lectura_bn"/>
+                                                <td>
+                                                    <span t-field="counter.fecha"/>
                                                 </td>
-                                                <td t-if="'lectura_color' in counter_fields and equipment.tipo == 'color'">
-                                                    <span t-field="counter.lectura_color"/>
+                                                <td>
+                                                    <span t-field="counter.mes_facturacion"/>
                                                 </td>
-                                                <td t-if="'consumo_bn' in counter_fields">
-                                                    <span t-field="counter.consumo_bn"/>
+                                                <td class="text-end">
+                                                    <span t-field="counter.contador_anterior_bn"/>
                                                 </td>
-                                                <td t-if="'consumo_color' in counter_fields and equipment.tipo == 'color'">
-                                                    <span t-field="counter.consumo_color"/>
+                                                <td class="text-end">
+                                                    <span t-field="counter.contador_actual_bn"/>
                                                 </td>
-                                                <td t-if="'tecnico_id' in counter_fields">
-                                                    <span t-field="counter.tecnico_id.name"/>
+                                                <td class="text-end">
+                                                    <span t-field="counter.total_copias_bn"/>
                                                 </td>
-                                                <td t-if="'notas' in counter_fields">
-                                                    <span t-field="counter.notas"/>
+                                                <td t-if="equipment.tipo == 'color'" class="text-end">
+                                                    <span t-field="counter.contador_anterior_color"/>
+                                                </td>
+                                                <td t-if="equipment.tipo == 'color'" class="text-end">
+                                                    <span t-field="counter.contador_actual_color"/>
+                                                </td>
+                                                <td t-if="equipment.tipo == 'color'" class="text-end">
+                                                    <span t-field="counter.total_copias_color"/>
+                                                </td>
+                                                <td>
+                                                    <span t-field="counter.state" t-attf-class="badge rounded-pill bg-{{ counter.state == 'draft' and 'warning' or (counter.state == 'confirmed' and 'success' or (counter.state == 'invoiced' and 'info' or 'danger')) }}"/>
                                                 </td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
                                 
-                                <!-- Gráfico de consumo (opcional, si se quiere implementar) -->
+                                <!-- Resumen de facturación -->
                                 <div class="mt-4">
-                                    <h5>Gráfico de Consumo</h5>
-                                    <div class="alert alert-info">
-                                        El gráfico de consumo estará disponible próximamente
+                                    <h5>Resumen de Facturación</h5>
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <div class="card shadow-sm">
+                                                <div class="card-header bg-light">
+                                                    <h6 class="mb-0">Volumen Mensual Contratado</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-sm-6">
+                                                            <p><strong>B/N:</strong> <span t-field="equipment.volumen_mensual_bn"/> copias</p>
+                                                        </div>
+                                                        <div class="col-sm-6" t-if="equipment.tipo == 'color'">
+                                                            <p><strong>Color:</strong> <span t-field="equipment.volumen_mensual_color"/> copias</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-sm-6">
+                                                            <p><strong>Precio B/N:</strong> <span t-field="equipment.costo_copia_bn" t-options="{'widget': 'monetary', 'display_currency': equipment.currency_id}"/></p>
+                                                        </div>
+                                                        <div class="col-sm-6" t-if="equipment.tipo == 'color'">
+                                                            <p><strong>Precio Color:</strong> <span t-field="equipment.costo_copia_color" t-options="{'widget': 'monetary', 'display_currency': equipment.currency_id}"/></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card shadow-sm">
+                                                <div class="card-header bg-light">
+                                                    <h6 class="mb-0">Consumo Actual</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <t t-if="counters and counters[0].state != 'draft'">
+                                                        <div class="row">
+                                                            <div class="col-sm-6">
+                                                                <p><strong>Total B/N:</strong> <span t-field="counters[0].total_copias_bn"/> copias</p>
+                                                                <p><strong>Exceso B/N:</strong> <span t-field="counters[0].exceso_bn"/> copias</p>
+                                                            </div>
+                                                            <div class="col-sm-6" t-if="equipment.tipo == 'color'">
+                                                                <p><strong>Total Color:</strong> <span t-field="counters[0].total_copias_color"/> copias</p>
+                                                                <p><strong>Exceso Color:</strong> <span t-field="counters[0].exceso_color"/> copias</p>
+                                                            </div>
+                                                        </div>
+                                                    </t>
+                                                    <div t-else="" class="alert alert-info">
+                                                        No hay datos de consumo confirmados para el período actual.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </t>
