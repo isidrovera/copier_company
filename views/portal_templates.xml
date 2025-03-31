@@ -345,19 +345,16 @@
         <t t-call="portal.portal_layout">
             <t t-set="breadcrumbs_searchbar" t-value="True"/>
             
-            <!-- Incluir Chart.js y el archivo JS específico -->
-            <t t-set="additional_styles">
+            <!-- Incluir los assets necesarios -->
+            <t t-set="head_elements">
                 <link rel="stylesheet" type="text/css" href="/copier_company/static/src/css/counter_charts.css"/>
             </t>
-            <t t-set="additional_scripts">
-                <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-                <script type="text/javascript" src="/copier_company/static/src/js/counter_charts.js"></script>
-                <!-- Elemento con datos para los gráficos -->
-                <div id="counter_chart_data" 
-                     t-att-data-chart-data="chart_data"
-                     t-att-data-is-color="'true' if equipment.tipo == 'color' else 'false'"
-                     style="display: none;"></div>
-            </t>
+            
+            <!-- Elemento con datos para los gráficos -->
+            <div id="counter_chart_data" 
+                 t-att-data-chart-data="chart_data"
+                 t-att-data-is-color="'true' if equipment.tipo == 'color' else 'false'"
+                 style="display: none;"></div>
             
             <t t-call="portal.portal_searchbar">
                 <t t-set="title">Historial de Lecturas</t>
@@ -380,30 +377,8 @@
                                 </div>
                             </t>
                             <t t-if="counters">
-                                <!-- Gráficos de consumo -->
-                                <div class="mb-4 o_counters_charts">
-                                    <h5>Gráficos de Consumo</h5>
-                                    <ul class="nav nav-tabs" id="graphTabs" role="tablist">
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link active" id="monthly-tab" data-bs-toggle="tab" data-bs-target="#monthly" type="button" role="tab" aria-controls="monthly" aria-selected="true">Consumo Mensual</button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="yearly-tab" data-bs-toggle="tab" data-bs-target="#yearly" type="button" role="tab" aria-controls="yearly" aria-selected="false">Consumo Anual</button>
-                                        </li>
-                                    </ul>
-                                    <div class="tab-content p-3 border border-top-0 rounded-bottom" id="graphTabsContent">
-                                        <div class="tab-pane fade show active" id="monthly" role="tabpanel" aria-labelledby="monthly-tab">
-                                            <div class="chart-container">
-                                                <canvas id="monthlyChart"></canvas>
-                                            </div>
-                                        </div>
-                                        <div class="tab-pane fade" id="yearly" role="tabpanel" aria-labelledby="yearly-tab">
-                                            <div class="chart-container">
-                                                <canvas id="yearlyChart"></canvas>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <!-- Contenedor para el componente de gráficos -->
+                                <div class="mb-4 o_counters_charts"></div>
                                 
                                 <div class="table-responsive">
                                     <table class="table table-striped">

@@ -62,6 +62,7 @@
         'views/contadores.xml',
         'views/detalles_usuarios.xml',
         'views/portal_templates.xml',
+        'views/counter_charts_templates.xml',
         
         
         
