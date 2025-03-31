@@ -7,9 +7,14 @@
         
         if (!element && createIfMissing) {
             console.warn(`[Copier Company] Elemento no encontrado: ${selector}. Creando.`);
+            
             element = document.createElement('div');
-            element.id = selector.replace('#', '');
-            element.className = selector.replace('.', '');
+            if (selector.startsWith('#')) {
+                element.id = selector.substring(1);
+            } else if (selector.startsWith('.')) {
+                element.className = selector.substring(1);
+            }
+            
             element.style.display = 'none';
             document.body.appendChild(element);
         }
@@ -38,12 +43,12 @@
         
         Object.defineProperty(Node.prototype, 'textContent', {
             set: function(value) {
+                if (!this) {
+                    console.warn("[Copier Company] Intento de establecer textContent en un elemento nulo.");
+                    return;
+                }
                 try {
-                    if (this) {
-                        originalTextContentDescriptor.set.call(this, value);
-                    } else {
-                        console.warn("[Copier Company] Intento de establecer textContent en elemento nulo", new Error().stack);
-                    }
+                    originalTextContentDescriptor.set.call(this, value);
                 } catch (error) {
                     console.error("[Copier Company] Error al establecer textContent:", error);
                 }
@@ -91,10 +96,10 @@
         }
     }
     
-    // Ejecutar en diferentes etapas de carga
+    // Ejecutar en diferentes etapas de carga para asegurar estabilidad
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initialize);
     } else {
-        initialize();
+        window.addEventListener('load', initialize);
     }
 })();
