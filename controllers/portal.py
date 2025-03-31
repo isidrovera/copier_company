@@ -13,6 +13,14 @@ _logger = logging.getLogger(__name__)
 
 
 class CopierCompanyPortal(CustomerPortal):
+    @staticmethod
+    def _safe_get_text(field):
+        """Método para obtener texto de manera segura"""
+        try:
+            return str(field) if field else ''
+        except Exception as e:
+            _logger.warning(f"Error al obtener texto: {e}")
+            return ''
 
     def _prepare_home_portal_values(self, counters):
         """Prepara los valores para la página de inicio del portal, incluyendo el conteo de equipos en alquiler"""
