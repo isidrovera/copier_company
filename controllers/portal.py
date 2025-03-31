@@ -26,41 +26,41 @@ class CopierCompanyPortal(CustomerPortal):
         _logger.info("Usuario actual: ID=%s, Nombre=%s, Partner ID=%s", 
                     request.env.user.id, request.env.user.name, partner.id)
         
-        if 'equipment_count' in counters:
-            _logger.info("Contando equipos para el partner_id: %s", partner.id)
-            try:
-                # Verificar si el modelo existe
-                if 'copier.company' not in request.env:
-                    _logger.error("¡ERROR! Modelo 'copier.company' no encontrado en la base de datos")
-                    values['equipment_count'] = 0
-                    return values
-                
-                # Verificar la estructura del modelo
-                copier_model = request.env['copier.company']
-                model_fields = copier_model.fields_get()
-                _logger.info("Campos encontrados en el modelo copier.company: %s", list(model_fields.keys()))
-                
-                if 'cliente_id' not in model_fields:
-                    _logger.error("¡ERROR! Campo 'cliente_id' no encontrado en el modelo copier.company")
-                    values['equipment_count'] = 0
-                    return values
-                
-                # Realizar búsqueda y conteo
-                equipment_count = request.env['copier.company'].sudo().search_count([
-                    ('cliente_id', '=', partner.id)
-                ])
-                _logger.info("Equipos encontrados para el partner: %s", equipment_count)
-                values['equipment_count'] = equipment_count
-                
-                # Debug - Listar todos los equipos para verificar datos
-                all_equipments = request.env['copier.company'].sudo().search_read([], ['id', 'name', 'cliente_id', 'serie_id'])
-                _logger.info("Total de equipos en el sistema: %s", len(all_equipments))
-                for equip in all_equipments[:10]:  # Limitar a 10 para evitar logs demasiado grandes
-                    _logger.info("Equipo: ID=%s, Nombre=%s, Cliente ID=%s, Serie=%s", 
-                                equip['id'], equip['name'], equip['cliente_id'], equip.get('serie_id', 'N/A'))
-            except Exception as e:
-                _logger.exception("¡EXCEPCIÓN en _prepare_home_portal_values!: %s", str(e))
+        # Siempre calcular equipment_count, independientemente de counters
+        _logger.info("Contando equipos para el partner_id: %s", partner.id)
+        try:
+            # Verificar si el modelo existe
+            if 'copier.company' not in request.env:
+                _logger.error("¡ERROR! Modelo 'copier.company' no encontrado en la base de datos")
                 values['equipment_count'] = 0
+                return values
+            
+            # Verificar la estructura del modelo
+            copier_model = request.env['copier.company']
+            model_fields = copier_model.fields_get()
+            _logger.info("Campos encontrados en el modelo copier.company: %s", list(model_fields.keys()))
+            
+            if 'cliente_id' not in model_fields:
+                _logger.error("¡ERROR! Campo 'cliente_id' no encontrado en el modelo copier.company")
+                values['equipment_count'] = 0
+                return values
+            
+            # Realizar búsqueda y conteo
+            equipment_count = request.env['copier.company'].sudo().search_count([
+                ('cliente_id', '=', partner.id)
+            ])
+            _logger.info("Equipos encontrados para el partner: %s", equipment_count)
+            values['equipment_count'] = equipment_count
+            
+            # Debug - Listar todos los equipos para verificar datos
+            all_equipments = request.env['copier.company'].sudo().search_read([], ['id', 'name', 'cliente_id', 'serie_id'])
+            _logger.info("Total de equipos en el sistema: %s", len(all_equipments))
+            for equip in all_equipments[:10]:  # Limitar a 10 para evitar logs demasiado grandes
+                _logger.info("Equipo: ID=%s, Nombre=%s, Cliente ID=%s, Serie=%s", 
+                            equip['id'], equip['name'], equip['cliente_id'], equip.get('serie_id', 'N/A'))
+        except Exception as e:
+            _logger.exception("¡EXCEPCIÓN en _prepare_home_portal_values!: %s", str(e))
+            values['equipment_count'] = 0
         
         _logger.info("Valores finales que retornará el método: %s", values)
         _logger.info("=== FINALIZANDO _prepare_home_portal_values ===")
