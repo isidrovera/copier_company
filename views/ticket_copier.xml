@@ -20,5 +20,25 @@
                 </xpath>
             </field>
         </record>
+        <template id="tickets_followup_inherit" inherit_id="helpdesk.tickets_followup">
+        <xpath expr="//div[@id='card_body']/div[last()]" position="after">
+            <div t-if="ticket.producto_id" class="row mb-4">
+                <strong class="col-lg-3">Modelo</strong>
+                <span class="col-lg-9" t-field="ticket.modelo"/>
+            </div>
+            <div t-if="ticket.serie_id" class="row mb-4">
+                <strong class="col-lg-3">Serie</strong>
+                <span class="col-lg-9" t-field="ticket.serie"/>
+            </div>
+            <div t-if="ticket.contometro_black" class="row mb-4">
+                <strong class="col-lg-3">Contómetro Black</strong>
+                <span class="col-lg-9" t-field="ticket.contometro_black"/>
+            </div>
+            <div t-if="ticket.contometro_color" class="row mb-4">
+                <strong class="col-lg-3">Contómetro Color</strong>
+                <span class="col-lg-9" t-field="ticket.contometro_color"/>
+            </div>
+        </xpath>
+    </template>
     </data>
 </odoo>
