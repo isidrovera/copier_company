@@ -73,8 +73,9 @@
             'copier_company/static/src/js/custom_script.js',
             'copier_company/static/src/js/PcloudDescargas.js',            
             'copier_company/static/src/css/PcloudDescargas.css',
-            'copier_company/static/src/css/cotizacion_styles.css',
-            'copier_company/static/src/js/portal_fix.js',
+            'copier_company/static/src/css/cotizacion_styles.css',           
+            'copier_company/static/src/css/counter_charts.css',
+            'copier_company/static/src/js/counter_charts.js',
 
         ],
         'web.report_assets_common': [

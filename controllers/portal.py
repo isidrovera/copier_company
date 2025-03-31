@@ -257,7 +257,7 @@ class CopierCompanyPortal(CustomerPortal):
         
     @http.route(['/my/copier/equipment/<int:equipment_id>/counters'], type='http', auth="user", website=True)
     def portal_equipment_counters(self, equipment_id, **kw):
-        """Muestra el historial de contadores para un equipo específico"""
+        """Muestra el historial de contadores para un equipo específico con gráficos"""
         _logger.info("=== INICIANDO portal_equipment_counters ===")
         _logger.info("Parámetros recibidos - equipment_id: %s, kw: %s", equipment_id, kw)
         
@@ -277,6 +277,7 @@ class CopierCompanyPortal(CustomerPortal):
             if 'copier.counter' not in request.env:
                 _logger.error("Modelo copier.counter no encontrado")
                 counters = []
+                chart_data = {}
             else:
                 try:
                     _logger.info("Buscando contadores para el equipo ID: %s", equipment_id)
@@ -287,24 +288,80 @@ class CopierCompanyPortal(CustomerPortal):
                     ], order='fecha desc')
                     
                     _logger.info("Contadores encontrados: %s", len(counters))
-                    # Log detallado de contadores
-                    for counter in counters[:10]:  # Limitar a 10 para logs
-                        _logger.info("Contador: ID=%s, Fecha=%s, B/N Anterior=%s, B/N Actual=%s, Color Anterior=%s, Color Actual=%s", 
-                                    counter.id, 
-                                    counter.fecha, 
-                                    counter.contador_anterior_bn,
-                                    counter.contador_actual_bn,
-                                    counter.contador_anterior_color,
-                                    counter.contador_actual_color)
+                    
+                    # Preparar datos para el gráfico
+                    monthly_data = []
+                    yearly_data = []
+                    
+                    # Diccionarios para agrupar datos
+                    month_dict = {}
+                    year_dict = {}
+                    
+                    # Procesar contadores para agrupar por mes y año
+                    for counter in counters:
+                        # Solo procesar contadores confirmados
+                        if counter.state != 'confirmed' and counter.state != 'invoiced':
+                            continue
+                            
+                        # Obtener fecha y extraer año y mes
+                        fecha = counter.fecha
+                        if not fecha:
+                            continue
+                            
+                        year = fecha.year
+                        month = fecha.month
+                        month_key = f"{year}-{month:02d}"
+                        month_name = counter.mes_facturacion or f"{month:02d}/{year}"
+                        
+                        # Datos para gráfico mensual
+                        if month_key not in month_dict:
+                            month_dict[month_key] = {
+                                'name': month_name,
+                                'bn': 0,
+                                'color': 0
+                            }
+                        
+                        month_dict[month_key]['bn'] += counter.total_copias_bn
+                        month_dict[month_key]['color'] += counter.total_copias_color
+                        
+                        # Datos para gráfico anual
+                        if year not in year_dict:
+                            year_dict[year] = {
+                                'name': str(year),
+                                'bn': 0,
+                                'color': 0
+                            }
+                        
+                        year_dict[year]['bn'] += counter.total_copias_bn
+                        year_dict[year]['color'] += counter.total_copias_color
+                    
+                    # Convertir diccionarios a listas para el gráfico
+                    for key in sorted(month_dict.keys()):
+                        monthly_data.append(month_dict[key])
+                    
+                    for key in sorted(year_dict.keys()):
+                        yearly_data.append(year_dict[key])
+                    
+                    # Crear datos para el gráfico
+                    chart_data = {
+                        'monthly': monthly_data,
+                        'yearly': yearly_data
+                    }
+                    
+                    _logger.info("Datos para gráfico preparados: %s meses, %s años", 
+                                len(monthly_data), len(yearly_data))
+                    
                 except Exception as e:
-                    _logger.exception("Error al buscar contadores: %s", str(e))
+                    _logger.exception("Error al buscar contadores o preparar gráficos: %s", str(e))
                     counters = request.env['copier.counter'].browse([])
+                    chart_data = {'monthly': [], 'yearly': []}
             
             values.update({
                 'equipment': equipment_sudo,
                 'counters': counters,
                 'page_name': 'equipment_counters',
                 'today': fields.Date.today(),
+                'chart_data': json.dumps(chart_data)
             })
             
             # Verificar existencia del template

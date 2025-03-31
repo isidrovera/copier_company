@@ -1,0 +1,22 @@
+/* Estilos para los gráficos de contadores */
+.o_counters_charts .chart-container {
+    height: 300px;
+    padding: 10px;
+    position: relative;
+}
+
+.o_counters_charts .nav-tabs .nav-link {
+    color: #495057;
+}
+
+.o_counters_charts .nav-tabs .nav-link.active {
+    color: #3273dc;
+    font-weight: bold;
+}
+
+/* Ajustes para dispositivos móviles */
+@media (max-width: 767.98px) {
+    .o_counters_charts .chart-container {
+        height: 250px;
+    }
+}
