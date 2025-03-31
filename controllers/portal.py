@@ -10,39 +10,7 @@ from odoo.addons.portal.controllers.portal import CustomerPortal, pager as porta
 from odoo.osv.expression import OR, AND
 
 _logger = logging.getLogger(__name__)
-from contextlib import contextmanager
 
-class CopierCompanyPortalFix:
-    """Clase para proporcionar métodos de ayuda al controlador principal"""
-    
-    @contextmanager
-    def safe_controller_execution(self, redirect_url='/my', log_prefix="Portal Controller"):
-        """Context manager para manejo seguro de errores en controladores"""
-        try:
-            _logger.info(f"=== INICIANDO {log_prefix} ===")
-            yield
-            _logger.info(f"=== FINALIZANDO {log_prefix} ===")
-        except (AccessError, MissingError) as e:
-            _logger.error(f"Error de acceso en {log_prefix}: {str(e)}")
-            return request.redirect(redirect_url)
-        except Exception as e:
-            _logger.exception(f"¡EXCEPCIÓN GENERAL en {log_prefix}!: {str(e)}")
-            return request.redirect(redirect_url)
-
-    def safe_search_count(self, model, domain=None):
-        """Método para realizar conteos seguros"""
-        if domain is None:
-            domain = []
-        
-        try:
-            if model not in request.env:
-                _logger.error(f"Modelo '{model}' no encontrado en la base de datos")
-                return 0
-            
-            return request.env[model].sudo().search_count(domain)
-        except Exception as e:
-            _logger.exception(f"Error en safe_search_count para modelo {model}: {str(e)}")
-            return 0
 
 class CopierCompanyPortal(CustomerPortal):
     @staticmethod
@@ -53,59 +21,33 @@ class CopierCompanyPortal(CustomerPortal):
         except Exception as e:
             _logger.warning(f"Error al obtener texto: {e}")
             return ''
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = CopierCompanyPortalFix()
-        
+
     def _prepare_home_portal_values(self, counters):
         """Prepara los valores para la página de inicio del portal, incluyendo el conteo de equipos en alquiler"""
         _logger.info("=== INICIANDO _prepare_home_portal_values ===")
-        _logger.info("Parámetros recibidos - counters: %s", counters)
         
         values = super()._prepare_home_portal_values(counters)
-        _logger.info("Valores obtenidos del método padre: %s", values)
         
-        partner = request.env.user.partner_id
-        _logger.info("Usuario actual: ID=%s, Nombre=%s, Partner ID=%s", 
-                    request.env.user.id, request.env.user.name, partner.id)
-        
-        # Siempre calcular equipment_count, independientemente de counters
-        _logger.info("Contando equipos para el partner_id: %s", partner.id)
-        try:
-            # Verificar si el modelo existe
-            if 'copier.company' not in request.env:
-                _logger.error("¡ERROR! Modelo 'copier.company' no encontrado en la base de datos")
-                values['equipment_count'] = 0
-                return values
+        # Solo calcular 'equipment_count' si está en counters o si counters está vacío (significa todos)
+        if not counters or 'equipment_count' in counters:
+            partner = request.env.user.partner_id
+            _logger.info("Contando equipos para el partner_id: %s", partner.id)
             
-            # Verificar la estructura del modelo
-            copier_model = request.env['copier.company']
-            model_fields = copier_model.fields_get()
-            _logger.info("Campos encontrados en el modelo copier.company: %s", list(model_fields.keys()))
+            equipment_count = 0
             
-            if 'cliente_id' not in model_fields:
-                _logger.error("¡ERROR! Campo 'cliente_id' no encontrado en el modelo copier.company")
-                values['equipment_count'] = 0
-                return values
+            try:
+                if 'copier.company' not in request.env:
+                    _logger.error("Modelo 'copier.company' no encontrado en la base de datos")
+                else:
+                    equipment_count = request.env['copier.company'].sudo().search_count([
+                        ('cliente_id', '=', partner.id)
+                    ])
+                    _logger.info("Equipos encontrados para el partner: %s", equipment_count)
+            except Exception as e:
+                _logger.exception("¡EXCEPCIÓN en _prepare_home_portal_values!: %s", str(e))
             
-            # Realizar búsqueda y conteo
-            equipment_count = request.env['copier.company'].sudo().search_count([
-                ('cliente_id', '=', partner.id)
-            ])
-            _logger.info("Equipos encontrados para el partner: %s", equipment_count)
             values['equipment_count'] = equipment_count
             
-            # Debug - Listar todos los equipos para verificar datos
-            all_equipments = request.env['copier.company'].sudo().search_read([], ['id', 'name', 'cliente_id', 'serie_id'])
-            _logger.info("Total de equipos en el sistema: %s", len(all_equipments))
-            for equip in all_equipments[:10]:  # Limitar a 10 para evitar logs demasiado grandes
-                _logger.info("Equipo: ID=%s, Nombre=%s, Cliente ID=%s, Serie=%s", 
-                            equip['id'], equip['name'], equip['cliente_id'], equip.get('serie_id', 'N/A'))
-        except Exception as e:
-            _logger.exception("¡EXCEPCIÓN en _prepare_home_portal_values!: %s", str(e))
-            values['equipment_count'] = 0
-        
-        _logger.info("Valores finales que retornará el método: %s", values)
         _logger.info("=== FINALIZANDO _prepare_home_portal_values ===")
         return values
         
@@ -116,11 +58,8 @@ class CopierCompanyPortal(CustomerPortal):
         _logger.info("Parámetros recibidos: page=%s, date_begin=%s, date_end=%s, sortby=%s, filterby=%s, search=%s, search_in=%s", 
                     page, date_begin, date_end, sortby, filterby, search, search_in)
         
-        # Usar helper para manejo seguro de errores en toda la función
-        helper = CopierCompanyPortalFix()
-        
         try:
-            # Verificaciones iniciales - usar método seguro para verificar modelo
+            # Verificaciones iniciales
             if 'copier.company' not in request.env:
                 _logger.error("Modelo 'copier.company' no encontrado - Redirigiendo a /my")
                 return request.redirect('/my')
@@ -180,15 +119,19 @@ class CopierCompanyPortal(CustomerPortal):
                 domain = AND([domain, search_domain])
                 _logger.info("Dominio final con búsqueda: %s", domain)
             
-            # Contar total de registros de manera segura
-            equipment_count = helper.safe_search_count('copier.company', domain)
-            _logger.info("Total de equipos encontrados: %s", equipment_count)
+            # Contar total de registros
+            try:
+                equipment_count = CopierCompany.search_count(domain)
+                _logger.info("Total de equipos encontrados: %s", equipment_count)
+            except Exception as e:
+                _logger.exception("Error al contar equipos: %s", str(e))
+                equipment_count = 0
             
             # Configurar paginación
             pager = portal_pager(
                 url="/my/copier/equipments",
                 url_args={'date_begin': date_begin, 'date_end': date_end, 'sortby': sortby, 
-                        'filterby': filterby, 'search_in': search_in, 'search': search},
+                         'filterby': filterby, 'search_in': search_in, 'search': search},
                 total=equipment_count,
                 page=page,
                 step=self._items_per_page
@@ -196,22 +139,19 @@ class CopierCompanyPortal(CustomerPortal):
             _logger.info("Paginación configurada: página=%s, offset=%s, límite=%s", 
                         page, pager['offset'], self._items_per_page)
             
-            # Obtener registros para esta página de manera segura
+            # Obtener registros para esta página
             try:
-                equipments = helper.safe_search('copier.company', domain, 
-                                            order=sort_order, 
-                                            limit=self._items_per_page, 
-                                            offset=pager['offset'])
+                equipments = CopierCompany.search(domain, order=sort_order, 
+                                                limit=self._items_per_page, offset=pager['offset'])
                 _logger.info("Equipos recuperados para esta página: %s", len(equipments))
                 
-                # Log detallado de equipos encontrados de manera segura
+                # Log detallado de equipos encontrados
                 for equipment in equipments:
-                    name_str = helper.safe_get_text(equipment.name.name) if equipment.name else 'Sin nombre'
-                    cliente_str = helper.safe_get_text(equipment.cliente_id.name) if equipment.cliente_id else 'Sin cliente'
-                    serie_str = helper.safe_get_text(equipment.serie_id) or 'Sin serie'
-                    
                     _logger.info("Equipo encontrado: ID=%s, Nombre=%s, Cliente=%s, Serie=%s", 
-                                equipment.id, name_str, cliente_str, serie_str)
+                                equipment.id, 
+                                self._safe_get_text(equipment.name.name) if equipment.name else 'Sin nombre',
+                                self._safe_get_text(equipment.cliente_id.name) if equipment.cliente_id else 'Sin cliente',
+                                self._safe_get_text(equipment.serie_id) or 'Sin serie')
             except Exception as e:
                 _logger.exception("Error al buscar equipos: %s", str(e))
                 equipments = CopierCompany.browse([])
@@ -230,16 +170,15 @@ class CopierCompanyPortal(CustomerPortal):
                 'filterby': filterby,
             })
             
-            # Verificar existencia del template de manera segura
+            # Verificar existencia del template
             template = 'copier_company.portal_my_copier_equipments'
-            if not helper.verify_template_exists(template):
+            if not request.env['ir.ui.view'].sudo().search([('key', '=', template)]):
                 _logger.error("¡ERROR! Template %s no encontrado", template)
                 return request.redirect('/my')
             
-            # Renderizar de manera segura
             _logger.info("Renderizando template: %s", template)
             _logger.info("=== FINALIZANDO portal_my_equipment ===")
-            return helper.safe_render(template, values, fallback_url='/my')
+            return request.render(template, values)
         
         except Exception as e:
             _logger.exception("¡EXCEPCIÓN GENERAL en portal_my_equipment!: %s", str(e))
@@ -258,9 +197,9 @@ class CopierCompanyPortal(CustomerPortal):
                 equipment_sudo = self._document_check_access('copier.company', equipment_id)
                 _logger.info("Acceso verificado para equipo ID: %s", equipment_id)
                 _logger.info("Equipo: Nombre=%s, Cliente=%s, Serie=%s", 
-                            equipment_sudo.name.name if equipment_sudo.name else 'Sin nombre',
-                            equipment_sudo.cliente_id.name if equipment_sudo.cliente_id else 'Sin cliente',
-                            equipment_sudo.serie_id or 'Sin serie')
+                            self._safe_get_text(equipment_sudo.name.name) if equipment_sudo.name else 'Sin nombre',
+                            self._safe_get_text(equipment_sudo.cliente_id.name) if equipment_sudo.cliente_id else 'Sin cliente',
+                            self._safe_get_text(equipment_sudo.serie_id) or 'Sin serie')
             except (AccessError, MissingError) as e:
                 _logger.error("Error de acceso para equipo ID %s: %s", equipment_id, str(e))
                 return request.redirect('/my')
@@ -398,8 +337,8 @@ class CopierCompanyPortal(CustomerPortal):
                 
             _logger.info("Equipo encontrado: ID=%s, Nombre=%s, Cliente=%s", 
                         equipment.id, 
-                        equipment.name.name if equipment.name else 'Sin nombre',
-                        equipment.cliente_id.name if equipment.cliente_id else 'Sin cliente')
+                        self._safe_get_text(equipment.name.name) if equipment.name else 'Sin nombre',
+                        self._safe_get_text(equipment.cliente_id.name) if equipment.cliente_id else 'Sin cliente')
                 
             values = {
                 'equipment': equipment,
@@ -452,7 +391,7 @@ class CopierCompanyPortal(CustomerPortal):
                         # Preparar valores para el ticket
                         ticket_vals = {
                             'partner_id': partner.id,
-                            'name': f"Soporte para {equipment.name.name if equipment.name else 'equipo'} - {equipment.serie_id or 'Sin serie'}",
+                            'name': f"Soporte para {self._safe_get_text(equipment.name.name) if equipment.name else 'equipo'} - {self._safe_get_text(equipment.serie_id) or 'Sin serie'}",
                             'description': description,
                         }
                         
@@ -555,10 +494,10 @@ class CopierCompanyPortal(CustomerPortal):
                 for equip in equipments:
                     result['equipos'].append({
                         'id': equip.id,
-                        'nombre': equip.name.name if equip.name else 'Sin nombre',
-                        'serie': equip.serie_id or 'Sin serie',
+                        'nombre': self._safe_get_text(equip.name.name) if equip.name else 'Sin nombre',
+                        'serie': self._safe_get_text(equip.serie_id) or 'Sin serie',
                         'cliente_id': equip.cliente_id.id if equip.cliente_id else False,
-                        'cliente_nombre': equip.cliente_id.name if equip.cliente_id else 'Sin cliente',
+                        'cliente_nombre': self._safe_get_text(equip.cliente_id.name) if equip.cliente_id else 'Sin cliente',
                     })
                 
                 if not equipments:
@@ -618,6 +557,11 @@ class CopierCompanyPortal(CustomerPortal):
                                 <td>{campos_str}</td>
                             </tr>
                 """
+            
+            html += """
+                        </table>
+                    </div>
+            """
             
             # Sección de templates
             html += """

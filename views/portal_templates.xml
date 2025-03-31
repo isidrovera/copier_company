@@ -1,41 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Añadir la sección "Mis Equipos" al portal principal -->
-    <record id="portal_my_home_equipment" model="ir.ui.view">
-        <field name="name">Mis Equipos en Alquiler</field>
-        <field name="model">ir.ui.view</field>
-        <field name="inherit_id" ref="portal.portal_my_home"/>
-        <field name="priority">50</field>
-        <field name="customize_show" eval="True"/>
-        <field name="arch" type="xml">
-            <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
-                <t t-set="portal_service_category_enable" t-value="True"/>
-            </xpath>
-            <div id="portal_service_category" position="inside">
-                <t t-call="portal.portal_docs_entry">
-                    <t t-set="icon" t-value="'/copier_company/static/src/img/printer.svg'"/>
-                    <t t-set="title">Mis Equipos</t>
-                    <t t-set="text">Consulta los equipos que tienes en alquiler</t>
-                    <t t-set="url" t-value="'/my/copier/equipments'"/>
-                    <t t-set="placeholder_count" t-value="'equipment_count'"/>
-                </t>
-            </div>
-        </field>
-    </record>
-     <record id="portal_my_home_equipment_fix" model="ir.ui.view">
-        <field name="name">Portal My Home Equipment Fix</field>
-        <field name="model">ir.ui.view</field>
-        <field name="inherit_id" ref="portal.portal_my_home"/>
-        <field name="priority">55</field>
-        <field name="arch" type="xml">
-            <!-- Primero, asegurar que el div portal_service_category exista -->
-            <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
-                <div id="portal_service_category" t-if="not portal_service_category" class="mt32">
-                    <!-- Este div se llenará con contenido más adelante -->
-                </div>
-            </xpath>
-        </field>
-    </record>
+    <!-- Integración con menú de navegación del portal - Breadcrumbs -->
+    <template id="portal_breadcrumbs_copier" name="Portal layout : copier equipment breadcrumbs" inherit_id="portal.portal_breadcrumbs" priority="50">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li t-if="page_name == 'equipment' or page_name == 'equipment_detail' or page_name == 'equipment_counters'" t-attf-class="breadcrumb-item #{'active ' if page_name == 'equipment' else ''}">
+                <a t-if="page_name in ['equipment_detail', 'equipment_counters']" t-attf-href="/my/copier/equipments?{{ keep_query() }}">Mis Equipos</a>
+                <t t-else="">Mis Equipos</t>
+            </li>
+            <li t-if="page_name == 'equipment_detail' and equipment" class="breadcrumb-item active text-truncate">
+                <span t-field="equipment.name.name"/> (<span t-field="equipment.serie_id"/>)
+            </li>
+            <li t-if="page_name == 'equipment_counters' and equipment" class="breadcrumb-item">
+                <a t-attf-href="/my/copier/equipment/{{equipment.id}}"><span t-field="equipment.name.name"/></a>
+            </li>
+            <li t-if="page_name == 'equipment_counters'" class="breadcrumb-item active">
+                Lecturas
+            </li>
+        </xpath>
+    </template>
+
+    <!-- Integración con el home del portal -->
+    <template id="portal_my_home_copier_equipment" name="Mis Equipos en el Portal" customize_show="True" inherit_id="portal.portal_my_home" priority="50">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="portal_service_category_enable" t-value="True"/>
+        </xpath>
+        <div id="portal_service_category" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/copier_company/static/src/img/printer.svg'"/>
+                <t t-set="title">Mis Equipos</t>
+                <t t-set="text">Consulta los equipos que tienes en alquiler</t>
+                <t t-set="url" t-value="'/my/copier/equipments'"/>
+                <t t-set="placeholder_count" t-value="'equipment_count'"/>
+            </t>
+        </div>
+    </template>
     
     <!-- Template para la página de listado de equipos -->
     <template id="portal_my_copier_equipments" name="My Rental Equipments">
@@ -264,78 +262,81 @@
             </div>
         </t>
     </template>
+    
     <!-- Template para la creación pública de tickets desde QR -->
-<template id="portal_public_create_ticket" name="Create Ticket from QR">
-    <t t-call="website.layout">
-        <div class="container py-5">
-            <div class="row">
-                <div class="col-lg-8 mx-auto">
-                    <div class="card shadow">
-                        <div class="card-header bg-primary text-white">
-                            <h3 class="mb-0">Crear ticket de soporte</h3>
-                        </div>
-                        <div class="card-body">
-                            <!-- Mensaje de éxito o error -->
-                            <div t-if="success_message" class="alert alert-success">
-                                <span t-esc="success_message"/>
+    <template id="portal_public_create_ticket" name="Create Ticket from QR">
+        <t t-call="website.layout">
+            <div class="container py-5">
+                <div class="row">
+                    <div class="col-lg-8 mx-auto">
+                        <div class="card shadow">
+                            <div class="card-header bg-primary text-white">
+                                <h3 class="mb-0">Crear ticket de soporte</h3>
                             </div>
-                            <div t-if="error_message" class="alert alert-danger">
-                                <span t-esc="error_message"/>
-                            </div>
-                            
-                            <!-- Información del equipo -->
-                            <div class="mb-4">
-                                <h5>Información del equipo</h5>
-                                <div class="row">
-                                    <div class="col-md-4 text-center" t-if="equipment.imagen_id">
-                                        <img class="img-fluid rounded" t-att-src="image_data_uri(equipment.imagen_id)" alt="Imagen de la Máquina"/>
+                            <div class="card-body">
+                                <!-- Mensaje de éxito o error -->
+                                <div t-if="success_message" class="alert alert-success">
+                                    <span t-esc="success_message"/>
+                                </div>
+                                <div t-if="error_message" class="alert alert-danger">
+                                    <span t-esc="error_message"/>
+                                </div>
+                                
+                                <!-- Información del equipo -->
+                                <div class="mb-4">
+                                    <h5>Información del equipo</h5>
+                                    <div class="row">
+                                        <div class="col-md-4 text-center" t-if="equipment.imagen_id">
+                                            <img class="img-fluid rounded" t-att-src="image_data_uri(equipment.imagen_id)" alt="Imagen de la Máquina"/>
+                                        </div>
+                                        <div t-att-class="equipment.imagen_id and 'col-md-8' or 'col-md-12'">
+                                            <p><strong>Modelo:</strong> <span t-field="equipment.name.name"/></p>
+                                            <p><strong>Serie:</strong> <span t-field="equipment.serie_id"/></p>
+                                            <p><strong>Tipo:</strong> 
+                                                <span t-if="equipment.tipo == 'monocroma'">Blanco y negro</span>
+                                                <span t-else="">Color</span>
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div t-att-class="equipment.imagen_id and 'col-md-8' or 'col-md-12'">
-                                        <p><strong>Modelo:</strong> <span t-field="equipment.name.name"/></p>
-                                        <p><strong>Serie:</strong> <span t-field="equipment.serie_id"/></p>
-                                        <p><strong>Tipo:</strong> 
-                                            <span t-if="equipment.tipo == 'monocroma'">Blanco y negro</span>
-                                            <span t-else="">Color</span>
-                                        </p>
+                                </div>
+                                
+                                <!-- Formulario de ticket -->
+                                <form method="post" t-if="not success_message">
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">Nombre completo</label>
+                                        <input type="text" class="form-control" name="name" id="name" required="required"/>
                                     </div>
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Correo electrónico</label>
+                                        <input type="email" class="form-control" name="email" id="email" required="required"/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="phone" class="form-label">Teléfono</label>
+                                        <input type="tel" class="form-control" name="phone" id="phone"/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="description" class="form-label">Descripción del problema</label>
+                                        <textarea class="form-control" name="description" id="description" rows="5" required="required"></textarea>
+                                    </div>
+                                    <div class="text-end">
+                                        <button type="submit" class="btn btn-primary">Enviar ticket</button>
+                                    </div>
+                                </form>
+                                
+                                <!-- Botones adicionales -->
+                                <div class="mt-4 text-center">
+                                    <a href="/" class="btn btn-secondary">Volver a la página principal</a>
                                 </div>
-                            </div>
-                            
-                            <!-- Formulario de ticket -->
-                            <form method="post" t-if="not success_message">
-                                <div class="mb-3">
-                                    <label for="name" class="form-label">Nombre completo</label>
-                                    <input type="text" class="form-control" name="name" id="name" required="required"/>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="email" class="form-label">Correo electrónico</label>
-                                    <input type="email" class="form-control" name="email" id="email" required="required"/>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="phone" class="form-label">Teléfono</label>
-                                    <input type="tel" class="form-control" name="phone" id="phone"/>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="description" class="form-label">Descripción del problema</label>
-                                    <textarea class="form-control" name="description" id="description" rows="5" required="required"></textarea>
-                                </div>
-                                <div class="text-end">
-                                    <button type="submit" class="btn btn-primary">Enviar ticket</button>
-                                </div>
-                            </form>
-                            
-                            <!-- Botones adicionales -->
-                            <div class="mt-4 text-center">
-                                <a href="/" class="btn btn-secondary">Volver a la página principal</a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </t>
-</template>
-<template id="portal_my_copier_counters" name="My Equipment Counters">
+        </t>
+    </template>
+    
+    <!-- Template para la página de contadores -->
+    <template id="portal_my_copier_counters" name="My Equipment Counters">
         <t t-call="portal.portal_layout">
             <t t-set="breadcrumbs_searchbar" t-value="True"/>
             
