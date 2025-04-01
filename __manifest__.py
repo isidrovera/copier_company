@@ -63,7 +63,7 @@
         'views/detalles_usuarios.xml',
         'views/portal_templates.xml',
         'views/counter_charts_templates.xml',
-        'copier_company/static/src/xml/counter_charts_templates.xml',
+        'static/src/xml/counter_charts_templates.xml',
         
         
         
