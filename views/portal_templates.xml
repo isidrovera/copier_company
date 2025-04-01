@@ -340,27 +340,9 @@
         </t>
     </template>
     
-     <template id="CounterChartsComponent" name="Counter Charts Component">
-        <div class="counter-charts-container">
-            <div class="chart-container">
-                <canvas t-ref="monthlyChart"></canvas>
-            </div>
-            <div class="chart-container">
-                <canvas t-ref="yearlyChart"></canvas>
-            </div>
-        </div>
-    </template>
-
-    <!-- Template para la página de contadores -->
     <template id="portal_my_copier_counters" name="My Equipment Counters">
         <t t-call="portal.portal_layout">
             <t t-set="breadcrumbs_searchbar" t-value="True"/>
-            
-            <!-- Incluir CSS para los gráficos -->
-            <t t-set="head">
-                <link rel="stylesheet" type="text/css" href="/copier_company/static/src/css/counter_charts.css"/>
-                <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-            </t>
             
             <t t-call="portal.portal_searchbar">
                 <t t-set="title">Historial de Lecturas</t>
@@ -396,11 +378,14 @@
                                     </ul>
                                     <div class="tab-content p-3 border border-top-0 rounded-bottom" id="graphTabsContent">
                                         <div class="tab-pane fade show active" id="monthly" role="tabpanel" aria-labelledby="monthly-tab">
-                                            <!-- Componente OWL para gráficos -->
-                                            <div class="o_counters_charts"></div>
+                                            <div class="chart-container">
+                                                <canvas id="monthlyChart"></canvas>
+                                            </div>
                                         </div>
                                         <div class="tab-pane fade" id="yearly" role="tabpanel" aria-labelledby="yearly-tab">
-                                            <!-- Ya no necesitamos estos canvases, el componente OWL los crea -->
+                                            <div class="chart-container">
+                                                <canvas id="yearlyChart"></canvas>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
