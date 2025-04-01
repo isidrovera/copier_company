@@ -359,7 +359,7 @@
             <!-- Incluir CSS para los gráficos -->
             <t t-set="head">
                 <link rel="stylesheet" type="text/css" href="/copier_company/static/src/css/counter_charts.css"/>
-                <!-- No incluimos Chart.js aquí, lo cargará el componente OWL -->
+                <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
             </t>
             
             <t t-call="portal.portal_searchbar">
