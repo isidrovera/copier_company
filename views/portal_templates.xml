@@ -340,7 +340,7 @@
         </t>
     </template>
     
-    <template id="portal_my_copier_counters" name="My Equipment Counters">
+     <template id="portal_my_copier_counters" name="My Equipment Counters">
         <t t-call="portal.portal_layout">
             <t t-set="breadcrumbs_searchbar" t-value="True"/>
             
@@ -378,14 +378,11 @@
                                     </ul>
                                     <div class="tab-content p-3 border border-top-0 rounded-bottom" id="graphTabsContent">
                                         <div class="tab-pane fade show active" id="monthly" role="tabpanel" aria-labelledby="monthly-tab">
-                                            <div class="chart-container">
-                                                <canvas id="monthlyChart"></canvas>
-                                            </div>
+                                            <!-- Componente para gráficos -->
+                                            <div class="o_counter_charts"></div>
                                         </div>
                                         <div class="tab-pane fade" id="yearly" role="tabpanel" aria-labelledby="yearly-tab">
-                                            <div class="chart-container">
-                                                <canvas id="yearlyChart"></canvas>
-                                            </div>
+                                            <!-- Los gráficos se manejan desde el componente -->
                                         </div>
                                     </div>
                                 </div>
@@ -444,61 +441,8 @@
                                     </table>
                                 </div>
                                 
-                                <!-- Resumen de facturación -->
-                                <div class="mt-4">
-                                    <h5>Resumen de Facturación</h5>
-                                    <div class="row mb-4">
-                                        <div class="col-md-6">
-                                            <div class="card shadow-sm">
-                                                <div class="card-header bg-light">
-                                                    <h6 class="mb-0">Volumen Mensual Contratado</h6>
-                                                </div>
-                                                <div class="card-body">
-                                                    <div class="row">
-                                                        <div class="col-sm-6">
-                                                            <p><strong>B/N:</strong> <span t-field="equipment.volumen_mensual_bn"/> copias</p>
-                                                        </div>
-                                                        <div class="col-sm-6" t-if="equipment.tipo == 'color'">
-                                                            <p><strong>Color:</strong> <span t-field="equipment.volumen_mensual_color"/> copias</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-sm-6">
-                                                            <p><strong>Precio B/N:</strong> <span t-field="equipment.costo_copia_bn" t-options="{'widget': 'monetary', 'display_currency': equipment.currency_id}"/></p>
-                                                        </div>
-                                                        <div class="col-sm-6" t-if="equipment.tipo == 'color'">
-                                                            <p><strong>Precio Color:</strong> <span t-field="equipment.costo_copia_color" t-options="{'widget': 'monetary', 'display_currency': equipment.currency_id}"/></p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="card shadow-sm">
-                                                <div class="card-header bg-light">
-                                                    <h6 class="mb-0">Consumo Actual</h6>
-                                                </div>
-                                                <div class="card-body">
-                                                    <t t-if="counters and counters[0].state != 'draft'">
-                                                        <div class="row">
-                                                            <div class="col-sm-6">
-                                                                <p><strong>Total B/N:</strong> <span t-field="counters[0].total_copias_bn"/> copias</p>
-                                                                <p><strong>Exceso B/N:</strong> <span t-field="counters[0].exceso_bn"/> copias</p>
-                                                            </div>
-                                                            <div class="col-sm-6" t-if="equipment.tipo == 'color'">
-                                                                <p><strong>Total Color:</strong> <span t-field="counters[0].total_copias_color"/> copias</p>
-                                                                <p><strong>Exceso Color:</strong> <span t-field="counters[0].exceso_color"/> copias</p>
-                                                            </div>
-                                                        </div>
-                                                    </t>
-                                                    <div t-else="" class="alert alert-info">
-                                                        No hay datos de consumo confirmados para el período actual.
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <!-- Resto del contenido -->
+                                <!-- Resumen de facturación, etc. -->
                             </t>
                         </div>
                     </div>

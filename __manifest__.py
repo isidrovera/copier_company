@@ -63,6 +63,7 @@
         'views/detalles_usuarios.xml',
         'views/portal_templates.xml',
         'views/counter_charts_templates.xml',
+        'copier_company/static/src/xml/counter_charts_templates.xml',
         
         
         
@@ -77,6 +78,10 @@
             'copier_company/static/src/css/cotizacion_styles.css',           
             'copier_company/static/src/css/counter_charts.css',
             'copier_company/static/src/js/counter_charts.js',
+            
+           ],
+        # La biblioteca externa se puede incluir así
+        'web.assets_frontend_libs': [
             ('https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js', {
                 'type': 'external',
             }),
