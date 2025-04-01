@@ -1,16 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <templates xml:space="preserve">
-    <t t-name="copier_company.CounterChartsComponent" owl="1">
-        <div class="counter-charts-wrapper">
-            <div class="chart-container">
-                <canvas id="monthlyChart"></canvas>
+    <!-- Nota: En Odoo 18, las plantillas OWL deben estar dentro de una etiqueta <template>, no directamente bajo <templates> -->
+    <template id="counter_charts_templates" name="Counter Charts Templates">
+        <t t-name="copier_company.CounterChartsComponent" owl="1">
+            <div class="counter-charts-wrapper">
+                <div class="chart-container">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="yearlyChart"></canvas>
+                </div>
             </div>
-            <div class="chart-container">
-                <canvas id="yearlyChart"></canvas>
-            </div>
-        </div>
-    </t>
-</templates>   
-
+        </t>
+    </template>
 </odoo>
