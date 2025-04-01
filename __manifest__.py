@@ -61,8 +61,7 @@
         'views/ajustes_copier.xml',
         'views/contadores.xml',
         'views/detalles_usuarios.xml',
-        'views/portal_templates.xml',
-        'views/counter_charts_templates.xml',
+        'views/portal_templates.xml',        
         'static/src/xml/counter_charts_templates.xml',
         
         
