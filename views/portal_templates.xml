@@ -340,9 +340,16 @@
         </t>
     </template>
     
-     <template id="portal_my_copier_counters" name="My Equipment Counters">
+    <!-- Template para la página de contadores -->
+    <template id="portal_my_copier_counters" name="My Equipment Counters">
         <t t-call="portal.portal_layout">
             <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            
+            <!-- Incluir Chart.js directamente -->
+            <t t-set="head">
+                <link rel="stylesheet" type="text/css" href="/copier_company/static/src/css/counter_charts.css"/>
+                <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+            </t>
             
             <t t-call="portal.portal_searchbar">
                 <t t-set="title">Historial de Lecturas</t>
@@ -378,16 +385,18 @@
                                     </ul>
                                     <div class="tab-content p-3 border border-top-0 rounded-bottom" id="graphTabsContent">
                                         <div class="tab-pane fade show active" id="monthly" role="tabpanel" aria-labelledby="monthly-tab">
-                                            <!-- Componente para gráficos -->
-                                            <div class="o_counter_charts"></div>
+                                            <div class="chart-container">
+                                                <canvas id="monthlyChart"></canvas>
+                                            </div>
                                         </div>
                                         <div class="tab-pane fade" id="yearly" role="tabpanel" aria-labelledby="yearly-tab">
-                                            <!-- Los gráficos se manejan desde el componente -->
+                                            <div class="chart-container">
+                                                <canvas id="yearlyChart"></canvas>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <!-- Tabla de datos -->
                                 <div class="table-responsive">
                                     <table class="table table-striped">
                                         <thead>
@@ -441,8 +450,61 @@
                                     </table>
                                 </div>
                                 
-                                <!-- Resto del contenido -->
-                                <!-- Resumen de facturación, etc. -->
+                                <!-- Resumen de facturación -->
+                                <div class="mt-4">
+                                    <h5>Resumen de Facturación</h5>
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <div class="card shadow-sm">
+                                                <div class="card-header bg-light">
+                                                    <h6 class="mb-0">Volumen Mensual Contratado</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-sm-6">
+                                                            <p><strong>B/N:</strong> <span t-field="equipment.volumen_mensual_bn"/> copias</p>
+                                                        </div>
+                                                        <div class="col-sm-6" t-if="equipment.tipo == 'color'">
+                                                            <p><strong>Color:</strong> <span t-field="equipment.volumen_mensual_color"/> copias</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-sm-6">
+                                                            <p><strong>Precio B/N:</strong> <span t-field="equipment.costo_copia_bn" t-options="{'widget': 'monetary', 'display_currency': equipment.currency_id}"/></p>
+                                                        </div>
+                                                        <div class="col-sm-6" t-if="equipment.tipo == 'color'">
+                                                            <p><strong>Precio Color:</strong> <span t-field="equipment.costo_copia_color" t-options="{'widget': 'monetary', 'display_currency': equipment.currency_id}"/></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card shadow-sm">
+                                                <div class="card-header bg-light">
+                                                    <h6 class="mb-0">Consumo Actual</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <t t-if="counters and counters[0].state != 'draft'">
+                                                        <div class="row">
+                                                            <div class="col-sm-6">
+                                                                <p><strong>Total B/N:</strong> <span t-field="counters[0].total_copias_bn"/> copias</p>
+                                                                <p><strong>Exceso B/N:</strong> <span t-field="counters[0].exceso_bn"/> copias</p>
+                                                            </div>
+                                                            <div class="col-sm-6" t-if="equipment.tipo == 'color'">
+                                                                <p><strong>Total Color:</strong> <span t-field="counters[0].total_copias_color"/> copias</p>
+                                                                <p><strong>Exceso Color:</strong> <span t-field="counters[0].exceso_color"/> copias</p>
+                                                            </div>
+                                                        </div>
+                                                    </t>
+                                                    <div t-else="" class="alert alert-info">
+                                                        No hay datos de consumo confirmados para el período actual.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </t>
                         </div>
                     </div>
@@ -457,10 +519,188 @@
             </div>
             
             <!-- Elemento con datos para los gráficos -->
-            <div id="counter_chart_data" 
+            <div id="charts-data" 
                  t-att-data-chart-data="chart_data"
                  t-att-data-is-color="'true' if equipment.tipo == 'color' else 'false'"
                  style="display: none;"></div>
+            
+            <!-- JavaScript para inicializar los gráficos -->
+            <script type="text/javascript">
+                document.addEventListener('DOMContentLoaded', function() {
+                    if (typeof Chart === 'undefined') {
+                        // Si Chart.js no está cargado aún, esperar un poco
+                        console.log('Chart.js no está cargado aún, esperando...');
+                        setTimeout(initCharts, 1000);
+                    } else {
+                        console.log('Chart.js está cargado, inicializando gráficos...');
+                        initCharts();
+                    }
+                });
+                
+                function initCharts() {
+                    if (typeof Chart === 'undefined') {
+                        console.error('Chart.js no está disponible. No se pueden inicializar los gráficos.');
+                        return;
+                    }
+                    
+                    // Obtener datos para los gráficos
+                    var chartDataElement = document.getElementById('charts-data');
+                    if (!chartDataElement) {
+                        console.warn('No se encontraron datos para los gráficos');
+                        return;
+                    }
+                    
+                    try {
+                        var chartData = JSON.parse(chartDataElement.dataset.chartData || '{"monthly":[],"yearly":[]}');
+                        var isColor = chartDataElement.dataset.isColor === 'true';
+                        
+                        console.log('Datos para gráfico mensual:', chartData.monthly);
+                        console.log('Datos para gráfico anual:', chartData.yearly);
+                        
+                        // Inicializar gráfico mensual
+                        initMonthlyChart(chartData.monthly, isColor);
+                        
+                        // Inicializar gráfico anual
+                        initYearlyChart(chartData.yearly, isColor);
+                    } catch (error) {
+                        console.error('Error al inicializar los gráficos:', error);
+                    }
+                }
+                
+                function initMonthlyChart(data, isColor) {
+                    if (!data || data.length === 0 || !document.getElementById('monthlyChart')) {
+                        console.warn('No hay datos para el gráfico mensual o no existe el elemento canvas');
+                        return;
+                    }
+                    
+                    var ctx = document.getElementById('monthlyChart').getContext('2d');
+                    
+                    var datasets = [
+                        {
+                            label: 'Copias B/N',
+                            data: data.map(function(item) { return item.bn; }),
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }
+                    ];
+                    
+                    if (isColor) {
+                        datasets.push({
+                            label: 'Copias Color',
+                            data: data.map(function(item) { return item.color; }),
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        });
+                    }
+                    
+                    console.log('Inicializando gráfico mensual...');
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: data.map(function(item) { return item.name; }),
+                            datasets: datasets
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Consumo Mensual de Copias'
+                                },
+                                legend: {
+                                    position: 'top',
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Número de copias'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Mes'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    console.log('Gráfico mensual inicializado correctamente');
+                }
+                
+                function initYearlyChart(data, isColor) {
+                    if (!data || data.length === 0 || !document.getElementById('yearlyChart')) {
+                        console.warn('No hay datos para el gráfico anual o no existe el elemento canvas');
+                        return;
+                    }
+                    
+                    var ctx = document.getElementById('yearlyChart').getContext('2d');
+                    
+                    var datasets = [
+                        {
+                            label: 'Copias B/N',
+                            data: data.map(function(item) { return item.bn; }),
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }
+                    ];
+                    
+                    if (isColor) {
+                        datasets.push({
+                            label: 'Copias Color',
+                            data: data.map(function(item) { return item.color; }),
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        });
+                    }
+                    
+                    console.log('Inicializando gráfico anual...');
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: data.map(function(item) { return item.name; }),
+                            datasets: datasets
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Consumo Anual de Copias'
+                                },
+                                legend: {
+                                    position: 'top',
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Número de copias'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Año'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    console.log('Gráfico anual inicializado correctamente');
+                }
+            </script>
         </t>
     </template>
 </odoo>
