@@ -77,6 +77,8 @@
             'copier_company/static/src/css/cotizacion_styles.css',           
             'copier_company/static/src/css/counter_charts.css',
             'copier_company/static/src/js/counter_charts.js',
+            # External Libraries
+            'https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js',
 
         ],
         'web.report_assets_common': [
