@@ -35,7 +35,7 @@
         </div>
     </template>
     
-    <!-- Template para la página de listado de equipos -->
+
     <!-- Template para la página de listado de equipos en formato LISTA -->
 <template id="portal_my_copier_equipments" name="My Rental Equipments">
     <t t-call="portal.portal_layout">
@@ -97,7 +97,7 @@
                                     <a t-att-href="'/my/copier/equipment/%s' % equipment.id" class="btn btn-sm btn-primary">
                                         <i class="fa fa-eye me-1"/>Ver
                                     </a>
-                                    <a t-att-href="/my/tickets" class="btn btn-sm btn-danger">
+                                    <a t-att-href="'/my/copier/equipment/%s/ticket' % equipment.id" class="btn btn-sm btn-danger">
                                         <i class="fa fa-ticket me-1"/>Ticket
                                     </a>
                                 </div>
