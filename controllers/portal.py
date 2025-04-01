@@ -240,13 +240,8 @@ class CopierCompanyPortal(CustomerPortal):
                 _logger.error("Error de acceso para equipo ID %s: %s", equipment_id, str(e))
                 return request.redirect('/my')
             
-            # Verificar si el módulo helpdesk está instalado
-            if 'helpdesk.ticket' not in request.env:
-                _logger.error("Módulo helpdesk no encontrado - Redirigiendo a página de detalles del equipo")
-                return request.redirect(f'/my/copier/equipment/{equipment_id}')
-            
-            # Redireccionar a creación de ticket con parámetros
-            redirect_url = f'/helpdesk/ticket/submit?equipment_id={equipment_id}'
+            # Redirigir al formulario público de tickets con el ID del equipo
+            redirect_url = f'/public/helpdesk_ticket?copier_company_id={equipment_id}'
             _logger.info("Redirigiendo a: %s", redirect_url)
             _logger.info("=== FINALIZANDO portal_create_equipment_ticket ===")
             return request.redirect(redirect_url)
