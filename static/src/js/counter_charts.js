@@ -16,11 +16,25 @@ class CounterChartsComponent extends Component {
         this.charts = [];
 
         onMounted(async () => {
-            // Cargar Chart.js de forma dinámica
-            await loadJS("https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js");
-            
-            // Inicializar los gráficos
-            this.initCharts();
+            try {
+                // Verificar si Chart.js ya está cargado
+                if (typeof Chart === 'undefined') {
+                    console.log('Cargando Chart.js dinámicamente...');
+                    // Cargar Chart.js de forma dinámica
+                    await loadJS("https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js");
+                    
+                    // Verificar que se haya cargado correctamente
+                    if (typeof Chart === 'undefined') {
+                        throw new Error('No se pudo cargar Chart.js correctamente');
+                    }
+                }
+                
+                // Inicializar los gráficos
+                console.log('Chart.js cargado correctamente, inicializando gráficos...');
+                this.initCharts();
+            } catch (error) {
+                console.error('Error al cargar Chart.js:', error);
+            }
         });
     }
 
@@ -51,6 +65,7 @@ class CounterChartsComponent extends Component {
      */
     initMonthlyChart() {
         if (!this.chartData || !this.chartData.monthly || this.chartData.monthly.length === 0 || !this.monthlyChartRef.el) {
+            console.warn('No hay datos para el gráfico mensual o no existe el elemento canvas');
             return;
         }
         
@@ -76,7 +91,7 @@ class CounterChartsComponent extends Component {
             });
         }
         
-        // eslint-disable-next-line no-undef
+        // Crear el gráfico
         const chart = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -113,6 +128,7 @@ class CounterChartsComponent extends Component {
             }
         });
         
+        console.log('Gráfico mensual inicializado correctamente');
         this.charts.push(chart);
     }
 
@@ -121,6 +137,7 @@ class CounterChartsComponent extends Component {
      */
     initYearlyChart() {
         if (!this.chartData || !this.chartData.yearly || this.chartData.yearly.length === 0 || !this.yearlyChartRef.el) {
+            console.warn('No hay datos para el gráfico anual o no existe el elemento canvas');
             return;
         }
         
@@ -146,7 +163,7 @@ class CounterChartsComponent extends Component {
             });
         }
         
-        // eslint-disable-next-line no-undef
+        // Crear el gráfico
         const chart = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -183,10 +200,12 @@ class CounterChartsComponent extends Component {
             }
         });
         
+        console.log('Gráfico anual inicializado correctamente');
         this.charts.push(chart);
     }
 }
 
+// Definir la plantilla del componente
 CounterChartsComponent.template = 'copier_company.CounterChartsComponent';
 
 // Registrar el componente en el sistema
