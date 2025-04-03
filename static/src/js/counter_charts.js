@@ -101,7 +101,7 @@ class CounterChartsComponent extends Component {
         
         if (isColor) {
             datasets.push({
-                label: 'Copias Color',
+                label: 'Copias Colorrrrr',
                 data: data.map(function(item) { return item.color; }),
                 backgroundColor: 'rgba(255, 99, 132, 0.6)',
                 borderColor: 'rgba(255, 99, 132, 1)',
