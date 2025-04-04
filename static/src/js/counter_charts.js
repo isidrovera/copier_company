@@ -43,10 +43,6 @@ function initCharts() {
         
         // Inicializar gráfico anual
         initYearlyChart(chartData.yearly, isColor);
-        
-        // Inicializar gráficos de totales
-        initMonthlyTotalChart(chartData.monthly, isColor);
-        initYearlyTotalChart(chartData.yearly, isColor);
     } catch (error) {
         console.error('Error al inicializar los gráficos:', error);
     }
@@ -98,7 +94,7 @@ function initMonthlyChart(data, isColor) {
             plugins: {
                 title: {
                     display: true,
-                    text: 'Consumo Mensual de Copias (Detallado)'
+                    text: 'Consumo Mensual de Copias'
                 },
                 legend: {
                     position: 'top',
@@ -198,7 +194,7 @@ function initYearlyChart(data, isColor) {
             plugins: {
                 title: {
                     display: true,
-                    text: 'Consumo Anual de Copias (Detallado)'
+                    text: 'Consumo Anual de Copias'
                 },
                 legend: {
                     position: 'top',
@@ -250,200 +246,4 @@ function initYearlyChart(data, isColor) {
         }]
     });
     console.log('Gráfico anual inicializado correctamente');
-}
-
-/**
- * Inicializa el gráfico de totales mensuales
- * @param {Array} data - Datos para el gráfico
- * @param {Boolean} isColor - Indica si el equipo es color
- */
-function initMonthlyTotalChart(data, isColor) {
-    if (!data || data.length === 0 || !document.getElementById('monthlyTotalChart')) {
-        console.warn('No hay datos para el gráfico mensual de totales o no existe el elemento canvas');
-        return;
-    }
-    
-    var ctx = document.getElementById('monthlyTotalChart').getContext('2d');
-    
-    // Calcular totales (BN + Color)
-    var totals = data.map(function(item) {
-        var total = item.bn;
-        if (isColor) {
-            total += item.color || 0;
-        }
-        return total;
-    });
-    
-    console.log('Inicializando gráfico mensual de totales...');
-    var monthlyTotalChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: data.map(function(item) { return item.name; }),
-            datasets: [{
-                label: 'Total Copias',
-                data: totals,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.3,
-                pointRadius: 5,
-                pointHoverRadius: 7,
-                pointBackgroundColor: 'rgba(75, 192, 192, 1)'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Total Mensual de Copias'
-                },
-                legend: {
-                    position: 'top',
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return 'Total: ' + context.raw.toLocaleString() + ' copias';
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Número de copias'
-                    }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Mes'
-                    }
-                }
-            }
-        },
-        plugins: [{
-            afterDraw: function(chart) {
-                var ctx = chart.ctx;
-                ctx.save();
-                ctx.font = 'bold 12px Arial';
-                
-                var meta = chart.getDatasetMeta(0);
-                meta.data.forEach(function(point, index) {
-                    var data = chart.data.datasets[0].data[index];
-                    if (data > 0) {
-                        ctx.fillStyle = chart.data.datasets[0].borderColor;
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'bottom';
-                        ctx.fillText(data.toLocaleString(), point.x, point.y - 15);
-                    }
-                });
-                ctx.restore();
-            }
-        }]
-    });
-    console.log('Gráfico mensual de totales inicializado correctamente');
-}
-
-/**
- * Inicializa el gráfico de totales anuales
- * @param {Array} data - Datos para el gráfico
- * @param {Boolean} isColor - Indica si el equipo es color
- */
-function initYearlyTotalChart(data, isColor) {
-    if (!data || data.length === 0 || !document.getElementById('yearlyTotalChart')) {
-        console.warn('No hay datos para el gráfico anual de totales o no existe el elemento canvas');
-        return;
-    }
-    
-    var ctx = document.getElementById('yearlyTotalChart').getContext('2d');
-    
-    // Calcular totales (BN + Color)
-    var totals = data.map(function(item) {
-        var total = item.bn;
-        if (isColor) {
-            total += item.color || 0;
-        }
-        return total;
-    });
-    
-    console.log('Inicializando gráfico anual de totales...');
-    var yearlyTotalChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: data.map(function(item) { return item.name; }),
-            datasets: [{
-                label: 'Total Copias',
-                data: totals,
-                backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                borderColor: 'rgba(153, 102, 255, 1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.3,
-                pointRadius: 5,
-                pointHoverRadius: 7,
-                pointBackgroundColor: 'rgba(153, 102, 255, 1)'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Total Anual de Copias'
-                },
-                legend: {
-                    position: 'top',
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return 'Total: ' + context.raw.toLocaleString() + ' copias';
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Número de copias'
-                    }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Año'
-                    }
-                }
-            }
-        },
-        plugins: [{
-            afterDraw: function(chart) {
-                var ctx = chart.ctx;
-                ctx.save();
-                ctx.font = 'bold 12px Arial';
-                
-                var meta = chart.getDatasetMeta(0);
-                meta.data.forEach(function(point, index) {
-                    var data = chart.data.datasets[0].data[index];
-                    if (data > 0) {
-                        ctx.fillStyle = chart.data.datasets[0].borderColor;
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'bottom';
-                        ctx.fillText(data.toLocaleString(), point.x, point.y - 15);
-                    }
-                });
-                ctx.restore();
-            }
-        }]
-    });
-    console.log('Gráfico anual de totales inicializado correctamente');
 }

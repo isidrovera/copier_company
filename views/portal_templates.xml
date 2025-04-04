@@ -374,46 +374,29 @@
                         </t>
                         <t t-if="counters">
                             <!-- Gráficos de consumo -->
-                            <!-- Sección de gráficos actualizada para incluir los nuevos gráficos de totales -->
-                        <div class="mb-4">
-                            <h5>Gráficos de Consumo</h5>
-                            <ul class="nav nav-tabs" id="graphTabs" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="monthly-tab" data-bs-toggle="tab" data-bs-target="#monthly" type="button" role="tab" aria-controls="monthly" aria-selected="true">Consumo Mensual</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="yearly-tab" data-bs-toggle="tab" data-bs-target="#yearly" type="button" role="tab" aria-controls="yearly" aria-selected="false">Consumo Anual</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="monthly-total-tab" data-bs-toggle="tab" data-bs-target="#monthly-total" type="button" role="tab" aria-controls="monthly-total" aria-selected="false">Total Mensual</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="yearly-total-tab" data-bs-toggle="tab" data-bs-target="#yearly-total" type="button" role="tab" aria-controls="yearly-total" aria-selected="false">Total Anual</button>
-                                </li>
-                            </ul>
-                            <div class="tab-content p-3 border border-top-0 rounded-bottom" id="graphTabsContent">
-                                <div class="tab-pane fade show active" id="monthly" role="tabpanel" aria-labelledby="monthly-tab">
-                                    <div class="chart-container">
-                                        <canvas id="monthlyChart"></canvas>
+                            <div class="mb-4">
+                                <h5>Gráficos de Consumo</h5>
+                                <ul class="nav nav-tabs" id="graphTabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="monthly-tab" data-bs-toggle="tab" data-bs-target="#monthly" type="button" role="tab" aria-controls="monthly" aria-selected="true">Consumo Mensual</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="yearly-tab" data-bs-toggle="tab" data-bs-target="#yearly" type="button" role="tab" aria-controls="yearly" aria-selected="false">Consumo Anual</button>
+                                    </li>
+                                </ul>
+                                <div class="tab-content p-3 border border-top-0 rounded-bottom" id="graphTabsContent">
+                                    <div class="tab-pane fade show active" id="monthly" role="tabpanel" aria-labelledby="monthly-tab">
+                                        <div class="chart-container">
+                                            <canvas id="monthlyChart"></canvas>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="tab-pane fade" id="yearly" role="tabpanel" aria-labelledby="yearly-tab">
-                                    <div class="chart-container">
-                                        <canvas id="yearlyChart"></canvas>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="monthly-total" role="tabpanel" aria-labelledby="monthly-total-tab">
-                                    <div class="chart-container">
-                                        <canvas id="monthlyTotalChart"></canvas>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="yearly-total" role="tabpanel" aria-labelledby="yearly-total-tab">
-                                    <div class="chart-container">
-                                        <canvas id="yearlyTotalChart"></canvas>
+                                    <div class="tab-pane fade" id="yearly" role="tabpanel" aria-labelledby="yearly-tab">
+                                        <div class="chart-container">
+                                            <canvas id="yearlyChart"></canvas>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
                             
                             <div class="table-responsive">
                                 <table class="table table-striped">
