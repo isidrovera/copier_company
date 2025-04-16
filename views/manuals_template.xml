@@ -1,112 +1,187 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Página de lista de manuales -->
-    <template id="manuals_list" name="Lista de Manuales">
-        <t t-call="website.layout">
-            <div class="container mt-4">
-                <h1 class="mb-4">Manuales disponibles</h1>
-                
-                <!-- Búsqueda de manuales -->
-                <div class="row mb-4">
-                    <div class="col-md-8 offset-md-2">
-                        <form class="d-flex" action="/manuales/buscar" method="get">
-                            <input type="text" name="q" class="form-control" placeholder="Buscar manuales..." 
-                                   t-att-value="search_query if search_query else ''"/>
-                            <button type="submit" class="btn btn-primary ml-2">
-                                <i class="fa fa-search"></i> Buscar
+    <!-- Página de lista de manuales modernizada para Odoo 18 -->
+<template id="manuals_list" name="Lista de Manuales">
+    <t t-call="website.layout">
+        <div class="container py-5">
+            <div class="row mb-4">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h1 class="display-4 fw-bold mb-3">Manuales disponibles</h1>
+                    
+                    <!-- Búsqueda de manuales mejorada -->
+                    <form class="d-flex gap-2 mb-4" action="/manuales/buscar" method="get">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="fa fa-search text-muted"></i>
+                            </span>
+                            <input type="text" name="q" class="form-control border-start-0 shadow-none" 
+                                   placeholder="Buscar manuales..." 
+                                   t-att-value="search_query if search_query else ''"
+                                   aria-label="Buscar manuales"/>
+                            <button type="submit" class="btn btn-primary px-4">
+                                Buscar
                             </button>
-                        </form>
-                    </div>
+                        </div>
+                    </form>
                 </div>
-                
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="card mb-3">
-                            <div class="card-header">
-                                <h4>Categorías</h4>
+            </div>
+            
+            <div class="row g-4">
+                <!-- Sidebar con filtros - Colapsa en móvil -->
+                <div class="col-lg-3">
+                    <div class="sticky-top pt-3" style="top: 80px;">
+                        <!-- Categorías con diseño mejorado -->
+                        <div class="card shadow-sm rounded-3 mb-4 border-0">
+                            <div class="card-header bg-white py-3">
+                                <h4 class="m-0 fs-5 fw-bold">Categorías</h4>
                             </div>
-                            <div class="card-body">
-                                <ul class="nav flex-column">
-                                    <li class="nav-item">
-                                        <a href="/manuales" class="nav-link" t-att-class="'active' if not category_id else ''">Todos</a>
-                                    </li>
+                            <div class="card-body p-0">
+                                <div class="list-group list-group-flush">
+                                    <a href="/manuales" class="list-group-item list-group-item-action border-0 py-3 px-4" 
+                                       t-att-class="'active' if not category_id else ''">
+                                        <i class="fa fa-book me-2"></i> Todos los manuales
+                                    </a>
                                     <t t-foreach="categories" t-as="category">
-                                        <li class="nav-item">
-                                            <a t-att-href="'/manuales/categoria/%s' % category.id" 
-                                               t-att-class="'nav-link %s' % ('active' if category_id and category_id == category.id else '')">
-                                                <t t-esc="category.name"/>
-                                            </a>
-                                        </li>
+                                        <a t-att-href="'/manuales/categoria/%s' % category.id" 
+                                           class="list-group-item list-group-item-action border-0 py-3 px-4"
+                                           t-att-class="'active' if category_id and category_id == category.id else ''">
+                                            <i class="fa fa-folder me-2"></i> <t t-esc="category.name"/>
+                                        </a>
                                     </t>
-                                </ul>
+                                </div>
                             </div>
                         </div>
                         
-                        <!-- Filtros adicionales -->
-                        <div class="card">
-                            <div class="card-header">
-                                <h4>Ordenar por</h4>
+                        <!-- Filtros con diseño mejorado -->
+                        <div class="card shadow-sm rounded-3 border-0">
+                            <div class="card-header bg-white py-3">
+                                <h4 class="m-0 fs-5 fw-bold">Ordenar por</h4>
                             </div>
-                            <div class="card-body">
-                                <div class="list-group">
-                                    <a href="#" class="list-group-item list-group-item-action" 
+                            <div class="card-body p-0">
+                                <div class="list-group list-group-flush">
+                                    <a href="#" class="list-group-item list-group-item-action border-0 py-3 px-4" 
                                        t-att-class="'active' if sort_by == 'name' else ''"
                                        t-att-href="'/manuales?sort_by=name' + (('&amp;category_id=%s' % category_id) if category_id else '')">
-                                        Nombre (A-Z)
+                                        <i class="fa fa-sort-alpha-asc me-2"></i> Nombre (A-Z)
                                     </a>
-                                    <a href="#" class="list-group-item list-group-item-action"
+                                    <a href="#" class="list-group-item list-group-item-action border-0 py-3 px-4"
                                        t-att-class="'active' if sort_by == 'date' else ''"
                                        t-att-href="'/manuales?sort_by=date' + (('&amp;category_id=%s' % category_id) if category_id else '')">
-                                        Más recientes
+                                        <i class="fa fa-calendar me-2"></i> Más recientes
                                     </a>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="col-md-9">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h4 t-if="category">Manuales - <span t-esc="category.name"/></h4>
-                                <h4 t-elif="search_query">Resultados para: <span t-esc="search_query"/></h4>
-                                <h4 t-else="">Todos los manuales</h4>
-                                <small t-if="manuals" class="text-muted">Mostrando <t t-esc="len(manuals)"/> resultado(s)</small>
-                            </div>
-                            <div class="card-body">
-                                <div t-if="not manuals" class="alert alert-info">
-                                    <p t-if="search_query">No se encontraron manuales que coincidan con tu búsqueda.</p>
-                                    <p t-else="">No hay manuales disponibles en esta categoría.</p>
+                </div>
+                
+                <!-- Contenido principal - Manuales -->
+                <div class="col-lg-9">
+                    <div class="card shadow-sm rounded-3 border-0">
+                        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                            <h4 class="m-0 fs-5 fw-bold">
+                                <t t-if="category">
+                                    <i class="fa fa-folder-open me-2"></i> <span t-esc="category.name"/>
+                                </t>
+                                <t t-elif="search_query">
+                                    <i class="fa fa-search me-2"></i> Resultados para: <span t-esc="search_query"/>
+                                </t>
+                                <t t-else="">
+                                    <i class="fa fa-book me-2"></i> Todos los manuales
+                                </t>
+                            </h4>
+                            <span t-if="manuals" class="badge bg-secondary rounded-pill">
+                                <t t-esc="len(manuals)"/> resultado(s)
+                            </span>
+                        </div>
+                        
+                        <div class="card-body p-4">
+                            <!-- Mensaje cuando no hay resultados -->
+                            <div t-if="not manuals" class="alert alert-info d-flex align-items-center" role="alert">
+                                <i class="fa fa-info-circle fa-2x me-3"></i>
+                                <div>
+                                    <p class="m-0" t-if="search_query">No se encontraron manuales que coincidan con tu búsqueda.</p>
+                                    <p class="m-0" t-else="">No hay manuales disponibles en esta categoría.</p>
                                 </div>
-                                
-                                <div t-if="manuals" class="row">
-                                    <t t-foreach="manuals" t-as="manual">
-                                        <div class="col-md-4 mb-3">
-                                            <div class="card h-100 manual-card">
-                                                <div class="card-body">
-                                                    <h5 class="card-title" t-esc="manual.name"/>
-                                                    <p class="card-text">
-                                                        <small class="text-muted">
-                                                            <i class="fa fa-folder-o"></i> 
-                                                            <t t-esc="manual.category_id.name"/>
-                                                        </small>
-                                                    </p>
-                                                    <p class="card-text" t-esc="manual.description"/>
+                            </div>
+                            
+                            <!-- Grid de manuales con diseño de tarjetas mejorado -->
+                            <div t-if="manuals" class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                                <t t-foreach="manuals" t-as="manual">
+                                    <div class="col">
+                                        <div class="card h-100 shadow-sm hover-shadow border-0 rounded-3 manual-card">
+                                            <div class="card-body p-4">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <span class="icon-wrapper rounded-circle bg-primary bg-opacity-10 p-2 me-3">
+                                                        <i class="fa fa-file-text-o text-primary"></i>
+                                                    </span>
+                                                    <h5 class="card-title mb-0 fw-bold" t-esc="manual.name"/>
                                                 </div>
-                                                <div class="card-footer">
-                                                    <a t-att-href="'/manuales/ver/%s' % manual.id" 
-                                                       class="btn btn-primary btn-block">Ver manual</a>
+                                                
+                                                <div class="mb-3">
+                                                    <span class="badge bg-light text-dark rounded-pill">
+                                                        <i class="fa fa-folder-o me-1"></i> 
+                                                        <t t-esc="manual.category_id.name"/>
+                                                    </span>
                                                 </div>
+                                                
+                                                <p class="card-text text-muted" t-esc="manual.description"/>
+                                            </div>
+                                            <div class="card-footer bg-white border-0 p-4 pt-0">
+                                                <a t-att-href="'/manuales/ver/%s' % manual.id" 
+                                                   class="btn btn-primary w-100 rounded-pill">
+                                                   <i class="fa fa-eye me-2"></i> Ver manual
+                                                </a>
                                             </div>
                                         </div>
-                                    </t>
-                                </div>
+                                    </div>
+                                </t>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </t>
-    </template>
+        </div>
+        
+        <!-- CSS personalizado para efectos y mejoras visuales -->
+        <style>
+            /* Efecto hover para las tarjetas de manuales */
+            .manual-card {
+                transition: all 0.3s ease;
+            }
+            .manual-card:hover {
+                transform: translateY(-5px);
+            }
+            .hover-shadow:hover {
+                box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+            }
+            
+            /* Estilo para los elementos activos en la navegación */
+            .list-group-item.active {
+                background-color: rgba(var(--o-primary-rgb), 0.1);
+                color: var(--o-primary);
+                border-color: transparent;
+            }
+            
+            /* Icono en tarjetas */
+            .icon-wrapper {
+                display: inline-flex;
+                justify-content: center;
+                align-items: center;
+                width: 40px;
+                height: 40px;
+            }
+            
+            /* Mejora para dispositivos móviles */
+            @media (max-width: 992px) {
+                .sticky-top {
+                    position: relative;
+                    top: 0;
+                }
+            }
+        </style>
+    </t>
+</template>
     
     <!-- Página para visualizar un manual -->
     <template id="manual_viewer" name="Visor de Manual">
