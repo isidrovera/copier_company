@@ -9,7 +9,7 @@
                     
                     <!-- Campo de búsqueda -->
                     <div class="search-container">
-                        <form class="form-inline" t-attf-action="/manuales#{category ? '/categoria/' + str(category.id) : ''}">
+                        <form class="form-inline" t-att-action="'/manuales' + (category and '/categoria/%s' % category.id or '')">
                             <div class="input-group">
                                 <input type="text" name="search" class="form-control" placeholder="Buscar manuales..." 
                                        t-att-value="request.params.get('search', '')"/>
