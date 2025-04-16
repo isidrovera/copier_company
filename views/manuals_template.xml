@@ -240,7 +240,7 @@
                                             <div class="d-flex justify-content-between align-items-center mb-2">
                                                 <h5 class="mb-0">Resultados</h5>
                                                 <button type="button" class="close" id="pdfSearchClose">
-                                                    <span>&times;</span>
+                                                    <span>&#215;</span>
                                                 </button>
                                             </div>
                                             <div id="pdfSearchResultsList" class="search-results-container">
@@ -297,6 +297,10 @@
                     }
                 }
             </style>
+            
+            <!-- Script para el visor de PDF mejorado -->
+            <!-- Cargar el script externo para el visor de PDF -->
+            <script type="text/javascript" src="/copier_company/static/src/js/pdf_viewer.js"></script>
         </t>
     </template>
 </odoo>
