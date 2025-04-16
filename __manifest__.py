@@ -63,7 +63,7 @@
         'views/detalles_usuarios.xml',
         'views/portal_templates.xml',
         'views/manuals.xml', 
-        'views/manuals_templates.xml',       
+        'views/manuals_template.xml',       
         'static/src/xml/counter_charts_templates.xml',
         
         
