@@ -36,19 +36,40 @@ $(document).ready(function() {
     var $searchClose = $('#pdfSearchClose');
     var $loadingSpinner = $('#pdfLoadingSpinner');
     
-    // Importar librería PDF.js desde la carpeta lib
-    import('/copier_company/static/lib/pdfjs/pdf.mjs')
-        .then(module => {
-            window.pdfjsLib = module;
-            pdfjsLib.GlobalWorkerOptions.workerSrc = '/copier_company/static/lib/pdfjs/pdf.worker.mjs';
-            
-            // Inicializar visor
+    // Asegurarse de que PDF.js esté cargado
+    function loadPdfJs() {
+        // Comprobar si pdfjsLib ya está definido globalmente
+        if (typeof pdfjsLib !== 'undefined') {
             initViewer();
-        })
-        .catch(error => {
-            console.error('Error al cargar PDF.js:', error);
-            $container.html('<div class="alert alert-danger">No se pudo cargar el visor de PDF</div>');
-        });
+            return;
+        }
+        
+        // Cargar PDF.js desde tu módulo estático
+        var script = document.createElement('script');
+        script.src = '/copier_company/static/lib/pdfjs/pdf.js';
+        script.type = 'text/javascript';
+        script.onload = function() {
+            // Configurar el worker
+            pdfjsLib.GlobalWorkerOptions.workerSrc = '/copier_company/static/lib/pdfjs/pdf.worker.js';
+            initViewer();
+        };
+        script.onerror = function() {
+            // Intentar cargar desde CDN como respaldo
+            var cdnScript = document.createElement('script');
+            cdnScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+            cdnScript.type = 'text/javascript';
+            cdnScript.onload = function() {
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                initViewer();
+            };
+            cdnScript.onerror = function() {
+                console.error('No se pudo cargar PDF.js');
+                $container.html('<div class="alert alert-danger">No se pudo cargar el visor de PDF</div>');
+            };
+            document.head.appendChild(cdnScript);
+        };
+        document.head.appendChild(script);
+    }
     
     // Inicializar el visor
     function initViewer() {
@@ -390,4 +411,7 @@ $(document).ready(function() {
             y <= rect.bottom
         );
     }
+    
+    // Iniciar carga de PDF.js
+    loadPdfJs();
 });
