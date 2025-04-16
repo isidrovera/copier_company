@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista de formulario para Manuales -->
+    <record id="view_manual_form" model="ir.ui.view">
+        <field name="name">secure_pdf_viewer.manual.form</field>
+        <field name="model">secure_pdf_viewer.manual</field>
+        <field name="arch" type="xml">
+            <form string="Manual PDF">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="category_id"/>
+                        <field name="description"/>
+                        <field name="pdf_file" widget="binary" filename="pdf_filename"/>
+                        <field name="pdf_filename" invisible="1"/>
+                        <field name="access_count" readonly="1"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista de árbol para Manuales -->
+    <record id="view_manual_tree" model="ir.ui.view">
+        <field name="name">secure_pdf_viewer.manual.tree</field>
+        <field name="model">secure_pdf_viewer.manual</field>
+        <field name="arch" type="xml">
+            <list string="Manuales PDF">
+                <field name="name"/>
+                <field name="category_id"/>
+                <field name="access_count"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista de búsqueda para Manuales -->
+    <record id="view_manual_search" model="ir.ui.view">
+        <field name="name">secure_pdf_viewer.manual.search</field>
+        <field name="model">secure_pdf_viewer.manual</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Manuales">
+                <field name="name"/>
+                <field name="category_id"/>
+                <filter string="Activos" name="active" domain="[('active','=',True)]"/>
+                <group expand="0" string="Agrupar por">
+                    <filter string="Categoría" name="category" context="{'group_by':'category_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Acción para el Menú -->
+    <record id="action_manual" model="ir.actions.act_window">
+        <field name="name">Manuales PDF</field>
+        <field name="res_model">secure_pdf_viewer.manual</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_manual_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crea tu primer manual PDF
+            </p>
+            <p>
+                Sube manuales PDF que podrán ser visualizados pero no descargados ni impresos.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menú Principal -->
+    <menuitem id="menu_secure_pdf_viewer_root" 
+              name="Visor de Manuales" 
+              sequence="10"/>
+
+    <!-- Submenú para Manuales -->
+    <menuitem id="menu_manual"
+              name="Manuales PDF"
+              parent="copier_company.menu_root"
+              action="action_manual"
+              sequence="30"/>
+</odoo>

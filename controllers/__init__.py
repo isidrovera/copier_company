@@ -5,3 +5,4 @@ from . import cloud
 from . import PcloudPublico
 from . import cotizaciones
 from . import portal
+from . import manuals

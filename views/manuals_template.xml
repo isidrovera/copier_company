@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Página de lista de manuales -->
+    <template id="manuals_list" name="Lista de Manuales">
+        <t t-call="website.layout">
+            <div class="container mt-4">
+                <h1 class="mb-4">Manuales disponibles</h1>
+                
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>Categorías</h4>
+                            </div>
+                            <div class="card-body">
+                                <ul class="nav flex-column">
+                                    <li class="nav-item">
+                                        <a href="/manuales" class="nav-link">Todos</a>
+                                    </li>
+                                    <t t-foreach="categories" t-as="category">
+                                        <li class="nav-item">
+                                            <a t-att-href="'/manuales/categoria/%s' % category.id" 
+                                               class="nav-link" t-esc="category.name"/>
+                                        </li>
+                                    </t>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-9">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 t-if="category">Manuales - <span t-esc="category.name"/></h4>
+                                <h4 t-else="">Todos los manuales</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <t t-foreach="manuals" t-as="manual">
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card h-100">
+                                                <div class="card-body">
+                                                    <h5 class="card-title" t-esc="manual.name"/>
+                                                    <p class="card-text" t-esc="manual.description"/>
+                                                </div>
+                                                <div class="card-footer">
+                                                    <a t-att-href="'/manuales/ver/%s' % manual.id" 
+                                                       class="btn btn-primary btn-block">Ver manual</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                    <div t-if="not manuals" class="col-12 text-center">
+                                        <p>No hay manuales disponibles en esta categoría.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+    
+    <!-- Página para visualizar un manual -->
+    <template id="manual_viewer" name="Visor de Manual">
+        <t t-call="website.layout">
+            <div class="container mt-4">
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="/manuales">Manuales</a></li>
+                                <li class="breadcrumb-item" t-if="manual.category_id">
+                                    <a t-att-href="'/manuales/categoria/%s' % manual.category_id.id" 
+                                       t-esc="manual.category_id.name"/>
+                                </li>
+                                <li class="breadcrumb-item active" t-esc="manual.name"/>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 t-esc="manual.name"/>
+                    </div>
+                    <div class="card-body">
+                        <p t-esc="manual.description"/>
+                        
+                        <div class="pdf-container mt-4" style="height: 800px;">
+                            <div id="pdfViewerContainer" class="w-100 h-100" 
+                                 t-att-data-pdf-url="'/manuales/pdf/%s' % manual.id">
+                                <div id="pdfViewer" class="w-100 h-100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

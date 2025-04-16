@@ -61,7 +61,9 @@
         'views/ajustes_copier.xml',
         'views/contadores.xml',
         'views/detalles_usuarios.xml',
-        'views/portal_templates.xml',        
+        'views/portal_templates.xml',
+        'views/manuals.xml', 
+        'views/manuals_templates.xml',       
         'static/src/xml/counter_charts_templates.xml',
         
         
@@ -77,7 +79,9 @@
             'copier_company/static/src/css/cotizacion_styles.css',           
             'copier_company/static/src/css/counter_charts.css',
             'copier_company/static/src/js/counter_charts.js',
-            
+            'copier_company/static/src/js/manuals.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',
            ],
         # La biblioteca externa se puede incluir así
         'web.assets_frontend_libs': [
