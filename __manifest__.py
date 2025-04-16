@@ -80,6 +80,8 @@
             'copier_company/static/src/css/counter_charts.css',
             'copier_company/static/src/js/counter_charts.js',
             'copier_company/static/src/js/manuals.js',
+            'copier_company/static/lib/pdfjs/pdf.mjs',
+            'copier_company/static/lib/pdfjs/pdf.worker.mjs',
             'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
             'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',
            ],
