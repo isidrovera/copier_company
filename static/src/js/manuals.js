@@ -1,264 +1,184 @@
-odoo.define('copier_company.manuals', function(require) {
-    'use strict';
-
-    // Importaciones básicas
-    const publicWidget = require('web.public.widget');
-
-    const SecurePDFViewer = publicWidget.Widget.extend({
-        selector: '#pdfViewerContainer',
+/* 
+ * Visor de PDF simplificado usando jQuery para Odoo 18
+ * Este enfoque no depende de los widgets de Odoo
+ */
+$(document).ready(function() {
+    // Buscar el contenedor del visor de PDF
+    var $container = $('#pdfViewerContainer');
+    if ($container.length === 0) return;
+    
+    // Obtener URL del PDF
+    var pdfUrl = $container.data('pdf-url');
+    if (!pdfUrl) return;
+    
+    // Variables para el visor
+    var pdfDoc = null;
+    var currentPage = 1;
+    var totalPages = 0;
+    var canvas = null;
+    var canvasContainer = null;
+    var pageIndicator = null;
+    
+    // Inicializar el visor
+    function initViewer() {
+        // Crear estructura del visor
+        $container.html('<div id="pdfViewer" class="w-100 h-100"></div>');
+        var $viewer = $('#pdfViewer');
         
-        /**
-         * Inicializar el visor de PDF
-         */
-        start: function () {
-            var self = this;
-            var def = this._super.apply(this, arguments);
-            
-            // Obtener URL del PDF desde el atributo data
-            this.pdfUrl = this.$el.data('pdf-url');
-            
-            if (this.pdfUrl) {
-                // Cargar el PDF.js desde una ruta local
-                this._loadScript('/copier_company/static/lib/pdfjs/pdf.min.js')
-                    .then(function() {
-                        // Configurar el worker
-                        pdfjsLib.GlobalWorkerOptions.workerSrc = '/copier_company/static/lib/pdfjs/pdf.worker.min.js';
-                        // Inicializar el visor
-                        self._initPDFViewer();
-                    })
-                    .catch(function(error) {
-                        console.error('No se pudo cargar PDF.js:', error);
-                    });
-                
-                // Prevenir acciones no deseadas
-                this._preventUnwantedActions();
-            }
-            
-            return def;
-        },
-        
-        /**
-         * Carga un script externo
-         */
-        _loadScript: function(src) {
-            return new Promise(function(resolve, reject) {
-                var script = document.createElement('script');
-                script.src = src;
-                script.onload = resolve;
-                script.onerror = reject;
-                document.head.appendChild(script);
+        // Crear contenedor del canvas
+        canvasContainer = $('<div class="canvas-container"></div>')
+            .css({
+                width: '100%',
+                height: '90%',
+                overflow: 'auto',
+                position: 'relative'
             });
-        },
         
-        /**
-         * Inicializa el visor de PDF usando PDF.js
-         */
-        _initPDFViewer: function () {
-            var self = this;
-            var container = this.$el.find('#pdfViewer')[0];
-            
-            // Si no existe el contenedor interno, lo creamos
-            if (!container) {
-                container = document.createElement('div');
-                container.id = 'pdfViewer';
-                container.className = 'w-100 h-100';
-                this.$el.append(container);
-            }
-            
-            // Cargar el PDF
-            pdfjsLib.getDocument(this.pdfUrl).promise.then(function(pdf) {
-                // Almacenar la referencia al documento PDF
-                self.pdfDoc = pdf;
-                self.totalPages = pdf.numPages;
-                self.currentPage = 1;
-                
-                // Crear el visor básico con canvas
-                self._createViewer(container);
-                
-                // Renderizar la primera página
-                self._renderPage(self.currentPage);
-                
-                // Agregar controles de navegación
-                self._addNavigation(container);
-            }).catch(function(error) {
-                console.error('Error al cargar el PDF:', error);
-                container.innerHTML = '<div class="alert alert-danger">Error al cargar el documento PDF</div>';
+        // Crear canvas
+        var $canvas = $('<canvas id="pdf-canvas"></canvas>')
+            .css('width', '100%');
+        
+        canvasContainer.append($canvas);
+        $viewer.append(canvasContainer);
+        
+        // Guardar referencia al canvas
+        canvas = $canvas[0];
+        
+        // Crear navegación
+        var navbar = $('<div class="pdf-navbar d-flex justify-content-between align-items-center mt-2"></div>');
+        
+        // Botón anterior
+        var prevBtn = $('<button class="btn btn-sm btn-secondary">&laquo; Anterior</button>')
+            .on('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderPage(currentPage);
+                }
             });
-        },
         
-        /**
-         * Crea el visor básico con un elemento canvas
-         */
-        _createViewer: function (container) {
-            // Limpiar el contenedor
-            container.innerHTML = '';
-            
-            // Crear el contenedor del canvas
-            var canvasContainer = document.createElement('div');
-            canvasContainer.className = 'canvas-container';
-            canvasContainer.style.width = '100%';
-            canvasContainer.style.height = '90%';
-            canvasContainer.style.overflow = 'auto';
-            canvasContainer.style.position = 'relative';
-            
-            // Crear el canvas para renderizar el PDF
-            var canvas = document.createElement('canvas');
-            canvas.id = 'pdf-canvas';
-            canvas.style.width = '100%';
-            
-            // Agregar el canvas al contenedor
-            canvasContainer.appendChild(canvas);
-            container.appendChild(canvasContainer);
-            
-            // Guardar referencias
-            this.canvas = canvas;
-            this.canvasContainer = canvasContainer;
-        },
+        // Indicador de página
+        pageIndicator = $('<div class="page-indicator">Cargando PDF...</div>');
         
-        /**
-         * Renderiza una página específica del PDF
-         */
-        _renderPage: function (pageNumber) {
-            var self = this;
-            var canvas = this.canvas;
+        // Botón siguiente
+        var nextBtn = $('<button class="btn btn-sm btn-secondary">Siguiente &raquo;</button>')
+            .on('click', function() {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderPage(currentPage);
+                }
+            });
+        
+        // Agregar elementos a la barra de navegación
+        navbar.append(prevBtn).append(pageIndicator).append(nextBtn);
+        $viewer.append(navbar);
+        
+        // Cargar PDF
+        loadPdf();
+    }
+    
+    // Cargar el PDF
+    function loadPdf() {
+        pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
+            pdfDoc = pdf;
+            totalPages = pdf.numPages;
+            currentPage = 1;
+            
+            // Renderizar primera página
+            renderPage(currentPage);
+        }).catch(function(error) {
+            console.error('Error al cargar el PDF:', error);
+            $('#pdfViewer').html('<div class="alert alert-danger">Error al cargar el documento PDF</div>');
+        });
+    }
+    
+    // Renderizar una página
+    function renderPage(pageNumber) {
+        pdfDoc.getPage(pageNumber).then(function(page) {
             var ctx = canvas.getContext('2d');
             
-            // Obtener la página
-            this.pdfDoc.getPage(pageNumber).then(function(page) {
-                // Determinar la escala para que se ajuste al ancho del contenedor
-                var containerWidth = self.canvasContainer.clientWidth;
-                var viewport = page.getViewport({ scale: 1 });
-                var scale = containerWidth / viewport.width;
-                var scaledViewport = page.getViewport({ scale: scale });
-                
-                // Establecer las dimensiones del canvas
-                canvas.height = scaledViewport.height;
-                canvas.width = scaledViewport.width;
-                
-                // Renderizar la página
-                var renderContext = {
-                    canvasContext: ctx,
-                    viewport: scaledViewport
-                };
-                
-                page.render(renderContext).promise.then(function() {
-                    // Actualizar indicador de página
-                    if (self.pageIndicator) {
-                        self.pageIndicator.textContent = 'Página ' + pageNumber + ' de ' + self.totalPages;
-                    }
-                });
-            });
-        },
-        
-        /**
-         * Agrega controles de navegación básicos
-         */
-        _addNavigation: function (container) {
-            var self = this;
+            // Calcular escala
+            var containerWidth = $(canvasContainer).width();
+            var viewport = page.getViewport({ scale: 1 });
+            var scale = containerWidth / viewport.width;
+            var scaledViewport = page.getViewport({ scale: scale });
             
-            // Crear barra de navegación
-            var navbar = document.createElement('div');
-            navbar.className = 'pdf-navbar d-flex justify-content-between align-items-center mt-2';
+            // Ajustar canvas
+            canvas.height = scaledViewport.height;
+            canvas.width = scaledViewport.width;
             
-            // Botón anterior
-            var prevBtn = document.createElement('button');
-            prevBtn.className = 'btn btn-sm btn-secondary';
-            prevBtn.innerHTML = '&laquo; Anterior';
-            prevBtn.onclick = function() {
-                if (self.currentPage > 1) {
-                    self.currentPage--;
-                    self._renderPage(self.currentPage);
-                }
+            // Renderizar
+            var renderContext = {
+                canvasContext: ctx,
+                viewport: scaledViewport
             };
             
-            // Indicador de página
-            var pageIndicator = document.createElement('div');
-            pageIndicator.className = 'page-indicator';
-            pageIndicator.textContent = 'Página ' + this.currentPage + ' de ' + this.totalPages;
-            this.pageIndicator = pageIndicator;
-            
-            // Botón siguiente
-            var nextBtn = document.createElement('button');
-            nextBtn.className = 'btn btn-sm btn-secondary';
-            nextBtn.innerHTML = 'Siguiente &raquo;';
-            nextBtn.onclick = function() {
-                if (self.currentPage < self.totalPages) {
-                    self.currentPage++;
-                    self._renderPage(self.currentPage);
-                }
-            };
-            
-            // Agregar elementos a la barra de navegación
-            navbar.appendChild(prevBtn);
-            navbar.appendChild(pageIndicator);
-            navbar.appendChild(nextBtn);
-            
-            // Agregar barra de navegación al contenedor
-            container.appendChild(navbar);
-        },
+            page.render(renderContext).promise.then(function() {
+                // Actualizar indicador
+                pageIndicator.text('Página ' + pageNumber + ' de ' + totalPages);
+            });
+        });
+    }
+    
+    // Prevenir acciones no deseadas
+    function preventUnwantedActions() {
+        // Prevenir clic derecho en el visor
+        $container.on('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
         
-        /**
-         * Previene acciones no deseadas como descarga, impresión, etc.
-         */
-        _preventUnwantedActions: function () {
-            var self = this;
+        // Prevenir teclas de acceso rápido
+        $(document).on('keydown', function(e) {
+            if (!isEventInViewer(e)) return;
             
-            // Prevenir clic derecho
-            document.addEventListener('contextmenu', function(e) {
-                if (self._isEventInViewer(e)) {
-                    e.preventDefault();
-                    return false;
-                }
-            });
-            
-            // Prevenir teclas de acceso rápido (Ctrl+P, Ctrl+S, etc.)
-            document.addEventListener('keydown', function(e) {
-                if (self._isEventInViewer(e)) {
-                    // Prevenir Ctrl+P (imprimir)
-                    if (e.ctrlKey && (e.key === 'p' || e.keyCode === 80)) {
-                        e.preventDefault();
-                        return false;
-                    }
-                    
-                    // Prevenir Ctrl+S (guardar)
-                    if (e.ctrlKey && (e.key === 's' || e.keyCode === 83)) {
-                        e.preventDefault();
-                        return false;
-                    }
-                    
-                    // Prevenir Ctrl+Shift+E (exportar)
-                    if (e.ctrlKey && e.shiftKey && (e.key === 'e' || e.keyCode === 69)) {
-                        e.preventDefault();
-                        return false;
-                    }
-                }
-            });
-            
-            // Deshabilitar la función de arrastrar y soltar
-            this.$el.on('dragstart', function(e) {
+            // Prevenir Ctrl+P (imprimir)
+            if (e.ctrlKey && (e.key === 'p' || e.keyCode === 80)) {
                 e.preventDefault();
                 return false;
-            });
-        },
-        
-        /**
-         * Comprueba si un evento ocurrió dentro del visor de PDF
-         */
-        _isEventInViewer: function (event) {
-            var rect = this.$el[0].getBoundingClientRect();
-            var x = event.clientX;
-            var y = event.clientY;
+            }
             
-            return (
-                x >= rect.left &&
-                x <= rect.right &&
-                y >= rect.top &&
-                y <= rect.bottom
-            );
-        }
-    });
+            // Prevenir Ctrl+S (guardar)
+            if (e.ctrlKey && (e.key === 's' || e.keyCode === 83)) {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        // Deshabilitar arrastrar y soltar
+        $container.on('dragstart', function(e) {
+            e.preventDefault();
+            return false;
+        });
+    }
     
-    publicWidget.registry.secure_pdf_viewer = SecurePDFViewer;
+    // Comprobar si un evento ocurrió dentro del visor
+    function isEventInViewer(event) {
+        var rect = $container[0].getBoundingClientRect();
+        var x = event.clientX;
+        var y = event.clientY;
+        
+        return (
+            x >= rect.left &&
+            x <= rect.right &&
+            y >= rect.top &&
+            y <= rect.bottom
+        );
+    }
     
-    return SecurePDFViewer;
+    // Cargar PDF.js desde CDN
+    $.getScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js')
+        .done(function() {
+            // Configurar el worker
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            
+            // Inicializar visor
+            initViewer();
+            
+            // Prevenir acciones no deseadas
+            preventUnwantedActions();
+        })
+        .fail(function() {
+            console.error('No se pudo cargar PDF.js');
+            $container.html('<div class="alert alert-danger">No se pudo cargar el visor de PDF</div>');
+        });
 });
