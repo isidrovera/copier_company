@@ -8,25 +8,25 @@ class ManualController(http.Controller):
     
     @http.route('/manuales', type='http', auth='public', website=True)
     def list_manuals(self):
-        categories = request.env['secure_pdf_viewer.category'].sudo().search([])
-        manuals = request.env['secure_pdf_viewer.manual'].sudo().search([('active', '=', True)])
+        categories = request.env['copier_company.category'].sudo().search([])
+        manuals = request.env['copier_company.manual'].sudo().search([('active', '=', True)])
         
         values = {
             'categories': categories,
             'manuals': manuals,
             'category': None
         }
-        return request.render('secure_pdf_viewer.manuals_list', values)
+        return request.render('copier_company.manuals_list', values)
     
     @http.route('/manuales/categoria/<int:category_id>', type='http', auth='public', website=True)
     def list_manuals_by_category(self, category_id):
-        categories = request.env['secure_pdf_viewer.category'].sudo().search([])
-        category = request.env['secure_pdf_viewer.category'].sudo().browse(category_id)
+        categories = request.env['copier_company.category'].sudo().search([])
+        category = request.env['copier_company.category'].sudo().browse(category_id)
         
         if not category.exists():
             return werkzeug.utils.redirect('/manuales')
             
-        manuals = request.env['secure_pdf_viewer.manual'].sudo().search([
+        manuals = request.env['copier_company.manual'].sudo().search([
             ('category_id', '=', category_id),
             ('active', '=', True)
         ])
@@ -36,11 +36,11 @@ class ManualController(http.Controller):
             'manuals': manuals,
             'category': category
         }
-        return request.render('secure_pdf_viewer.manuals_list', values)
+        return request.render('copier_company.manuals_list', values)
     
     @http.route('/manuales/ver/<int:manual_id>', type='http', auth='public', website=True)
     def view_manual(self, manual_id):
-        manual = request.env['secure_pdf_viewer.manual'].sudo().browse(manual_id)
+        manual = request.env['copier_company.manual'].sudo().browse(manual_id)
         
         if not manual.exists() or not manual.active:
             return werkzeug.utils.redirect('/manuales')
@@ -51,7 +51,7 @@ class ManualController(http.Controller):
         values = {
             'manual': manual,
         }
-        return request.render('secure_pdf_viewer.manual_viewer', values)
+        return request.render('copier_company.manual_viewer', values)
     
     @http.route('/manuales/pdf/<int:manual_id>', type='http', auth='public', website=True)
     def get_pdf_content(self, manual_id):
@@ -59,7 +59,7 @@ class ManualController(http.Controller):
         Esta ruta proporciona el contenido del PDF, pero con encabezados especiales
         que evitan que el navegador lo descargue directamente.
         """
-        manual = request.env['secure_pdf_viewer.manual'].sudo().browse(manual_id)
+        manual = request.env['copier_company.manual'].sudo().browse(manual_id)
         
         if not manual.exists() or not manual.active:
             return werkzeug.utils.redirect('/manuales')
