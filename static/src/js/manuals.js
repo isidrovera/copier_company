@@ -654,11 +654,11 @@ $(document).ready(function() {
         );
     }
     
-    // Cargar PDF.js desde CDN (usando versión 2.x que es más estable)
-    $.getScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js')
+    // Cargar PDF.js desde CDN (usando la versión 3.11.174 que parece estar ya cargada en el sistema)
+    $.getScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js')
         .done(function() {
-            // Configurar el worker
-            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+            // Configurar el worker con la MISMA versión
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
             
             // Inicializar visor
             initViewer();
