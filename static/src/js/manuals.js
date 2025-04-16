@@ -377,8 +377,6 @@ $(document).ready(function() {
         );
     }
     
-
-    
     // Cargar PDF.js desde CDN
     $.getScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js')
         .done(function() {
