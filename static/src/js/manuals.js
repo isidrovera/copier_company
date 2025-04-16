@@ -1,132 +1,219 @@
-odoo.define('copier_company.pdf_viewer', function(require) {
+odoo.define('copier_company.manuals', function(require) {
     'use strict';
 
-    const { Component, onWillStart, onMounted, useState } = owl;
-    const { xml } = owl.tags;
-    const { useRef } = owl.hooks;
+    // Importaciones básicas
+    const publicWidget = require('web.public.widget');
 
-    class PDFViewer extends Component {
-        setup() {
-            this.state = useState({
-                currentPage: 1,
-                totalPages: 0,
-                isLoaded: false,
-                error: null
-            });
-            
-            this.pdfContainer = useRef('pdfContainer');
-            this.canvasRef = useRef('pdfCanvas');
-            this.pdfDoc = null;
-            
-            onWillStart(() => {
-                // Cargamos PDF.js si no está cargado
-                if (typeof window.pdfjsLib === 'undefined') {
-                    return this._loadPDFJS();
-                }
-            });
-            
-            onMounted(() => {
-                // Obtenemos la URL del PDF desde el atributo data
-                const container = this.pdfContainer.el;
-                if (container) {
-                    this.pdfUrl = container.dataset.pdfUrl;
-                    if (this.pdfUrl) {
-                        this._initPDFViewer();
-                        this._preventUnwantedActions();
-                    }
-                }
-            });
-        }
+    const SecurePDFViewer = publicWidget.Widget.extend({
+        selector: '#pdfViewerContainer',
         
         /**
-         * Carga PDF.js desde CDN
+         * Inicializar el visor de PDF
          */
-        async _loadPDFJS() {
-            return new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
-                script.onload = () => {
-                    // Configurar el worker
-                    window.pdfjsLib.GlobalWorkerOptions.workerSrc = 
-                        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-                    resolve();
-                };
-                script.onerror = () => {
-                    this.state.error = 'No se pudo cargar PDF.js';
-                    reject(new Error('No se pudo cargar PDF.js'));
-                };
+        start: function () {
+            var self = this;
+            var def = this._super.apply(this, arguments);
+            
+            // Obtener URL del PDF desde el atributo data
+            this.pdfUrl = this.$el.data('pdf-url');
+            
+            if (this.pdfUrl) {
+                // Cargar el PDF.js desde una ruta local
+                this._loadScript('/copier_company/static/lib/pdfjs/pdf.min.js')
+                    .then(function() {
+                        // Configurar el worker
+                        pdfjsLib.GlobalWorkerOptions.workerSrc = '/copier_company/static/lib/pdfjs/pdf.worker.min.js';
+                        // Inicializar el visor
+                        self._initPDFViewer();
+                    })
+                    .catch(function(error) {
+                        console.error('No se pudo cargar PDF.js:', error);
+                    });
+                
+                // Prevenir acciones no deseadas
+                this._preventUnwantedActions();
+            }
+            
+            return def;
+        },
+        
+        /**
+         * Carga un script externo
+         */
+        _loadScript: function(src) {
+            return new Promise(function(resolve, reject) {
+                var script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = reject;
                 document.head.appendChild(script);
             });
-        }
+        },
         
         /**
-         * Inicializa el visor de PDF
+         * Inicializa el visor de PDF usando PDF.js
          */
-        async _initPDFViewer() {
-            try {
-                // Cargar el PDF
-                this.pdfDoc = await window.pdfjsLib.getDocument(this.pdfUrl).promise;
-                this.state.totalPages = this.pdfDoc.numPages;
-                this.state.currentPage = 1;
+        _initPDFViewer: function () {
+            var self = this;
+            var container = this.$el.find('#pdfViewer')[0];
+            
+            // Si no existe el contenedor interno, lo creamos
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'pdfViewer';
+                container.className = 'w-100 h-100';
+                this.$el.append(container);
+            }
+            
+            // Cargar el PDF
+            pdfjsLib.getDocument(this.pdfUrl).promise.then(function(pdf) {
+                // Almacenar la referencia al documento PDF
+                self.pdfDoc = pdf;
+                self.totalPages = pdf.numPages;
+                self.currentPage = 1;
+                
+                // Crear el visor básico con canvas
+                self._createViewer(container);
                 
                 // Renderizar la primera página
-                await this._renderPage(this.state.currentPage);
-                this.state.isLoaded = true;
-            } catch (error) {
+                self._renderPage(self.currentPage);
+                
+                // Agregar controles de navegación
+                self._addNavigation(container);
+            }).catch(function(error) {
                 console.error('Error al cargar el PDF:', error);
-                this.state.error = 'Error al cargar el documento PDF';
-            }
-        }
+                container.innerHTML = '<div class="alert alert-danger">Error al cargar el documento PDF</div>';
+            });
+        },
+        
+        /**
+         * Crea el visor básico con un elemento canvas
+         */
+        _createViewer: function (container) {
+            // Limpiar el contenedor
+            container.innerHTML = '';
+            
+            // Crear el contenedor del canvas
+            var canvasContainer = document.createElement('div');
+            canvasContainer.className = 'canvas-container';
+            canvasContainer.style.width = '100%';
+            canvasContainer.style.height = '90%';
+            canvasContainer.style.overflow = 'auto';
+            canvasContainer.style.position = 'relative';
+            
+            // Crear el canvas para renderizar el PDF
+            var canvas = document.createElement('canvas');
+            canvas.id = 'pdf-canvas';
+            canvas.style.width = '100%';
+            
+            // Agregar el canvas al contenedor
+            canvasContainer.appendChild(canvas);
+            container.appendChild(canvasContainer);
+            
+            // Guardar referencias
+            this.canvas = canvas;
+            this.canvasContainer = canvasContainer;
+        },
         
         /**
          * Renderiza una página específica del PDF
          */
-        async _renderPage(pageNumber) {
-            if (!this.pdfDoc) return;
-            
-            const canvas = this.canvasRef.el;
-            const ctx = canvas.getContext('2d');
+        _renderPage: function (pageNumber) {
+            var self = this;
+            var canvas = this.canvas;
+            var ctx = canvas.getContext('2d');
             
             // Obtener la página
-            const page = await this.pdfDoc.getPage(pageNumber);
+            this.pdfDoc.getPage(pageNumber).then(function(page) {
+                // Determinar la escala para que se ajuste al ancho del contenedor
+                var containerWidth = self.canvasContainer.clientWidth;
+                var viewport = page.getViewport({ scale: 1 });
+                var scale = containerWidth / viewport.width;
+                var scaledViewport = page.getViewport({ scale: scale });
+                
+                // Establecer las dimensiones del canvas
+                canvas.height = scaledViewport.height;
+                canvas.width = scaledViewport.width;
+                
+                // Renderizar la página
+                var renderContext = {
+                    canvasContext: ctx,
+                    viewport: scaledViewport
+                };
+                
+                page.render(renderContext).promise.then(function() {
+                    // Actualizar indicador de página
+                    if (self.pageIndicator) {
+                        self.pageIndicator.textContent = 'Página ' + pageNumber + ' de ' + self.totalPages;
+                    }
+                });
+            });
+        },
+        
+        /**
+         * Agrega controles de navegación básicos
+         */
+        _addNavigation: function (container) {
+            var self = this;
             
-            // Determinar la escala para que se ajuste al ancho del contenedor
-            const containerWidth = this.pdfContainer.el.clientWidth;
-            const viewport = page.getViewport({ scale: 1 });
-            const scale = containerWidth / viewport.width;
-            const scaledViewport = page.getViewport({ scale: scale });
+            // Crear barra de navegación
+            var navbar = document.createElement('div');
+            navbar.className = 'pdf-navbar d-flex justify-content-between align-items-center mt-2';
             
-            // Establecer las dimensiones del canvas
-            canvas.height = scaledViewport.height;
-            canvas.width = scaledViewport.width;
-            
-            // Renderizar la página
-            const renderContext = {
-                canvasContext: ctx,
-                viewport: scaledViewport
+            // Botón anterior
+            var prevBtn = document.createElement('button');
+            prevBtn.className = 'btn btn-sm btn-secondary';
+            prevBtn.innerHTML = '&laquo; Anterior';
+            prevBtn.onclick = function() {
+                if (self.currentPage > 1) {
+                    self.currentPage--;
+                    self._renderPage(self.currentPage);
+                }
             };
             
-            await page.render(renderContext).promise;
-            this.state.currentPage = pageNumber;
-        }
+            // Indicador de página
+            var pageIndicator = document.createElement('div');
+            pageIndicator.className = 'page-indicator';
+            pageIndicator.textContent = 'Página ' + this.currentPage + ' de ' + this.totalPages;
+            this.pageIndicator = pageIndicator;
+            
+            // Botón siguiente
+            var nextBtn = document.createElement('button');
+            nextBtn.className = 'btn btn-sm btn-secondary';
+            nextBtn.innerHTML = 'Siguiente &raquo;';
+            nextBtn.onclick = function() {
+                if (self.currentPage < self.totalPages) {
+                    self.currentPage++;
+                    self._renderPage(self.currentPage);
+                }
+            };
+            
+            // Agregar elementos a la barra de navegación
+            navbar.appendChild(prevBtn);
+            navbar.appendChild(pageIndicator);
+            navbar.appendChild(nextBtn);
+            
+            // Agregar barra de navegación al contenedor
+            container.appendChild(navbar);
+        },
         
         /**
          * Previene acciones no deseadas como descarga, impresión, etc.
          */
-        _preventUnwantedActions() {
-            const container = this.pdfContainer.el;
+        _preventUnwantedActions: function () {
+            var self = this;
             
             // Prevenir clic derecho
-            document.addEventListener('contextmenu', (e) => {
-                if (this._isEventInViewer(e, container)) {
+            document.addEventListener('contextmenu', function(e) {
+                if (self._isEventInViewer(e)) {
                     e.preventDefault();
                     return false;
                 }
             });
             
             // Prevenir teclas de acceso rápido (Ctrl+P, Ctrl+S, etc.)
-            document.addEventListener('keydown', (e) => {
-                if (this._isEventInViewer(e, container)) {
+            document.addEventListener('keydown', function(e) {
+                if (self._isEventInViewer(e)) {
                     // Prevenir Ctrl+P (imprimir)
                     if (e.ctrlKey && (e.key === 'p' || e.keyCode === 80)) {
                         e.preventDefault();
@@ -148,19 +235,19 @@ odoo.define('copier_company.pdf_viewer', function(require) {
             });
             
             // Deshabilitar la función de arrastrar y soltar
-            container.addEventListener('dragstart', (e) => {
+            this.$el.on('dragstart', function(e) {
                 e.preventDefault();
                 return false;
             });
-        }
+        },
         
         /**
          * Comprueba si un evento ocurrió dentro del visor de PDF
          */
-        _isEventInViewer(event, container) {
-            const rect = container.getBoundingClientRect();
-            const x = event.clientX;
-            const y = event.clientY;
+        _isEventInViewer: function (event) {
+            var rect = this.$el[0].getBoundingClientRect();
+            var x = event.clientX;
+            var y = event.clientY;
             
             return (
                 x >= rect.left &&
@@ -169,50 +256,9 @@ odoo.define('copier_company.pdf_viewer', function(require) {
                 y <= rect.bottom
             );
         }
-        
-        /**
-         * Navega a la página anterior
-         */
-        previousPage() {
-            if (this.state.currentPage > 1) {
-                this._renderPage(this.state.currentPage - 1);
-            }
-        }
-        
-        /**
-         * Navega a la página siguiente
-         */
-        nextPage() {
-            if (this.state.currentPage < this.state.totalPages) {
-                this._renderPage(this.state.currentPage + 1);
-            }
-        }
-    }
-    
-    PDFViewer.template = xml`
-        <div t-ref="pdfContainer" class="pdf-viewer-container w-100 h-100">
-            <div t-if="state.error" class="alert alert-danger" t-esc="state.error"/>
-            <div t-else="" class="pdf-content h-90 position-relative">
-                <canvas t-ref="pdfCanvas" class="w-100"/>
-                <div t-if="state.isLoaded" class="pdf-navbar d-flex justify-content-between align-items-center mt-2">
-                    <button class="btn btn-sm btn-secondary" t-on-click="previousPage">
-                        &laquo; Anterior
-                    </button>
-                    <div class="page-indicator">
-                        Página <t t-esc="state.currentPage"/> de <t t-esc="state.totalPages"/>
-                    </div>
-                    <button class="btn btn-sm btn-secondary" t-on-click="nextPage">
-                        Siguiente &raquo;
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // Registrar el componente para que esté disponible en las plantillas QWeb
-    owl.utils.whenReady(() => {
-        owl.mount(PDFViewer, { target: document.getElementById('pdfViewerContainer') });
     });
     
-    return PDFViewer;
+    publicWidget.registry.secure_pdf_viewer = SecurePDFViewer;
+    
+    return SecurePDFViewer;
 });
