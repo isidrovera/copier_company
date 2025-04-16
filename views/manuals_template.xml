@@ -302,21 +302,31 @@
             <script type="text/javascript">
                 // Asegurarse de que jQuery esté disponible
                 if (typeof jQuery === 'undefined') {
-                    document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"><\/script>');
+                    const jqueryScript = document.createElement('script');
+                    jqueryScript.src = "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js";
+                    document.head.appendChild(jqueryScript);
+                    
+                    // Para asegurarte de que jQuery esté cargado antes de usarlo
+                    jqueryScript.onload = function() {
+                        initializePdfJs();
+                    };
+                } else {
+                    initializePdfJs();
                 }
                 
-                // Cargar PDF.js cuando el documento esté listo
-                $(document).ready(function() {
-                    // Cargar dinámicamente el módulo PDF.js
-                    const script = document.createElement('script');
-                    script.src = '/copier_company/static/lib/pdfjs/pdf.mjs';
-                    script.type = 'module';
-                    script.onload = function() {
-                        // Exponer la biblioteca al ámbito global después de cargarla
-                        window.pdfjsLib = window.pdfjsLib || {};
-                    };
-                    document.head.appendChild(script);
-                });
+                function initializePdfJs() {
+                    $(document).ready(function() {
+                        // Cargar dinámicamente el módulo PDF.js
+                        const script = document.createElement('script');
+                        script.src = '/copier_company/static/lib/pdfjs/pdf.mjs';
+                        script.type = 'module';
+                        script.onload = function() {
+                            // Exponer la biblioteca al ámbito global después de cargarla
+                            window.pdfjsLib = window.pdfjsLib || {};
+                        };
+                        document.head.appendChild(script);
+                    });
+                }
             </script>
             <script type="text/javascript" src="/copier_company/static/src/js/manuals.js"></script>
         </t>
