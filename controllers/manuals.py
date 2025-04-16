@@ -6,35 +6,59 @@ import werkzeug
 
 class ManualController(http.Controller):
     
-    @http.route('/manuales', type='http', auth='public', website=True)
-    def list_manuals(self):
+    @http.route(['/manuales', '/manuales/buscar'], type='http', auth='public', website=True)
+    def list_manuals(self, q=None, sort_by='name', **kw):
+        domain = [('active', '=', True)]
+        
+        # Buscar por texto si se proporciona
+        if q:
+            domain.append('|')
+            domain.append(('name', 'ilike', q))
+            domain.append(('description', 'ilike', q))
+        
+        # Ordenar resultados
+        order = 'name ASC'
+        if sort_by == 'date':
+            order = 'create_date DESC'
+        
         categories = request.env['secure_pdf_viewer.category'].sudo().search([])
-        manuals = request.env['secure_pdf_viewer.manual'].sudo().search([('active', '=', True)])
+        manuals = request.env['secure_pdf_viewer.manual'].sudo().search(domain, order=order)
         
         values = {
             'categories': categories,
             'manuals': manuals,
-            'category': None
+            'category': None,
+            'category_id': None,
+            'search_query': q,
+            'sort_by': sort_by
         }
         return request.render('copier_company.manuals_list', values)
     
     @http.route('/manuales/categoria/<int:category_id>', type='http', auth='public', website=True)
-    def list_manuals_by_category(self, category_id):
-        categories = request.env['secure_pdf_viewer.category'].sudo().search([])
+    def list_manuals_by_category(self, category_id, sort_by='name', **kw):
         category = request.env['secure_pdf_viewer.category'].sudo().browse(category_id)
         
         if not category.exists():
             return werkzeug.utils.redirect('/manuales')
+        
+        # Ordenar resultados
+        order = 'name ASC'
+        if sort_by == 'date':
+            order = 'create_date DESC'
             
+        categories = request.env['secure_pdf_viewer.category'].sudo().search([])
         manuals = request.env['secure_pdf_viewer.manual'].sudo().search([
             ('category_id', '=', category_id),
             ('active', '=', True)
-        ])
+        ], order=order)
         
         values = {
             'categories': categories,
             'manuals': manuals,
-            'category': category
+            'category': category,
+            'category_id': int(category_id),
+            'search_query': None,
+            'sort_by': sort_by
         }
         return request.render('copier_company.manuals_list', values)
     
@@ -46,7 +70,8 @@ class ManualController(http.Controller):
             return werkzeug.utils.redirect('/manuales')
         
         # Incrementar contador de accesos
-        manual.increment_access_count()
+        if hasattr(manual, 'increment_access_count'):
+            manual.increment_access_count()
         
         values = {
             'manual': manual,

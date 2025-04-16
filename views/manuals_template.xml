@@ -35,7 +35,6 @@
                                             <a t-att-href="'/manuales/categoria/%s' % category.id" 
                                                t-att-class="'nav-link %s' % ('active' if category_id and category_id == category.id else '')">
                                                 <t t-esc="category.name"/>
-                                                <span class="badge badge-primary float-right" t-esc="category.manual_count"/>
                                             </a>
                                         </li>
                                     </t>
@@ -53,12 +52,12 @@
                                 <div class="list-group">
                                     <a href="#" class="list-group-item list-group-item-action" 
                                        t-att-class="'active' if sort_by == 'name' else ''"
-                                       t-att-href="'/manuales?sort_by=name' + ('&amp;category_id=%s' % category_id if category_id else '')">
+                                       t-att-href="'/manuales?sort_by=name' + (('&amp;category_id=%s' % category_id) if category_id else '')">
                                         Nombre (A-Z)
                                     </a>
                                     <a href="#" class="list-group-item list-group-item-action"
                                        t-att-class="'active' if sort_by == 'date' else ''"
-                                       t-att-href="'/manuales?sort_by=date' + ('&amp;category_id=%s' % category_id if category_id else '')">
+                                       t-att-href="'/manuales?sort_by=date' + (('&amp;category_id=%s' % category_id) if category_id else '')">
                                         Más recientes
                                     </a>
                                 </div>
@@ -69,7 +68,7 @@
                     <div class="col-md-9">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
-                                <h4 t-if="category_id">Manuales - <span t-esc="category.name"/></h4>
+                                <h4 t-if="category">Manuales - <span t-esc="category.name"/></h4>
                                 <h4 t-elif="search_query">Resultados para: <span t-esc="search_query"/></h4>
                                 <h4 t-else="">Todos los manuales</h4>
                                 <small t-if="manuals" class="text-muted">Mostrando <t t-esc="len(manuals)"/> resultado(s)</small>
