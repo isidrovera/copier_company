@@ -1,50 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Página de lista de manuales con búsqueda -->
+    <!-- Página de lista de manuales -->
     <template id="manuals_list" name="Lista de Manuales">
         <t t-call="website.layout">
             <div class="container mt-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h1 class="mb-0">Manuales disponibles</h1>
-                    
-                    <!-- Campo de búsqueda -->
-                    <div class="search-container">
-                        <form class="form-inline" t-att-action="'/manuales' + (category and '/categoria/%s' % category.id or '')">
-                            <div class="input-group">
-                                <input type="text" name="search" class="form-control" placeholder="Buscar manuales..." 
-                                       t-att-value="request.params.get('search', '')"/>
-                                <div class="input-group-append">
-                                    <button class="btn btn-primary" type="submit">
-                                        <i class="fa fa-search"/> Buscar
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                <h1 class="mb-4">Manuales disponibles</h1>
                 
                 <div class="row">
                     <div class="col-md-3">
-                        <div class="card shadow-sm mb-4">
-                            <div class="card-header bg-light">
-                                <h4 class="mb-0">Categorías</h4>
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>Categorías</h4>
                             </div>
-                            <div class="card-body p-0">
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item">
-                                        <a href="/manuales" class="d-block">
-                                            <i class="fa fa-book mr-2"></i> Todos los manuales
-                                        </a>
+                            <div class="card-body">
+                                <ul class="nav flex-column">
+                                    <li class="nav-item">
+                                        <a href="/manuales" class="nav-link">Todos</a>
                                     </li>
-                                    <t t-foreach="categories" t-as="cat">
-                                        <li class="list-group-item" t-att-class="category and category.id == cat.id and 'active'">
-                                            <a t-att-href="'/manuales/categoria/%s' % cat.id" class="d-block">
-                                                <i class="fa fa-folder mr-2"></i>
-                                                <t t-esc="cat.name"/>
-                                                <span class="badge badge-pill badge-secondary float-right">
-                                                    <t t-esc="len(cat.manual_ids.filtered(lambda m: m.active))"/>
-                                                </span>
-                                            </a>
+                                    <t t-foreach="categories" t-as="category">
+                                        <li class="nav-item">
+                                            <a t-att-href="'/manuales/categoria/%s' % category.id" 
+                                               class="nav-link" t-esc="category.name"/>
                                         </li>
                                     </t>
                                 </ul>
@@ -53,47 +29,29 @@
                     </div>
                     
                     <div class="col-md-9">
-                        <div class="card shadow-sm">
-                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                <h4 class="mb-0">
-                                    <t t-if="category">
-                                        <i class="fa fa-folder-open mr-2"></i>
-                                        <span t-esc="category.name"/>
-                                    </t>
-                                    <t t-else="">
-                                        <i class="fa fa-book mr-2"></i> Todos los manuales
-                                    </t>
-                                </h4>
-                                
-                                <!-- Indicador de resultados -->
-                                <span class="text-muted">
-                                    <t t-esc="len(manuals)"/> manuales encontrados
-                                </span>
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 t-if="category">Manuales - <span t-esc="category.name"/></h4>
+                                <h4 t-else="">Todos los manuales</h4>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <t t-foreach="manuals" t-as="manual">
-                                        <div class="col-lg-4 col-md-6 mb-4">
-                                            <div class="card h-100 manual-card shadow-sm hover-shadow transition">
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card h-100">
                                                 <div class="card-body">
-                                                    <h5 class="card-title text-primary" t-esc="manual.name"/>
-                                                    <p class="card-text text-muted" t-esc="manual.description or ''"/>
+                                                    <h5 class="card-title" t-esc="manual.name"/>
+                                                    <p class="card-text" t-esc="manual.description"/>
                                                 </div>
-                                                <div class="card-footer bg-white border-top-0">
+                                                <div class="card-footer">
                                                     <a t-att-href="'/manuales/ver/%s' % manual.id" 
-                                                       class="btn btn-primary btn-block">
-                                                        <i class="fa fa-eye mr-2"></i> Ver manual
-                                                    </a>
+                                                       class="btn btn-primary btn-block">Ver manual</a>
                                                 </div>
                                             </div>
                                         </div>
                                     </t>
-                                    <div t-if="not manuals" class="col-12 text-center py-5">
-                                        <div class="empty-state">
-                                            <i class="fa fa-search fa-4x text-muted mb-3"></i>
-                                            <h4>No hay manuales disponibles</h4>
-                                            <p class="text-muted">No se encontraron manuales en esta categoría o con los criterios de búsqueda.</p>
-                                        </div>
+                                    <div t-if="not manuals" class="col-12 text-center">
+                                        <p>No hay manuales disponibles en esta categoría.</p>
                                     </div>
                                 </div>
                             </div>
@@ -101,234 +59,49 @@
                     </div>
                 </div>
             </div>
-            
-            <style>
-                .hover-shadow:hover {
-                    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
-                }
-                .transition {
-                    transition: all 0.3s ease;
-                }
-                .manual-card:hover {
-                    transform: translateY(-5px);
-                }
-                .empty-state {
-                    padding: 2rem;
-                }
-            </style>
         </t>
     </template>
     
-    <!-- Página para visualizar un manual con visor mejorado -->
+    <!-- Página para visualizar un manual -->
     <template id="manual_viewer" name="Visor de Manual">
         <t t-call="website.layout">
-            <div class="container-fluid mt-4">
+            <div class="container mt-4">
                 <div class="row mb-3">
                     <div class="col-12">
-                        <!-- Barra de navegación y herramientas -->
-                        <div class="card shadow-sm mb-4">
-                            <div class="card-body py-2">
-                                <div class="d-flex justify-content-between align-items-center flex-wrap">
-                                    <!-- Navegación de migas de pan -->
-                                    <nav aria-label="breadcrumb">
-                                        <ol class="breadcrumb bg-transparent p-0 m-0">
-                                            <li class="breadcrumb-item">
-                                                <a href="/manuales">
-                                                    <i class="fa fa-home"></i> Manuales
-                                                </a>
-                                            </li>
-                                            <li class="breadcrumb-item" t-if="manual.category_id">
-                                                <a t-att-href="'/manuales/categoria/%s' % manual.category_id.id" 
-                                                   t-esc="manual.category_id.name"/>
-                                            </li>
-                                            <li class="breadcrumb-item active" t-esc="manual.name"/>
-                                        </ol>
-                                    </nav>
-                                    
-                                    <!-- Botones de acción -->
-                                    <div class="action-buttons">
-                                        <a href="/manuales" class="btn btn-outline-secondary btn-sm mr-2">
-                                            <i class="fa fa-arrow-left"></i> Volver a manuales
-                                        </a>
-                                        <t t-if="manual.category_id">
-                                            <a t-att-href="'/manuales/categoria/%s' % manual.category_id.id" 
-                                               class="btn btn-outline-primary btn-sm">
-                                                <i class="fa fa-folder-open"></i> Ver categoría
-                                            </a>
-                                        </t>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="/manuales">Manuales</a></li>
+                                <li class="breadcrumb-item" t-if="manual.category_id">
+                                    <a t-att-href="'/manuales/categoria/%s' % manual.category_id.id" 
+                                       t-esc="manual.category_id.name"/>
+                                </li>
+                                <li class="breadcrumb-item active" t-esc="manual.name"/>
+                            </ol>
+                        </nav>
                     </div>
                 </div>
                 
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="card shadow">
-                            <div class="card-header bg-light">
-                                <div class="d-flex justify-content-between align-items-center flex-wrap">
-                                    <h2 class="mb-0 text-primary" t-esc="manual.name"/>
-                                    
-                                    <!-- Campo de búsqueda para el PDF -->
-                                    <div class="pdf-search mt-2 mt-md-0">
-                                        <div class="input-group">
-                                            <input type="text" id="pdfSearchInput" class="form-control" 
-                                                   placeholder="Buscar en el documento..."/>
-                                            <div class="input-group-append">
-                                                <button id="pdfSearchButton" class="btn btn-primary" type="button">
-                                                    <i class="fa fa-search"></i>
-                                                </button>
-                                            </div>
-                                        </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2 t-esc="manual.name"/>
+                    </div>
+                    <div class="card-body">
+                        <p t-esc="manual.description"/>
+                        
+                        <div class="pdf-container mt-4" style="height: 800px;">
+                            <div id="pdfViewerContainer" class="w-100 h-100 border" 
+                                 t-att-data-pdf-url="'/manuales/pdf/%s' % manual.id">
+                                <div class="d-flex justify-content-center align-items-center h-100">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="sr-only">Cargando...</span>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="card-body p-0">
-                                <div class="description-container p-3 bg-light border-bottom" t-if="manual.description">
-                                    <p class="mb-0" t-esc="manual.description"/>
-                                </div>
-                                
-                                <!-- Contenedor del visor de PDF -->
-                                <div class="pdf-container" style="height: 80vh;">
-                                    <div id="pdfToolbar" class="pdf-toolbar p-2 bg-light border-bottom">
-                                        <div class="row align-items-center">
-                                            <div class="col-md-4 text-left">
-                                                <div class="btn-group" role="group">
-                                                    <button id="pdfPrevPage" class="btn btn-outline-secondary">
-                                                        <i class="fa fa-chevron-left"></i> Anterior
-                                                    </button>
-                                                    <button id="pdfNextPage" class="btn btn-outline-secondary">
-                                                        Siguiente <i class="fa fa-chevron-right"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4 text-center">
-                                                <span id="pdfPageInfo" class="font-weight-bold">Página 0 de 0</span>
-                                            </div>
-                                            <div class="col-md-4 text-right">
-                                                <div class="btn-group" role="group">
-                                                    <button id="pdfZoomOut" class="btn btn-outline-secondary">
-                                                        <i class="fa fa-search-minus"></i>
-                                                    </button>
-                                                    <button id="pdfZoomIn" class="btn btn-outline-secondary">
-                                                        <i class="fa fa-search-plus"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Visor de PDF -->
-                                    <div id="pdfViewerContainer" class="w-100 h-100 position-relative" 
-                                         t-att-data-pdf-url="'/manuales/pdf/%s' % manual.id">
-                                        <!-- Spinner de carga -->
-                                        <div id="pdfLoadingSpinner" class="position-absolute w-100 h-100 d-flex justify-content-center align-items-center bg-white">
-                                            <div class="text-center">
-                                                <div class="spinner-border text-primary mb-3" role="status">
-                                                    <span class="sr-only">Cargando...</span>
-                                                </div>
-                                                <p class="text-muted">Cargando el documento PDF...</p>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Contenedor para el visor -->
-                                        <div id="pdfViewer" class="w-100 h-100 overflow-auto"></div>
-                                        
-                                        <!-- Contenedor para resultados de búsqueda -->
-                                        <div id="pdfSearchResults" class="position-absolute top-0 right-0 m-3 p-3 bg-white shadow rounded d-none">
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <h5 class="mb-0">Resultados</h5>
-                                                <button type="button" class="close" id="pdfSearchClose">
-                                                    <span>&#215;</span>
-                                                </button>
-                                            </div>
-                                            <div id="pdfSearchResultsList" class="search-results-container">
-                                                <!-- Los resultados se añadirán dinámicamente -->
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <span class="ml-2">Cargando el visor de PDF...</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <style>
-                .pdf-toolbar {
-                    z-index: 100;
-                }
-                .search-results-container {
-                    max-height: 300px;
-                    overflow-y: auto;
-                }
-                #pdfSearchResults {
-                    z-index: 1000;
-                    width: 300px;
-                    max-width: 100%;
-                    right: 0;
-                }
-                #pdfViewer {
-                    background: #f5f5f5;
-                }
-                /* Estilos para los resultados de búsqueda */
-                .search-result-item {
-                    cursor: pointer;
-                    padding: 5px;
-                    margin-bottom: 5px;
-                    border-left: 3px solid transparent;
-                }
-                .search-result-item:hover {
-                    background-color: #f8f9fa;
-                    border-left-color: #007bff;
-                }
-                .search-result-item.active {
-                    background-color: #e9ecef;
-                    border-left-color: #007bff;
-                }
-                /* Hacer que el visor sea responsivo */
-                @media (max-width: 768px) {
-                    .pdf-container {
-                        height: 70vh;
-                    }
-                    #pdfToolbar .col-md-4 {
-                        margin-bottom: 10px;
-                    }
-                }
-            </style>
-            
-            <!-- Cargar PDF.js y configurar -->
-            <script type="text/javascript">
-                // Asegurarse de que jQuery esté disponible
-                if (typeof jQuery === 'undefined') {
-                    const jqueryScript = document.createElement('script');
-                    jqueryScript.src = "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js";
-                    document.head.appendChild(jqueryScript);
-                    
-                    // Para asegurarte de que jQuery esté cargado antes de usarlo
-                    jqueryScript.onload = function() {
-                        initializePdfJs();
-                    };
-                } else {
-                    initializePdfJs();
-                }
-                
-                function initializePdfJs() {
-                    $(document).ready(function() {
-                        // Cargar dinámicamente el módulo PDF.js
-                        const script = document.createElement('script');
-                        script.src = '/copier_company/static/lib/pdfjs/pdf.mjs';
-                        script.type = 'module';
-                        script.onload = function() {
-                            // Exponer la biblioteca al ámbito global después de cargarla
-                            window.pdfjsLib = window.pdfjsLib || {};
-                        };
-                        document.head.appendChild(script);
-                    });
-                }
-            </script>
-            <script type="text/javascript" src="/copier_company/static/src/js/manuals.js"></script>
         </t>
     </template>
 </odoo>
