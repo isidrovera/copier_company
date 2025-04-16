@@ -28,7 +28,7 @@
                             <div class="card-body">
                                 <ul class="nav flex-column">
                                     <li class="nav-item">
-                                        <a href="/manuales" class="nav-link">Todos</a>
+                                        <a href="/manuales" class="nav-link" t-att-class="'active' if not category_id else ''">Todos</a>
                                     </li>
                                     <t t-foreach="categories" t-as="category">
                                         <li class="nav-item">
@@ -45,10 +45,9 @@
                         <!-- Filtros adicionales -->
                         <div class="card">
                             <div class="card-header">
-                                <h4>Filtros</h4>
+                                <h4>Ordenar por</h4>
                             </div>
                             <div class="card-body">
-                                <h6>Ordenar por:</h6>
                                 <div class="list-group">
                                     <a href="#" class="list-group-item list-group-item-action" 
                                        t-att-class="'active' if sort_by == 'name' else ''"
@@ -74,10 +73,15 @@
                                 <small t-if="manuals" class="text-muted">Mostrando <t t-esc="len(manuals)"/> resultado(s)</small>
                             </div>
                             <div class="card-body">
-                                <div class="row">
+                                <div t-if="not manuals" class="alert alert-info">
+                                    <p t-if="search_query">No se encontraron manuales que coincidan con tu búsqueda.</p>
+                                    <p t-else="">No hay manuales disponibles en esta categoría.</p>
+                                </div>
+                                
+                                <div t-if="manuals" class="row">
                                     <t t-foreach="manuals" t-as="manual">
                                         <div class="col-md-4 mb-3">
-                                            <div class="card h-100">
+                                            <div class="card h-100 manual-card">
                                                 <div class="card-body">
                                                     <h5 class="card-title" t-esc="manual.name"/>
                                                     <p class="card-text">
@@ -95,12 +99,6 @@
                                             </div>
                                         </div>
                                     </t>
-                                    <div t-if="not manuals" class="col-12 text-center">
-                                        <div class="alert alert-info">
-                                            <p t-if="search_query">No se encontraron manuales que coincidan con tu búsqueda.</p>
-                                            <p t-else="">No hay manuales disponibles en esta categoría.</p>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -130,32 +128,45 @@
                 </div>
                 
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header d-flex justify-content-between align-items-center">
                         <h2 t-esc="manual.name"/>
+                        <div>
+                            <span class="badge badge-info">
+                                <i class="fa fa-eye"></i> 
+                                <t t-if="manual.access_count">Visto <t t-esc="manual.access_count"/> veces</t>
+                                <t t-else="">Primera visualización</t>
+                            </span>
+                        </div>
                     </div>
                     <div class="card-body">
                         <p t-esc="manual.description"/>
                         
                         <!-- Controles del visor -->
-                        <div class="pdf-controls mb-3 d-flex justify-content-between align-items-center">
-                            <div class="pdf-search-container d-flex">
-                                <input type="text" id="pdfSearchInput" class="form-control mr-2" placeholder="Buscar en el documento..."/>
-                                <button id="pdfSearchPrev" class="btn btn-outline-secondary" disabled="disabled">
-                                    <i class="fa fa-chevron-up"></i>
-                                </button>
-                                <button id="pdfSearchNext" class="btn btn-outline-secondary ml-1" disabled="disabled">
-                                    <i class="fa fa-chevron-down"></i>
-                                </button>
-                                <span id="pdfSearchResults" class="ml-2 align-self-center"></span>
-                            </div>
-                            
-                            <div class="zoom-controls">
-                                <button id="zoomOut" class="btn btn-outline-secondary">
-                                    <i class="fa fa-search-minus"></i>
-                                </button>
-                                <button id="zoomIn" class="btn btn-outline-secondary ml-1">
-                                    <i class="fa fa-search-plus"></i>
-                                </button>
+                        <div class="pdf-controls mb-3">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="pdf-search-container d-flex">
+                                        <input type="text" id="pdfSearchInput" class="form-control mr-2" placeholder="Buscar en el documento..."/>
+                                        <!-- El botón de búsqueda se insertará por JavaScript -->
+                                        <button id="pdfSearchPrev" class="btn btn-outline-secondary" disabled="disabled">
+                                            <i class="fa fa-chevron-up"></i>
+                                        </button>
+                                        <button id="pdfSearchNext" class="btn btn-outline-secondary ml-1" disabled="disabled">
+                                            <i class="fa fa-chevron-down"></i>
+                                        </button>
+                                        <span id="pdfSearchResults" class="ml-2 align-self-center"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-right">
+                                    <div class="zoom-controls">
+                                        <button id="zoomOut" class="btn btn-outline-secondary">
+                                            <i class="fa fa-search-minus"></i>
+                                        </button>
+                                        <button id="zoomIn" class="btn btn-outline-secondary ml-1">
+                                            <i class="fa fa-search-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         
@@ -173,6 +184,29 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Estilos adicionales -->
+            <style>
+                .manual-card {
+                    transition: transform 0.3s, box-shadow 0.3s;
+                }
+                .manual-card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+                }
+                .pdf-container {
+                    background-color: #f5f5f5;
+                    border-radius: 5px;
+                }
+                .search-highlight {
+                    animation: highlight-pulse 2s infinite;
+                }
+                @keyframes highlight-pulse {
+                    0% { opacity: 0.4; }
+                    50% { opacity: 1; }
+                    100% { opacity: 0.4; }
+                }
+            </style>
         </t>
     </template>
 </odoo>

@@ -1,6 +1,6 @@
 /* 
- * Visor de PDF mejorado usando jQuery para Odoo 18
- * Incluye búsqueda dentro del PDF y controles adicionales
+ * Visor de PDF mejorado y estable para Odoo 18
+ * Incluye búsqueda optimizada dentro del PDF y controles adicionales
  */
 $(document).ready(function() {
     // Buscar el contenedor del visor de PDF
@@ -27,6 +27,7 @@ $(document).ready(function() {
     var searchMatches = [];
     var searchMatchIndex = -1;
     var searchActive = false;
+    var searchInProgress = false;
     
     // Inicializar el visor
     function initViewer() {
@@ -76,8 +77,10 @@ $(document).ready(function() {
         // Botón primera página
         var firstBtn = $('<button class="btn btn-sm btn-secondary"><i class="fa fa-step-backward"></i></button>')
             .on('click', function() {
-                currentPage = 1;
-                renderPage(currentPage);
+                if (currentPage !== 1) {
+                    currentPage = 1;
+                    renderPage(currentPage);
+                }
             });
         
         // Botón anterior
@@ -94,7 +97,7 @@ $(document).ready(function() {
         var pageInput = $('<input type="number" min="1" class="form-control form-control-sm" style="text-align: center;"/>')
             .on('change', function() {
                 var page = parseInt($(this).val());
-                if (page >= 1 && page <= totalPages) {
+                if (!isNaN(page) && page >= 1 && page <= totalPages) {
                     currentPage = page;
                     renderPage(currentPage);
                 } else {
@@ -117,8 +120,10 @@ $(document).ready(function() {
         // Botón última página
         var lastBtn = $('<button class="btn btn-sm btn-secondary"><i class="fa fa-step-forward"></i></button>')
             .on('click', function() {
-                currentPage = totalPages;
-                renderPage(currentPage);
+                if (currentPage !== totalPages) {
+                    currentPage = totalPages;
+                    renderPage(currentPage);
+                }
             });
         
         // Agregar elementos a la barra de navegación
@@ -146,15 +151,49 @@ $(document).ready(function() {
         var $searchNext = $('#pdfSearchNext');
         var $searchResults = $('#pdfSearchResults');
         
-        $searchInput.on('input', function() {
-            searchText = $(this).val().trim();
-            if (searchText.length >= 3) {
-                performSearch();
-            } else {
+        // Botón explícito de búsqueda para evitar reaccionar a cada tecla
+        var $searchButton = $('<button id="pdfSearchButton" class="btn btn-primary ml-1">Buscar</button>');
+        $searchButton.insertAfter($searchInput);
+        
+        // Botón para cancelar búsqueda
+        var $cancelButton = $('<button id="pdfSearchCancel" class="btn btn-outline-secondary ml-1">Cancelar</button>')
+            .css('display', 'none')
+            .on('click', function() {
+                if (searchInProgress) {
+                    searchInProgress = false;
+                    $(this).hide();
+                    $searchButton.show();
+                }
                 clearSearch();
+                $searchInput.val('');
+            });
+        $cancelButton.insertAfter($searchButton);
+        
+        // Buscar con Enter
+        $searchInput.on('keypress', function(e) {
+            if (e.which === 13) { // Enter key
+                e.preventDefault();
+                $searchButton.click();
             }
         });
         
+        // Iniciar búsqueda con el botón
+        $searchButton.on('click', function() {
+            var text = $searchInput.val().trim();
+            if (text.length >= 2) {
+                searchText = text;
+                $searchButton.hide();
+                $cancelButton.show();
+                performSearch();
+            } else {
+                $searchResults.text("Ingrese al menos 2 caracteres");
+                setTimeout(function() { 
+                    $searchResults.text("");
+                }, 3000);
+            }
+        });
+        
+        // Navegación entre resultados
         $searchPrev.on('click', function() {
             if (searchMatches.length > 0) {
                 searchMatchIndex = (searchMatchIndex - 1 + searchMatches.length) % searchMatches.length;
@@ -169,8 +208,10 @@ $(document).ready(function() {
             }
         });
         
+        // Función principal de búsqueda
         function performSearch() {
             searchActive = true;
+            searchInProgress = true;
             searchMatches = [];
             searchMatchIndex = -1;
             
@@ -181,40 +222,96 @@ $(document).ready(function() {
             // Reiniciar página actual
             var currentPageBackup = currentPage;
             
-            // Buscar en todas las páginas
-            var pendingSearches = totalPages;
-            var pagePromises = [];
+            // Limitar el número de páginas a procesar por lote para evitar bloqueos
+            var batchSize = 5;
+            var currentBatch = 1;
+            var maxBatches = Math.ceil(totalPages / batchSize);
             
-            for (var i = 1; i <= totalPages; i++) {
-                var promise = pdfDoc.getPage(i).then(function(page) {
-                    return page.getTextContent().then(function(textContent) {
-                        var pageIndex = page.pageIndex + 1;
-                        var pageText = textContent.items.map(function(item) {
-                            return item.str;
-                        }).join(' ');
-                        
-                        var regex = new RegExp(escapeRegExp(searchText), 'gi');
-                        var match;
-                        while ((match = regex.exec(pageText)) !== null) {
-                            searchMatches.push({
-                                page: pageIndex,
-                                index: match.index,
-                                length: searchText.length
-                            });
-                        }
-                        
-                        pendingSearches--;
-                        if (pendingSearches === 0) {
-                            finishSearch();
-                        }
-                    });
-                });
+            processBatch(1, batchSize);
+            
+            // Procesar lotes de páginas secuencialmente
+            function processBatch(startPage, endPage) {
+                if (!searchInProgress) {
+                    $searchResults.text("Búsqueda cancelada");
+                    return;
+                }
                 
-                pagePromises.push(promise);
+                if (startPage > totalPages) {
+                    finishSearch();
+                    return;
+                }
+                
+                // Ajustar el final del lote
+                endPage = Math.min(endPage, totalPages);
+                
+                // Actualizar progreso
+                $searchResults.text("Buscando... (" + Math.round((currentBatch / maxBatches) * 100) + "%)");
+                
+                // Buscar en este lote de páginas
+                searchPagesInRange(startPage, endPage, function() {
+                    // Avanzar al siguiente lote
+                    currentBatch++;
+                    processBatch(endPage + 1, endPage + batchSize);
+                });
+            }
+            
+            // Buscar en un rango específico de páginas
+            function searchPagesInRange(start, end, callback) {
+                var currentPageIndex = start;
+                
+                function processNextPage() {
+                    if (currentPageIndex > end || !searchInProgress) {
+                        callback();
+                        return;
+                    }
+                    
+                    try {
+                        pdfDoc.getPage(currentPageIndex).then(function(page) {
+                            return page.getTextContent().then(function(textContent) {
+                                // Obtener texto de la página
+                                var pageText = textContent.items.map(function(item) {
+                                    return item.str;
+                                }).join(' ');
+                                
+                                // Buscar coincidencias
+                                var regex = new RegExp(escapeRegExp(searchText), 'gi');
+                                var match;
+                                while ((match = regex.exec(pageText)) !== null) {
+                                    searchMatches.push({
+                                        page: currentPageIndex,
+                                        index: match.index,
+                                        length: searchText.length
+                                    });
+                                }
+                                
+                                // Avanzar a la siguiente página
+                                currentPageIndex++;
+                                setTimeout(processNextPage, 0);
+                            }).catch(function(error) {
+                                console.error("Error al obtener texto de la página " + currentPageIndex + ":", error);
+                                currentPageIndex++;
+                                setTimeout(processNextPage, 0);
+                            });
+                        }).catch(function(error) {
+                            console.error("Error al obtener la página " + currentPageIndex + ":", error);
+                            currentPageIndex++;
+                            setTimeout(processNextPage, 0);
+                        });
+                    } catch (error) {
+                        console.error("Error inesperado al procesar la página " + currentPageIndex + ":", error);
+                        currentPageIndex++;
+                        setTimeout(processNextPage, 0);
+                    }
+                }
+                
+                // Iniciar procesamiento
+                processNextPage();
             }
             
             // Finalizar búsqueda cuando todas las páginas hayan sido procesadas
             function finishSearch() {
+                searchInProgress = false;
+                
                 if (searchMatches.length > 0) {
                     $searchResults.text(searchMatches.length + " coincidencia(s)");
                     $searchPrev.prop('disabled', false);
@@ -225,6 +322,9 @@ $(document).ready(function() {
                     highlightCurrentMatch();
                 } else {
                     $searchResults.text("No se encontraron coincidencias");
+                    $cancelButton.hide();
+                    $searchButton.show();
+                    
                     // Volver a la página original
                     if (currentPage !== currentPageBackup) {
                         currentPage = currentPageBackup;
@@ -236,6 +336,7 @@ $(document).ready(function() {
         
         function clearSearch() {
             searchActive = false;
+            searchInProgress = false;
             searchMatches = [];
             searchMatchIndex = -1;
             $searchResults.text("");
@@ -248,81 +349,139 @@ $(document).ready(function() {
             if (searchMatchIndex >= 0 && searchMatchIndex < searchMatches.length) {
                 var match = searchMatches[searchMatchIndex];
                 
+                // Actualizar la interfaz de usuario primero
+                $searchResults.text((searchMatchIndex + 1) + " de " + searchMatches.length);
+                
+                // Validar número de página antes de cambiar
+                if (match.page < 1 || match.page > totalPages) {
+                    console.error("Número de página inválido:", match.page, "Total:", totalPages);
+                    // Si la página no es válida, simplemente avanzar al siguiente resultado
+                    if (searchMatches.length > 1) {
+                        searchMatchIndex = (searchMatchIndex + 1) % searchMatches.length;
+                        highlightCurrentMatch();
+                    }
+                    return;
+                }
+                
                 // Cambiar a la página de la coincidencia actual
                 if (currentPage !== match.page) {
                     currentPage = match.page;
+                    // Primero renderizar la página, luego resaltar
                     renderPage(currentPage, function() {
-                        highlightTextInPage(match);
+                        // Dar tiempo al renderizado para completarse
+                        setTimeout(function() {
+                            highlightTextInPage(match);
+                        }, 300);
                     });
                 } else {
+                    // Ya estamos en la página correcta, sólo resaltar
                     highlightTextInPage(match);
                 }
-                
-                $searchResults.text((searchMatchIndex + 1) + " de " + searchMatches.length);
             }
         }
         
         function highlightTextInPage(match) {
-            pdfDoc.getPage(match.page).then(function(page) {
-                page.getTextContent().then(function(textContent) {
-                    var $textLayer = $('#textLayer');
-                    $textLayer.empty();
-                    
-                    // Crear destacado para la coincidencia actual
-                    var viewport = page.getViewport({ scale: currentScale });
-                    var highlight = $('<div class="search-highlight current"></div>')
-                        .css({
-                            position: 'absolute',
-                            background: 'rgba(255, 255, 0, 0.4)',
-                            border: '2px solid orange',
-                            'border-radius': '3px'
-                        });
-                    
-                    // Encontrar la posición de la coincidencia en el viewport
-                    var charIndex = 0;
-                    var found = false;
-                    
-                    for (var i = 0; i < textContent.items.length && !found; i++) {
-                        var item = textContent.items[i];
+            // Primero limpiar cualquier resaltado anterior
+            $('#textLayer').empty();
+            
+            try {
+                // Verificar que la página sea válida
+                if (match.page < 1 || match.page > totalPages) {
+                    console.error("Página inválida para resaltado:", match.page);
+                    return;
+                }
+                
+                pdfDoc.getPage(match.page).then(function(page) {
+                    return page.getTextContent().then(function(textContent) {
+                        var $textLayer = $('#textLayer');
                         
-                        if (charIndex <= match.index && match.index < charIndex + item.str.length) {
-                            // Encontramos el elemento que contiene la coincidencia
-                            var matchOffset = match.index - charIndex;
-                            
-                            // Convertir a coordenadas del viewport
-                            var tx = pdfjsLib.Util.transform(
-                                viewport.transform,
-                                item.transform
-                            );
-                            
-                            // Aproximar la posición y tamaño del texto
-                            var fontHeight = Math.sqrt(tx[2] * tx[2] + tx[3] * tx[3]);
-                            var fontSize = Math.abs(item.height);
-                            
-                            highlight.css({
-                                left: (tx[4] + matchOffset * fontSize * 0.6) + 'px',
-                                top: (tx[5] - fontHeight) + 'px',
-                                width: (match.length * fontSize * 0.6) + 'px',
-                                height: fontHeight + 'px'
+                        // Crear elemento de resaltado
+                        var highlight = $('<div class="search-highlight current"></div>')
+                            .css({
+                                position: 'absolute',
+                                background: 'rgba(255, 255, 0, 0.4)',
+                                border: '2px solid #ff8c00', // naranja más intenso
+                                'border-radius': '3px',
+                                'pointer-events': 'none',
+                                'z-index': '100',
+                                'box-shadow': '0 0 10px rgba(255, 140, 0, 0.7)' // Añadir un resplandor
                             });
+                        
+                        // Viewport actual
+                        var viewport = page.getViewport({ scale: currentScale });
+                        
+                        // Encontrar el elemento de texto que contiene la coincidencia
+                        var charIndex = 0;
+                        var foundItem = null;
+                        var matchStartIndex = -1;
+                        
+                        for (var i = 0; i < textContent.items.length; i++) {
+                            var item = textContent.items[i];
+                            var itemEndIndex = charIndex + item.str.length;
                             
-                            found = true;
+                            // Comprobar si la coincidencia está dentro de este item
+                            if (charIndex <= match.index && match.index < itemEndIndex) {
+                                foundItem = item;
+                                matchStartIndex = charIndex;
+                                break;
+                            }
+                            
+                            charIndex += item.str.length + 1; // +1 por el espacio
                         }
                         
-                        charIndex += item.str.length + 1; // +1 por el espacio que agregamos al juntar
-                    }
-                    
-                    $textLayer.append(highlight);
-                    
-                    // Scroll hasta la coincidencia
-                    var highlightPosition = highlight.position();
-                    if (highlightPosition) {
-                        $(canvasContainer).scrollTop(
-                            highlightPosition.top - $(canvasContainer).height() / 2
-                        );
-                    }
+                        // Si encontramos el elemento, resaltarlo
+                        if (foundItem) {
+                            // Transformar coordenadas del item
+                            var tx = pdfjsLib.Util.transform(
+                                viewport.transform,
+                                foundItem.transform
+                            );
+                            
+                            // Calcular offset relativo dentro del item
+                            var relativeOffset = match.index - matchStartIndex;
+                            
+                            // Estimar ancho de caracter (usando una aproximación simple)
+                            var charWidth = foundItem.width / foundItem.str.length;
+                            
+                            // Posicionar el resaltado
+                            var left = tx[4] + (relativeOffset * charWidth);
+                            var top = tx[5] - foundItem.height;
+                            var width = searchText.length * charWidth;
+                            var height = foundItem.height * 1.2;
+                            
+                            highlight.css({
+                                left: left + 'px',
+                                top: top + 'px',
+                                width: width + 'px',
+                                height: height + 'px'
+                            });
+                            
+                            $textLayer.append(highlight);
+                            
+                            // Scroll hasta la coincidencia
+                            setTimeout(function() {
+                                var container = $(canvasContainer);
+                                container.scrollTop(
+                                    top - (container.height() / 3)
+                                );
+                            }, 100);
+                        } else {
+                            console.log("No se pudo encontrar la posición exacta del texto en la página");
+                            
+                            // Intentar scroll aproximado a un tercio de la página
+                            setTimeout(function() {
+                                $(canvasContainer).scrollTop(viewport.height / 3);
+                            }, 100);
+                        }
+                    }).catch(function(error) {
+                        console.error("Error al obtener el contenido de texto:", error);
+                    });
+                }).catch(function(error) {
+                    console.error("Error al obtener la página para resaltado:", error);
                 });
-            });
+            } catch (error) {
+                console.error("Error inesperado al resaltar texto:", error);
+            }
         }
         
         // Función auxiliar para escapar caracteres especiales en RegExp
@@ -368,6 +527,19 @@ $(document).ready(function() {
     
     // Renderizar una página
     function renderPage(pageNumber, callback) {
+        if (pageNumber < 1 || pageNumber > totalPages) {
+            console.error("Intento de renderizar página inválida:", pageNumber, "Total:", totalPages);
+            pageNumber = 1; // Valor predeterminado seguro
+        }
+        
+        // Limpiar capa de texto en cada cambio de página
+        $('#textLayer').empty();
+        
+        // Mostrar indicador de carga
+        var loadingIndicator = $('<div class="loading-indicator text-center py-3"><div class="spinner-border text-primary" role="status"><span class="sr-only">Cargando página...</span></div></div>');
+        $(canvasContainer).prepend(loadingIndicator);
+        
+        // Intentar obtener y renderizar la página
         pdfDoc.getPage(pageNumber).then(function(page) {
             var ctx = canvas.getContext('2d');
             
@@ -391,11 +563,22 @@ $(document).ready(function() {
             };
             
             page.render(renderContext).promise.then(function() {
-                // Si hay una búsqueda activa, actualizar destacados
-                if (searchActive && callback) {
+                // Quitar indicador de carga
+                loadingIndicator.remove();
+                
+                // Si hay una función de callback (para búsqueda), ejecutarla
+                if (typeof callback === 'function') {
                     callback();
                 }
+            }).catch(function(error) {
+                loadingIndicator.remove();
+                console.error("Error al renderizar la página:", error);
+                $(canvasContainer).prepend('<div class="alert alert-warning">Error al renderizar la página. Intente cambiar de página o recargar el visor.</div>');
             });
+        }).catch(function(error) {
+            loadingIndicator.remove();
+            console.error("Error al obtener la página:", error);
+            $(canvasContainer).prepend('<div class="alert alert-warning">Error al cargar la página. Intente cambiar de página o recargar el visor.</div>');
         });
     }
     
@@ -471,17 +654,20 @@ $(document).ready(function() {
         );
     }
     
-    // Cargar PDF.js desde CDN
-    $.getScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js')
+    // Cargar PDF.js desde CDN (usando versión 2.x que es más estable)
+    $.getScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js')
         .done(function() {
             // Configurar el worker
-            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
             
             // Inicializar visor
             initViewer();
             
             // Prevenir acciones no deseadas
             preventUnwantedActions();
+            
+            // Mejorar las funcionalidades del visor, iniciando con la búsqueda
+            console.log("PDF.js cargado exitosamente, versión:", pdfjsLib.version);
         })
         .fail(function() {
             console.error('No se pudo cargar PDF.js');
