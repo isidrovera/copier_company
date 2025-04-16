@@ -1,5 +1,5 @@
 /* 
- * Visor de PDF mejorado con funcionalidad de búsqueda para Odoo 18
+ * Visor de PDF mejorado con funcionalidad de búsqueda para Odoo
  */
 $(document).ready(function() {
     // Buscar el contenedor del visor de PDF
@@ -35,6 +35,20 @@ $(document).ready(function() {
     var $searchResultsList = $('#pdfSearchResultsList');
     var $searchClose = $('#pdfSearchClose');
     var $loadingSpinner = $('#pdfLoadingSpinner');
+    
+    // Importar librería PDF.js desde la carpeta lib
+    import('/copier_company/static/lib/pdfjs/pdf.mjs')
+        .then(module => {
+            window.pdfjsLib = module;
+            pdfjsLib.GlobalWorkerOptions.workerSrc = '/copier_company/static/lib/pdfjs/pdf.worker.mjs';
+            
+            // Inicializar visor
+            initViewer();
+        })
+        .catch(error => {
+            console.error('Error al cargar PDF.js:', error);
+            $container.html('<div class="alert alert-danger">No se pudo cargar el visor de PDF</div>');
+        });
     
     // Inicializar el visor
     function initViewer() {
@@ -376,21 +390,4 @@ $(document).ready(function() {
             y <= rect.bottom
         );
     }
-    
-    // Cargar PDF.js desde CDN
-    $.getScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js')
-        .done(function() {
-            // Configurar el worker
-            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-            
-            // Inicializar visor
-            initViewer();
-            
-            // Prevenir acciones no deseadas
-            preventUnwantedActions();
-        })
-        .fail(function() {
-            console.error('No se pudo cargar PDF.js');
-            $container.html('<div class="alert alert-danger">No se pudo cargar el visor de PDF</div>');
-        });
 });
