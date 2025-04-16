@@ -1,6 +1,6 @@
 /* 
- * Visor de PDF básico usando jQuery para Odoo 18 
- * Este enfoque evita depender de web.public.widget
+ * Visor de PDF simplificado usando jQuery para Odoo 18
+ * Este enfoque no depende de los widgets de Odoo
  */
 $(document).ready(function() {
     // Buscar el contenedor del visor de PDF
@@ -165,11 +165,11 @@ $(document).ready(function() {
         );
     }
     
-    // Cargar PDF.js
-    $.getScript('/copier_company/static/lib/pdfjs/pdf.min.js')
+    // Cargar PDF.js desde CDN
+    $.getScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js')
         .done(function() {
             // Configurar el worker
-            pdfjsLib.GlobalWorkerOptions.workerSrc = '/copier_company/static/lib/pdfjs/pdf.worker.min.js';
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
             
             // Inicializar visor
             initViewer();
