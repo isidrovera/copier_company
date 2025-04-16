@@ -115,9 +115,11 @@
                                                 <div class="mb-3">
                                                     <div class="d-flex mb-2">
                                                         <span class="icon-wrapper rounded-circle bg-primary bg-opacity-10 p-2 me-3 flex-shrink-0">
-                                                            <i class="fa fa-file-text-o text-primary"></i>
+                                                            <i class="fa fa-file-pdf-o text-primary"></i>
                                                         </span>
-                                                        <h5 class="card-title mb-0 fw-bold text-break w-100" t-esc="manual.name"/>
+                                                        <div class="title-container w-100">
+                                                            <h5 class="card-title mb-0 fw-bold manual-title" t-esc="manual.name"/>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 
@@ -133,7 +135,7 @@
                                             <div class="card-footer bg-white border-0 p-4 pt-0">
                                                 <a t-att-href="'/manuales/ver/%s' % manual.id" 
                                                    class="btn btn-primary w-100 rounded-pill"
-                                                   target="_blank"> <!-- Añadir target="_blank" para abrir en nueva pestaña -->
+                                                   target="_blank">
                                                    <i class="fa fa-eye me-2"></i> Ver manual
                                                 </a>
                                             </div>
@@ -176,21 +178,33 @@
                 height: 40px;
             }
             
+            /* Estilo para el título de manual con ajuste automático */
+            .manual-title {
+                display: -webkit-box;
+                -webkit-line-clamp: initial;
+                -webkit-box-orient: vertical;
+                overflow: visible;
+                line-height: 1.4;
+                height: auto;
+                word-wrap: break-word;
+                word-break: break-word;
+                overflow-wrap: break-word;
+                hyphens: auto;
+                max-width: 100%;
+                min-height: 40px;
+            }
+            
+            .title-container {
+                display: flex;
+                align-items: center;
+            }
+            
             /* Mejora para dispositivos móviles */
             @media (max-width: 992px) {
                 .sticky-top {
                     position: relative;
                     top: 0;
                 }
-            }
-            
-            /* Asegurar que los títulos largos se muestren completos */
-            .text-break {
-                word-wrap: break-word !important;
-                word-break: break-word !important;
-                overflow-wrap: break-word !important;
-                hyphens: auto !important;
-                white-space: normal !important;
             }
         </style>
     </t>
