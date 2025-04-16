@@ -46,7 +46,7 @@ $(document).ready(function() {
         
         // Cargar PDF.js desde tu módulo estático
         var script = document.createElement('script');
-        script.src = '/copier_company/static/lib/pdfjs/pdf.js';
+        script.src = '/copier_company/static/lib/pdfjs/pdf.mjs';
         script.type = 'text/javascript';
         script.onload = function() {
             // Configurar el worker
