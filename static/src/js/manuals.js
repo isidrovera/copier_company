@@ -1,9 +1,12 @@
-odoo.define('secure_pdf_viewer.pdf_viewer', function (require) {
+odoo.define('copier_company.manuals', function (require) {
     'use strict';
-
-    const publicWidget = require('web.public.widget');
     
-    publicWidget.registry.SecurePDFViewer = publicWidget.Widget.extend({
+    // Importaciones actualizadas para Odoo 18
+    const { Component, useState, onWillStart, onMounted } = owl;
+    const { xml } = owl.tags;
+    const PublicWidget = require('web.public.widget');
+    
+    const SecurePDFViewer = PublicWidget.Widget.extend({
         selector: '#pdfViewerContainer',
         
         /**
@@ -240,4 +243,8 @@ odoo.define('secure_pdf_viewer.pdf_viewer', function (require) {
             );
         }
     });
+    
+    PublicWidget.registry.SecurePDFViewer = SecurePDFViewer;
+    
+    return SecurePDFViewer;
 });
