@@ -1,7 +1,7 @@
 odoo.define('secure_pdf_viewer.pdf_viewer', function (require) {
     'use strict';
 
-    var publicWidget = require('web.public.widget');
+    const publicWidget = require('web.public.widget');
     
     publicWidget.registry.SecurePDFViewer = publicWidget.Widget.extend({
         selector: '#pdfViewerContainer',
@@ -17,8 +17,22 @@ odoo.define('secure_pdf_viewer.pdf_viewer', function (require) {
             this.pdfUrl = this.$el.data('pdf-url');
             
             if (this.pdfUrl) {
-                // Inicializar el visor de PDF
-                this._initPDFViewer();
+                // Cargar el script de PDF.js desde CDN si aún no está cargado
+                if (typeof pdfjsLib === 'undefined') {
+                    $.getScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js')
+                        .done(function() {
+                            // Configurar el worker
+                            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                            // Inicializar el visor
+                            self._initPDFViewer();
+                        })
+                        .fail(function() {
+                            console.error('No se pudo cargar PDF.js');
+                        });
+                } else {
+                    // Inicializar el visor de PDF
+                    this._initPDFViewer();
+                }
                 
                 // Prevenir acciones no deseadas
                 this._preventUnwantedActions();
@@ -226,6 +240,4 @@ odoo.define('secure_pdf_viewer.pdf_viewer', function (require) {
             );
         }
     });
-    
-    return publicWidget.registry.SecurePDFViewer;
 });
