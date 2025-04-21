@@ -97,12 +97,25 @@
                   <t t-esc="machine.sale_price"/> €
                 </td>
                 <td>
-                  <a t-att-href="'/stock-maquinas/%s' % machine.id"
-                     class="btn btn-sm btn-outline-secondary">Detalles</a>
-                  <a t-if="machine.state=='available'"
-                     t-att-href="'/stock-maquinas/%s/reserve' % machine.id"
-                     class="btn btn-sm btn-primary ml-1">Reservar</a>
-                </td>
+                    <!-- Detalles sigue como enlace GET -->
+                    <a t-att-href="'/stock-maquinas/%s' % machine.id"
+                       class="btn btn-sm btn-outline-secondary">
+                       Detalles
+                    </a>
+                  
+                    <!-- Reservar: formulario que envía POST -->
+                    <t t-if="machine.state == 'available'">
+                      <form t-att-action="'/stock-maquinas/%s/reserve' % machine.id"
+                            method="post" style="display:inline;">
+                        <!-- token CSRF obligatorio -->
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <button type="submit" class="btn btn-sm btn-primary ml-1">
+                          Reservar
+                        </button>
+                      </form>
+                    </t>
+                  </td>
+                  
               </tr>
             </t>
           </tbody>
@@ -148,12 +161,24 @@
                   <strong>Precio:</strong> <t t-esc="machine.sale_price"/> €
                 </p>
                 <div class="mt-auto">
-                  <a t-att-href="'/stock-maquinas/%s' % machine.id"
-                     class="btn btn-sm btn-outline-secondary btn-block mb-1">Detalles</a>
-                  <a t-if="machine.state=='available'"
-                     t-att-href="'/stock-maquinas/%s/reserve' % machine.id"
-                     class="btn btn-sm btn-primary btn-block">Reservar</a>
-                </div>
+                    <!-- Enlace GET para detalles -->
+                    <a t-att-href="'/stock-maquinas/%s' % machine.id"
+                       class="btn btn-sm btn-outline-secondary btn-block mb-1">
+                       Detalles
+                    </a>
+                  
+                    <!-- Formulario POST para reservar -->
+                    <t t-if="machine.state == 'available'">
+                      <form t-att-action="'/stock-maquinas/%s/reserve' % machine.id"
+                            method="post" class="d-block">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <button type="submit" class="btn btn-sm btn-primary btn-block">
+                          Reservar
+                        </button>
+                      </form>
+                    </t>
+                  </div>
+                  
               </div>
             </div>
           </div>
@@ -393,18 +418,25 @@
                                 
                                 <!-- Acciones según el estado -->
                                 <div class="mt-4">
+                                    <!-- Reservar (POST) -->
                                     <t t-if="machine.state == 'available'">
-                                        <a t-att-href="'/stock-maquinas/%s/reserve' % machine.id" class="btn btn-success btn-lg btn-block mb-3">
-                                            Reservar Ahora
-                                        </a>
+                                      <form t-att-action="'/stock-maquinas/%s/reserve' % machine.id" method="post">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                        <button type="submit" class="btn btn-success btn-lg btn-block mb-3">
+                                          Reservar Ahora
+                                        </button>
+                                      </form>
                                     </t>
+                                  
+                                    <!-- Ya reservada por el mismo usuario -->
                                     <t t-elif="machine.state == 'reserved' and machine.reserved_by.id == user.partner_id.id">
-                                        <div class="alert alert-warning">
-                                            <i class="fa fa-info-circle mr-2"></i> Esta máquina está reservada por ti.
-                                            <a t-att-href="'/stock-maquinas/%s/payment' % machine.id" class="btn btn-outline-primary mt-2">
-                                                Subir comprobante de pago
-                                            </a>
-                                        </div>
+                                      <div class="alert alert-warning">
+                                        <i class="fa fa-info-circle mr-2"></i> Esta máquina está reservada por ti.
+                                        <a t-att-href="'/stock-maquinas/%s/payment' % machine.id"
+                                           class="btn btn-outline-primary mt-2">
+                                          Subir comprobante de pago
+                                        </a>
+                                      </div>
                                     </t>
                                     <t t-elif="machine.state == 'pending_payment' and machine.reserved_by.id == user.partner_id.id">
                                         <div class="alert alert-info">
