@@ -325,221 +325,241 @@
     <!-- Plantilla para el detalle de una máquina -->
     <template id="copier_detail" name="Detalle de Fotocopiadora">
         <t t-call="website.layout">
-            <div class="container mt-4">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="/stock-maquinas">Stock de Fotocopiadoras</a></li>
-                        <li class="breadcrumb-item active" aria-current="page"><t t-esc="machine.name"/></li>
-                    </ol>
-                </nav>
-                
-                <div class="card">
-                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                        <h2 class="mb-0">Fotocopiadora <t t-esc="machine.name"/></h2>
-                        <span t-att-class="'badge badge-pill ' + (machine.state == 'available' and 'badge-success' or machine.state == 'reserved' and 'badge-warning' or machine.state == 'pending_payment' and 'badge-info' or 'badge-secondary')">
-                            <t t-esc="dict(machine._fields['state'].selection).get(machine.state)"/>
+          <div class="container mt-4">
+            <!-- Migas -->
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                  <a href="/stock-maquinas">Stock de Fotocopiadoras</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                  <t t-esc="machine.name"/>
+                </li>
+              </ol>
+            </nav>
+    
+            <div class="card">
+              <!-- Cabecera -->
+              <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">Fotocopiadora <t t-esc="machine.name"/></h2>
+                <span t-att-class="'badge badge-pill ' + (
+                      machine.state == 'available'       and 'badge-success' or
+                      machine.state == 'reserved'        and 'badge-warning' or
+                      machine.state == 'pending_payment' and 'badge-info'    or
+                      'badge-secondary')">
+                  <t t-esc="dict(machine._fields['state'].selection).get(machine.state)"/>
+                </span>
+              </div>
+    
+              <!-- Cuerpo -->
+              <div class="card-body">
+                <div class="row">
+                  <!-- Carrusel de imágenes -->
+                  <div class="col-lg-6 mb-4">
+                    <div id="machineImages" class="carousel slide" data-bs-ride="carousel">
+                      <div class="carousel-inner">
+                        <!-- Imagen principal -->
+                        <div class="carousel-item active">
+                          <img t-if="machine.image"
+                               t-att-src="'data:image/png;base64,%s' % machine.image"
+                               class="d-block w-100" style="max-height:400px;object-fit:contain;"
+                               alt="Imagen principal"/>
+                          <img t-else=""
+                               t-att-src="'data:image/png;base64,%s' % machine.modelo_id.imagen"
+                               class="d-block w-100" style="max-height:400px;object-fit:contain;"
+                               alt="Imagen modelo"/>
+                        </div>
+                        <!-- Imágenes adicionales -->
+                        <t t-foreach="machine.image_ids" t-as="img">
+                          <div class="carousel-item">
+                            <img t-att-src="'data:image/png;base64,%s' % img.image"
+                                 class="d-block w-100" style="max-height:400px;object-fit:contain;"
+                                 t-att-alt="img.name or ''"/>
+                          </div>
+                        </t>
+                      </div>
+                      <!-- Controles -->
+                      <t t-if="machine.image_ids">
+                        <button class="carousel-control-prev" type="button"
+                                data-bs-target="#machineImages" data-bs-slide="prev">
+                          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                          <span class="visually-hidden">Anterior</span>
+                        </button>
+                        <button class="carousel-control-next" type="button"
+                                data-bs-target="#machineImages" data-bs-slide="next">
+                          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                          <span class="visually-hidden">Siguiente</span>
+                        </button>
+                      </t>
+                    </div>
+                  </div>
+    
+                  <!-- Datos principales -->
+                  <div class="col-lg-6">
+                    <h3 class="mb-3">
+                      <t t-esc="machine.marca_id.name"/> <t t-esc="machine.modelo_id.name"/>
+                    </h3>
+    
+                    <!-- Etiquetas -->
+                    <div class="mb-4">
+                      <span t-att-class="'badge badge-pill mr-2 ' + (
+                            machine.tipo == 'color' and 'badge-info' or 'badge-secondary')">
+                        <t t-esc="dict(machine._fields['tipo'].selection).get(machine.tipo)"/>
+                      </span>
+                      <t t-if="machine.reparacion != 'none'">
+                        <span t-att-class="'badge badge-pill ' + (
+                              machine.reparacion == 'done'        and 'badge-success' or
+                              machine.reparacion == 'in_progress' and 'badge-warning' or
+                              'badge-danger')">
+                          <t t-esc="dict(machine._fields['reparacion'].selection).get(machine.reparacion)"/>
                         </span>
+                      </t>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <!-- Imágenes de la máquina -->
-                            <div class="col-lg-6 mb-4">
-                                <div id="machineImages" class="carousel slide" data-ride="carousel">
-                                    <div class="carousel-inner">
-                                        <div class="carousel-item active">
-                                            <img t-if="machine.image" t-att-src="'data:image/png;base64,%s' % machine.image"
-                                                class="d-block w-100" style="max-height: 400px; object-fit: contain;" alt="Imagen principal"/>
-                                            <img t-else="" t-att-src="'data:image/png;base64,%s' % machine.modelo_id.imagen"
-                                                class="d-block w-100" style="max-height: 400px; object-fit: contain;" alt="Imagen del modelo"/>
-                                        </div>
-                                        <t t-foreach="machine.image_ids" t-as="img">
-                                            <div class="carousel-item">
-                                                <img t-att-src="'data:image/png;base64,%s' % img.image"
-                                                    class="d-block w-100" style="max-height: 400px; object-fit: contain;" t-att-alt="img.name or ''"/>
-                                            </div>
-                                        </t>
-                                    </div>
-                                    <t t-if="machine.image_ids">
-                                        <a class="carousel-control-prev" href="#machineImages" role="button" data-slide="prev">
-                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                            <span class="sr-only">Anterior</span>
-                                        </a>
-                                        <a class="carousel-control-next" href="#machineImages" role="button" data-slide="next">
-                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                            <span class="sr-only">Siguiente</span>
-                                        </a>
-                                    </t>
-                                </div>
-                            </div>
-                            
-                            <!-- Información principal -->
-                            <div class="col-lg-6">
-                                <h3 class="mb-3"><t t-esc="machine.marca_id.name"/> <t t-esc="machine.modelo_id.name"/></h3>
-                                
-                                <div class="mb-4">
-                                    <span t-att-class="'badge badge-pill mr-2 ' + (machine.tipo == 'color' and 'badge-info' or 'badge-secondary')">
-                                        <t t-esc="dict(machine._fields['tipo'].selection).get(machine.tipo)"/>
-                                    </span>
-                                    <t t-if="machine.reparacion != 'none'">
-                                        <span t-att-class="'badge badge-pill ' + (machine.reparacion == 'done' and 'badge-success' or machine.reparacion == 'in_progress' and 'badge-warning' or 'badge-danger')">
-                                            <t t-esc="dict(machine._fields['reparacion'].selection).get(machine.reparacion)"/>
-                                        </span>
-                                    </t>
-                                </div>
-                                
-                                <table class="table table-sm">
-                                    <tbody>
-                                        <tr>
-                                            <th style="width: 40%;">Referencia:</th>
-                                            <td><t t-esc="machine.name"/></td>
-                                        </tr>
-                                        <tr>
-                                            <th>N° de Serie:</th>
-                                            <td><t t-esc="machine.serie"/></td>
-                                        </tr>
-                                        <tr>
-                                            <th>Contómetro B/N:</th>
-                                            <td><t t-esc="machine.contometro_bn"/> páginas</td>
-                                        </tr>
-                                        <t t-if="machine.tipo == 'color'">
-                                            <tr>
-                                                <th>Contómetro Color:</th>
-                                                <td><t t-esc="machine.contometro_color"/> páginas</td>
-                                            </tr>
-                                        </t>
-                                        <t t-if="machine.sale_price">
-                                            <tr>
-                                                <th>Precio:</th>
-                                                <td class="font-weight-bold h5"><t t-esc="machine.sale_price"/> €</td>
-                                            </tr>
-                                        </t>
-                                    </tbody>
-                                </table>
-                                
-                                <!-- Acciones según el estado -->
-                                <div class="mt-4">
-                                    <!-- Reservar (POST) -->
-                                    <t t-if="machine.state == 'available'">
-                                      <form t-att-action="'/stock-maquinas/%s/reserve' % machine.id" method="post">
-                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                        <button type="submit" class="btn btn-success btn-lg btn-block mb-3">
-                                          Reservar Ahora
-                                        </button>
-                                      </form>
-                                    </t>
-                                  
-                                    <!-- Ya reservada por el mismo usuario -->
-                                    <t t-elif="machine.state == 'reserved' and machine.reserved_by.id == user.partner_id.id">
-                                      <div class="alert alert-warning">
-                                        <i class="fa fa-info-circle mr-2"></i> Esta máquina está reservada por ti.
-                                        <a t-att-href="'/stock-maquinas/%s/payment' % machine.id"
-                                           class="btn btn-outline-primary mt-2">
-                                          Subir comprobante de pago
-                                        </a>
-                                      </div>
-                                    </t>
-                                    <t t-elif="machine.state == 'pending_payment' and machine.reserved_by.id == user.partner_id.id">
-                                        <div class="alert alert-info">
-                                            <i class="fa fa-info-circle mr-2"></i> Pendiente de verificación de pago.
-                                            <a t-att-href="'/stock-maquinas/%s/payment' % machine.id" class="btn btn-outline-primary mt-2">
-                                                Subir nuevo comprobante
-                                            </a>
-                                        </div>
-                                    </t>
-                                    <t t-elif="machine.state == 'sold' and machine.reserved_by.id == user.partner_id.id">
-                                        <div class="alert alert-success">
-                                            <i class="fa fa-check-circle mr-2"></i> ¡Compra completada! La máquina es tuya.
-                                        </div>
-                                    </t>
-                                    <t t-elif="machine.state != 'available'">
-                                        <div class="alert alert-secondary">
-                                            <i class="fa fa-info-circle mr-2"></i> Esta máquina no está disponible actualmente.
-                                        </div>
-                                    </t>
-                                </div>
-                            </div>
+    
+                    <!-- Tabla de info -->
+                    <table class="table table-sm">
+                      <tbody>
+                        <tr><th style="width:40%;">Referencia:</th><td><t t-esc="machine.name"/></td></tr>
+                        <tr><th>N° de Serie:</th><td><t t-esc="machine.serie"/></td></tr>
+                        <tr><th>Contómetro B/N:</th><td><t t-esc="machine.contometro_bn"/> páginas</td></tr>
+                        <t t-if="machine.tipo == 'color'">
+                          <tr><th>Contómetro Color:</th><td><t t-esc="machine.contometro_color"/> páginas</td></tr>
+                        </t>
+                        <t t-if="machine.sale_price">
+                          <tr><th>Precio:</th><td class="font-weight-bold h5"><t t-esc="machine.sale_price"/> €</td></tr>
+                        </t>
+                      </tbody>
+                    </table>
+    
+                    <!-- Acciones -->
+                    <div class="mt-4">
+                      <!-- Disponible: reservar -->
+                      <t t-if="machine.state == 'available'">
+                        <form t-att-action="'/stock-maquinas/%s/reserve' % machine.id" method="post">
+                          <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                          <button type="submit" class="btn btn-success btn-lg btn-block mb-3">
+                            Reservar Ahora
+                          </button>
+                        </form>
+                      </t>
+    
+                      <!-- Reservada por el mismo usuario -->
+                      <t t-elif="machine.state == 'reserved' and machine.reserved_by.id == user.partner_id.id">
+                        <div class="alert alert-warning">
+                          <i class="fa fa-info-circle mr-2"></i> Esta máquina está reservada por ti.
+                          <a t-att-href="'/stock-maquinas/%s/payment' % machine.id"
+                             class="btn btn-outline-primary mt-2">
+                            Subir comprobante de pago
+                          </a>
                         </div>
-                        
-                        <!-- Pestañas con más información -->
-                        <ul class="nav nav-tabs mt-4" id="machineDetailTab" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link active" id="checklist-tab" data-toggle="tab" href="#checklist" role="tab" 
-                                   aria-controls="checklist" aria-selected="true">Estado de la Máquina</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="accessories-tab" data-toggle="tab" href="#accessories" role="tab" 
-                                   aria-controls="accessories" aria-selected="false">Accesorios Incluidos</a>
-                            </li>
-                        </ul>
-                        
-                        <div class="tab-content p-3 border border-top-0 rounded-bottom" id="machineDetailTabContent">
-                            <!-- Pestaña de Checklist -->
-                            <div class="tab-pane fade show active" id="checklist" role="tabpanel" aria-labelledby="checklist-tab">
-                                <h4 class="mb-3">Estado de los componentes</h4>
-                                
-                                <div class="table-responsive">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Componente</th>
-                                                <th>Estado</th>
-                                                <th>Observaciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <t t-foreach="machine.checklist_ids" t-as="check">
-                                                <tr>
-                                                    <td><t t-esc="check.name"/></td>
-                                                    <td>
-                                                        <span t-att-class="'badge ' + (
-                                                            check.state == 'good' and 'badge-success' or 
-                                                            check.state == 'regular' and 'badge-warning' or 
-                                                            check.state == 'poor' and 'badge-danger' or 
-                                                            check.state == 'replaced' and 'badge-info' or 
-                                                            'badge-secondary')">
-                                                            <t t-esc="dict(check._fields['state'].selection).get(check.state)"/>
-                                                        </span>
-                                                    </td>
-                                                    <td><t t-esc="check.notes or '-'"/></td>
-                                                </tr>
-                                            </t>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            
-                            <!-- Pestaña de Accesorios -->
-                            <div class="tab-pane fade" id="accessories" role="tabpanel" aria-labelledby="accessories-tab">
-                                <h4 class="mb-3">Accesorios incluidos con esta máquina</h4>
-                                
-                                <div class="row">
-                                    <t t-if="not machine.accesorios_ids">
-                                        <div class="col-12">
-                                            <div class="alert alert-info">
-                                                Esta máquina no incluye accesorios adicionales.
-                                            </div>
-                                        </div>
-                                    </t>
-                                    <t t-foreach="machine.accesorios_ids" t-as="accesorio">
-                                        <div class="col-md-4 mb-3">
-                                            <div class="card h-100">
-                                                <div class="card-body">
-                                                    <h5 class="card-title"><t t-esc="accesorio.name"/></h5>
-                                                    <p class="card-text text-muted">
-                                                       
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </t>
-                                </div>
-                            </div>
+                      </t>
+    
+                      <!-- Pendiente de pago -->
+                      <t t-elif="machine.state == 'pending_payment' and machine.reserved_by.id == user.partner_id.id">
+                        <div class="alert alert-info">
+                          <i class="fa fa-info-circle mr-2"></i> Pendiente de verificación de pago.
+                          <a t-att-href="'/stock-maquinas/%s/payment' % machine.id"
+                             class="btn btn-outline-primary mt-2">
+                            Subir nuevo comprobante
+                          </a>
                         </div>
+                      </t>
+    
+                      <!-- Vendida -->
+                      <t t-elif="machine.state == 'sold' and machine.reserved_by.id == user.partner_id.id">
+                        <div class="alert alert-success">
+                          <i class="fa fa-check-circle mr-2"></i> ¡Compra completada! La máquina es tuya.
+                        </div>
+                      </t>
+    
+                      <!-- No disponible -->
+                      <t t-elif="machine.state != 'available'">
+                        <div class="alert alert-secondary">
+                          <i class="fa fa-info-circle mr-2"></i> Esta máquina no está disponible actualmente.
+                        </div>
+                      </t>
                     </div>
+                  </div>
                 </div>
-            </div>
+    
+                <!-- Pestañas -->
+                <ul class="nav nav-tabs mt-4" id="machineDetailTab" role="tablist">
+                  <li class="nav-item">
+                    <a class="nav-link active" id="checklist-tab"
+                       data-bs-toggle="tab" href="#checklist" role="tab"
+                       aria-controls="checklist" aria-selected="true">
+                       Estado de la Máquina
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" id="accessories-tab"
+                       data-bs-toggle="tab" href="#accessories" role="tab"
+                       aria-controls="accessories" aria-selected="false">
+                       Accesorios Incluidos
+                    </a>
+                  </li>
+                </ul>
+    
+                <!-- Contenidos de pestañas -->
+                <div class="tab-content p-3 border border-top-0 rounded-bottom" id="machineDetailTabContent">
+                  <!-- Checklist -->
+                  <div class="tab-pane fade show active" id="checklist" role="tabpanel" aria-labelledby="checklist-tab">
+                    <h4 class="mb-3">Estado de los componentes</h4>
+                    <div class="table-responsive">
+                      <table class="table table-striped">
+                        <thead>
+                          <tr><th>Componente</th><th>Estado</th><th>Observaciones</th></tr>
+                        </thead>
+                        <tbody>
+                          <t t-foreach="machine.checklist_ids" t-as="check">
+                            <tr>
+                              <td><t t-esc="check.name"/></td>
+                              <td>
+                                <span t-att-class="'badge ' + (
+                                      check.state == 'good'      and 'badge-success' or
+                                      check.state == 'regular'   and 'badge-warning' or
+                                      check.state == 'poor'      and 'badge-danger'  or
+                                      check.state == 'replaced'  and 'badge-info'    or
+                                      'badge-secondary')">
+                                  <t t-esc="dict(check._fields['state'].selection).get(check.state)"/>
+                                </span>
+                              </td>
+                              <td><t t-esc="check.notes or '-'"/></td>
+                            </tr>
+                          </t>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+    
+                  <!-- Accesorios -->
+                  <div class="tab-pane fade" id="accessories" role="tabpanel" aria-labelledby="accessories-tab">
+                    <h4 class="mb-3">Accesorios incluidos con esta máquina</h4>
+                    <div class="row">
+                      <t t-if="not machine.accesorios_ids">
+                        <div class="col-12">
+                          <div class="alert alert-info">
+                            Esta máquina no incluye accesorios adicionales.
+                          </div>
+                        </div>
+                      </t>
+                      <t t-foreach="machine.accesorios_ids" t-as="accesorio">
+                        <div class="col-md-4 mb-3">
+                          <div class="card h-100">
+                            <div class="card-body">
+                              <h5 class="card-title"><t t-esc="accesorio.name"/></h5>
+                            </div>
+                          </div>
+                        </div>
+                      </t>
+                    </div>
+                  </div>
+                </div> <!-- /tab-content -->
+              </div> <!-- /card-body -->
+            </div> <!-- /card -->
+          </div> <!-- /container -->
         </t>
-    </template>
+      </template>
     
     <!-- Plantilla para subir comprobante de pago -->
     <template id="payment_upload" name="Subir Comprobante de Pago">
