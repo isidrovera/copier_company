@@ -20,7 +20,7 @@ class WebsiteStock(http.Controller):
             domain.append(('tipo', '=', kwargs.get('tipo')))
             
         # Obtener todas las marcas para el filtro
-        marcas = request.env['marca.maquina'].sudo().search([])
+        marcas = request.env['marcas.maquinas'].sudo().search([])
         
         # Obtener máquinas según filtros
         machines = request.env['copier.stock'].sudo().search(domain)
