@@ -1,170 +1,214 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- Plantilla para listado de máquinas -->
-    <template id="copier_list" name="Listado de Fotocopiadoras">
-  <t t-call="website.layout">
-    <div class="container mt-4">
-      <h1 class="mb-4">Stock de Fotocopiadoras</h1>
-
-      <!-- Filtros -->
-      <div class="card mb-4">
-        <div class="card-header bg-light">
-          <h5 class="mb-0">Filtros</h5>
+  <!-- Plantilla mejorada para listado de máquinas -->
+<template id="copier_list" name="Listado de Fotocopiadoras">
+    <t t-call="website.layout">
+      <div class="container mt-4">
+        <h1 class="mb-4">
+          <i class="fa fa-print text-primary mr-2"></i>Stock de Fotocopiadoras
+        </h1>
+  
+        <!-- Filtros -->
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">
+              <i class="fa fa-filter text-muted mr-2"></i>Filtros
+            </h5>
+          </div>
+          <div class="card-body">
+            <form action="/stock-maquinas" method="get" class="row">
+              <div class="col-md-4 col-sm-6 mb-3">
+                <label for="marca">
+                  <i class="fa fa-tag mr-1"></i>Marca:
+                </label>
+                <select id="marca" name="marca" class="form-control">
+                  <option value="">Todas las marcas</option>
+                  <t t-foreach="marcas" t-as="marca">
+                    <option t-att-value="marca.id"
+                            t-att-selected="marca.id == (selected_marca or 0)">
+                      <t t-esc="marca.name"/>
+                    </option>
+                  </t>
+                </select>
+              </div>
+              <div class="col-md-4 col-sm-6 mb-3">
+                <label for="tipo">
+                  <i class="fa fa-cog mr-1"></i>Tipo:
+                </label>
+                <select id="tipo" name="tipo" class="form-control">
+                  <option value="">Todos los tipos</option>
+                  <option value="monocroma" t-att-selected="selected_tipo == 'monocroma'">Monocroma</option>
+                  <option value="color" t-att-selected="selected_tipo == 'color'">Color</option>
+                </select>
+              </div>
+              <div class="col-md-4 col-sm-12 mb-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fa fa-search mr-1"></i>Filtrar
+                </button>
+                <a href="/stock-maquinas" class="btn btn-outline-secondary ml-2">
+                  <i class="fa fa-times mr-1"></i>Limpiar
+                </a>
+              </div>
+            </form>
+          </div>
         </div>
-        <div class="card-body">
-          <form action="/stock-maquinas" method="get" class="row">
-            <div class="col-md-4 mb-3">
-              <label for="marca">Marca:</label>
-              <select id="marca" name="marca" class="form-control">
-                <option value="">Todas las marcas</option>
-                <t t-foreach="marcas" t-as="marca">
-                  <option t-att-value="marca.id"
-                          t-att-selected="marca.id == (selected_marca or 0)">
-                    <t t-esc="marca.name"/>
-                  </option>
-                </t>
-              </select>
-            </div>
-            <div class="col-md-4 mb-3">
-              <label for="tipo">Tipo:</label>
-              <select id="tipo" name="tipo" class="form-control">
-                <option value="">Todos los tipos</option>
-                <option value="monocroma" t-att-selected="selected_tipo == 'monocroma'">Monocroma</option>
-                <option value="color"     t-att-selected="selected_tipo == 'color'">Color</option>
-              </select>
-            </div>
-            <div class="col-md-4 mb-3 d-flex align-items-end">
-              <button type="submit" class="btn btn-primary">Filtrar</button>
-              <a href="/stock-maquinas" class="btn btn-outline-secondary ml-2">Limpiar</a>
-            </div>
-          </form>
+  
+        <!-- Botones de toggle con iconos -->
+        <div class="btn-group mb-3" role="group" aria-label="Vista">
+          <button id="btn-list-view" type="button" class="btn btn-outline-primary active">
+            <i class="fa fa-list mr-1"></i><span class="d-none d-sm-inline">Lista</span>
+          </button>
+          <button id="btn-kanban-view" type="button" class="btn btn-outline-primary">
+            <i class="fa fa-th-large mr-1"></i><span class="d-none d-sm-inline">Tarjetas</span>
+          </button>
         </div>
-      </div>
-
-      <!-- Botones de toggle -->
-      <div class="btn-group mb-3" role="group" aria-label="Vista">
-        <button id="btn-list-view"   type="button" class="btn btn-outline-primary active">Lista</button>
-        <button id="btn-kanban-view" type="button" class="btn btn-outline-primary">Tarjetas</button>
-      </div>
-
-      <!-- Vista Lista -->
-      <div id="list-view" class="table-responsive">
-        <table class="table table-striped table-hover">
-          <thead class="thead-light">
-            <tr>
-              <th>Imagen</th>
-              <th>Referencia</th>
-              <th>Marca / Modelo</th>
-              <th>Tipo</th>
-              <th>Contómetro</th>
-              <th>Precio</th>
-              <th>Acción</th>
-            </tr>
-          </thead>
-          <tbody>
-            <t t-if="not machines">
+  
+        <!-- Vista Lista -->
+        <div id="list-view" class="table-responsive">
+          <table class="table table-striped table-hover">
+            <thead class="thead-light">
               <tr>
-                <td colspan="7" class="text-center py-4">
-                  <div class="alert alert-info mb-0">
-                    No hay máquinas disponibles con los filtros seleccionados.
-                  </div>
-                </td>
+                <th>Imagen</th>
+                <th>Referencia</th>
+                <th>Marca / Modelo</th>
+                <th class="d-none d-md-table-cell">Tipo</th>
+                <th class="d-none d-md-table-cell">Contómetro</th>
+                <th>Precio</th>
+                <th>Acción</th>
               </tr>
-            </t>
-            <t t-foreach="machines" t-as="machine">
-              <tr>
-                <td>
-                  <img class="img-thumbnail" style="max-width:80px"
-                       t-att-src="'data:image/png;base64,%s' % (machine.image or machine.modelo_id.imagen)"
-                       alt="Imagen"/>
-                </td>
-                <td><t t-esc="machine.name"/></td>
-                <td>
-                  <t t-esc="machine.marca_id.name"/> /
-                  <t t-esc="machine.modelo_id.name"/>
-                </td>
-                <td><t t-esc="machine.tipo.title()"/></td>
-                <td>
-                  <t t-if="machine.tipo == 'monocroma'">
-                    <t t-esc="machine.contometro_bn"/> B/N
-                  </t>
-                  <t t-else="">
-                    <t t-esc="machine.contometro_bn"/> B/N /
-                    <t t-esc="machine.contometro_color"/> Color
-                  </t>
-                </td>
-                <td>
-                  <t t-esc="machine.sale_price"/> €
-                </td>
-                <td>
-                    <!-- Detalles sigue como enlace GET -->
-                    <a t-att-href="'/stock-maquinas/%s' % machine.id"
-                       class="btn btn-sm btn-outline-secondary">
-                       Detalles
-                    </a>
-                  
-                    <!-- Reservar: formulario que envía POST -->
-                    <t t-if="machine.state == 'available'">
-                      <form t-att-action="'/stock-maquinas/%s/reserve' % machine.id"
-                            method="post" style="display:inline;">
-                        <!-- token CSRF obligatorio -->
-                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                        <button type="submit" class="btn btn-sm btn-primary ml-1">
-                          Reservar
-                        </button>
-                      </form>
+            </thead>
+            <tbody>
+              <t t-if="not machines">
+                <tr>
+                  <td colspan="7" class="text-center py-4">
+                    <div class="alert alert-info mb-0">
+                      <i class="fa fa-info-circle mr-2"></i>No hay máquinas disponibles con los filtros seleccionados.
+                    </div>
+                  </td>
+                </tr>
+              </t>
+              <t t-foreach="machines" t-as="machine">
+                <tr>
+                  <td>
+                    <img class="img-thumbnail" style="max-width:80px; max-height:60px; object-fit:contain;"
+                         t-att-src="'data:image/png;base64,%s' % (machine.image or machine.modelo_id.imagen)"
+                         alt="Imagen"/>
+                  </td>
+                  <td><t t-esc="machine.name"/></td>
+                  <td>
+                    <t t-esc="machine.marca_id.name"/> /
+                    <t t-esc="machine.modelo_id.name"/>
+                  </td>
+                  <td class="d-none d-md-table-cell">
+                    <span t-if="machine.tipo == 'monocroma'" class="badge badge-secondary">
+                      <i class="fa fa-adjust mr-1"></i>Monocroma
+                    </span>
+                    <span t-else="" class="badge badge-info">
+                      <i class="fa fa-palette mr-1"></i>Color
+                    </span>
+                  </td>
+                  <td class="d-none d-md-table-cell">
+                    <t t-if="machine.tipo == 'monocroma'">
+                      <i class="fa fa-print text-secondary mr-1"></i><t t-esc="machine.contometro_bn"/> B/N
+                    </t>
+                    <t t-else="">
+                      <i class="fa fa-print text-secondary mr-1"></i><t t-esc="machine.contometro_bn"/> B/N /
+                      <i class="fa fa-print text-primary mr-1"></i><t t-esc="machine.contometro_color"/> Color
                     </t>
                   </td>
-                  
-              </tr>
-            </t>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Vista Kanban -->
-      <div id="kanban-view" class="row" style="display:none">
-        <t t-if="not machines">
-          <div class="col-12">
-            <div class="alert alert-info text-center">
-              No hay máquinas disponibles con los filtros seleccionados.
+                  <td>
+                    <span class="badge badge-success">
+                      <i class="fa fa-tag mr-1"></i><t t-esc="machine.sale_price"/> €
+                    </span>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <!-- Detalles sigue como enlace GET -->
+                      <a t-att-href="'/stock-maquinas/%s' % machine.id"
+                         class="btn btn-outline-secondary">
+                         <i class="fa fa-eye"></i>
+                         <span class="d-none d-lg-inline ml-1">Detalles</span>
+                      </a>
+                    
+                      <!-- Reservar: formulario que envía POST -->
+                      <t t-if="machine.state == 'available'">
+                        <form t-att-action="'/stock-maquinas/%s/reserve' % machine.id"
+                              method="post" style="display:inline;">
+                          <!-- token CSRF obligatorio -->
+                          <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                          <button type="submit" class="btn btn-primary ml-1">
+                            <i class="fa fa-calendar-check"></i>
+                            <span class="d-none d-lg-inline ml-1">Reservar</span>
+                          </button>
+                        </form>
+                      </t>
+                    </div>
+                  </td>
+                </tr>
+              </t>
+            </tbody>
+          </table>
+        </div>
+  
+        <!-- Vista Kanban -->
+        <div id="kanban-view" class="row" style="display:none">
+          <t t-if="not machines">
+            <div class="col-12">
+              <div class="alert alert-info text-center">
+                <i class="fa fa-info-circle mr-2"></i>No hay máquinas disponibles con los filtros seleccionados.
+              </div>
             </div>
-          </div>
-        </t>
-        <t t-foreach="machines" t-as="machine">
-          <div class="col-md-4 mb-4">
-            <div class="card h-100">
-              <img class="card-img-top"
-                   t-att-src="'data:image/png;base64,%s' % (machine.image or machine.modelo_id.imagen)"
-                   alt="Imagen"/>
-              <div class="card-body d-flex flex-column">
-                <h5 class="card-title"><t t-esc="machine.name"/></h5>
-                <p class="card-text mb-1">
-                  <strong>Marca/Modelo:</strong>
-                  <t t-esc="machine.marca_id.name"/> /
-                  <t t-esc="machine.modelo_id.name"/>
-                </p>
-                <p class="card-text mb-1">
-                  <strong>Tipo:</strong> <t t-esc="machine.tipo.title()"/>
-                </p>
-                <p class="card-text mb-1">
-                  <strong>Contómetro:</strong>
-                  <t t-if="machine.tipo=='monocroma'">
-                    <t t-esc="machine.contometro_bn"/> B/N
-                  </t>
-                  <t t-else="">
-                    <t t-esc="machine.contometro_bn"/> B/N /
-                    <t t-esc="machine.contometro_color"/> Color
-                  </t>
-                </p>
-                <p class="card-text mb-3">
-                  <strong>Precio:</strong> <t t-esc="machine.sale_price"/> €
-                </p>
-                <div class="mt-auto">
+          </t>
+          <t t-foreach="machines" t-as="machine">
+            <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+              <div class="card h-100 shadow-sm hover-shadow transition">
+                <div class="position-relative">
+                  <img class="card-img-top p-3" style="height: 200px; object-fit: contain;"
+                       t-att-src="'data:image/png;base64,%s' % (machine.image or machine.modelo_id.imagen)"
+                       alt="Imagen"/>
+                  <div class="position-absolute" style="top: 10px; right: 10px;">
+                    <span t-if="machine.tipo == 'monocroma'" class="badge badge-secondary">
+                      <i class="fa fa-adjust mr-1"></i>Monocroma
+                    </span>
+                    <span t-else="" class="badge badge-info">
+                      <i class="fa fa-palette mr-1"></i>Color
+                    </span>
+                  </div>
+                </div>
+                <div class="card-body d-flex flex-column">
+                  <h5 class="card-title">
+                    <i class="fa fa-barcode text-muted mr-2"></i><t t-esc="machine.name"/>
+                  </h5>
+                  <p class="card-text mb-1">
+                    <i class="fa fa-tag text-muted mr-1"></i>
+                    <strong>Marca/Modelo:</strong>
+                    <t t-esc="machine.marca_id.name"/> /
+                    <t t-esc="machine.modelo_id.name"/>
+                  </p>
+                  <p class="card-text mb-1">
+                    <i class="fa fa-print text-muted mr-1"></i>
+                    <strong>Contómetro:</strong>
+                    <t t-if="machine.tipo=='monocroma'">
+                      <t t-esc="machine.contometro_bn"/> B/N
+                    </t>
+                    <t t-else="">
+                      <t t-esc="machine.contometro_bn"/> B/N /
+                      <t t-esc="machine.contometro_color"/> Color
+                    </t>
+                  </p>
+                  <p class="card-text mb-3">
+                    <i class="fa fa-euro-sign text-success mr-1"></i>
+                    <strong>Precio:</strong>
+                    <span class="badge badge-success p-2">
+                      <t t-esc="machine.sale_price"/> €
+                    </span>
+                  </p>
+                  <div class="mt-auto">
                     <!-- Enlace GET para detalles -->
                     <a t-att-href="'/stock-maquinas/%s' % machine.id"
-                       class="btn btn-sm btn-outline-secondary btn-block mb-1">
-                       Detalles
+                       class="btn btn-outline-secondary btn-block mb-2">
+                       <i class="fa fa-eye mr-1"></i>Detalles
                     </a>
                   
                     <!-- Formulario POST para reservar -->
@@ -172,37 +216,67 @@
                       <form t-att-action="'/stock-maquinas/%s/reserve' % machine.id"
                             method="post" class="d-block">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                        <button type="submit" class="btn btn-sm btn-primary btn-block">
-                          Reservar
+                        <button type="submit" class="btn btn-primary btn-block">
+                          <i class="fa fa-calendar-check mr-1"></i>Reservar
                         </button>
                       </form>
                     </t>
                   </div>
-                  
+                </div>
+                <div class="card-footer bg-white">
+                  <small class="text-muted">
+                    <i class="fa fa-info-circle mr-1"></i>ID: <t t-esc="machine.id"/>
+                  </small>
+                </div>
               </div>
             </div>
-          </div>
-        </t>
+          </t>
+        </div>
       </div>
-    </div>
-
-    <!-- Script para alternar vistas -->
-    <script>
-      document.getElementById('btn-list-view').addEventListener('click', function() {
-        this.classList.add('active');
-        document.getElementById('btn-kanban-view').classList.remove('active');
-        document.getElementById('list-view').style.display = '';
-        document.getElementById('kanban-view').style.display = 'none';
-      });
-      document.getElementById('btn-kanban-view').addEventListener('click', function() {
-        this.classList.add('active');
-        document.getElementById('btn-list-view').classList.remove('active');
-        document.getElementById('kanban-view').style.display = '';
-        document.getElementById('list-view').style.display = 'none';
-      });
-    </script>
-  </t>
-</template>
+  
+      <!-- CSS Personalizado -->
+      <style>
+        .hover-shadow:hover {
+          box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        }
+        .transition {
+          transition: all 0.3s ease;
+        }
+        @media (max-width: 767px) {
+          .btn-group-sm .btn {
+            padding: 0.25rem 0.5rem;
+          }
+        }
+      </style>
+  
+      <!-- Script para alternar vistas -->
+      <script>
+        document.getElementById('btn-list-view').addEventListener('click', function() {
+          this.classList.add('active');
+          document.getElementById('btn-kanban-view').classList.remove('active');
+          document.getElementById('list-view').style.display = '';
+          document.getElementById('kanban-view').style.display = 'none';
+          localStorage.setItem('preferredView', 'list');
+        });
+        
+        document.getElementById('btn-kanban-view').addEventListener('click', function() {
+          this.classList.add('active');
+          document.getElementById('btn-list-view').classList.remove('active');
+          document.getElementById('kanban-view').style.display = '';
+          document.getElementById('list-view').style.display = 'none';
+          localStorage.setItem('preferredView', 'kanban');
+        });
+        
+        // Restaurar la vista preferida del usuario
+        document.addEventListener('DOMContentLoaded', function() {
+          var preferredView = localStorage.getItem('preferredView');
+          if (preferredView === 'kanban') {
+            document.getElementById('btn-kanban-view').click();
+          }
+        });
+      </script>
+    </t>
+  </template>
 
     
     <!-- Plantilla para "Mis Máquinas" -->
