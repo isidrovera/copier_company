@@ -50,10 +50,10 @@
           </notebook>
           <footer>
             <!-- Solo visible en state = available -->
-            <button name="action_reserve" type="object" string="Reservar" states="available"/>
+            <button name="action_reserve" type="object" string="Reservar" invisible="state != 'available'"/>
             <!-- Solo visible en state = reserved -->
-            <button name="action_confirm_sale" type="object" string="Confirmar Venta" states="reserved"/>
-            <button name="action_cancel_reservation" type="object" string="Cancelar Reserva" states="reserved"/>
+            <button name="action_confirm_sale" type="object" string="Confirmar Venta" invisible="state != 'reserved'"/>
+            <button name="action_cancel_reservation" type="object" string="Cancelar Reserva" invisible="state != 'reserved'"/>
             <button string="Cerrar" class="btn-secondary" special="cancel"/>
           </footer>
         </sheet>
