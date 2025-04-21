@@ -10,13 +10,13 @@ class WebsiteStock(http.Controller):
         machines = request.env['copier.stock'].sudo().search([
             ('state', '=', 'available')
         ])
-        return request.render('website_stock.copier_list', {
+        return request.render('copier_company.copier_list', {
             'machines': machines,
         })
 
     @http.route(['/stock-maquinas/<model("copier.stock"):machine>'], type='http', auth='user', website=True)
     def detail_stock(self, machine, **kwargs):
-        return request.render('website_stock.copier_detail', {
+        return request.render('copier_company.copier_detail', {
             'machine': machine,
         })
 
