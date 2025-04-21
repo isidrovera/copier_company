@@ -1,30 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     
-        <template id="copier_list" name="Listado de Fotocopiadoras">
-          <t t-call="website.layout">
-            <div class="container mt-4">
-              <h1>Stock de Fotocopiadoras</h1>
-              <div class="row">
-                <t t-foreach="machines" t-as="machine">
-                  <div class="col-4 mb-4">
-                    <div class="card">
-                      <img t-att-src="'data:image/png;base64,%s' % (machine.modelo_id.imagen or '')"
-                           class="card-img-top" alt="Imagen"/>
-                      <div class="card-body">
-                        <h5 class="card-title"><t t-esc="machine.name"/></h5>
-                        <p><strong>Modelo:</strong> <t t-esc="machine.modelo_id.name"/></p>
-                        <p><strong>Serie:</strong> <t t-esc="machine.serie"/></p>
-                        <p><strong>Estado:</strong> <t t-esc="machine.state"/></p>
-                        <a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-primary">Ver detalle</a>
+    <template id="copier_stock" name="Stock de Fotocopiadoras">
+        <t t-call="website.layout">
+          <div class="container mt-4">
+            <h1 class="mb-4">Stock de Fotocopiadoras</h1>
+            <!-- Botones de toggle -->
+            <div class="btn-group mb-3" role="group" aria-label="Vista">
+              <button id="btn-list-view" type="button" class="btn btn-outline-primary active">Lista</button>
+              <button id="btn-kanban-view" type="button" class="btn btn-outline-primary">Kanban</button>
+            </div>
+            <!-- Vista Lista -->
+            <div id="list-view" class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead class="thead-light">
+                  <tr>
+                    <th>Imagen</th>
+                    <th>Nombre</th>
+                    <th>Modelo</th>
+                    <th>Serie</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <t t-foreach="machines" t-as="machine">
+                    <tr>
+                      <td>
+                        <img t-att-src="'data:image/png;base64,%s' % (machine.modelo_id.imagen or '')"
+                             class="img-thumbnail" style="max-width: 80px;" alt="Imagen"/>
+                      </td>
+                      <td><t t-esc="machine.name"/></td>
+                      <td><t t-esc="machine.modelo_id.name"/></td>
+                      <td><t t-esc="machine.serie"/></td>
+                      <td>
+                        <span t-att-class="'badge ' + (machine.state == 'available' and 'badge-success' or 'badge-secondary')">
+                          <t t-esc="machine.state.capitalize()"/>
+                        </span>
+                      </td>
+                      <td>
+                        <a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-sm btn-primary">
+                          Ver detalle
+                        </a>
+                      </td>
+                    </tr>
+                  </t>
+                </tbody>
+              </table>
+            </div>
+            <!-- Vista Kanban -->
+            <div id="kanban-view" class="row d-none">
+              <t t-foreach="machines" t-as="machine">
+                <div class="col-md-4 mb-4">
+                  <div class="card h-100 shadow-sm">
+                    <img t-att-src="'data:image/png;base64,%s' % (machine.modelo_id.imagen or '')"
+                         class="card-img-top" style="object-fit: cover; height: 200px;" alt="Imagen"/>
+                    <div class="card-body d-flex flex-column">
+                      <h5 class="card-title"><t t-esc="machine.name"/></h5>
+                      <p class="mb-1"><strong>Modelo:</strong> <t t-esc="machine.modelo_id.name"/></p>
+                      <p class="mb-1"><strong>Serie:</strong> <t t-esc="machine.serie"/></p>
+                      <div class="mt-auto">
+                        <span t-att-class="'badge ' + (machine.state == 'available' and 'badge-success' or 'badge-secondary')">
+                          <t t-esc="machine.state.capitalize()"/>
+                        </span>
+                        <a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-sm btn-outline-primary float-right">
+                          Ver detalle
+                        </a>
                       </div>
                     </div>
                   </div>
-                </t>
-              </div>
+                </div>
+              </t>
             </div>
-          </t>
-        </template>
+          </div>
+          <!-- Script para toggle entre vistas -->
+          <script>
+            document.addEventListener('DOMContentLoaded', function() {
+              var btnList = document.getElementById('btn-list-view');
+              var btnKanban = document.getElementById('btn-kanban-view');
+              var listView = document.getElementById('list-view');
+              var kanbanView = document.getElementById('kanban-view');
+              btnList.addEventListener('click', function() {
+                btnList.classList.add('active');
+                btnKanban.classList.remove('active');
+                listView.classList.remove('d-none');
+                kanbanView.classList.add('d-none');
+              });
+              btnKanban.addEventListener('click', function() {
+                btnKanban.classList.add('active');
+                btnList.classList.remove('active');
+                kanbanView.classList.remove('d-none');
+                listView.classList.add('d-none');
+              });
+            });
+          </script>
+        </t>
+      </template>
       
         <template id="copier_detail" name="Detalle de Fotocopiadora">
           <t t-call="website.layout">
