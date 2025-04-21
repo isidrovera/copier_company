@@ -44,7 +44,7 @@
                 <form t-att-action="'/stock-maquinas/%s/reserve' % machine.id" method="post" enctype="multipart/form-data">
                   <div class="form-group">
                     <label for="payment_proof">Comprobante de Pago:</label>
-                    <input type="file" name="payment_proof" class="form-control" required/>
+                    <input type="file" name="payment_proof" class="form-control" required="1"/>
                   </div>
                   <button type="submit" class="btn btn-success mt-2">Reservar y subir comprobante</button>
                 </form>
