@@ -1,64 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="copier_list" name="Listado de Fotocopiadoras" website="True">
-      <t t-call="website.layout">
-        <div class="container mt-4">
-          <h1>Stock de Fotocopiadoras</h1>
-          <div class="row">
-            <t t-foreach="machines" t-as="machine">
-              <div class="col-4 mb-4">
-                <div class="card">
-                  <img t-att-src="'data:image/png;base64,%s' % (machine.modelo_id.imagen or '')"
-                       class="card-img-top" alt="Imagen"/>
-                  <div class="card-body">
-                    <h5 class="card-title"><t t-esc="machine.name"/></h5>
-                    <p><strong>Modelo:</strong> <t t-esc="machine.modelo_id.name"/></p>
-                    <p><strong>Serie:</strong> <t t-esc="machine.serie"/></p>
-                    <p><strong>Estado:</strong> <t t-esc="machine.state"/></p>
-                    <a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-primary">Ver detalle</a>
+    <data>
+        <template id="copier_list" name="Listado de Fotocopiadoras" website="True">
+          <t t-call="website.layout">
+            <div class="container mt-4">
+              <h1>Stock de Fotocopiadoras</h1>
+              <div class="row">
+                <t t-foreach="machines" t-as="machine">
+                  <div class="col-4 mb-4">
+                    <div class="card">
+                      <img t-att-src="'data:image/png;base64,%s' % (machine.modelo_id.imagen or '')"
+                           class="card-img-top" alt="Imagen"/>
+                      <div class="card-body">
+                        <h5 class="card-title"><t t-esc="machine.name"/></h5>
+                        <p><strong>Modelo:</strong> <t t-esc="machine.modelo_id.name"/></p>
+                        <p><strong>Serie:</strong> <t t-esc="machine.serie"/></p>
+                        <p><strong>Estado:</strong> <t t-esc="machine.state"/></p>
+                        <a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-primary">Ver detalle</a>
+                      </div>
+                    </div>
                   </div>
+                </t>
+              </div>
+            </div>
+          </t>
+        </template>
+      
+        <template id="copier_detail" name="Detalle de Fotocopiadora" website="True">
+          <t t-call="website.layout">
+            <div class="container mt-4">
+              <h1>Fotocopiadora <t t-esc="machine.name"/></h1>
+              <div class="row">
+                <div class="col-6">
+                  <img t-att-src="'data:image/png;base64,%s' % (machine.modelo_id.imagen or '')"
+                       class="img-fluid" alt="Imagen"/>
+                  <ul class="list-group mt-3">
+                    <li class="list-group-item"><strong>Modelo:</strong> <t t-esc="machine.modelo_id.name"/></li>
+                    <li class="list-group-item"><strong>Serie:</strong> <t t-esc="machine.serie"/></li>
+                    <li class="list-group-item"><strong>Color (contómetro):</strong> <t t-esc="machine.contometro_color"/></li>
+                    <li class="list-group-item"><strong>B/N (contómetro):</strong> <t t-esc="machine.contometro_bn"/></li>
+                  </ul>
+                </div>
+                <div class="col-6">
+                  <t t-if="machine.state == 'available'">
+                    <form t-att-action="'/stock-maquinas/%s/reserve' % machine.id" method="post" enctype="multipart/form-data">
+                      <div class="form-group">
+                        <label for="payment_proof">Comprobante de Pago:</label>
+                        <input type="file" name="payment_proof" class="form-control" required="1"/>
+                      </div>
+                      <button type="submit" class="btn btn-success mt-2">Reservar y subir comprobante</button>
+                    </form>
+                  </t>
+                  <t t-elif="machine.state == 'reserved'">
+                    <p class="text-warning">Reservada por ti. Esperando confirmación de venta.</p>
+                  </t>
+                  <t t-else="">
+                    <p class="text-success">Vendida el <t t-esc="machine.sold_date"/></p>
+                  </t>
                 </div>
               </div>
-            </t>
-          </div>
-        </div>
-      </t>
-    </template>
-  
-    <template id="copier_detail" name="Detalle de Fotocopiadora" website="True">
-      <t t-call="website.layout">
-        <div class="container mt-4">
-          <h1>Fotocopiadora <t t-esc="machine.name"/></h1>
-          <div class="row">
-            <div class="col-6">
-              <img t-att-src="'data:image/png;base64,%s' % (machine.modelo_id.imagen or '')"
-                   class="img-fluid" alt="Imagen"/>
-              <ul class="list-group mt-3">
-                <li class="list-group-item"><strong>Modelo:</strong> <t t-esc="machine.modelo_id.name"/></li>
-                <li class="list-group-item"><strong>Serie:</strong> <t t-esc="machine.serie"/></li>
-                <li class="list-group-item"><strong>Color (contómetro):</strong> <t t-esc="machine.contometro_color"/></li>
-                <li class="list-group-item"><strong>B/N (contómetro):</strong> <t t-esc="machine.contometro_bn"/></li>
-              </ul>
             </div>
-            <div class="col-6">
-              <t t-if="machine.state == 'available'">
-                <form t-att-action="'/stock-maquinas/%s/reserve' % machine.id" method="post" enctype="multipart/form-data">
-                  <div class="form-group">
-                    <label for="payment_proof">Comprobante de Pago:</label>
-                    <input type="file" name="payment_proof" class="form-control" required="1"/>
-                  </div>
-                  <button type="submit" class="btn btn-success mt-2">Reservar y subir comprobante</button>
-                </form>
-              </t>
-              <t t-elif="machine.state == 'reserved'">
-                <p class="text-warning">Reservada por ti. Esperando confirmación de venta.</p>
-              </t>
-              <t t-else="">
-                <p class="text-success">Vendida el <t t-esc="machine.sold_date"/></p>
-              </t>
-            </div>
-          </div>
-        </div>
-      </t>
-    </template>
-  </odoo>
+          </t>
+        </template>
+    </data>
+</odoo>
