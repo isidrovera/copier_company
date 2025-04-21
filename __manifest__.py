@@ -63,7 +63,9 @@
         'views/detalles_usuarios.xml',
         'views/portal_templates.xml',
         'views/manuals.xml', 
-        'views/manuals_template.xml',       
+        'views/manuals_template.xml',
+        'views/copier_stock_views.xml',
+        'views/website_stock_templates.xml',      
         'static/src/xml/counter_charts_templates.xml',
         
         

@@ -34,5 +34,11 @@
             <field name="interval_type">days</field>            
             <field name="active" eval="True"/>
         </record>
+        <record id="seq_copier_stock" model="ir.sequence">
+            <field name="name">Stock de Máquinas</field>
+            <field name="code">copier.stock</field>
+            <field name="prefix">CS-</field>
+            <field name="padding">4</field>
+          </record>
     </data>
 </odoo>

@@ -6,3 +6,4 @@ from . import PcloudPublico
 from . import cotizaciones
 from . import portal
 from . import manuals
+from . import website_stock
