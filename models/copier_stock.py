@@ -316,6 +316,14 @@ class CopierChecklistLine(models.Model):
             # Los estados que requieren acción
             record.requires_action = record.state in ['not_reviewed', 'poor']
 
+class CopierStockImage(models.Model):
+    _name = 'copier.stock.image'
+    _description = 'Imágenes adicionales de la máquina'
+
+    machine_id = fields.Many2one('copier.stock', string='Máquina', ondelete='cascade')
+    image = fields.Binary(string='Imagen', attachment=True, required=True)
+    name = fields.Char(string='Descripción')
+
 
 class CopierStockStateUpdateWizard(models.TransientModel):
     _name = 'copier.stock.state.update.wizard'
