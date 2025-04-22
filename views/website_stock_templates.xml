@@ -94,9 +94,10 @@
                 <t t-if="machine.state != 'sold' or (machine.state == 'sold' and machine.reserved_by.id == user.partner_id.id)">
                   <tr t-att-class="machine.state == 'sold' and 'table-secondary' or ''">
                     <td>
-                      <img class="img-thumbnail" style="max-width:80px; max-height:60px; object-fit:contain;"
-                           t-att-src="'data:image/png;base64,%s' % (machine.image or machine.modelo_id.imagen)"
-                           alt="Imagen"/>
+                      <img t-else=""
+                        t-att-src="'data:image/png;base64,%s' % (machine.modelo_id.imagen.decode('utf-8'))"
+                        class="d-block w-100" style="height:400px;object-fit:contain;"
+                        alt="Imagen modelo"/>
                     </td>
                     <td><t t-esc="machine.name"/></td>
                     <td>
