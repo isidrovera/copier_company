@@ -152,10 +152,11 @@
                       <div class="btn-group btn-group-sm">
                         <!-- Detalles sigue como enlace GET -->
                         <a t-att-href="'/stock-maquinas/%s' % machine.id"
-                           class="btn btn-outline-secondary">
-                           <i class="fa fa-eye"></i>
-                           <span class="d-none d-lg-inline ml-1">Detalles</span>
+                          class="btn btn-dark">
+                          <i class="fa fa-eye"></i>
+                          <span class="d-none d-lg-inline ml-1">Detalles</span>
                         </a>
+
                       
                         <!-- Reservar: solo mostrar si está disponible -->
                         <t t-if="machine.state == 'available'">
