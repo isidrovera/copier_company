@@ -507,9 +507,9 @@
                             <div class="carousel-item active">
                               <div class="position-relative">
                                 <img t-if="machine.image"
-                                    t-att-src="'data:image/png;base64,%s' % machine.image"
-                                    class="d-block w-100" style="height:400px;object-fit:contain;"
-                                    alt="Imagen principal"/>
+                                  t-att-src="'data:image/png;base64,' + str(machine.image).replace(&#34;b'&#34;, &#34;&#34;).replace(&#34;'&#34;, &#34;&#34;)"
+                                  class="d-block w-100" style="height:400px;object-fit:contain;"
+                                  alt="Imagen principal"/>
                                 <img t-else=""
                                     t-att-src="'data:image/png;base64,%s' % machine.modelo_id.imagen"
                                     class="d-block w-100" style="height:400px;object-fit:contain;"
