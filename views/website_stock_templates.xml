@@ -446,11 +446,11 @@
                             <div class="carousel-item active">
                               <div class="position-relative">
                                 <img t-if="machine.image"
-                                    t-att-src="'data:image/png;base64,%s' % machine.image"
+                                    t-att-src="'data:image/png;base64,' + machine.image"
                                     class="d-block w-100" style="height:400px;object-fit:contain;"
                                     alt="Imagen principal"/>
                                 <img t-else=""
-                                    t-att-src="'data:image/png;base64,%s' % machine.modelo_id.imagen"
+                                    t-att-src="'data:image/png;base64,' + machine.modelo_id.imagen"
                                     class="d-block w-100" style="height:400px;object-fit:contain;"
                                     alt="Imagen modelo"/>
                                 <div class="position-absolute bottom-0 start-0 w-100 p-2 bg-dark bg-opacity-50 text-white">
@@ -462,7 +462,7 @@
                             <t t-foreach="machine.image_ids" t-as="img">
                               <div class="carousel-item">
                                 <div class="position-relative">
-                                  <img t-att-src="'data:image/png;base64,%s' % img.image"
+                                  <img t-att-src="'data:image/png;base64,' + img.image"
                                       class="d-block w-100" style="height:400px;object-fit:contain;"
                                       t-att-alt="img.name or ''"/>
                                   <div class="position-absolute bottom-0 start-0 w-100 p-2 bg-dark bg-opacity-50 text-white">
