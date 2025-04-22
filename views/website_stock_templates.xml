@@ -442,29 +442,59 @@
                       <div class="card-body p-0">
                         <div id="machineImages" class="carousel slide" data-bs-ride="carousel">
                           <div class="carousel-inner rounded">
-                            <!-- Imagen principal -->
-                            <div class="carousel-item active">
-                              <div class="position-relative">
-                                <img t-if="machine.image"
+                            <!-- Imagen principal / modelo / placeholder -->
+                            <t t-if="machine.image">
+                              <div class="carousel-item active">
+                                <div class="position-relative">
+                                  <img
                                     t-att-src="'data:image/png;base64,%s' % machine.image"
-                                    class="d-block w-100" style="height:400px;object-fit:contain;"
+                                    class="d-block w-100"
+                                    style="height:400px;object-fit:contain;"
                                     alt="Imagen principal"/>
-                                <img t-else=""
-                                    t-att-src="'data:image/png;base64,%s' % machine.modelo_id.imagen"
-                                    class="d-block w-100" style="height:400px;object-fit:contain;"
-                                    alt="Imagen modelo"/>
-                                <div class="position-absolute bottom-0 start-0 w-100 p-2 bg-dark bg-opacity-50 text-white">
-                                  <small><i class="fa fa-camera me-1"></i> Imagen principal</small>
+                                  <div class="position-absolute bottom-0 start-0 w-100 p-2 bg-dark bg-opacity-50 text-white">
+                                    <small><i class="fa fa-camera me-1"></i> Imagen principal</small>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
+                            </t>
+                            <t t-elif="machine.modelo_id and machine.modelo_id.imagen">
+                              <div class="carousel-item active">
+                                <div class="position-relative">
+                                  <img
+                                    t-att-src="'data:image/png;base64,%s' % machine.modelo_id.imagen"
+                                    class="d-block w-100"
+                                    style="height:400px;object-fit:contain;"
+                                    alt="Imagen modelo"/>
+                                  <div class="position-absolute bottom-0 start-0 w-100 p-2 bg-dark bg-opacity-50 text-white">
+                                    <small><i class="fa fa-camera me-1"></i> Imagen modelo</small>
+                                  </div>
+                                </div>
+                              </div>
+                            </t>
+                            <t t-else="">
+                              <div class="carousel-item active">
+                                <div class="position-relative">
+                                  <img
+                                    src="/copier_company/static/src/img/no_image.png"
+                                    class="d-block w-100"
+                                    style="height:400px;object-fit:contain;"
+                                    alt="Sin imagen"/>
+                                  <div class="position-absolute bottom-0 start-0 w-100 p-2 bg-dark bg-opacity-50 text-white">
+                                    <small><i class="fa fa-image me-1"></i> Sin imagen</small>
+                                  </div>
+                                </div>
+                              </div>
+                            </t>
+      
                             <!-- Imágenes adicionales -->
-                            <t t-foreach="machine.image_ids" t-as="img">
+                            <t t-foreach="machine.image_ids" t-as="img" t-index="idx">
                               <div class="carousel-item">
                                 <div class="position-relative">
-                                  <img t-att-src="'data:image/png;base64,%s' % img.image"
-                                      class="d-block w-100" style="height:400px;object-fit:contain;"
-                                      t-att-alt="img.name or ''"/>
+                                  <img
+                                    t-att-src="'data:image/png;base64,%s' % img.image"
+                                    class="d-block w-100"
+                                    style="height:400px;object-fit:contain;"
+                                    t-att-alt="img.name or 'Imagen adicional'"/>
                                   <div class="position-absolute bottom-0 start-0 w-100 p-2 bg-dark bg-opacity-50 text-white">
                                     <small><i class="fa fa-camera me-1"></i> <t t-esc="img.name or 'Imagen adicional'"/></small>
                                   </div>
@@ -472,24 +502,24 @@
                               </div>
                             </t>
                           </div>
-                          
-                          <!-- Indicadores -->
+      
+                          <!-- Indicadores y controles si hay imágenes adicionales -->
                           <t t-if="machine.image_ids">
                             <div class="carousel-indicators">
                               <button type="button" data-bs-target="#machineImages" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-                              <t t-foreach="machine.image_ids" t-as="img">
-                                <button type="button" data-bs-target="#machineImages" t-att-data-bs-slide-to="img_index + 1" t-att-aria-label="'Slide ' + str(img_index + 2)"></button>
+                              <t t-foreach="machine.image_ids" t-as="img" t-index="idx">
+                                <button
+                                  type="button"
+                                  data-bs-target="#machineImages"
+                                  t-att-data-bs-slide-to="idx + 1"
+                                  t-att-aria-label="'Slide ' + str(idx + 2)"></button>
                               </t>
                             </div>
-                            
-                            <!-- Controles -->
-                            <button class="carousel-control-prev" type="button"
-                                    data-bs-target="#machineImages" data-bs-slide="prev">
+                            <button class="carousel-control-prev" type="button" data-bs-target="#machineImages" data-bs-slide="prev">
                               <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                               <span class="visually-hidden">Anterior</span>
                             </button>
-                            <button class="carousel-control-next" type="button"
-                                    data-bs-target="#machineImages" data-bs-slide="next">
+                            <button class="carousel-control-next" type="button" data-bs-target="#machineImages" data-bs-slide="next">
                               <span class="carousel-control-next-icon" aria-hidden="true"></span>
                               <span class="visually-hidden">Siguiente</span>
                             </button>
@@ -533,36 +563,26 @@
                         <table class="table table-hover mb-0">
                           <tbody>
                             <tr>
-                              <th style="width:40%;">
-                                <i class="fa fa-hashtag text-primary me-2"></i> Referencia:
-                              </th>
+                              <th style="width:40%;"><i class="fa fa-hashtag text-primary me-2"></i> Referencia:</th>
                               <td class="fw-bold"><t t-esc="machine.name"/></td>
                             </tr>
                             <tr>
-                              <th>
-                                <i class="fa fa-barcode text-primary me-2"></i> N° de Serie:
-                              </th>
+                              <th><i class="fa fa-barcode text-primary me-2"></i> N° de Serie:</th>
                               <td><t t-esc="machine.serie"/></td>
                             </tr>
                             <tr>
-                              <th>
-                                <i class="fa fa-print text-primary me-2"></i> Contómetro B/N:
-                              </th>
+                              <th><i class="fa fa-print text-primary me-2"></i> Contómetro B/N:</th>
                               <td><span class="badge bg-light text-dark"><t t-esc="machine.contometro_bn"/> páginas</span></td>
                             </tr>
                             <t t-if="machine.tipo == 'color'">
                               <tr>
-                                <th>
-                                  <i class="fa fa-palette text-primary me-2"></i> Contómetro Color:
-                                </th>
+                                <th><i class="fa fa-palette text-primary me-2"></i> Contómetro Color:</th>
                                 <td><span class="badge bg-light text-dark"><t t-esc="machine.contometro_color"/> páginas</span></td>
                               </tr>
                             </t>
                             <t t-if="machine.sale_price">
                               <tr>
-                                <th>
-                                  <i class="fa fa-euro-sign text-primary me-2"></i> Precio:
-                                </th>
+                                <th><i class="fa fa-euro-sign text-primary me-2"></i> Precio:</th>
                                 <td>
                                   <div class="d-flex align-items-center">
                                     <span class="fs-4 fw-bold text-primary"><t t-esc="machine.sale_price"/> €</span>
@@ -580,7 +600,6 @@
       
                     <!-- Acciones -->
                     <div class="mt-4">
-                      <!-- Disponible: reservar -->
                       <t t-if="machine.state == 'available'">
                         <form t-att-action="'/stock-maquinas/%s/reserve' % machine.id" method="post">
                           <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
@@ -590,65 +609,45 @@
                         </form>
                         <div class="alert alert-info d-flex align-items-center" role="alert">
                           <i class="fa fa-info-circle me-2 fs-5"></i>
-                          <div>
-                            Disponibilidad inmediata. ¡Reserve ahora antes de que se agote!
-                          </div>
+                          <div>Disponibilidad inmediata. ¡Reserve ahora antes de que se agote!</div>
                         </div>
                       </t>
-      
-                      <!-- Reservada por el mismo usuario -->
                       <t t-elif="machine.state == 'reserved' and machine.reserved_by.id == user.partner_id.id">
                         <div class="alert alert-warning d-flex" role="alert">
-                          <div class="flex-shrink-0">
-                            <i class="fa fa-exclamation-circle fs-2 me-3"></i>
-                          </div>
+                          <div class="flex-shrink-0"><i class="fa fa-exclamation-circle fs-2 me-3"></i></div>
                           <div>
                             <h5 class="alert-heading">¡Máquina reservada!</h5>
                             <p>Esta máquina está reservada por ti. Para completar la compra, sube el comprobante de pago.</p>
-                            <a t-att-href="'/stock-maquinas/%s/payment' % machine.id"
-                               class="btn btn-primary mt-2">
+                            <a t-att-href="'/stock-maquinas/%s/payment' % machine.id" class="btn btn-primary mt-2">
                               <i class="fa fa-upload me-2"></i> Subir comprobante de pago
                             </a>
                           </div>
                         </div>
                       </t>
-      
-                      <!-- Pendiente de pago -->
                       <t t-elif="machine.state == 'pending_payment' and machine.reserved_by.id == user.partner_id.id">
                         <div class="alert alert-info d-flex" role="alert">
-                          <div class="flex-shrink-0">
-                            <i class="fa fa-clock fs-2 me-3"></i>
-                          </div>
+                          <div class="flex-shrink-0"><i class="fa fa-clock fs-2 me-3"></i></div>
                           <div>
                             <h5 class="alert-heading">¡Casi tuya!</h5>
                             <p>Estamos verificando tu pago. Si necesitas subir un nuevo comprobante, puedes hacerlo aquí.</p>
-                            <a t-att-href="'/stock-maquinas/%s/payment' % machine.id"
-                               class="btn btn-outline-primary mt-2">
+                            <a t-att-href="'/stock-maquinas/%s/payment' % machine.id" class="btn btn-outline-primary mt-2">
                               <i class="fa fa-file-upload me-2"></i> Subir nuevo comprobante
                             </a>
                           </div>
                         </div>
                       </t>
-      
-                      <!-- Vendida -->
                       <t t-elif="machine.state == 'sold' and machine.reserved_by.id == user.partner_id.id">
                         <div class="alert alert-success d-flex" role="alert">
-                          <div class="flex-shrink-0">
-                            <i class="fa fa-check-circle fs-2 me-3"></i>
-                          </div>
+                          <div class="flex-shrink-0"><i class="fa fa-check-circle fs-2 me-3"></i></div>
                           <div>
                             <h5 class="alert-heading">¡Compra completada!</h5>
                             <p>La fotocopiadora es tuya. Nuestro equipo se pondrá en contacto contigo para coordinar la entrega.</p>
                           </div>
                         </div>
                       </t>
-      
-                      <!-- No disponible -->
                       <t t-elif="machine.state != 'available'">
                         <div class="alert alert-secondary d-flex" role="alert">
-                          <div class="flex-shrink-0">
-                            <i class="fa fa-ban fs-2 me-3"></i>
-                          </div>
+                          <div class="flex-shrink-0"><i class="fa fa-ban fs-2 me-3"></i></div>
                           <div>
                             <h5 class="alert-heading">No disponible</h5>
                             <p>Esta máquina no está disponible actualmente. Revisa otras opciones en nuestro catálogo.</p>
@@ -668,29 +667,25 @@
                     <ul class="nav nav-tabs card-header-tabs" id="machineDetailTab" role="tablist">
                       <li class="nav-item">
                         <a class="nav-link active d-flex align-items-center" id="checklist-tab"
-                           data-bs-toggle="tab" href="#checklist" role="tab"
-                           aria-controls="checklist" aria-selected="true">
-                           <i class="fa fa-clipboard-check me-2"></i> Estado de la Máquina
+                           data-bs-toggle="tab" href="#checklist" role="tab" aria-controls="checklist" aria-selected="true">
+                          <i class="fa fa-clipboard-check me-2"></i> Estado de la Máquina
                         </a>
                       </li>
                       <li class="nav-item">
                         <a class="nav-link d-flex align-items-center" id="accessories-tab"
-                           data-bs-toggle="tab" href="#accessories" role="tab"
-                           aria-controls="accessories" aria-selected="false">
-                           <i class="fa fa-puzzle-piece me-2"></i> Accesorios Incluidos
+                           data-bs-toggle="tab" href="#accessories" role="tab" aria-controls="accessories" aria-selected="false">
+                          <i class="fa fa-puzzle-piece me-2"></i> Accesorios Incluidos
                         </a>
                       </li>
                       <li class="nav-item">
                         <a class="nav-link d-flex align-items-center" id="specs-tab"
-                           data-bs-toggle="tab" href="#specs" role="tab"
-                           aria-controls="specs" aria-selected="false">
-                           <i class="fa fa-cogs me-2"></i> Especificaciones
+                           data-bs-toggle="tab" href="#specs" role="tab" aria-controls="specs" aria-selected="false">
+                          <i class="fa fa-cogs me-2"></i> Especificaciones
                         </a>
                       </li>
                     </ul>
                   </div>
       
-                  <!-- Contenidos de pestañas -->
                   <div class="card-body">
                     <div class="tab-content" id="machineDetailTabContent">
                       <!-- Checklist -->
@@ -759,7 +754,7 @@
                           </t>
                         </div>
                       </div>
-                      
+      
                       <!-- Especificaciones -->
                       <div class="tab-pane fade" id="specs" role="tabpanel" aria-labelledby="specs-tab">
                         <h4 class="mb-3 d-flex align-items-center">
@@ -818,58 +813,55 @@
                           </div>
                         </div>
                       </div>
-                    </div> <!-- /tab-content -->
-                  </div> <!-- /card-body -->
-                </div> <!-- /card -->
-                
-                <!-- Call to action -->
-                <div class="alert alert-primary mt-4 d-md-flex justify-content-between align-items-center">
-                  <div>
-                    <h5 class="alert-heading"><i class="fa fa-headset me-2"></i> ¿Necesitas más información?</h5>
-                    <p class="mb-md-0">Nuestro equipo de atención al cliente está disponible para resolver tus dudas.</p>
+                    </div>
                   </div>
-                  <a href="/contacto" class="btn btn-primary">
-                    <i class="fa fa-envelope me-2"></i> Contactar ahora
-                  </a>
+      
+                  <!-- Call to action -->
+                  <div class="alert alert-primary mt-4 d-md-flex justify-content-between align-items-center">
+                    <div>
+                      <h5 class="alert-heading"><i class="fa fa-headset me-2"></i> ¿Necesitas más información?</h5>
+                      <p class="mb-md-0">Nuestro equipo de atención al cliente está disponible para resolver tus dudas.</p>
+                    </div>
+                    <a href="/contacto" class="btn btn-primary">
+                      <i class="fa fa-envelope me-2"></i> Contactar ahora
+                    </a>
+                  </div>
                 </div>
-                
-              </div> <!-- /card-body -->
-              
-              <!-- Footer con garantía -->
-              <div class="card-footer bg-light p-3">
-                <div class="d-flex align-items-center">
-                  <i class="fa fa-shield-alt text-success fs-4 me-2"></i>
-                  <div>
-                    <strong>Garantía de 6 meses</strong>
-                    <p class="mb-0 small">Todas nuestras máquinas incluyen garantía y soporte técnico.</p>
+      
+                <!-- Footer con garantía -->
+                <div class="card-footer bg-light p-3">
+                  <div class="d-flex align-items-center">
+                    <i class="fa fa-shield-alt text-success fs-4 me-2"></i>
+                    <div>
+                      <strong>Garantía de 6 meses</strong>
+                      <p class="mb-0 small">Todas nuestras máquinas incluyen garantía y soporte técnico.</p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div> <!-- /card -->
-          </div> <!-- /container -->
-          
-          <!-- CSS personalizado -->
-          <style>
-            .bg-gradient-primary {
-              background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
-            }
-            
-            .hover-shadow:hover {
-              transform: translateY(-3px);
-              box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
-              transition: all .3s ease;
-            }
-            
-            .carousel .carousel-item img {
-              transition: transform .5s ease;
-            }
-            
-            .carousel:hover .carousel-item img {
-              transform: scale(1.05);
-            }
-          </style>
+      
+              <!-- CSS personalizado -->
+              <style>
+                .bg-gradient-primary {
+                  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+                }
+                .hover-shadow:hover {
+                  transform: translateY(-3px);
+                  box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+                  transition: all .3s ease;
+                }
+                .carousel .carousel-item img {
+                  transition: transform .5s ease;
+                }
+                .carousel:hover .carousel-item img {
+                  transform: scale(1.05);
+                }
+              </style>
+            </div>
+          </div>
         </t>
       </template>
+      
     
     <!-- Plantilla para subir comprobante de pago -->
     <template id="payment_upload" name="Subir Comprobante de Pago">
