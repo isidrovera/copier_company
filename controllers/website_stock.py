@@ -50,6 +50,31 @@ class WebsiteStock(http.Controller):
         # Reservar la máquina
         machine.sudo().action_reserve()
         return request.redirect(f'/stock-maquinas/{machine.id}/payment')
+
+    @http.route(['/stock-maquinas/image/<int:machine_id>'], type='http', auth='user', website=True)
+    def get_machine_image(self, machine_id, **kwargs):
+        """Servir imágenes de máquinas"""
+        machine = request.env['copier.stock'].sudo().browse(machine_id)
+        if not machine.exists() or not machine.image:
+            return request.not_found()
+        
+        return http.request.make_response(
+            base64.b64decode(machine.image),
+            headers=[('Content-Type', 'image/png')]  # Ajusta el tipo de contenido según sea necesario
+        )
+
+    @http.route(['/stock-maquinas/payment-proof/<int:machine_id>'], type='http', auth='user', website=True)
+    def get_payment_proof(self, machine_id, **kwargs):
+        """Servir imágenes de comprobantes de pago"""
+        machine = request.env['copier.stock'].sudo().browse(machine_id)
+        # Verifica si el usuario está autorizado para ver este comprobante
+        if not machine.exists() or not machine.payment_proof:
+            return request.not_found()
+        
+        return http.request.make_response(
+            base64.b64decode(machine.payment_proof),
+            headers=[('Content-Type', 'application/octet-stream')]  # Tipo de contenido genérico para archivos
+        )
     
     @http.route(['/stock-maquinas/<model("copier.stock"):machine>/payment'], type='http', auth='user', website=True)
     def payment_page(self, machine, **kwargs):
