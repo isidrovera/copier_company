@@ -80,7 +80,7 @@
               </tr>
             </thead>
             <tbody>
-              <t t-if="not filtered_machines">
+              <t t-if="not machines">
                 <tr>
                   <td colspan="8" class="text-center py-4">
                     <div class="alert alert-info mb-0">
@@ -90,8 +90,8 @@
                 </tr>
               </t>
               <t t-foreach="machines" t-as="machine">
-                <!-- Solo mostrar si no está vendida o si está vendida y el usuario actual es el comprador -->
-                <t t-if="machine.state != 'sold' or (machine.state == 'sold' and machine.buyer_id == user.partner_id.id)">
+                <!-- Solo mostrar si no está vendida o si está vendida y el usuario actual es quien la reservó/compró -->
+                <t t-if="machine.state != 'sold' or (machine.state == 'sold' and machine.reserved_by.id == user.partner_id.id)">
                   <tr t-att-class="machine.state == 'sold' and 'table-secondary' or ''">
                     <td>
                       <img class="img-thumbnail" style="max-width:80px; max-height:60px; object-fit:contain;"
@@ -132,8 +132,17 @@
                       <span t-elif="machine.state == 'reserved'" class="badge badge-warning">
                         <i class="fa fa-clock mr-1"></i>Reservada
                       </span>
+                      <span t-elif="machine.state == 'pending_payment'" class="badge badge-warning">
+                        <i class="fa fa-money-bill mr-1"></i>Pago Pendiente
+                      </span>
                       <span t-elif="machine.state == 'sold'" class="badge badge-danger">
-                        <i class="fa fa-shopping-cart mr-1"></i>Comprada
+                        <i class="fa fa-shopping-cart mr-1"></i>Vendida
+                      </span>
+                      <span t-elif="machine.state == 'importing'" class="badge badge-info">
+                        <i class="fa fa-ship mr-1"></i>En Importación
+                      </span>
+                      <span t-elif="machine.state == 'unloading'" class="badge badge-info">
+                        <i class="fa fa-truck mr-1"></i>En Descarga
                       </span>
                       <span t-else="" class="badge badge-secondary">
                         <i class="fa fa-question-circle mr-1"></i><t t-esc="machine.state"/>
@@ -171,7 +180,7 @@
   
         <!-- Vista Kanban -->
         <div id="kanban-view" class="row" style="display:none">
-          <t t-if="not filtered_machines">
+          <t t-if="not machines">
             <div class="col-12">
               <div class="alert alert-info text-center">
                 <i class="fa fa-info-circle mr-2"></i>No hay máquinas disponibles con los filtros seleccionados.
@@ -179,8 +188,8 @@
             </div>
           </t>
           <t t-foreach="machines" t-as="machine">
-            <!-- Solo mostrar si no está vendida o si está vendida y el usuario actual es el comprador -->
-            <t t-if="machine.state != 'sold' or (machine.state == 'sold' and machine.buyer_id == user.partner_id.id)">
+            <!-- Solo mostrar si no está vendida o si está vendida y el usuario actual es quien la reservó/compró -->
+            <t t-if="machine.state != 'sold' or (machine.state == 'sold' and machine.reserved_by.id == user.partner_id.id)">
               <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
                 <div t-att-class="'card h-100 shadow-sm hover-shadow transition ' + (machine.state == 'sold' and 'bg-light' or '')">
                   <div class="position-relative">
@@ -203,8 +212,17 @@
                       <span t-elif="machine.state == 'reserved'" class="badge badge-warning">
                         <i class="fa fa-clock mr-1"></i>Reservada
                       </span>
+                      <span t-elif="machine.state == 'pending_payment'" class="badge badge-warning">
+                        <i class="fa fa-money-bill mr-1"></i>Pago Pendiente
+                      </span>
                       <span t-elif="machine.state == 'sold'" class="badge badge-danger">
-                        <i class="fa fa-shopping-cart mr-1"></i>Comprada
+                        <i class="fa fa-shopping-cart mr-1"></i>Vendida
+                      </span>
+                      <span t-elif="machine.state == 'importing'" class="badge badge-info">
+                        <i class="fa fa-ship mr-1"></i>En Importación
+                      </span>
+                      <span t-elif="machine.state == 'unloading'" class="badge badge-info">
+                        <i class="fa fa-truck mr-1"></i>En Descarga
                       </span>
                       <span t-else="" class="badge badge-secondary">
                         <i class="fa fa-question-circle mr-1"></i><t t-esc="machine.state"/>
@@ -257,9 +275,9 @@
                         </form>
                       </t>
                       <!-- Mensaje al comprador si es su máquina -->
-                      <t t-if="machine.state == 'sold' and machine.buyer_id == user.partner_id.id">
+                      <t t-if="machine.state == 'sold' and machine.reserved_by.id == user.partner_id.id">
                         <div class="alert alert-success mt-2 mb-0 p-2 text-center">
-                          <i class="fa fa-user-check mr-1"></i>Comprada por ti
+                          <i class="fa fa-user-check mr-1"></i>Adquirida por ti
                         </div>
                       </t>
                     </div>
