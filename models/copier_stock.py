@@ -14,7 +14,7 @@ class CopierChecklistItem(models.Model):
         ('function', 'Función'),
         ('appearance', 'Apariencia'),
     ], string='Tipo de Item', required=True)
-    # Añadir campo para especificar si el item aplica a máquinas color, monocromas o ambas
+    # Campo para especificar si el item aplica a máquinas color, monocromas o ambas
     applies_to = fields.Selection([
         ('all', 'Todas las máquinas'),
         ('color', 'Solo máquinas color'),
@@ -119,7 +119,8 @@ class CopierStock(models.Model):
             ])
         else:  # color
             checklist_items = self.env['copier.checklist.item'].search([
-                ('active', '=', True)
+                ('active', '=', True),
+                ('applies_to', 'in', ['all', 'color'])
             ])
         
         checklist_vals = []
@@ -167,11 +168,14 @@ class CopierStock(models.Model):
             rec.unloading_date = fields.Date.today()
 
     def action_move_to_available(self):
-        """Cambiar estado a 'Disponible'"""
+        """Cambiar estado a 'Disponible'. Ya no requiere checklist completo."""
         for rec in self:
-            # Verificar si el checklist está completo antes de mover a disponible
-            if rec.checklist_status != 'completed':
-                raise exceptions.UserError(_('No se puede marcar como disponible sin completar el checklist.'))
+            # Verificamos solo si la reparación está completa cuando es necesaria
+            if rec.reparacion == 'pending':
+                raise exceptions.UserError(_('La máquina tiene reparaciones pendientes.'))
+            elif rec.reparacion == 'in_progress':
+                raise exceptions.UserError(_('La máquina está en proceso de reparación.'))
+            
             rec.state = 'available'
 
     def action_reserve(self):
@@ -242,8 +246,7 @@ class CopierStock(models.Model):
         """Cambiar automáticamente el estado cuando se sube un comprobante de pago"""
         for rec in self:
             if rec.payment_proof and rec.state in ['reserved', 'pending_payment']:
-                rec.state = 'pending_payment'  # Cambiado a pendiente de pago en lugar de directamente a vendido
-                                              # para permitir verificación manual
+                rec.state = 'pending_payment'
                 
     # Método para actualizar estados en lote
     def action_mass_update_state(self):
@@ -268,15 +271,15 @@ class CopierStock(models.Model):
             ])
             if duplicates:
                 raise exceptions.ValidationError(_('Ya existe una máquina activa con el mismo número de serie.'))
-
-
-class CopierStockImage(models.Model):
-    _name = 'copier.stock.image'
-    _description = 'Imágenes adicionales de la máquina'
-
-    machine_id = fields.Many2one('copier.stock', string='Máquina', ondelete='cascade')
-    image = fields.Binary(string='Imagen', attachment=True, required=True)
-    name = fields.Char(string='Descripción')
+            
+    @api.onchange('tipo')
+    def _onchange_tipo(self):
+        """Al cambiar el tipo de máquina, recrear el checklist apropiado"""
+        if self.checklist_ids and self._origin.id:
+            # Eliminar checklist existente
+            self.checklist_ids.unlink()
+            # Crear nuevo checklist basado en el tipo
+            self._create_default_checklist()
 
 
 class CopierChecklistLine(models.Model):
