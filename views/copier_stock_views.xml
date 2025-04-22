@@ -273,12 +273,12 @@
     </record>
 
     <!-- Menús -->
-    <menuitem id="menu_copier_root"   name="Fotocopiadoras" parent="menu_copier_root" action="action_copier_stock" sequence="40"/>
+    
     <menuitem id="menu_copier_stock"  name="Stock"        parent="menu_copier_root" action="action_copier_stock"  sequence="10"/>
-    <menuitem id="menu_copier_config" name="Configuración" parent="menu_copier_root" sequence="100"/>
+    
     <menuitem id="menu_copier_checklist_item"
               name="Items de Checklist"
-              parent="menu_copier_config"
+              parent="menu_ajustes"
               action="action_copier_checklist_item"
-              sequence="10"/>
+              sequence="80"/>
 </odoo>
