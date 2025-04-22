@@ -206,9 +206,19 @@
               <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
                 <div t-att-class="'card h-100 shadow-sm hover-shadow transition ' + (machine.state == 'sold' and 'bg-light' or '')">
                   <div class="position-relative">
-                    <img class="card-img-top p-3" style="height: 200px; object-fit: contain;"
-                         t-att-src="'data:image/png;base64,%s' % (machine.image or machine.modelo_id.imagen)"
-                         alt="Imagen"/>
+                    <t t-if="machine.image">
+                      <img class="card-img-top p-3"
+                           style="height: 200px; object-fit: contain;"
+                           t-att-src="'data:image/png;base64,%s' % (machine.image.decode('utf-8'))"
+                           alt="Imagen principal"/>
+                    </t>
+                    <t t-else="">
+                      <img class="card-img-top p-3"
+                           style="height: 200px; object-fit: contain;"
+                           t-att-src="'data:image/png;base64,%s' % (machine.modelo_id.imagen.decode('utf-8'))"
+                           alt="Imagen modelo"/>
+                    </t>
+                    
                     <div class="position-absolute" style="top: 10px; right: 10px;">
                       <span t-if="machine.tipo == 'monocroma'" class="badge badge-secondary">
                         <i class="fa fa-adjust mr-1"></i>Monocroma
