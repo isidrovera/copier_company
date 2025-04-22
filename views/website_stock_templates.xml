@@ -93,21 +93,22 @@
                 <!-- Solo mostrar si no está vendida o si está vendida y el usuario actual es quien la reservó/compró -->
                 <t t-if="machine.state != 'sold' or (machine.state == 'sold' and machine.reserved_by.id == user.partner_id.id)">
                   <tr t-att-class="machine.state == 'sold' and 'table-secondary' or ''">
-                    <td>
-                      <t t-if="machine.modelo_id.imagen">
-                        <img class="img-thumbnail"
-                             style="max-width:80px; max-height:60px; object-fit:contain;"
-                             t-att-src="'data:image/png;base64,%s' % (machine.modelo_id.imagen.decode('utf-8'))"
-                             alt="Imagen modelo"/>
-                      </t>
-                      <!-- opcional: placeholder si no hay imagen -->
-                      <t t-elif="True">
-                        <img class="img-thumbnail bg-light"
-                             style="max-width:80px; max-height:60px; object-fit:contain;"
-                             src="/web/static/src/img/placeholder.png"
-                             alt="Sin imagen"/>
-                      </t>
-                    </td>
+                    <!-- == REEMPLAZA POR ESTO == -->
+                      <td>
+                        <t t-if="machine.image">
+                          <img class="img-thumbnail"
+                              style="max-width:80px; max-height:60px; object-fit:contain;"
+                              t-att-src="'data:image/png;base64,%s' % (machine.image.decode('utf-8'))"
+                              alt="Imagen principal"/>
+                        </t>
+                        <t t-else="">
+                          <img class="img-thumbnail"
+                              style="max-width:80px; max-height:60px; object-fit:contain;"
+                              t-att-src="'data:image/png;base64,%s' % (machine.modelo_id.imagen.decode('utf-8'))"
+                              alt="Imagen modelo"/>
+                        </t>
+                      </td>
+
                     
                     <td><t t-esc="machine.name"/></td>
                     <td>
