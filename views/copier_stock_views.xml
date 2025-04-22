@@ -187,34 +187,7 @@
         </field>
     </record>
 
-    <!-- Vista de Búsqueda para Stock de Copiadoras -->
-    <record id="view_copier_stock_search" model="ir.ui.view">
-        <field name="name">copier.stock.search</field>
-        <field name="model">copier.stock</field>
-        <field name="arch" type="xml">
-            <search>
-                <field name="name"/>
-                <field name="modelo_id"/>
-                <field name="marca_id"/>
-                <field name="serie"/>
-                <field name="reserved_by"/>
-                <filter string="Disponibles" domain="[('state','=','available')]"/>
-                <filter string="Reservadas" domain="[('state','=','reserved')]"/>
-                <filter string="Pendientes de Pago" domain="[('state','=','pending_payment')]"/>
-                <filter string="Vendidas" domain="[('state','=','sold')]"/>
-                <filter string="Monocromas" domain="[('tipo','=','monocroma')]"/>
-                <filter string="Color" domain="[('tipo','=','color')]"/>
-                <filter string="Archivadas" domain="[('active','=',False)]"/>
-                <group expand="0" string="Agrupar Por">
-                    <filter string="Marca" context="{'group_by':'marca_id'}"/>
-                    <filter string="Modelo" context="{'group_by':'modelo_id'}"/>
-                    <filter string="Estado" context="{'group_by':'state'}"/>
-                    <filter string="Tipo" context="{'group_by':'tipo'}"/>
-                    <filter string="Reservada por" context="{'group_by':'reserved_by'}"/>
-                </group>
-            </search>
-        </field>
-    </record>
+   
 
     <!-- Vista Kanban para Stock de Copiadoras -->
     <record id="view_copier_stock_kanban" model="ir.ui.view">
