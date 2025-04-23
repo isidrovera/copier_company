@@ -11,13 +11,13 @@
                           <i class="fa fa-print text-primary me-2"></i>Stock de Fotocopiadoras
                           <span class="badge bg-secondary rounded-pill ms-2" t-esc="len(machines)"></span>
                       </h2>
-                      <!-- Botones de vista -->
+                      <!-- Botones de vista - Iconos más grandes -->
                       <div class="btn-group btn-group-sm" role="group" aria-label="Vista">
                           <button id="btn-list-view" type="button" class="btn btn-outline-primary active">
-                              <i class="fa fa-list"></i><span class="d-none d-sm-inline ms-1">Lista</span>
+                              <i class="fa fa-list fa-lg"></i><span class="d-none d-sm-inline ms-1">Lista</span>
                           </button>
                           <button id="btn-kanban-view" type="button" class="btn btn-outline-primary">
-                              <i class="fa fa-th-large"></i><span class="d-none d-sm-inline ms-1">Tarjetas</span>
+                              <i class="fa fa-th-large fa-lg"></i><span class="d-none d-sm-inline ms-1">Tarjetas</span>
                           </button>
                       </div>
                   </div>
@@ -129,9 +129,10 @@
                                           <td class="align-middle"><t t-call="copier_company.machine_status_badge"/></td>
                                           <td class="align-middle">
                                               <div class="btn-group btn-group-sm">
-                                                  <a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-dark btn-sm"><i class="fa fa-eye"></i></a>
+                                                  <!-- Botón de detalle con icono más grande -->
+                                                  <a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-dark btn-sm"><i class="fa fa-eye fa-lg"></i></a>
                                                   <t t-if="machine.state=='available'">
-                                                      <button type="button" class="btn btn-primary btn-sm reserve-btn" t-att-data-machine-id="machine.id"><i class="fa fa-calendar-check"></i></button>
+                                                      <button type="button" class="btn btn-primary btn-sm reserve-btn" t-att-data-machine-id="machine.id"><i class="fa fa-calendar-check fa-lg"></i></button>
                                                   </t>
                                               </div>
                                           </td>
@@ -154,9 +155,12 @@
                               <div class="col-xl-3 col-lg-4 col-md-6">
                                   <div t-att-class="'card h-100 shadow-sm ' + (machine.state=='sold' and 'bg-light' or '')">
                                       <div class="position-relative">
-                                          <t t-if="machine.image">
-                                              <img class="card-img-top p-3" style="height:180px;object-fit:contain;" t-att-src="'/web/image?model=machine.copier&amp;id=%s&amp;field=image' % machine.id"/>
-                                          </t>
+                                        <t t-if="machine.image">
+                                          <img class="card-img-top p-3"
+                                               style="height: 200px; object-fit: contain;"
+                                               t-att-src="'data:image/png;base64,%s' % (machine.image.decode('utf-8'))"
+                                               alt="Imagen principal"/>
+                                        </t>
                                           <t t-else="">
                                               <img class="card-img-top p-3" style="height:180px;object-fit:contain;" t-att-src="'/web/image?model=machine.model&amp;id=%s&amp;field=imagen' % machine.modelo_id.id"/>
                                           </t>
@@ -169,8 +173,9 @@
                                           <p class="small mb-1"><strong>Contómetro:</strong> <t t-esc="machine.contometro_bn"/> B/N / <t t-esc="machine.contometro_color"/> Color</p>
                                           <p class="mb-3"><strong>Precio:</strong> <span class="badge bg-success"><t t-esc="machine.sale_price"/> $</span></p>
                                           <div class="mt-auto d-flex gap-2">
-                                              <a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-sm btn-dark flex-grow-1">Detalles</a>
-                                              <t t-if="machine.state=='available'"><button type="button" class="btn btn-sm btn-primary flex-grow-1 reserve-btn" t-att-data-machine-id="machine.id">Reservar</button></t>
+                                              <!-- Botones con iconos más grandes en la vista kanban -->
+                                              <a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-sm btn-dark flex-grow-1"><i class="fa fa-eye fa-lg me-1"></i>Detalles</a>
+                                              <t t-if="machine.state=='available'"><button type="button" class="btn btn-sm btn-primary flex-grow-1 reserve-btn" t-att-data-machine-id="machine.id"><i class="fa fa-calendar-check fa-lg me-1"></i>Reservar</button></t>
                                           </div>
                                           <t t-if="machine.state=='sold' and machine.reserved_by.id==user.partner_id.id"><div class="alert alert-success mt-2 p-2 text-center small">Adquirida por ti</div></t>
                                       </div>
@@ -206,8 +211,56 @@
           </div>
           <!-- CSS personalizado -->
           <link rel="stylesheet" href="/copier_company/static/src/css/copier_list.css"/>
-         
+          
+          <!-- JavaScript para el cambio de vista y funcionalidad de reserva -->
+          <script type="text/javascript">
+              document.addEventListener('DOMContentLoaded', function() {
+                  // Botones de cambio de vista
+                  const btnListView = document.getElementById('btn-list-view');
+                  const btnKanbanView = document.getElementById('btn-kanban-view');
+                  const listView = document.getElementById('list-view');
+                  const kanbanView = document.getElementById('kanban-view');
 
+                  // Cambio a vista de lista
+                  btnListView.addEventListener('click', function() {
+                      listView.style.display = 'block';
+                      kanbanView.style.display = 'none';
+                      btnListView.classList.add('active');
+                      btnKanbanView.classList.remove('active');
+                      // Guardar preferencia en localStorage
+                      localStorage.setItem('copierViewPreference', 'list');
+                  });
+
+                  // Cambio a vista de tarjetas (kanban)
+                  btnKanbanView.addEventListener('click', function() {
+                      listView.style.display = 'none';
+                      kanbanView.style.display = 'block';
+                      btnListView.classList.remove('active');
+                      btnKanbanView.classList.add('active');
+                      // Guardar preferencia en localStorage
+                      localStorage.setItem('copierViewPreference', 'kanban');
+                  });
+
+                  // Cargar preferencia de vista guardada
+                  const savedView = localStorage.getItem('copierViewPreference');
+                  if (savedView === 'kanban') {
+                      btnKanbanView.click();
+                  }
+
+                  // Configurar botones de reserva
+                  const reserveBtns = document.querySelectorAll('.reserve-btn');
+                  const reserveForm = document.getElementById('reserveForm');
+                  const reserveModal = new bootstrap.Modal(document.getElementById('reserveModal'));
+
+                  reserveBtns.forEach(function(btn) {
+                      btn.addEventListener('click', function() {
+                          const machineId = this.dataset.machineId;
+                          reserveForm.action = `/stock-maquinas/${machineId}/reserve`;
+                          reserveModal.show();
+                      });
+                  });
+              });
+          </script>
       </t>
   </template>
 
