@@ -131,12 +131,12 @@
                                           <td class="align-middle"><span class="badge bg-success"><t t-esc="machine.sale_price"/> $</span></td>
                                           <td class="align-middle"><t t-call="copier_company.machine_status_badge"/></td>
                                           <td class="align-middle">
-                                            <a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-dark btn-sm">
+                                            <a t-att-href="'/stock-maquinas/%s' % machine.id"
+                                               class="btn btn-dark btn-sm rounded-pill shadow-sm px-3 py-2">
                                               <i class="fa fa-eye fa-lg"></i>
-                                              <span class="ms-1">Detalle</span>
+                                              <span class="ms-2">Detalle</span>
                                             </a>
-                                          </td>
-                                          
+                                          </td>                                        
                                       </tr>
                                   </t>
                               </t>
