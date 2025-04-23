@@ -1,74 +1,136 @@
-// copier_company/static/src/js/copier_list.js
-document.addEventListener('DOMContentLoaded', function () {
-    console.log('[DEBUG] DOM cargado completamente. Inicializando script de fotocopiadoras...');
-    inicializarComponentes();
-});
+odoo.define('copier_company.copier_list', function(require) {
+    'use strict';
+    console.log('[DEBUG] cargando módulo copier_company.copier_list');
 
-function inicializarComponentes() {
-    console.log('[DEBUG] Inicializando componentes...');
+    const publicWidget = require('web.public.widget');
 
-    // Botones de cambio de vista
-    const btnListView   = document.getElementById('btn-list-view');
-    const btnKanbanView = document.getElementById('btn-kanban-view');
-    const listView      = document.getElementById('list-view');
-    const kanbanView    = document.getElementById('kanban-view');
+    publicWidget.registry.CopierList = publicWidget.Widget.extend({
+        selector: '.copier-list-container',
 
-    if (!btnListView || !btnKanbanView) {
-        console.error('[ERROR] No se encontraron los botones de vista');
-        return;
-    }
+        /**
+         * Se ejecuta cuando OWL monta el contenedor
+         */
+        start: function () {
+            this._super.apply(this, arguments);
+            console.log('[DEBUG] OWL Widget CopiersList montado');
+            this._checkBootstrapAndInit();
+        },
 
-    // Cambio a vista de lista
-    btnListView.addEventListener('click', () => {
-        console.log('[DEBUG] Cambiando a vista de lista');
-        listView.style.display = 'block';
-        kanbanView.style.display = 'none';
-        btnListView.classList.add('active');
-        btnKanbanView.classList.remove('active');
-        localStorage.setItem('copierViewPreference', 'list');
-    });
+        /**
+         * Verifica si Bootstrap está disponible o realiza carga dinámica
+         */
+        _checkBootstrapAndInit: function () {
+            console.log('[DEBUG] Verificando existencia de Bootstrap');
+            if (typeof bootstrap === 'undefined') {
+                console.warn('[ERROR] Bootstrap JS no está cargado. Cargando desde CDN...');
+                const bootstrapScript = document.createElement('script');
+                bootstrapScript.src = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js';
+                bootstrapScript.integrity = 'sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq';
+                bootstrapScript.crossOrigin = 'anonymous';
+                bootstrapScript.onload = () => {
+                    console.log('[DEBUG] Bootstrap cargado exitosamente desde CDN');
+                    this._initComponents();
+                };
+                bootstrapScript.onerror = () => {
+                    console.error('[ERROR] No se pudo cargar Bootstrap desde CDN.');
+                    alert('Error: No se pudo cargar Bootstrap. Algunas funcionalidades estarán limitadas.');
+                };
+                document.head.appendChild(bootstrapScript);
+            } else {
+                console.log('[DEBUG] Bootstrap ya está cargado');
+                this._initComponents();
+            }
+        },
 
-    // Cambio a vista kanban
-    btnKanbanView.addEventListener('click', () => {
-        console.log('[DEBUG] Cambiando a vista kanban');
-        listView.style.display = 'none';
-        kanbanView.style.display = 'block';
-        btnKanbanView.classList.add('active');
-        btnListView.classList.remove('active');
-        localStorage.setItem('copierViewPreference', 'kanban');
-    });
+        /**
+         * Inicializa toda la lógica: toggle de vistas y modal de reserva
+         */
+        _initComponents: function () {
+            console.log('[DEBUG] Inicializando componentes de la lista de copiadoras');
+            this._initViewToggle();
+            this._initReserveModal();
+        },
 
-    // Aplicar preferencia guardada
-    const savedView = localStorage.getItem('copierViewPreference');
-    if (savedView === 'kanban') {
-        console.log('[DEBUG] Aplicando preferencia: vista kanban');
-        btnKanbanView.click();
-    }
+        /**
+         * Configuración de cambio entre vista Lista y Kanban
+         */
+        _initViewToggle: function () {
+            console.log('[DEBUG] Configurando toggle de vistas');
+            const btnList   = this.el.querySelector('#btn-list-view');
+            const btnKanban = this.el.querySelector('#btn-kanban-view');
+            const listView  = this.el.querySelector('#list-view');
+            const kanbanView= this.el.querySelector('#kanban-view');
 
-    // Inicializar modal de reserva (ya que Bootstrap está en el bundle)
-    try {
-        const modalEl = document.getElementById('reserveModal');
-        if (!modalEl) {
-            console.error('[ERROR] No se encontró el elemento del modal');
-            return;
-        }
-        const reserveModal = new bootstrap.Modal(modalEl);
-        const reserveBtns  = document.querySelectorAll('.reserve-btn');
-        const reserveForm  = document.getElementById('reserveForm');
-        if (!reserveForm) {
-            console.error('[ERROR] No se encontró el formulario de reserva');
-            return;
-        }
-        reserveBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const machineId = btn.dataset.machineId;
-                console.log('[DEBUG] Reserva solicitada para máquina ID:', machineId);
-                reserveForm.action = `/stock-maquinas/${machineId}/reserve`;
-                reserveModal.show();
+            if (!btnList || !btnKanban) {
+                console.error('[ERROR] No se encontraron los botones de vista');
+                return;
+            }
+
+            btnList.addEventListener('click', () => {
+                console.log('[DEBUG] Cambiando a vista Lista');
+                listView.style.display   = 'block';
+                kanbanView.style.display = 'none';
+                btnList.classList.add('active');
+                btnKanban.classList.remove('active');
+                localStorage.setItem('copierViewPreference', 'list');
             });
-        });
-    } catch (err) {
-        console.error('[ERROR] Error al inicializar modal:', err);
-        alert('Error: No se pudo inicializar el modal de reserva. Por favor, recarga la página.');
-    }
-}
+
+            btnKanban.addEventListener('click', () => {
+                console.log('[DEBUG] Cambiando a vista Kanban');
+                listView.style.display   = 'none';
+                kanbanView.style.display = 'block';
+                btnKanban.classList.add('active');
+                btnList.classList.remove('active');
+                localStorage.setItem('copierViewPreference', 'kanban');
+            });
+
+            const saved = localStorage.getItem('copierViewPreference');
+            console.log('[DEBUG] Preferencia guardada:', saved);
+            if (saved === 'kanban') {
+                console.log('[DEBUG] Aplicando preferencia: Kanban');
+                btnKanban.click();
+            }
+        },
+
+        /**
+         * Inicializa el modal de reserva con logs detallados
+         */
+        _initReserveModal: function () {
+            try {
+                console.log('[DEBUG] Inicializando modal de reserva');
+                const modalEl     = this.el.querySelector('#reserveModal');
+                const reserveBtns = this.el.querySelectorAll('.reserve-btn');
+                const reserveForm = this.el.querySelector('#reserveForm');
+
+                if (!modalEl) {
+                    console.error('[ERROR] No se encontró el elemento modal');
+                    return;
+                }
+                if (!reserveBtns.length) {
+                    console.warn('[WARN] No se encontraron botones de reserva');
+                }
+                if (!reserveForm) {
+                    console.error('[ERROR] No se encontró el formulario de reserva');
+                    return;
+                }
+
+                const reserveModal = new bootstrap.Modal(modalEl);
+                console.log('[DEBUG] Modal de reserva inicializado');
+
+                reserveBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const id = btn.dataset.machineId;
+                        console.log('[DEBUG] Reserva solicitada para máquina ID:', id);
+                        reserveForm.action = `/stock-maquinas/${id}/reserve`;
+                        reserveModal.show();
+                    });
+                });
+                console.log('[DEBUG] Eventos de reserva configurados en', reserveBtns.length, 'botones');
+
+            } catch (error) {
+                console.error('[ERROR] Error al inicializar modal de reserva:', error);
+                alert('Error: No se pudo inicializar el modal de reserva. Por favor, recarga la página.');
+            }
+        },
+    });
+});
