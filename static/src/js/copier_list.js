@@ -1,7 +1,7 @@
 /** @odoo-module **/
 
-// Import the correct public widget module
-import { publicWidget } from 'web.public.widget';
+// Updated import path for Odoo 18
+import { publicWidget } from '@web/core/public_widget';
 
 console.log('[DEBUG] Cargando módulo copier_company.copier_list');
 
