@@ -1,0 +1,71 @@
+/* stock_maquinas/static/src/css/copier_list.css */
+
+/* Efectos de tarjetas */
+.copier-card {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.copier-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Mejoras de accesibilidad para badges */
+.badge {
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+/* Estilos para botones pequeños */
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.765rem;
+}
+
+/* Optimización para móviles */
+@media (max-width: 576px) {
+    .card-title {
+        font-size: 0.9rem;
+    }
+    
+    .card-text {
+        font-size: 0.8rem;
+    }
+    
+    .badge {
+        font-size: 0.7rem;
+    }
+}
+
+/* Mejoras para la tabla responsiva */
+.table-sm td {
+    padding: 0.5rem 0.5rem;
+    vertical-align: middle;
+}
+
+/* Estilo para avatar de imagen */
+.avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+    overflow: hidden;
+}
+
+.avatar-md {
+    width: 48px;
+    height: 48px;
+}
+
+/* Animación para cambio de vistas */
+#list-view, #kanban-view {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

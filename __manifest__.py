@@ -66,8 +66,11 @@
         'views/manuals.xml', 
         'views/manuals_template.xml',
         'views/copier_stock_views.xml',
-        'views/website_stock_templates.xml',      
+        'views/website_stock_templates.xml',
+        'views/stock_copier_list_template.xml',
+        'views/stock_copier_detail_template.xml',      
         'static/src/xml/counter_charts_templates.xml',
+        
         
         
         
@@ -83,6 +86,8 @@
             'copier_company/static/src/css/counter_charts.css',
             'copier_company/static/src/js/counter_charts.js',
             'copier_company/static/src/js/manuals.js',
+            'copier_company/static/src/css/copier_list.css',
+            'copier_company/static/src/js/copier_list.js',
             'copier_company/static/lib/pdfjs/pdf.mjs',
             'copier_company/static/lib/pdfjs/pdf.worker.mjs',
             'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
