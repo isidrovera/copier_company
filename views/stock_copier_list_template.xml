@@ -122,9 +122,12 @@
                                               <span t-else="" class="badge bg-info">Color</span>
                                           </td>
                                           <td class="d-none d-md-table-cell align-middle">
-                                              <t t-if="machine.tipo=='monocroma'"><small><i class="fa fa-print"></i><t t-esc="machine.contometro_bn"/> B/N</small></t>
-                                              <t t-else=""><small><i class="fa fa-print text-primary"></i><t t-esc="machine.contometro_color"/> Color</small></t>
+                                            <small>
+                                              <i class="fa fa-print"/>
+                                              <t t-esc="machine.contometro"/>
+                                            </small>
                                           </td>
+                                          
                                           <td class="align-middle"><span class="badge bg-success"><t t-esc="machine.sale_price"/> $</span></td>
                                           <td class="align-middle"><t t-call="copier_company.machine_status_badge"/></td>
                                           <td class="align-middle">
@@ -170,7 +173,7 @@
                                       <div class="card-body d-flex flex-column p-3">
                                           <h6 class="card-title text-truncate mb-2"><t t-esc="machine.name"/></h6>
                                           <p class="small mb-1"><strong>Marca/Modelo:</strong> <t t-esc="machine.marca_id.name"/> / <t t-esc="machine.modelo_id.name"/></p>
-                                          <p class="small mb-1"><strong>Contómetro:</strong> <t t-esc="machine.contometro_bn"/> B/N / <t t-esc="machine.contometro_color"/> Color</p>
+                                          <p class="small mb-1"><strong>Contómetro:</strong> <t t-esc="machine.contometro"/> </p>
                                           <p class="mb-3"><strong>Precio:</strong> <span class="badge bg-success"><t t-esc="machine.sale_price"/> $</span></p>
                                           <div class="mt-auto d-flex gap-2">
                                               <!-- Botones con iconos más grandes en la vista kanban -->

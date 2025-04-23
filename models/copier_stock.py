@@ -35,9 +35,8 @@ class CopierStock(models.Model):
     modelo_id = fields.Many2one('modelos.maquinas', string='Modelo', required=True, tracking=True)
     marca_id = fields.Many2one(related='modelo_id.marca_id', store=True,
                                string='Marca', readonly=True)
-    serie = fields.Char(string='N° de Serie', required=True, tracking=True)
-    contometro_color = fields.Integer(string='Contómetro Color', default=0, tracking=True)
-    contometro_bn = fields.Integer(string='Contómetro B/N', default=0, tracking=True)
+    serie = fields.Char(string='N° de Serie', required=True, tracking=True)    
+    contometro = fields.Integer(string='Contómetro', default=0, tracking=True)
     tipo = fields.Selection([
         ('monocroma', 'Monocroma'),
         ('color', 'Color')

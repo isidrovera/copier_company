@@ -150,19 +150,16 @@
                               <td><t t-esc="machine.serie"/></td>
                             </tr>
                             <tr>
-                              <th>
-                                <i class="fa fa-print text-primary me-2"></i> Contómetro B/N:
-                              </th>
-                              <td><span class="badge bg-light text-dark"><t t-esc="machine.contometro_bn"/> páginas</span></td>
-                            </tr>
-                            <t t-if="machine.tipo == 'color'">
-                              <tr>
                                 <th>
-                                  <i class="fa fa-palette text-primary me-2"></i> Contómetro Color:
+                                  <i class="fa fa-print text-primary me-2"></i> Contómetro:
                                 </th>
-                                <td><span class="badge bg-light text-dark"><t t-esc="machine.contometro_color"/> páginas</span></td>
+                                <td>
+                                  <span class="badge bg-light text-dark">
+                                    <t t-esc="machine.contometro"/> páginas
+                                  </span>
+                                </td>
                               </tr>
-                            </t>
+                              
                             <t t-if="machine.sale_price">
                               <tr>
                                 <th>
