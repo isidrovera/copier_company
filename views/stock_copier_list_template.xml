@@ -152,45 +152,62 @@
                   </div>
 
                   <!-- Vista Kanban -->
+                
                   <div id="kanban-view" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-3" style="display:none">
-                    <t t-foreach="machines" t-as="machine">
-                      <div class="col">
-                  
-                              <div class="alert alert-info"><i class="fa fa-info-circle me-2"></i>No hay máquinas.</div>
-                          </div>
-                      </t>
+                    <t t-if="machines">
                       <t t-foreach="machines" t-as="machine">
-                          <div class="col-xl-3 col-lg-4 col-md-6">
-                              <div t-att-class="'card h-100 shadow-sm ' + (machine.state=='sold' and 'bg-light' or '')">
-                                  <div class="position-relative">
-                                    <t t-if="machine.image">
-                                      <img class="card-img-top p-3"
-                                           style="height: 200px; object-fit: contain;"
-                                           t-att-src="'data:image/png;base64,%s' % (machine.image.decode('utf-8'))"
-                                           alt="Imagen principal"/>
-                                    </t>
-                                      <t t-else="">
-                                          <img class="card-img-top p-3" style="height:180px;object-fit:contain;" t-att-src="'/web/image?model=machine.model&amp;id=%s&amp;field=imagen' % machine.modelo_id.id"/>
-                                      </t>
-                                      <div class="position-absolute top-0 end-0 p-2"><t t-if="machine.tipo=='monocroma'" class="badge bg-secondary">Mono</t><t t-else="" class="badge bg-info">Color</t></div>
-                                      <div class="position-absolute top-0 start-0 p-2"><t t-call="copier_company.machine_status_badge"/></div>
-                                  </div>
-                                  <div class="card-body d-flex flex-column p-3">
-                                      <h6 class="card-title text-truncate mb-2"><t t-esc="machine.name"/></h6>
-                                      <p class="small mb-1"><strong>Marca/Modelo:</strong> <t t-esc="machine.marca_id.name"/> / <t t-esc="machine.modelo_id.name"/></p>
-                                      <p class="small mb-1"><strong>Contómetro:</strong> <t t-esc="machine.contometro"/> </p>
-                                      <p class="mb-3"><strong>Precio:</strong> <span class="badge bg-success"><t t-esc="machine.sale_price"/> $</span></p>
-                                      <div class="mt-auto d-flex gap-2">
-                                          <!-- Botones con iconos más grandes en la vista kanban -->
-                                          <a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-sm btn-dark flex-grow-1"><i class="fa fa-eye fa-lg me-1"></i>Detalles</a>
-                                          <t t-if="machine.state=='available'"><button type="button" class="btn btn-sm btn-primary flex-grow-1 reserve-btn" t-att-data-machine-id="machine.id"><i class="fa fa-calendar-check fa-lg me-1"></i>Reservar</button></t>
-                                      </div>
-                                      <t t-if="machine.state=='sold' and machine.reserved_by.id==user.partner_id.id"><div class="alert alert-success mt-2 p-2 text-center small">Adquirida por ti</div></t>
-                                  </div>
+                        <div class="col">
+                          <div t-att-class="'card h-100 shadow-sm copier-card ' + (machine.state == 'sold' and 'bg-light' or '')">
+                            <div class="position-relative">
+                              <t t-if="machine.image">
+                                <img class="card-img-top p-3"
+                                    style="height: 200px; object-fit: contain;"
+                                    t-att-src="'data:image/png;base64,%s' % (machine.image.decode('utf-8'))"
+                                    alt="Imagen principal"/>
+                              </t>
+                              <t t-else="">
+                                <img class="card-img-top p-3"
+                                    style="height: 180px; object-fit: contain;"
+                                    t-att-src="'/web/image?model=machine.model&amp;id=%s&amp;field=imagen' % machine.modelo_id.id"/>
+                              </t>
+                              <div class="position-absolute top-0 end-0 p-2">
+                                <t t-if="machine.tipo=='monocroma'" class="badge bg-secondary">Mono</t>
+                                <t t-else="" class="badge bg-info">Color</t>
                               </div>
+                              <div class="position-absolute top-0 start-0 p-2">
+                                <t t-call="copier_company.machine_status_badge"/>
+                              </div>
+                            </div>
+                            <div class="card-body d-flex flex-column p-3">
+                              <h6 class="card-title text-truncate mb-2"><t t-esc="machine.name"/></h6>
+                              <p class="small mb-1"><strong>Marca/Modelo:</strong> <t t-esc="machine.marca_id.name"/> / <t t-esc="machine.modelo_id.name"/></p>
+                              <p class="small mb-1"><strong>Contómetro:</strong> <t t-esc="machine.contometro"/></p>
+                              <p class="mb-3"><strong>Precio:</strong> <span class="badge bg-success"><t t-esc="machine.sale_price"/> $</span></p>
+                              <div class="mt-auto d-flex gap-2">
+                                <a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-sm btn-dark flex-grow-1">
+                                  <i class="fa fa-eye fa-lg me-1"></i>Detalles
+                                </a>
+                                <t t-if="machine.state=='available'">
+                                  <button type="button" class="btn btn-sm btn-primary flex-grow-1 reserve-btn" t-att-data-machine-id="machine.id">
+                                    <i class="fa fa-calendar-check fa-lg me-1"></i>Reservar
+                                  </button>
+                                </t>
+                              </div>
+                              <t t-if="machine.state=='sold' and machine.reserved_by.id==user.partner_id.id">
+                                <div class="alert alert-success mt-2 p-2 text-center small">Adquirida por ti</div>
+                              </t>
+                            </div>
                           </div>
+                        </div>
                       </t>
+                    </t>
+                    <t t-else="">
+                      <div class="col-12">
+                        <div class="alert alert-info text-center"><i class="fa fa-info-circle me-2"></i>No hay máquinas.</div>
+                      </div>
+                    </t>
                   </div>
+
 
                   <!-- Modal de confirmación -->
                   <div class="modal fade" id="reserveModal" tabindex="-1" aria-labelledby="reserveModalLabel" aria-hidden="true">

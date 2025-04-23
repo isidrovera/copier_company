@@ -6,12 +6,27 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    overflow: hidden;
 }
-
 
 .copier-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Imagen de la tarjeta */
+#kanban-view .card-img-top {
+    width: 100%;
+    object-fit: contain;
+}
+
+/* Asegura altura completa del body de la tarjeta */
+#kanban-view .card-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 /* Mejoras de accesibilidad para badges */
@@ -31,11 +46,11 @@
     .card-title {
         font-size: 0.9rem;
     }
-    
+
     .card-text {
         font-size: 0.8rem;
     }
-    
+
     .badge {
         font-size: 0.7rem;
     }
@@ -63,11 +78,17 @@
 }
 
 /* Animación para cambio de vistas */
-#list-view, #kanban-view {
+#list-view,
+#kanban-view {
     animation: fadeIn 0.3s ease;
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
