@@ -157,7 +157,8 @@
                                             </span>
                                         </td>
                                         <td class="align-middle">
-                                            <t t-call="machine_status_badge"/>
+                                          <t t-call="copier_company.machine_status_badge"/>
+
                                         </td>
                                         <td class="align-middle">
                                             <div class="btn-group btn-group-sm">
@@ -221,7 +222,8 @@
                                         
                                         <!-- Indicador de estado -->
                                         <div class="position-absolute top-0 start-0 p-2">
-                                            <t t-call="machine_status_badge"/>
+                                          <t t-call="copier_company.machine_status_badge"/>
+
                                         </div>
                                     </div>
                                     <div class="card-body d-flex flex-column p-3">
