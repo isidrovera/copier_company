@@ -92,7 +92,8 @@
             'copier_company/static/src/js/counter_charts.js',
             'copier_company/static/src/js/PcloudDescargas.js',
             'copier_company/static/src/js/custom_script.js',
-            
+            # ❌ Ya no incluimos copier_list.js aquí porque es independiente
+            # 'copier_company/static/src/js/copier_list.js',
             # 4) Bibliotecas externas si las necesitas
             'copier_company/static/lib/pdfjs/pdf.mjs',
             'copier_company/static/lib/pdfjs/pdf.worker.mjs',
@@ -108,6 +109,7 @@
             'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap',
         ],
     },
+
     
     'application': True,
     'installable': True,
