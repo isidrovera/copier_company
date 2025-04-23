@@ -152,9 +152,10 @@
                   </div>
 
                   <!-- Vista Kanban -->
-                  <div id="kanban-view" class="row g-3" style="display:none">
-                      <t t-if="not machines">
-                          <div class="col-12 text-center py-4">
+                  <div id="kanban-view" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-3" style="display:none">
+                    <t t-foreach="machines" t-as="machine">
+                      <div class="col">
+                  
                               <div class="alert alert-info"><i class="fa fa-info-circle me-2"></i>No hay máquinas.</div>
                           </div>
                       </t>
