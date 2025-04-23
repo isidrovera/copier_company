@@ -229,12 +229,9 @@
                                     <div>Serie: <field name="serie"/></div>
                                     <div>Tipo: <field name="tipo"/></div>
                                     <div>
-                                        <t t-if="record.tipo.raw_value=='monocroma'">
-                                            Contador B/N: <field name="contometro_bn"/>
-                                        </t><t t-else="">
-                                            Contador B/N: <field name="contometro_bn"/> | Color: <field name="contometro_color"/>
-                                        </t>
-                                    </div>
+                                        <i class="fa fa-print text-primary me-2"/> Contador: <field name="contometro"/>
+                                      </div>
+                                      
                                     <div t-if="record.sale_price.raw_value">
                                         <strong>Precio: <field name="sale_price"/> $</strong>
                                     </div>
