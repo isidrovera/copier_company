@@ -153,8 +153,9 @@
 
                   <!-- Vista Kanban -->
                 
+                  <!-- Vista Kanban -->
                   <div id="kanban-view" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-3" style="display:none">
-                    <t t-if="machines">
+                    <t t-if="machines and len(machines) &gt; 0">
                       <t t-foreach="machines" t-as="machine">
                         <div class="col">
                           <div t-att-class="'card h-100 shadow-sm copier-card ' + (machine.state == 'sold' and 'bg-light' or '')">
@@ -168,7 +169,8 @@
                               <t t-else="">
                                 <img class="card-img-top p-3"
                                     style="height: 180px; object-fit: contain;"
-                                    t-att-src="'/web/image?model=machine.model&amp;id=%s&amp;field=imagen' % machine.modelo_id.id"/>
+                                    src="/copier_company/static/src/img/placeholder-image.png"
+                                    alt="Sin imagen disponible"/>
                               </t>
                               <div class="position-absolute top-0 end-0 p-2">
                                 <t t-if="machine.tipo=='monocroma'" class="badge bg-secondary">Mono</t>
