@@ -136,7 +136,7 @@
                                         </small>
                                       </td>
                                       
-                                      <td class="align-middle"><span class="badge bg-success"><t t-esc="machine.sale_price"/> $</span></td>
+                                      <td class="align-middle"><span class="badge bg-success">$<t t-esc="machine.sale_price"/> </span></td>
                                       <td class="align-middle"><t t-call="copier_company.machine_status_badge"/></td>
                                       <td class="align-middle">
                                         <a t-att-href="'/stock-maquinas/%s' % machine.id"

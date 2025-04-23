@@ -161,7 +161,7 @@
                                         <t t-if="machine.sale_price">
                                             <tr>
                                                 <th>Precio a Pagar:</th>
-                                                <td class="font-weight-bold"><t t-esc="machine.sale_price"/> $</td>
+                                                <td class="font-weight-bold">$<t t-esc="machine.sale_price"/></td>
                                             </tr>
                                         </t>
                                     </tbody>
@@ -226,7 +226,7 @@
                                     <li><strong>Referencia:</strong> <t t-esc="machine.name"/></li>
                                     <li><strong>Marca/Modelo:</strong> <t t-esc="machine.marca_id.name"/> <t t-esc="machine.modelo_id.name"/></li>
                                     <li><strong>Fecha de compra:</strong> <t t-esc="machine.sold_date" t-options="{'widget': 'datetime'}"/></li>
-                                    <li t-if="machine.sale_price"><strong>Precio:</strong> <t t-esc="machine.sale_price"/> $</li>
+                                    <li t-if="machine.sale_price"><strong>Precio:</strong> $<t t-esc="machine.sale_price"/></li>
                                 </ul>
                                 
                                 <div class="text-center mt-4">
