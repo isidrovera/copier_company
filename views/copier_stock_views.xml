@@ -72,8 +72,7 @@
                             <field name="tipo"/>
                         </group>
                         <group>
-                            <field name="contometro_bn"/>
-                            <field name="contometro_color" invisible="tipo == 'monocroma'"/>
+                            <field name="contometro"/>                            
                             <field name="reparacion"/>
                             <field name="sale_price"/>
                             <field name="checklist_status" widget="badge" decoration-success="checklist_status == 'completed'" decoration-warning="checklist_status == 'in_progress'" decoration-danger="checklist_status == 'pending'"/>
@@ -176,8 +175,8 @@
                 <field name="modelo_id"/>
                 <field name="serie"/>
                 <field name="tipo"/>
-                <field name="contometro_bn"/>
-                <field name="contometro_color"/>
+                <field name="contometro"/>
+                
                 <field name="state"/>
                 <field name="sale_price"/>
                 <field name="reserved_by"/>
@@ -201,8 +200,7 @@
                 <field name="serie"/>
                 <field name="tipo"/>
                 <field name="state"/>
-                <field name="contometro_bn"/>
-                <field name="contometro_color"/>
+                <field name="contometro"/>                
                 <field name="sale_price"/>
                 <field name="image"/>
                 <templates>
