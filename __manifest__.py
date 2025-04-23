@@ -79,25 +79,28 @@
 
     'assets': {
         'web.assets_frontend': [
-            'copier_company/static/src/js/custom_script.js',
-            'copier_company/static/src/js/PcloudDescargas.js',            
-            'copier_company/static/src/css/PcloudDescargas.css',
-            'copier_company/static/src/css/cotizacion_styles.css',           
+            # 1) Bootstrap CSS/JS de Odoo 18
+            'web/static/lib/bootstrap/css/bootstrap.min.css',
+            'web/static/lib/bootstrap/js/bootstrap.bundle.min.js',
+            # 2) Tus estilos propios
             'copier_company/static/src/css/counter_charts.css',
-            'copier_company/static/src/js/counter_charts.js',
+            'copier_company/static/src/css/cotizacion_styles.css',
+            'copier_company/static/src/css/PcloudDescargas.css',
+            'copier_company/static/src/css/copier_list.css',
+            # 3) Tus scripts propios
             'copier_company/static/src/js/manuals.js',
-            'copier_company/static/src/css/copier_list.css',            
+            'copier_company/static/src/js/counter_charts.js',
+            'copier_company/static/src/js/PcloudDescargas.js',
+            'copier_company/static/src/js/custom_script.js',
+            'copier_company/static/src/js/copier_list.js',
+            # 4) Bibliotecas externas si las necesitas
             'copier_company/static/lib/pdfjs/pdf.mjs',
             'copier_company/static/lib/pdfjs/pdf.worker.mjs',
             'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
             'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',
-           ],
-        # La biblioteca externa se puede incluir así
+        ],
         'web.assets_frontend_libs': [
-            ('https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js', {
-                'type': 'external',
-            }),
-
+            ('https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js', {'type': 'external'}),
         ],
         'web.report_assets_common': [
             'https://unpkg.com/modern-normalize@2.0.0/modern-normalize.css',
