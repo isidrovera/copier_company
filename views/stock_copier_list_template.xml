@@ -59,7 +59,7 @@
                                       <select name="estado" class="form-select">
                                           <option value="">Todos los estados</option>
                                           <option value="available" t-att-selected="selected_estado == 'available'">Disponible</option>
-                                          <option value="reserved" t-att-selected="selected_estado == 'reserved'">Reservado</option>
+                                          <option value="reserved" t-att-selected="selected_estado == 'reserved'">Reservada</option>
                                           <option value="pending_payment" t-att-selected="selected_estado == 'pending_payment'">Pago Pendiente</option>
                                           <option value="sold" t-att-selected="selected_estado == 'sold'">Vendido</option>
                                           <option value="importing" t-att-selected="selected_estado == 'importing'">En Importación</option>
@@ -131,14 +131,12 @@
                                           <td class="align-middle"><span class="badge bg-success"><t t-esc="machine.sale_price"/> $</span></td>
                                           <td class="align-middle"><t t-call="copier_company.machine_status_badge"/></td>
                                           <td class="align-middle">
-                                              <div class="btn-group btn-group-sm">
-                                                  <!-- Botón de detalle con icono más grande -->
-                                                  <a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-dark btn-sm"><i class="fa fa-eye fa-lg"></i></a>
-                                                  <t t-if="machine.state=='available'">
-                                                      <button type="button" class="btn btn-primary btn-sm reserve-btn" t-att-data-machine-id="machine.id"><i class="fa fa-calendar-check fa-lg"></i></button>
-                                                  </t>
-                                              </div>
+                                            <a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-dark btn-sm">
+                                              <i class="fa fa-eye fa-lg"></i>
+                                              <span class="ms-1">Detalle</span>
+                                            </a>
                                           </td>
+                                          
                                       </tr>
                                   </t>
                               </t>
