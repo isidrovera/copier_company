@@ -12,24 +12,33 @@ class WebsiteStock(http.Controller):
     def list_stock(self, **kwargs):
         """Listar máquinas disponibles con filtros"""
         domain = [('state', '=', 'available')]
-        
-        # Aplicar filtros si se proporcionan
-        if kwargs.get('marca'):
-            domain.append(('marca_id.id', '=', int(kwargs.get('marca'))))
-        if kwargs.get('tipo'):
-            domain.append(('tipo', '=', kwargs.get('tipo')))
-            
-        # Obtener todas las marcas para el filtro
+
+        # --- Marca ---
+        marca_param = kwargs.get('marca') or ''
+        try:
+            selected_marca = int(marca_param) if marca_param else 0
+        except ValueError:
+            selected_marca = 0
+        if selected_marca:
+            # Filtramos por el campo many2one "marca_id"
+            domain.append(('marca_id', '=', selected_marca))
+
+        # --- Tipo ---
+        selected_tipo = kwargs.get('tipo') or ''
+        if selected_tipo:
+            domain.append(('tipo', '=', selected_tipo))
+
+        # Obtener todas las marcas para el selector
         marcas = request.env['marcas.maquinas'].sudo().search([])
-        
+
         # Obtener máquinas según filtros
         machines = request.env['copier.stock'].sudo().search(domain)
-        
+
         return request.render('copier_company.copier_list', {
             'machines': machines,
             'marcas': marcas,
-            'selected_marca': int(kwargs.get('marca', 0)),
-            'selected_tipo': kwargs.get('tipo', ''),
+            'selected_marca': selected_marca,
+            'selected_tipo': selected_tipo,
         })
 
     @http.route(['/stock-maquinas/<model("copier.stock"):machine>'], type='http', auth='user', website=True)
