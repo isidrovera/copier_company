@@ -1,4 +1,5 @@
 /** @odoo-module **/
+import { registry } from '@web/core/registry';
 import publicWidget from 'web.public.widget';
 
 console.log('[DEBUG] Cargando módulo copier_company.copier_list');
