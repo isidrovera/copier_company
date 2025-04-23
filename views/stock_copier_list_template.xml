@@ -1,365 +1,162 @@
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Plantilla modernizada para listado de máquinas -->
-    <template id="copier_list" name="Listado de Fotocopiadoras">
-        <t t-call="website.layout">
-            <div class="container py-3">
-                <!-- Encabezado con contador de equipos -->
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h2 class="mb-0">
-                        <i class="fa fa-print text-primary me-2"></i>Stock de Fotocopiadoras
-                        <span class="badge bg-secondary rounded-pill ms-2" t-esc="len(machines)"></span>
-                    </h2>
-                    <!-- Botones de vista -->
-                    <div class="btn-group btn-group-sm" role="group" aria-label="Vista">
-                        <button id="btn-list-view" type="button" class="btn btn-outline-primary active">
-                            <i class="fa fa-list"></i><span class="d-none d-sm-inline ms-1">Lista</span>
-                        </button>
-                        <button id="btn-kanban-view" type="button" class="btn btn-outline-primary">
-                            <i class="fa fa-th-large"></i><span class="d-none d-sm-inline ms-1">Tarjetas</span>
-                        </button>
-                    </div>
-                </div>
+  <!-- Página de listado de copiadoras con OWL mounting point -->
+  <template id="copier_list" name="Listado de Fotocopiadoras">
+      <t t-call="website.layout">
+          <div class="copier-list-container" t-ref="container">
+              <div class="container py-3">
+                  <!-- Encabezado con contador de equipos -->
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                      <h2 class="mb-0">
+                          <i class="fa fa-print text-primary me-2"></i>Stock de Fotocopiadoras
+                          <span class="badge bg-secondary rounded-pill ms-2" t-esc="len(machines)"></span>
+                      </h2>
+                      <!-- Botones de vista -->
+                      <div class="btn-group btn-group-sm" role="group" aria-label="Vista">
+                          <button id="btn-list-view" type="button" class="btn btn-outline-primary active">
+                              <i class="fa fa-list"></i><span class="d-none d-sm-inline ms-1">Lista</span>
+                          </button>
+                          <button id="btn-kanban-view" type="button" class="btn btn-outline-primary">
+                              <i class="fa fa-th-large"></i><span class="d-none d-sm-inline ms-1">Tarjetas</span>
+                          </button>
+                      </div>
+                  </div>
 
-                <!-- Filtros compactos -->
-                <div class="card mb-3 shadow-sm border-0">
-                    <div class="card-body p-3">
-                        <form action="/stock-maquinas" method="get" class="row g-2">
-                            <div class="col-md-3 col-sm-6">
-                                <div class="input-group input-group-sm">
-                                    <span class="input-group-text"><i class="fa fa-search"></i></span>
-                                    <input type="text" name="search" class="form-control" 
-                                           placeholder="Buscar..." t-att-value="search or ''"/>
-                                </div>
-                            </div>
-                            <div class="col-md-3 col-sm-6">
-                                <div class="input-group input-group-sm">
-                                    <span class="input-group-text"><i class="fa fa-tag"></i></span>
-                                    <select name="marca" class="form-select">
-                                        <option value="">Todas las marcas</option>
-                                        <t t-foreach="marcas" t-as="marca">
-                                            <option t-att-value="marca.id"
-                                                    t-att-selected="marca.id == (selected_marca or 0)">
-                                                <t t-esc="marca.name"/>
-                                            </option>
-                                        </t>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-3 col-sm-6">
-                                <div class="input-group input-group-sm">
-                                    <span class="input-group-text"><i class="fa fa-cog"></i></span>
-                                    <select name="tipo" class="form-select">
-                                        <option value="">Todos los tipos</option>
-                                        <option value="monocroma" t-att-selected="selected_tipo == 'monocroma'">Monocroma</option>
-                                        <option value="color" t-att-selected="selected_tipo == 'color'">Color</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-3 col-sm-6">
-                                <div class="input-group input-group-sm">
-                                    <span class="input-group-text"><i class="fa fa-filter"></i></span>
-                                    <select name="estado" class="form-select">
-                                        <option value="">Todos los estados</option>
-                                        <option value="available" t-att-selected="selected_estado == 'available'">Disponible</option>
-                                        <option value="reserved" t-att-selected="selected_estado == 'reserved'">Reservado</option>
-                                        <option value="pending_payment" t-att-selected="selected_estado == 'pending_payment'">Pago Pendiente</option>
-                                        <option value="sold" t-att-selected="selected_estado == 'sold'">Vendido</option>
-                                        <option value="importing" t-att-selected="selected_estado == 'importing'">En Importación</option>
-                                        <option value="unloading" t-att-selected="selected_estado == 'unloading'">En Descarga</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-12 d-flex justify-content-end">
-                                <button type="submit" class="btn btn-sm btn-primary me-2">
-                                    <i class="fa fa-filter me-1"></i>Aplicar
-                                </button>
-                                <a href="/stock-maquinas" class="btn btn-sm btn-outline-secondary">
-                                    <i class="fa fa-times me-1"></i>Limpiar
-                                </a>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                  <!-- Filtros compactos -->
+                  <div class="card mb-3 shadow-sm border-0">
+                      <div class="card-body p-3">
+                          <form action="/stock-maquinas" method="get" class="row g-2">
+                              <div class="col-md-3 col-sm-6">
+                                  <div class="input-group input-group-sm">
+                                      <span class="input-group-text"><i class="fa fa-search"></i></span>
+                                      <input type="text" name="search" class="form-control" placeholder="Buscar..." t-att-value="search or ''"/>
+                                  </div>
+                              </div>
+                              <div class="col-md-3 col-sm-6">
+                                  <div class="input-group input-group-sm">
+                                      <span class="input-group-text"><i class="fa fa-tag"></i></span>
+                                      <select name="marca" class="form-select">
+                                          <option value="">Todas las marcas</option>
+                                          <t t-foreach="marcas" t-as="marca">
+                                              <option t-att-value="marca.id" t-att-selected="marca.id == (selected_marca or 0)"><t t-esc="marca.name"/></option>
+                                          </t>
+                                      </select>
+                                  </div>
+                              </div>
+                              <div class="col-md-3 col-sm-6">
+                                  <div class="input-group input-group-sm">
+                                      <span class="input-group-text"><i class="fa fa-cog"></i></span>
+                                      <select name="tipo" class="form-select">
+                                          <option value="">Todos los tipos</option>
+                                          <option value="monocroma" t-att-selected="selected_tipo == 'monocroma'">Monocroma</option>
+                                          <option value="color" t-att-selected="selected_tipo == 'color'">Color</option>
+                                      </select>
+                                  </div>
+                              </div>
+                              <div class="col-md-3 col-sm-6">
+                                  <div class="input-group input-group-sm">
+                                      <span class="input-group-text"><i class="fa fa-filter"></i></span>
+                                      <select name="estado" class="form-select">
+                                          <option value="">Todos los estados</option>
+                                          <option value="available" t-att-selected="selected_estado == 'available'">Disponible</option>
+                                          <option value="reserved" t-att-selected="selected_estado == 'reserved'">Reservado</option>
+                                          <option value="pending_payment" t-att-selected="selected_estado == 'pending_payment'">Pago Pendiente</option>
+                                          <option value="sold" t-att-selected="selected_estado == 'sold'">Vendido</option>
+                                          <option value="importing" t-att-selected="selected_estado == 'importing'">En Importación</option>
+                                          <option value="unloading" t-att-selected="selected_estado == 'unloading'">En Descarga</option>
+                                      </select>
+                                  </div>
+                              </div>
+                              <div class="col-12 d-flex justify-content-end">
+                                  <button type="submit" class="btn btn-sm btn-primary me-2"><i class="fa fa-filter me-1"></i>Aplicar</button>
+                                  <a href="/stock-maquinas" class="btn btn-sm btn-outline-secondary"><i class="fa fa-times me-1"></i>Limpiar</a>
+                              </div>
+                          </form>
+                      </div>
+                  </div>
 
-                <!-- Vista Lista -->
-                <div id="list-view" class="table-responsive">
-                    <table class="table table-sm table-hover">
-                        <thead>
-                            <tr class="table-light">
-                                <th>Imagen</th>
-                                <th>Referencia</th>
-                                <th>Marca / Modelo</th>
-                                <th class="d-none d-md-table-cell">Tipo</th>
-                                <th class="d-none d-md-table-cell">Contómetro</th>
-                                <th>Precio</th>
-                                <th>Estado</th>
-                                <th>Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t t-if="not machines">
-                                <tr>
-                                    <td colspan="8" class="text-center py-4">
-                                        <div class="alert alert-info mb-0">
-                                            <i class="fa fa-info-circle me-2"></i>No hay máquinas disponibles con los filtros seleccionados.
-                                        </div>
-                                    </td>
-                                </tr>
-                            </t>
-                            <t t-foreach="machines" t-as="machine">
-                                <!-- Mostrar todas las máquinas, pero las vendidas solo a quien las compró -->
-                                <t t-if="machine.state != 'sold' or (machine.state == 'sold' and machine.reserved_by and machine.reserved_by.id == user.partner_id.id)">
-                                    <tr t-att-class="machine.state == 'sold' and 'table-secondary' or ''">
-                                        <td class="align-middle">
-                                            <div class="avatar avatar-md">
-                                                <t t-if="machine.image">
-                                                    <img class="rounded"
-                                                        style="width:48px; height:48px; object-fit:contain;"
-                                                        t-att-src="'/web/image?model=machine.copier&amp;id=%s&amp;field=image' % machine.id"
-                                                        alt="Imagen principal"/>
-                                                </t>
-                                                <t t-else="">
-                                                    <img class="rounded"
-                                                        style="width:48px; height:48px; object-fit:contain;"
-                                                        t-att-src="'/web/image?model=machine.model&amp;id=%s&amp;field=imagen' % machine.modelo_id.id"
-                                                        alt="Imagen modelo"/>
-                                                </t>
-                                            </div>
-                                        </td>
-                                        <td class="align-middle"><t t-esc="machine.name"/></td>
-                                        <td class="align-middle">
-                                            <t t-esc="machine.marca_id.name"/> /
-                                            <t t-esc="machine.modelo_id.name"/>
-                                        </td>
-                                        <td class="d-none d-md-table-cell align-middle">
-                                            <span t-if="machine.tipo == 'monocroma'" class="badge rounded-pill bg-secondary">
-                                                <i class="fa fa-adjust me-1"></i>Mono
-                                            </span>
-                                            <span t-else="" class="badge rounded-pill bg-info">
-                                                <i class="fa fa-palette me-1"></i>Color
-                                            </span>
-                                        </td>
-                                        <td class="d-none d-md-table-cell align-middle">
-                                            <t t-if="machine.tipo == 'monocroma'">
-                                                <small><i class="fa fa-print text-secondary me-1"></i><t t-esc="machine.contometro_bn"/> B/N</small>
-                                            </t>
-                                            <t t-else="">
-                                                <small>
-                                                    <i class="fa fa-print text-secondary me-1"></i><t t-esc="machine.contometro_bn"/> B/N <br/>
-                                                    <i class="fa fa-print text-primary me-1"></i><t t-esc="machine.contometro_color"/> Color
-                                                </small>
-                                            </t>
-                                        </td>
-                                        <td class="align-middle">
-                                            <span class="badge bg-success">
-                                                <i class="fa fa-tag me-1"></i><t t-esc="machine.sale_price"/> $
-                                            </span>
-                                        </td>
-                                        <td class="align-middle">
-                                          <t t-call="copier_company.machine_status_badge"/>
+                  <!-- Vista Lista -->
+                  <div id="list-view" class="table-responsive">
+                      <table class="table table-sm table-hover">
+                          <thead>
+                              <tr class="table-light">
+                                  <th>Imagen</th><th>Referencia</th><th>Marca / Modelo</th><th class="d-none d-md-table-cell">Tipo</th><th class="d-none d-md-table-cell">Contómetro</th><th>Precio</th><th>Estado</th><th>Acción</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              <t t-if="not machines">
+                                  <tr><td colspan="8" class="text-center py-4"><div class="alert alert-info mb-0"><i class="fa fa-info-circle me-2"></i>No hay máquinas disponibles con los filtros seleccionados.</div></td></tr>
+                              </t>
+                              <t t-foreach="machines" t-as="machine">
+                                  <t t-if="machine.state != 'sold' or (machine.state == 'sold' and machine.reserved_by and machine.reserved_by.id == user.partner_id.id)">
+                                      <tr t-att-class="machine.state == 'sold' and 'table-secondary' or ''">
+                                          <td class="align-middle"><div class="avatar avatar-md">
+                                              <t t-if="machine.image">
+                                                  <img class="rounded" style="width:48px;height:48px;object-fit:contain;" t-att-src="'/web/image?model=machine.copier&amp;id=%s&amp;field=image' % machine.id" alt="Imagen principal"/>
+                                              </t><t t-else=""><img class="rounded" style="width:48px;height:48px;object-fit:contain;" t-att-src="'/web/image?model=machine.model&amp;id=%s&amp;field=imagen' % machine.modelo_id.id" alt="Imagen modelo"/></t>
+                                          </div></td>
+                                          <td class="align-middle"><t t-esc="machine.name"/></td>
+                                          <td class="align-middle"><t t-esc="machine.marca_id.name"/> / <t t-esc="machine.modelo_id.name"/></td>
+                                          <td class="d-none d-md-table-cell align-middle">
+                                              <span t-if="machine.tipo=='monocroma'" class="badge rounded-pill bg-secondary"><i class="fa fa-adjust me-1"></i>Mono</span>
+                                              <span t-else="" class="badge rounded-pill bg-info"><i class="fa fa-palette me-1"></i>Color</span>
+                                          </td>
+                                          <td class="d-none d-md-table-cell align-middle">
+                                              <t t-if="machine.tipo=='monocroma'"><small><i class="fa fa-print text-secondary me-1"></i><t t-esc="machine.contometro_bn"/> B/N</small></t>
+                                              <t t-else=""><small><i class="fa fa-print text-secondary me-1"></i><t t-esc="machine.contometro_bn"/> B/N <br/><i class="fa fa-print text-primary me-1"></i><t t-esc="machine.contometro_color"/> Color</small></t>
+                                          </td>
+                                          <td class="align-middle"><span class="badge bg-success"><i class="fa fa-tag me-1"></i><t t-esc="machine.sale_price"/> $</span></td>
+                                          <td class="align-middle"><t t-call="machine_status_badge"/></td>
+                                          <td class="align-middle"><div class="btn-group btn-group-sm"><a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-dark btn-sm"><i class="fa fa-eye"></i></a><t t-if="machine.state=='available'"><button type="button" class="btn btn-primary btn-sm reserve-btn" t-att-data-machine-id="machine.id"><i class="fa fa-calendar-check"></i></button></t></div></td>
+                                      </tr>
+                                  </t>
+                              </t>
+                          </tbody>
+                      </table>
+                  </div>
 
-                                        </td>
-                                        <td class="align-middle">
-                                            <div class="btn-group btn-group-sm">
-                                                <a t-att-href="'/stock-maquinas/%s' % machine.id"
-                                                    class="btn btn-dark btn-sm">
-                                                    <i class="fa fa-eye"></i>
-                                                </a>
-                                                <!-- Reservar: solo mostrar si está disponible -->
-                                                <t t-if="machine.state == 'available'">
-                                                    <button type="button" class="btn btn-primary btn-sm reserve-btn"
-                                                        t-att-data-machine-id="machine.id">
-                                                        <i class="fa fa-calendar-check"></i>
-                                                    </button>
-                                                </t>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </t>
-                            </t>
-                        </tbody>
-                    </table>
-                </div>
+                  <!-- Vista Kanban -->
+                  <div id="kanban-view" class="row g-3" style="display:none">
+                      <t t-if="not machines"><div class="col-12"><div class="alert alert-info text-center"><i class="fa fa-info-circle me-2"></i>No hay máquinas disponibles con los filtros seleccionados.</div></div></t>
+                      <t t-foreach="machines" t-as="machine">
+                          <t t-if="machine.state != 'sold' or (machine.state == 'sold' and machine.reserved_by and machine.reserved_by.id == user.partner_id.id)">
+                              <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                                  <div t-att-class="'card h-100 shadow-sm copier-card ' + (machine.state=='sold' and 'bg-light' or '')">
+                                      <div class="position-relative">
+                                          <t t-if="machine.image"><img class="card-img-top p-3" style="height:180px;object-fit:contain;" t-att-src="'/web/image?model=machine.copier&amp;id=%s&amp;field=image' % machine.id" alt="Imagen principal"/></t>
+                                          <t t-else=""><img class="card-img-top p-3" style="height:180px;object-fit:contain;" t-att-src="'/web/image?model=machine.model&amp;id=%s&amp;field=imagen' % machine.modelo_id.id" alt="Imagen modelo"/></t>
+                                          <div class="position-absolute top-0 end-0 p-2"><span t-if="machine.tipo=='monocroma'" class="badge rounded-pill bg-secondary"><i class="fa fa-adjust me-1"></i>Mono</span><span t-else="" class="badge rounded-pill bg-info"><i class="fa fa-palette me-1"></i>Color</span></div>
+                                          <div class="position-absolute top-0 start-0 p-2"><t t-call="machine_status_badge"/></div>
+                                      </div>
+                                      <div class="card-body d-flex flex-column p-3">
+                                          <h6 class="card-title text-truncate mb-2"><i class="fa fa-barcode text-muted me-1"></i><t t-esc="machine.name"/></h6>
+                                          <p class="card-text small mb-1 text-truncate"><i class="fa fa-tag text-muted me-1"></i><strong>Marca/Modelo:</strong> <t t-esc="machine.marca_id.name"/> / <t t-esc="machine.modelo_id.name"/></p>
+                                          <p class="card-text small mb-1"><i class="fa fa-print text-muted me-1"></i><strong>Contómetro:</strong><br/><t t-if="machine.tipo=='monocroma'"><t t-esc="machine.contometro_bn"/> B/N</t><t t-else=""><t t-esc="machine.contometro_bn"/> B/N / <t t-esc="machine.contometro_color"/> Color</t></p>
+                                          <p class="card-text mb-3"><i class="fa fa-euro-sign text-success me-1"></i><strong>Precio:</strong> <span class="badge bg-success"><t t-esc="machine.sale_price"/> $</span></p>
+                                          <div class="mt-auto d-flex gap-2"><a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-sm btn-dark flex-grow-1"><i class="fa fa-eye me-1"></i>Detalles</a><t t-if="machine.state=='available'"><button type="button" class="btn btn-sm btn-primary flex-grow-1 reserve-btn" t-att-data-machine-id="machine.id"><i class="fa fa-calendar-check me-1"></i>Reservar</button></t></div>
+                                          <t t-if="machine.state=='sold' and machine.reserved_by.id==user.partner_id.id"><div class="alert alert-success mt-2 mb-0 p-2 text-center small"><i class="fa fa-user-check me-1"></i>Adquirida por ti</div></t>
+                                      </div>
+                                  </div>
+                              </div>
+                          </t>
+                      </t>
+                  </div>
+              </div>
+          </div>
+          <!-- CSS personalizado -->
+          <link rel="stylesheet" href="/copier_company/static/src/css/copier_list.css"/>
+          <!-- JS módulo OWL -->
+          <script type="module" src="/copier_company/static/src/js/copier_list.js"></script>
+      </t>
+  </template>
 
-                <!-- Vista Kanban -->
-                <div id="kanban-view" class="row g-3" style="display:none">
-                    <t t-if="not machines">
-                        <div class="col-12">
-                            <div class="alert alert-info text-center">
-                                <i class="fa fa-info-circle me-2"></i>No hay máquinas disponibles con los filtros seleccionados.
-                            </div>
-                        </div>
-                    </t>
-                    <t t-foreach="machines" t-as="machine">
-                        <!-- Mostrar todas las máquinas, pero las vendidas solo a quien las compró -->
-                        <t t-if="machine.state != 'sold' or (machine.state == 'sold' and machine.reserved_by and machine.reserved_by.id == user.partner_id.id)">
-                            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
-                                <div t-att-class="'card h-100 shadow-sm copier-card ' + (machine.state == 'sold' and 'bg-light' or '')">
-                                    <div class="position-relative">
-                                        <t t-if="machine.image">
-                                            <img class="card-img-top p-3"
-                                                style="height: 180px; object-fit: contain;"
-                                                t-att-src="'/web/image?model=machine.copier&amp;id=%s&amp;field=image' % machine.id"
-                                                alt="Imagen principal"/>
-                                        </t>
-                                        <t t-else="">
-                                            <img class="card-img-top p-3"
-                                                style="height: 180px; object-fit: contain;"
-                                                t-att-src="'/web/image?model=machine.model&amp;id=%s&amp;field=imagen' % machine.modelo_id.id"
-                                                alt="Imagen modelo"/>
-                                        </t>
-                                        
-                                        <!-- Indicador de tipo -->
-                                        <div class="position-absolute top-0 end-0 p-2">
-                                            <span t-if="machine.tipo == 'monocroma'" class="badge rounded-pill bg-secondary">
-                                                <i class="fa fa-adjust me-1"></i>Mono
-                                            </span>
-                                            <span t-else="" class="badge rounded-pill bg-info">
-                                                <i class="fa fa-palette me-1"></i>Color
-                                            </span>
-                                        </div>
-                                        
-                                        <!-- Indicador de estado -->
-                                        <div class="position-absolute top-0 start-0 p-2">
-                                          <t t-call="copier_company.machine_status_badge"/>
-
-                                        </div>
-                                    </div>
-                                    <div class="card-body d-flex flex-column p-3">
-                                        <h6 class="card-title text-truncate mb-2">
-                                            <i class="fa fa-barcode text-muted me-1"></i><t t-esc="machine.name"/>
-                                        </h6>
-                                        <p class="card-text small mb-1 text-truncate">
-                                            <i class="fa fa-tag text-muted me-1"></i>
-                                            <strong>Marca/Modelo:</strong>
-                                            <t t-esc="machine.marca_id.name"/> /
-                                            <t t-esc="machine.modelo_id.name"/>
-                                        </p>
-                                        <p class="card-text small mb-1">
-                                            <i class="fa fa-print text-muted me-1"></i>
-                                            <strong>Contómetro:</strong><br/>
-                                            <t t-if="machine.tipo=='monocroma'">
-                                                <t t-esc="machine.contometro_bn"/> B/N
-                                            </t>
-                                            <t t-else="">
-                                                <t t-esc="machine.contometro_bn"/> B/N /
-                                                <t t-esc="machine.contometro_color"/> Color
-                                            </t>
-                                        </p>
-                                        <p class="card-text mb-3">
-                                            <i class="fa fa-euro-sign text-success me-1"></i>
-                                            <strong>Precio:</strong>
-                                            <span class="badge bg-success">
-                                                <t t-esc="machine.sale_price"/> $
-                                            </span>
-                                        </p>
-                                        <div class="mt-auto d-flex gap-2">
-                                            <a t-att-href="'/stock-maquinas/%s' % machine.id"
-                                                class="btn btn-sm btn-dark flex-grow-1">
-                                                <i class="fa fa-eye me-1"></i>Detalles
-                                            </a>
-                                            
-                                            <!-- Botón de reservar - solo si está disponible -->
-                                            <t t-if="machine.state == 'available'">
-                                                <button type="button" 
-                                                    class="btn btn-sm btn-primary flex-grow-1 reserve-btn"
-                                                    t-att-data-machine-id="machine.id">
-                                                    <i class="fa fa-calendar-check me-1"></i>Reservar
-                                                </button>
-                                            </t>
-                                        </div>
-                                        
-                                        <!-- Mensaje al comprador si es su máquina -->
-                                        <t t-if="machine.state == 'sold' and machine.reserved_by.id == user.partner_id.id">
-                                            <div class="alert alert-success mt-2 mb-0 p-2 text-center small">
-                                                <i class="fa fa-user-check me-1"></i>Adquirida por ti
-                                            </div>
-                                        </t>
-                                    </div>
-                                </div>
-                            </div>
-                        </t>
-                    </t>
-                </div>
-            </div>
-            
-            <!-- Template para badge de estado -->
-            <t t-name="machine_status_badge">
-                <span t-if="machine.state == 'available'" class="badge bg-success">
-                    <i class="fa fa-check-circle me-1"></i>Disponible
-                </span>
-                <span t-elif="machine.state == 'reserved'" class="badge bg-warning text-dark">
-                    <i class="fa fa-clock me-1"></i>Reservada
-                </span>
-                <span t-elif="machine.state == 'pending_payment'" class="badge bg-warning text-dark">
-                    <i class="fa fa-money-bill me-1"></i>Pago Pendiente
-                </span>
-                <span t-elif="machine.state == 'sold'" class="badge bg-danger">
-                    <i class="fa fa-shopping-cart me-1"></i>Vendida
-                </span>
-                <span t-elif="machine.state == 'importing'" class="badge bg-info text-dark">
-                    <i class="fa fa-ship me-1"></i>Importando
-                </span>
-                <span t-elif="machine.state == 'unloading'" class="badge bg-info text-dark">
-                    <i class="fa fa-truck me-1"></i>Descargando
-                </span>
-                <span t-else="" class="badge bg-secondary">
-                    <i class="fa fa-question-circle me-1"></i><t t-esc="machine.state"/>
-                </span>
-            </t>
-            
-            <!-- Modal de confirmación para reservas -->
-            <div class="modal fade" id="reserveModal" tabindex="-1" aria-labelledby="reserveModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="reserveModalLabel">Confirmar Reserva</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <p>¿Estás seguro de que deseas reservar esta máquina?</p>
-                            <p class="small text-muted">Una vez reservada, tendrás 48 horas para completar el proceso de compra.</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <form id="reserveForm" method="post">
-                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                <button type="submit" class="btn btn-primary">Confirmar Reserva</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- CSS Personalizado -->
-            <link rel="stylesheet" href="/copier_company/static/src/css/copier_list.css"/>
-            
-            <!-- JS -->
-            <script type="text/javascript" src="/copier_company/static/src/js/copier_list.js"></script>
-        </t>
-    </template>
-    <template id="machine_status_badge" name="Machine Status Badge">
-      <span t-if="machine.state == 'available'" class="badge bg-success">
-        <i class="fa fa-check-circle me-1"></i>Disponible
-      </span>
-      <span t-elif="machine.state == 'reserved'" class="badge bg-warning text-dark">
-        <i class="fa fa-clock me-1"></i>Reservada
-      </span>
-      <span t-elif="machine.state == 'pending_payment'" class="badge bg-warning text-dark">
-        <i class="fa fa-money-bill me-1"></i>Pago Pendiente
-      </span>
-      <span t-elif="machine.state == 'sold'" class="badge bg-danger">
-        <i class="fa fa-shopping-cart me-1"></i>Vendida
-      </span>
-      <span t-elif="machine.state == 'importing'" class="badge bg-info text-dark">
-        <i class="fa fa-ship me-1"></i>Importando
-      </span>
-      <span t-elif="machine.state == 'unloading'" class="badge bg-info text-dark">
-        <i class="fa fa-truck me-1"></i>Descargando
-      </span>
-      <span t-else="" class="badge bg-secondary">
-        <i class="fa fa-question-circle me-1"></i><t t-esc="machine.state"/>
-      </span>
-    </template>
+  <!-- Badge de estado de máquina -->
+  <template id="machine_status_badge" name="Machine Status Badge">
+      <span t-if="machine.state=='available'" class="badge bg-success"><i class="fa fa-check-circle me-1"></i>Disponible</span>
+      <span t-elif="machine.state=='reserved'" class="badge bg-warning text-dark"><i class="fa fa-clock me-1"></i>Reservada</span>
+      <span t-elif="machine.state=='pending_payment'" class="badge bg-warning text-dark"><i class="fa fa-money-bill me-1"></i>Pago Pendiente</span>
+      <span t-elif="machine.state=='sold'" class="badge bg-danger"><i class="fa fa-shopping-cart me-1"></i>Vendida</span>
+      <span t-elif="machine.state=='importing'" class="badge bg-info text-dark"><i class="fa fa-ship me-1"></i>Importando</span>
+      <span t-elif="machine.state=='unloading'" class="badge bg-info text-dark"><i class="fa fa-truck me-1"></i>Descargando</span>
+      <span t-else="" class="badge bg-secondary"><i class="fa fa-question-circle me-1"></i><t t-esc="machine.state"/></span>
+  </template>
 </odoo>
