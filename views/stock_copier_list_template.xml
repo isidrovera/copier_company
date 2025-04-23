@@ -4,6 +4,7 @@
       <t t-call="website.layout">
           <div class="copier-list-container" t-ref="container">
               <div class="container py-3">
+
                   <!-- Encabezado con contador de equipos -->
                   <div class="d-flex justify-content-between align-items-center mb-3">
                       <h2 class="mb-0">
@@ -79,34 +80,58 @@
                       <table class="table table-sm table-hover">
                           <thead>
                               <tr class="table-light">
-                                  <th>Imagen</th><th>Referencia</th><th>Marca / Modelo</th><th class="d-none d-md-table-cell">Tipo</th><th class="d-none d-md-table-cell">Contómetro</th><th>Precio</th><th>Estado</th><th>Acción</th>
+                                  <th>Imagen</th>
+                                  <th>Referencia</th>
+                                  <th>Marca / Modelo</th>
+                                  <th class="d-none d-md-table-cell">Tipo</th>
+                                  <th class="d-none d-md-table-cell">Contómetro</th>
+                                  <th>Precio</th>
+                                  <th>Estado</th>
+                                  <th>Acción</th>
                               </tr>
                           </thead>
                           <tbody>
                               <t t-if="not machines">
-                                  <tr><td colspan="8" class="text-center py-4"><div class="alert alert-info mb-0"><i class="fa fa-info-circle me-2"></i>No hay máquinas disponibles con los filtros seleccionados.</div></td></tr>
+                                  <tr>
+                                      <td colspan="8" class="text-center py-4">
+                                          <div class="alert alert-info mb-0">
+                                              <i class="fa fa-info-circle me-2"></i>No hay máquinas disponibles.</div>
+                                      </td>
+                                  </tr>
                               </t>
                               <t t-foreach="machines" t-as="machine">
                                   <t t-if="machine.state != 'sold' or (machine.state == 'sold' and machine.reserved_by and machine.reserved_by.id == user.partner_id.id)">
                                       <tr t-att-class="machine.state == 'sold' and 'table-secondary' or ''">
-                                          <td class="align-middle"><div class="avatar avatar-md">
-                                              <t t-if="machine.image">
-                                                  <img class="rounded" style="width:48px;height:48px;object-fit:contain;" t-att-src="'/web/image?model=machine.copier&amp;id=%s&amp;field=image' % machine.id" alt="Imagen principal"/>
-                                              </t><t t-else=""><img class="rounded" style="width:48px;height:48px;object-fit:contain;" t-att-src="'/web/image?model=machine.model&amp;id=%s&amp;field=imagen' % machine.modelo_id.id" alt="Imagen modelo"/></t>
-                                          </div></td>
+                                          <td class="align-middle">
+                                              <div class="avatar avatar-md">
+                                                  <t t-if="machine.image">
+                                                      <img class="rounded p-1" style="width:48px;height:48px;object-fit:contain;" t-att-src="'/web/image?model=machine.copier&amp;id=%s&amp;field=image' % machine.id" alt="Imagen"/>
+                                                  </t>
+                                                  <t t-else="">
+                                                      <img class="rounded p-1" style="width:48px;height:48px;object-fit:contain;" t-att-src="'/web/image?model=machine.model&amp;id=%s&amp;field=imagen' % machine.modelo_id.id" alt="Modelo"/>
+                                                  </t>
+                                              </div>
+                                          </td>
                                           <td class="align-middle"><t t-esc="machine.name"/></td>
                                           <td class="align-middle"><t t-esc="machine.marca_id.name"/> / <t t-esc="machine.modelo_id.name"/></td>
                                           <td class="d-none d-md-table-cell align-middle">
-                                              <span t-if="machine.tipo=='monocroma'" class="badge rounded-pill bg-secondary"><i class="fa fa-adjust me-1"></i>Mono</span>
-                                              <span t-else="" class="badge rounded-pill bg-info"><i class="fa fa-palette me-1"></i>Color</span>
+                                              <span t-if="machine.tipo=='monocroma'" class="badge bg-secondary">Mono</span>
+                                              <span t-else="" class="badge bg-info">Color</span>
                                           </td>
                                           <td class="d-none d-md-table-cell align-middle">
-                                              <t t-if="machine.tipo=='monocroma'"><small><i class="fa fa-print text-secondary me-1"></i><t t-esc="machine.contometro_bn"/> B/N</small></t>
-                                              <t t-else=""><small><i class="fa fa-print text-secondary me-1"></i><t t-esc="machine.contometro_bn"/> B/N <br/><i class="fa fa-print text-primary me-1"></i><t t-esc="machine.contometro_color"/> Color</small></t>
+                                              <t t-if="machine.tipo=='monocroma'"><small><i class="fa fa-print"></i><t t-esc="machine.contometro_bn"/> B/N</small></t>
+                                              <t t-else=""><small><i class="fa fa-print text-primary"></i><t t-esc="machine.contometro_color"/> Color</small></t>
                                           </td>
-                                          <td class="align-middle"><span class="badge bg-success"><i class="fa fa-tag me-1"></i><t t-esc="machine.sale_price"/> $</span></td>
-                                          <td class="align-middle"><t t-call="machine_status_badge"/></td>
-                                          <td class="align-middle"><div class="btn-group btn-group-sm"><a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-dark btn-sm"><i class="fa fa-eye"></i></a><t t-if="machine.state=='available'"><button type="button" class="btn btn-primary btn-sm reserve-btn" t-att-data-machine-id="machine.id"><i class="fa fa-calendar-check"></i></button></t></div></td>
+                                          <td class="align-middle"><span class="badge bg-success"><t t-esc="machine.sale_price"/> $</span></td>
+                                          <td class="align-middle"><t t-call="copier_company.machine_status_badge"/></td>
+                                          <td class="align-middle">
+                                              <div class="btn-group btn-group-sm">
+                                                  <a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-dark btn-sm"><i class="fa fa-eye"></i></a>
+                                                  <t t-if="machine.state=='available'">
+                                                      <button type="button" class="btn btn-primary btn-sm reserve-btn" t-att-data-machine-id="machine.id"><i class="fa fa-calendar-check"></i></button>
+                                                  </t>
+                                              </div>
+                                          </td>
                                       </tr>
                                   </t>
                               </t>
@@ -116,30 +141,64 @@
 
                   <!-- Vista Kanban -->
                   <div id="kanban-view" class="row g-3" style="display:none">
-                      <t t-if="not machines"><div class="col-12"><div class="alert alert-info text-center"><i class="fa fa-info-circle me-2"></i>No hay máquinas disponibles con los filtros seleccionados.</div></div></t>
+                      <t t-if="not machines">
+                          <div class="col-12 text-center py-4">
+                              <div class="alert alert-info"><i class="fa fa-info-circle me-2"></i>No hay máquinas.</div>
+                          </div>
+                      </t>
                       <t t-foreach="machines" t-as="machine">
-                          <t t-if="machine.state != 'sold' or (machine.state == 'sold' and machine.reserved_by and machine.reserved_by.id == user.partner_id.id)">
-                              <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
-                                  <div t-att-class="'card h-100 shadow-sm copier-card ' + (machine.state=='sold' and 'bg-light' or '')">
+                          <t t-if="machine.state!='sold' or (machine.state=='sold' and machine.reserved_by.id==user.partner_id.id)">
+                              <div class="col-xl-3 col-lg-4 col-md-6">
+                                  <div t-att-class="'card h-100 shadow-sm ' + (machine.state=='sold' and 'bg-light' or '')">
                                       <div class="position-relative">
-                                          <t t-if="machine.image"><img class="card-img-top p-3" style="height:180px;object-fit:contain;" t-att-src="'/web/image?model=machine.copier&amp;id=%s&amp;field=image' % machine.id" alt="Imagen principal"/></t>
-                                          <t t-else=""><img class="card-img-top p-3" style="height:180px;object-fit:contain;" t-att-src="'/web/image?model=machine.model&amp;id=%s&amp;field=imagen' % machine.modelo_id.id" alt="Imagen modelo"/></t>
-                                          <div class="position-absolute top-0 end-0 p-2"><span t-if="machine.tipo=='monocroma'" class="badge rounded-pill bg-secondary"><i class="fa fa-adjust me-1"></i>Mono</span><span t-else="" class="badge rounded-pill bg-info"><i class="fa fa-palette me-1"></i>Color</span></div>
-                                          <div class="position-absolute top-0 start-0 p-2"><t t-call="machine_status_badge"/></div>
+                                          <t t-if="machine.image">
+                                              <img class="card-img-top p-3" style="height:180px;object-fit:contain;" t-att-src="'/web/image?model=machine.copier&amp;id=%s&amp;field=image' % machine.id"/>
+                                          </t>
+                                          <t t-else="">
+                                              <img class="card-img-top p-3" style="height:180px;object-fit:contain;" t-att-src="'/web/image?model=machine.model&amp;id=%s&amp;field=imagen' % machine.modelo_id.id"/>
+                                          </t>
+                                          <div class="position-absolute top-0 end-0 p-2"><t t-if="machine.tipo=='monocroma'" class="badge bg-secondary">Mono</t><t t-else="" class="badge bg-info">Color</t></div>
+                                          <div class="position-absolute top-0 start-0 p-2"><t t-call="copier_company.machine_status_badge"/></div>
                                       </div>
                                       <div class="card-body d-flex flex-column p-3">
-                                          <h6 class="card-title text-truncate mb-2"><i class="fa fa-barcode text-muted me-1"></i><t t-esc="machine.name"/></h6>
-                                          <p class="card-text small mb-1 text-truncate"><i class="fa fa-tag text-muted me-1"></i><strong>Marca/Modelo:</strong> <t t-esc="machine.marca_id.name"/> / <t t-esc="machine.modelo_id.name"/></p>
-                                          <p class="card-text small mb-1"><i class="fa fa-print text-muted me-1"></i><strong>Contómetro:</strong><br/><t t-if="machine.tipo=='monocroma'"><t t-esc="machine.contometro_bn"/> B/N</t><t t-else=""><t t-esc="machine.contometro_bn"/> B/N / <t t-esc="machine.contometro_color"/> Color</t></p>
-                                          <p class="card-text mb-3"><i class="fa fa-euro-sign text-success me-1"></i><strong>Precio:</strong> <span class="badge bg-success"><t t-esc="machine.sale_price"/> $</span></p>
-                                          <div class="mt-auto d-flex gap-2"><a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-sm btn-dark flex-grow-1"><i class="fa fa-eye me-1"></i>Detalles</a><t t-if="machine.state=='available'"><button type="button" class="btn btn-sm btn-primary flex-grow-1 reserve-btn" t-att-data-machine-id="machine.id"><i class="fa fa-calendar-check me-1"></i>Reservar</button></t></div>
-                                          <t t-if="machine.state=='sold' and machine.reserved_by.id==user.partner_id.id"><div class="alert alert-success mt-2 mb-0 p-2 text-center small"><i class="fa fa-user-check me-1"></i>Adquirida por ti</div></t>
+                                          <h6 class="card-title text-truncate mb-2"><t t-esc="machine.name"/></h6>
+                                          <p class="small mb-1"><strong>Marca/Modelo:</strong> <t t-esc="machine.marca_id.name"/> / <t t-esc="machine.modelo_id.name"/></p>
+                                          <p class="small mb-1"><strong>Contómetro:</strong> <t t-esc="machine.contometro_bn"/> B/N / <t t-esc="machine.contometro_color"/> Color</p>
+                                          <p class="mb-3"><strong>Precio:</strong> <span class="badge bg-success"><t t-esc="machine.sale_price"/> $</span></p>
+                                          <div class="mt-auto d-flex gap-2">
+                                              <a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-sm btn-dark flex-grow-1">Detalles</a>
+                                              <t t-if="machine.state=='available'"><button type="button" class="btn btn-sm btn-primary flex-grow-1 reserve-btn" t-att-data-machine-id="machine.id">Reservar</button></t>
+                                          </div>
+                                          <t t-if="machine.state=='sold' and machine.reserved_by.id==user.partner_id.id"><div class="alert alert-success mt-2 p-2 text-center small">Adquirida por ti</div></t>
                                       </div>
                                   </div>
                               </div>
                           </t>
                       </t>
                   </div>
+
+                  <!-- Modal de confirmación -->
+                  <div class="modal fade" id="reserveModal" tabindex="-1" aria-labelledby="reserveModalLabel" aria-hidden="true">
+                      <div class="modal-dialog modal-dialog-centered">
+                          <div class="modal-content">
+                              <div class="modal-header">
+                                  <h5 class="modal-title" id="reserveModalLabel">Confirmar Reserva</h5>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                  ¿Seguro que deseas reservar esta máquina? Tienes 48h para concretar.
+                              </div>
+                              <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                  <form id="reserveForm" method="post">
+                                      <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                      <button type="submit" class="btn btn-primary">Confirmar Reserva</button>
+                                  </form>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+
               </div>
           </div>
           <!-- CSS personalizado -->
