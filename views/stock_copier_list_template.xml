@@ -222,9 +222,8 @@
                 console.log('[DEBUG] script incrustado ejecutado');
           
                 var container = document.querySelector('.copier-list-container');
-                if (!container) return;
+                if (!container) { return; }
           
-                // Toggle List/Kanban
                 var btnList = container.querySelector('#btn-list-view');
                 var btnKanban = container.querySelector('#btn-kanban-view');
                 var listView = container.querySelector('#list-view');
@@ -245,13 +244,20 @@
                     localStorage.setItem('copierViewPreference', mode);
                 }
           
-                btnList?.addEventListener('click', () = &gt; toggleView('list'));
-                btnKanban?.addEventListener('click', () =&gt; toggleView('kanban'));
+                if (btnList) {
+                    btnList.addEventListener('click', function() {
+                        toggleView('list');
+                    });
+                }
           
-                // Restaurar vista previa
+                if (btnKanban) {
+                    btnKanban.addEventListener('click', function() {
+                        toggleView('kanban');
+                    });
+                }
+          
                 toggleView(localStorage.getItem('copierViewPreference') || 'list');
           
-                // Inicializar modal Bootstrap si existe
                 var reserveBtns = container.querySelectorAll('.reserve-btn');
                 var reserveForm = container.querySelector('#reserveForm');
                 var reserveModalEl = container.querySelector('#reserveModal');
@@ -269,12 +275,6 @@
             });
           </script>
           
-          
-
-
-
-
-                   
       </t>
   </template>
 
