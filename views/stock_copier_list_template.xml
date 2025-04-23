@@ -337,4 +337,27 @@
             <script type="text/javascript" src="/copier_company/static/src/js/copier_list.js"></script>
         </t>
     </template>
+    <template id="machine_status_badge" name="Machine Status Badge">
+      <span t-if="machine.state == 'available'" class="badge bg-success">
+        <i class="fa fa-check-circle me-1"></i>Disponible
+      </span>
+      <span t-elif="machine.state == 'reserved'" class="badge bg-warning text-dark">
+        <i class="fa fa-clock me-1"></i>Reservada
+      </span>
+      <span t-elif="machine.state == 'pending_payment'" class="badge bg-warning text-dark">
+        <i class="fa fa-money-bill me-1"></i>Pago Pendiente
+      </span>
+      <span t-elif="machine.state == 'sold'" class="badge bg-danger">
+        <i class="fa fa-shopping-cart me-1"></i>Vendida
+      </span>
+      <span t-elif="machine.state == 'importing'" class="badge bg-info text-dark">
+        <i class="fa fa-ship me-1"></i>Importando
+      </span>
+      <span t-elif="machine.state == 'unloading'" class="badge bg-info text-dark">
+        <i class="fa fa-truck me-1"></i>Descargando
+      </span>
+      <span t-else="" class="badge bg-secondary">
+        <i class="fa fa-question-circle me-1"></i><t t-esc="machine.state"/>
+      </span>
+    </template>
 </odoo>
