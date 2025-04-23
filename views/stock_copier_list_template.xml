@@ -104,12 +104,20 @@
                                       <tr t-att-class="machine.state == 'sold' and 'table-secondary' or ''">
                                           <td class="align-middle">
                                               <div class="avatar avatar-md">
+                                                <td>
                                                   <t t-if="machine.image">
-                                                      <img class="rounded p-1" style="width:48px;height:48px;object-fit:contain;" t-att-src="'/web/image?model=machine.copier&amp;id=%s&amp;field=image' % machine.id" alt="Imagen"/>
+                                                    <img class="img-thumbnail"
+                                                         style="max-width:80px; max-height:60px; object-fit:contain;"
+                                                         t-att-src="'data:image/png;base64,%s' % (machine.image.decode('utf-8'))"
+                                                         alt="Imagen principal"/>
                                                   </t>
                                                   <t t-else="">
-                                                      <img class="rounded p-1" style="width:48px;height:48px;object-fit:contain;" t-att-src="'/web/image?model=machine.model&amp;id=%s&amp;field=imagen' % machine.modelo_id.id" alt="Modelo"/>
+                                                    <img class="img-thumbnail"
+                                                         style="max-width:80px; max-height:60px; object-fit:contain;"
+                                                         t-att-src="'data:image/png;base64,%s' % (machine.modelo_id.imagen.decode('utf-8'))"
+                                                         alt="Imagen modelo"/>
                                                   </t>
+                                                </td>
                                               </div>
                                           </td>
                                           <td class="align-middle"><t t-esc="machine.name"/></td>
