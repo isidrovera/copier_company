@@ -71,12 +71,12 @@
                              <!-- Checkbox para mostrar solo disponibles -->
                                 <div class="col-12">
                                     <div class="form-check">
-                                        <input type="hidden" name="available_only" value="off"/>
                                         <input class="form-check-input" type="checkbox"
                                             id="show-available-only"
                                             name="available_only"
                                             value="on"
                                             t-att-checked="available_only == 'on'"/>
+
                                         <label class="form-check-label" for="show-available-only">
                                             Mostrar solo máquinas disponibles
                                         </label>
@@ -314,24 +314,43 @@
                 const form = document.getElementById('filter-form');
                 if (!form) return;
         
-                // Escuchar cambios en todos los selects y checkbox del formulario
+                // Escuchar cambios en todos los selects, inputs y checkbox
                 const inputs = form.querySelectorAll('select, input[type="checkbox"], input[name="search"]');
         
-                inputs.forEach(input =&gt; {
-                    input.addEventListener('change', () =&gt; {
-                        form.submit();
-                    });
-        
-                    // Para input[type=text] esperar a que se escriba y presione Enter
-                    if (input.name === 'search') {
+                inputs.forEach(input =&gt;
+                {
+                    // Si es checkbox, manejar el cambio y asegurar valor
+                    if (input.type === 'checkbox') {
+                        input.addEventListener('change', function () {
+                            if (!input.checked) {
+                                input.setAttribute('value', 'off');
+                            } else {
+                                input.setAttribute('value', 'on');
+                            }
+                            form.submit();
+                        });
+                    } else if (input.name === 'search') {
+                        // Submit al presionar Enter en campo de búsqueda
                         input.addEventListener('keydown', function (event) {
                             if (event.key === 'Enter') {
                                 event.preventDefault();
                                 form.submit();
                             }
                         });
+                    } else {
+                        // Otros inputs (select)
+                        input.addEventListener('change', function () {
+                            form.submit();
+                        });
                     }
                 });
+        
+                // Inicializar estado del checkbox según URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const availableCheckbox = document.getElementById('show-available-only');
+                if (availableCheckbox &amp;&amp; urlParams.has('available_only')) {
+                    availableCheckbox.checked = urlParams.get('available_only') === 'on';
+                }
             });
         </script>
         <script>
