@@ -11,6 +11,8 @@ class WebsiteStock(http.Controller):
 
     @http.route(['/stock-maquinas'], type='http', auth='user', website=True)
     def list_stock(self, **kwargs):
+        _logger.debug("📥 [START] Ingreso a /stock-maquinas con kwargs: %s", kwargs)
+        
         domain = []
 
         # Filtro por marca
@@ -19,39 +21,57 @@ class WebsiteStock(http.Controller):
             selected_marca = int(marca_param) if marca_param else 0
         except ValueError:
             selected_marca = 0
+            _logger.warning("⚠️ [WARN] 'marca' no es un entero válido: %s", marca_param)
+
+        _logger.debug("🔧 Marca seleccionada: %s", selected_marca)
         if selected_marca:
             domain.append(('marca_id', '=', selected_marca))
 
         # Filtro por tipo
         selected_tipo = kwargs.get('tipo') or ''
+        _logger.debug("🔧 Tipo seleccionado: %s", selected_tipo)
         if selected_tipo:
             domain.append(('tipo', '=', selected_tipo))
 
         # Filtro por estado
         selected_estado = kwargs.get('estado') or ''
+        _logger.debug("🔧 Estado seleccionado: %s", selected_estado)
 
         # Filtro por checkbox "Mostrar solo disponibles"
-        available_only = kwargs.get('available_only')  # ✅ leer valor enviado (on/off)
-        if available_only not in ['on', 'off']:
-            available_only = 'on'  # por defecto activado
+        available_only = kwargs.get('available_only')
+        _logger.debug("🔘 Checkbox 'available_only' recibido: %s", available_only)
 
-        # ✅ si está activado y no hay un estado personalizado, filtrar por disponibles
+        if available_only not in ['on', 'off']:
+            available_only = 'on'
+            _logger.debug("🔘 'available_only' no presente o inválido → usando valor por defecto: 'on'")
+        else:
+            _logger.debug("✅ 'available_only' confirmado como: %s", available_only)
+
         if available_only == 'on' and not selected_estado:
             domain.append(('state', '=', 'available'))
+            _logger.debug("✅ Aplicando filtro por estado: disponible (checkbox activo, sin estado manual)")
         elif selected_estado:
-            domain.append(('state', '=', selected_estado))  # solo si se eligió un estado
+            domain.append(('state', '=', selected_estado))
+            _logger.debug("✅ Aplicando filtro por estado específico: %s", selected_estado)
 
         # Filtro por búsqueda
         search = kwargs.get('search') or ''
+        _logger.debug("🔎 Texto de búsqueda: '%s'", search)
         if search:
             domain.append(('name', 'ilike', search))
 
-        # Obtener marcas
+        _logger.debug("🧾 Dominio final generado para búsqueda: %s", domain)
+
+        # Obtener marcas disponibles
         marcas = request.env['marcas.maquinas'].sudo().search([])
+        _logger.debug("📦 Total marcas encontradas: %d", len(marcas))
 
-        # Consultar máquinas
+        # Consultar las máquinas
         machines = request.env['copier.stock'].sudo().search(domain)
+        _logger.debug("📦 Total máquinas encontradas: %d", len(machines))
 
+        # Render de plantilla
+        _logger.debug("📤 Renderizando plantilla 'copier_company.copier_list'")
         return request.render('copier_company.copier_list', {
             'machines': machines,
             'marcas': marcas,
@@ -62,6 +82,7 @@ class WebsiteStock(http.Controller):
             'search': search,
             'user': request.env.user,
         })
+
 
 
     @http.route(['/stock-maquinas/<model("copier.stock"):machine>'], type='http', auth='user', website=True)
