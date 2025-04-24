@@ -58,9 +58,7 @@
                 <!-- Ruta de navegación (Breadcrumb) -->
                 <nav aria-label="breadcrumb" class="mb-4 bg-light rounded-3 py-2 px-3 shadow-sm">
                     <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item">
-                            <a href="/soporte/descargas?folder_id=0" class="text-decoration-none">Inicio</a>
-                        </li>
+                        
                         <!-- Aquí se pueden añadir dinámicamente los elementos de la ruta -->
                         <t t-if="current_folder_name">
                             <li class="breadcrumb-item active" aria-current="page">
@@ -289,88 +287,7 @@
                     /* Dark mode styles can be added here */
                 }
             </style>
-
-            <!-- Scripts mejorados -->
-            <script type="text/javascript">
-                document.addEventListener('DOMContentLoaded', function() {
-                    // Manejo de vistas (lista/kanban)
-                    const listViewBtn = document.getElementById('list-view-btn');
-                    const kanbanViewBtn = document.getElementById('kanban-view-btn');
-                    const listView = document.getElementById('list-view');
-                    const kanbanView = document.getElementById('kanban-view');
-                    
-                    // Función para establecer la vista activa
-                    function setActiveView(viewMode) {
-                        if (viewMode === 'list') {
-                            listView.classList.remove('d-none');
-                            kanbanView.classList.add('d-none');
-                            listViewBtn.classList.add('active');
-                            kanbanViewBtn.classList.remove('active');
-                            localStorage.setItem('pcloud_view_mode', 'list');
-                        } else {
-                            listView.classList.add('d-none');
-                            kanbanView.classList.remove('d-none');
-                            listViewBtn.classList.remove('active');
-                            kanbanViewBtn.classList.add('active');
-                            localStorage.setItem('pcloud_view_mode', 'kanban');
-                        }
-                    }
-                    
-                    // Cargar la vista guardada o usar lista por defecto
-                    const savedViewMode = localStorage.getItem('pcloud_view_mode') || 'list';
-                    setActiveView(savedViewMode);
-                    
-                    // Event listeners para los botones de vista
-                    listViewBtn.addEventListener('click', function() {
-                        setActiveView('list');
-                    });
-                    
-                    kanbanViewBtn.addEventListener('click', function() {
-                        setActiveView('kanban');
-                    });
-                    
-                    // Manejo de búsqueda
-                    const searchForm = document.getElementById('search-form');
-                    const searchInput = document.getElementById('search-input');
-                    
-                    searchForm.addEventListener('submit', function(e) {
-                        e.preventDefault();
-                        if (searchInput.value.trim() !== '') {
-                            const currentUrl = new URL(window.location.href);
-                            currentUrl.searchParams.set('search', searchInput.value.trim());
-                            window.location.href = currentUrl.toString();
-                        }
-                    });
-                    
-                    // Manejo de ordenamiento
-                    const modifiedHeader = document.getElementById('modified-header');
-                    const sortIcon = document.getElementById('sort-icon');
-                    
-                    modifiedHeader.addEventListener('click', function() {
-                        const currentUrl = new URL(window.location.href);
-                        const currentSort = currentUrl.searchParams.get('sort') || 'asc';
-                        const newSort = currentSort === 'asc' ? 'desc' : 'asc';
-                        
-                        currentUrl.searchParams.set('sort', newSort);
-                        window.location.href = currentUrl.toString();
-                    });
-                    
-                    // Establecer el icono de ordenamiento correcto
-                    const currentSort = new URL(window.location.href).searchParams.get('sort') || 'asc';
-                    sortIcon.className = currentSort === 'asc' ? 'fa fa-sort-asc ms-1' : 'fa fa-sort-desc ms-1';
-                    
-                    // Animación para las tarjetas en vista Kanban
-                    const hoverCards = document.querySelectorAll('.hover-card');
-                    hoverCards.forEach(card => {
-                        card.addEventListener('mouseenter', function() {
-                            this.classList.add('shadow-lg');
-                        });
-                        card.addEventListener('mouseleave', function() {
-                            this.classList.remove('shadow-lg');
-                        });
-                    });
-                });
-            </script>
+            
             <script type="text/javascript" src="/copier_company/static/src/js/PcloudDescargas.js"></script>
             <link rel="stylesheet" type="text/css" href="/copier_company/static/src/css/PcloudDescargas.css"/>
         </t>
