@@ -25,7 +25,8 @@
                   <!-- Filtros compactos -->
                   <div class="card mb-3 shadow-sm border-0">
                       <div class="card-body p-3">
-                          <form action="/stock-maquinas" method="get" class="row g-2">
+                        <form id="filter-form" action="/stock-maquinas" method="get" class="row g-2">
+
                               <div class="col-md-3 col-sm-6">
                                   <div class="input-group input-group-sm">
                                       <span class="input-group-text"><i class="fa fa-search"></i></span>
@@ -82,8 +83,8 @@
                             </div>
                             
                               <div class="col-12 d-flex justify-content-end">
-                                  <button type="submit" class="btn btn-sm btn-primary me-2"><i class="fa fa-filter me-1"></i>Aplicar</button>
-                                  <a href="/stock-maquinas" class="btn btn-sm btn-outline-secondary"><i class="fa fa-times me-1"></i>Limpiar</a>
+                                  
+                                  <a href="/stock-maquinas" class="btn btn-sm btn-primary me-2"><i class="fa fa-times me-1"></i>Limpiar</a>
                               </div>
                           </form>
                       </div>
@@ -305,6 +306,32 @@
                 }
             });
           </script>
+          <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const form = document.getElementById('filter-form');
+                if (!form) return;
+        
+                // Escuchar cambios en todos los selects y checkbox del formulario
+                const inputs = form.querySelectorAll('select, input[type="checkbox"], input[name="search"]');
+        
+                inputs.forEach(input =&gt; {
+                    input.addEventListener('change', () =&gt; {
+                        form.submit();
+                    });
+        
+                    // Para input[type=text] esperar a que se escriba y presione Enter
+                    if (input.name === 'search') {
+                        input.addEventListener('keydown', function (event) {
+                            if (event.key === 'Enter') {
+                                event.preventDefault();
+                                form.submit();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+        
           
       </t>
   </template>
