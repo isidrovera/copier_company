@@ -13,7 +13,7 @@ class WebsiteStock(http.Controller):
     def list_stock(self, **kwargs):
         domain = []
 
-        # Marca
+        # Filtro por marca
         marca_param = kwargs.get('marca') or ''
         try:
             selected_marca = int(marca_param) if marca_param else 0
@@ -22,24 +22,26 @@ class WebsiteStock(http.Controller):
         if selected_marca:
             domain.append(('marca_id', '=', selected_marca))
 
-        # Tipo
+        # Filtro por tipo
         selected_tipo = kwargs.get('tipo') or ''
         if selected_tipo:
             domain.append(('tipo', '=', selected_tipo))
 
-        # Estado
+        # Filtro por estado
         selected_estado = kwargs.get('estado') or ''
 
-        if selected_estado:
-            domain.append(('state', '=', selected_estado))
-
-        # Mostrar solo disponibles (✅ importante: aplicar solo si no se usa otro estado)
-        available_only = kwargs.get('available_only')
+        # Filtro por checkbox "Mostrar solo disponibles"
+        available_only = kwargs.get('available_only')  # ✅ leer valor enviado (on/off)
         if available_only not in ['on', 'off']:
-            available_only = 'on'  # por defecto solo si no se envía nada
+            available_only = 'on'  # por defecto activado
 
+        # ✅ si está activado y no hay un estado personalizado, filtrar por disponibles
+        if available_only == 'on' and not selected_estado:
+            domain.append(('state', '=', 'available'))
+        elif selected_estado:
+            domain.append(('state', '=', selected_estado))  # solo si se eligió un estado
 
-        # Buscar
+        # Filtro por búsqueda
         search = kwargs.get('search') or ''
         if search:
             domain.append(('name', 'ilike', search))
@@ -60,7 +62,6 @@ class WebsiteStock(http.Controller):
             'search': search,
             'user': request.env.user,
         })
-
 
 
     @http.route(['/stock-maquinas/<model("copier.stock"):machine>'], type='http', auth='user', website=True)
