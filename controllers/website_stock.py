@@ -1,6 +1,7 @@
 # controllers/website_stock.py
 from odoo import http, _
 from odoo.http import request
+from datetime import datetime
 import base64
 import logging
 
@@ -117,7 +118,7 @@ class WebsiteStock(http.Controller):
                 'payment_proof': base64.b64encode(data),
                 'payment_proof_filename': filename,
                 'state': 'sold',  # Cambiar automáticamente a vendida
-                'sold_date': fields.Datetime.now(),
+                'sold_date': datetime.now(),  # ✅ Corregido
                 'payment_verified': True,
             })
             
@@ -130,6 +131,7 @@ class WebsiteStock(http.Controller):
                 'machine': machine,
                 'error': _("Ocurrió un error al procesar su comprobante. Por favor intente nuevamente."),
             })
+
     
     @http.route(['/mis-maquinas'], type='http', auth='user', website=True)
     def my_machines(self, **kwargs):
