@@ -40,6 +40,7 @@ class WebsiteStock(http.Controller):
             'marcas': marcas,
             'selected_marca': selected_marca,
             'selected_tipo': selected_tipo,
+            'user': request.env.user,
         })
 
     @http.route(['/stock-maquinas/<model("copier.stock"):machine>'], type='http', auth='user', website=True)
