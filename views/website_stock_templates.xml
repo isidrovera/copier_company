@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>   
    
-    <!-- Plantilla mejorada para "Mis Máquinas" -->
-<!-- Plantilla mejorada para "Mis Máquinas" -->
+   <!-- Plantilla mejorada para "Mis Máquinas" -->
 <template id="my_machines" name="Mis Máquinas">
     <t t-call="website.layout">
         <div class="container py-5">
@@ -78,8 +77,7 @@
                                                         </span>
                                                     </td>
                                                     <td>
-                                                        <div><t t-esc="machine.reserved_date" t-options="{'widget': 'date'}"/></div>
-                                                        <small class="text-muted"><t t-esc="machine.reserved_date" t-options="{'widget': 'time'}"/></small>
+                                                        <t t-esc="machine.reserved_date"/>
                                                     </td>
                                                     <td class="text-end">
                                                         <div class="btn-group">
@@ -135,8 +133,7 @@
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        <div><t t-esc="machine.sold_date" t-options="{'widget': 'date'}"/></div>
-                                                        <small class="text-muted"><t t-esc="machine.sold_date" t-options="{'widget': 'time'}"/></small>
+                                                        <t t-esc="machine.sold_date"/>
                                                     </td>
                                                     <td>
                                                         <t t-if="machine.sale_price">
@@ -167,6 +164,7 @@
         </div>
     </t>
 </template>
+
     
 
     
