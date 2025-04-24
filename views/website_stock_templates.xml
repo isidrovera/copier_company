@@ -2,6 +2,7 @@
 <odoo>   
    
     <!-- Plantilla mejorada para "Mis Máquinas" -->
+<!-- Plantilla mejorada para "Mis Máquinas" -->
 <template id="my_machines" name="Mis Máquinas">
     <t t-call="website.layout">
         <div class="container py-5">
@@ -65,11 +66,6 @@
                                                     <td><strong><t t-esc="machine.name"/></strong></td>
                                                     <td>
                                                         <div class="d-flex align-items-center">
-                                                            <t t-if="machine.image_small">
-                                                                <img t-att-src="'data:image/png;base64,%s' % machine.image_small" 
-                                                                    class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;"
-                                                                    t-att-alt="machine.marca_id.name"/>
-                                                            </t>
                                                             <div>
                                                                 <div><strong><t t-esc="machine.marca_id.name"/></strong></div>
                                                                 <div class="text-muted"><t t-esc="machine.modelo_id.name"/></div>
@@ -132,11 +128,6 @@
                                                     <td><strong><t t-esc="machine.name"/></strong></td>
                                                     <td>
                                                         <div class="d-flex align-items-center">
-                                                            <t t-if="machine.image_small">
-                                                                <img t-att-src="'data:image/png;base64,%s' % machine.image_small" 
-                                                                    class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;"
-                                                                    t-att-alt="machine.marca_id.name"/>
-                                                            </t>
                                                             <div>
                                                                 <div><strong><t t-esc="machine.marca_id.name"/></strong></div>
                                                                 <div class="text-muted"><t t-esc="machine.modelo_id.name"/></div>
@@ -149,7 +140,7 @@
                                                     </td>
                                                     <td>
                                                         <t t-if="machine.sale_price">
-                                                            <span class="fw-bold"><t t-esc="machine.sale_price" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/></span>
+                                                            <span class="fw-bold">$<t t-esc="machine.sale_price"/></span>
                                                         </t>
                                                         <t t-else="">-</t>
                                                     </td>
