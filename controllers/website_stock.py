@@ -11,10 +11,9 @@ class WebsiteStock(http.Controller):
 
     @http.route(['/stock-maquinas'], type='http', auth='user', website=True)
     def list_stock(self, **kwargs):
-        """Listar máquinas disponibles con filtros personalizados"""
         domain = []
 
-        # --- Marca ---
+        # Marca
         marca_param = kwargs.get('marca') or ''
         try:
             selected_marca = int(marca_param) if marca_param else 0
@@ -23,30 +22,31 @@ class WebsiteStock(http.Controller):
         if selected_marca:
             domain.append(('marca_id', '=', selected_marca))
 
-        # --- Tipo ---
+        # Tipo
         selected_tipo = kwargs.get('tipo') or ''
         if selected_tipo:
             domain.append(('tipo', '=', selected_tipo))
 
-        # --- Estado ---
+        # Estado
         selected_estado = kwargs.get('estado') or ''
+
         if selected_estado:
             domain.append(('state', '=', selected_estado))
 
-        # --- Solo disponibles (si no se seleccionó ya un estado explícito)
-        available_only = kwargs.get('available_only') or ''
+        # Mostrar solo disponibles (✅ importante: aplicar solo si no se usa otro estado)
+        available_only = kwargs.get('available_only', 'on')  # por defecto activado
         if available_only == 'on' and not selected_estado:
             domain.append(('state', '=', 'available'))
 
-        # --- Buscar texto (opcional) ---
+        # Buscar
         search = kwargs.get('search') or ''
         if search:
             domain.append(('name', 'ilike', search))
 
-        # Obtener marcas para el filtro
+        # Obtener marcas
         marcas = request.env['marcas.maquinas'].sudo().search([])
 
-        # Obtener resultados con filtros aplicados
+        # Consultar máquinas
         machines = request.env['copier.stock'].sudo().search(domain)
 
         return request.render('copier_company.copier_list', {
@@ -59,6 +59,7 @@ class WebsiteStock(http.Controller):
             'search': search,
             'user': request.env.user,
         })
+
 
 
     @http.route(['/stock-maquinas/<model("copier.stock"):machine>'], type='http', auth='user', website=True)
