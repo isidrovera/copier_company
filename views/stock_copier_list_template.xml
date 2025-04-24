@@ -334,6 +334,16 @@
                 });
             });
         </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const urlParams = new URLSearchParams(window.location.search);
+                const availableCheckbox = document.getElementById('show-available-only');
+                if (availableCheckbox &amp;&amp; urlParams.has('available_only')) {
+                    availableCheckbox.checked = urlParams.get('available_only') === 'on';
+                }
+            });
+        </script>
+        
         
           
       </t>
