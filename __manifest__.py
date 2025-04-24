@@ -80,8 +80,7 @@
     'assets': {
         'web.assets_frontend': [
             # 1) Bootstrap CSS/JS de Odoo 18
-            'copier_company/static/lib/bootstrap/css/bootstrap.min.css',
-            'copier_company/static/lib/bootstrap/js/bootstrap.bundle.min.js',
+            
             # 2) Tus estilos propios
             'copier_company/static/src/css/counter_charts.css',
             'copier_company/static/src/css/cotizacion_styles.css',
