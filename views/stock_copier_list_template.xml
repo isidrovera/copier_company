@@ -100,54 +100,53 @@
                               </tr>
                           </thead>
                           <tbody>
-                              <t t-if="not machines">
-                                  <tr>
-                                      <td colspan="8" class="text-center py-4">
-                                          <div class="alert alert-info mb-0">
-                                              <i class="fa fa-info-circle me-2"></i>No hay máquinas disponibles.</div>
-                                      </td>
-                                  </tr>
-                              </t>
-                              <t t-foreach="machines" t-as="machine">
-                                  <tr t-att-class="machine.state == 'sold' and 'table-secondary' or ''">
-                                      <td class="align-middle">
-                                          <div class="avatar avatar-md">
+                            <t t-if="not machines">
+                                <tr>
+                                    <td colspan="8" class="text-center py-4">
+                                        <div class="alert alert-info mb-0">
+                                            <i class="fa fa-info-circle me-2"></i>No hay máquinas disponibles.
+                                        </div>
+                                    </td>
+                                </tr>
+                            </t>
+                            <t t-foreach="machines" t-as="machine">
+                                <!-- Mostrar solo si es del usuario -->
+                                <t t-if="machine.reserved_by.id == user.partner_id.id">
+                                    <tr t-att-class="machine.state == 'sold' and 'table-success' or 'table-warning'">
+                                        <td class="align-middle">
                                             <t t-if="machine.image">
-                                              <img class="img-thumbnail"
-                                                    style="max-width:80px; max-height:60px; object-fit:contain;"
-                                                    t-att-src="'data:image/png;base64,%s' % (machine.image.decode('utf-8'))"
-                                                    alt="Imagen principal"/>
-                                              </t>
-                                              <t t-else="">
-                                                  <img class="rounded p-1" style="width:48px;height:48px;object-fit:contain;" t-att-src="'/web/image?model=machine.model&amp;id=%s&amp;field=imagen' % machine.modelo_id.id" alt="Modelo"/>
-                                              </t>
-                                          </div>
-                                      </td>
-                                      <td class="align-middle"><t t-esc="machine.name"/></td>
-                                      <td class="align-middle"><t t-esc="machine.marca_id.name"/> / <t t-esc="machine.modelo_id.name"/></td>
-                                      <td class="d-none d-md-table-cell align-middle">
-                                          <span t-if="machine.tipo=='monocroma'" class="badge bg-secondary">Mono</span>
-                                          <span t-else="" class="badge bg-info">Color</span>
-                                      </td>
-                                      <td class="d-none d-md-table-cell align-middle">
-                                        <small>
-                                          <i class="fa fa-print"/>
-                                          <t t-esc="machine.contometro"/>
-                                        </small>
-                                      </td>
-                                      
-                                      <td class="align-middle"><span class="badge bg-success">$<t t-esc="machine.sale_price"/> </span></td>
-                                      <td class="align-middle"><t t-call="copier_company.machine_status_badge"/></td>
-                                      <td class="align-middle">
-                                        <a t-att-href="'/stock-maquinas/%s' % machine.id"
-                                           class="btn btn-dark btn-sm rounded-pill shadow-sm px-3 py-2">
-                                          <i class="fa fa-eye fa-lg"></i>
-                                          <span class="ms-2">Detalle</span>
-                                        </a>
-                                      </td>                                        
-                                  </tr>
-                              </t>
-                          </tbody>
+                                                <img class="img-thumbnail" style="max-width:80px; max-height:60px; object-fit:contain;" t-att-src="'data:image/png;base64,%s' % (machine.image.decode('utf-8'))" alt="Imagen"/>
+                                            </t>
+                                        </td>
+                                        <td class="align-middle"><t t-esc="machine.name"/></td>
+                                        <td class="align-middle"><t t-esc="machine.marca_id.name"/> / <t t-esc="machine.modelo_id.name"/></td>
+                                        <td class="d-none d-md-table-cell align-middle">
+                                            <span t-if="machine.tipo=='monocroma'" class="badge bg-secondary">Mono</span>
+                                            <span t-else="" class="badge bg-info">Color</span>
+                                        </td>
+                                        <td class="d-none d-md-table-cell align-middle">
+                                            <small><i class="fa fa-print"/> <t t-esc="machine.contometro"/></small>
+                                        </td>
+                                        <td class="align-middle"><span class="badge bg-success">$<t t-esc="machine.sale_price"/></span></td>
+                                        <td class="align-middle">
+                                            <t t-if="machine.state == 'sold'">
+                                                <span class="badge bg-success">Comprada por ti</span>
+                                            </t>
+                                            <t t-elif="machine.state in ['reserved', 'pending_payment']">
+                                                <span class="badge bg-warning text-dark">Reservada por ti</span>
+                                            </t>
+                                        </td>
+                                        <td class="align-middle">
+                                            <a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-dark btn-sm rounded-pill shadow-sm px-3 py-2">
+                                                <i class="fa fa-eye fa-lg"></i>
+                                                <span class="ms-2">Detalle</span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </t>
+                        </tbody>
+                        
                       </table>
                   </div>
 
