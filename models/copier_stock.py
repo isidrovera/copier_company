@@ -76,6 +76,15 @@ class CopierStock(models.Model):
     notes = fields.Text(string='Notas')
     active = fields.Boolean(string='Activo', default=True)
     
+    # Nuevos campos para el temporizador de reserva
+    reservation_initial_state = fields.Selection([
+        ('importing', 'En Importación'),
+        ('unloading', 'En Descarga'),
+        ('available', 'Disponible')
+    ], string='Estado Inicial de Reserva', tracking=True)
+    reservation_expiry_date = fields.Datetime(string='Fecha de Expiración de Reserva', tracking=True)
+    days_left = fields.Integer(string='Días Restantes', compute='_compute_days_left')
+    
     # Campo para la imagen principal
     image = fields.Binary(string="Imagen Principal", attachment=True)
     # Campo para imágenes adicionales
@@ -160,6 +169,17 @@ class CopierStock(models.Model):
             else:
                 record.checklist_status = 'completed'
 
+    @api.depends('reservation_expiry_date')
+    def _compute_days_left(self):
+        """Calcular los días restantes antes de que expire la reserva"""
+        today = fields.Datetime.now()
+        for record in self:
+            if record.reservation_expiry_date and record.state == 'reserved':
+                delta = record.reservation_expiry_date - today
+                record.days_left = delta.days if delta.days >= 0 else 0
+            else:
+                record.days_left = 0
+
     def action_move_to_unloading(self):
         """Cambiar estado a 'En Descarga'"""
         for rec in self:
@@ -178,13 +198,26 @@ class CopierStock(models.Model):
             rec.state = 'available'
 
     def action_reserve(self):
-        """Reservar la máquina"""
+        """Reservar la máquina con temporizador según el estado inicial"""
         for rec in self:
-            if rec.state != 'available':
-                raise exceptions.UserError(_('Solo se pueden reservar máquinas disponibles.'))
+            if rec.state not in ['available', 'importing', 'unloading']:
+                raise exceptions.UserError(_('Solo se pueden reservar máquinas disponibles, en importación o en descarga.'))
+            
+            # Guardar el estado inicial antes de cambiar a reservado
+            rec.reservation_initial_state = rec.state
             rec.state = 'reserved'
             rec.reserved_by = self.env.user.partner_id.id
             rec.reserved_date = fields.Datetime.now()
+            
+            # Calcular fecha de expiración según el estado inicial
+            if rec.reservation_initial_state in ['importing', 'unloading']:
+                # Más tiempo para máquinas en importación o descarga
+                expiry_days = 15  # 15 días
+            else:
+                # Tiempo estándar para máquinas disponibles
+                expiry_days = 5  # 5 días
+                
+            rec.reservation_expiry_date = rec.reserved_date + timedelta(days=expiry_days)
 
     def action_pending_payment(self):
         """Marcar como pendiente de pago"""
@@ -192,6 +225,29 @@ class CopierStock(models.Model):
             if rec.state != 'reserved':
                 raise exceptions.UserError(_('Solo se pueden marcar como pendiente de pago máquinas reservadas.'))
             rec.state = 'pending_payment'
+            # Al pasar a pendiente de pago, eliminamos la fecha de expiración
+            rec.reservation_expiry_date = False
+
+    @api.model
+    def _cron_check_expired_reservations(self):
+        """Verificar y liberar reservas expiradas"""
+        now = fields.Datetime.now()
+        expired_machines = self.search([
+            ('state', '=', 'reserved'),
+            ('reservation_expiry_date', '!=', False),
+            ('reservation_expiry_date', '<', now)
+        ])
+        
+        for machine in expired_machines:
+            machine.action_cancel_reservation()
+            
+            # Opcional: Notificar al administrador sobre la liberación automática
+            admin_user = self.env.ref('base.user_admin')
+            if admin_user:
+                machine.message_post(
+                    body=_("La reserva ha expirado y se ha liberado automáticamente."),
+                    partner_ids=[admin_user.partner_id.id]
+                )
 
     @api.model
     def _cron_check_payments(self):
@@ -226,6 +282,8 @@ class CopierStock(models.Model):
             rec.state = 'sold'
             rec.sold_date = fields.Datetime.now()
             rec.payment_verified = True
+            # Al confirmar la venta, eliminamos la fecha de expiración si existiera
+            rec.reservation_expiry_date = False
 
     def action_cancel_reservation(self):
         """Cancelar reserva"""
@@ -239,6 +297,8 @@ class CopierStock(models.Model):
             rec.payment_proof = False
             rec.payment_proof_filename = False
             rec.payment_verified = False
+            rec.reservation_expiry_date = False
+            rec.reservation_initial_state = False
 
     @api.onchange('payment_proof')
     def _onchange_payment_proof(self):
@@ -246,6 +306,8 @@ class CopierStock(models.Model):
         for rec in self:
             if rec.payment_proof and rec.state in ['reserved', 'pending_payment']:
                 rec.state = 'pending_payment'
+                # Al subir el comprobante de pago, eliminamos la fecha de expiración
+                rec.reservation_expiry_date = False
                 
     # Método para actualizar estados en lote
     def action_mass_update_state(self):
@@ -279,7 +341,6 @@ class CopierStock(models.Model):
             self.checklist_ids.unlink()
             # Crear nuevo checklist basado en el tipo
             self._create_default_checklist()
-
 
 class CopierChecklistLine(models.Model):
     _name = 'copier.checklist.line'
