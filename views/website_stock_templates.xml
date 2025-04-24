@@ -10,12 +10,12 @@
                 
                 <ul class="nav nav-tabs" id="myMachinesTab" role="tablist">
                     <li class="nav-item">
-                        <a class="nav-link active" id="reserved-tab" data-toggle="tab" href="#reserved" role="tab">
+                        <a class="nav-link active" id="reserved-tab" data-bs-toggle="tab" href="#reserved" role="tab">
                             Reservadas <span class="badge badge-warning"><t t-esc="len(reserved_machines)"/></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="purchased-tab" data-toggle="tab" href="#purchased" role="tab">
+                        <a class="nav-link" id="purchased-tab" data-bs-toggle="tab" href="#purchased" role="tab">
                             Compradas <span class="badge badge-success"><t t-esc="len(purchased_machines)"/></span>
                         </a>
                     </li>
@@ -97,9 +97,7 @@
                                                     <t t-if="machine.sale_price">
                                                         <t t-esc="machine.sale_price"/> $
                                                     </t>
-                                                    <t t-else="">
-                                                        -
-                                                    </t>
+                                                    <t t-else="">-</t>
                                                 </td>
                                                 <td>
                                                     <a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-sm btn-outline-primary">
@@ -117,6 +115,7 @@
             </div>
         </t>
     </template>
+    
 
     
     
