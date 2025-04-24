@@ -55,19 +55,7 @@
                     </div>
                 </div>
 
-                <!-- Ruta de navegación (Breadcrumb) -->
-                <nav aria-label="breadcrumb" class="mb-4 bg-light rounded-3 py-2 px-3 shadow-sm">
-                    <ol class="breadcrumb mb-0">
-                        
-                        <!-- Aquí se pueden añadir dinámicamente los elementos de la ruta -->
-                        <t t-if="current_folder_name">
-                            <li class="breadcrumb-item active" aria-current="page">
-                                <t t-esc="current_folder_name"/>
-                            </li>
-                        </t>
-                    </ol>
-                </nav>
-
+                
                 <!-- Vista de lista mejorada -->
                 <div class="row">
                     <div class="col-12" id="list-view">
