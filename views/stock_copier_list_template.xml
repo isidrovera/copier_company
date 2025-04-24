@@ -75,8 +75,7 @@
                                             id="show-available-only"
                                             name="available_only"
                                             value="on"
-                                            t-att-checked="available_only == 'on'"/>
-
+                                            t-att-checked="'available_only' in request.params and request.params.get('available_only') == 'on'"/>
                                         <label class="form-check-label" for="show-available-only">
                                             Mostrar solo máquinas disponibles
                                         </label>
@@ -353,16 +352,7 @@
                 }
             });
         </script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const urlParams = new URLSearchParams(window.location.search);
-                const availableCheckbox = document.getElementById('show-available-only');
-                if (availableCheckbox &amp;&amp; urlParams.has('available_only')) {
-                    availableCheckbox.checked = urlParams.get('available_only') === 'on';
-                }
-            });
-        </script>
-        
+       
         
           
       </t>

@@ -38,21 +38,14 @@ class WebsiteStock(http.Controller):
         _logger.debug("🔧 Estado seleccionado: %s", selected_estado)
 
         # Filtro por checkbox "Mostrar solo disponibles"
-        available_only = kwargs.get('available_only')
-        _logger.debug("🔘 Checkbox 'available_only' recibido: %s", available_only)
-
-        if available_only not in ['on', 'off']:
-            available_only = 'on'
-            _logger.debug("🔘 'available_only' no presente o inválido → usando valor por defecto: 'on'")
-        else:
-            _logger.debug("✅ 'available_only' confirmado como: %s", available_only)
+       available_only = kwargs.get('available_only')
+        _logger.info("[Filtro] available_only recibido: %s", available_only)
 
         if available_only == 'on' and not selected_estado:
             domain.append(('state', '=', 'available'))
-            _logger.debug("✅ Aplicando filtro por estado: disponible (checkbox activo, sin estado manual)")
         elif selected_estado:
             domain.append(('state', '=', selected_estado))
-            _logger.debug("✅ Aplicando filtro por estado específico: %s", selected_estado)
+
 
         # Filtro por búsqueda
         search = kwargs.get('search') or ''
