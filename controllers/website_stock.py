@@ -34,9 +34,10 @@ class WebsiteStock(http.Controller):
             domain.append(('state', '=', selected_estado))
 
         # Mostrar solo disponibles (✅ importante: aplicar solo si no se usa otro estado)
-        available_only = kwargs.get('available_only', 'on')  # por defecto activado
-        if available_only == 'on' and not selected_estado:
-            domain.append(('state', '=', 'available'))
+        available_only = kwargs.get('available_only')
+        if available_only not in ['on', 'off']:
+            available_only = 'on'  # por defecto solo si no se envía nada
+
 
         # Buscar
         search = kwargs.get('search') or ''
