@@ -1,120 +1,181 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    
+<odoo>   
    
-    <!-- Plantilla para "Mis Máquinas" -->
-    <template id="my_machines" name="Mis Máquinas">
-        <t t-call="website.layout">
-            <div class="container mt-4">
-                <h1 class="mb-4">Mis Máquinas</h1>
+    <!-- Plantilla mejorada para "Mis Máquinas" -->
+<template id="my_machines" name="Mis Máquinas">
+    <t t-call="website.layout">
+        <div class="container py-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0"><i class="fa fa-cogs me-2"></i>Mis Máquinas</h1>
+                <a href="/stock-maquinas" class="btn btn-outline-secondary">
+                    <i class="fa fa-search me-1"></i> Buscar más máquinas
+                </a>
+            </div>
+            
+            <div class="card shadow-sm">
+                <div class="card-header bg-white p-0">
+                    <ul class="nav nav-tabs card-header-tabs" id="myMachinesTab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="reserved-tab" data-bs-toggle="tab" href="#reserved" role="tab">
+                                <i class="fa fa-clock me-1"></i> Reservadas 
+                                <span class="badge bg-warning text-dark ms-1"><t t-esc="len(reserved_machines)"/></span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="purchased-tab" data-bs-toggle="tab" href="#purchased" role="tab">
+                                <i class="fa fa-check-circle me-1"></i> Compradas 
+                                <span class="badge bg-success ms-1"><t t-esc="len(purchased_machines)"/></span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
                 
-                <ul class="nav nav-tabs" id="myMachinesTab" role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link active" id="reserved-tab" data-bs-toggle="tab" href="#reserved" role="tab">
-                            Reservadas <span class="badge badge-warning"><t t-esc="len(reserved_machines)"/></span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="purchased-tab" data-bs-toggle="tab" href="#purchased" role="tab">
-                            Compradas <span class="badge badge-success"><t t-esc="len(purchased_machines)"/></span>
-                        </a>
-                    </li>
-                </ul>
-                
-                <div class="tab-content mt-4" id="myMachinesTabContent">
-                    <!-- Pestaña de máquinas reservadas -->
-                    <div class="tab-pane fade show active" id="reserved" role="tabpanel" aria-labelledby="reserved-tab">
-                        <t t-if="not reserved_machines">
-                            <div class="alert alert-info">
-                                <i class="fa fa-info-circle mr-2"></i> No tiene máquinas reservadas actualmente.
-                            </div>
-                        </t>
-                        <t t-else="">
-                            <div class="table-responsive">
-                                <table class="table table-striped">
-                                    <thead class="thead-light">
-                                        <tr>
-                                            <th>Referencia</th>
-                                            <th>Marca/Modelo</th>
-                                            <th>Estado</th>
-                                            <th>Fecha de Reserva</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <t t-foreach="reserved_machines" t-as="machine">
+                <div class="card-body">
+                    <div class="tab-content" id="myMachinesTabContent">
+                        <!-- Pestaña de máquinas reservadas -->
+                        <div class="tab-pane fade show active" id="reserved" role="tabpanel" aria-labelledby="reserved-tab">
+                            <t t-if="not reserved_machines">
+                                <div class="alert alert-info d-flex align-items-center">
+                                    <i class="fa fa-info-circle fs-4 me-3"></i>
+                                    <div>
+                                        <strong>No tiene máquinas reservadas actualmente.</strong>
+                                        <div class="mt-2">
+                                            <a href="/stock-maquinas" class="btn btn-sm btn-primary">
+                                                Ver catálogo de máquinas
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle">
+                                        <thead>
                                             <tr>
-                                                <td><t t-esc="machine.name"/></td>
-                                                <td><t t-esc="machine.marca_id.name"/> <t t-esc="machine.modelo_id.name"/></td>
-                                                <td>
-                                                    <span t-att-class="'badge ' + (machine.state == 'reserved' and 'badge-warning' or 'badge-info')">
-                                                        <t t-esc="dict(machine._fields['state'].selection).get(machine.state)"/>
-                                                    </span>
-                                                </td>
-                                                <td><t t-esc="machine.reserved_date" t-options="{'widget': 'datetime'}"/></td>
-                                                <td>
-                                                    <a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-sm btn-outline-primary mr-1">
-                                                        Ver detalles
-                                                    </a>
-                                                    <a t-att-href="'/stock-maquinas/%s/payment' % machine.id" class="btn btn-sm btn-primary">
-                                                        Subir pago
-                                                    </a>
-                                                </td>
+                                                <th scope="col">Referencia</th>
+                                                <th scope="col">Marca/Modelo</th>
+                                                <th scope="col">Estado</th>
+                                                <th scope="col">Fecha de Reserva</th>
+                                                <th scope="col" class="text-end">Acciones</th>
                                             </tr>
-                                        </t>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </t>
-                    </div>
-                    
-                    <!-- Pestaña de máquinas compradas -->
-                    <div class="tab-pane fade" id="purchased" role="tabpanel" aria-labelledby="purchased-tab">
-                        <t t-if="not purchased_machines">
-                            <div class="alert alert-info">
-                                <i class="fa fa-info-circle mr-2"></i> No tiene máquinas compradas actualmente.
-                            </div>
-                        </t>
-                        <t t-else="">
-                            <div class="table-responsive">
-                                <table class="table table-striped">
-                                    <thead class="thead-light">
-                                        <tr>
-                                            <th>Referencia</th>
-                                            <th>Marca/Modelo</th>
-                                            <th>Fecha de Compra</th>
-                                            <th>Precio</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <t t-foreach="purchased_machines" t-as="machine">
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="reserved_machines" t-as="machine">
+                                                <tr>
+                                                    <td><strong><t t-esc="machine.name"/></strong></td>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <t t-if="machine.image_small">
+                                                                <img t-att-src="'data:image/png;base64,%s' % machine.image_small" 
+                                                                    class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;"
+                                                                    t-att-alt="machine.marca_id.name"/>
+                                                            </t>
+                                                            <div>
+                                                                <div><strong><t t-esc="machine.marca_id.name"/></strong></div>
+                                                                <div class="text-muted"><t t-esc="machine.modelo_id.name"/></div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <span t-att-class="'badge ' + (machine.state == 'reserved' and 'bg-warning text-dark' or 'bg-info text-white')">
+                                                            <t t-esc="dict(machine._fields['state'].selection).get(machine.state)"/>
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <div><t t-esc="machine.reserved_date" t-options="{'widget': 'date'}"/></div>
+                                                        <small class="text-muted"><t t-esc="machine.reserved_date" t-options="{'widget': 'time'}"/></small>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <div class="btn-group">
+                                                            <a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-sm btn-outline-primary">
+                                                                <i class="fa fa-info-circle me-1"></i> Detalles
+                                                            </a>
+                                                            <a t-att-href="'/stock-maquinas/%s/payment' % machine.id" class="btn btn-sm btn-primary">
+                                                                <i class="fa fa-credit-card me-1"></i> Subir pago
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </t>
+                        </div>
+                        
+                        <!-- Pestaña de máquinas compradas -->
+                        <div class="tab-pane fade" id="purchased" role="tabpanel" aria-labelledby="purchased-tab">
+                            <t t-if="not purchased_machines">
+                                <div class="alert alert-info d-flex align-items-center">
+                                    <i class="fa fa-info-circle fs-4 me-3"></i>
+                                    <div>
+                                        <strong>No tiene máquinas compradas actualmente.</strong>
+                                        <p class="mb-0">Una vez que complete el pago, sus máquinas reservadas aparecerán aquí.</p>
+                                    </div>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle">
+                                        <thead>
                                             <tr>
-                                                <td><t t-esc="machine.name"/></td>
-                                                <td><t t-esc="machine.marca_id.name"/> <t t-esc="machine.modelo_id.name"/></td>
-                                                <td><t t-esc="machine.sold_date" t-options="{'widget': 'datetime'}"/></td>
-                                                <td>
-                                                    <t t-if="machine.sale_price">
-                                                        <t t-esc="machine.sale_price"/> $
-                                                    </t>
-                                                    <t t-else="">-</t>
-                                                </td>
-                                                <td>
-                                                    <a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-sm btn-outline-primary">
-                                                        Ver detalles
-                                                    </a>
-                                                </td>
+                                                <th scope="col">Referencia</th>
+                                                <th scope="col">Marca/Modelo</th>
+                                                <th scope="col">Fecha de Compra</th>
+                                                <th scope="col">Precio</th>
+                                                <th scope="col" class="text-end">Acciones</th>
                                             </tr>
-                                        </t>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </t>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="purchased_machines" t-as="machine">
+                                                <tr>
+                                                    <td><strong><t t-esc="machine.name"/></strong></td>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <t t-if="machine.image_small">
+                                                                <img t-att-src="'data:image/png;base64,%s' % machine.image_small" 
+                                                                    class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;"
+                                                                    t-att-alt="machine.marca_id.name"/>
+                                                            </t>
+                                                            <div>
+                                                                <div><strong><t t-esc="machine.marca_id.name"/></strong></div>
+                                                                <div class="text-muted"><t t-esc="machine.modelo_id.name"/></div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div><t t-esc="machine.sold_date" t-options="{'widget': 'date'}"/></div>
+                                                        <small class="text-muted"><t t-esc="machine.sold_date" t-options="{'widget': 'time'}"/></small>
+                                                    </td>
+                                                    <td>
+                                                        <t t-if="machine.sale_price">
+                                                            <span class="fw-bold"><t t-esc="machine.sale_price" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/></span>
+                                                        </t>
+                                                        <t t-else="">-</t>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <div class="btn-group">
+                                                            <a t-att-href="'/stock-maquinas/%s' % machine.id" class="btn btn-sm btn-outline-primary">
+                                                                <i class="fa fa-info-circle me-1"></i> Detalles
+                                                            </a>
+                                                            <a t-att-href="'/stock-maquinas/%s/documents' % machine.id" class="btn btn-sm btn-outline-secondary">
+                                                                <i class="fa fa-file-alt me-1"></i> Documentos
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </t>
+                        </div>
                     </div>
                 </div>
             </div>
-        </t>
-    </template>
+        </div>
+    </t>
+</template>
     
 
     
