@@ -47,6 +47,7 @@ class WebsiteStock(http.Controller):
         """Ver detalle de una máquina específica"""
         return request.render('copier_company.copier_detail', {
             'machine': machine,
+            'user': request.env.user,
         })
 
     @http.route(['/stock-maquinas/<model("copier.stock"):machine>/reserve'], type='http', auth='user', methods=['POST'], website=True)
