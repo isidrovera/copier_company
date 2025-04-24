@@ -237,7 +237,63 @@
           </div>
           <!-- CSS personalizado -->
           <link rel="stylesheet" href="/copier_company/static/src/css/copier_list.css"/>
+          <script type="text/javascript">
+            document.addEventListener('DOMContentLoaded', function () {
+                console.log('[DEBUG] script incrustado ejecutado');
           
+                var container = document.querySelector('.copier-list-container');
+                if (!container) { return; }
+          
+                var btnList = container.querySelector('#btn-list-view');
+                var btnKanban = container.querySelector('#btn-kanban-view');
+                var listView = container.querySelector('#list-view');
+                var kanbanView = container.querySelector('#kanban-view');
+          
+                function toggleView(mode) {
+                    if (mode === 'kanban') {
+                        listView.style.display = 'none';
+                        kanbanView.style.display = 'block';
+                        btnList.classList.remove('active');
+                        btnKanban.classList.add('active');
+                    } else {
+                        listView.style.display = 'block';
+                        kanbanView.style.display = 'none';
+                        btnList.classList.add('active');
+                        btnKanban.classList.remove('active');
+                    }
+                    localStorage.setItem('copierViewPreference', mode);
+                }
+          
+                if (btnList) {
+                    btnList.addEventListener('click', function() {
+                        toggleView('list');
+                    });
+                }
+          
+                if (btnKanban) {
+                    btnKanban.addEventListener('click', function() {
+                        toggleView('kanban');
+                    });
+                }
+          
+                toggleView(localStorage.getItem('copierViewPreference') || 'list');
+          
+                var reserveBtns = container.querySelectorAll('.reserve-btn');
+                var reserveForm = container.querySelector('#reserveForm');
+                var reserveModalEl = container.querySelector('#reserveModal');
+          
+                if (typeof bootstrap !== 'undefined' &amp;&amp; reserveModalEl) {
+                    var reserveModal = new bootstrap.Modal(reserveModalEl);
+                    reserveBtns.forEach(function (btn) {
+                        btn.addEventListener('click', function () {
+                            var id = btn.dataset.machineId;
+                            reserveForm.action = '/stock-maquinas/' + id + '/reserve';
+                            reserveModal.show();
+                        });
+                    });
+                }
+            });
+          </script>
           
       </t>
   </template>
