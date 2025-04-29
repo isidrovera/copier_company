@@ -340,9 +340,21 @@ class CopierCompanyPortal(CustomerPortal):
                     # Crear datos para el gráfico
                     chart_data = {
                         'monthly': monthly_data,
-                        'yearly': yearly_data
+                        'yearly': yearly_data,
+                        'by_user': chart_user_data
                     }
-                    
+
+                    # 🔥 Agregar gráfico por usuario (si aplica)
+                    chart_user_data = []
+                    if counters and counters[0].informe_por_usuario:
+                        for user_detail in counters[0].usuario_detalle_ids:
+                            chart_user_data.append({
+                                'name': user_detail.usuario_id.name,
+                                'copies': user_detail.cantidad_copias
+                            })
+
+                    chart_data['by_user'] = chart_user_data
+                                        
                     _logger.info("Datos para gráfico preparados: %s meses, %s años", 
                                 len(monthly_data), len(yearly_data))
                     

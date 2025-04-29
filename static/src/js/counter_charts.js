@@ -24,25 +24,23 @@ function initCharts() {
         return;
     }
     
-    // Obtener datos para los gráficos
     var chartDataElement = document.getElementById('charts-data');
     if (!chartDataElement) {
         console.warn('No se encontraron datos para los gráficos');
         return;
     }
-    
+
     try {
         var chartData = JSON.parse(chartDataElement.dataset.chartData || '{"monthly":[],"yearly":[]}');
         var isColor = chartDataElement.dataset.isColor === 'true';
-        
+
         console.log('Datos para gráfico mensual:', chartData.monthly);
         console.log('Datos para gráfico anual:', chartData.yearly);
-        
-        // Inicializar gráfico mensual
+        console.log('Datos para gráfico por usuario:', chartData.by_user);
+
         initMonthlyChart(chartData.monthly, isColor);
-        
-        // Inicializar gráfico anual
         initYearlyChart(chartData.yearly, isColor);
+        initUserChart(chartData.by_user); // ✅ LLAMADA AL NUEVO GRÁFICO
     } catch (error) {
         console.error('Error al inicializar los gráficos:', error);
     }
@@ -246,4 +244,48 @@ function initYearlyChart(data, isColor) {
         }]
     });
     console.log('Gráfico anual inicializado correctamente');
+}
+
+function initUserChart(data) {
+    if (!data || data.length === 0 || !document.getElementById('userChart')) {
+        console.warn('No hay datos para el gráfico por usuario o no existe el canvas');
+        return;
+    }
+
+    var ctx = document.getElementById('userChart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.map(item => item.name),
+            datasets: [{
+                label: 'Copias por Usuario',
+                data: data.map(item => item.copies),
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Copias por Usuario (Período Actual)'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: context => `${context.dataset.label}: ${context.raw.toLocaleString()}`
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Número de copias' }
+                }
+            }
+        }
+    });
 }
