@@ -337,12 +337,23 @@ class CopierCompanyPortal(CustomerPortal):
                     for key in sorted(year_dict.keys()):
                         yearly_data.append(year_dict[key])
                     
-                    # Crear datos para el gráfico
+                    chart_user_data = []
+
+                    if counters:
+                        first = counters[0]
+                        if first.informe_por_usuario and first.usuario_detalle_ids:
+                            for user_detail in first.usuario_detalle_ids:
+                                chart_user_data.append({
+                                    'name': user_detail.usuario_id.name,
+                                    'copies': user_detail.cantidad_copias
+                                })
+
                     chart_data = {
                         'monthly': monthly_data,
                         'yearly': yearly_data,
-                        
+                        'by_user': chart_user_data  # ✅ ahora sí contiene datos reales
                     }
+
 
                     
                     _logger.info("Datos para gráfico preparados: %s meses, %s años", 
