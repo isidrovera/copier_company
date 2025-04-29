@@ -368,7 +368,7 @@ function initUserMonthlyChart(data) {
     } else {
         console.log('[initUserMonthlyChart] Datos recibidos:', data);
     }
-    
+
     var canvas = document.getElementById('userMonthlyChart');
     if (!canvas) {
         console.error('[initUserMonthlyChart] Error: No se encontró el elemento canvas con ID "userMonthlyChart"');
@@ -411,7 +411,7 @@ function initUserMonthlyChart(data) {
     });
 
     console.log('[initUserMonthlyChart] Inicializando instancia de Chart.js...');
-    new Chart(ctx, {
+    window.userMonthlyChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: data.labels,
@@ -459,3 +459,15 @@ function initUserMonthlyChart(data) {
 
     console.log('[initUserMonthlyChart] Gráfico mensual por usuario inicializado exitosamente.');
 }
+// Redibujar el gráfico mensual por usuario al activar su tab
+document.addEventListener('DOMContentLoaded', function () {
+    const tab = document.querySelector('#user-monthly-tab');
+    if (tab) {
+        tab.addEventListener('shown.bs.tab', function () {
+            if (window.userMonthlyChartInstance) {
+                console.log('[initUserMonthlyChart] Redibujando gráfico al mostrar el tab');
+                window.userMonthlyChartInstance.resize();
+            }
+        });
+    }
+});
