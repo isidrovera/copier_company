@@ -37,16 +37,19 @@ function initCharts() {
         console.log('Datos para gráfico mensual:', chartData.monthly);
         console.log('Datos para gráfico anual:', chartData.yearly);
         console.log('Datos para gráfico por usuario:', chartData.by_user);
-        console.log('Datos para gráfico mensual por usuario:', chartData.user_monthly);
+        // CORRECCIÓN: Cambiar el log para mostrar la propiedad correcta
+        console.log('Datos para gráfico mensual por usuario:', chartData.by_user_monthly);
 
         initMonthlyChart(chartData.monthly, isColor);
         initYearlyChart(chartData.yearly, isColor);
         initUserChart(chartData.by_user);
-        initUserMonthlyChart(chartData.user_monthly); // Llamada a la nueva función
+        // CORRECCIÓN: Pasar la propiedad correcta a la función
+        initUserMonthlyChart(chartData.by_user_monthly);
     } catch (error) {
         console.error('Error al inicializar los gráficos:', error);
     }
 }
+
 
 /**
  * Inicializa el gráfico de consumo mensual
@@ -331,13 +334,53 @@ function initUserChart(data) {
  * Inicializa el gráfico de consumo mensual por usuario
  * @param {Object} data - Datos para el gráfico con formato {labels: [], datasets: []}
  */
+function debugUserMonthlyData(data) {
+    console.group('Debug datos mensuales por usuario');
+    console.log('Estructura del objeto:', Object.keys(data || {}));
+    
+    if (data && data.labels) {
+        console.log('Labels:', data.labels);
+    } else {
+        console.error('No hay propiedad labels');
+    }
+    
+    if (data && data.datasets) {
+        console.log('Datasets:', data.datasets.length);
+        data.datasets.forEach((ds, i) => {
+            console.log(`Dataset ${i}:`, ds.label, 'con', ds.data.length, 'datos');
+        });
+    } else {
+        console.error('No hay propiedad datasets');
+    }
+    console.groupEnd();
+}
+
+/**
+ * Inicializa el gráfico de consumo mensual por usuario con mejor manejo de errores
+ * @param {Object} data - Datos para el gráfico con formato {labels: [], datasets: []}
+ */
 function initUserMonthlyChart(data) {
-    if (!data || !document.getElementById('userMonthlyChart')) {
-        console.warn('No hay datos para el gráfico mensual por usuario o no existe el elemento canvas');
+    if (!data) {
+        console.error('No hay datos para el gráfico mensual por usuario');
+        return;
+    }
+    
+    var canvas = document.getElementById('userMonthlyChart');
+    if (!canvas) {
+        console.error('No existe el elemento canvas con ID userMonthlyChart');
         return;
     }
 
-    var ctx = document.getElementById('userMonthlyChart').getContext('2d');
+    // Depurar la estructura de datos
+    debugUserMonthlyData(data);
+    
+    // Verificar que tenemos la estructura correcta de datos
+    if (!data.labels || !data.datasets) {
+        console.error('Estructura de datos incorrecta para el gráfico mensual por usuario');
+        return;
+    }
+
+    var ctx = canvas.getContext('2d');
     
     console.log('Inicializando gráfico mensual por usuario...');
     
@@ -348,6 +391,7 @@ function initUserMonthlyChart(data) {
             datasets: data.datasets.map((ds, i) => ({
                 ...ds,
                 backgroundColor: `hsl(${(i * 47) % 360}, 70%, 60%)`, // colores únicos por usuario
+                borderColor: `hsl(${(i * 47) % 360}, 70%, 50%)`,
                 borderWidth: 1
             }))
         },
