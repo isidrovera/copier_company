@@ -360,40 +360,62 @@ function debugUserMonthlyData(data) {
  * @param {Object} data - Datos para el gráfico con formato {labels: [], datasets: []}
  */
 function initUserMonthlyChart(data) {
+    console.log('[initUserMonthlyChart] Iniciando inicialización del gráfico mensual por usuario...');
+
     if (!data) {
-        console.error('No hay datos para el gráfico mensual por usuario');
+        console.error('[initUserMonthlyChart] Error: No hay datos proporcionados para el gráfico');
         return;
+    } else {
+        console.log('[initUserMonthlyChart] Datos recibidos:', data);
     }
     
     var canvas = document.getElementById('userMonthlyChart');
     if (!canvas) {
-        console.error('No existe el elemento canvas con ID userMonthlyChart');
+        console.error('[initUserMonthlyChart] Error: No se encontró el elemento canvas con ID "userMonthlyChart"');
         return;
+    } else {
+        console.log('[initUserMonthlyChart] Elemento canvas encontrado:', canvas);
     }
 
-    // Depurar la estructura de datos
+    // Depurar la estructura de datos recibida
+    console.log('[initUserMonthlyChart] Depurando estructura de datos...');
     debugUserMonthlyData(data);
-    
-    // Verificar que tenemos la estructura correcta de datos
+
+    // Validar que la estructura sea la esperada
     if (!data.labels || !data.datasets) {
-        console.error('Estructura de datos incorrecta para el gráfico mensual por usuario');
+        console.error('[initUserMonthlyChart] Error: Estructura de datos incorrecta. Se esperaban "labels" y "datasets"');
         return;
+    } else {
+        console.log('[initUserMonthlyChart] Estructura de datos válida. Labels:', data.labels, 'Datasets:', data.datasets);
     }
 
     var ctx = canvas.getContext('2d');
-    
-    console.log('Inicializando gráfico mensual por usuario...');
-    
+    if (!ctx) {
+        console.error('[initUserMonthlyChart] Error: No se pudo obtener el contexto 2D del canvas');
+        return;
+    } else {
+        console.log('[initUserMonthlyChart] Contexto 2D del canvas obtenido correctamente');
+    }
+
+    console.log('[initUserMonthlyChart] Construyendo datasets personalizados para el gráfico...');
+    var preparedDatasets = data.datasets.map((ds, i) => {
+        const colorHue = (i * 47) % 360;
+        const preparedDataset = {
+            ...ds,
+            backgroundColor: `hsl(${colorHue}, 70%, 60%)`,
+            borderColor: `hsl(${colorHue}, 70%, 50%)`,
+            borderWidth: 1
+        };
+        console.log(`[initUserMonthlyChart] Dataset #${i}:`, preparedDataset);
+        return preparedDataset;
+    });
+
+    console.log('[initUserMonthlyChart] Inicializando instancia de Chart.js...');
     new Chart(ctx, {
         type: 'bar',
         data: {
             labels: data.labels,
-            datasets: data.datasets.map((ds, i) => ({
-                ...ds,
-                backgroundColor: `hsl(${(i * 47) % 360}, 70%, 60%)`, // colores únicos por usuario
-                borderColor: `hsl(${(i * 47) % 360}, 70%, 50%)`,
-                borderWidth: 1
-            }))
+            datasets: preparedDatasets
         },
         options: {
             responsive: true,
@@ -406,7 +428,9 @@ function initUserMonthlyChart(data) {
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            return `${context.dataset.label}: ${context.raw.toLocaleString()}`;
+                            const labelText = `${context.dataset.label}: ${context.raw.toLocaleString()}`;
+                            console.log('[initUserMonthlyChart] Tooltip generado:', labelText);
+                            return labelText;
                         }
                     }
                 },
@@ -432,6 +456,6 @@ function initUserMonthlyChart(data) {
             }
         }
     });
-    
-    console.log('Gráfico mensual por usuario inicializado correctamente');
+
+    console.log('[initUserMonthlyChart] Gráfico mensual por usuario inicializado exitosamente.');
 }
