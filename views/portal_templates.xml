@@ -511,6 +511,41 @@
                 </div>
             </div>
         </div>
+        <!-- Detalle mensual por usuario (si está activado) -->
+        <t t-if="counters and equipment and counters[0].informe_por_usuario">
+            <div class="card mt-4">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">
+                <i class="fa fa-users me-2"></i>Detalle de Copias por Usuario
+                </h5>
+            </div>
+            <div class="card-body">
+                <t t-if="counters[0].usuario_detalle_ids">
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                    <thead>
+                        <tr>
+                        <th>Usuario / Empresa</th>
+                        <th>Total de Copias</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="counters[0].usuario_detalle_ids" t-as="line">
+                        <td><t t-esc="line.usuario_id.name"/></td>
+                        <td><t t-esc="line.cantidad_copias"/></td>
+                        </tr>
+                    </tbody>
+                    </table>
+                </div>
+                </t>
+                <t t-else="">
+                <div class="alert alert-warning text-center">
+                    No hay datos de copias por usuario en este período.
+                </div>
+                </t>
+            </div>
+            </div>
+        </t>
         
         <!-- Botón para volver a la página de detalle del equipo -->
         <div class="text-center mt-4">
