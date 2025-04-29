@@ -255,9 +255,8 @@ class CopierCompanyPortal(CustomerPortal):
         """Muestra el historial de contadores para un equipo específico con gráficos"""
         _logger.info("=== INICIANDO portal_equipment_counters ===")
         _logger.info("Parámetros recibidos - equipment_id: %s, kw: %s", equipment_id, kw)
-        
+
         try:
-            # Verificar acceso al documento
             _logger.info("Verificando acceso al equipo ID: %s", equipment_id)
             try:
                 equipment_sudo = self._document_check_access('copier.company', equipment_id)
@@ -265,10 +264,9 @@ class CopierCompanyPortal(CustomerPortal):
             except (AccessError, MissingError) as e:
                 _logger.error("Error de acceso para equipo ID %s: %s", equipment_id, str(e))
                 return request.redirect('/my')
-                
+
             values = self._prepare_portal_layout_values()
-            
-            # Verificar si existe el modelo de contadores
+
             if 'copier.counter' not in request.env:
                 _logger.error("Modelo copier.counter no encontrado")
                 counters = []
@@ -276,69 +274,57 @@ class CopierCompanyPortal(CustomerPortal):
             else:
                 try:
                     _logger.info("Buscando contadores para el equipo ID: %s", equipment_id)
-                    
-                    # Buscar contadores usando el campo correcto
+
                     counters = request.env['copier.counter'].search([
                         ('maquina_id', '=', equipment_id)
                     ], order='fecha desc')
-                    
+
                     _logger.info("Contadores encontrados: %s", len(counters))
-                    
-                    # Preparar datos para el gráfico
+
+                    # Preparar datos para el gráfico general
                     monthly_data = []
                     yearly_data = []
-                    
-                    # Diccionarios para agrupar datos
                     month_dict = {}
                     year_dict = {}
-                    
-                    # Procesar contadores para agrupar por mes y año
+
                     for counter in counters:
-                        # Solo procesar contadores confirmados
-                        if counter.state != 'confirmed' and counter.state != 'invoiced':
+                        if counter.state not in ('confirmed', 'invoiced'):
                             continue
-                            
-                        # Obtener fecha y extraer año y mes
+
                         fecha = counter.fecha
                         if not fecha:
                             continue
-                            
+
                         year = fecha.year
                         month = fecha.month
                         month_key = f"{year}-{month:02d}"
                         month_name = counter.mes_facturacion or f"{month:02d}/{year}"
-                        
-                        # Datos para gráfico mensual
+
                         if month_key not in month_dict:
                             month_dict[month_key] = {
                                 'name': month_name,
                                 'bn': 0,
                                 'color': 0
                             }
-                        
                         month_dict[month_key]['bn'] += counter.total_copias_bn
                         month_dict[month_key]['color'] += counter.total_copias_color
-                        
-                        # Datos para gráfico anual
+
                         if year not in year_dict:
                             year_dict[year] = {
                                 'name': str(year),
                                 'bn': 0,
                                 'color': 0
                             }
-                        
                         year_dict[year]['bn'] += counter.total_copias_bn
                         year_dict[year]['color'] += counter.total_copias_color
-                    
-                    # Convertir diccionarios a listas para el gráfico
+
                     for key in sorted(month_dict.keys()):
                         monthly_data.append(month_dict[key])
-                    
                     for key in sorted(year_dict.keys()):
                         yearly_data.append(year_dict[key])
-                    
-                    chart_user_data = []
 
+                    # Gráfico del último contador por usuario
+                    chart_user_data = []
                     if counters:
                         first = counters[0]
                         if first.informe_por_usuario and first.usuario_detalle_ids:
@@ -348,22 +334,47 @@ class CopierCompanyPortal(CustomerPortal):
                                     'copies': user_detail.cantidad_copias
                                 })
 
+                    # Gráfico mensual por usuario acumulado
+                    from collections import defaultdict
+                    monthly_user_data = defaultdict(lambda: defaultdict(int))
+
+                    for counter in counters:
+                        if counter.state not in ('confirmed', 'invoiced'):
+                            continue
+
+                        mes = counter.mes_facturacion or counter.fecha.strftime('%B %Y')
+                        for detalle in counter.usuario_detalle_ids:
+                            nombre = detalle.usuario_id.name or 'Sin nombre'
+                            monthly_user_data[mes][nombre] += detalle.cantidad_copias
+
+                    labels = sorted(monthly_user_data.keys())
+                    usuarios_unicos = sorted({u for datos in monthly_user_data.values() for u in datos})
+
+                    datasets = []
+                    for usuario in usuarios_unicos:
+                        datasets.append({
+                            'label': usuario,
+                            'data': [monthly_user_data[mes].get(usuario, 0) for mes in labels]
+                        })
+
+                    # Consolidar todos los datos
                     chart_data = {
                         'monthly': monthly_data,
                         'yearly': yearly_data,
-                        'by_user': chart_user_data  # ✅ ahora sí contiene datos reales
+                        'by_user': chart_user_data,
+                        'by_user_monthly': {
+                            'labels': labels,
+                            'datasets': datasets
+                        }
                     }
 
+                    _logger.info("Datos para gráfico preparados: %s meses, %s años", len(monthly_data), len(yearly_data))
 
-                    
-                    _logger.info("Datos para gráfico preparados: %s meses, %s años", 
-                                len(monthly_data), len(yearly_data))
-                    
                 except Exception as e:
                     _logger.exception("Error al buscar contadores o preparar gráficos: %s", str(e))
                     counters = request.env['copier.counter'].browse([])
                     chart_data = {'monthly': [], 'yearly': []}
-            
+
             values.update({
                 'equipment': equipment_sudo,
                 'counters': counters,
@@ -371,20 +382,20 @@ class CopierCompanyPortal(CustomerPortal):
                 'today': fields.Date.today(),
                 'chart_data': json.dumps(chart_data)
             })
-            
-            # Verificar existencia del template
+
             template = 'copier_company.portal_my_copier_counters'
             if not request.env['ir.ui.view'].sudo().search([('key', '=', template)]):
                 _logger.error("¡ERROR! Template %s no encontrado", template)
                 return request.redirect(f'/my/copier/equipment/{equipment_id}')
-            
+
             _logger.info("Renderizando template: %s", template)
             _logger.info("=== FINALIZANDO portal_equipment_counters ===")
             return request.render(template, values)
-            
+
         except Exception as e:
             _logger.exception("¡EXCEPCIÓN GENERAL en portal_equipment_counters!: %s", str(e))
             return request.redirect('/my')
+
     
     # Ruta para el acceso público desde QR
     @http.route(['/public/helpdesk_ticket'], type='http', auth="public", website=True)

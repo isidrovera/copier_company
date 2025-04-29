@@ -37,10 +37,12 @@ function initCharts() {
         console.log('Datos para gráfico mensual:', chartData.monthly);
         console.log('Datos para gráfico anual:', chartData.yearly);
         console.log('Datos para gráfico por usuario:', chartData.by_user);
+        console.log('Datos para gráfico mensual por usuario:', chartData.user_monthly);
 
         initMonthlyChart(chartData.monthly, isColor);
         initYearlyChart(chartData.yearly, isColor);
-        initUserChart(chartData.by_user); // ✅ LLAMADA AL NUEVO GRÁFICO
+        initUserChart(chartData.by_user);
+        initUserMonthlyChart(chartData.user_monthly); // Llamada a la nueva función
     } catch (error) {
         console.error('Error al inicializar los gráficos:', error);
     }
@@ -246,25 +248,42 @@ function initYearlyChart(data, isColor) {
     console.log('Gráfico anual inicializado correctamente');
 }
 
+/**
+ * Inicializa el gráfico de consumo por usuario
+ * @param {Array} data - Datos para el gráfico
+ */
 function initUserChart(data) {
     if (!data || data.length === 0 || !document.getElementById('userChart')) {
         console.warn('No hay datos para el gráfico por usuario o no existe el canvas');
         return;
     }
 
-    var ctx = document.getElementById('userChart').getContext('2d');
+    const ctx = document.getElementById('userChart').getContext('2d');
+
+    const colors = [
+        'rgba(255, 99, 132, 0.6)',
+        'rgba(54, 162, 235, 0.6)',
+        'rgba(255, 206, 86, 0.6)',
+        'rgba(75, 192, 192, 0.6)',
+        'rgba(153, 102, 255, 0.6)',
+        'rgba(255, 159, 64, 0.6)'
+    ];
+
+    const borderColors = colors.map(c => c.replace('0.6', '1'));
+
+    const dataset = {
+        label: 'Copias por Usuario',
+        data: data.map(item => item.copies),
+        backgroundColor: colors.slice(0, data.length),
+        borderColor: borderColors.slice(0, data.length),
+        borderWidth: 1
+    };
 
     new Chart(ctx, {
         type: 'bar',
         data: {
             labels: data.map(item => item.name),
-            datasets: [{
-                label: 'Copias por Usuario',
-                data: data.map(item => item.copies),
-                backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
+            datasets: [dataset]
         },
         options: {
             responsive: true,
@@ -286,6 +305,89 @@ function initUserChart(data) {
                     title: { display: true, text: 'Número de copias' }
                 }
             }
+        },
+        plugins: [{
+            afterDraw: function(chart) {
+                const ctx = chart.ctx;
+                ctx.save();
+                ctx.font = 'bold 12px Arial';
+                chart.data.datasets[0].data.forEach((val, i) => {
+                    const meta = chart.getDatasetMeta(0).data[i];
+                    if (meta) {
+                        ctx.fillStyle = chart.data.datasets[0].borderColor[i];
+                        ctx.textAlign = 'center';
+                        ctx.fillText(val.toLocaleString(), meta.x, meta.y - 5);
+                    }
+                });
+                ctx.restore();
+            }
+        }]
+    });
+    
+    console.log('Gráfico por usuario inicializado correctamente');
+}
+
+/**
+ * Inicializa el gráfico de consumo mensual por usuario
+ * @param {Object} data - Datos para el gráfico con formato {labels: [], datasets: []}
+ */
+function initUserMonthlyChart(data) {
+    if (!data || !document.getElementById('userMonthlyChart')) {
+        console.warn('No hay datos para el gráfico mensual por usuario o no existe el elemento canvas');
+        return;
+    }
+
+    var ctx = document.getElementById('userMonthlyChart').getContext('2d');
+    
+    console.log('Inicializando gráfico mensual por usuario...');
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.labels,
+            datasets: data.datasets.map((ds, i) => ({
+                ...ds,
+                backgroundColor: `hsl(${(i * 47) % 360}, 70%, 60%)`, // colores únicos por usuario
+                borderWidth: 1
+            }))
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Copias Mensuales por Usuario'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: ${context.raw.toLocaleString()}`;
+                        }
+                    }
+                },
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Copias'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Mes'
+                    }
+                }
+            }
         }
     });
+    
+    console.log('Gráfico mensual por usuario inicializado correctamente');
 }
