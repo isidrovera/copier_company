@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from odoo import models, fields, api
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
@@ -159,7 +160,113 @@ class CopierCounter(models.Model):
         ('invoiced', 'Facturado'),
         ('cancelled', 'Cancelado')
     ], string='Estado', default='draft', tracking=True)
+    # Añade estos campos a la clase CopierCounter existente
+    facturas_ids = fields.Many2many(
+        'account.move',
+        'copier_counter_invoice_rel',
+        'counter_id',
+        'invoice_id',
+        string='Facturas Relacionadas',
+        domain="[('move_type', '=', 'out_invoice'), ('partner_id', '=', cliente_id), ('state', 'not in', ['draft', 'cancel'])]",
+        help="Facturas relacionadas con este período de lectura"
+    )
 
+    mostrar_datos_bancarios = fields.Boolean(
+        string='Mostrar datos bancarios',
+        default=True,
+        help="Marcar para mostrar información bancaria en el reporte"
+    )
+
+    # Métodos para gestionar facturas
+    def cargar_facturas_periodo(self):
+        """Carga automáticamente facturas emitidas en el período"""
+        self.ensure_one()
+        
+        if not self.fecha_facturacion or not self.cliente_id:
+            raise UserError('Se requiere fecha de facturación y cliente')
+        
+        # Calcular inicio y fin del mes de facturación
+        mes = self.fecha_facturacion.month
+        año = self.fecha_facturacion.year
+        inicio_mes = fields.Date.to_string(date(año, mes, 1))
+        
+        # Último día del mes
+        if mes == 12:
+            fin_mes = fields.Date.to_string(date(año, 12, 31))
+        else:
+            fin_mes = fields.Date.to_string(date(año, mes + 1, 1) - timedelta(days=1))
+        
+        # Buscar facturas del cliente en ese período
+        facturas = self.env['account.move'].search([
+            ('partner_id', '=', self.cliente_id.id),
+            ('invoice_date', '>=', inicio_mes),
+            ('invoice_date', '<=', fin_mes),
+            ('move_type', '=', 'out_invoice'),
+            ('state', 'not in', ['draft', 'cancel'])
+        ])
+        
+        if facturas:
+            self.facturas_ids = [(6, 0, facturas.ids)]
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Facturas cargadas',
+                    'message': f'Se han cargado {len(facturas)} facturas para el período {self.mes_facturacion}',
+                    'type': 'success',
+                    'sticky': False,
+                }
+            }
+        else:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Sin facturas',
+                    'message': f'No se encontraron facturas para el período {self.mes_facturacion}',
+                    'type': 'warning',
+                    'sticky': False,
+                }
+            }
+
+    def abrir_selector_facturas(self):
+        """Abre un wizard para seleccionar facturas manualmente"""
+        self.ensure_one()
+        
+        # Define el dominio para filtrar facturas
+        domain = [
+            ('partner_id', '=', self.cliente_id.id),
+            ('move_type', '=', 'out_invoice'),
+            ('state', 'not in', ['draft', 'cancel'])
+        ]
+        
+        # Crea el contexto para la acción
+        context = {
+            'default_counter_id': self.id,
+            'default_cliente_id': self.cliente_id.id,
+        }
+        
+        # Devuelve la acción que abre el wizard
+        return {
+            'name': 'Seleccionar Facturas',
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_model': 'copier.counter.factura.wizard',
+            'target': 'new',
+            'context': context,
+        }
+
+    # Sobrescribe el método action_print_report para incluir facturas
+    def action_print_report(self):
+        """Método para la acción del servidor que genera el reporte"""
+        # Si no hay facturas asociadas, intentar cargarlas automáticamente
+        if not self.facturas_ids:
+            try:
+                self.cargar_facturas_periodo()
+            except Exception as e:
+                _logger.error(f"Error al cargar facturas: {str(e)}")
+                
+        return self.env.ref('copier_company.action_report_counter_readings').report_action(self)
     @api.depends('maquina_id', 
                 'maquina_id.precio_bn_incluye_igv', 
                 'maquina_id.precio_color_incluye_igv',
@@ -467,6 +574,24 @@ class ReportCounterReadings(models.AbstractModel):
 
         # Calcular el total general
         total_general = sum(docs.mapped('total'))
+        
+        # Información bancaria
+        datos_bancarios = {
+            'banco': 'Banco de Crédito del Perú (BCP)',
+            'moneda': 'Soles',
+            'cuenta_corriente': '1912334609007',
+            'cci': '00219100233460900751',
+            'cuenta_detracciones': '00802007582',
+            'titular': 'Copier Company SAC'
+        }
+        
+        # Recopilar facturas relacionadas
+        todas_facturas = self.env['account.move']
+        for doc in docs:
+            todas_facturas |= doc.facturas_ids
+            
+        # Eliminar duplicados
+        facturas_unicas = todas_facturas.filtered(lambda f: f.state != 'cancel')
 
         return {
             'docs': docs,
@@ -475,6 +600,9 @@ class ReportCounterReadings(models.AbstractModel):
             'maquinas_mono': maquinas_mono,
             'maquinas_color': maquinas_color,
             'total_general': total_general,
+            'datos_bancarios': datos_bancarios,
+            'facturas': facturas_unicas,
+            'mostrar_datos_bancarios': all(doc.mostrar_datos_bancarios for doc in docs)
         }
 
 class CopierMachineUser(models.Model):
@@ -494,3 +622,102 @@ class CopierCounterUserDetail(models.Model):
     contador_id = fields.Many2one('copier.counter', string='Contador General', required=True, ondelete='cascade')
     usuario_id = fields.Many2one('copier.machine.user', string='Empresa/Usuario', required=True)
     cantidad_copias = fields.Integer('Total Copias', required=True)
+
+
+
+class CopierCounterFacturaWizard(models.TransientModel):
+    _name = 'copier.counter.factura.wizard'
+    _description = 'Selector de Facturas para Reporte de Lecturas'
+
+    counter_id = fields.Many2one(
+        'copier.counter',
+        string='Registro de Contador',
+        required=True
+    )
+    
+    cliente_id = fields.Many2one(
+        'res.partner',
+        string='Cliente',
+        required=True
+    )
+    
+    fecha_desde = fields.Date(
+        string='Desde',
+        default=lambda self: self._default_fecha_desde()
+    )
+    
+    fecha_hasta = fields.Date(
+        string='Hasta',
+        default=lambda self: self._default_fecha_hasta()
+    )
+    
+    factura_ids = fields.Many2many(
+        'account.move',
+        string='Facturas',
+        domain="[('partner_id', '=', cliente_id), ('move_type', '=', 'out_invoice'), ('state', 'not in', ['draft', 'cancel'])]"
+    )
+    
+    def _default_fecha_desde(self):
+        """Define fecha inicial por defecto (inicio del mes de la fecha de facturación)"""
+        counter_id = self.env.context.get('default_counter_id')
+        if counter_id:
+            counter = self.env['copier.counter'].browse(counter_id)
+            if counter and counter.fecha_facturacion:
+                return date(counter.fecha_facturacion.year, counter.fecha_facturacion.month, 1)
+        # Si no hay contador o fecha, usar primer día del mes actual
+        today = fields.Date.today()
+        return date(today.year, today.month, 1)
+    
+    def _default_fecha_hasta(self):
+        """Define fecha final por defecto (fin del mes de la fecha de facturación)"""
+        counter_id = self.env.context.get('default_counter_id')
+        if counter_id:
+            counter = self.env['copier.counter'].browse(counter_id)
+            if counter and counter.fecha_facturacion:
+                if counter.fecha_facturacion.month == 12:
+                    return date(counter.fecha_facturacion.year, 12, 31)
+                else:
+                    next_month = date(counter.fecha_facturacion.year, counter.fecha_facturacion.month, 1) + relativedelta(months=1)
+                    return next_month - timedelta(days=1)
+        # Si no hay contador o fecha, usar último día del mes actual
+        today = fields.Date.today()
+        next_month = date(today.year, today.month, 1) + relativedelta(months=1)
+        return next_month - timedelta(days=1)
+    
+    @api.onchange('fecha_desde', 'fecha_hasta', 'cliente_id')
+    def _onchange_fechas(self):
+        """Actualiza el dominio de facturas basado en fechas y cliente"""
+        if not self.cliente_id:
+            return
+            
+        domain = [
+            ('partner_id', '=', self.cliente_id.id),
+            ('move_type', '=', 'out_invoice'),
+            ('state', 'not in', ['draft', 'cancel'])
+        ]
+        
+        if self.fecha_desde:
+            domain.append(('invoice_date', '>=', self.fecha_desde))
+        if self.fecha_hasta:
+            domain.append(('invoice_date', '<=', self.fecha_hasta))
+            
+        facturas = self.env['account.move'].search(domain)
+        self.factura_ids = facturas
+    
+    def action_apply(self):
+        """Aplica las facturas seleccionadas al registro de contador"""
+        self.ensure_one()
+        
+        if self.counter_id and self.factura_ids:
+            self.counter_id.facturas_ids = [(6, 0, self.factura_ids.ids)]
+            
+        return {'type': 'ir.actions.act_window_close'}
+    
+    def action_clear(self):
+        """Limpia la selección de facturas"""
+        self.ensure_one()
+        
+        if self.counter_id:
+            self.counter_id.facturas_ids = [(5,)]
+            
+        return {'type': 'ir.actions.act_window_close'}

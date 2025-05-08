@@ -24,51 +24,191 @@
         <field name="paperformat_id" ref="copier_company.paperformat_counter_landscape"/>
         <field name="print_report_name">'Lecturas - %s - %s' % (object.cliente_id.name or '', time.strftime('%d-%m-%Y'))</field>
     </record>
-    <!-- Template del Reporte -->
+    
+    <!-- Template del Reporte Modernizado -->
     <template id="report_counter_readings">
         <t t-name="copier_company.report_counter_readings">
             <t t-call="web.basic_layout">
-                <!-- Estilos CSS -->
+                <!-- Estilos CSS mejorados -->
                 <style>
+                    /* Variables de colores */
+                    :root {
+                        --primary: #4338ca;
+                        --primary-light: #6366f1;
+                        --primary-dark: #312e81;
+                        --secondary: #0ea5e9;
+                        --secondary-light: #38bdf8;
+                        --accent: #fb923c;
+                        --gray-100: #f3f4f6;
+                        --gray-200: #e5e7eb;
+                        --gray-300: #d1d5db;
+                        --gray-600: #4b5563;
+                        --gray-900: #111827;
+                    }
+                    
+                    body {
+                        font-family: 'Roboto', 'Helvetica', sans-serif;
+                        color: var(--gray-900);
+                    }
+                    
                     .card-container {
                         background-color: white;
-                        border-radius: 16px;
+                        border-radius: 12px;
                         padding: 1.5rem;
-                        margin-bottom: 2rem;
-                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                        margin-bottom: 1.5rem;
+                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                        border: 1px solid var(--gray-200);
                     }
+                    
                     .header-gradient {
-                        background: linear-gradient(135deg, #1d4ed8, #3b82f6);
-                        border-radius: 8px;
-                        padding: 1rem;  /* Reducido de 2rem */
-                        margin-bottom: 1rem;  /* Reducido de 2rem */
-                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                        background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+                        border-radius: 12px;
+                        padding: 1.2rem;
+                        margin-bottom: 1.5rem;
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
                     }
+                    
                     .info-container {
-                        background-color: #f8fafc;
-                        border-radius: 8px;
-                        padding: 1rem;  /* Reducido de 1.5rem */
-                        margin-bottom: 1rem;  /* Reducido de 2rem */
-                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                        background-color: var(--gray-100);
+                        border-radius: 12px;
+                        padding: 1.2rem;
+                        margin-bottom: 1.5rem;
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+                        border: 1px solid var(--gray-200);
                     }
+                    
                     .badge {
                         padding: 0.5rem 1rem;
                         border-radius: 9999px;
                         font-size: 0.875rem;
                         color: white;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                        font-weight: 500;
                     }
+                    
                     .badge-mono {
-                        background-color: #64748b;
+                        background-color: var(--gray-600);
                     }
+                    
                     .badge-color {
-                        background-color: #0ea5e9;
+                        background-color: var(--secondary);
                     }
+                    
+                    .badge-factura {
+                        background-color: var(--accent);
+                    }
+                    
                     .company-logo {
-                        max-height: 120px;  /* Reducido de 90px */
+                        max-height: 100px;
                         width: auto;
                     }
-                    .client-info-row {
-                        margin-top: 0.5rem;
+                    
+                    .section-title {
+                        color: var(--primary);
+                        font-weight: 600;
+                        margin-bottom: 1.2rem;
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                    }
+                    
+                    .table {
+                        width: 100%;
+                        border-collapse: separate;
+                        border-spacing: 0;
+                    }
+                    
+                    .table th {
+                        background-color: var(--gray-100);
+                        padding: 0.8rem 1rem;
+                        font-weight: 600;
+                        text-align: left;
+                        color: var(--primary-dark);
+                        border-top: 1px solid var(--gray-200);
+                        border-bottom: 1px solid var(--gray-200);
+                    }
+                    
+                    .table td {
+                        padding: 0.8rem 1rem;
+                        border-bottom: 1px solid var(--gray-200);
+                    }
+                    
+                    .table tr:hover {
+                        background-color: rgba(99, 102, 241, 0.05);
+                    }
+                    
+                    .bank-info {
+                        border-left: 4px solid var(--primary);
+                        padding-left: 1rem;
+                        background-color: var(--gray-100);
+                        border-radius: 0 8px 8px 0;
+                    }
+                    
+                    .bank-info p {
+                        margin: 0.3rem 0;
+                    }
+                    
+                    .total-amount {
+                        font-size: 1.5rem;
+                        font-weight: 700;
+                        color: var(--primary);
+                    }
+                    
+                    .invoice-item {
+                        display: flex;
+                        justify-content: space-between;
+                        margin-bottom: 0.5rem;
+                        border-bottom: 1px solid var(--gray-200);
+                        padding-bottom: 0.5rem;
+                    }
+                    
+                    .invoice-item:last-child {
+                        border-bottom: none;
+                    }
+
+                    /* Nuevos estilos para íconos */
+                    .icon {
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        width: 24px;
+                        height: 24px;
+                        border-radius: 50%;
+                        color: white;
+                        margin-right: 8px;
+                    }
+                    
+                    .icon-primary {
+                        background-color: var(--primary);
+                    }
+                    
+                    .icon-secondary {
+                        background-color: var(--secondary);
+                    }
+                    
+                    .icon-accent {
+                        background-color: var(--accent);
+                    }
+                    
+                    /* Tarjeta resaltada para totales */
+                    .total-card {
+                        background: linear-gradient(to right, var(--primary-light), var(--primary));
+                        color: white;
+                        border-radius: 12px;
+                        padding: 1.2rem;
+                        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+                    }
+                    
+                    .total-value {
+                        font-size: 1.8rem;
+                        font-weight: 700;
+                    }
+                    
+                    .total-label {
+                        font-size: 1rem;
+                        opacity: 0.9;
                     }
                 </style>
 
@@ -84,40 +224,67 @@
                         <div class="row align-items-center">
                             <div class="col-2">
                                 <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" 
-                                    class="company-logo" alt="Logo de la empresa"/>
-                            </div>                            
+                                     class="company-logo" alt="Logo de la empresa"/>
+                            </div>
+                            <div class="col-10 text-white">
+                                <h1 style="font-size: 1.8rem; margin: 0; font-weight: 700;">Copier Company SAC</h1>
+                                <p style="margin: 0; opacity: 0.9;">Soluciones integrales en tecnología de impresión</p>
+                            </div>
                         </div>
                     </div>
-                    <!-- Información del Cliente -->
+                    
+                    <!-- Información del Reporte -->
                     <div class="info-container">
                         <div class="row">
                             <div class="col-10">
-                                <h2 style="color: #1429c5; margin: 0; font-weight: 600; font-size: 1.5rem;">
+                                <h2 style="color: var(--primary); margin: 0; font-weight: 700; font-size: 1.5rem; display: flex; align-items: center;">
+                                    <span class="icon icon-primary">
+                                        <i class="fa fa-file-text-o"></i>
+                                    </span>
                                     Reporte de Lecturas
                                 </h2>
-                            </div>                          
+                            </div>
+                            <div class="col-2 text-end">
+                                <span class="badge" style="background-color: var(--primary);">
+                                    <i class="fa fa-calendar"></i>
+                                    <t t-esc="time.strftime('%d/%m/%Y')" />
+                                </span>
+                            </div>
                         </div>
                     </div>
+                    
                     <!-- Información del Cliente -->
                     <div class="info-container">
-                        <div class="row">                            
+                        <div class="row">
                             <div class="col-6">
-                                <h4 style="color: #1e293b; font-weight: 600;">
-                                    <i class="fa fa-building me-2" />Información del Cliente
+                                <h4 class="section-title">
+                                    <span class="icon icon-primary">
+                                        <i class="fa fa-building"></i>
+                                    </span>
+                                    Información del Cliente
                                 </h4>
-                                <p style="margin-bottom: 0.5rem;">
-                                    <strong t-field="cliente.name" />
+                                <p style="margin-bottom: 0.5rem; font-size: 1.2rem; font-weight: 600;">
+                                    <t t-esc="cliente.name" />
                                 </p>
-                                <p t-if="cliente.vat" style="color: #64748b;">
-                                    RUC/DNI: <t t-esc="cliente.vat" />
+                                <p t-if="cliente.vat" style="color: var(--gray-600);">
+                                    <strong>RUC/DNI:</strong> <t t-esc="cliente.vat" />
+                                </p>
+                                <p t-if="cliente.street" style="color: var(--gray-600);">
+                                    <strong>Dirección:</strong> <t t-esc="cliente.street" />
                                 </p>
                             </div>
                             <div class="col-6 text-end">
-                                <h4 style="color: #1e293b; font-weight: 600;">
-                                    <i class="fa fa-calendar me-2" />Fecha
+                                <h4 class="section-title" style="justify-content: flex-end;">
+                                    <span class="icon icon-primary">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                    Período de Facturación
                                 </h4>
-                                <p style="color: #64748b;">
-                                    <t t-esc="time.strftime('%d/%m/%Y')" />
+                                <p style="font-size: 1.2rem; font-weight: 600; color: var(--primary);">
+                                    <t t-esc="docs[0].mes_facturacion" />
+                                </p>
+                                <p style="color: var(--gray-600);">
+                                    <strong>Fecha de emisión:</strong> <t t-esc="time.strftime('%d/%m/%Y')" />
                                 </p>
                             </div>
                         </div>
@@ -126,20 +293,25 @@
                     <!-- Sección Máquinas Monocromáticas -->
                     <t t-if="maquinas_mono">
                         <div class="card-container">
-                            <h4 style="color: #1e293b; font-weight: 600; margin-bottom: 1.5rem;">
-                                <i class="fa fa-print me-2" />Máquinas Monocromáticas
-                                <span class="badge badge-mono">B/N</span>
+                            <h4 class="section-title">
+                                <span class="icon icon-secondary">
+                                    <i class="fa fa-print"></i>
+                                </span>
+                                Máquinas Monocromáticas
+                                <span class="badge badge-mono">
+                                    <i class="fa fa-tint"></i> B/N
+                                </span>
                             </h4>
                             <div class="table-responsive">
-                                <table class="table table-sm">
+                                <table class="table">
                                     <thead>
-                                        <tr style="background-color: #f8fafc;">
-                                            <th scope="col" style="padding: 1rem;">Modelo</th>
-                                            <th scope="col">Serie</th>                                            
-                                            <th scope="col" class="text-end">Cont. Anterior</th>
-                                            <th scope="col" class="text-end">Cont. Actual</th>
-                                            <th scope="col" class="text-end">Total BN</th>
-                                            <th scope="col" class="text-end">Total</th>
+                                        <tr>
+                                            <th>Modelo</th>
+                                            <th>Serie</th>
+                                            <th class="text-end">Cont. Anterior</th>
+                                            <th class="text-end">Cont. Actual</th>
+                                            <th class="text-end">Total BN</th>
+                                            <th class="text-end">Total</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -147,7 +319,6 @@
                                             <tr>
                                                 <td><t t-esc="maquina.maquina_id.name.name" /></td>
                                                 <td><t t-esc="maquina.serie" /></td>
-                                                
                                                 <td class="text-end">
                                                     <t t-esc="'{:,}'.format(maquina.contador_anterior_bn)" />
                                                 </td>
@@ -157,7 +328,7 @@
                                                 <td class="text-end">
                                                     <t t-esc="'{:,}'.format(maquina.total_copias_bn)" />
                                                 </td>
-                                                <td class="text-end">
+                                                <td class="text-end font-weight-bold">
                                                     <span t-field="maquina.total" t-options='{"widget": "monetary", "display_currency": maquina.currency_id}' />
                                                 </td>
                                             </tr>
@@ -171,23 +342,28 @@
                     <!-- Sección Máquinas Color -->
                     <t t-if="maquinas_color">
                         <div class="card-container">
-                            <h4 style="color: #1e293b; font-weight: 600; margin-bottom: 1.5rem;">
-                                <i class="fa fa-palette me-2" />Máquinas Color
-                                <span class="badge badge-color">Color</span>
+                            <h4 class="section-title">
+                                <span class="icon icon-secondary">
+                                    <i class="fa fa-palette"></i>
+                                </span>
+                                Máquinas Color
+                                <span class="badge badge-color">
+                                    <i class="fa fa-tint"></i> Color
+                                </span>
                             </h4>
                             <div class="table-responsive">
-                                <table class="table table-sm">
+                                <table class="table">
                                     <thead>
-                                        <tr style="background-color: #f8fafc;">
-                                            <th scope="col">Modelo</th>
-                                            <th scope="col">Serie</th>                                            
-                                            <th scope="col" class="text-end">Cont. Anterior B/N</th>
-                                            <th scope="col" class="text-end">Cont. Actual B/N</th>
-                                            <th scope="col" class="text-end">Cont. Anterior Color</th>
-                                            <th scope="col" class="text-end">Cont. Actual Color</th>
-                                            <th scope="col" class="text-end">Total BN</th>
-                                            <th scope="col" class="text-end">Total Color</th>
-                                            <th scope="col" class="text-end">Total</th>
+                                        <tr>
+                                            <th>Modelo</th>
+                                            <th>Serie</th>
+                                            <th class="text-end">Cont. Anterior B/N</th>
+                                            <th class="text-end">Cont. Actual B/N</th>
+                                            <th class="text-end">Cont. Anterior Color</th>
+                                            <th class="text-end">Cont. Actual Color</th>
+                                            <th class="text-end">Total BN</th>
+                                            <th class="text-end">Total Color</th>
+                                            <th class="text-end">Total</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -195,7 +371,6 @@
                                             <tr>
                                                 <td><t t-esc="maquina.maquina_id.name.name" /></td>
                                                 <td><t t-esc="maquina.serie" /></td>
-                                                
                                                 <td class="text-end">
                                                     <t t-esc="'{:,}'.format(maquina.contador_anterior_bn)" />
                                                 </td>
@@ -214,7 +389,7 @@
                                                 <td class="text-end">
                                                     <t t-esc="'{:,}'.format(maquina.total_copias_color)" />
                                                 </td>
-                                                <td class="text-end">
+                                                <td class="text-end font-weight-bold">
                                                     <span t-field="maquina.total" t-options='{"widget": "monetary", "display_currency": maquina.currency_id}' />
                                                 </td>
                                             </tr>
@@ -224,18 +399,23 @@
                             </div>
                         </div>
                     </t>
+                    
+                    <!-- Sección usuarios por máquina -->
                     <t t-if="any(doc.informe_por_usuario for doc in docs)">
                         <div class="card-container">
-                            <h4 style="color: #1e293b; font-weight: 600; margin-bottom: 1.5rem;">
-                                <i class="fa fa-users me-2"/>Detalle por Usuario
+                            <h4 class="section-title">
+                                <span class="icon icon-accent">
+                                    <i class="fa fa-users"></i>
+                                </span>
+                                Detalle por Usuario
                             </h4>
                             <div class="table-responsive">
-                                <table class="table table-sm">
+                                <table class="table">
                                     <thead>
-                                        <tr style="background-color: #f8fafc;">
-                                            <th scope="col">Máquina</th>
-                                            <th scope="col">Usuario/Empresa</th>
-                                            <th scope="col" class="text-end">Total Copias</th>
+                                        <tr>
+                                            <th>Máquina</th>
+                                            <th>Usuario/Empresa</th>
+                                            <th class="text-end">Total Copias</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -255,26 +435,137 @@
                             </div>
                         </div>
                     </t>
-
-                    <!-- Total General -->
-                    <div class="info-container" style="margin-top: 2rem;">
-                        <div class="row justify-content-end">
-                            <div class="col-4">
-                                <table class="table table-sm">
-                                    <tr>
-                                        <td style="border: none;">
-                                            <strong>Total a Pagar:</strong>
-                                        </td>
-                                        <td class="text-end" style="border: none;">
-                                            <strong style="color: #1d4ed8; font-size: 1.25rem;">
-                                                <span t-esc="total_general" 
-                                                      t-options='{"widget": "monetary", "display_currency": docs[0].currency_id}' />
-                                            </strong>
-                                        </td>
-                                    </tr>
+                    
+                    <!-- NUEVA SECCIÓN: Facturas del mes -->
+                    <div class="card-container">
+                        <h4 class="section-title">
+                            <span class="icon icon-accent">
+                                <i class="fa fa-file-text"></i>
+                            </span>
+                            Facturas del Mes
+                            <span class="badge badge-factura">
+                                <i class="fa fa-file-invoice-dollar"></i> Pendientes
+                            </span>
+                        </h4>
+                        
+                        <!-- Aquí se mostrará el listado de facturas relacionadas al mes de facturación -->
+                        <!-- En una implementación real, estas facturas pueden obtenerse por código -->
+                        <t t-if="docs[0].facturas_ids">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Número</th>
+                                            <th>Fecha</th>
+                                            <th>Concepto</th>
+                                            <th class="text-end">Monto</th>
+                                            <th class="text-end">Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="docs[0].facturas_ids" t-as="factura">
+                                            <tr>
+                                                <td><t t-esc="factura.number"/></td>
+                                                <td><t t-esc="factura.date"/></td>
+                                                <td><t t-esc="factura.concept"/></td>
+                                                <td class="text-end">
+                                                    <span t-field="factura.amount" t-options='{"widget": "monetary", "display_currency": factura.currency_id}'/>
+                                                </td>
+                                                <td class="text-end">
+                                                    <span t-field="factura.state"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
                                 </table>
                             </div>
+                        </t>
+                        <t t-else="1">
+                            <!-- Simulación de facturas para mostrar (en producción se reemplazaría con datos reales) -->
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Número</th>
+                                            <th>Fecha</th>
+                                            <th>Concepto</th>
+                                            <th class="text-end">Monto</th>
+                                            <th class="text-center">Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>F001-0001234</td>
+                                            <td><t t-esc="time.strftime('%d/%m/%Y')"/></td>
+                                            <td>Servicio de impresión mensual - <t t-esc="docs[0].mes_facturacion"/></td>
+                                            <td class="text-end font-weight-bold">
+                                                <span t-esc="total_general" t-options='{"widget": "monetary", "display_currency": docs[0].currency_id}'/>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge badge-pill" style="background-color: #f97316;">Pendiente</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+                    </div>
+                    
+                    <!-- Información bancaria para pagos -->
+                    <div class="row mt-4">
+                        <div class="col-7">
+                            <div class="card-container">
+                                <h4 class="section-title">
+                                    <span class="icon icon-primary">
+                                        <i class="fa fa-university"></i>
+                                    </span>
+                                    Información Bancaria para Pagos
+                                </h4>
+                                <div class="bank-info">
+                                    <p><strong>Banco:</strong> Banco de Crédito del Perú (BCP)</p>
+                                    <p><strong>Tipo de Moneda:</strong> Soles</p>
+                                    <p><strong>Número de Cuenta Corriente:</strong> 1912334609007</p>
+                                    <p><strong>Código de Cuenta Interbancario (CCI):</strong> 00219100233460900751</p>
+                                    <p><strong>Cuenta de Detracciones (Banco de la Nación):</strong> 00802007582</p>
+                                    <p><strong>A nombre de:</strong> Copier Company SAC</p>
+                                </div>
+                            </div>
                         </div>
+                        
+                        <!-- Total a pagar -->
+                        <div class="col-5">
+                            <div class="total-card">
+                                <div class="row align-items-center">
+                                    <div class="col-6">
+                                        <div class="total-label">Total a Pagar:</div>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <div class="total-value">
+                                            <span t-esc="total_general" 
+                                                t-options='{"widget": "monetary", "display_currency": docs[0].currency_id}' />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Información adicional de pago -->
+                            <div class="card-container mt-3">
+                                <h5 style="color: var(--primary); font-weight: 600; margin-bottom: 0.5rem; font-size: 1rem;">
+                                    <i class="fa fa-info-circle mr-2"></i> Información de Pago
+                                </h5>
+                                <p style="margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--gray-600);">
+                                    Para confirmar su pago, por favor enviar constancia al correo: 
+                                    <strong>info@copiercompanysac.com</strong>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pie de página con nota de agradecimiento -->
+                    <div class="text-center mt-4">
+                        <p style="color: var(--gray-600); font-size: 0.9rem;">
+                            Gracias por su preferencia. Para cualquier consulta, comuníquese al (01) 975399303
+                        </p>
                     </div>
                 </div>
             </t>

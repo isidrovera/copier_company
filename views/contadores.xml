@@ -132,8 +132,8 @@
                         string="Cancelar"
                         type="object"
                         invisible="state not in ('draft', 'confirmed')" />
-                    <button string="Reporte" name="action_print_report" type="object"
-                        class="oe_highlight" />
+                    <button string="Reporte de Lecturas" name="action_print_report" type="object"
+                        class="btn-primary" icon="fa-file-pdf-o" />
                     <field name="state" widget="statusbar"
                         statusbar_visible="draft,confirmed,invoiced" />
                 </header>
@@ -153,8 +153,6 @@
                             <field name="mes_facturacion" />
                         </group>
                         <group>
-                            
-                            
                             <field name="currency_id" invisible="1" />
                         </group>
                         <group>
@@ -179,7 +177,6 @@
                                 <group>
                                     <field name="contador_anterior_bn" />
                                     <field name="contador_actual_bn" readonly="state != 'draft'" />
-                                    
                                     <field name="total_copias_bn" />
                                 </group>
                                 <group>
@@ -206,13 +203,38 @@
                         <page string="Totales" name="totales">
                             <group>
                                 <group class="oe_subtotal_footer">
-                                    
                                     <field name="subtotal" widget="monetary" />
                                     <field name="igv" widget="monetary" />
                                     <field name="total" class="oe_subtotal_footer_separator"
                                         widget="monetary" />
+                                    <field name="mostrar_datos_bancarios" widget="boolean_toggle" 
+                                           string="Mostrar datos bancarios en reporte"/>
                                 </group>
                             </group>
+                        </page>
+                        <page string="Facturas Relacionadas" name="facturas">
+                            <div class="d-flex mb-3">
+                                <button name="cargar_facturas_periodo" 
+                                        string="Cargar Facturas del Período" 
+                                        type="object" 
+                                        class="btn-primary me-2"
+                                        icon="fa-refresh"/>
+                                <button name="abrir_selector_facturas" 
+                                        string="Seleccionar Facturas" 
+                                        type="object"
+                                        class="btn-secondary"
+                                        icon="fa-list-alt"/>
+                            </div>
+                            <field name="facturas_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="invoice_date"/>
+                                    <field name="invoice_date_due"/>
+                                    <field name="amount_total"/>
+                                    <field name="state"/>
+                                    <field name="payment_state"/>
+                                </list>
+                            </field>
                         </page>
                     </notebook>
                 </sheet>
@@ -275,7 +297,55 @@
         <field name="code">action = env['copier.counter'].browse(records.ids).action_generate_report()</field>
     </record>
 
-   
+   <!-- Formulario para seleccionar facturas -->
+   <record id="view_copier_counter_factura_wizard_form" model="ir.ui.view">
+    <field name="name">copier.counter.factura.wizard.form</field>
+    <field name="model">copier.counter.factura.wizard</field>
+    <field name="arch" type="xml">
+        <form string="Seleccionar Facturas">
+            <sheet>
+                <group>
+                    <group>
+                        <field name="counter_id" invisible="1"/>
+                        <field name="cliente_id" readonly="1"/>
+                        <field name="fecha_desde"/>
+                        <field name="fecha_hasta"/>
+                    </group>
+                </group>
+                <notebook>
+                    <page string="Facturas Disponibles">
+                        <field name="factura_ids" domain="[('partner_id', '=', cliente_id), ('move_type', '=', 'out_invoice'), ('state', 'not in', ['draft', 'cancel'])]">
+                            <list>
+                                <field name="name"/>
+                                <field name="invoice_date"/>
+                                <field name="invoice_date_due"/>
+                                <field name="amount_total" sum="Total"/>
+                                <field name="state"/>
+                                <field name="payment_state"/>
+                            </list>
+                        </field>
+                    </page>
+                </notebook>
+                <div class="text-muted mt-3">
+                    <p>Las facturas seleccionadas aparecerán en el reporte de lecturas.</p>
+                </div>
+            </sheet>
+            <footer>
+                <button name="action_apply" string="Aplicar" type="object" class="btn-primary"/>
+                <button name="action_clear" string="Limpiar Selección" type="object" class="btn-secondary"/>
+                <button string="Cancelar" class="btn-secondary" special="cancel"/>
+            </footer>
+        </form>
+    </field>
+</record>
+
+<!-- Acción para abrir el wizard -->
+<record id="action_copier_counter_factura_wizard" model="ir.actions.act_window">
+    <field name="name">Seleccionar Facturas</field>
+    <field name="res_model">copier.counter.factura.wizard</field>
+    <field name="view_mode">form</field>
+    <field name="target">new</field>
+</record>
 
     <!-- Menu Items -->
     <menuitem id="menu_copier_counter"
