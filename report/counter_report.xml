@@ -469,7 +469,7 @@
                                                 <td><t t-esc="factura.date"/></td>
                                                 <td><t t-esc="factura.invoice_line_ids[0].name"/></td>
                                                 <td class="text-end">
-                                                    <span t-field="factura.amount" t-options='{"widget": "monetary", "display_currency": factura.currency_id}'/>
+                                                    <span t-field="factura.amount_total" t-options='{"widget": "monetary", "display_currency": factura.currency_id}'/>
                                                 </td>
                                                 <td class="text-end">
                                                     <span t-field="factura.state"/>
