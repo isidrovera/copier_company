@@ -179,7 +179,7 @@ class CopierCounter(models.Model):
 
     # Métodos para gestionar facturas
     def cargar_facturas_periodo(self):
-        """Carga automáticamente facturas emitidas en el período"""
+        """Carga automáticamente facturas emitidas en el período que corresponden a esta máquina"""
         self.ensure_one()
         
         if not self.fecha_facturacion or not self.cliente_id:
@@ -197,12 +197,18 @@ class CopierCounter(models.Model):
             fin_mes = fields.Date.to_string(date(año, mes + 1, 1) - timedelta(days=1))
         
         # Buscar facturas del cliente en ese período
+        # Intentar filtrar por referencia de máquina en la referencia de factura o en la descripción
+        # Esto asume que al crear facturas se incluye alguna referencia a la máquina (serie, nombre, etc.)
         facturas = self.env['account.move'].search([
             ('partner_id', '=', self.cliente_id.id),
             ('invoice_date', '>=', inicio_mes),
             ('invoice_date', '<=', fin_mes),
             ('move_type', '=', 'out_invoice'),
-            ('state', 'not in', ['draft', 'cancel'])
+            ('state', 'not in', ['draft', 'cancel']),
+            '|', '|',
+            ('ref', 'ilike', self.serie),  # Búsqueda por serie en referencia
+            ('narration', 'ilike', self.serie),  # Búsqueda por serie en narración
+            ('invoice_line_ids.name', 'ilike', self.serie)  # Búsqueda por serie en líneas de factura
         ])
         
         if facturas:
@@ -212,22 +218,45 @@ class CopierCounter(models.Model):
                 'tag': 'display_notification',
                 'params': {
                     'title': 'Facturas cargadas',
-                    'message': f'Se han cargado {len(facturas)} facturas para el período {self.mes_facturacion}',
+                    'message': f'Se han cargado {len(facturas)} facturas para la máquina {self.serie} en el período {self.mes_facturacion}',
                     'type': 'success',
                     'sticky': False,
                 }
             }
         else:
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': 'Sin facturas',
-                    'message': f'No se encontraron facturas para el período {self.mes_facturacion}',
-                    'type': 'warning',
-                    'sticky': False,
+            # Si no encuentra facturas específicas, mostrar todas las del cliente en ese período
+            facturas_cliente = self.env['account.move'].search([
+                ('partner_id', '=', self.cliente_id.id),
+                ('invoice_date', '>=', inicio_mes),
+                ('invoice_date', '<=', fin_mes),
+                ('move_type', '=', 'out_invoice'),
+                ('state', 'not in', ['draft', 'cancel'])
+            ])
+            
+            if facturas_cliente:
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': 'Sin facturas específicas',
+                        'message': f'No se encontraron facturas específicas para la máquina {self.serie}. '
+                                f'Se han encontrado {len(facturas_cliente)} facturas para el cliente en este período. '
+                                f'Utilice "Seleccionar Facturas" para elegirlas manualmente.',
+                        'type': 'warning',
+                        'sticky': True,
+                    }
                 }
-            }
+            else:
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': 'Sin facturas',
+                        'message': f'No se encontraron facturas para el período {self.mes_facturacion}',
+                        'type': 'warning',
+                        'sticky': False,
+                    }
+                }
 
     def abrir_selector_facturas(self):
         """Abre un wizard para seleccionar facturas manualmente"""
@@ -622,7 +651,14 @@ class CopierCounterUserDetail(models.Model):
     contador_id = fields.Many2one('copier.counter', string='Contador General', required=True, ondelete='cascade')
     usuario_id = fields.Many2one('copier.machine.user', string='Empresa/Usuario', required=True)
     cantidad_copias = fields.Integer('Total Copias', required=True)
-
+    factura_ids = fields.Many2many(
+        'account.move',
+        'copier_counter_user_invoice_rel',
+        'usuario_detalle_id',
+        'invoice_id',
+        string='Facturas Relacionadas',
+        domain="[('move_type', '=', 'out_invoice'), ('partner_id', '=', contador_id.cliente_id.id), ('state', 'not in', ['draft', 'cancel'])]"
+    )
 
 
 class CopierCounterFacturaWizard(models.TransientModel):
