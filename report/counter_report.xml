@@ -29,21 +29,21 @@
     <template id="report_counter_readings">
         <t t-name="copier_company.report_counter_readings">
             <t t-call="web.basic_layout">
-                <!-- Estilos CSS mejorados -->
+                <!-- Estilos CSS mejorados con colores más oscuros -->
                 <style>
-                    /* Variables de colores */
+                    /* Variables de colores (más oscuros) */
                     :root {
-                        --primary: #4338ca;
-                        --primary-light: #6366f1;
-                        --primary-dark: #312e81;
-                        --secondary: #0ea5e9;
-                        --secondary-light: #38bdf8;
-                        --accent: #fb923c;
-                        --gray-100: #f3f4f6;
-                        --gray-200: #e5e7eb;
-                        --gray-300: #d1d5db;
-                        --gray-600: #4b5563;
-                        --gray-900: #111827;
+                        --primary: #1e3a8a;         /* Azul más oscuro */
+                        --primary-light: #3b82f6;   /* Azul medio */
+                        --primary-dark: #0f172a;    /* Azul muy oscuro */
+                        --secondary: #0369a1;       /* Azul cyan oscuro */
+                        --secondary-light: #0ea5e9; /* Azul cyan medio */
+                        --accent: #c2410c;          /* Naranja oscuro */
+                        --gray-100: #f1f5f9;
+                        --gray-200: #e2e8f0;
+                        --gray-300: #cbd5e1;
+                        --gray-600: #475569;
+                        --gray-900: #0f172a;
                     }
                     
                     body {
@@ -53,27 +53,35 @@
                     
                     .card-container {
                         background-color: white;
-                        border-radius: 12px;
+                        border-radius: 8px;
                         padding: 1.5rem;
                         margin-bottom: 1.5rem;
-                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+                        border: 1px solid var(--gray-200);
+                    }
+                    
+                    .sub-card {
+                        background-color: var(--gray-100);
+                        border-radius: 6px;
+                        padding: 1rem;
+                        margin-bottom: 1rem;
                         border: 1px solid var(--gray-200);
                     }
                     
                     .header-gradient {
                         background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-                        border-radius: 12px;
+                        border-radius: 8px;
                         padding: 1.2rem;
                         margin-bottom: 1.5rem;
-                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
                     }
                     
                     .info-container {
                         background-color: var(--gray-100);
-                        border-radius: 12px;
+                        border-radius: 8px;
                         padding: 1.2rem;
                         margin-bottom: 1.5rem;
-                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
                         border: 1px solid var(--gray-200);
                     }
                     
@@ -114,6 +122,15 @@
                         gap: 0.5rem;
                     }
                     
+                    .subsection-title {
+                        color: var(--secondary);
+                        font-weight: 600;
+                        margin-bottom: 0.8rem;
+                        font-size: 1.1rem;
+                        display: flex;
+                        align-items: center;
+                    }
+                    
                     .table {
                         width: 100%;
                         border-collapse: separate;
@@ -136,7 +153,7 @@
                     }
                     
                     .table tr:hover {
-                        background-color: rgba(99, 102, 241, 0.05);
+                        background-color: rgba(59, 130, 246, 0.05);
                     }
                     
                     .bank-info {
@@ -168,7 +185,6 @@
                         border-bottom: none;
                     }
 
-                    /* Nuevos estilos para íconos */
                     .icon {
                         display: inline-flex;
                         align-items: center;
@@ -192,13 +208,12 @@
                         background-color: var(--accent);
                     }
                     
-                    /* Tarjeta resaltada para totales */
                     .total-card {
                         background: linear-gradient(to right, var(--primary-light), var(--primary));
                         color: white;
-                        border-radius: 12px;
+                        border-radius: 8px;
                         padding: 1.2rem;
-                        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+                        box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
                     }
                     
                     .total-value {
@@ -209,6 +224,19 @@
                     .total-label {
                         font-size: 1rem;
                         opacity: 0.9;
+                    }
+                    
+                    /* Estado de factura badges */
+                    .badge-paid {
+                        background-color: #065f46;
+                    }
+                    
+                    .badge-partial {
+                        background-color: #6d28d9;
+                    }
+                    
+                    .badge-pending {
+                        background-color: #b45309;
                     }
                 </style>
 
@@ -289,8 +317,7 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Sección Máquinas Monocromáticas -->
+                    
                     <t t-if="maquinas_mono">
                         <div class="card-container">
                             <h4 class="section-title">
@@ -436,7 +463,7 @@
                         </div>
                     </t>
                     
-                    <!-- NUEVA SECCIÓN: Facturas del mes -->
+                    <!-- Sección Facturas del mes -->
                     <div class="card-container">
                         <h4 class="section-title">
                             <span class="icon icon-accent">
@@ -448,31 +475,92 @@
                             </span>
                         </h4>
                         
-                        <!-- Aquí se mostrará el listado de facturas relacionadas al mes de facturación -->
-                        <!-- En una implementación real, estas facturas pueden obtenerse por código -->
-                        <t t-if="docs[0].facturas_ids">
+                        <!-- Facturas agrupadas por máquina -->
+                        <t t-if="facturas_por_maquina">
+                            <t t-foreach="facturas_por_maquina" t-as="serie_key">
+                                <div class="sub-card mb-3">
+                                    <h5 class="subsection-title">
+                                        <i class="fa fa-print me-2"></i>
+                                        <strong><t t-esc="facturas_por_maquina[serie_key]['nombre']"/></strong> - 
+                                        Serie: <t t-esc="facturas_por_maquina[serie_key]['serie']"/>
+                                    </h5>
+                                    <t t-if="facturas_por_maquina[serie_key]['facturas']">
+                                        <div class="table-responsive">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Número</th>
+                                                        <th>Fecha</th>
+                                                        <th>Descripción</th>
+                                                        <th class="text-end">Monto</th>
+                                                        <th class="text-center">Estado</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <t t-foreach="facturas_por_maquina[serie_key]['facturas']" t-as="factura">
+                                                        <tr>
+                                                            <td><t t-esc="factura.name"/></td>
+                                                            <td><t t-esc="factura.invoice_date" t-options="{'widget': 'date'}"/></td>
+                                                            <td><t t-esc="factura.ref or (factura.invoice_line_ids and factura.invoice_line_ids[0].name or '')"/></td>
+                                                            <td class="text-end font-weight-bold">
+                                                                <span t-field="factura.amount_total" t-options='{"widget": "monetary", "display_currency": factura.currency_id}'/>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <t t-if="factura.payment_state == 'paid'">
+                                                                    <span class="badge badge-pill badge-paid">Pagada</span>
+                                                                </t>
+                                                                <t t-elif="factura.payment_state == 'partial'">
+                                                                    <span class="badge badge-pill badge-partial">Pago Parcial</span>
+                                                                </t>
+                                                                <t t-else="">
+                                                                    <span class="badge badge-pill badge-pending">Pendiente</span>
+                                                                </t>
+                                                            </td>
+                                                        </tr>
+                                                    </t>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </t>
+                                    <t t-else="">
+                                        <p class="text-muted">No hay facturas asociadas a esta máquina</p>
+                                    </t>
+                                </div>
+                            </t>
+                        </t>
+                        
+                        <!-- Facturas simples si no hay agrupación -->
+                        <t t-if="not facturas_por_maquina and facturas">
                             <div class="table-responsive">
                                 <table class="table">
                                     <thead>
                                         <tr>
                                             <th>Número</th>
                                             <th>Fecha</th>
-                                            <th>Concepto</th>
+                                            <th>Descripción</th>
                                             <th class="text-end">Monto</th>
-                                            <th class="text-end">Estado</th>
+                                            <th class="text-center">Estado</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <t t-foreach="docs[0].facturas_ids" t-as="factura">
+                                        <t t-foreach="facturas" t-as="factura">
                                             <tr>
                                                 <td><t t-esc="factura.name"/></td>
-                                                <td><t t-esc="factura.date"/></td>
-                                                <td><t t-esc="factura.invoice_line_ids[0].name"/></td>
-                                                <td class="text-end">
+                                                <td><t t-esc="factura.invoice_date" t-options="{'widget': 'date'}"/></td>
+                                                <td><t t-esc="factura.ref or (factura.invoice_line_ids and factura.invoice_line_ids[0].name or '')"/></td>
+                                                <td class="text-end font-weight-bold">
                                                     <span t-field="factura.amount_total" t-options='{"widget": "monetary", "display_currency": factura.currency_id}'/>
                                                 </td>
-                                                <td class="text-end">
-                                                    <span t-field="factura.state"/>
+                                                <td class="text-center">
+                                                    <t t-if="factura.payment_state == 'paid'">
+                                                        <span class="badge badge-pill badge-paid">Pagada</span>
+                                                    </t>
+                                                    <t t-elif="factura.payment_state == 'partial'">
+                                                        <span class="badge badge-pill badge-partial">Pago Parcial</span>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <span class="badge badge-pill badge-pending">Pendiente</span>
+                                                    </t>
                                                 </td>
                                             </tr>
                                         </t>
@@ -480,86 +568,64 @@
                                 </table>
                             </div>
                         </t>
-                        <t t-else="1">
-                            <!-- Simulación de facturas para mostrar (en producción se reemplazaría con datos reales) -->
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>Número</th>
-                                            <th>Fecha</th>
-                                            <th>Concepto</th>
-                                            <th class="text-end">Monto</th>
-                                            <th class="text-center">Estado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>F001-0001234</td>
-                                            <td><t t-esc="time.strftime('%d/%m/%Y')"/></td>
-                                            <td>Servicio de impresión mensual - <t t-esc="docs[0].mes_facturacion"/></td>
-                                            <td class="text-end font-weight-bold">
-                                                <span t-esc="total_general" t-options='{"widget": "monetary", "display_currency": docs[0].currency_id}'/>
-                                            </td>
-                                            <td class="text-center">
-                                                <span class="badge badge-pill" style="background-color: #f97316;">Pendiente</span>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                        <t t-if="not facturas_por_maquina and not facturas">
+                            <div class="alert alert-info">
+                                <i class="fa fa-info-circle me-2"></i> No hay facturas asociadas para este período.
                             </div>
                         </t>
                     </div>
                     
                     <!-- Información bancaria para pagos -->
-                    <div class="row mt-4">
-                        <div class="col-7">
-                            <div class="card-container">
-                                <h4 class="section-title">
-                                    <span class="icon icon-primary">
-                                        <i class="fa fa-university"></i>
-                                    </span>
-                                    Información Bancaria para Pagos
-                                </h4>
-                                <div class="bank-info">
-                                    <p><strong>Banco:</strong> Banco de Crédito del Perú (BCP)</p>
-                                    <p><strong>Tipo de Moneda:</strong> Soles</p>
-                                    <p><strong>Número de Cuenta Corriente:</strong> 1912334609007</p>
-                                    <p><strong>Código de Cuenta Interbancario (CCI):</strong> 00219100233460900751</p>
-                                    <p><strong>Cuenta de Detracciones (Banco de la Nación):</strong> 00802007582</p>
-                                    <p><strong>A nombre de:</strong> Copier Company SAC</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Total a pagar -->
-                        <div class="col-5">
-                            <div class="total-card">
-                                <div class="row align-items-center">
-                                    <div class="col-6">
-                                        <div class="total-label">Total a Pagar:</div>
-                                    </div>
-                                    <div class="col-6 text-end">
-                                        <div class="total-value">
-                                            <span t-esc="total_general" 
-                                                t-options='{"widget": "monetary", "display_currency": docs[0].currency_id}' />
-                                        </div>
+                    <t t-if="mostrar_datos_bancarios">
+                        <div class="row mt-4">
+                            <div class="col-7">
+                                <div class="card-container">
+                                    <h4 class="section-title">
+                                        <span class="icon icon-primary">
+                                            <i class="fa fa-university"></i>
+                                        </span>
+                                        Información Bancaria para Pagos
+                                    </h4>
+                                    <div class="bank-info">
+                                        <p><strong>Banco:</strong> <t t-esc="datos_bancarios['banco']"/></p>
+                                        <p><strong>Tipo de Moneda:</strong> <t t-esc="datos_bancarios['moneda']"/></p>
+                                        <p><strong>Número de Cuenta Corriente:</strong> <t t-esc="datos_bancarios['cuenta_corriente']"/></p>
+                                        <p><strong>Código de Cuenta Interbancario (CCI):</strong> <t t-esc="datos_bancarios['cci']"/></p>
+                                        <p><strong>Cuenta de Detracciones (Banco de la Nación):</strong> <t t-esc="datos_bancarios['cuenta_detracciones']"/></p>
+                                        <p><strong>A nombre de:</strong> <t t-esc="datos_bancarios['titular']"/></p>
                                     </div>
                                 </div>
                             </div>
                             
-                            <!-- Información adicional de pago -->
-                            <div class="card-container mt-3">
-                                <h5 style="color: var(--primary); font-weight: 600; margin-bottom: 0.5rem; font-size: 1rem;">
-                                    <i class="fa fa-info-circle mr-2"></i> Información de Pago
-                                </h5>
-                                <p style="margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--gray-600);">
-                                    Para confirmar su pago, por favor enviar constancia al correo: 
-                                    <strong>info@copiercompanysac.com</strong>
-                                </p>
+                            <!-- Total a pagar -->
+                            <div class="col-5">
+                                <div class="total-card">
+                                    <div class="row align-items-center">
+                                        <div class="col-6">
+                                            <div class="total-label">Total a Pagar:</div>
+                                        </div>
+                                        <div class="col-6 text-end">
+                                            <div class="total-value">
+                                                <span t-esc="total_general" 
+                                                    t-options='{"widget": "monetary", "display_currency": docs[0].currency_id}' />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Información adicional de pago -->
+                                <div class="card-container mt-3">
+                                    <h5 style="color: var(--primary); font-weight: 600; margin-bottom: 0.5rem; font-size: 1rem;">
+                                        <i class="fa fa-info-circle mr-2"></i> Información de Pago
+                                    </h5>
+                                    <p style="margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--gray-600);">
+                                        Para confirmar su pago, por favor enviar constancia al correo: 
+                                        <strong>info@copiercompanysac.com</strong>
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </t>
                     
                     <!-- Pie de página con nota de agradecimiento -->
                     <div class="text-center mt-4">

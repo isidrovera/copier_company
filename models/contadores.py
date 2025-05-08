@@ -614,11 +614,51 @@ class ReportCounterReadings(models.AbstractModel):
             'titular': 'Copier Company SAC'
         }
         
-        # Recopilar facturas relacionadas
+        # Recopilar y organizar facturas por máquina
+        facturas_por_maquina = {}
         todas_facturas = self.env['account.move']
+        
         for doc in docs:
+            # Agregar facturas al conjunto general
             todas_facturas |= doc.facturas_ids
             
+            # Organizar por máquina
+            serie_maquina = doc.serie or 'sin_serie'
+            if serie_maquina not in facturas_por_maquina:
+                facturas_por_maquina[serie_maquina] = {
+                    'maquina': doc.maquina_id,
+                    'facturas': doc.facturas_ids,
+                    'nombre': doc.maquina_id.name.name if doc.maquina_id.name else 'Sin nombre',
+                    'serie': doc.serie or 'Sin serie'
+                }
+            else:
+                facturas_por_maquina[serie_maquina]['facturas'] |= doc.facturas_ids
+        
+        # Para máquinas con usuarios, organizar por usuario
+        facturas_por_usuario = {}
+        for doc in docs.filtered(lambda x: x.informe_por_usuario and x.usuario_detalle_ids):
+            for detalle in doc.usuario_detalle_ids:
+                usuario_key = f"{doc.serie}_{detalle.usuario_id.id}"
+                if usuario_key not in facturas_por_usuario:
+                    # Si el detalle tiene facturas específicas, usarlas
+                    # Si no, tomar las facturas del contador general
+                    usuario_facturas = getattr(detalle, 'factura_ids', self.env['account.move'])
+                    if not usuario_facturas:
+                        usuario_facturas = doc.facturas_ids
+                    
+                    facturas_por_usuario[usuario_key] = {
+                        'maquina': doc.maquina_id,
+                        'usuario': detalle.usuario_id,
+                        'facturas': usuario_facturas,
+                        'cantidad_copias': detalle.cantidad_copias,
+                        'nombre_usuario': detalle.usuario_id.name or 'Sin nombre'
+                    }
+                else:
+                    # Agregar facturas si hay más
+                    usuario_facturas = getattr(detalle, 'factura_ids', self.env['account.move'])
+                    if usuario_facturas:
+                        facturas_por_usuario[usuario_key]['facturas'] |= usuario_facturas
+        
         # Eliminar duplicados
         facturas_unicas = todas_facturas.filtered(lambda f: f.state != 'cancel')
 
@@ -631,6 +671,9 @@ class ReportCounterReadings(models.AbstractModel):
             'total_general': total_general,
             'datos_bancarios': datos_bancarios,
             'facturas': facturas_unicas,
+            'facturas_por_maquina': facturas_por_maquina,
+            'facturas_por_usuario': facturas_por_usuario,
+            'mostrar_facturas_agrupadas': True,  # Nuevo flag para controlar la visualización
             'mostrar_datos_bancarios': all(doc.mostrar_datos_bancarios for doc in docs)
         }
 
