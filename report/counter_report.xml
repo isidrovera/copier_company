@@ -24,219 +24,51 @@
         <field name="paperformat_id" ref="copier_company.paperformat_counter_landscape"/>
         <field name="print_report_name">'Lecturas - %s - %s' % (object.cliente_id.name or '', time.strftime('%d-%m-%Y'))</field>
     </record>
-    
-    <!-- Template del Reporte Modernizado -->
+    <!-- Template del Reporte -->
     <template id="report_counter_readings">
         <t t-name="copier_company.report_counter_readings">
             <t t-call="web.basic_layout">
-                <!-- Estilos CSS mejorados con colores más oscuros -->
+                <!-- Estilos CSS -->
                 <style>
-                    /* Variables de colores (más oscuros) */
-                    :root {
-                        --primary: #1e3a8a;         /* Azul más oscuro */
-                        --primary-light: #3b82f6;   /* Azul medio */
-                        --primary-dark: #0f172a;    /* Azul muy oscuro */
-                        --secondary: #0369a1;       /* Azul cyan oscuro */
-                        --secondary-light: #0ea5e9; /* Azul cyan medio */
-                        --accent: #c2410c;          /* Naranja oscuro */
-                        --gray-100: #f1f5f9;
-                        --gray-200: #e2e8f0;
-                        --gray-300: #cbd5e1;
-                        --gray-600: #475569;
-                        --gray-900: #0f172a;
-                    }
-                    
-                    body {
-                        font-family: 'Roboto', 'Helvetica', sans-serif;
-                        color: var(--gray-900);
-                    }
-                    
                     .card-container {
                         background-color: white;
-                        border-radius: 8px;
+                        border-radius: 16px;
                         padding: 1.5rem;
-                        margin-bottom: 1.5rem;
-                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
-                        border: 1px solid var(--gray-200);
-                    }
-                    
-                    .sub-card {
-                        background-color: var(--gray-100);
-                        border-radius: 6px;
-                        padding: 1rem;
-                        margin-bottom: 1rem;
-                        border: 1px solid var(--gray-200);
-                    }
-                    
-                    .header-gradient {
-                        background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-                        border-radius: 8px;
-                        padding: 1.2rem;
-                        margin-bottom: 1.5rem;
-                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-                    }
-                    
-                    .info-container {
-                        background-color: var(--gray-100);
-                        border-radius: 8px;
-                        padding: 1.2rem;
-                        margin-bottom: 1.5rem;
+                        margin-bottom: 2rem;
                         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-                        border: 1px solid var(--gray-200);
                     }
-                    
+                    .header-gradient {
+                        background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+                        border-radius: 8px;
+                        padding: 1rem;  /* Reducido de 2rem */
+                        margin-bottom: 1rem;  /* Reducido de 2rem */
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                    }
+                    .info-container {
+                        background-color: #f8fafc;
+                        border-radius: 8px;
+                        padding: 1rem;  /* Reducido de 1.5rem */
+                        margin-bottom: 1rem;  /* Reducido de 2rem */
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                    }
                     .badge {
                         padding: 0.5rem 1rem;
                         border-radius: 9999px;
                         font-size: 0.875rem;
                         color: white;
-                        display: inline-flex;
-                        align-items: center;
-                        gap: 0.5rem;
-                        font-weight: 500;
                     }
-                    
                     .badge-mono {
-                        background-color: var(--gray-600);
+                        background-color: #64748b;
                     }
-                    
                     .badge-color {
-                        background-color: var(--secondary);
+                        background-color: #0ea5e9;
                     }
-                    
-                    .badge-factura {
-                        background-color: var(--accent);
-                    }
-                    
                     .company-logo {
-                        max-height: 100px;
+                        max-height: 120px;  /* Reducido de 90px */
                         width: auto;
                     }
-                    
-                    .section-title {
-                        color: var(--primary);
-                        font-weight: 600;
-                        margin-bottom: 1.2rem;
-                        display: flex;
-                        align-items: center;
-                        gap: 0.5rem;
-                    }
-                    
-                    .subsection-title {
-                        color: var(--secondary);
-                        font-weight: 600;
-                        margin-bottom: 0.8rem;
-                        font-size: 1.1rem;
-                        display: flex;
-                        align-items: center;
-                    }
-                    
-                    .table {
-                        width: 100%;
-                        border-collapse: separate;
-                        border-spacing: 0;
-                    }
-                    
-                    .table th {
-                        background-color: var(--gray-100);
-                        padding: 0.8rem 1rem;
-                        font-weight: 600;
-                        text-align: left;
-                        color: var(--primary-dark);
-                        border-top: 1px solid var(--gray-200);
-                        border-bottom: 1px solid var(--gray-200);
-                    }
-                    
-                    .table td {
-                        padding: 0.8rem 1rem;
-                        border-bottom: 1px solid var(--gray-200);
-                    }
-                    
-                    .table tr:hover {
-                        background-color: rgba(59, 130, 246, 0.05);
-                    }
-                    
-                    .bank-info {
-                        border-left: 4px solid var(--primary);
-                        padding-left: 1rem;
-                        background-color: var(--gray-100);
-                        border-radius: 0 8px 8px 0;
-                    }
-                    
-                    .bank-info p {
-                        margin: 0.3rem 0;
-                    }
-                    
-                    .total-amount {
-                        font-size: 1.5rem;
-                        font-weight: 700;
-                        color: var(--primary);
-                    }
-                    
-                    .invoice-item {
-                        display: flex;
-                        justify-content: space-between;
-                        margin-bottom: 0.5rem;
-                        border-bottom: 1px solid var(--gray-200);
-                        padding-bottom: 0.5rem;
-                    }
-                    
-                    .invoice-item:last-child {
-                        border-bottom: none;
-                    }
-
-                    .icon {
-                        display: inline-flex;
-                        align-items: center;
-                        justify-content: center;
-                        width: 24px;
-                        height: 24px;
-                        border-radius: 50%;
-                        color: white;
-                        margin-right: 8px;
-                    }
-                    
-                    .icon-primary {
-                        background-color: var(--primary);
-                    }
-                    
-                    .icon-secondary {
-                        background-color: var(--secondary);
-                    }
-                    
-                    .icon-accent {
-                        background-color: var(--accent);
-                    }
-                    
-                    .total-card {
-                        background: linear-gradient(to right, var(--primary-light), var(--primary));
-                        color: white;
-                        border-radius: 8px;
-                        padding: 1.2rem;
-                        box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
-                    }
-                    
-                    .total-value {
-                        font-size: 1.8rem;
-                        font-weight: 700;
-                    }
-                    
-                    .total-label {
-                        font-size: 1rem;
-                        opacity: 0.9;
-                    }
-                    
-                    /* Estado de factura badges */
-                    .badge-paid {
-                        background-color: #065f46;
-                    }
-                    
-                    .badge-partial {
-                        background-color: #6d28d9;
-                    }
-                    
-                    .badge-pending {
-                        background-color: #b45309;
+                    .client-info-row {
+                        margin-top: 0.5rem;
                     }
                 </style>
 
@@ -252,93 +84,62 @@
                         <div class="row align-items-center">
                             <div class="col-2">
                                 <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" 
-                                     class="company-logo" alt="Logo de la empresa"/>
-                            </div>
-                            <div class="col-10 text-white">
-                                <h1 style="font-size: 1.8rem; margin: 0; font-weight: 700;">Copier Company SAC</h1>
-                                <p style="margin: 0; opacity: 0.9;">Soluciones integrales en tecnología de impresión</p>
-                            </div>
+                                    class="company-logo" alt="Logo de la empresa"/>
+                            </div>                            
                         </div>
                     </div>
-                    
-                    <!-- Información del Reporte -->
-                    <div class="info-container">
-                        <div class="row">
-                            <div class="col-10">
-                                <h2 style="color: var(--primary); margin: 0; font-weight: 700; font-size: 1.5rem; display: flex; align-items: center;">
-                                    <span class="icon icon-primary">
-                                        <i class="fa fa-file-text-o"></i>
-                                    </span>
-                                    Reporte de Lecturas
-                                </h2>
-                            </div>
-                            <div class="col-2 text-end">
-                                <span class="badge" style="background-color: var(--primary);">
-                                    <i class="fa fa-calendar"></i>
-                                    <t t-esc="time.strftime('%d/%m/%Y')" />
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    
                     <!-- Información del Cliente -->
                     <div class="info-container">
                         <div class="row">
+                            <div class="col-10">
+                                <h2 style="color: #1429c5; margin: 0; font-weight: 600; font-size: 1.5rem;">
+                                    Reporte de Lecturas
+                                </h2>
+                            </div>                          
+                        </div>
+                    </div>
+                    <!-- Información del Cliente -->
+                    <div class="info-container">
+                        <div class="row">                            
                             <div class="col-6">
-                                <h4 class="section-title">
-                                    <span class="icon icon-primary">
-                                        <i class="fa fa-building"></i>
-                                    </span>
-                                    Información del Cliente
+                                <h4 style="color: #1e293b; font-weight: 600;">
+                                    <i class="fa fa-building me-2" />Información del Cliente
                                 </h4>
-                                <p style="margin-bottom: 0.5rem; font-size: 1.2rem; font-weight: 600;">
-                                    <t t-esc="cliente.name" />
+                                <p style="margin-bottom: 0.5rem;">
+                                    <strong t-field="cliente.name" />
                                 </p>
-                                <p t-if="cliente.vat" style="color: var(--gray-600);">
-                                    <strong>RUC/DNI:</strong> <t t-esc="cliente.vat" />
-                                </p>
-                                <p t-if="cliente.street" style="color: var(--gray-600);">
-                                    <strong>Dirección:</strong> <t t-esc="cliente.street" />
+                                <p t-if="cliente.vat" style="color: #64748b;">
+                                    RUC/DNI: <t t-esc="cliente.vat" />
                                 </p>
                             </div>
                             <div class="col-6 text-end">
-                                <h4 class="section-title" style="justify-content: flex-end;">
-                                    <span class="icon icon-primary">
-                                        <i class="fa fa-calendar"></i>
-                                    </span>
-                                    Período de Facturación
+                                <h4 style="color: #1e293b; font-weight: 600;">
+                                    <i class="fa fa-calendar me-2" />Fecha
                                 </h4>
-                                <p style="font-size: 1.2rem; font-weight: 600; color: var(--primary);">
-                                    <t t-esc="docs[0].mes_facturacion" />
-                                </p>
-                                <p style="color: var(--gray-600);">
-                                    <strong>Fecha de emisión:</strong> <t t-esc="time.strftime('%d/%m/%Y')" />
+                                <p style="color: #64748b;">
+                                    <t t-esc="time.strftime('%d/%m/%Y')" />
                                 </p>
                             </div>
                         </div>
                     </div>
-                    
+
+                    <!-- Sección Máquinas Monocromáticas -->
                     <t t-if="maquinas_mono">
                         <div class="card-container">
-                            <h4 class="section-title">
-                                <span class="icon icon-secondary">
-                                    <i class="fa fa-print"></i>
-                                </span>
-                                Máquinas Monocromáticas
-                                <span class="badge badge-mono">
-                                    <i class="fa fa-tint"></i> B/N
-                                </span>
+                            <h4 style="color: #1e293b; font-weight: 600; margin-bottom: 1.5rem;">
+                                <i class="fa fa-print me-2" />Máquinas Monocromáticas
+                                <span class="badge badge-mono">B/N</span>
                             </h4>
                             <div class="table-responsive">
-                                <table class="table">
+                                <table class="table table-sm">
                                     <thead>
-                                        <tr>
-                                            <th>Modelo</th>
-                                            <th>Serie</th>
-                                            <th class="text-end">Cont. Anterior</th>
-                                            <th class="text-end">Cont. Actual</th>
-                                            <th class="text-end">Total BN</th>
-                                            <th class="text-end">Total</th>
+                                        <tr style="background-color: #f8fafc;">
+                                            <th scope="col" style="padding: 1rem;">Modelo</th>
+                                            <th scope="col">Serie</th>                                            
+                                            <th scope="col" class="text-end">Cont. Anterior</th>
+                                            <th scope="col" class="text-end">Cont. Actual</th>
+                                            <th scope="col" class="text-end">Total BN</th>
+                                            <th scope="col" class="text-end">Total</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -346,6 +147,7 @@
                                             <tr>
                                                 <td><t t-esc="maquina.maquina_id.name.name" /></td>
                                                 <td><t t-esc="maquina.serie" /></td>
+                                                
                                                 <td class="text-end">
                                                     <t t-esc="'{:,}'.format(maquina.contador_anterior_bn)" />
                                                 </td>
@@ -355,7 +157,7 @@
                                                 <td class="text-end">
                                                     <t t-esc="'{:,}'.format(maquina.total_copias_bn)" />
                                                 </td>
-                                                <td class="text-end font-weight-bold">
+                                                <td class="text-end">
                                                     <span t-field="maquina.total" t-options='{"widget": "monetary", "display_currency": maquina.currency_id}' />
                                                 </td>
                                             </tr>
@@ -369,28 +171,23 @@
                     <!-- Sección Máquinas Color -->
                     <t t-if="maquinas_color">
                         <div class="card-container">
-                            <h4 class="section-title">
-                                <span class="icon icon-secondary">
-                                    <i class="fa fa-palette"></i>
-                                </span>
-                                Máquinas Color
-                                <span class="badge badge-color">
-                                    <i class="fa fa-tint"></i> Color
-                                </span>
+                            <h4 style="color: #1e293b; font-weight: 600; margin-bottom: 1.5rem;">
+                                <i class="fa fa-palette me-2" />Máquinas Color
+                                <span class="badge badge-color">Color</span>
                             </h4>
                             <div class="table-responsive">
-                                <table class="table">
+                                <table class="table table-sm">
                                     <thead>
-                                        <tr>
-                                            <th>Modelo</th>
-                                            <th>Serie</th>
-                                            <th class="text-end">Cont. Anterior B/N</th>
-                                            <th class="text-end">Cont. Actual B/N</th>
-                                            <th class="text-end">Cont. Anterior Color</th>
-                                            <th class="text-end">Cont. Actual Color</th>
-                                            <th class="text-end">Total BN</th>
-                                            <th class="text-end">Total Color</th>
-                                            <th class="text-end">Total</th>
+                                        <tr style="background-color: #f8fafc;">
+                                            <th scope="col">Modelo</th>
+                                            <th scope="col">Serie</th>                                            
+                                            <th scope="col" class="text-end">Cont. Anterior B/N</th>
+                                            <th scope="col" class="text-end">Cont. Actual B/N</th>
+                                            <th scope="col" class="text-end">Cont. Anterior Color</th>
+                                            <th scope="col" class="text-end">Cont. Actual Color</th>
+                                            <th scope="col" class="text-end">Total BN</th>
+                                            <th scope="col" class="text-end">Total Color</th>
+                                            <th scope="col" class="text-end">Total</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -398,6 +195,7 @@
                                             <tr>
                                                 <td><t t-esc="maquina.maquina_id.name.name" /></td>
                                                 <td><t t-esc="maquina.serie" /></td>
+                                                
                                                 <td class="text-end">
                                                     <t t-esc="'{:,}'.format(maquina.contador_anterior_bn)" />
                                                 </td>
@@ -416,7 +214,7 @@
                                                 <td class="text-end">
                                                     <t t-esc="'{:,}'.format(maquina.total_copias_color)" />
                                                 </td>
-                                                <td class="text-end font-weight-bold">
+                                                <td class="text-end">
                                                     <span t-field="maquina.total" t-options='{"widget": "monetary", "display_currency": maquina.currency_id}' />
                                                 </td>
                                             </tr>
@@ -426,23 +224,18 @@
                             </div>
                         </div>
                     </t>
-                    
-                    <!-- Sección usuarios por máquina -->
                     <t t-if="any(doc.informe_por_usuario for doc in docs)">
                         <div class="card-container">
-                            <h4 class="section-title">
-                                <span class="icon icon-accent">
-                                    <i class="fa fa-users"></i>
-                                </span>
-                                Detalle por Usuario
+                            <h4 style="color: #1e293b; font-weight: 600; margin-bottom: 1.5rem;">
+                                <i class="fa fa-users me-2"/>Detalle por Usuario
                             </h4>
                             <div class="table-responsive">
-                                <table class="table">
+                                <table class="table table-sm">
                                     <thead>
-                                        <tr>
-                                            <th>Máquina</th>
-                                            <th>Usuario/Empresa</th>
-                                            <th class="text-end">Total Copias</th>
+                                        <tr style="background-color: #f8fafc;">
+                                            <th scope="col">Máquina</th>
+                                            <th scope="col">Usuario/Empresa</th>
+                                            <th scope="col" class="text-end">Total Copias</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -462,176 +255,26 @@
                             </div>
                         </div>
                     </t>
-                    
-                    <!-- Sección Facturas del mes -->
-                    <div class="card-container">
-                        <h4 class="section-title">
-                            <span class="icon icon-accent">
-                                <i class="fa fa-file-text"></i>
-                            </span>
-                            Facturas del Mes
-                            <span class="badge badge-factura">
-                                <i class="fa fa-file-invoice-dollar"></i> Pendientes
-                            </span>
-                        </h4>
-                        
-                        <!-- Facturas agrupadas por máquina -->
-                        <t t-if="facturas_por_maquina">
-                            <t t-foreach="facturas_por_maquina" t-as="serie_key">
-                                <div class="sub-card mb-3">
-                                    <h5 class="subsection-title">
-                                        <i class="fa fa-print me-2"></i>
-                                        <strong><t t-esc="facturas_por_maquina[serie_key]['nombre']"/></strong> - 
-                                        Serie: <t t-esc="facturas_por_maquina[serie_key]['serie']"/>
-                                    </h5>
-                                    <t t-if="facturas_por_maquina[serie_key]['facturas']">
-                                        <div class="table-responsive">
-                                            <table class="table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Número</th>
-                                                        <th>Fecha</th>
-                                                        <th>Descripción</th>
-                                                        <th class="text-end">Monto</th>
-                                                        <th class="text-center">Estado</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <t t-foreach="facturas_por_maquina[serie_key]['facturas']" t-as="factura">
-                                                        <tr>
-                                                            <td><t t-esc="factura.name"/></td>
-                                                            <td><t t-esc="factura.invoice_date" t-options="{'widget': 'date'}"/></td>
-                                                            <td><t t-esc="factura.ref or (factura.invoice_line_ids and factura.invoice_line_ids[0].name or '')"/></td>
-                                                            <td class="text-end font-weight-bold">
-                                                                <span t-field="factura.amount_total" t-options='{"widget": "monetary", "display_currency": factura.currency_id}'/>
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <t t-if="factura.payment_state == 'paid'">
-                                                                    <span class="badge badge-pill badge-paid">Pagada</span>
-                                                                </t>
-                                                                <t t-elif="factura.payment_state == 'partial'">
-                                                                    <span class="badge badge-pill badge-partial">Pago Parcial</span>
-                                                                </t>
-                                                                <t t-else="">
-                                                                    <span class="badge badge-pill badge-pending">Pendiente</span>
-                                                                </t>
-                                                            </td>
-                                                        </tr>
-                                                    </t>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </t>
-                                    <t t-else="">
-                                        <p class="text-muted">No hay facturas asociadas a esta máquina</p>
-                                    </t>
-                                </div>
-                            </t>
-                        </t>
-                        
-                        <!-- Facturas simples si no hay agrupación -->
-                        <t t-if="not facturas_por_maquina and facturas">
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>Número</th>
-                                            <th>Fecha</th>
-                                            <th>Descripción</th>
-                                            <th class="text-end">Monto</th>
-                                            <th class="text-center">Estado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <t t-foreach="facturas" t-as="factura">
-                                            <tr>
-                                                <td><t t-esc="factura.name"/></td>
-                                                <td><t t-esc="factura.invoice_date" t-options="{'widget': 'date'}"/></td>
-                                                <td><t t-esc="factura.ref or (factura.invoice_line_ids and factura.invoice_line_ids[0].name or '')"/></td>
-                                                <td class="text-end font-weight-bold">
-                                                    <span t-field="factura.amount_total" t-options='{"widget": "monetary", "display_currency": factura.currency_id}'/>
-                                                </td>
-                                                <td class="text-center">
-                                                    <t t-if="factura.payment_state == 'paid'">
-                                                        <span class="badge badge-pill badge-paid">Pagada</span>
-                                                    </t>
-                                                    <t t-elif="factura.payment_state == 'partial'">
-                                                        <span class="badge badge-pill badge-partial">Pago Parcial</span>
-                                                    </t>
-                                                    <t t-else="">
-                                                        <span class="badge badge-pill badge-pending">Pendiente</span>
-                                                    </t>
-                                                </td>
-                                            </tr>
-                                        </t>
-                                    </tbody>
+
+                    <!-- Total General -->
+                    <div class="info-container" style="margin-top: 2rem;">
+                        <div class="row justify-content-end">
+                            <div class="col-4">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td style="border: none;">
+                                            <strong>Total a Pagar:</strong>
+                                        </td>
+                                        <td class="text-end" style="border: none;">
+                                            <strong style="color: #1d4ed8; font-size: 1.25rem;">
+                                                <span t-esc="total_general" 
+                                                      t-options='{"widget": "monetary", "display_currency": docs[0].currency_id}' />
+                                            </strong>
+                                        </td>
+                                    </tr>
                                 </table>
                             </div>
-                        </t>
-                        <t t-if="not facturas_por_maquina and not facturas">
-                            <div class="alert alert-info">
-                                <i class="fa fa-info-circle me-2"></i> No hay facturas asociadas para este período.
-                            </div>
-                        </t>
-                    </div>
-                    
-                    <!-- Información bancaria para pagos -->
-                    <t t-if="mostrar_datos_bancarios">
-                        <div class="row mt-4">
-                            <div class="col-7">
-                                <div class="card-container">
-                                    <h4 class="section-title">
-                                        <span class="icon icon-primary">
-                                            <i class="fa fa-university"></i>
-                                        </span>
-                                        Información Bancaria para Pagos
-                                    </h4>
-                                    <div class="bank-info">
-                                        <p><strong>Banco:</strong> <t t-esc="datos_bancarios['banco']"/></p>
-                                        <p><strong>Tipo de Moneda:</strong> <t t-esc="datos_bancarios['moneda']"/></p>
-                                        <p><strong>Número de Cuenta Corriente:</strong> <t t-esc="datos_bancarios['cuenta_corriente']"/></p>
-                                        <p><strong>Código de Cuenta Interbancario (CCI):</strong> <t t-esc="datos_bancarios['cci']"/></p>
-                                        <p><strong>Cuenta de Detracciones (Banco de la Nación):</strong> <t t-esc="datos_bancarios['cuenta_detracciones']"/></p>
-                                        <p><strong>A nombre de:</strong> <t t-esc="datos_bancarios['titular']"/></p>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Total a pagar -->
-                            <div class="col-5">
-                                <div class="total-card">
-                                    <div class="row align-items-center">
-                                        <div class="col-6">
-                                            <div class="total-label">Total a Pagar:</div>
-                                        </div>
-                                        <div class="col-6 text-end">
-                                            <div class="total-value">
-                                                <span t-esc="total_general" 
-                                                    t-options='{"widget": "monetary", "display_currency": docs[0].currency_id}' />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Información adicional de pago -->
-                                <div class="card-container mt-3">
-                                    <h5 style="color: var(--primary); font-weight: 600; margin-bottom: 0.5rem; font-size: 1rem;">
-                                        <i class="fa fa-info-circle mr-2"></i> Información de Pago
-                                    </h5>
-                                    <p style="margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--gray-600);">
-                                        Para confirmar su pago, por favor enviar constancia al correo: 
-                                        <strong>info@copiercompanysac.com</strong>
-                                    </p>
-                                </div>
-                            </div>
                         </div>
-                    </t>
-                    
-                    <!-- Pie de página con nota de agradecimiento -->
-                    <div class="text-center mt-4">
-                        <p style="color: var(--gray-600); font-size: 0.9rem;">
-                            Gracias por su preferencia. Para cualquier consulta, comuníquese al (01) 975399303
-                        </p>
                     </div>
                 </div>
             </t>
