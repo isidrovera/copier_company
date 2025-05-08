@@ -465,7 +465,7 @@
                                     <tbody>
                                         <t t-foreach="docs[0].facturas_ids" t-as="factura">
                                             <tr>
-                                                <td><t t-esc="factura.number"/></td>
+                                                <td><t t-esc="factura.name"/></td>
                                                 <td><t t-esc="factura.date"/></td>
                                                 <td><t t-esc="factura.concept"/></td>
                                                 <td class="text-end">
