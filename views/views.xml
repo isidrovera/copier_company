@@ -95,12 +95,9 @@
                                 <field name="dia_facturacion"/>
                             </group>
                             <group string="Costos y Volúmenes">
-                                <field name="costo_copia_bn" 
-                                       invisible="tipo_calculo in ['manual_sin_igv_bn', 'manual_con_igv_bn', 'manual_sin_igv_total', 'manual_con_igv_total']" 
-                                       readonly="tipo_calculo != 'auto'"/>
-                                <field name="costo_copia_color" 
-                                       invisible="tipo_calculo in ['manual_sin_igv_color', 'manual_con_igv_color', 'manual_sin_igv_total', 'manual_con_igv_total'] or tipo == 'monocroma'" 
-                                       readonly="tipo_calculo != 'auto'"/>
+                                <!-- Los costos unitarios siempre se muestran, solo son de solo lectura cuando no es cálculo automático -->
+                                <field name="costo_copia_bn" readonly="tipo_calculo != 'auto'"/>
+                                <field name="costo_copia_color" invisible="tipo == 'monocroma'" readonly="tipo_calculo != 'auto'"/>
                                 <field name="volumen_mensual_bn"/>
                                 <field name="volumen_mensual_color" invisible="tipo == 'monocroma'"/>
                                 <field name="precio_bn_incluye_igv" invisible="tipo_calculo != 'auto'"/>
