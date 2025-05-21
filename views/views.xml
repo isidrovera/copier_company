@@ -23,129 +23,144 @@
 
     <!-- Form View -->
     <record id="view_maquinas_form" model="ir.ui.view">
-      <field name="name">copier.company.form</field>
-      <field name="model">copier.company</field>
-      <field name="arch" type="xml">
+    <field name="name">copier.company.form</field>
+    <field name="model">copier.company</field>
+    <field name="arch" type="xml">
         <form>
-          <header>
-            <button name="crear_ticket" string="Crear Ticket" type="object" class="btn-primary"/>
-            <button name="generar_qr_code" string="Generar QR" type="object" class="btn-info"/>
-            <button name="action_print_report" string="Imprimir Cotización" type="object" class="btn-success"/>
-            <button name="enviar_correo_propuesta" string="Enviar Propuesta" type="object" class="oe_highlight"/>
-             <field name="estado_renovacion" widget="statusbar" statusbar_visible="vigente,por_vencer,renovado,finalizado"/>
-    <button name="action_renovar_contrato" 
-            string="Renovar Contrato" 
-            type="object" 
-            class="oe_highlight"
-            />
-            <button 
-                    name="send_whatsapp_report" 
-                    type="object" 
-                    class="btn btn-success"
-                    icon="fa-whatsapp"
-                    string=" Enviar por WhatsApp"                    
-                    style="background-color: #25D366 !important; border-color: #25D366 !important;"
+            <header>
+                <button name="crear_ticket" string="Crear Ticket" type="object" class="btn-primary"/>
+                <button name="generar_qr_code" string="Generar QR" type="object" class="btn-info"/>
+                <button name="action_print_report" string="Imprimir Cotización" type="object" class="btn-success"/>
+                <button name="enviar_correo_propuesta" string="Enviar Propuesta" type="object" class="oe_highlight"/>
+                <field name="estado_renovacion" widget="statusbar" statusbar_visible="vigente,por_vencer,renovado,finalizado"/>
+                <button name="action_renovar_contrato" 
+                        string="Renovar Contrato" 
+                        type="object" 
+                        class="oe_highlight"
                 />
-            <field name="estado_maquina_id" widget="statusbar" options="{'clickable': '1'}"/>
-          </header>
-          <sheet>
-            <div class="oe_button_box" name="button_box">
-                <button class="oe_stat_button" type="object" 
-                        name="action_view_counters" icon="fa-calculator">
-                    <field string="Lecturas" name="counter_count" widget="statinfo"/>
-                </button>
-            </div>
+                <button 
+                        name="send_whatsapp_report" 
+                        type="object" 
+                        class="btn btn-success"
+                        icon="fa-whatsapp"
+                        string=" Enviar por WhatsApp"                    
+                        style="background-color: #25D366 !important; border-color: #25D366 !important;"
+                />
+                <field name="estado_maquina_id" widget="statusbar" options="{'clickable': '1'}"/>
+            </header>
+            <sheet>
+                <div class="oe_button_box" name="button_box">
+                    <button class="oe_stat_button" type="object" 
+                            name="action_view_counters" icon="fa-calculator">
+                        <field string="Lecturas" name="counter_count" widget="statinfo"/>
+                    </button>
+                </div>
 
-            <div class="alert alert-info">
-              <strong>Instrucciones:</strong>
-              <ul>
-                <li>Complete los datos del equipo y cliente</li>
-                <li>Configure el volumen mensual esperado</li>
-                <li>Los montos se calculan automáticamente</li>
-                <li>Genere el código QR para servicio técnico</li>
-              </ul>
-            </div>
+                <div class="alert alert-info">
+                    <strong>Instrucciones:</strong>
+                    <ul>
+                        <li>Complete los datos del equipo y cliente</li>
+                        <li>Configure el volumen mensual esperado</li>
+                        <li>Los montos se calculan automáticamente</li>
+                        <li>Genere el código QR para servicio técnico</li>
+                    </ul>
+                </div>
 
-            <group>
-              <group string="Datos del Equipo">
-                <field name="secuencia" readonly="1"/>
-                <field name="marca_id" required="1"/>
-                <field name="name" required="1"/>
-                <field name="serie_id" required="1"/>
-                <field name="tipo" required="1"/>
-                <field name="accesorios_ids" widget="many2many_tags"/>
-              </group>
-              <group string="Datos del Cliente">
-                <field name="cliente_id" required="1"/>
-                <field name="tipo_identificacion"/>
-                <field name="identificacion"/>
-                <field name="sede" required="1"/>
-                <field name="ubicacion" required="1"/>
-              </group>
-            </group>
-
-            <notebook>
-              <page name="facturacion" string="Facturación">
                 <group>
-                  <group string="Configuración">
-                    <field name="currency_id"/>
-                    <field name="fecha_inicio_alquiler" required="1"/>
-                    <field name="duracion_alquiler_id" required="1"/>
-                    <field name="fecha_fin_alquiler" readonly="1"/>
-                    <field name="dia_facturacion"/>
-                  </group>
-                  <group string="Costos y Volúmenes">
-                    <field name="costo_copia_bn"/>
-                    <field name="costo_copia_color" invisible="tipo == 'monocroma'"/>
-                    <field name="volumen_mensual_bn"/>
-                    <field name="precio_bn_incluye_igv"/>
-                    <field name="precio_color_incluye_igv"/>
-                    <field name="volumen_mensual_color" invisible="tipo == 'monocroma'"/>
-                    
-                  </group>
-                  <group string="Totales">
-                    <field name="tipo_calculo" placeholder="¿Cómo deseas calcular el monto mensual?"/>
-                    <field name="monto_mensual_ingresado" 
-                          placeholder="Solo si deseas ingresar el monto manualmente"/>
-                    <field name="renta_mensual_bn"/>
-                    <field name="renta_mensual_color" invisible="tipo == 'monocroma'"/>
-                    <field name="igv"/>
-                    <field name="descuento"/>
-                    <field name="total_facturar_mensual" class="oe_subtotal_footer_separator"/>
-                  </group>
+                    <group string="Datos del Equipo">
+                        <field name="secuencia" readonly="1"/>
+                        <field name="marca_id" required="1"/>
+                        <field name="name" required="1"/>
+                        <field name="serie_id" required="1"/>
+                        <field name="tipo" required="1"/>
+                        <field name="accesorios_ids" widget="many2many_tags"/>
+                    </group>
+                    <group string="Datos del Cliente">
+                        <field name="cliente_id" required="1"/>
+                        <field name="tipo_identificacion"/>
+                        <field name="identificacion"/>
+                        <field name="sede" required="1"/>
+                        <field name="ubicacion" required="1"/>
+                    </group>
+                </group>
 
-                </group>
-              </page>
-              <page string="Historial de Renovaciones">
-                  <field name="historial_renovaciones">
-                      <list>
-                          <field name="fecha_renovacion"/>
-                          <field name="fecha_anterior"/>
-                          <field name="fecha_fin_anterior"/>
-                          <field name="duracion_anterior_id"/>
-                          <field name="notas"/>
-                      </list>
-                  </field>
-              </page>
-              
-              <page name="especificaciones" string="Especificaciones">
-                <group>
-                  <group>
-                    <field name="especificaciones_id"/>
-                  </group>
-                  <group>
-                    <field name="imagen_id"/>                    
-                    <field name="qr_code" invisible="not qr_code"/>
-                    
-                  </group>
-                </group>
-              </page>
-            </notebook>
-          </sheet>
-          <chatter />
+                <notebook>
+                    <page name="facturacion" string="Facturación">
+                        <group>
+                            <group string="Configuración">
+                                <field name="currency_id"/>
+                                <field name="fecha_inicio_alquiler" required="1"/>
+                                <field name="duracion_alquiler_id" required="1"/>
+                                <field name="fecha_fin_alquiler" readonly="1"/>
+                                <field name="dia_facturacion"/>
+                            </group>
+                            <group string="Costos y Volúmenes">
+                                <field name="costo_copia_bn" 
+                                       invisible="tipo_calculo in ['manual_sin_igv_bn', 'manual_con_igv_bn', 'manual_sin_igv_total', 'manual_con_igv_total']" 
+                                       readonly="tipo_calculo != 'auto'"/>
+                                <field name="costo_copia_color" 
+                                       invisible="tipo_calculo in ['manual_sin_igv_color', 'manual_con_igv_color', 'manual_sin_igv_total', 'manual_con_igv_total'] or tipo == 'monocroma'" 
+                                       readonly="tipo_calculo != 'auto'"/>
+                                <field name="volumen_mensual_bn"/>
+                                <field name="volumen_mensual_color" invisible="tipo == 'monocroma'"/>
+                                <field name="precio_bn_incluye_igv" invisible="tipo_calculo != 'auto'"/>
+                                <field name="precio_color_incluye_igv" invisible="tipo_calculo != 'auto' or tipo == 'monocroma'"/>
+                            </group>
+                            <group string="Configuración de Cálculo">
+                                <field name="tipo_calculo" widget="radio"/>
+                                
+                                <!-- Campos para ingreso manual de montos, visibles según el tipo de cálculo seleccionado -->
+                                <field name="monto_mensual_bn" 
+                                       invisible="tipo_calculo not in ['manual_sin_igv_bn', 'manual_con_igv_bn']" 
+                                       placeholder="Ingrese el monto mensual para copias B/N"/>
+                                
+                                <field name="monto_mensual_color" 
+                                       invisible="tipo_calculo not in ['manual_sin_igv_color', 'manual_con_igv_color'] or tipo == 'monocroma'" 
+                                       placeholder="Ingrese el monto mensual para copias a color"/>
+                                
+                                <field name="monto_mensual_total" 
+                                       invisible="tipo_calculo not in ['manual_sin_igv_total', 'manual_con_igv_total']" 
+                                       placeholder="Ingrese el monto mensual total (B/N y color)"/>
+                            </group>
+                            <group string="Totales">
+                                <field name="renta_mensual_bn" readonly="1"/>
+                                <field name="renta_mensual_color" invisible="tipo == 'monocroma'" readonly="1"/>
+                                <field name="subtotal_sin_igv" readonly="1"/>
+                                <field name="igv"/>
+                                <field name="monto_igv" readonly="1"/>
+                                <field name="descuento"/>
+                                <field name="total_facturar_mensual" class="oe_subtotal_footer_separator" readonly="1"/>
+                            </group>
+                        </group>
+                    </page>
+                    <page string="Historial de Renovaciones">
+                        <field name="historial_renovaciones">
+                            <list>
+                                <field name="fecha_renovacion"/>
+                                <field name="fecha_anterior"/>
+                                <field name="fecha_fin_anterior"/>
+                                <field name="duracion_anterior_id"/>
+                                <field name="notas"/>
+                            </list>
+                        </field>
+                    </page>
+                    <page name="especificaciones" string="Especificaciones">
+                        <group>
+                            <group>
+                                <field name="especificaciones_id"/>
+                            </group>
+                            <group>
+                                <field name="imagen_id"/>
+                                <field name="qr_code" invisible="not qr_code"/>
+                            </group>
+                        </group>
+                    </page>
+                </notebook>
+            </sheet>
+            <chatter />
         </form>
-      </field>
-    </record>
+    </field>
+</record>
 
     <!-- Kanban View -->
     <record model="ir.ui.view" id="copier_company.kanban">
