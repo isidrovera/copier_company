@@ -104,12 +104,16 @@
                     
                   </group>
                   <group string="Totales">
+                    <field name="tipo_calculo" placeholder="¿Cómo deseas calcular el monto mensual?"/>
+                    <field name="monto_mensual_ingresado" 
+                          placeholder="Solo si deseas ingresar el monto manualmente"/>
                     <field name="renta_mensual_bn"/>
                     <field name="renta_mensual_color" invisible="tipo == 'monocroma'"/>
                     <field name="igv"/>
                     <field name="descuento"/>
                     <field name="total_facturar_mensual" class="oe_subtotal_footer_separator"/>
                   </group>
+
                 </group>
               </page>
               <page string="Historial de Renovaciones">

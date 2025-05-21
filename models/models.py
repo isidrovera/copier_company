@@ -86,6 +86,16 @@ class CopierCompany(models.Model):
     estado_maquina_id = fields.Many2one('copier.estados', string="Estado de la Máquina",
                                        default=lambda self: self.env.ref('copier_company.estado_disponible').id,
                                        tracking=True)
+    tipo_calculo = fields.Selection([
+        ('auto', 'Cálculo Automático'),
+        ('manual_sin_igv', 'Monto Mensual sin IGV'),
+        ('manual_con_igv', 'Monto Mensual con IGV'),
+    ], string='Tipo de Cálculo', default='auto', tracking=True)
+
+    monto_mensual_ingresado = fields.Monetary(
+        string="Monto Mensual Ingresado",
+        currency_field='currency_id'
+    )
 
     def format_phone_number(self, phone):
         if not phone:
@@ -298,20 +308,44 @@ class CopierCompany(models.Model):
         self.tipo_identificacion = new_partner.l10n_latam_identification_type_id.id
 
     @api.depends('volumen_mensual_color', 'volumen_mensual_bn', 'costo_copia_color', 
-                'costo_copia_bn', 'igv', 'descuento')
+             'costo_copia_bn', 'igv', 'descuento', 'tipo_calculo', 'monto_mensual_ingresado')
     def _compute_renta_mensual(self):
         for record in self:
-            renta_color = record.volumen_mensual_color * record.costo_copia_color
-            renta_bn = record.volumen_mensual_bn * record.costo_copia_bn
-            subtotal = renta_color + renta_bn
-            
-            descuento = subtotal * (record.descuento / 100.0)
-            subtotal_con_descuento = subtotal - descuento
-            igv = subtotal_con_descuento * (record.igv / 100.0)
-            
-            record.renta_mensual_color = renta_color
-            record.renta_mensual_bn = renta_bn
-            record.total_facturar_mensual = subtotal_con_descuento + igv
+            if record.tipo_calculo == 'auto':
+                renta_color = record.volumen_mensual_color * record.costo_copia_color
+                renta_bn = record.volumen_mensual_bn * record.costo_copia_bn
+                subtotal = renta_color + renta_bn
+                descuento = subtotal * (record.descuento / 100.0)
+                subtotal_con_descuento = subtotal - descuento
+                igv = subtotal_con_descuento * (record.igv / 100.0)
+
+                record.renta_mensual_color = renta_color
+                record.renta_mensual_bn = renta_bn
+                record.total_facturar_mensual = subtotal_con_descuento + igv
+
+            else:
+                # Monto mensual sin IGV
+                if record.tipo_calculo == 'manual_sin_igv':
+                    monto_sin_igv = record.monto_mensual_ingresado
+                    monto_con_igv = monto_sin_igv * (1 + record.igv / 100.0)
+                # Monto mensual con IGV
+                elif record.tipo_calculo == 'manual_con_igv':
+                    monto_con_igv = record.monto_mensual_ingresado
+                    monto_sin_igv = monto_con_igv / (1 + record.igv / 100.0)
+                else:
+                    monto_con_igv = monto_sin_igv = 0.0
+
+                record.total_facturar_mensual = monto_con_igv
+
+                # Calcular precios unitarios (evitar división por cero)
+                if record.volumen_mensual_color > 0:
+                    record.costo_copia_color = monto_sin_igv / (record.volumen_mensual_color + record.volumen_mensual_bn) * (record.volumen_mensual_color / (record.volumen_mensual_color + record.volumen_mensual_bn))
+                if record.volumen_mensual_bn > 0:
+                    record.costo_copia_bn = monto_sin_igv / (record.volumen_mensual_color + record.volumen_mensual_bn) * (record.volumen_mensual_bn / (record.volumen_mensual_color + record.volumen_mensual_bn))
+
+                record.renta_mensual_color = record.volumen_mensual_color * record.costo_copia_color
+                record.renta_mensual_bn = record.volumen_mensual_bn * record.costo_copia_bn
+
 
     @api.depends('fecha_inicio_alquiler', 'duracion_alquiler_id')
     def _calcular_fecha_fin(self):
