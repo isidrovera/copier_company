@@ -499,20 +499,20 @@ class CopierCounter(models.Model):
         if not self.cliente_id:
             raise UserError('No se encontró cliente asociado a la máquina.')
         
+        # Preparar información del modelo y serie
+        modelo_maquina = self.maquina_id.name.name if self.maquina_id.name else 'N/A'
+        info_maquina = f"Modelo: {modelo_maquina} - Serie: {self.serie}"
+        
         # Crear factura
         invoice_vals = {
             'partner_id': self.cliente_id.id,
             'move_type': 'out_invoice',
             'invoice_date': self.fecha_facturacion,
             'invoice_origin': self.name,
-            'narration': f'Facturación por uso de máquina {self.serie} - {self.mes_facturacion}',
+            'narration': f'Facturación por uso de máquina {self.serie} - {self.mes_facturacion}\n{info_maquina}',
         }
         
         invoice = self.env['account.move'].create(invoice_vals)
-        
-        # Preparar nota con modelo y serie
-        modelo_maquina = self.maquina_id.name.name if self.maquina_id.name else 'N/A'
-        nota_producto = f"Modelo: {modelo_maquina}\nSerie: {self.serie}"
         
         # Crear líneas de factura
         invoice_lines = []
@@ -522,13 +522,11 @@ class CopierCounter(models.Model):
             line_vals_bn = {
                 'move_id': invoice.id,
                 'product_id': self.producto_facturable_id.id,
-                'name': f'Alquiler máquina {self.serie} - Copias B/N - {self.mes_facturacion}',
+                'name': f'{self.producto_facturable_id.name} - Copias B/N - {self.mes_facturacion}\n{info_maquina}',
                 'quantity': self.copias_facturables_bn,
                 'price_unit': self.precio_bn_sin_igv,
                 'account_id': self.producto_facturable_id.property_account_income_id.id or 
                             self.producto_facturable_id.categ_id.property_account_income_categ_id.id,
-                # Agregar la nota con modelo y serie
-                'note': nota_producto,
             }
             invoice_lines.append((0, 0, line_vals_bn))
         
@@ -537,13 +535,11 @@ class CopierCounter(models.Model):
             line_vals_color = {
                 'move_id': invoice.id,
                 'product_id': self.producto_facturable_id.id,
-                'name': f'Alquiler máquina {self.serie} - Copias Color - {self.mes_facturacion}',
+                'name': f'{self.producto_facturable_id.name} - Copias Color - {self.mes_facturacion}\n{info_maquina}',
                 'quantity': self.copias_facturables_color,
                 'price_unit': self.precio_color_sin_igv,
                 'account_id': self.producto_facturable_id.property_account_income_id.id or 
                             self.producto_facturable_id.categ_id.property_account_income_categ_id.id,
-                # Agregar la nota con modelo y serie
-                'note': nota_producto,
             }
             invoice_lines.append((0, 0, line_vals_color))
         
@@ -552,13 +548,11 @@ class CopierCounter(models.Model):
             line_vals_general = {
                 'move_id': invoice.id,
                 'product_id': self.producto_facturable_id.id,
-                'name': f'Alquiler máquina {self.serie} - {self.mes_facturacion}',
+                'name': f'{self.producto_facturable_id.name} - {self.mes_facturacion}\n{info_maquina}',
                 'quantity': 1,
                 'price_unit': self.subtotal,
                 'account_id': self.producto_facturable_id.property_account_income_id.id or 
                             self.producto_facturable_id.categ_id.property_account_income_categ_id.id,
-                # Agregar la nota con modelo y serie
-                'note': nota_producto,
             }
             invoice_lines.append((0, 0, line_vals_general))
         
