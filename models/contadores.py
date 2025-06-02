@@ -445,6 +445,173 @@ class CopierCounter(models.Model):
         }) for usuario in usuarios]
 
         self.usuario_detalle_ids = detalles
+    
+
+
+    # Agregar después de los campos financieros existentes
+    producto_facturable_id = fields.Many2one(
+        'product.product',
+        related='maquina_id.producto_facturable_id',
+        string='Producto a Facturar',
+        store=True,
+        readonly=True
+    )
+
+    precio_producto = fields.Monetary(
+        'Precio Producto',
+        currency_field='currency_id',
+        compute='_compute_precio_producto',
+        store=True,
+        help='Precio del producto configurado para facturación'
+    )
+
+    @api.depends('producto_facturable_id')
+    def _compute_precio_producto(self):
+        """Calcula el precio del producto desde la lista de precios"""
+        for record in self:
+            if record.producto_facturable_id:
+                pricelist = record.cliente_id.property_product_pricelist or \
+                        self.env['product.pricelist'].search([('currency_id', '=', record.currency_id.id)], limit=1)
+                
+                if pricelist:
+                    precio = pricelist._get_product_price(
+                        record.producto_facturable_id,
+                        1.0,
+                        partner=record.cliente_id,
+                        date=record.fecha_facturacion
+                    )
+                    record.precio_producto = precio
+                else:
+                    record.precio_producto = record.producto_facturable_id.list_price
+            else:
+                record.precio_producto = 0.0
+
+    def action_create_invoice(self):
+        """Crea una factura basada en la lectura del contador"""
+        self.ensure_one()
+        
+        if self.state != 'confirmed':
+            raise UserError('Solo se pueden facturar lecturas confirmadas.')
+        
+        if not self.producto_facturable_id:
+            raise UserError('La máquina debe tener configurado un producto a facturar.')
+        
+        if not self.cliente_id:
+            raise UserError('No se encontró cliente asociado a la máquina.')
+        
+        # Crear factura
+        invoice_vals = {
+            'partner_id': self.cliente_id.id,
+            'move_type': 'out_invoice',
+            'invoice_date': self.fecha_facturacion,
+            'invoice_origin': self.name,
+            'narration': f'Facturación por uso de máquina {self.serie} - {self.mes_facturacion}',
+        }
+        
+        invoice = self.env['account.move'].create(invoice_vals)
+        
+        # Preparar nota con modelo y serie
+        modelo_maquina = self.maquina_id.name.name if self.maquina_id.name else 'N/A'
+        nota_producto = f"Modelo: {modelo_maquina}\nSerie: {self.serie}"
+        
+        # Crear líneas de factura
+        invoice_lines = []
+        
+        # Línea para copias B/N (si hay)
+        if self.copias_facturables_bn > 0:
+            line_vals_bn = {
+                'move_id': invoice.id,
+                'product_id': self.producto_facturable_id.id,
+                'name': f'Alquiler máquina {self.serie} - Copias B/N - {self.mes_facturacion}',
+                'quantity': self.copias_facturables_bn,
+                'price_unit': self.precio_bn_sin_igv,
+                'account_id': self.producto_facturable_id.property_account_income_id.id or 
+                            self.producto_facturable_id.categ_id.property_account_income_categ_id.id,
+                # Agregar la nota con modelo y serie
+                'note': nota_producto,
+            }
+            invoice_lines.append((0, 0, line_vals_bn))
+        
+        # Línea para copias Color (si hay)
+        if self.copias_facturables_color > 0:
+            line_vals_color = {
+                'move_id': invoice.id,
+                'product_id': self.producto_facturable_id.id,
+                'name': f'Alquiler máquina {self.serie} - Copias Color - {self.mes_facturacion}',
+                'quantity': self.copias_facturables_color,
+                'price_unit': self.precio_color_sin_igv,
+                'account_id': self.producto_facturable_id.property_account_income_id.id or 
+                            self.producto_facturable_id.categ_id.property_account_income_categ_id.id,
+                # Agregar la nota con modelo y serie
+                'note': nota_producto,
+            }
+            invoice_lines.append((0, 0, line_vals_color))
+        
+        # Si no hay líneas específicas, crear una línea general
+        if not invoice_lines:
+            line_vals_general = {
+                'move_id': invoice.id,
+                'product_id': self.producto_facturable_id.id,
+                'name': f'Alquiler máquina {self.serie} - {self.mes_facturacion}',
+                'quantity': 1,
+                'price_unit': self.subtotal,
+                'account_id': self.producto_facturable_id.property_account_income_id.id or 
+                            self.producto_facturable_id.categ_id.property_account_income_categ_id.id,
+                # Agregar la nota con modelo y serie
+                'note': nota_producto,
+            }
+            invoice_lines.append((0, 0, line_vals_general))
+        
+        # Asignar líneas a la factura
+        invoice.write({'invoice_line_ids': invoice_lines})
+        
+        # Marcar como facturado
+        self.write({'state': 'invoiced'})
+        
+        # Agregar nota en el chatter
+        self.message_post(
+            body=f'Factura creada: {invoice.name}',
+            message_type='notification'
+        )
+        
+        return {
+            'name': 'Factura Creada',
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.move',
+            'res_id': invoice.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+
+    def action_create_multiple_invoices(self):
+        """Crea facturas para múltiples lecturas seleccionadas"""
+        facturas_creadas = []
+        errores = []
+        
+        for record in self:
+            try:
+                if record.state == 'confirmed' and record.producto_facturable_id:
+                    result = record.action_create_invoice()
+                    facturas_creadas.append(record.name)
+                else:
+                    errores.append(f"{record.name}: Estado o producto no válido")
+            except Exception as e:
+                errores.append(f"{record.name}: {str(e)}")
+        
+        mensaje = f"Facturas creadas: {len(facturas_creadas)}"
+        if errores:
+            mensaje += f"\nErrores: {len(errores)}"
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Proceso de Facturación',
+                'message': mensaje,
+                'type': 'success' if facturas_creadas else 'warning',
+                'sticky': True,
+            }
+        }
 
         
 

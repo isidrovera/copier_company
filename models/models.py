@@ -786,7 +786,30 @@ class CopierCompany(models.Model):
         if self.precio_color_incluye_igv:
             return precio / 1.18
         return precio
+    # Agregar después de los campos financieros existentes
+    producto_facturable_id = fields.Many2one(
+        'product.product',
+        string='Producto a Facturar',
+        domain=[('sale_ok', '=', True), ('type', '=', 'service')],
+        tracking=True,
+        help='Producto que se utilizará en las facturas generadas desde los contadores'
+    )
 
+    @api.onchange('tipo', 'es_color')
+    def _onchange_tipo_producto(self):
+        """Sugiere producto basado en el tipo de máquina"""
+        if self.tipo == 'monocroma':
+            producto_mono = self.env['product.product'].search([
+                ('name', '=', 'Alquiler de Máquina Fotocopiadora Blanco y Negro')
+            ], limit=1)
+            if producto_mono:
+                self.producto_facturable_id = producto_mono.id
+        elif self.tipo == 'color':
+            producto_color = self.env['product.product'].search([
+                ('name', '=', 'Alquiler de Máquina Fotocopiadora Color')
+            ], limit=1)
+            if producto_color:
+                self.producto_facturable_id = producto_color.id
 
 
 class CopierRenewalHistory(models.Model):

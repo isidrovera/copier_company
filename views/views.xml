@@ -93,6 +93,7 @@
                                 <field name="duracion_alquiler_id" required="1"/>
                                 <field name="fecha_fin_alquiler" readonly="1"/>
                                 <field name="dia_facturacion"/>
+                                <field name="producto_facturable_id" options="{'no_create': True}"/>
                             </group>
                             <group string="Costos y Volúmenes">
                                 <!-- Los costos unitarios siempre se muestran, solo son de solo lectura cuando no es cálculo automático -->

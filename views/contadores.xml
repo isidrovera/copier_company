@@ -134,6 +134,11 @@
                         invisible="state not in ('draft', 'confirmed')" />
                     <button string="Reporte" name="action_print_report" type="object"
                         class="oe_highlight" />
+                    <button name="action_create_invoice" 
+                        type="object" 
+                        string="Crear Factura"
+                        class="oe_highlight"
+                        invisible="state != 'confirmed'"/>
                     <field name="state" widget="statusbar"
                         statusbar_visible="draft,confirmed,invoiced" />
                 </header>
@@ -211,6 +216,11 @@
                                     <field name="igv" widget="monetary" />
                                     <field name="total" class="oe_subtotal_footer_separator"
                                         widget="monetary" />
+                                </group>
+                                <separator string="Información de Facturación"/>
+                                <group col="2">
+                                    <field name="producto_facturable_id" readonly="1"/>
+                                    <field name="precio_producto" readonly="1"/>
                                 </group>
                             </group>
                         </page>
