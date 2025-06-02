@@ -211,7 +211,7 @@ class CopierCounter(models.Model):
         if self.maquina_id:
             ultima_lectura = self.search([
                 ('maquina_id', '=', self.maquina_id.id),
-                ('state', '=', 'confirmed')
+                ('state', 'in', ['confirmed', 'invoiced'])
             ], limit=1, order='fecha desc, id desc')
             
             # Asignar contadores anteriores
@@ -358,10 +358,10 @@ class CopierCounter(models.Model):
 
                 # Crear nueva lectura si corresponde
                 if crear_hoy:
-                    # Obtener última lectura confirmada
+                    # Obtener última lectura confirmada O facturada ← CAMBIO AQUÍ
                     ultima_lectura = self.env['copier.counter'].search([
                         ('maquina_id', '=', machine.id),
-                        ('state', '=', 'confirmed')
+                        ('state', 'in', ['confirmed', 'invoiced'])  # ← CAMBIO PRINCIPAL
                     ], limit=1, order='fecha desc, id desc')
 
                     # Valores por defecto para los contadores
@@ -375,13 +375,13 @@ class CopierCounter(models.Model):
                         'fecha_facturacion': fecha_facturacion,
                         'contador_anterior_bn': contador_anterior_bn,
                         'contador_anterior_color': contador_anterior_color,
-                        'contador_actual_bn': contador_anterior_bn,  # Inicializar con el mismo valor
-                        'contador_actual_color': contador_anterior_color,  # Inicializar con el mismo valor
-                        'state': 'draft'  # Asegurarnos que se crea en estado borrador
+                        'contador_actual_bn': contador_anterior_bn,
+                        'contador_actual_color': contador_anterior_color,
+                        'state': 'draft'
                     }
                     
                     self.env['copier.counter'].create(vals)
-                    self.env.cr.commit()  # Commit después de cada creación exitosa
+                    self.env.cr.commit()
                     
                     _logger.info(
                         f"Creada nueva lectura para máquina {machine.serie_id} "
@@ -390,7 +390,7 @@ class CopierCounter(models.Model):
 
             except Exception as e:
                 _logger.error(f"Error al procesar máquina {machine.serie_id}: {str(e)}")
-                self.env.cr.rollback()  # Rollback en caso de error
+                self.env.cr.rollback()
                 continue
 
         return True
