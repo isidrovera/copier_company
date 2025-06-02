@@ -519,12 +519,15 @@ class CopierCounter(models.Model):
         
         # Línea para copias B/N (si hay)
         if self.copias_facturables_bn > 0:
+            descripcion_bn = f'{self.producto_facturable_id.name} - Copias B/N: {int(self.copias_facturables_bn)} - {self.mes_facturacion}\n{info_maquina}'
+            monto_bn = self.copias_facturables_bn * self.precio_bn_sin_igv
+            
             line_vals_bn = {
                 'move_id': invoice.id,
                 'product_id': self.producto_facturable_id.id,
-                'name': f'{self.producto_facturable_id.name} - Copias B/N - {self.mes_facturacion}\n{info_maquina}',
-                'quantity': self.copias_facturables_bn,
-                'price_unit': self.precio_bn_sin_igv,
+                'name': descripcion_bn,
+                'quantity': 1,  # 1 máquina
+                'price_unit': monto_bn,  # Monto total por las copias B/N
                 'account_id': self.producto_facturable_id.property_account_income_id.id or 
                             self.producto_facturable_id.categ_id.property_account_income_categ_id.id,
             }
@@ -532,25 +535,30 @@ class CopierCounter(models.Model):
         
         # Línea para copias Color (si hay)
         if self.copias_facturables_color > 0:
+            descripcion_color = f'{self.producto_facturable_id.name} - Copias Color: {int(self.copias_facturables_color)} - {self.mes_facturacion}\n{info_maquina}'
+            monto_color = self.copias_facturables_color * self.precio_color_sin_igv
+            
             line_vals_color = {
                 'move_id': invoice.id,
                 'product_id': self.producto_facturable_id.id,
-                'name': f'{self.producto_facturable_id.name} - Copias Color - {self.mes_facturacion}\n{info_maquina}',
-                'quantity': self.copias_facturables_color,
-                'price_unit': self.precio_color_sin_igv,
+                'name': descripcion_color,
+                'quantity': 1,  # 1 máquina
+                'price_unit': monto_color,  # Monto total por las copias Color
                 'account_id': self.producto_facturable_id.property_account_income_id.id or 
                             self.producto_facturable_id.categ_id.property_account_income_categ_id.id,
             }
             invoice_lines.append((0, 0, line_vals_color))
         
-        # Si no hay líneas específicas, crear una línea general
+        # Si no hay líneas específicas, crear línea general con el subtotal
         if not invoice_lines:
+            descripcion_general = f'{self.producto_facturable_id.name} - {self.mes_facturacion}\n{info_maquina}'
+            
             line_vals_general = {
                 'move_id': invoice.id,
                 'product_id': self.producto_facturable_id.id,
-                'name': f'{self.producto_facturable_id.name} - {self.mes_facturacion}\n{info_maquina}',
-                'quantity': 1,
-                'price_unit': self.subtotal,
+                'name': descripcion_general,
+                'quantity': 1,  # 1 máquina
+                'price_unit': self.subtotal,  # Monto total del periodo
                 'account_id': self.producto_facturable_id.property_account_income_id.id or 
                             self.producto_facturable_id.categ_id.property_account_income_categ_id.id,
             }
