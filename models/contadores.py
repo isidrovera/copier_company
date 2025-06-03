@@ -449,10 +449,10 @@ class CopierCounter(models.Model):
 
 
     # Agregar después de los campos financieros existentes
-    producto_facturable_id = fields.Many2one(
-        'product.product',
-        related='maquina_id.producto_facturable_id',
-        string='Producto a Facturar',
+    producto_facturable_bn_id = fields.Many2one(
+    'product.product',
+        related='maquina_id.producto_facturable_bn_id',
+        string='Producto B/N',
         store=True,
         readonly=True
     )
