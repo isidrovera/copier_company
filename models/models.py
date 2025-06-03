@@ -1,6 +1,6 @@
 from odoo import models, fields, api
 from dateutil.relativedelta import relativedelta
-from odoo.exceptions import UserError, ValidationError, AccessError, Warning
+from odoo.exceptions import UserError, ValidationError
 from odoo.modules.module import get_module_resource
 import qrcode
 import base64
@@ -10,7 +10,6 @@ from datetime import datetime
 from PIL import Image
 import os
 import re
-
 import requests
 
 import logging
