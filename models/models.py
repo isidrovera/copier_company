@@ -815,22 +815,7 @@ class CopierCompany(models.Model):
             else:  # color
                 record.producto_facturable_id = record.producto_facturable_bn_id or record.producto_facturable_color_id
 
-    # Constraint para validar productos según tipo
-    @api.constrains('tipo', 'producto_facturable_bn_id', 'producto_facturable_color_id')
-    def _check_productos_tipo(self):
-        for record in self:
-            if record.tipo == 'monocroma':
-                if not record.producto_facturable_bn_id:
-                    raise ValidationError('Las máquinas monocromas deben tener configurado el producto B/N.')
-                if record.producto_facturable_color_id:
-                    raise ValidationError('Las máquinas monocromas no deben tener producto Color configurado.')
-            elif record.tipo == 'color':
-                if not record.producto_facturable_bn_id:
-                    raise ValidationError('Las máquinas color deben tener configurado el producto B/N.')
-                if not record.producto_facturable_color_id:
-                    raise ValidationError('Las máquinas color deben tener configurado el producto Color.')
-
-
+   
     @api.onchange('tipo', 'es_color')
     def _onchange_tipo_producto(self):
         """Sugiere productos basados en el tipo de máquina"""
