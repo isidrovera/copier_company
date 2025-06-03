@@ -266,19 +266,26 @@ class CopierCounter(models.Model):
             )
    
     @api.depends('copias_facturables_bn', 'copias_facturables_color',
-                'precio_bn_sin_igv', 'precio_color_sin_igv')
+            'precio_bn_sin_igv', 'precio_color_sin_igv')
     def _compute_totales(self):
-        """Calcula totales usando los precios sin IGV con precisión completa"""
+        """Calcula totales separados para B/N y Color, y totales generales"""
         for record in self:
-            # Calcular subtotal usando precios sin IGV con toda la precisión
-            subtotal_bn = record.copias_facturables_bn * record.precio_bn_sin_igv
-            subtotal_color = record.copias_facturables_color * record.precio_color_sin_igv
+            # Calcular subtotales separados
+            record.subtotal_bn = round(record.copias_facturables_bn * record.precio_bn_sin_igv, 2)
+            record.subtotal_color = round(record.copias_facturables_color * record.precio_color_sin_igv, 2)
             
-            # Asignar valores redondeando solo al final para los campos monetarios
-            record.subtotal = round(subtotal_bn + subtotal_color, 2)
-            record.igv = round(record.subtotal * 0.18, 2)
-            record.total = round(record.subtotal * 1.18, 2)
-  
+            # Calcular IGV separados
+            record.igv_bn = round(record.subtotal_bn * 0.18, 2)
+            record.igv_color = round(record.subtotal_color * 0.18, 2)
+            
+            # Calcular totales separados
+            record.total_bn = round(record.subtotal_bn * 1.18, 2)
+            record.total_color = round(record.subtotal_color * 1.18, 2)
+            
+            # Calcular totales generales (suma de ambos)
+            record.subtotal = record.subtotal_bn + record.subtotal_color
+            record.igv = record.igv_bn + record.igv_color
+            record.total = record.total_bn + record.total_color
 
     def action_confirm(self):
         self.ensure_one()
@@ -447,7 +454,42 @@ class CopierCounter(models.Model):
         self.usuario_detalle_ids = detalles
     
 
-
+    subtotal_bn = fields.Monetary(
+        'Subtotal B/N',
+        compute='_compute_totales',
+        store=True,
+        currency_field='currency_id'
+    )
+    subtotal_color = fields.Monetary(
+        'Subtotal Color',
+        compute='_compute_totales',
+        store=True,
+        currency_field='currency_id'
+    )
+    igv_bn = fields.Monetary(
+        'IGV B/N',
+        compute='_compute_totales',
+        store=True,
+        currency_field='currency_id'
+    )
+    igv_color = fields.Monetary(
+        'IGV Color',
+        compute='_compute_totales',
+        store=True,
+        currency_field='currency_id'
+    )
+    total_bn = fields.Monetary(
+        'Total B/N',
+        compute='_compute_totales',
+        store=True,
+        currency_field='currency_id'
+    )
+    total_color = fields.Monetary(
+        'Total Color',
+        compute='_compute_totales',
+        store=True,
+        currency_field='currency_id'
+    )
     # Agregar después de los campos financieros existentes
     producto_facturable_bn_id = fields.Many2one(
     'product.product',
@@ -512,13 +554,27 @@ class CopierCounter(models.Model):
         if not self.cliente_id:
             raise UserError('No se encontró cliente asociado a la máquina.')
         
-        # Validar productos según tipo de máquina
+        # VALIDACIÓN MEJORADA - SIN ERROR AUTOMÁTICO
+        productos_faltantes = []
+        
         if self.maquina_id.tipo == 'monocroma':
             if not self.producto_facturable_bn_id:
-                raise UserError('La máquina monocroma debe tener configurado un producto B/N.')
+                productos_faltantes.append('Producto B/N para máquina monocroma')
         else:  # color
-            if not self.producto_facturable_bn_id or not self.producto_facturable_color_id:
-                raise UserError('La máquina color debe tener configurados ambos productos (B/N y Color).')
+            if not self.producto_facturable_bn_id:
+                productos_faltantes.append('Producto B/N para máquina color')
+            if not self.producto_facturable_color_id:
+                productos_faltantes.append('Producto Color para máquina color')
+        
+        # Solo mostrar error si faltan productos Y hay copias a facturar
+        if productos_faltantes:
+            if (self.maquina_id.tipo == 'monocroma' and self.copias_facturables_bn > 0) or \
+            (self.maquina_id.tipo == 'color' and (self.copias_facturables_bn > 0 or self.copias_facturables_color > 0)):
+                raise UserError(
+                    f"Faltan productos por configurar:\n" + 
+                    "\n".join([f"- {p}" for p in productos_faltantes]) +
+                    f"\n\nVe a la configuración de la máquina {self.serie} y configura los productos necesarios."
+                )
         
         # Preparar información del modelo y serie
         modelo_maquina = self.maquina_id.name.name if self.maquina_id.name else 'N/A'
@@ -538,57 +594,44 @@ class CopierCounter(models.Model):
         # Crear líneas de factura
         invoice_lines = []
         
-        # Línea para copias B/N (si hay y hay producto configurado)
+        # Línea para copias B/N (si hay copias Y producto configurado)
         if self.copias_facturables_bn > 0 and self.producto_facturable_bn_id:
             descripcion_bn = f'{self.producto_facturable_bn_id.name} - Copias B/N: {int(self.copias_facturables_bn)} - {self.mes_facturacion}\n{info_maquina}'
-            monto_bn = self.copias_facturables_bn * self.precio_bn_sin_igv
             
             line_vals_bn = {
                 'move_id': invoice.id,
                 'product_id': self.producto_facturable_bn_id.id,
                 'name': descripcion_bn,
-                'quantity': 1,  # 1 máquina
-                'price_unit': monto_bn,  # Monto total por las copias B/N
+                'quantity': 1,  # 1 servicio
+                'price_unit': self.subtotal_bn,  # Usar subtotal B/N separado
                 'account_id': self.producto_facturable_bn_id.property_account_income_id.id or 
                             self.producto_facturable_bn_id.categ_id.property_account_income_categ_id.id,
             }
             invoice_lines.append((0, 0, line_vals_bn))
         
-        # Línea para copias Color (si hay y hay producto configurado)
+        # Línea para copias Color (si hay copias Y producto configurado)
         if self.copias_facturables_color > 0 and self.producto_facturable_color_id:
             descripcion_color = f'{self.producto_facturable_color_id.name} - Copias Color: {int(self.copias_facturables_color)} - {self.mes_facturacion}\n{info_maquina}'
-            monto_color = self.copias_facturables_color * self.precio_color_sin_igv
             
             line_vals_color = {
                 'move_id': invoice.id,
                 'product_id': self.producto_facturable_color_id.id,
                 'name': descripcion_color,
-                'quantity': 1,  # 1 máquina
-                'price_unit': monto_color,  # Monto total por las copias Color
+                'quantity': 1,  # 1 servicio
+                'price_unit': self.subtotal_color,  # Usar subtotal Color separado
                 'account_id': self.producto_facturable_color_id.property_account_income_id.id or 
                             self.producto_facturable_color_id.categ_id.property_account_income_categ_id.id,
             }
             invoice_lines.append((0, 0, line_vals_color))
         
-        # Si no hay líneas específicas, crear línea general con el subtotal
         if not invoice_lines:
-            producto_generico = self.producto_facturable_bn_id or self.producto_facturable_color_id
-            if producto_generico:
-                descripcion_general = f'{producto_generico.name} - {self.mes_facturacion}\n{info_maquina}'
-                
-                line_vals_general = {
-                    'move_id': invoice.id,
-                    'product_id': producto_generico.id,
-                    'name': descripcion_general,
-                    'quantity': 1,  # 1 máquina
-                    'price_unit': self.subtotal,  # Monto total del periodo
-                    'account_id': producto_generico.property_account_income_id.id or 
-                                producto_generico.categ_id.property_account_income_categ_id.id,
-                }
-                invoice_lines.append((0, 0, line_vals_general))
-        
-        if not invoice_lines:
-            raise UserError('No se pudieron crear líneas de factura. Verifique la configuración de productos.')
+            raise UserError(
+                'No se pueden crear líneas de factura.\n'
+                'Verifique:\n'
+                '1. Que haya copias facturables (B/N o Color)\n'
+                '2. Que los productos estén configurados en la máquina\n'
+                f'3. Configuración actual: {self.copias_facturables_bn} copias B/N, {self.copias_facturables_color} copias Color'
+            )
         
         # Asignar líneas a la factura
         invoice.write({'invoice_line_ids': invoice_lines})
@@ -598,7 +641,10 @@ class CopierCounter(models.Model):
         
         # Agregar nota en el chatter
         self.message_post(
-            body=f'Factura creada: {invoice.name}',
+            body=f'Factura creada: {invoice.name}\n'
+                f'- B/N: {self.copias_facturables_bn} copias = S/ {self.total_bn:.2f}\n'
+                f'- Color: {self.copias_facturables_color} copias = S/ {self.total_color:.2f}\n'
+                f'- Total: S/ {self.total:.2f}',
             message_type='notification'
         )
         
