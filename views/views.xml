@@ -94,7 +94,11 @@
                                 <field name="fecha_fin_alquiler" readonly="1"/>
                                 <field name="dia_facturacion"/>
                                 <field name="producto_facturable_id" options="{'no_create': True}"/>
+                                <field name="producto_facturable_bn_id" 
+           required="'estado_maquina_id.name', '=', 'Alquilada'"
+           string="Producto B/N"/>
                                 <field name="producto_facturable_color_id" 
+                                
        required="tipo == 'color' and estado_maquina_id and estado_maquina_id.name == 'Alquilada'"
        invisible="tipo == 'monocroma'"/>
                             </group>
