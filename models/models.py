@@ -787,29 +787,101 @@ class CopierCompany(models.Model):
             return precio / 1.18
         return precio
     # Agregar después de los campos financieros existentes
+    producto_facturable_bn_id = fields.Many2one(
+        'product.product',
+        string='Producto a Facturar B/N',
+        help='Producto que se facturará para las copias en blanco y negro'
+    )
+
+    producto_facturable_color_id = fields.Many2one(
+        'product.product',
+        string='Producto a Facturar Color',
+        help='Producto que se facturará para las copias a color'
+    )
+
+    # Campo computed para mantener compatibilidad (opcional)
     producto_facturable_id = fields.Many2one(
         'product.product',
-        string='Producto a Facturar',
-        domain=[('sale_ok', '=', True), ('type', '=', 'service')],
-        tracking=True,
-        help='Producto que se utilizará en las facturas generadas desde los contadores'
+        string='Producto Principal',
+        compute='_compute_producto_principal',
+        help='Producto principal (B/N para monocromas, B/N para color)'
     )
+
+    @api.depends('tipo', 'producto_facturable_bn_id', 'producto_facturable_color_id')
+    def _compute_producto_principal(self):
+        """Determina el producto principal según el tipo de máquina"""
+        for record in self:
+            if record.tipo == 'monocroma':
+                record.producto_facturable_id = record.producto_facturable_bn_id
+            else:  # color
+                record.producto_facturable_id = record.producto_facturable_bn_id or record.producto_facturable_color_id
+
+    # Constraint para validar productos según tipo
+    @api.constrains('tipo', 'producto_facturable_bn_id', 'producto_facturable_color_id')
+    def _check_productos_tipo(self):
+        for record in self:
+            if record.tipo == 'monocroma':
+                if not record.producto_facturable_bn_id:
+                    raise ValidationError('Las máquinas monocromas deben tener configurado el producto B/N.')
+                if record.producto_facturable_color_id:
+                    raise ValidationError('Las máquinas monocromas no deben tener producto Color configurado.')
+            elif record.tipo == 'color':
+                if not record.producto_facturable_bn_id:
+                    raise ValidationError('Las máquinas color deben tener configurado el producto B/N.')
+                if not record.producto_facturable_color_id:
+                    raise ValidationError('Las máquinas color deben tener configurado el producto Color.')
+
 
     @api.onchange('tipo', 'es_color')
     def _onchange_tipo_producto(self):
-        """Sugiere producto basado en el tipo de máquina"""
+        """Sugiere productos basados en el tipo de máquina"""
+        
+        # Limpiar productos primero
+        self.producto_facturable_bn_id = False
+        self.producto_facturable_color_id = False
+        
         if self.tipo == 'monocroma':
+            # Para monocromas: solo producto B/N
             producto_mono = self.env['product.product'].search([
-                ('name', '=', 'Alquiler de Máquina Fotocopiadora Blanco y Negro')
+                '|',
+                ('name', '=', 'Alquiler de Máquina Fotocopiadora Blanco y Negro'),
+                ('name', 'ilike', 'Alquiler%Blanco%Negro')
             ], limit=1)
             if producto_mono:
-                self.producto_facturable_id = producto_mono.id
+                self.producto_facturable_bn_id = producto_mono.id
+                
         elif self.tipo == 'color':
+            # Para color: ambos productos
+            
+            # Producto B/N (mismo que monocromas)
+            producto_bn = self.env['product.product'].search([
+                '|',
+                ('name', '=', 'Alquiler de Máquina Fotocopiadora Blanco y Negro'),
+                ('name', 'ilike', 'Alquiler%Blanco%Negro')
+            ], limit=1)
+            if producto_bn:
+                self.producto_facturable_bn_id = producto_bn.id
+            
+            # Producto Color
             producto_color = self.env['product.product'].search([
-                ('name', '=', 'Alquiler de Máquina Fotocopiadora Color')
+                '|',
+                ('name', '=', 'Alquiler de Máquina Fotocopiadora Color'),
+                ('name', 'ilike', 'Alquiler%Color')
             ], limit=1)
             if producto_color:
-                self.producto_facturable_id = producto_color.id
+                self.producto_facturable_color_id = producto_color.id
+                
+        # Mensaje informativo al usuario
+        if self.tipo == 'color' and (not self.producto_facturable_bn_id or not self.producto_facturable_color_id):
+            return {
+                'warning': {
+                    'title': 'Productos no encontrados',
+                    'message': 'No se encontraron todos los productos necesarios para máquinas color. '
+                            'Asegúrate de tener creados:\n'
+                            '- Alquiler de Máquina Fotocopiadora Blanco y Negro\n'
+                            '- Alquiler de Máquina Fotocopiadora Color'
+                }
+            }
 
 
 class CopierRenewalHistory(models.Model):

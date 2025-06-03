@@ -94,6 +94,9 @@
                                 <field name="fecha_fin_alquiler" readonly="1"/>
                                 <field name="dia_facturacion"/>
                                 <field name="producto_facturable_id" options="{'no_create': True}"/>
+                                <field name="producto_facturable_color_id" 
+       required="tipo == 'color' and estado_maquina_id and estado_maquina_id.name == 'Alquilada'"
+       invisible="tipo == 'monocroma'"/>
                             </group>
                             <group string="Costos y Volúmenes">
                                 <!-- Los costos unitarios siempre se muestran, solo son de solo lectura cuando no es cálculo automático -->
