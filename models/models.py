@@ -540,228 +540,249 @@ class CopierCompany(models.Model):
 
 
     def _fallback_html_to_image(self, html_content, layout='horizontal'):
-        """Método alternativo usando PIL para crear la imagen sin márgenes"""
+        """Método alternativo usando PIL para crear la imagen con mejor resolución y distribución"""
         try:
             # Información dinámica del registro
             serie = getattr(self, 'serie_id', None) or "____________________"
             modelo = getattr(self.name, 'name', None) if hasattr(self, 'name') else "Modelo no especificado"
             
-            # Crear imagen base con dimensiones según layout
+            # Crear imagen base con dimensiones según layout - ALTA RESOLUCIÓN
             if layout == 'vertical':
-                width, height = 227, 378  # 6cm x 10cm a 96 DPI
+                width, height = 708, 1181  # 6cm x 10cm a 300 DPI
             else:
-                width, height = 378, 227  # 10cm x 6cm a 96 DPI
+                width, height = 1181, 708  # 10cm x 6cm a 300 DPI
             
             img = Image.new('RGB', (width, height), '#ffffff')
             draw = ImageDraw.Draw(img)
             
-            # Intentar cargar fuentes
+            # Cargar fuentes con tamaños proporcionales a la alta resolución
             try:
-                font_title = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 14)
-                font_normal = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 10)
-                font_small = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 8)
+                font_title = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 42)  # Más grande
+                font_normal = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 28)
+                font_small = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
+                font_tiny = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 20)
             except:
-                font_title = font_normal = font_small = ImageFont.load_default()
+                font_title = font_normal = font_small = font_tiny = ImageFont.load_default()
             
             # Colores
             primary_color = '#1e40af'
             text_color = '#374151'
+            light_bg = '#f8fafc'
+            accent_color = '#0ea5e9'
             
             if layout == 'vertical':
-                # Layout vertical - Logo arriba sin margen
-                logo_y = 0  # Sin margen superior
-                logo_size = 50
-                logo_x = (width - logo_size*2) // 2  # Centrado horizontalmente
+                # Layout vertical mejorado
+                margin = 20
                 
-                # Logo pegado arriba
+                # Logo arriba centrado
+                logo_height = 120
+                logo_width = 240
+                logo_x = (width - logo_width) // 2
+                logo_y = margin
+                
                 logo_base64 = self._get_company_logo_base64()
                 if logo_base64:
                     try:
                         logo_data = base64.b64decode(logo_base64)
                         logo_img = Image.open(io.BytesIO(logo_data))
-                        logo_img = logo_img.resize((logo_size*2, logo_size), Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.ANTIALIAS)
+                        logo_img = logo_img.resize((logo_width, logo_height), Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.ANTIALIAS)
                         
                         if logo_img.mode == 'RGBA':
                             img.paste(logo_img, (logo_x, logo_y), logo_img)
                         else:
                             img.paste(logo_img, (logo_x, logo_y))
                     except:
-                        # Fallback: dibujar rectángulo como logo
-                        draw.rectangle([logo_x, logo_y, logo_x+logo_size*2, logo_y+logo_size], fill=primary_color)
-                        draw.text((logo_x+logo_size, logo_y+logo_size//2), "CC", fill='white', font=font_title, anchor="mm")
+                        draw.rectangle([logo_x, logo_y, logo_x+logo_width, logo_y+logo_height], fill=primary_color)
+                        draw.text((logo_x+logo_width//2, logo_y+logo_height//2), "COPIER COMPANY", fill='white', font=font_normal, anchor="mm")
                 else:
-                    # Fallback: dibujar rectángulo como logo
-                    draw.rectangle([logo_x, logo_y, logo_x+logo_size*2, logo_y+logo_size], fill=primary_color)
-                    draw.text((logo_x+logo_size, logo_y+logo_size//2), "CC", fill='white', font=font_title, anchor="mm")
+                    draw.rectangle([logo_x, logo_y, logo_x+logo_width, logo_y+logo_height], fill=primary_color)
+                    draw.text((logo_x+logo_width//2, logo_y+logo_height//2), "COPIER COMPANY", fill='white', font=font_normal, anchor="mm")
                 
-                # Título inmediatamente después del logo
-                y = logo_y + logo_size + 5
-                title_text = "ALQUILER DE"
-                title_text2 = "FOTOCOPIADORAS"
-                draw.text((width//2, y), title_text, fill=primary_color, font=font_title, anchor="mm")
-                draw.text((width//2, y+15), title_text2, fill=primary_color, font=font_title, anchor="mm")
+                # Título
+                y = logo_y + logo_height + 30
+                draw.text((width//2, y), "ALQUILER DE FOTOCOPIADORAS", fill=primary_color, font=font_title, anchor="mm")
                 
-                # Texto de soporte
-                y += 35
-                support_text = "Para soporte técnico:"
-                draw.rectangle([5, y-2, width-5, y+12], fill='#f0f9ff', outline='#e0f2fe')
-                draw.rectangle([5, y-2, 8, y+12], fill='#0ea5e9')
-                draw.text((width//2, y+5), support_text, fill=text_color, font=font_small, anchor="mm")
+                # Línea separadora
+                y += 50
+                draw.rectangle([margin, y, width-margin, y+3], fill=accent_color)
                 
                 # Información del equipo
-                y += 20
-                info_items = [
-                    ("Modelo:", modelo),
-                    ("Serie:", serie)
-                ]
+                y += 40
+                info_height = 50
                 
-                for label, value in info_items:
-                    # Fondo para cada item
-                    draw.rectangle([5, y-1, width-5, y+11], fill='#f8fafc', outline='#e2e8f0')
-                    draw.rectangle([5, y-1, 8, y+11], fill='#3b82f6')
-                    
-                    # Texto
-                    draw.text((10, y), label, fill=primary_color, font=font_small)
-                    draw.text((10, y+6), value[:25], fill=text_color, font=font_small)  # Truncar si es muy largo
-                    y += 18
+                # Modelo
+                draw.rectangle([margin, y, width-margin, y+info_height], fill=light_bg, outline='#e2e8f0', width=2)
+                draw.rectangle([margin, y, margin+6, y+info_height], fill=primary_color)
+                draw.text((margin+20, y+15), "MODELO:", fill=primary_color, font=font_small)
+                draw.text((margin+20, y+35), modelo, fill=text_color, font=font_normal)
                 
-                # Contactos
-                y += 5
-                contacts = [
-                    ("Correo:", "info@copiercompanysac.com"),
-                    ("WhatsApp:", "975399303")
-                ]
+                y += info_height + 15
                 
-                for label, value in contacts:
-                    # Fondo para cada contacto
-                    draw.rectangle([5, y-1, width-5, y+11], fill='#f8fafc', outline='#e2e8f0')
-                    draw.rectangle([5, y-1, 8, y+11], fill='#3b82f6')
-                    
-                    # Texto
-                    draw.text((10, y), label, fill=primary_color, font=font_small)
-                    draw.text((10, y+6), value, fill=text_color, font=font_small)
-                    y += 18
+                # Serie
+                draw.rectangle([margin, y, width-margin, y+info_height], fill=light_bg, outline='#e2e8f0', width=2)
+                draw.rectangle([margin, y, margin+6, y+info_height], fill=primary_color)
+                draw.text((margin+20, y+15), "SERIE:", fill=primary_color, font=font_small)
+                draw.text((margin+20, y+35), str(serie), fill=text_color, font=font_normal)
+                
+                y += info_height + 30
+                
+                # Contacto
+                draw.text((width//2, y), "PARA SOPORTE TÉCNICO:", fill=primary_color, font=font_small, anchor="mm")
+                y += 35
+                
+                contact_height = 40
+                
+                # Email
+                draw.rectangle([margin, y, width-margin, y+contact_height], fill='#e0f2fe', outline=accent_color, width=2)
+                draw.text((width//2, y+20), "info@copiercompanysac.com", fill=text_color, font=font_normal, anchor="mm")
+                
+                y += contact_height + 10
+                
+                # WhatsApp
+                draw.rectangle([margin, y, width-margin, y+contact_height], fill='#e0f2fe', outline=accent_color, width=2)
+                draw.text((width//2, y+20), "WhatsApp: 975399303", fill=text_color, font=font_normal, anchor="mm")
+                
+                y += contact_height + 10
                 
                 # Website
-                y += 5
-                draw.rectangle([5, y-1, width-5, y+11], fill='#e0f2fe', outline='#0ea5e9')
-                web_text = "copiercompanysac.com"
-                draw.text((width//2, y+5), web_text, fill=primary_color, font=font_normal, anchor="mm")
+                draw.rectangle([margin, y, width-margin, y+contact_height], fill='#dbeafe', outline=primary_color, width=2)
+                draw.text((width//2, y+20), "copiercompanysac.com", fill=primary_color, font=font_normal, anchor="mm")
                 
                 # QR Code al final
-                y += 20
-                qr_size = 80
+                qr_size = 200
                 qr_x = (width - qr_size) // 2
-                qr_y = y
+                qr_y = height - qr_size - 60
+                
+                # Label QR
+                draw.text((width//2, qr_y-30), "ESCANÉAME", fill=accent_color, font=font_small, anchor="mm")
                 
             else:
-                # Layout horizontal - Logo arriba izquierda sin margen
-                logo_y = 0  # Sin margen superior
-                logo_size = 50
-                logo_x = 0  # Sin margen izquierdo
+                # Layout horizontal mejorado
+                margin = 20
                 
-                # Logo pegado arriba izquierda
+                # Dividir en 3 columnas: Logo+Info | Contacto | QR
+                col1_width = 400
+                col2_width = 400
+                col3_width = 300
+                
+                # COLUMNA 1: Logo y título
+                logo_height = 100
+                logo_width = 200
+                logo_x = margin
+                logo_y = margin
+                
                 logo_base64 = self._get_company_logo_base64()
                 if logo_base64:
                     try:
                         logo_data = base64.b64decode(logo_base64)
                         logo_img = Image.open(io.BytesIO(logo_data))
-                        logo_img = logo_img.resize((logo_size*2, logo_size), Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.ANTIALIAS)
+                        logo_img = logo_img.resize((logo_width, logo_height), Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.ANTIALIAS)
                         
                         if logo_img.mode == 'RGBA':
                             img.paste(logo_img, (logo_x, logo_y), logo_img)
                         else:
                             img.paste(logo_img, (logo_x, logo_y))
                     except:
-                        # Fallback: dibujar rectángulo como logo
-                        draw.rectangle([logo_x, logo_y, logo_x+logo_size*2, logo_y+logo_size], fill=primary_color)
-                        draw.text((logo_x+logo_size, logo_y+logo_size//2), "CC", fill='white', font=font_title, anchor="mm")
+                        draw.rectangle([logo_x, logo_y, logo_x+logo_width, logo_y+logo_height], fill=primary_color)
+                        draw.text((logo_x+logo_width//2, logo_y+logo_height//2), "COPIER", fill='white', font=font_normal, anchor="mm")
                 else:
-                    # Fallback: dibujar rectángulo como logo
-                    draw.rectangle([logo_x, logo_y, logo_x+logo_size*2, logo_y+logo_size], fill=primary_color)
-                    draw.text((logo_x+logo_size, logo_y+logo_size//2), "CC", fill='white', font=font_title, anchor="mm")
+                    draw.rectangle([logo_x, logo_y, logo_x+logo_width, logo_y+logo_height], fill=primary_color)
+                    draw.text((logo_x+logo_width//2, logo_y+logo_height//2), "COPIER", fill='white', font=font_normal, anchor="mm")
                 
-                # Título al lado del logo
-                title_x = logo_x + logo_size*2 + 10
-                title_y = logo_y + 10
-                title_text = "ALQUILER DE FOTOCOPIADORAS"
-                draw.text((title_x, title_y), title_text, fill=primary_color, font=font_title)
+                # Título debajo del logo
+                title_y = logo_y + logo_height + 20
+                draw.text((margin, title_y), "ALQUILER DE", fill=primary_color, font=font_title)
+                draw.text((margin, title_y + 40), "FOTOCOPIADORAS", fill=primary_color, font=font_title)
                 
-                # Texto de soporte debajo del título
-                y = logo_y + logo_size + 5
-                support_text = "Para soporte técnico, escanea el QR o contáctanos:"
-                draw.rectangle([5, y-2, 250, y+12], fill='#f0f9ff', outline='#e0f2fe')
-                draw.rectangle([5, y-2, 8, y+12], fill='#0ea5e9')
-                draw.text((10, y+5), support_text, fill=text_color, font=font_small)
+                # Información del equipo en columna 1
+                info_y = title_y + 100
+                info_width = col1_width - 40
+                info_height = 35
                 
-                # Información en dos columnas
-                y += 20
-                left_info = [
-                    f"Modelo: {modelo}",
-                    "Correo: info@copiercompanysac.com"
-                ]
+                # Modelo
+                draw.rectangle([margin, info_y, margin + info_width, info_y + info_height], fill=light_bg, outline='#e2e8f0', width=2)
+                draw.rectangle([margin, info_y, margin + 6, info_y + info_height], fill=primary_color)
+                draw.text((margin + 15, info_y + 8), "MODELO:", fill=primary_color, font=font_tiny)
+                draw.text((margin + 15, info_y + 22), modelo[:35], fill=text_color, font=font_small)
                 
-                right_info = [
-                    f"Serie: {serie}",
-                    "WhatsApp: 975399303"
-                ]
+                info_y += info_height + 10
                 
-                # Columna izquierda
-                for i, info in enumerate(left_info):
-                    y_pos = y + i * 15
-                    draw.rectangle([5, y_pos-1, 180, y_pos+11], fill='#f8fafc', outline='#e2e8f0')
-                    draw.rectangle([5, y_pos-1, 8, y_pos+11], fill='#3b82f6')
-                    draw.text((10, y_pos+5), info, fill=text_color, font=font_small)
+                # Serie
+                draw.rectangle([margin, info_y, margin + info_width, info_y + info_height], fill=light_bg, outline='#e2e8f0', width=2)
+                draw.rectangle([margin, info_y, margin + 6, info_y + info_height], fill=primary_color)
+                draw.text((margin + 15, info_y + 8), "SERIE:", fill=primary_color, font=font_tiny)
+                draw.text((margin + 15, info_y + 22), str(serie)[:25], fill=text_color, font=font_small)
                 
-                # Columna derecha
-                for i, info in enumerate(right_info):
-                    y_pos = y + i * 15
-                    draw.rectangle([185, y_pos-1, 280, y_pos+11], fill='#f8fafc', outline='#e2e8f0')
-                    draw.rectangle([185, y_pos-1, 188, y_pos+11], fill='#3b82f6')
-                    draw.text((190, y_pos+5), info, fill=text_color, font=font_small)
+                # COLUMNA 2: Contacto
+                col2_x = margin + col1_width + 20
+                contact_y = margin + 50
+                contact_width = col2_width - 40
+                contact_height = 45
                 
-                # Website abajo
-                y += 40
-                draw.rectangle([5, y-1, 280, y+11], fill='#e0f2fe', outline='#0ea5e9')
-                web_text = "https://copiercompanysac.com"
-                draw.text((10, y+5), web_text, fill=primary_color, font=font_normal)
+                # Título contacto
+                draw.text((col2_x, contact_y), "PARA SOPORTE TÉCNICO:", fill=primary_color, font=font_small)
+                contact_y += 40
                 
-                # QR Code a la derecha sin margen
-                qr_size = 120
-                qr_x = width - qr_size  # Sin margen derecho
-                qr_y = 0  # Sin margen superior
+                # Email
+                draw.rectangle([col2_x, contact_y, col2_x + contact_width, contact_y + contact_height], fill='#e0f2fe', outline=accent_color, width=2)
+                draw.text((col2_x + 10, contact_y + 8), "EMAIL:", fill=accent_color, font=font_tiny)
+                draw.text((col2_x + 10, contact_y + 25), "info@copiercompanysac.com", fill=text_color, font=font_small)
+                
+                contact_y += contact_height + 15
+                
+                # WhatsApp
+                draw.rectangle([col2_x, contact_y, col2_x + contact_width, contact_y + contact_height], fill='#e0f2fe', outline=accent_color, width=2)
+                draw.text((col2_x + 10, contact_y + 8), "WHATSAPP:", fill=accent_color, font=font_tiny)
+                draw.text((col2_x + 10, contact_y + 25), "975399303", fill=text_color, font=font_small)
+                
+                contact_y += contact_height + 15
+                
+                # Website
+                draw.rectangle([col2_x, contact_y, col2_x + contact_width, contact_y + contact_height], fill='#dbeafe', outline=primary_color, width=2)
+                draw.text((col2_x + 10, contact_y + 8), "WEBSITE:", fill=primary_color, font=font_tiny)
+                draw.text((col2_x + 10, contact_y + 25), "copiercompanysac.com", fill=primary_color, font=font_small)
+                
+                # COLUMNA 3: QR Code
+                qr_size = 250
+                qr_x = width - qr_size - margin
+                qr_y = margin + 30
+                
+                # Label QR
+                draw.text((qr_x + qr_size//2, qr_y - 25), "ESCANÉAME", fill=accent_color, font=font_small, anchor="mm")
             
-            # Generar QR Code
+            # Generar y agregar QR Code
             qr_base64 = self._generate_modern_qr((qr_size, qr_size))
             if qr_base64:
                 try:
                     qr_data = base64.b64decode(qr_base64)
                     qr_img = Image.open(io.BytesIO(qr_data))
                     
-                    # Fondo blanco para el QR sin margen extra
-                    draw.rectangle([qr_x, qr_y, qr_x+qr_size, qr_y+qr_size], 
-                                fill='white', outline='#e2e8f0', width=1)
+                    # Marco para el QR
+                    frame_margin = 8
+                    draw.rectangle([qr_x - frame_margin, qr_y - frame_margin, 
+                                qr_x + qr_size + frame_margin, qr_y + qr_size + frame_margin], 
+                                fill='white', outline='#e2e8f0', width=3)
                     
+                    # Sombra
+                    shadow_offset = 4
+                    draw.rectangle([qr_x + shadow_offset, qr_y + shadow_offset, 
+                                qr_x + qr_size + shadow_offset, qr_y + qr_size + shadow_offset], 
+                                fill='#00000020')
+                    
+                    # QR Code
                     img.paste(qr_img, (qr_x, qr_y))
                     
-                    # Etiqueta "Escanéame"
-                    if layout == 'vertical':
-                        label_y = qr_y + qr_size + 2
-                        if label_y < height - 10:  # Solo si hay espacio
-                            draw.text((qr_x + qr_size//2, label_y), "Escanéame", 
-                                    fill=primary_color, font=font_small, anchor="mm")
-                    else:
-                        # En horizontal, etiqueta dentro del QR
-                        draw.rectangle([qr_x, qr_y+qr_size-15, qr_x+qr_size, qr_y+qr_size], 
-                                    fill='white', outline=None)
-                        draw.text((qr_x + qr_size//2, qr_y+qr_size-7), "Escanéame", 
-                                fill=primary_color, font=font_small, anchor="mm")
                 except Exception as e:
                     _logger.error(f"Error agregando QR: {str(e)}")
+                    # Fallback QR placeholder
+                    draw.rectangle([qr_x, qr_y, qr_x + qr_size, qr_y + qr_size], 
+                                fill='#f3f4f6', outline='#d1d5db', width=2)
+                    draw.text((qr_x + qr_size//2, qr_y + qr_size//2), "QR CODE", 
+                            fill='#6b7280', font=font_normal, anchor="mm")
             
             # Convertir a base64
             buffer = io.BytesIO()
-            img.save(buffer, format='PNG', quality=95)
+            img.save(buffer, format='PNG', quality=100, dpi=(300, 300))
             return base64.b64encode(buffer.getvalue())
             
         except Exception as e:
@@ -770,13 +791,13 @@ class CopierCompany(models.Model):
 
 
     def _chrome_headless_method(self, html_content, layout='horizontal'):
-        """Método alternativo usando Chrome headless - también necesita el parámetro layout"""
+        """Método alternativo usando Chrome headless con mejor resolución"""
         try:
-            # Dimensiones según layout
+            # Dimensiones según layout para alta resolución
             if layout == 'vertical':
-                window_size = '227,378'
+                window_size = '708,1181'
             else:
-                window_size = '378,227'
+                window_size = '1181,708'
                 
             with tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False) as html_file:
                 html_file.write(html_content)
@@ -788,6 +809,7 @@ class CopierCompany(models.Model):
                         f'--window-size={window_size}',
                         '--hide-scrollbars',
                         '--disable-web-security',
+                        '--force-device-scale-factor=3',  # Mejor resolución
                         '--run-all-compositor-stages-before-draw',
                         f'--screenshot={img_file.name}',
                         f'file://{html_file.name}'
@@ -813,7 +835,7 @@ class CopierCompany(models.Model):
 
 
     def _generate_modern_qr(self, size=(150, 150)):
-        """Genera un QR code moderno con esquinas redondeadas"""
+        """Genera un QR code moderno con mejor calidad"""
         try:
             base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
             
@@ -821,19 +843,19 @@ class CopierCompany(models.Model):
             qr = qrcode.QRCode(
                 version=1,
                 error_correction=qrcode.constants.ERROR_CORRECT_H,
-                box_size=8,
-                border=2,
+                box_size=10,  # Tamaño más grande para mejor resolución
+                border=4,     # Borde más grande
             )
             qr.add_data(f"{base_url}/public/helpdesk_ticket?copier_company_id={self.id}")
             qr.make(fit=True)
             
-            # Generar imagen QR
+            # Generar imagen QR con mejor calidad
             qr_img = qr.make_image(fill_color="#2C3E50", back_color="white")
             qr_img = qr_img.resize(size, Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.ANTIALIAS)
             
             # Convertir a base64
             buffer = io.BytesIO()
-            qr_img.save(buffer, format='PNG')
+            qr_img.save(buffer, format='PNG', quality=100)
             return base64.b64encode(buffer.getvalue()).decode('utf-8')
             
         except Exception as e:
@@ -854,7 +876,7 @@ class CopierCompany(models.Model):
 
 
     def _create_html_template(self, qr_base64, logo_base64, layout='horizontal'):
-        """Template HTML con alta resolución y mejor distribución"""
+        """Template HTML optimizado con mejor distribución"""
         
         # Información dinámica del registro
         serie = getattr(self, 'serie_id', None) or "____________________"
@@ -863,35 +885,8 @@ class CopierCompany(models.Model):
         # Dimensiones en alta resolución (300 DPI)
         if layout == 'vertical':
             width, height = "708px", "1181px"  # 6cm x 10cm a 300 DPI
-            grid_areas = '''
-                "logo"
-                "title"
-                "support"
-                "modelo"
-                "serie"  
-                "correo"
-                "telefono"
-                "website"
-                "qr"
-            '''
-            grid_columns = "1fr"
-            grid_rows = "120px 60px 40px 35px 35px 35px 35px 40px 200px"
-            qr_size = "180px"
-            logo_height = "100px"
         else:
-            # Layout horizontal mejorado
             width, height = "1181px", "708px"  # 10cm x 6cm a 300 DPI
-            grid_areas = '''
-                "logo logo logo qr"
-                "title title title qr"
-                "support support support qr"
-                "info1 info2 info3 qr"
-                "website website website qr"
-            '''
-            grid_columns = "1fr 1fr 1fr 200px"
-            grid_rows = "120px 60px 50px 80px 40px"
-            qr_size = "180px"
-            logo_height = "100px"
         
         html_template = f"""
         <!DOCTYPE html>
@@ -901,325 +896,230 @@ class CopierCompany(models.Model):
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Sticker Corporativo HD</title>
             <style>
-                *, *::before, *::after {{
-                    margin: 0 !important;
-                    padding: 0 !important;
+                * {{
+                    margin: 0;
+                    padding: 0;
                     box-sizing: border-box;
                 }}
                 
-                html, body {{
-                    margin: 0 !important;
-                    padding: 0 !important;
-                    width: 100% !important;
-                    height: 100% !important;
-                    overflow: hidden;
-                    font-family: 'Arial', 'Helvetica', sans-serif;
-                    background: white;
-                }}
-                
-                .sticker {{
-                    position: absolute;
-                    top: 0;
-                    left: 0;
+                body {{
                     width: {width};
                     height: {height};
+                    font-family: 'Arial', sans-serif;
                     background: white;
-                    border: none !important;
                     overflow: hidden;
-                    padding: 0 !important;
-                    margin: 0 !important;
-                    display: grid;
-                    grid-template-areas: {grid_areas};
-                    grid-template-columns: {grid_columns};
-                    grid-template-rows: {grid_rows};
-                    gap: 15px;
-                    align-content: start;
+                    {"display: flex; flex-direction: column;" if layout == 'vertical' else "display: grid; grid-template-columns: 2fr 2fr 1.5fr; grid-template-rows: 1fr;"}
                 }}
                 
-                .header-logo {{
-                    grid-area: logo;
-                    display: flex;
-                    justify-content: flex-start;
-                    align-items: flex-start;
-                    padding: 0 !important;
-                    margin: 0 !important;
+                .logo-section {{
+                    {"text-align: center; padding: 20px;" if layout == 'vertical' else "padding: 20px;"}
                 }}
                 
                 .logo {{
-                    height: {logo_height};
-                    max-width: 100%;
+                    {"width: 300px; height: 150px;" if layout == 'vertical' else "width: 250px; height: 120px;"}
+                    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                    margin: 0 auto;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    margin: 0 !important;
-                    padding: 0 !important;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
                 }}
                 
                 .logo img {{
                     max-width: 100%;
                     max-height: 100%;
                     object-fit: contain;
-                    margin: 0 !important;
-                    padding: 0 !important;
                 }}
                 
                 .logo-fallback {{
-                    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
                     color: white;
-                    font-weight: 700;
-                    font-size: 32px;
+                    font-size: {"32px" if layout == 'vertical' else "28px"};
+                    font-weight: bold;
                     text-align: center;
-                    width: 200px;
-                    height: {logo_height};
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    border-radius: 12px;
-                    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-                    margin: 0 !important;
-                    padding: 0 !important;
                 }}
                 
-                .title-section {{
-                    grid-area: title;
-                    text-align: center;
-                    margin: 0 !important;
-                    padding: 0 !important;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
+                .title {{
+                    {"text-align: center; padding: 15px 20px;" if layout == 'vertical' else "padding: 15px 20px;"}
+                    border-bottom: 4px solid #0ea5e9;
+                    margin-bottom: 20px;
                 }}
                 
-                .title-section h2 {{
-                    font-size: 28px;
-                    font-weight: 700;
+                .title h1 {{
                     color: #1e40af;
+                    font-size: {"36px" if layout == 'vertical' else "32px"};
+                    font-weight: bold;
                     text-transform: uppercase;
                     letter-spacing: 1px;
-                    margin: 0 !important;
-                    padding: 0 !important;
-                    line-height: 1.2;
                 }}
                 
-                .support-text {{
-                    grid-area: support;
-                    font-size: 20px;
-                    color: #374151;
-                    font-weight: 600;
-                    text-align: center;
-                    background: linear-gradient(90deg, #f0f9ff, #e0f2fe);
-                    padding: 12px 16px !important;
-                    border-radius: 8px;
-                    border-left: 6px solid #0ea5e9;
-                    margin: 0 !important;
-                    line-height: 1.4;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
+                .info-section {{
+                    {"padding: 0 20px;" if layout == 'vertical' else "padding: 20px;"}
+                    flex-grow: 1;
                 }}
                 
-                /* Layout horizontal - información en columnas */
-                .info1 {{ grid-area: info1; }}
-                .info2 {{ grid-area: info2; }}
-                .info3 {{ grid-area: info3; }}
+                .equipment-info {{
+                    margin-bottom: 25px;
+                }}
                 
                 .info-item {{
-                    display: flex;
-                    flex-direction: column;
-                    gap: 8px;
-                    font-size: 18px;
-                    color: #374151;
-                    line-height: 1.4;
-                    padding: 8px !important;
                     background: #f8fafc;
+                    border: 2px solid #e2e8f0;
+                    border-left: 6px solid #3b82f6;
+                    padding: 12px 15px;
+                    margin-bottom: 12px;
                     border-radius: 6px;
-                    border-left: 4px solid #3b82f6;
-                    margin: 0 !important;
                 }}
                 
                 .info-label {{
-                    font-weight: 700;
                     color: #1e40af;
-                    font-size: 16px;
+                    font-size: 18px;
+                    font-weight: bold;
                     text-transform: uppercase;
-                    letter-spacing: 0.5px;
+                    margin-bottom: 4px;
                 }}
                 
                 .info-value {{
-                    font-weight: 500;
                     color: #374151;
-                    word-break: break-word;
+                    font-size: 22px;
+                    font-weight: 500;
                 }}
                 
-                /* Layout vertical - información apilada */
-                .modelo {{ grid-area: modelo; }}
-                .serie {{ grid-area: serie; }}
-                .correo {{ grid-area: correo; }}
-                .telefono {{ grid-area: telefono; }}
-                
-                .info-row {{
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    font-size: 18px;
-                    padding: 8px 12px !important;
-                    background: #f8fafc;
-                    border-radius: 6px;
-                    border-left: 4px solid #3b82f6;
-                    margin: 0 !important;
+                .contact-section {{
+                    margin-top: 20px;
                 }}
                 
-                .info-row .label {{
-                    font-weight: 700;
+                .contact-title {{
                     color: #1e40af;
-                    min-width: 80px;
+                    font-size: 20px;
+                    font-weight: bold;
+                    text-align: center;
+                    margin-bottom: 15px;
                     text-transform: uppercase;
-                    font-size: 16px;
                 }}
                 
-                .info-row .value {{
-                    font-weight: 500;
+                .contact-item {{
+                    background: #e0f2fe;
+                    border: 2px solid #0ea5e9;
+                    padding: 10px 15px;
+                    margin-bottom: 10px;
+                    border-radius: 6px;
+                    text-align: center;
+                }}
+                
+                .contact-item .contact-type {{
+                    color: #0ea5e9;
+                    font-size: 16px;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                }}
+                
+                .contact-item .contact-value {{
                     color: #374151;
-                    flex: 1;
+                    font-size: 20px;
+                    font-weight: 500;
+                    margin-top: 2px;
                 }}
                 
                 .website {{
-                    grid-area: website;
+                    background: #dbeafe;
+                    border: 2px solid #1e40af;
+                    padding: 12px;
                     text-align: center;
-                    font-size: 20px;
+                    border-radius: 6px;
+                    margin-top: 15px;
+                }}
+                
+                .website-text {{
                     color: #1e40af;
-                    font-weight: 700;
-                    padding: 8px 0 !important;
-                    border-top: 2px solid #e2e8f0;
-                    margin: 0 !important;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
+                    font-size: 22px;
+                    font-weight: bold;
                 }}
                 
                 .qr-section {{
-                    grid-area: qr;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: flex-end;
-                    justify-content: flex-start;
-                    gap: 10px;
-                    padding: 0 !important;
-                    margin: 0 !important;
+                    {"text-align: center; padding: 20px;" if layout == 'vertical' else "display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;"}
                 }}
                 
                 .qr-label {{
-                    font-size: 16px;
-                    font-weight: 700;
                     color: #0ea5e9;
-                    text-align: center;
-                    margin: 0 !important;
+                    font-size: 20px;
+                    font-weight: bold;
                     text-transform: uppercase;
-                    letter-spacing: 1px;
+                    margin-bottom: 15px;
+                    text-align: center;
                 }}
                 
                 .qr-code {{
-                    width: {qr_size};
-                    height: {qr_size};
-                    border-radius: 12px;
-                    overflow: hidden;
+                    {"width: 250px; height: 250px;" if layout == 'vertical' else "width: 280px; height: 280px;"}
                     background: white;
-                    padding: 8px !important;
-                    border: 3px solid #e2e8f0;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                    margin: 0 !important;
+                    border: 4px solid #e2e8f0;
+                    border-radius: 15px;
+                    padding: 10px;
+                    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+                    margin: 0 auto;
                 }}
                 
                 .qr-code img {{
                     width: 100%;
                     height: 100%;
-                    border-radius: 8px;
-                }}
-                
-                @media print {{
-                    html, body {{
-                        margin: 0 !important;
-                        padding: 0 !important;
-                        width: auto !important;
-                        height: auto !important;
-                    }}
-                    
-                    .sticker {{
-                        border: none !important;
-                        box-shadow: none !important;
-                        margin: 0 !important;
-                        padding: 0 !important;
-                    }}
+                    border-radius: 10px;
                 }}
             </style>
         </head>
         <body>
-            <div class="sticker">
-                <div class="header-logo">
-                    <div class="logo">
-                        {f'<img src="data:image/png;base64,{logo_base64}" alt="Logo">' if logo_base64 else '<div class="logo-fallback">COPIER COMPANY</div>'}
-                    </div>
+            <div class="logo-section">
+                <div class="logo">
+                    {f'<img src="data:image/png;base64,{logo_base64}" alt="Logo">' if logo_base64 else '<div class="logo-fallback">COPIER COMPANY</div>'}
                 </div>
-                
-                <div class="title-section">
-                    <h2>ALQUILER DE FOTOCOPIADORAS</h2>
+                {"" if layout == 'horizontal' else '''
+                <div class="title">
+                    <h1>Alquiler de Fotocopiadoras</h1>
                 </div>
-                
-                <div class="support-text">
-                    Para soporte técnico, escanea el QR o contáctanos:
-                </div>
-                
-                {f'''
-                <!-- Layout Vertical -->
-                <div class="modelo info-row">
-                    <span class="label">Modelo:</span>
-                    <span class="value">{modelo}</span>
-                </div>
-                
-                <div class="serie info-row">
-                    <span class="label">Serie:</span>
-                    <span class="value">{serie}</span>
-                </div>
-                
-                <div class="correo info-row">
-                    <span class="label">Correo:</span>
-                    <span class="value">info@copiercompanysac.com</span>
-                </div>
-                
-                <div class="telefono info-row">
-                    <span class="label">Teléfono:</span>
-                    <span class="value">975399303</span>
-                </div>
-                ''' if layout == 'vertical' else f'''
-                <!-- Layout Horizontal -->
-                <div class="info1 info-item">
-                    <div class="info-label">Modelo</div>
-                    <div class="info-value">{modelo}</div>
-                </div>
-                
-                <div class="info2 info-item">
-                    <div class="info-label">Serie</div>
-                    <div class="info-value">{serie}</div>
-                </div>
-                
-                <div class="info3 info-item">
-                    <div class="info-label">Contacto</div>
-                    <div class="info-value">
-                        info@copiercompanysac.com<br>
-                        WhatsApp: 975399303
-                    </div>
+                '''}
+            </div>
+            
+            <div class="info-section">
+                {'' if layout == 'vertical' else '''
+                <div class="title">
+                    <h1>Alquiler de Fotocopiadoras</h1>
                 </div>
                 '''}
                 
-                <div class="website">
-                    https://copiercompanysac.com
+                <div class="equipment-info">
+                    <div class="info-item">
+                        <div class="info-label">Modelo</div>
+                        <div class="info-value">{modelo}</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">Serie</div>
+                        <div class="info-value">{serie}</div>
+                    </div>
                 </div>
                 
-                <div class="qr-section">
-                    <div class="qr-label">Escanéame</div>
-                    <div class="qr-code">
-                        {f'<img src="data:image/png;base64,{qr_base64}" alt="QR Code">' if qr_base64 else '<div style="background: #f3f4f6; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #6b7280;">QR</div>'}
+                <div class="contact-section">
+                    <div class="contact-title">Para Soporte Técnico:</div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-type">Email</div>
+                        <div class="contact-value">info@copiercompanysac.com</div>
                     </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-type">WhatsApp</div>
+                        <div class="contact-value">975399303</div>
+                    </div>
+                    
+                    <div class="website">
+                        <div class="website-text">copiercompanysac.com</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="qr-section">
+                <div class="qr-label">Escanéame</div>
+                <div class="qr-code">
+                    {f'<img src="data:image/png;base64,{qr_base64}" alt="QR Code">' if qr_base64 else '<div style="background: #f3f4f6; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #6b7280; border-radius: 10px;">QR CODE</div>'}
                 </div>
             </div>
         </body>
@@ -1229,7 +1129,7 @@ class CopierCompany(models.Model):
 
 
     def _html_to_image(self, html_content, layout='horizontal'):
-        """Conversión con resolución mejorada"""
+        """Conversión con resolución mejorada y mejor calidad"""
         try:
             # Dimensiones según layout
             if layout == 'vertical':
@@ -1258,7 +1158,8 @@ class CopierCompany(models.Model):
                         '--crop-x', '0',
                         '--crop-y', '0',
                         '--enable-local-file-access',
-                        '--dpi', '300',  # Alta resolución
+                        '--dpi', '300',
+                        '--image-quality', '100',
                         html_file.name,
                         img_file.name
                     ]
@@ -1283,16 +1184,16 @@ class CopierCompany(models.Model):
 
 
     def generar_sticker_corporativo(self, layout='horizontal'):
-        """Genera sticker en alta resolución"""
+        """Genera sticker en alta resolución con mejor distribución"""
         try:
             for record in self:
                 # QR de alta resolución
-                qr_base64 = record._generate_modern_qr((300, 300))
+                qr_base64 = record._generate_modern_qr((400, 400))  # QR más grande para mejor calidad
                 
                 # Logo de la compañía
                 logo_base64 = record._get_company_logo_base64()
                 
-                # HTML en alta resolución
+                # HTML optimizado
                 html_content = record._create_html_template(qr_base64, logo_base64, layout)
                 
                 # Convertir con alta resolución
@@ -1303,7 +1204,7 @@ class CopierCompany(models.Model):
                 
                 orientation = "vertical (6x10cm)" if layout == 'vertical' else "horizontal (10x6cm)"
                 record.message_post(
-                    body=f"✅ Sticker HD {orientation} generado (300 DPI)",
+                    body=f"✅ Sticker HD {orientation} generado correctamente (300 DPI) con distribución mejorada",
                     message_type='notification'
                 )
                 
@@ -1316,12 +1217,11 @@ class CopierCompany(models.Model):
             'tag': 'display_notification',
             'params': {
                 'title': 'Éxito',
-                'message': 'Sticker corporativo HD generado correctamente',
+                'message': 'Sticker corporativo HD generado correctamente con mejor resolución y distribución',
                 'type': 'success',
                 'sticky': False,
             }
         }
-
 
 
 
