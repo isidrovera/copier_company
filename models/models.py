@@ -514,7 +514,183 @@ class CopierCompany(models.Model):
     qr_code_filename = fields.Char(
     string="Nombre archivo QR",
     compute='_compute_qr_filename'
-)
+)   
+
+    # Agregar después de la línea que define qr_code_filename
+    sticker_corporativo = fields.Binary(
+        string='Sticker Corporativo', 
+        readonly=True, 
+        attachment=True
+    )
+
+    sticker_filename = fields.Char(
+        string="Nombre archivo Sticker",
+        compute='_compute_sticker_filename'
+    )
+
+    @api.depends('secuencia', 'serie_id')
+    def _compute_sticker_filename(self):
+        for record in self:
+            record.sticker_filename = f'sticker_corporativo_{record.secuencia or "new"}_{record.serie_id or "serie"}.png'
+    def generar_sticker_corporativo(self):
+        """
+        Genera un sticker corporativo profesional con QR code y datos de la empresa
+        """
+        try:
+            for record in self:
+                # Configuración del sticker
+                width, height = 800, 600
+                
+                # Colores corporativos profesionales
+                color_fondo = '#F8F9FA'  # Gris muy claro
+                color_principal = '#2C3E50'  # Azul oscuro
+                color_secundario = '#3498DB'  # Azul corporativo
+                color_texto = '#34495E'  # Gris oscuro
+                color_acento = '#E74C3C'  # Rojo suave para destacar
+                
+                # Crear imagen base
+                img = Image.new('RGB', (width, height), color_fondo)
+                draw = ImageDraw.Draw(img)
+                
+                # Intentar cargar fuentes (usar fuentes por defecto si no están disponibles)
+                try:
+                    font_titulo = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 24)
+                    font_subtitulo = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 16)
+                    font_normal = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 12)
+                    font_pequena = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 10)
+                except:
+                    font_titulo = ImageFont.load_default()
+                    font_subtitulo = ImageFont.load_default()
+                    font_normal = ImageFont.load_default()
+                    font_pequena = ImageFont.load_default()
+                
+                # 1. Header con logo y título
+                y_pos = 20
+                
+                # Intentar cargar logo
+                logo_path = get_module_resource('copier_company', 'static', 'src', 'img', 'logo.png')
+                if logo_path and os.path.isfile(logo_path):
+                    try:
+                        logo = Image.open(logo_path)
+                        logo_size = (60, 60)
+                        logo = logo.resize(logo_size, Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.ANTIALIAS)
+                        img.paste(logo, (30, y_pos), logo if logo.mode == 'RGBA' else None)
+                    except:
+                        pass
+                
+                # Título principal
+                draw.text((110, y_pos + 5), "COPIER COMPANY SAC", fill=color_principal, font=font_titulo)
+                draw.text((110, y_pos + 35), "ALQUILER DE FOTOCOPIADORAS", fill=color_secundario, font=font_subtitulo)
+                
+                # Línea separadora
+                y_pos = 100
+                draw.rectangle([30, y_pos, width-30, y_pos+2], fill=color_secundario)
+                
+                # 2. Información del equipo
+                y_pos = 120
+                
+                # Serie con campo editable
+                draw.text((30, y_pos), "📌 Para soporte técnico, escanea el código QR o contáctanos:", 
+                        fill=color_texto, font=font_normal)
+                
+                y_pos += 30
+                serie_text = f"Serial N°: {record.serie_id or '____________________'}"
+                draw.text((30, y_pos), serie_text, fill=color_principal, font=font_subtitulo)
+                
+                # 3. Información de contacto
+                y_pos += 50
+                contactos = [
+                    "📱 WhatsApp: +51 999 999 999",
+                    "✉️ Correo: soporte@copiercompanysac.com", 
+                    "🌐 Web: www.copiercompanysac.com",
+                    "📍 Dirección: Lima - Perú"
+                ]
+                
+                for contacto in contactos:
+                    draw.text((30, y_pos), contacto, fill=color_texto, font=font_normal)
+                    y_pos += 25
+                
+                # 4. Servicios destacados
+                y_pos += 20
+                servicios = [
+                    "🔧 Servicio técnico inmediato",
+                    "💼 Planes de alquiler mensual", 
+                    "📦 Consumibles incluidos"
+                ]
+                
+                for i, servicio in enumerate(servicios):
+                    x_pos = 30 + (i * 250)
+                    if i < 2:  # Primeros dos en la misma línea
+                        draw.text((x_pos, y_pos), servicio, fill=color_acento, font=font_pequena)
+                    else:  # Tercero abajo
+                        draw.text((30, y_pos + 20), servicio, fill=color_acento, font=font_pequena)
+                
+                # 5. Generar y agregar QR Code
+                qr_size = 150
+                qr_x = width - qr_size - 30
+                qr_y = height - qr_size - 80
+                
+                # Crear QR code
+                base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+                qr = qrcode.QRCode(
+                    version=1,
+                    error_correction=qrcode.constants.ERROR_CORRECT_M,
+                    box_size=8,
+                    border=2,
+                )
+                qr.add_data(f"{base_url}/public/helpdesk_ticket?copier_company_id={record.id}")
+                qr.make(fit=True)
+                
+                qr_img = qr.make_image(fill_color=color_principal, back_color="white")
+                qr_img = qr_img.resize((qr_size, qr_size))
+                
+                # Pegar QR en la imagen
+                img.paste(qr_img, (qr_x, qr_y))
+                
+                # Texto "Escanéame"
+                draw.text((qr_x + 10, qr_y - 25), "⬇️ Escanéame:", fill=color_principal, font=font_normal)
+                
+                # 6. Borde decorativo
+                border_width = 3
+                draw.rectangle([0, 0, width-1, height-1], outline=color_secundario, width=border_width)
+                
+                # Esquinas redondeadas (efecto visual)
+                corner_size = 20
+                for corner in [(0, 0), (width-corner_size, 0), (0, height-corner_size), (width-corner_size, height-corner_size)]:
+                    draw.rectangle([corner[0], corner[1], corner[0]+corner_size, corner[1]+corner_size], 
+                                fill=color_fondo, outline=color_secundario, width=2)
+                
+                # 7. Información adicional del equipo (si está disponible)
+                if record.name:
+                    info_y = height - 60
+                    modelo_text = f"Modelo: {record.name.name}"
+                    draw.text((30, info_y), modelo_text, fill=color_texto, font=font_pequena)
+                
+                # Convertir a base64
+                buffer = io.BytesIO()
+                img.save(buffer, format='PNG', quality=95)
+                record.sticker_corporativo = base64.b64encode(buffer.getvalue())
+                
+                # Mensaje de éxito
+                record.message_post(
+                    body="✅ Sticker corporativo generado exitosamente",
+                    message_type='notification'
+                )
+                
+        except Exception as e:
+            _logger.error(f"Error generando sticker corporativo: {str(e)}")
+            raise UserError(f"Error al generar el sticker corporativo: {str(e)}")
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Éxito',
+                'message': 'Sticker corporativo generado correctamente',
+                'type': 'success',
+                'sticky': False,
+            }
+        }
     @api.depends('secuencia')
     def _compute_qr_filename(self):
         for record in self:

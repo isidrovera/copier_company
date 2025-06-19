@@ -17,7 +17,7 @@
 
     # Añadimos las dependencias externas
     'external_dependencies': {
-        'python': ['requests', 'requests_toolbelt'],
+        'python': ['requests', 'requests_toolbelt','qrcode', 'PIL'],
     },
 
     'depends': [

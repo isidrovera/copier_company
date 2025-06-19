@@ -46,6 +46,11 @@
                         string=" Enviar por WhatsApp"                    
                         style="background-color: #25D366 !important; border-color: #25D366 !important;"
                 />
+                <button name="generar_sticker_corporativo" 
+        string="Generar Sticker" 
+        type="object" 
+        class="btn-primary"
+        icon="fa-qrcode"/>
                 <field name="estado_maquina_id" widget="statusbar" options="{'clickable': '1'}"/>
             </header>
             <sheet>
@@ -157,6 +162,8 @@
                             <group>
                                 <field name="imagen_id"/>
                                 <field name="qr_code" invisible="not qr_code"/>
+                                <field name="sticker_corporativo" widget="image" filename="sticker_filename"/>
+                                <field name="sticker_filename" invisible="1"/>
                             </group>
                         </group>
                     </page>
