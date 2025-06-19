@@ -623,7 +623,7 @@ class CopierCompany(models.Model):
                         "contacts contacts qr"
                         "modelo modelo qr";
                     grid-template-columns: 1fr 1fr 140px;
-                    grid-template-rows: 50px auto auto auto 1fr auto;
+                    grid-template-rows: 80px auto auto auto 1fr auto;
                     gap: 6px;
                 }}
                 
@@ -636,8 +636,8 @@ class CopierCompany(models.Model):
                 }}
                 
                 .logo {{
-                    width: 50px;
-                    height: 50px;
+                    width: 125px;
+                    height: 125px;
                     border-radius: 8px;
                     display: flex;
                     align-items: center;
@@ -802,15 +802,18 @@ class CopierCompany(models.Model):
                 
                 <div class="serial-section">
                     <div class="serial">
-                        Serial N°: {serie}
+                        Para soporte técnico, escanea el QR o contáctanos:
                     </div>
                 </div>
                 
                 <div class="contacts">
-                    <div class="contact-item">+51 999 999 999</div>
-                    <div class="contact-item">soporte@copiercompany.com</div>
-                    <div class="contact-item">copiercompanysac.com</div>
-                    <div class="contact-item">Lima - Perú</div>
+                    <div class="contact-item">Modelo: {modelo}</div>
+                    <div class="contact-item">Serie: {serie}</div>
+                    <div class="contact-item">Correo: info@copiercompanysac.com</div>
+                    <div class="contact-item">Celular/WhatsApp: 975399303</div>
+                    <div class="contact-item" style="grid-column: 1 / -1; text-align: center; margin-top: 4px;">
+                        https://copiercompanysac.com
+                    </div>
                 </div>
                 
                 <div class="qr-section">
@@ -821,7 +824,7 @@ class CopierCompany(models.Model):
                 </div>
                 
                 <div class="model-section">
-                    {modelo}
+                    <!-- Información movida a contacts -->
                 </div>
             </div>
         </body>
@@ -893,16 +896,17 @@ class CopierCompany(models.Model):
             accent_color = '#3b82f6'
             text_color = '#374151'
             
-            # Logo centrado en la parte superior
+            # Logo centrado en la parte superior (2.5 veces más grande)
             logo_y = 20
-            logo_x = width // 2 - 35  # Centrar logo de 70px
+            logo_size = 175  # 70 * 2.5 = 175px
+            logo_x = width // 2 - logo_size // 2  # Centrar logo
             
             logo_base64 = self._get_company_logo_base64()
             if logo_base64:
                 try:
                     logo_data = base64.b64decode(logo_base64)
                     logo_img = Image.open(io.BytesIO(logo_data))
-                    logo_img = logo_img.resize((70, 70), Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.ANTIALIAS)
+                    logo_img = logo_img.resize((logo_size, logo_size), Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.ANTIALIAS)
                     
                     # Centrar logo
                     if logo_img.mode == 'RGBA':
@@ -911,46 +915,47 @@ class CopierCompany(models.Model):
                         img.paste(logo_img, (logo_x, logo_y))
                 except:
                     # Fallback: dibujar rectángulo como logo
-                    draw.rectangle([logo_x, logo_y, logo_x+70, logo_y+70], fill=accent_color, outline='#e5e7eb', width=1)
-                    draw.text((logo_x+35, logo_y+35), "CC", fill='white', font=font_title, anchor="mm")
+                    draw.rectangle([logo_x, logo_y, logo_x+logo_size, logo_y+logo_size], fill=accent_color, outline='#e5e7eb', width=1)
+                    draw.text((logo_x+logo_size//2, logo_y+logo_size//2), "CC", fill='white', font=font_title, anchor="mm")
             else:
                 # Fallback: dibujar rectángulo como logo
-                draw.rectangle([logo_x, logo_y, logo_x+70, logo_y+70], fill=accent_color, outline='#e5e7eb', width=1)
-                draw.text((logo_x+35, logo_y+35), "CC", fill='white', font=font_title, anchor="mm")
+                draw.rectangle([logo_x, logo_y, logo_x+logo_size, logo_y+logo_size], fill=accent_color, outline='#e5e7eb', width=1)
+                draw.text((logo_x+logo_size//2, logo_y+logo_size//2), "CC", fill='white', font=font_title, anchor="mm")
             
-            # Título centrado (eliminamos "COPIER COMPANY SAC")
-            y = 105
+            # Título centrado
+            y = logo_y + logo_size + 15
             title_text = "ALQUILER DE FOTOCOPIADORAS"
             bbox = draw.textbbox((0, 0), title_text, font=font_subtitle)
             title_width = bbox[2] - bbox[0]
             draw.text(((width - title_width) // 2, y), title_text, fill=accent_color, font=font_subtitle)
             
             # Texto de soporte
-            y = 140
+            y += 35
             support_text = "Para soporte técnico, escanea el QR o contáctanos:"
-            draw.text((20, y), support_text, fill=text_color, font=font_small)
-            
-            # Serial con fondo
-            y = 165
-            serie = self.serie_id or "____________________"
-            serial_text = f"Serial N°: {serie}"
-            draw.rectangle([20, y-3, 300, y+20], fill='#f8fafc', outline='#e5e7eb')
+            draw.rectangle([20, y-3, 350, y+20], fill='#f8fafc', outline='#e5e7eb')
             draw.rectangle([20, y-3, 23, y+20], fill=accent_color)  # Línea azul lateral
-            draw.text((30, y), serial_text, fill=primary_color, font=font_normal)
+            draw.text((30, y), support_text, fill=text_color, font=font_small)
             
-            # Contactos en grid 2x2
-            y = 200
+            # Contactos en orden solicitado
+            y += 35
             contacts = [
-                "+51 999 999 999",
-                "soporte@copiercompany.com",
-                "copiercompanysac.com", 
-                "Lima - Perú"
+                f"Modelo: {self.name.name if self.name else 'Modelo no especificado'}",
+                f"Serie: {serie}",
+                "Correo: info@copiercompanysac.com",
+                "Celular/WhatsApp: 975399303"
             ]
             
             for i, contact in enumerate(contacts):
                 x_pos = 20 + (i % 2) * 180
                 y_pos = y + (i // 2) * 25
                 draw.text((x_pos, y_pos), contact, fill=text_color, font=font_small)
+            
+            # Página web centrada
+            y += 65
+            web_text = "https://copiercompanysac.com"
+            bbox = draw.textbbox((0, 0), web_text, font=font_small)
+            web_width = bbox[2] - bbox[0]
+            draw.text(((350 - web_width) // 2, y), web_text, fill=text_color, font=font_small)
             
             # QR Code más grande (140x140)
             qr_size = 140
@@ -978,11 +983,11 @@ class CopierCompany(models.Model):
                 except Exception as e:
                     _logger.error(f"Error agregando QR: {str(e)}")
             
-            # Modelo en la parte inferior
-            if self.name:
-                modelo_text = self.name.name
-                draw.line([20, height-35, 350, height-35], fill='#e5e7eb', width=1)
-                draw.text((20, height-25), modelo_text, fill='#6b7280', font=font_small)
+            # Modelo en la parte inferior (eliminado ya que está en contactos)
+            # if self.name:
+            #     modelo_text = self.name.name
+            #     draw.line([20, height-35, 350, height-35], fill='#e5e7eb', width=1)
+            #     draw.text((20, height-25), modelo_text, fill='#6b7280', font=font_small)
             
             # Convertir a base64
             buffer = io.BytesIO()
