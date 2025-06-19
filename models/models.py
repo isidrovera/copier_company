@@ -1043,6 +1043,47 @@ class CopierCompany(models.Model):
                 'sticky': False,
             }
         }
+    @api.depends('secuencia')
+    def _compute_qr_filename(self):
+        for record in self:
+            record.qr_code_filename = f'qr_code_{record.secuencia}.png'
+    def generar_qr_code(self):
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        logo_path = get_module_resource('copier_company', 'static', 'src', 'img', 'logo.png')
+        
+        if not os.path.isfile(logo_path):
+            raise FileNotFoundError(f"Logo no encontrado: {logo_path}")
+            
+        logo = Image.open(logo_path)
+        logo_size = (100, int((float(logo.size[1]) * float(100/float(logo.size[0])))))
+        # Primer cambio aquí
+        try:
+            resampling_filter = Image.Resampling.LANCZOS
+        except AttributeError:
+            resampling_filter = Image.ANTIALIAS
+        logo = logo.resize(logo_size, resampling_filter)
+        
+        for record in self:
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_H,
+                box_size=10,
+                border=4,
+            )
+            
+            qr.add_data(f"{base_url}/public/helpdesk_ticket?copier_company_id={record.id}")
+            qr.make(fit=True)
+            
+            qr_img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
+            pos = ((qr_img.size[0] - logo.size[0]) // 2, (qr_img.size[1] - logo.size[1]) // 2)
+            qr_img.paste(logo, pos, logo)
+            
+            # Segundo cambio aquí (mismo filtro de remuestreo)
+            qr_img = qr_img.resize((qr_img.size[0] // 2, qr_img.size[1] // 2), resampling_filter)
+            
+            buffer = io.BytesIO()
+            qr_img.save(buffer, format='PNG')
+            record.qr_code = base64.b64encode(buffer.getvalue())
 
     def action_print_report(self):
         return self.env.ref('copier_company.action_report_report_cotizacion_alquiler').report_action(self)
