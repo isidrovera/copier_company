@@ -596,7 +596,7 @@ class CopierCompany(models.Model):
                 
                 body {{
                     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    background: white;
                     padding: 0;
                     margin: 0;
                     display: flex;
@@ -608,152 +608,123 @@ class CopierCompany(models.Model):
                 .sticker {{
                     width: 378px;  /* 10cm = 378px a 96 DPI */
                     height: 227px; /* 6cm = 227px a 96 DPI */
-                    background: linear-gradient(145deg, #ffffff, #f8fafc);
-                    border-radius: 16px;
-                    box-shadow: 
-                        0 25px 50px -12px rgba(0, 0, 0, 0.25),
-                        0 0 0 1px rgba(255, 255, 255, 0.8),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+                    background: white;
+                    border: 2px solid #e5e7eb;
+                    border-radius: 8px;
                     position: relative;
                     overflow: hidden;
-                    padding: 16px;
+                    padding: 12px;
                     display: grid;
                     grid-template-areas: 
-                        "header header qr"
-                        "info info qr"
-                        "services services qr"
-                        "footer footer qr";
-                    grid-template-columns: 1fr 1fr 120px;
-                    grid-template-rows: auto auto 1fr auto;
-                    gap: 8px;
+                        "logo logo qr"
+                        "title title qr"
+                        "support support qr"
+                        "serial serial qr"
+                        "contacts contacts qr"
+                        "modelo modelo qr";
+                    grid-template-columns: 1fr 1fr 140px;
+                    grid-template-rows: 50px auto auto auto 1fr auto;
+                    gap: 6px;
                 }}
                 
-                .sticker::before {{
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    height: 3px;
-                    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
-                    border-radius: 16px 16px 0 0;
-                }}
-                
-                .header {{
-                    grid-area: header;
+                .header-logo {{
+                    grid-area: logo;
                     display: flex;
+                    justify-content: center;
                     align-items: center;
-                    gap: 12px;
-                    margin-bottom: 4px;
+                    margin-bottom: 8px;
                 }}
                 
                 .logo {{
-                    width: 36px;
-                    height: 36px;
-                    border-radius: 10px;
-                    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                    width: 50px;
+                    height: 50px;
+                    border-radius: 8px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
                     overflow: hidden;
                 }}
                 
                 .logo img {{
                     width: 100%;
                     height: 100%;
-                    object-fit: cover;
-                    border-radius: 8px;
+                    object-fit: contain;
                 }}
                 
                 .logo-fallback {{
+                    background: #3b82f6;
                     color: white;
                     font-weight: 700;
-                    font-size: 10px;
+                    font-size: 14px;
                     text-align: center;
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 8px;
                 }}
                 
-                .company-info h1 {{
-                    font-size: 13px;
+                .title-section {{
+                    grid-area: title;
+                    text-align: center;
+                    margin-bottom: 10px;
+                }}
+                
+                .title-section h1 {{
+                    font-size: 18px;
                     font-weight: 700;
                     color: #1e293b;
                     line-height: 1.1;
-                    margin-bottom: 2px;
+                    margin-bottom: 3px;
                     letter-spacing: -0.02em;
                 }}
                 
-                .company-info h2 {{
-                    font-size: 9px;
+                .title-section h2 {{
+                    font-size: 12px;
                     font-weight: 500;
                     color: #3b82f6;
                     text-transform: uppercase;
                     letter-spacing: 0.05em;
                 }}
                 
-                .info-section {{
-                    grid-area: info;
-                    margin-bottom: 6px;
-                }}
-                
                 .support-text {{
-                    font-size: 8px;
-                    color: #64748b;
+                    grid-area: support;
+                    font-size: 11px;
+                    color: #374151;
                     margin-bottom: 6px;
                     font-weight: 500;
+                    text-align: left;
+                }}
+                
+                .serial-section {{
+                    grid-area: serial;
+                    margin-bottom: 8px;
                 }}
                 
                 .serial {{
-                    font-size: 10px;
+                    font-size: 12px;
                     font-weight: 600;
                     color: #1e293b;
-                    background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
-                    padding: 4px 8px;
+                    background: #f8fafc;
+                    padding: 6px 10px;
                     border-radius: 6px;
                     border-left: 3px solid #3b82f6;
-                    margin-bottom: 6px;
                 }}
                 
                 .contacts {{
+                    grid-area: contacts;
                     display: grid;
                     grid-template-columns: 1fr 1fr;
-                    gap: 2px;
-                    font-size: 7px;
-                    color: #475569;
-                    line-height: 1.3;
+                    gap: 4px;
+                    font-size: 10px;
+                    color: #374151;
+                    line-height: 1.4;
                 }}
                 
                 .contact-item {{
-                    display: flex;
-                    align-items: center;
-                    gap: 3px;
-                    padding: 1px 0;
-                }}
-                
-                .contact-icon {{
-                    font-size: 8px;
-                    width: 10px;
-                    text-align: center;
-                }}
-                
-                .services {{
-                    grid-area: services;
-                    display: flex;
-                    gap: 4px;
-                    flex-wrap: wrap;
-                    align-items: flex-start;
-                }}
-                
-                .service-badge {{
-                    background: linear-gradient(135deg, #fef3c7, #fbbf24);
-                    color: #92400e;
-                    font-size: 6px;
-                    font-weight: 600;
-                    padding: 2px 6px;
-                    border-radius: 12px;
-                    display: flex;
-                    align-items: center;
-                    gap: 2px;
-                    box-shadow: 0 1px 3px rgba(251, 191, 36, 0.3);
+                    padding: 2px 0;
+                    font-weight: 500;
                 }}
                 
                 .qr-section {{
@@ -762,61 +733,43 @@ class CopierCompany(models.Model):
                     flex-direction: column;
                     align-items: center;
                     justify-content: center;
-                    gap: 4px;
+                    gap: 6px;
+                    padding-left: 8px;
                 }}
                 
                 .qr-label {{
-                    font-size: 7px;
+                    font-size: 10px;
                     font-weight: 600;
                     color: #3b82f6;
                     text-align: center;
-                    text-transform: uppercase;
-                    letter-spacing: 0.05em;
                 }}
                 
                 .qr-code {{
-                    width: 90px;
-                    height: 90px;
-                    border-radius: 12px;
+                    width: 120px;
+                    height: 120px;
+                    border-radius: 8px;
                     overflow: hidden;
-                    box-shadow: 
-                        0 10px 25px rgba(0, 0, 0, 0.15),
-                        0 0 0 1px rgba(255, 255, 255, 0.9);
                     background: white;
                     padding: 4px;
+                    border: 1px solid #e5e7eb;
                 }}
                 
                 .qr-code img {{
                     width: 100%;
                     height: 100%;
-                    border-radius: 8px;
+                    border-radius: 4px;
                 }}
                 
-                .footer {{
-                    grid-area: footer;
-                    font-size: 7px;
-                    color: #64748b;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
+                .model-section {{
+                    grid-area: modelo;
+                    font-size: 9px;
+                    color: #6b7280;
                     padding-top: 4px;
-                    border-top: 1px solid #e2e8f0;
-                }}
-                
-                .model-info {{
+                    border-top: 1px solid #e5e7eb;
                     font-weight: 500;
                 }}
                 
-                .tech-badge {{
-                    background: linear-gradient(135deg, #dcfce7, #22c55e);
-                    color: #166534;
-                    padding: 1px 4px;
-                    border-radius: 4px;
-                    font-weight: 600;
-                    font-size: 6px;
-                }}
-                
-                /* Efectos hover para impresión */
+                /* Efectos para impresión */
                 @media print {{
                     body {{
                         background: white;
@@ -826,72 +779,49 @@ class CopierCompany(models.Model):
                     
                     .sticker {{
                         box-shadow: none;
-                        border: 1px solid #e2e8f0;
+                        border: 1px solid #e5e7eb;
                     }}
                 }}
             </style>
         </head>
         <body>
             <div class="sticker">
-                <div class="header">
+                <div class="header-logo">
                     <div class="logo">
                         {f'<img src="data:image/png;base64,{logo_base64}" alt="Logo">' if logo_base64 else '<div class="logo-fallback">CC</div>'}
                     </div>
-                    <div class="company-info">
-                        <h1>COPIER COMPANY SAC</h1>
-                        <h2>Alquiler de Fotocopiadoras</h2>
-                    </div>
                 </div>
                 
-                <div class="info-section">
-                    <div class="support-text">
-                        📱 Para soporte técnico, escanea el QR o contáctanos:
-                    </div>
+                <div class="title-section">
+                    <h2>ALQUILER DE FOTOCOPIADORAS</h2>
+                </div>
+                
+                <div class="support-text">
+                    Para soporte técnico, escanea el QR o contáctanos:
+                </div>
+                
+                <div class="serial-section">
                     <div class="serial">
-                        🏷️ Serial N°: {serie}
-                    </div>
-                    <div class="contacts">
-                        <div class="contact-item">
-                            <span class="contact-icon">📱</span>
-                            <span>+51 999 999 999</span>
-                        </div>
-                        <div class="contact-item">
-                            <span class="contact-icon">✉️</span>
-                            <span>soporte@copiercompany.com</span>
-                        </div>
-                        <div class="contact-item">
-                            <span class="contact-icon">🌐</span>
-                            <span>copiercompanysac.com</span>
-                        </div>
-                        <div class="contact-item">
-                            <span class="contact-icon">📍</span>
-                            <span>Lima - Perú</span>
-                        </div>
+                        Serial N°: {serie}
                     </div>
                 </div>
                 
-                <div class="services">
-                    <div class="service-badge">
-                        🔧 Servicio 24/7
-                    </div>
-                    <div class="service-badge">
-                        💼 Planes flexibles
-                    </div>
-                    <div class="service-badge">
-                        📦 Todo incluido
-                    </div>
+                <div class="contacts">
+                    <div class="contact-item">+51 999 999 999</div>
+                    <div class="contact-item">soporte@copiercompany.com</div>
+                    <div class="contact-item">copiercompanysac.com</div>
+                    <div class="contact-item">Lima - Perú</div>
                 </div>
                 
                 <div class="qr-section">
-                    <div class="qr-label">⬇️ Escanéame</div>
+                    <div class="qr-label">Escanéame</div>
                     <div class="qr-code">
-                        {f'<img src="data:image/png;base64,{qr_base64}" alt="QR Code">' if qr_base64 else '<div style="background: #f3f4f6; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #6b7280;">QR</div>'}
+                        {f'<img src="data:image/png;base64,{qr_base64}" alt="QR Code">' if qr_base64 else '<div style="background: #f3f4f6; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #6b7280;">QR</div>'}
                     </div>
                 </div>
                 
-                <div class="footer">
-                    <div class="model-info">📄 {modelo}</div>
-                    <div class="tech-badge">✅ Verificado</div>
+                <div class="model-section">
+                    {modelo}
                 </div>
             </div>
         </body>
@@ -946,79 +876,113 @@ class CopierCompany(models.Model):
             img = Image.new('RGB', (width, height), '#ffffff')
             draw = ImageDraw.Draw(img)
             
+            # Dibujar borde
+            draw.rectangle([0, 0, width-1, height-1], outline='#e5e7eb', width=2)
+            
             # Intentar cargar fuentes
             try:
-                font_title = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 24)
-                font_subtitle = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 16)
-                font_normal = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 14)
-                font_small = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 12)
+                font_title = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 28)
+                font_subtitle = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 18)
+                font_normal = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 16)
+                font_small = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 14)
             except:
                 font_title = font_subtitle = font_normal = font_small = ImageFont.load_default()
             
             # Colores modernos
             primary_color = '#1e293b'
             accent_color = '#3b82f6'
-            text_color = '#475569'
+            text_color = '#374151'
             
-            # Header
-            y = 30
+            # Logo centrado en la parte superior
+            logo_y = 20
+            logo_x = width // 2 - 35  # Centrar logo de 70px
             
-            # Logo de la empresa (si está disponible)
             logo_base64 = self._get_company_logo_base64()
             if logo_base64:
                 try:
                     logo_data = base64.b64decode(logo_base64)
                     logo_img = Image.open(io.BytesIO(logo_data))
-                    logo_img = logo_img.resize((60, 60), Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.ANTIALIAS)
-                    img.paste(logo_img, (30, y), logo_img if logo_img.mode == 'RGBA' else None)
+                    logo_img = logo_img.resize((70, 70), Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.ANTIALIAS)
+                    
+                    # Centrar logo
+                    if logo_img.mode == 'RGBA':
+                        img.paste(logo_img, (logo_x, logo_y), logo_img)
+                    else:
+                        img.paste(logo_img, (logo_x, logo_y))
                 except:
                     # Fallback: dibujar rectángulo como logo
-                    draw.rectangle([30, y, 90, y+60], fill=accent_color)
-                    draw.text((60, y+25), "CC", fill='white', font=font_title, anchor="mm")
+                    draw.rectangle([logo_x, logo_y, logo_x+70, logo_y+70], fill=accent_color, outline='#e5e7eb', width=1)
+                    draw.text((logo_x+35, logo_y+35), "CC", fill='white', font=font_title, anchor="mm")
             else:
                 # Fallback: dibujar rectángulo como logo
-                draw.rectangle([30, y, 90, y+60], fill=accent_color)
-                draw.text((60, y+25), "CC", fill='white', font=font_title, anchor="mm")
+                draw.rectangle([logo_x, logo_y, logo_x+70, logo_y+70], fill=accent_color, outline='#e5e7eb', width=1)
+                draw.text((logo_x+35, logo_y+35), "CC", fill='white', font=font_title, anchor="mm")
             
-            # Títulos
-            draw.text((110, y+10), "COPIER COMPANY SAC", fill=primary_color, font=font_title)
-            draw.text((110, y+40), "ALQUILER DE FOTOCOPIADORAS", fill=accent_color, font=font_subtitle)
+            # Título centrado (eliminamos "COPIER COMPANY SAC")
+            y = 105
+            title_text = "ALQUILER DE FOTOCOPIADORAS"
+            bbox = draw.textbbox((0, 0), title_text, font=font_subtitle)
+            title_width = bbox[2] - bbox[0]
+            draw.text(((width - title_width) // 2, y), title_text, fill=accent_color, font=font_subtitle)
             
-            # Información
-            y = 120
+            # Texto de soporte
+            y = 140
+            support_text = "Para soporte técnico, escanea el QR o contáctanos:"
+            draw.text((20, y), support_text, fill=text_color, font=font_small)
+            
+            # Serial con fondo
+            y = 165
             serie = self.serie_id or "____________________"
-            draw.text((30, y), f"📱 Para soporte técnico, escanea el QR", fill=text_color, font=font_small)
-            y += 25
-            draw.text((30, y), f"🏷️ Serial N°: {serie}", fill=primary_color, font=font_normal)
+            serial_text = f"Serial N°: {serie}"
+            draw.rectangle([20, y-3, 300, y+20], fill='#f8fafc', outline='#e5e7eb')
+            draw.rectangle([20, y-3, 23, y+20], fill=accent_color)  # Línea azul lateral
+            draw.text((30, y), serial_text, fill=primary_color, font=font_normal)
             
-            # Contactos
-            y += 40
+            # Contactos en grid 2x2
+            y = 200
             contacts = [
-                "📱 +51 999 999 999",
-                "✉️ soporte@copiercompany.com",
-                "🌐 copiercompanysac.com", 
-                "📍 Lima - Perú"
+                "+51 999 999 999",
+                "soporte@copiercompany.com",
+                "copiercompanysac.com", 
+                "Lima - Perú"
             ]
             
             for i, contact in enumerate(contacts):
-                x_pos = 30 + (i % 2) * 250
-                y_pos = y + (i // 2) * 20
+                x_pos = 20 + (i % 2) * 180
+                y_pos = y + (i // 2) * 25
                 draw.text((x_pos, y_pos), contact, fill=text_color, font=font_small)
             
-            # QR Code
-            qr_base64 = self._generate_modern_qr((120, 120))
+            # QR Code más grande (140x140)
+            qr_size = 140
+            qr_x = width - qr_size - 20
+            qr_y = height - qr_size - 40
+            
+            qr_base64 = self._generate_modern_qr((qr_size, qr_size))
             if qr_base64:
                 try:
                     qr_data = base64.b64decode(qr_base64)
                     qr_img = Image.open(io.BytesIO(qr_data))
-                    img.paste(qr_img, (width-150, height-150))
-                    draw.text((width-150, height-160), "⬇️ Escanéame", fill=primary_color, font=font_small)
-                except:
-                    pass
+                    
+                    # Fondo blanco para el QR
+                    draw.rectangle([qr_x-4, qr_y-4, qr_x+qr_size+4, qr_y+qr_size+4], 
+                                 fill='white', outline='#e5e7eb', width=1)
+                    
+                    img.paste(qr_img, (qr_x, qr_y))
+                    
+                    # Etiqueta "Escanéame" arriba del QR
+                    qr_label = "Escanéame"
+                    bbox = draw.textbbox((0, 0), qr_label, font=font_small)
+                    label_width = bbox[2] - bbox[0]
+                    draw.text((qr_x + (qr_size - label_width) // 2, qr_y - 25), 
+                             qr_label, fill=accent_color, font=font_small)
+                except Exception as e:
+                    _logger.error(f"Error agregando QR: {str(e)}")
             
-            # Modelo
+            # Modelo en la parte inferior
             if self.name:
-                draw.text((30, height-30), f"📄 {self.name.name}", fill=text_color, font=font_small)
+                modelo_text = self.name.name
+                draw.line([20, height-35, 350, height-35], fill='#e5e7eb', width=1)
+                draw.text((20, height-25), modelo_text, fill='#6b7280', font=font_small)
             
             # Convertir a base64
             buffer = io.BytesIO()
