@@ -539,6 +539,279 @@ class CopierCompany(models.Model):
 
 
 
+    def _fallback_html_to_image(self, html_content, layout='horizontal'):
+        """Método alternativo usando PIL para crear la imagen sin márgenes"""
+        try:
+            # Información dinámica del registro
+            serie = getattr(self, 'serie_id', None) or "____________________"
+            modelo = getattr(self.name, 'name', None) if hasattr(self, 'name') else "Modelo no especificado"
+            
+            # Crear imagen base con dimensiones según layout
+            if layout == 'vertical':
+                width, height = 227, 378  # 6cm x 10cm a 96 DPI
+            else:
+                width, height = 378, 227  # 10cm x 6cm a 96 DPI
+            
+            img = Image.new('RGB', (width, height), '#ffffff')
+            draw = ImageDraw.Draw(img)
+            
+            # Intentar cargar fuentes
+            try:
+                font_title = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 14)
+                font_normal = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 10)
+                font_small = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 8)
+            except:
+                font_title = font_normal = font_small = ImageFont.load_default()
+            
+            # Colores
+            primary_color = '#1e40af'
+            text_color = '#374151'
+            
+            if layout == 'vertical':
+                # Layout vertical - Logo arriba sin margen
+                logo_y = 0  # Sin margen superior
+                logo_size = 50
+                logo_x = (width - logo_size*2) // 2  # Centrado horizontalmente
+                
+                # Logo pegado arriba
+                logo_base64 = self._get_company_logo_base64()
+                if logo_base64:
+                    try:
+                        logo_data = base64.b64decode(logo_base64)
+                        logo_img = Image.open(io.BytesIO(logo_data))
+                        logo_img = logo_img.resize((logo_size*2, logo_size), Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.ANTIALIAS)
+                        
+                        if logo_img.mode == 'RGBA':
+                            img.paste(logo_img, (logo_x, logo_y), logo_img)
+                        else:
+                            img.paste(logo_img, (logo_x, logo_y))
+                    except:
+                        # Fallback: dibujar rectángulo como logo
+                        draw.rectangle([logo_x, logo_y, logo_x+logo_size*2, logo_y+logo_size], fill=primary_color)
+                        draw.text((logo_x+logo_size, logo_y+logo_size//2), "CC", fill='white', font=font_title, anchor="mm")
+                else:
+                    # Fallback: dibujar rectángulo como logo
+                    draw.rectangle([logo_x, logo_y, logo_x+logo_size*2, logo_y+logo_size], fill=primary_color)
+                    draw.text((logo_x+logo_size, logo_y+logo_size//2), "CC", fill='white', font=font_title, anchor="mm")
+                
+                # Título inmediatamente después del logo
+                y = logo_y + logo_size + 5
+                title_text = "ALQUILER DE"
+                title_text2 = "FOTOCOPIADORAS"
+                draw.text((width//2, y), title_text, fill=primary_color, font=font_title, anchor="mm")
+                draw.text((width//2, y+15), title_text2, fill=primary_color, font=font_title, anchor="mm")
+                
+                # Texto de soporte
+                y += 35
+                support_text = "Para soporte técnico:"
+                draw.rectangle([5, y-2, width-5, y+12], fill='#f0f9ff', outline='#e0f2fe')
+                draw.rectangle([5, y-2, 8, y+12], fill='#0ea5e9')
+                draw.text((width//2, y+5), support_text, fill=text_color, font=font_small, anchor="mm")
+                
+                # Información del equipo
+                y += 20
+                info_items = [
+                    ("Modelo:", modelo),
+                    ("Serie:", serie)
+                ]
+                
+                for label, value in info_items:
+                    # Fondo para cada item
+                    draw.rectangle([5, y-1, width-5, y+11], fill='#f8fafc', outline='#e2e8f0')
+                    draw.rectangle([5, y-1, 8, y+11], fill='#3b82f6')
+                    
+                    # Texto
+                    draw.text((10, y), label, fill=primary_color, font=font_small)
+                    draw.text((10, y+6), value[:25], fill=text_color, font=font_small)  # Truncar si es muy largo
+                    y += 18
+                
+                # Contactos
+                y += 5
+                contacts = [
+                    ("Correo:", "info@copiercompanysac.com"),
+                    ("WhatsApp:", "975399303")
+                ]
+                
+                for label, value in contacts:
+                    # Fondo para cada contacto
+                    draw.rectangle([5, y-1, width-5, y+11], fill='#f8fafc', outline='#e2e8f0')
+                    draw.rectangle([5, y-1, 8, y+11], fill='#3b82f6')
+                    
+                    # Texto
+                    draw.text((10, y), label, fill=primary_color, font=font_small)
+                    draw.text((10, y+6), value, fill=text_color, font=font_small)
+                    y += 18
+                
+                # Website
+                y += 5
+                draw.rectangle([5, y-1, width-5, y+11], fill='#e0f2fe', outline='#0ea5e9')
+                web_text = "copiercompanysac.com"
+                draw.text((width//2, y+5), web_text, fill=primary_color, font=font_normal, anchor="mm")
+                
+                # QR Code al final
+                y += 20
+                qr_size = 80
+                qr_x = (width - qr_size) // 2
+                qr_y = y
+                
+            else:
+                # Layout horizontal - Logo arriba izquierda sin margen
+                logo_y = 0  # Sin margen superior
+                logo_size = 50
+                logo_x = 0  # Sin margen izquierdo
+                
+                # Logo pegado arriba izquierda
+                logo_base64 = self._get_company_logo_base64()
+                if logo_base64:
+                    try:
+                        logo_data = base64.b64decode(logo_base64)
+                        logo_img = Image.open(io.BytesIO(logo_data))
+                        logo_img = logo_img.resize((logo_size*2, logo_size), Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.ANTIALIAS)
+                        
+                        if logo_img.mode == 'RGBA':
+                            img.paste(logo_img, (logo_x, logo_y), logo_img)
+                        else:
+                            img.paste(logo_img, (logo_x, logo_y))
+                    except:
+                        # Fallback: dibujar rectángulo como logo
+                        draw.rectangle([logo_x, logo_y, logo_x+logo_size*2, logo_y+logo_size], fill=primary_color)
+                        draw.text((logo_x+logo_size, logo_y+logo_size//2), "CC", fill='white', font=font_title, anchor="mm")
+                else:
+                    # Fallback: dibujar rectángulo como logo
+                    draw.rectangle([logo_x, logo_y, logo_x+logo_size*2, logo_y+logo_size], fill=primary_color)
+                    draw.text((logo_x+logo_size, logo_y+logo_size//2), "CC", fill='white', font=font_title, anchor="mm")
+                
+                # Título al lado del logo
+                title_x = logo_x + logo_size*2 + 10
+                title_y = logo_y + 10
+                title_text = "ALQUILER DE FOTOCOPIADORAS"
+                draw.text((title_x, title_y), title_text, fill=primary_color, font=font_title)
+                
+                # Texto de soporte debajo del título
+                y = logo_y + logo_size + 5
+                support_text = "Para soporte técnico, escanea el QR o contáctanos:"
+                draw.rectangle([5, y-2, 250, y+12], fill='#f0f9ff', outline='#e0f2fe')
+                draw.rectangle([5, y-2, 8, y+12], fill='#0ea5e9')
+                draw.text((10, y+5), support_text, fill=text_color, font=font_small)
+                
+                # Información en dos columnas
+                y += 20
+                left_info = [
+                    f"Modelo: {modelo}",
+                    "Correo: info@copiercompanysac.com"
+                ]
+                
+                right_info = [
+                    f"Serie: {serie}",
+                    "WhatsApp: 975399303"
+                ]
+                
+                # Columna izquierda
+                for i, info in enumerate(left_info):
+                    y_pos = y + i * 15
+                    draw.rectangle([5, y_pos-1, 180, y_pos+11], fill='#f8fafc', outline='#e2e8f0')
+                    draw.rectangle([5, y_pos-1, 8, y_pos+11], fill='#3b82f6')
+                    draw.text((10, y_pos+5), info, fill=text_color, font=font_small)
+                
+                # Columna derecha
+                for i, info in enumerate(right_info):
+                    y_pos = y + i * 15
+                    draw.rectangle([185, y_pos-1, 280, y_pos+11], fill='#f8fafc', outline='#e2e8f0')
+                    draw.rectangle([185, y_pos-1, 188, y_pos+11], fill='#3b82f6')
+                    draw.text((190, y_pos+5), info, fill=text_color, font=font_small)
+                
+                # Website abajo
+                y += 40
+                draw.rectangle([5, y-1, 280, y+11], fill='#e0f2fe', outline='#0ea5e9')
+                web_text = "https://copiercompanysac.com"
+                draw.text((10, y+5), web_text, fill=primary_color, font=font_normal)
+                
+                # QR Code a la derecha sin margen
+                qr_size = 120
+                qr_x = width - qr_size  # Sin margen derecho
+                qr_y = 0  # Sin margen superior
+            
+            # Generar QR Code
+            qr_base64 = self._generate_modern_qr((qr_size, qr_size))
+            if qr_base64:
+                try:
+                    qr_data = base64.b64decode(qr_base64)
+                    qr_img = Image.open(io.BytesIO(qr_data))
+                    
+                    # Fondo blanco para el QR sin margen extra
+                    draw.rectangle([qr_x, qr_y, qr_x+qr_size, qr_y+qr_size], 
+                                fill='white', outline='#e2e8f0', width=1)
+                    
+                    img.paste(qr_img, (qr_x, qr_y))
+                    
+                    # Etiqueta "Escanéame"
+                    if layout == 'vertical':
+                        label_y = qr_y + qr_size + 2
+                        if label_y < height - 10:  # Solo si hay espacio
+                            draw.text((qr_x + qr_size//2, label_y), "Escanéame", 
+                                    fill=primary_color, font=font_small, anchor="mm")
+                    else:
+                        # En horizontal, etiqueta dentro del QR
+                        draw.rectangle([qr_x, qr_y+qr_size-15, qr_x+qr_size, qr_y+qr_size], 
+                                    fill='white', outline=None)
+                        draw.text((qr_x + qr_size//2, qr_y+qr_size-7), "Escanéame", 
+                                fill=primary_color, font=font_small, anchor="mm")
+                except Exception as e:
+                    _logger.error(f"Error agregando QR: {str(e)}")
+            
+            # Convertir a base64
+            buffer = io.BytesIO()
+            img.save(buffer, format='PNG', quality=95)
+            return base64.b64encode(buffer.getvalue())
+            
+        except Exception as e:
+            _logger.error(f"Error en fallback method: {str(e)}")
+            raise UserError(f"Error generando sticker con PIL: {str(e)}")
+
+
+    def _chrome_headless_method(self, html_content, layout='horizontal'):
+        """Método alternativo usando Chrome headless - también necesita el parámetro layout"""
+        try:
+            # Dimensiones según layout
+            if layout == 'vertical':
+                window_size = '227,378'
+            else:
+                window_size = '378,227'
+                
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False) as html_file:
+                html_file.write(html_content)
+                html_file.flush()
+                
+                with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as img_file:
+                    cmd = [
+                        'google-chrome', '--headless', '--disable-gpu',
+                        f'--window-size={window_size}',
+                        '--hide-scrollbars',
+                        '--disable-web-security',
+                        '--run-all-compositor-stages-before-draw',
+                        f'--screenshot={img_file.name}',
+                        f'file://{html_file.name}'
+                    ]
+                    
+                    result = subprocess.run(cmd, capture_output=True, text=True)
+                    
+                    if result.returncode == 0 and os.path.exists(img_file.name):
+                        with open(img_file.name, 'rb') as f:
+                            return base64.b64encode(f.read())
+                    else:
+                        raise Exception(f"Chrome headless error: {result.stderr}")
+                        
+        except Exception as e:
+            _logger.warning(f"Chrome headless failed: {str(e)}, using fallback PIL method")
+            return self._fallback_html_to_image(html_content, layout)
+        finally:
+            try:
+                os.unlink(html_file.name)
+                os.unlink(img_file.name)
+            except:
+                pass
+
+
     def _generate_modern_qr(self, size=(150, 150)):
         """Genera un QR code moderno con esquinas redondeadas"""
         try:
@@ -567,6 +840,7 @@ class CopierCompany(models.Model):
             _logger.error(f"Error generando QR: {str(e)}")
             return None
 
+
     def _get_company_logo_base64(self):
         """Obtiene el logo de la compañía en base64"""
         try:
@@ -577,6 +851,7 @@ class CopierCompany(models.Model):
         except Exception as e:
             _logger.error(f"Error obteniendo logo: {str(e)}")
             return None
+
 
     def _create_html_template(self, qr_base64, logo_base64, layout='horizontal'):
         """Template HTML con alta resolución y mejor distribución"""
@@ -627,8 +902,8 @@ class CopierCompany(models.Model):
             <title>Sticker Corporativo HD</title>
             <style>
                 *, *::before, *::after {{
-                    margin: 0;
-                    padding: 0;
+                    margin: 0 !important;
+                    padding: 0 !important;
                     box-sizing: border-box;
                 }}
                 
@@ -649,9 +924,10 @@ class CopierCompany(models.Model):
                     width: {width};
                     height: {height};
                     background: white;
-                    border: 2px solid #e5e7eb;
+                    border: none !important;
                     overflow: hidden;
-                    padding: 20px;
+                    padding: 0 !important;
+                    margin: 0 !important;
                     display: grid;
                     grid-template-areas: {grid_areas};
                     grid-template-columns: {grid_columns};
@@ -663,10 +939,10 @@ class CopierCompany(models.Model):
                 .header-logo {{
                     grid-area: logo;
                     display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    padding: 0;
-                    margin: 0;
+                    justify-content: flex-start;
+                    align-items: flex-start;
+                    padding: 0 !important;
+                    margin: 0 !important;
                 }}
                 
                 .logo {{
@@ -675,12 +951,16 @@ class CopierCompany(models.Model):
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    margin: 0 !important;
+                    padding: 0 !important;
                 }}
                 
                 .logo img {{
                     max-width: 100%;
                     max-height: 100%;
                     object-fit: contain;
+                    margin: 0 !important;
+                    padding: 0 !important;
                 }}
                 
                 .logo-fallback {{
@@ -696,13 +976,15 @@ class CopierCompany(models.Model):
                     justify-content: center;
                     border-radius: 12px;
                     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+                    margin: 0 !important;
+                    padding: 0 !important;
                 }}
                 
                 .title-section {{
                     grid-area: title;
                     text-align: center;
-                    margin: 0;
-                    padding: 0;
+                    margin: 0 !important;
+                    padding: 0 !important;
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -714,8 +996,8 @@ class CopierCompany(models.Model):
                     color: #1e40af;
                     text-transform: uppercase;
                     letter-spacing: 1px;
-                    margin: 0;
-                    padding: 0;
+                    margin: 0 !important;
+                    padding: 0 !important;
                     line-height: 1.2;
                 }}
                 
@@ -726,10 +1008,10 @@ class CopierCompany(models.Model):
                     font-weight: 600;
                     text-align: center;
                     background: linear-gradient(90deg, #f0f9ff, #e0f2fe);
-                    padding: 12px 16px;
+                    padding: 12px 16px !important;
                     border-radius: 8px;
                     border-left: 6px solid #0ea5e9;
-                    margin: 0;
+                    margin: 0 !important;
                     line-height: 1.4;
                     display: flex;
                     align-items: center;
@@ -748,10 +1030,11 @@ class CopierCompany(models.Model):
                     font-size: 18px;
                     color: #374151;
                     line-height: 1.4;
-                    padding: 8px;
+                    padding: 8px !important;
                     background: #f8fafc;
                     border-radius: 6px;
                     border-left: 4px solid #3b82f6;
+                    margin: 0 !important;
                 }}
                 
                 .info-label {{
@@ -779,10 +1062,11 @@ class CopierCompany(models.Model):
                     align-items: center;
                     gap: 12px;
                     font-size: 18px;
-                    padding: 8px 12px;
+                    padding: 8px 12px !important;
                     background: #f8fafc;
                     border-radius: 6px;
                     border-left: 4px solid #3b82f6;
+                    margin: 0 !important;
                 }}
                 
                 .info-row .label {{
@@ -805,9 +1089,9 @@ class CopierCompany(models.Model):
                     font-size: 20px;
                     color: #1e40af;
                     font-weight: 700;
-                    padding: 8px 0;
+                    padding: 8px 0 !important;
                     border-top: 2px solid #e2e8f0;
-                    margin: 0;
+                    margin: 0 !important;
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -817,11 +1101,11 @@ class CopierCompany(models.Model):
                     grid-area: qr;
                     display: flex;
                     flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
+                    align-items: flex-end;
+                    justify-content: flex-start;
                     gap: 10px;
-                    padding: 0;
-                    margin: 0;
+                    padding: 0 !important;
+                    margin: 0 !important;
                 }}
                 
                 .qr-label {{
@@ -829,7 +1113,7 @@ class CopierCompany(models.Model):
                     font-weight: 700;
                     color: #0ea5e9;
                     text-align: center;
-                    margin: 0;
+                    margin: 0 !important;
                     text-transform: uppercase;
                     letter-spacing: 1px;
                 }}
@@ -840,9 +1124,10 @@ class CopierCompany(models.Model):
                     border-radius: 12px;
                     overflow: hidden;
                     background: white;
-                    padding: 8px;
+                    padding: 8px !important;
                     border: 3px solid #e2e8f0;
                     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    margin: 0 !important;
                 }}
                 
                 .qr-code img {{
@@ -860,10 +1145,10 @@ class CopierCompany(models.Model):
                     }}
                     
                     .sticker {{
-                        border: 1px solid #e5e7eb !important;
+                        border: none !important;
                         box-shadow: none !important;
                         margin: 0 !important;
-                        padding: 20px !important;
+                        padding: 0 !important;
                     }}
                 }}
             </style>
@@ -942,6 +1227,7 @@ class CopierCompany(models.Model):
         """
         return html_template
 
+
     def _html_to_image(self, html_content, layout='horizontal'):
         """Conversión con resolución mejorada"""
         try:
@@ -995,154 +1281,6 @@ class CopierCompany(models.Model):
             except:
                 pass
 
-    def _chrome_headless_method(self, html_content):
-        """Método alternativo usando Chrome headless"""
-        try:
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False) as html_file:
-                html_file.write(html_content)
-                html_file.flush()
-                
-                with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as img_file:
-                    cmd = [
-                        'google-chrome', '--headless', '--disable-gpu',
-                        '--window-size=378,227',
-                        '--hide-scrollbars',
-                        '--disable-web-security',
-                        '--run-all-compositor-stages-before-draw',
-                        f'--screenshot={img_file.name}',
-                        f'file://{html_file.name}'
-                    ]
-                    
-                    result = subprocess.run(cmd, capture_output=True, text=True)
-                    
-                    if result.returncode == 0 and os.path.exists(img_file.name):
-                        with open(img_file.name, 'rb') as f:
-                            return base64.b64encode(f.read())
-                    else:
-                        raise Exception(f"Chrome headless error: {result.stderr}")
-                        
-        except Exception as e:
-            _logger.warning(f"Chrome headless failed: {str(e)}, using fallback PIL method")
-            return self._fallback_html_to_image(html_content)
-        finally:
-            try:
-                os.unlink(html_file.name)
-                os.unlink(img_file.name)
-            except:
-                pass
-
-    def _fallback_html_to_image(self, html_content):
-        """Método alternativo usando PIL para crear la imagen"""
-        try:
-            # Información dinámica del registro
-            serie = getattr(self, 'serie_id', None) or "____________________"
-            modelo = getattr(self.name, 'name', None) if hasattr(self, 'name') else "Modelo no especificado"
-            
-            # Crear imagen base con dimensiones exactas
-            width, height = 378, 227  # 10cm x 6cm a 96 DPI
-            
-            img = Image.new('RGB', (width, height), '#ffffff')
-            draw = ImageDraw.Draw(img)
-            
-            # Intentar cargar fuentes
-            try:
-                font_title = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 14)
-                font_normal = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 10)
-                font_small = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 8)
-            except:
-                font_title = font_normal = font_small = ImageFont.load_default()
-            
-            # Colores
-            primary_color = '#1e40af'
-            text_color = '#374151'
-            
-            # Logo en la parte superior izquierda
-            logo_y = 8
-            logo_size = 40
-            logo_x = 20
-            
-            logo_base64 = self._get_company_logo_base64()
-            if logo_base64:
-                try:
-                    logo_data = base64.b64decode(logo_base64)
-                    logo_img = Image.open(io.BytesIO(logo_data))
-                    logo_img = logo_img.resize((logo_size*2, logo_size), Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.ANTIALIAS)
-                    
-                    if logo_img.mode == 'RGBA':
-                        img.paste(logo_img, (logo_x, logo_y), logo_img)
-                    else:
-                        img.paste(logo_img, (logo_x, logo_y))
-                except:
-                    # Fallback: dibujar rectángulo como logo
-                    draw.rectangle([logo_x, logo_y, logo_x+logo_size*2, logo_y+logo_size], fill=primary_color)
-                    draw.text((logo_x+logo_size, logo_y+logo_size//2), "CC", fill='white', font=font_title, anchor="mm")
-            else:
-                # Fallback: dibujar rectángulo como logo
-                draw.rectangle([logo_x, logo_y, logo_x+logo_size*2, logo_y+logo_size], fill=primary_color)
-                draw.text((logo_x+logo_size, logo_y+logo_size//2), "CC", fill='white', font=font_title, anchor="mm")
-            
-            # Título
-            y = logo_y + logo_size + 10
-            title_text = "ALQUILER DE FOTOCOPIADORAS"
-            draw.text((20, y), title_text, fill=primary_color, font=font_title)
-            
-            # Texto de soporte
-            y += 25
-            support_text = "Para soporte técnico, escanea el QR o contáctanos:"
-            draw.rectangle([20, y-2, 250, y+15], fill='#f0f9ff', outline='#e0f2fe')
-            draw.rectangle([20, y-2, 23, y+15], fill='#0ea5e9')
-            draw.text((25, y), support_text, fill=text_color, font=font_small)
-            
-            # Contactos
-            y += 25
-            contacts = [
-                f"Modelo: {modelo}",
-                f"Serie: {serie}",
-                "Correo: info@copiercompanysac.com",
-                "Celular/WhatsApp: 975399303"
-            ]
-            
-            for i, contact in enumerate(contacts):
-                x_pos = 20 + (i % 2) * 120
-                y_pos = y + (i // 2) * 15
-                draw.text((x_pos, y_pos), contact, fill=text_color, font=font_small)
-            
-            # Website
-            y += 40
-            web_text = "https://copiercompanysac.com"
-            draw.text((20, y), web_text, fill=primary_color, font=font_small)
-            
-            # QR Code
-            qr_size = 100
-            qr_x = width - qr_size - 10
-            qr_y = 20
-            
-            qr_base64 = self._generate_modern_qr((qr_size, qr_size))
-            if qr_base64:
-                try:
-                    qr_data = base64.b64decode(qr_base64)
-                    qr_img = Image.open(io.BytesIO(qr_data))
-                    
-                    # Fondo blanco para el QR
-                    draw.rectangle([qr_x-2, qr_y-2, qr_x+qr_size+2, qr_y+qr_size+2], 
-                                 fill='white', outline='#e2e8f0', width=1)
-                    
-                    img.paste(qr_img, (qr_x, qr_y))
-                    
-                    # Etiqueta "Escanéame"
-                    draw.text((qr_x + qr_size//2, qr_y - 15), "Escanéame", 
-                             fill=primary_color, font=font_small, anchor="mm")
-                except Exception as e:
-                    _logger.error(f"Error agregando QR: {str(e)}")
-            
-            # Convertir a base64
-            buffer = io.BytesIO()
-            img.save(buffer, format='PNG', quality=95)
-            return base64.b64encode(buffer.getvalue())
-            
-        except Exception as e:
-            _logger.error(f"Error en fallback method: {str(e)}")
-            raise UserError(f"Error generando sticker con PIL: {str(e)}")
 
     def generar_sticker_corporativo(self, layout='horizontal'):
         """Genera sticker en alta resolución"""
@@ -1183,11 +1321,6 @@ class CopierCompany(models.Model):
                 'sticky': False,
             }
         }
-
-
-
-
-
 
 
 
