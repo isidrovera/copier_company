@@ -572,7 +572,7 @@ class CopierCompany(models.Model):
             return None
 
     def _create_html_template(self, qr_base64, logo_base64):
-        """Crea template HTML moderno con CSS avanzado"""
+        """Crea template HTML moderno con CSS optimizado sin márgenes"""
         
         # Información dinámica del registro
         serie = self.serie_id or "____________________"
@@ -594,52 +594,54 @@ class CopierCompany(models.Model):
                     box-sizing: border-box;
                 }}
                 
+                html, body {{
+                    margin: 0;
+                    padding: 0;
+                    width: 100%;
+                    height: 100%;
+                }}
+                
                 body {{
                     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
                     background: white;
-                    padding: 0;
-                    margin: 0;
                     display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    min-height: 100vh;
+                    align-items: flex-start;
+                    justify-content: flex-start;
                 }}
                 
                 .sticker {{
                     width: 378px;  /* 10cm = 378px a 96 DPI */
                     height: 227px; /* 6cm = 227px a 96 DPI */
                     background: white;
-                    border: 2px solid #e5e7eb;
-                    border-radius: 8px;
+                    border: 1px solid #e5e7eb;
                     position: relative;
                     overflow: hidden;
-                    padding: 8px 12px 12px 12px;
+                    padding: 8px;
                     display: grid;
                     grid-template-areas: 
                         "logo logo qr"
                         "title title qr"
                         "support support qr"
-                        "serial serial qr"
                         "contacts contacts qr"
-                        "modelo modelo qr";
-                    grid-template-columns: 1fr 1fr 140px;
-                    grid-template-rows: 80px auto auto auto 1fr auto;
-                    gap: 4px;
+                        "website website qr";
+                    grid-template-columns: 1fr 1fr 130px;
+                    grid-template-rows: 60px auto auto 1fr auto;
+                    gap: 6px;
+                    align-content: start;
                 }}
                 
                 .header-logo {{
                     grid-area: logo;
                     display: flex;
                     justify-content: center;
-                    align-items: flex-start;
-                    margin-top: 0;
-                    padding-top: 0;
+                    align-items: center;
+                    padding: 0;
+                    margin: 0;
                 }}
                 
                 .logo {{
-                    width: 125px;
-                    height: 125px;
-                    border-radius: 8px;
+                    width: 80px;
+                    height: 50px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -656,76 +658,78 @@ class CopierCompany(models.Model):
                     background: #3b82f6;
                     color: white;
                     font-weight: 700;
-                    font-size: 14px;
+                    font-size: 12px;
                     text-align: center;
                     width: 100%;
                     height: 100%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    border-radius: 8px;
+                    border-radius: 4px;
                 }}
                 
                 .title-section {{
                     grid-area: title;
                     text-align: center;
-                    margin-bottom: 10px;
-                }}
-                
-                .title-section h1 {{
-                    font-size: 18px;
-                    font-weight: 700;
-                    color: #1e293b;
-                    line-height: 1.1;
-                    margin-bottom: 3px;
-                    letter-spacing: -0.02em;
+                    margin: 0;
+                    padding: 0;
                 }}
                 
                 .title-section h2 {{
-                    font-size: 12px;
-                    font-weight: 500;
+                    font-size: 14px;
+                    font-weight: 700;
                     color: #3b82f6;
                     text-transform: uppercase;
                     letter-spacing: 0.05em;
+                    margin: 0;
+                    padding: 0;
                 }}
                 
                 .support-text {{
                     grid-area: support;
-                    font-size: 11px;
+                    font-size: 10px;
                     color: #374151;
-                    margin-bottom: 6px;
                     font-weight: 500;
                     text-align: left;
-                }}
-                
-                .serial-section {{
-                    grid-area: serial;
-                    margin-bottom: 8px;
-                }}
-                
-                .serial {{
-                    font-size: 12px;
-                    font-weight: 600;
-                    color: #1e293b;
                     background: #f8fafc;
-                    padding: 6px 10px;
-                    border-radius: 6px;
+                    padding: 6px 8px;
+                    border-radius: 4px;
                     border-left: 3px solid #3b82f6;
+                    margin: 0;
                 }}
                 
                 .contacts {{
                     grid-area: contacts;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 3px;
+                    font-size: 9px;
+                    color: #374151;
+                    line-height: 1.3;
+                    margin: 0;
+                    padding: 0;
+                }}
+                
+                .contact-row {{
                     display: grid;
                     grid-template-columns: 1fr 1fr;
-                    gap: 4px;
-                    font-size: 10px;
-                    color: #374151;
-                    line-height: 1.4;
+                    gap: 8px;
                 }}
                 
                 .contact-item {{
-                    padding: 2px 0;
                     font-weight: 500;
+                    padding: 1px 0;
+                }}
+                
+                .website {{
+                    grid-area: website;
+                    text-align: center;
+                    font-size: 9px;
+                    color: #374151;
+                    font-weight: 600;
+                    padding-top: 4px;
+                    border-top: 1px solid #e5e7eb;
+                    margin: 0;
                 }}
                 
                 .qr-section {{
@@ -734,24 +738,26 @@ class CopierCompany(models.Model):
                     flex-direction: column;
                     align-items: center;
                     justify-content: center;
-                    gap: 6px;
-                    padding-left: 8px;
+                    gap: 4px;
+                    padding: 0;
+                    margin: 0;
                 }}
                 
                 .qr-label {{
-                    font-size: 10px;
+                    font-size: 8px;
                     font-weight: 600;
                     color: #3b82f6;
                     text-align: center;
+                    margin: 0;
                 }}
                 
                 .qr-code {{
-                    width: 120px;
-                    height: 120px;
-                    border-radius: 8px;
+                    width: 110px;
+                    height: 110px;
+                    border-radius: 6px;
                     overflow: hidden;
                     background: white;
-                    padding: 4px;
+                    padding: 2px;
                     border: 1px solid #e5e7eb;
                 }}
                 
@@ -761,26 +767,21 @@ class CopierCompany(models.Model):
                     border-radius: 4px;
                 }}
                 
-                .model-section {{
-                    grid-area: modelo;
-                    font-size: 9px;
-                    color: #6b7280;
-                    padding-top: 4px;
-                    border-top: 1px solid #e5e7eb;
-                    font-weight: 500;
-                }}
-                
                 /* Efectos para impresión */
                 @media print {{
+                    html, body {{
+                        margin: 0 !important;
+                        padding: 0 !important;
+                    }}
+                    
                     body {{
                         background: white;
-                        padding: 0;
-                        margin: 0;
                     }}
                     
                     .sticker {{
-                        box-shadow: none;
                         border: 1px solid #e5e7eb;
+                        margin: 0;
+                        padding: 8px;
                     }}
                 }}
             </style>
@@ -801,20 +802,19 @@ class CopierCompany(models.Model):
                     Para soporte técnico, escanea el QR o contáctanos:
                 </div>
                 
-                <div class="serial-section">
-                    <div class="serial">
-                        Para soporte técnico, escanea el QR o contáctanos:
+                <div class="contacts">
+                    <div class="contact-row">
+                        <div class="contact-item">Modelo: {modelo}</div>
+                        <div class="contact-item">Serie: {serie}</div>
+                    </div>
+                    <div class="contact-row">
+                        <div class="contact-item">Correo: info@copiercompanysac.com</div>
+                        <div class="contact-item">Celular/WhatsApp: 975399303</div>
                     </div>
                 </div>
                 
-                <div class="contacts">
-                    <div class="contact-item">Modelo: {modelo}</div>
-                    <div class="contact-item">Serie: {serie}</div>
-                    <div class="contact-item">Correo: info@copiercompanysac.com</div>
-                    <div class="contact-item">Celular/WhatsApp: 975399303</div>
-                    <div class="contact-item" style="grid-column: 1 / -1; text-align: center; margin-top: 4px;">
-                        https://copiercompanysac.com
-                    </div>
+                <div class="website">
+                    https://copiercompanysac.com
                 </div>
                 
                 <div class="qr-section">
@@ -823,15 +823,21 @@ class CopierCompany(models.Model):
                         {f'<img src="data:image/png;base64,{qr_base64}" alt="QR Code">' if qr_base64 else '<div style="background: #f3f4f6; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #6b7280;">QR</div>'}
                     </div>
                 </div>
-                
-                <div class="model-section">
-                    <!-- Información movida a contacts -->
-                </div>
             </div>
         </body>
         </html>
         """
         return html_template
+
+
+
+
+
+
+
+
+
+        
 
     def _html_to_image(self, html_content):
         """Convierte HTML a imagen usando wkhtmltoimage o Playwright"""
