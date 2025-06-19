@@ -539,7 +539,7 @@ class CopierCompany(models.Model):
 
 
 
-   def _generate_modern_qr(self, size=(300, 300)):
+    def _generate_modern_qr(self, size=(300, 300)):
         """Genera un QR code moderno en alta resolución"""
         try:
             base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
