@@ -539,25 +539,28 @@ class CopierCompany(models.Model):
 
 
 
-    def _generate_modern_qr(self, size=(300, 300)):
-        """Genera un QR code moderno en alta resolución"""
+    def _generate_modern_qr(self, size=(150, 150)):
+        """Genera un QR code moderno con esquinas redondeadas"""
         try:
             base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
             
+            # Crear QR con mejor calidad
             qr = qrcode.QRCode(
                 version=1,
                 error_correction=qrcode.constants.ERROR_CORRECT_H,
-                box_size=20,
-                border=3,
+                box_size=8,
+                border=2,
             )
             qr.add_data(f"{base_url}/public/helpdesk_ticket?copier_company_id={self.id}")
             qr.make(fit=True)
             
+            # Generar imagen QR
             qr_img = qr.make_image(fill_color="#2C3E50", back_color="white")
             qr_img = qr_img.resize(size, Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.ANTIALIAS)
             
+            # Convertir a base64
             buffer = io.BytesIO()
-            qr_img.save(buffer, format='PNG', quality=100, dpi=(300, 300))
+            qr_img.save(buffer, format='PNG')
             return base64.b64encode(buffer.getvalue()).decode('utf-8')
             
         except Exception as e:
@@ -575,418 +578,379 @@ class CopierCompany(models.Model):
             _logger.error(f"Error obteniendo logo: {str(e)}")
             return None
 
-    def _get_sticker_config(self, layout='horizontal'):
-        """Configuración centralizada del sticker"""
-        config = {
-            'colors': {
-                'primary': '#1e40af',
-                'secondary': '#3b82f6', 
-                'accent': '#0ea5e9',
-                'text': '#374151',
-                'bg': '#ffffff',
-                'border': '#e5e7eb'
-            },
-            'contact': {
-                'email': 'info@copiercompanysac.com',
-                'phone': '975399303',
-                'website': 'https://copiercompanysac.com'
-            },
-            'layout': {
-                'horizontal': {
-                    'width': '1181px', 'height': '708px',  # 10x6cm @ 300 DPI
-                    'grid_areas': '"logo logo logo qr" "title title title qr" "support support support qr" "info1 info2 info3 qr" "website website website qr"',
-                    'grid_columns': '1fr 1fr 1fr 220px',
-                    'grid_rows': '120px 70px 55px 85px 50px',
-                    'qr_size': '200px'
-                },
-                'vertical': {
-                    'width': '708px', 'height': '1181px',  # 6x10cm @ 300 DPI
-                    'grid_areas': '"logo" "title" "support" "modelo" "serie" "correo" "telefono" "qr" "website"',
-                    'grid_columns': '1fr',
-                    'grid_rows': '140px 80px 60px auto auto auto auto 200px auto',
-                    'qr_size': '200px'
-                }
-            }
-        }
-        return config
-
-    def _get_sticker_css(self, layout='horizontal'):
-        """CSS modular y parametrizable"""
-        config = self._get_sticker_config(layout)
-        layout_config = config['layout'][layout]
-        colors = config['colors']
+    def _create_html_template(self, qr_base64, logo_base64, layout='horizontal'):
+        """Template HTML con alta resolución y mejor distribución"""
         
-        return f"""
-        :root {{
-            --primary: {colors['primary']};
-            --secondary: {colors['secondary']};
-            --accent: {colors['accent']};
-            --text: {colors['text']};
-            --bg: {colors['bg']};
-            --border: {colors['border']};
-            --shadow: 0 4px 12px rgba(0,0,0,0.15);
-            --radius: 12px;
-        }}
+        # Información dinámica del registro
+        serie = getattr(self, 'serie_id', None) or "____________________"
+        modelo = getattr(self.name, 'name', None) if hasattr(self, 'name') else "Modelo no especificado"
         
-        *, *::before, *::after {{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }}
-        
-        html, body {{
-            margin: 0 !important;
-            padding: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            overflow: hidden;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--bg);
-            print-color-adjust: exact;
-            -webkit-print-color-adjust: exact;
-        }}
-        
-        .sticker {{
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: {layout_config['width']};
-            height: {layout_config['height']};
-            background: var(--bg);
-            border: 3px solid var(--border);
-            border-radius: var(--radius);
-            overflow: hidden;
-            padding: 25px;
-            display: grid;
-            grid-template-areas: {layout_config['grid_areas']};
-            grid-template-columns: {layout_config['grid_columns']};
-            grid-template-rows: {layout_config['grid_rows']};
-            gap: 15px;
-            align-content: start;
-        }}
-        
-        /* Componentes base */
-        .logo-section {{
-            grid-area: logo;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }}
-        
-        .logo {{
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            border-radius: calc(var(--radius) / 2);
-            filter: drop-shadow(var(--shadow));
-        }}
-        
-        .logo-fallback {{
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            font-weight: 700;
-            font-size: 36px;
-            text-align: center;
-            width: 280px;
-            height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            letter-spacing: 2px;
-        }}
-        
-        .title-section {{
-            grid-area: title;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }}
-        
-        .title {{
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--primary);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            line-height: 1.2;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }}
-        
-        .support-section {{
-            grid-area: support;
-            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
-            border-left: 6px solid var(--accent);
-            padding: 15px 20px;
-            border-radius: calc(var(--radius) / 2);
-            font-size: 22px;
-            color: var(--text);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }}
-        
-        /* Layout horizontal */
-        .info1 {{ grid-area: info1; }}
-        .info2 {{ grid-area: info2; }}
-        .info3 {{ grid-area: info3; }}
-        
-        .info-item {{
-            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-            border-left: 5px solid var(--secondary);
-            border-radius: calc(var(--radius) / 2);
-            padding: 12px 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-        }}
-        
-        .info-label {{
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--primary);
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }}
-        
-        .info-value {{
-            font-size: 20px;
-            font-weight: 500;
-            color: var(--text);
-            line-height: 1.4;
-            word-break: break-word;
-        }}
-        
-        /* Layout vertical */
-        .modelo {{ grid-area: modelo; }}
-        .serie {{ grid-area: serie; }}
-        .correo {{ grid-area: correo; }}
-        .telefono {{ grid-area: telefono; }}
-        
-        .info-row {{
-            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-            border-left: 5px solid var(--secondary);
-            border-radius: calc(var(--radius) / 2);
-            padding: 12px 18px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-        }}
-        
-        .info-row .label {{
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--primary);
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            min-width: 100px;
-        }}
-        
-        .info-row .value {{
-            font-size: 20px;
-            font-weight: 500;
-            color: var(--text);
-            flex: 1;
-        }}
-        
-        .qr-section {{
-            grid-area: qr;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-        }}
-        
-        .qr-label {{
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        }}
-        
-        .qr-code {{
-            width: {layout_config['qr_size']};
-            height: {layout_config['qr_size']};
-            background: white;
-            border: 4px solid var(--border);
-            border-radius: var(--radius);
-            padding: 10px;
-            box-shadow: var(--shadow);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }}
-        
-        .qr-code img {{
-            width: 100%;
-            height: 100%;
-            border-radius: calc(var(--radius) / 2);
-        }}
-        
-        .website-section {{
-            grid-area: website;
-            text-align: center;
-            font-size: 22px;
-            color: var(--primary);
-            font-weight: 700;
-            padding: 12px 0;
-            border-top: 3px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            letter-spacing: 0.5px;
-        }}
-        
-        @media print {{
-            html, body {{
-                margin: 0 !important;
-                padding: 0 !important;
-                width: auto !important;
-                height: auto !important;
-            }}
-            
-            .sticker {{
-                border: 2px solid var(--border) !important;
-                box-shadow: none !important;
-                margin: 0 !important;
-                padding: 25px !important;
-            }}
-        }}
-        """
-
-    def _get_sticker_html_content(self, layout='horizontal'):
-        """Genera el contenido HTML del sticker"""
-        config = self._get_sticker_config(layout)
-        
-        # Datos dinámicos
-        modelo = getattr(self.name, 'name', 'Modelo no especificado') if hasattr(self, 'name') else 'Modelo no especificado'
-        serie = getattr(self, 'serie_id', None) or "N/A"
-        qr_base64 = self._generate_modern_qr((300, 300))
-        logo_base64 = self._get_company_logo_base64()
-        
-        # Logo section
-        logo_html = f'''
-        <div class="logo-section">
-            {f'<img class="logo" src="data:image/png;base64,{logo_base64}" alt="Logo"/>' if logo_base64 else '<div class="logo-fallback">COPIER COMPANY</div>'}
-        </div>
-        '''
-        
-        # Info section según layout
+        # Dimensiones en alta resolución (300 DPI)
         if layout == 'vertical':
-            info_html = f'''
-            <div class="modelo info-row">
-                <span class="label">Modelo:</span>
-                <span class="value">{modelo}</span>
-            </div>
-            
-            <div class="serie info-row">
-                <span class="label">Serie:</span>
-                <span class="value">{serie}</span>
-            </div>
-            
-            <div class="correo info-row">
-                <span class="label">Correo:</span>
-                <span class="value">{config['contact']['email']}</span>
-            </div>
-            
-            <div class="telefono info-row">
-                <span class="label">Teléfono:</span>
-                <span class="value">{config['contact']['phone']}</span>
-            </div>
+            width, height = "708px", "1181px"  # 6cm x 10cm a 300 DPI
+            grid_areas = '''
+                "logo"
+                "title"
+                "support"
+                "modelo"
+                "serie"  
+                "correo"
+                "telefono"
+                "website"
+                "qr"
             '''
+            grid_columns = "1fr"
+            grid_rows = "120px 60px 40px 35px 35px 35px 35px 40px 200px"
+            qr_size = "180px"
+            logo_height = "100px"
         else:
-            info_html = f'''
-            <div class="info1 info-item">
-                <div class="info-label">Modelo</div>
-                <div class="info-value">{modelo}</div>
-            </div>
-            
-            <div class="info2 info-item">
-                <div class="info-label">Serie</div>
-                <div class="info-value">{serie}</div>
-            </div>
-            
-            <div class="info3 info-item">
-                <div class="info-label">Contacto</div>
-                <div class="info-value">
-                    {config['contact']['email']}<br/>
-                    WhatsApp: {config['contact']['phone']}
-                </div>
-            </div>
+            # Layout horizontal mejorado
+            width, height = "1181px", "708px"  # 10cm x 6cm a 300 DPI
+            grid_areas = '''
+                "logo logo logo qr"
+                "title title title qr"
+                "support support support qr"
+                "info1 info2 info3 qr"
+                "website website website qr"
             '''
+            grid_columns = "1fr 1fr 1fr 200px"
+            grid_rows = "120px 60px 50px 80px 40px"
+            qr_size = "180px"
+            logo_height = "100px"
         
-        # QR section
-        qr_html = f'''
-        <div class="qr-section">
-            <div class="qr-label">Escanéame</div>
-            <div class="qr-code">
-                {f'<img src="data:image/png;base64,{qr_base64}" alt="QR Code"/>' if qr_base64 else '<div style="background: #f3f4f6; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #6b7280;">QR</div>'}
-            </div>
-        </div>
-        '''
-        
-        return f'''
-        <div class="sticker">
-            {logo_html}
-            
-            <div class="title-section">
-                <h1 class="title">ALQUILER DE FOTOCOPIADORAS</h1>
-            </div>
-            
-            <div class="support-section">
-                Para soporte técnico, escanea el QR o contáctanos:
-            </div>
-            
-            {info_html}
-            
-            <div class="website-section">
-                {config['contact']['website']}
-            </div>
-            
-            {qr_html}
-        </div>
-        '''
-
-    def _create_html_template(self, layout='horizontal'):
-        """Genera el HTML completo del sticker"""
-        css = self._get_sticker_css(layout)
-        content = self._get_sticker_html_content(layout)
-        
-        return f'''
+        html_template = f"""
         <!DOCTYPE html>
         <html lang="es">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Sticker Corporativo HD</title>
-            <style>{css}</style>
+            <style>
+                *, *::before, *::after {{
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }}
+                
+                html, body {{
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    width: 100% !important;
+                    height: 100% !important;
+                    overflow: hidden;
+                    font-family: 'Arial', 'Helvetica', sans-serif;
+                    background: white;
+                }}
+                
+                .sticker {{
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: {width};
+                    height: {height};
+                    background: white;
+                    border: 2px solid #e5e7eb;
+                    overflow: hidden;
+                    padding: 20px;
+                    display: grid;
+                    grid-template-areas: {grid_areas};
+                    grid-template-columns: {grid_columns};
+                    grid-template-rows: {grid_rows};
+                    gap: 15px;
+                    align-content: start;
+                }}
+                
+                .header-logo {{
+                    grid-area: logo;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    padding: 0;
+                    margin: 0;
+                }}
+                
+                .logo {{
+                    height: {logo_height};
+                    max-width: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }}
+                
+                .logo img {{
+                    max-width: 100%;
+                    max-height: 100%;
+                    object-fit: contain;
+                }}
+                
+                .logo-fallback {{
+                    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                    color: white;
+                    font-weight: 700;
+                    font-size: 32px;
+                    text-align: center;
+                    width: 200px;
+                    height: {logo_height};
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+                }}
+                
+                .title-section {{
+                    grid-area: title;
+                    text-align: center;
+                    margin: 0;
+                    padding: 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }}
+                
+                .title-section h2 {{
+                    font-size: 28px;
+                    font-weight: 700;
+                    color: #1e40af;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    margin: 0;
+                    padding: 0;
+                    line-height: 1.2;
+                }}
+                
+                .support-text {{
+                    grid-area: support;
+                    font-size: 20px;
+                    color: #374151;
+                    font-weight: 600;
+                    text-align: center;
+                    background: linear-gradient(90deg, #f0f9ff, #e0f2fe);
+                    padding: 12px 16px;
+                    border-radius: 8px;
+                    border-left: 6px solid #0ea5e9;
+                    margin: 0;
+                    line-height: 1.4;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }}
+                
+                /* Layout horizontal - información en columnas */
+                .info1 {{ grid-area: info1; }}
+                .info2 {{ grid-area: info2; }}
+                .info3 {{ grid-area: info3; }}
+                
+                .info-item {{
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                    font-size: 18px;
+                    color: #374151;
+                    line-height: 1.4;
+                    padding: 8px;
+                    background: #f8fafc;
+                    border-radius: 6px;
+                    border-left: 4px solid #3b82f6;
+                }}
+                
+                .info-label {{
+                    font-weight: 700;
+                    color: #1e40af;
+                    font-size: 16px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }}
+                
+                .info-value {{
+                    font-weight: 500;
+                    color: #374151;
+                    word-break: break-word;
+                }}
+                
+                /* Layout vertical - información apilada */
+                .modelo {{ grid-area: modelo; }}
+                .serie {{ grid-area: serie; }}
+                .correo {{ grid-area: correo; }}
+                .telefono {{ grid-area: telefono; }}
+                
+                .info-row {{
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    font-size: 18px;
+                    padding: 8px 12px;
+                    background: #f8fafc;
+                    border-radius: 6px;
+                    border-left: 4px solid #3b82f6;
+                }}
+                
+                .info-row .label {{
+                    font-weight: 700;
+                    color: #1e40af;
+                    min-width: 80px;
+                    text-transform: uppercase;
+                    font-size: 16px;
+                }}
+                
+                .info-row .value {{
+                    font-weight: 500;
+                    color: #374151;
+                    flex: 1;
+                }}
+                
+                .website {{
+                    grid-area: website;
+                    text-align: center;
+                    font-size: 20px;
+                    color: #1e40af;
+                    font-weight: 700;
+                    padding: 8px 0;
+                    border-top: 2px solid #e2e8f0;
+                    margin: 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }}
+                
+                .qr-section {{
+                    grid-area: qr;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 10px;
+                    padding: 0;
+                    margin: 0;
+                }}
+                
+                .qr-label {{
+                    font-size: 16px;
+                    font-weight: 700;
+                    color: #0ea5e9;
+                    text-align: center;
+                    margin: 0;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                }}
+                
+                .qr-code {{
+                    width: {qr_size};
+                    height: {qr_size};
+                    border-radius: 12px;
+                    overflow: hidden;
+                    background: white;
+                    padding: 8px;
+                    border: 3px solid #e2e8f0;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                }}
+                
+                .qr-code img {{
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 8px;
+                }}
+                
+                @media print {{
+                    html, body {{
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        width: auto !important;
+                        height: auto !important;
+                    }}
+                    
+                    .sticker {{
+                        border: 1px solid #e5e7eb !important;
+                        box-shadow: none !important;
+                        margin: 0 !important;
+                        padding: 20px !important;
+                    }}
+                }}
+            </style>
         </head>
         <body>
-            {content}
+            <div class="sticker">
+                <div class="header-logo">
+                    <div class="logo">
+                        {f'<img src="data:image/png;base64,{logo_base64}" alt="Logo">' if logo_base64 else '<div class="logo-fallback">COPIER COMPANY</div>'}
+                    </div>
+                </div>
+                
+                <div class="title-section">
+                    <h2>ALQUILER DE FOTOCOPIADORAS</h2>
+                </div>
+                
+                <div class="support-text">
+                    Para soporte técnico, escanea el QR o contáctanos:
+                </div>
+                
+                {f'''
+                <!-- Layout Vertical -->
+                <div class="modelo info-row">
+                    <span class="label">Modelo:</span>
+                    <span class="value">{modelo}</span>
+                </div>
+                
+                <div class="serie info-row">
+                    <span class="label">Serie:</span>
+                    <span class="value">{serie}</span>
+                </div>
+                
+                <div class="correo info-row">
+                    <span class="label">Correo:</span>
+                    <span class="value">info@copiercompanysac.com</span>
+                </div>
+                
+                <div class="telefono info-row">
+                    <span class="label">Teléfono:</span>
+                    <span class="value">975399303</span>
+                </div>
+                ''' if layout == 'vertical' else f'''
+                <!-- Layout Horizontal -->
+                <div class="info1 info-item">
+                    <div class="info-label">Modelo</div>
+                    <div class="info-value">{modelo}</div>
+                </div>
+                
+                <div class="info2 info-item">
+                    <div class="info-label">Serie</div>
+                    <div class="info-value">{serie}</div>
+                </div>
+                
+                <div class="info3 info-item">
+                    <div class="info-label">Contacto</div>
+                    <div class="info-value">
+                        info@copiercompanysac.com<br>
+                        WhatsApp: 975399303
+                    </div>
+                </div>
+                '''}
+                
+                <div class="website">
+                    https://copiercompanysac.com
+                </div>
+                
+                <div class="qr-section">
+                    <div class="qr-label">Escanéame</div>
+                    <div class="qr-code">
+                        {f'<img src="data:image/png;base64,{qr_base64}" alt="QR Code">' if qr_base64 else '<div style="background: #f3f4f6; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #6b7280;">QR</div>'}
+                    </div>
+                </div>
+            </div>
         </body>
         </html>
-        '''
+        """
+        return html_template
 
     def _html_to_image(self, html_content, layout='horizontal'):
-        """Conversión HTML a imagen con múltiples métodos"""
-        config = self._get_sticker_config(layout)
-        layout_config = config['layout'][layout]
-        
-        # Extraer dimensiones numéricas
-        width = layout_config['width'].replace('px', '')
-        height = layout_config['height'].replace('px', '')
-        
+        """Conversión con resolución mejorada"""
         try:
+            # Dimensiones según layout
+            if layout == 'vertical':
+                width, height = '708', '1181'  # 6x10cm a 300 DPI
+            else:
+                width, height = '1181', '708'  # 10x6cm a 300 DPI
+                
             with tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False) as html_file:
                 html_file.write(html_content)
                 html_file.flush()
@@ -1008,7 +972,7 @@ class CopierCompany(models.Model):
                         '--crop-x', '0',
                         '--crop-y', '0',
                         '--enable-local-file-access',
-                        '--dpi', '300',
+                        '--dpi', '300',  # Alta resolución
                         html_file.name,
                         img_file.name
                     ]
@@ -1023,7 +987,7 @@ class CopierCompany(models.Model):
                         
         except Exception as e:
             _logger.warning(f"wkhtmltoimage failed: {str(e)}, using fallback")
-            return self._fallback_pil_method(layout)
+            return self._fallback_html_to_image(html_content, layout)
         finally:
             try:
                 os.unlink(html_file.name)
@@ -1031,19 +995,169 @@ class CopierCompany(models.Model):
             except:
                 pass
 
-    def _fallback_pil_method(self, layout='horizontal'):
-        """Método fallback simple con PIL"""
-        # Tu código PIL existente aquí...
-        pass
+    def _chrome_headless_method(self, html_content):
+        """Método alternativo usando Chrome headless"""
+        try:
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False) as html_file:
+                html_file.write(html_content)
+                html_file.flush()
+                
+                with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as img_file:
+                    cmd = [
+                        'google-chrome', '--headless', '--disable-gpu',
+                        '--window-size=378,227',
+                        '--hide-scrollbars',
+                        '--disable-web-security',
+                        '--run-all-compositor-stages-before-draw',
+                        f'--screenshot={img_file.name}',
+                        f'file://{html_file.name}'
+                    ]
+                    
+                    result = subprocess.run(cmd, capture_output=True, text=True)
+                    
+                    if result.returncode == 0 and os.path.exists(img_file.name):
+                        with open(img_file.name, 'rb') as f:
+                            return base64.b64encode(f.read())
+                    else:
+                        raise Exception(f"Chrome headless error: {result.stderr}")
+                        
+        except Exception as e:
+            _logger.warning(f"Chrome headless failed: {str(e)}, using fallback PIL method")
+            return self._fallback_html_to_image(html_content)
+        finally:
+            try:
+                os.unlink(html_file.name)
+                os.unlink(img_file.name)
+            except:
+                pass
+
+    def _fallback_html_to_image(self, html_content):
+        """Método alternativo usando PIL para crear la imagen"""
+        try:
+            # Información dinámica del registro
+            serie = getattr(self, 'serie_id', None) or "____________________"
+            modelo = getattr(self.name, 'name', None) if hasattr(self, 'name') else "Modelo no especificado"
+            
+            # Crear imagen base con dimensiones exactas
+            width, height = 378, 227  # 10cm x 6cm a 96 DPI
+            
+            img = Image.new('RGB', (width, height), '#ffffff')
+            draw = ImageDraw.Draw(img)
+            
+            # Intentar cargar fuentes
+            try:
+                font_title = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 14)
+                font_normal = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 10)
+                font_small = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 8)
+            except:
+                font_title = font_normal = font_small = ImageFont.load_default()
+            
+            # Colores
+            primary_color = '#1e40af'
+            text_color = '#374151'
+            
+            # Logo en la parte superior izquierda
+            logo_y = 8
+            logo_size = 40
+            logo_x = 20
+            
+            logo_base64 = self._get_company_logo_base64()
+            if logo_base64:
+                try:
+                    logo_data = base64.b64decode(logo_base64)
+                    logo_img = Image.open(io.BytesIO(logo_data))
+                    logo_img = logo_img.resize((logo_size*2, logo_size), Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.ANTIALIAS)
+                    
+                    if logo_img.mode == 'RGBA':
+                        img.paste(logo_img, (logo_x, logo_y), logo_img)
+                    else:
+                        img.paste(logo_img, (logo_x, logo_y))
+                except:
+                    # Fallback: dibujar rectángulo como logo
+                    draw.rectangle([logo_x, logo_y, logo_x+logo_size*2, logo_y+logo_size], fill=primary_color)
+                    draw.text((logo_x+logo_size, logo_y+logo_size//2), "CC", fill='white', font=font_title, anchor="mm")
+            else:
+                # Fallback: dibujar rectángulo como logo
+                draw.rectangle([logo_x, logo_y, logo_x+logo_size*2, logo_y+logo_size], fill=primary_color)
+                draw.text((logo_x+logo_size, logo_y+logo_size//2), "CC", fill='white', font=font_title, anchor="mm")
+            
+            # Título
+            y = logo_y + logo_size + 10
+            title_text = "ALQUILER DE FOTOCOPIADORAS"
+            draw.text((20, y), title_text, fill=primary_color, font=font_title)
+            
+            # Texto de soporte
+            y += 25
+            support_text = "Para soporte técnico, escanea el QR o contáctanos:"
+            draw.rectangle([20, y-2, 250, y+15], fill='#f0f9ff', outline='#e0f2fe')
+            draw.rectangle([20, y-2, 23, y+15], fill='#0ea5e9')
+            draw.text((25, y), support_text, fill=text_color, font=font_small)
+            
+            # Contactos
+            y += 25
+            contacts = [
+                f"Modelo: {modelo}",
+                f"Serie: {serie}",
+                "Correo: info@copiercompanysac.com",
+                "Celular/WhatsApp: 975399303"
+            ]
+            
+            for i, contact in enumerate(contacts):
+                x_pos = 20 + (i % 2) * 120
+                y_pos = y + (i // 2) * 15
+                draw.text((x_pos, y_pos), contact, fill=text_color, font=font_small)
+            
+            # Website
+            y += 40
+            web_text = "https://copiercompanysac.com"
+            draw.text((20, y), web_text, fill=primary_color, font=font_small)
+            
+            # QR Code
+            qr_size = 100
+            qr_x = width - qr_size - 10
+            qr_y = 20
+            
+            qr_base64 = self._generate_modern_qr((qr_size, qr_size))
+            if qr_base64:
+                try:
+                    qr_data = base64.b64decode(qr_base64)
+                    qr_img = Image.open(io.BytesIO(qr_data))
+                    
+                    # Fondo blanco para el QR
+                    draw.rectangle([qr_x-2, qr_y-2, qr_x+qr_size+2, qr_y+qr_size+2], 
+                                 fill='white', outline='#e2e8f0', width=1)
+                    
+                    img.paste(qr_img, (qr_x, qr_y))
+                    
+                    # Etiqueta "Escanéame"
+                    draw.text((qr_x + qr_size//2, qr_y - 15), "Escanéame", 
+                             fill=primary_color, font=font_small, anchor="mm")
+                except Exception as e:
+                    _logger.error(f"Error agregando QR: {str(e)}")
+            
+            # Convertir a base64
+            buffer = io.BytesIO()
+            img.save(buffer, format='PNG', quality=95)
+            return base64.b64encode(buffer.getvalue())
+            
+        except Exception as e:
+            _logger.error(f"Error en fallback method: {str(e)}")
+            raise UserError(f"Error generando sticker con PIL: {str(e)}")
 
     def generar_sticker_corporativo(self, layout='horizontal'):
-        """Método principal para generar stickers"""
+        """Genera sticker en alta resolución"""
         try:
             for record in self:
-                # Generar HTML completo
-                html_content = record._create_html_template(layout)
+                # QR de alta resolución
+                qr_base64 = record._generate_modern_qr((300, 300))
                 
-                # Convertir a imagen
+                # Logo de la compañía
+                logo_base64 = record._get_company_logo_base64()
+                
+                # HTML en alta resolución
+                html_content = record._create_html_template(qr_base64, logo_base64, layout)
+                
+                # Convertir con alta resolución
                 image_base64 = record._html_to_image(html_content, layout)
                 
                 # Guardar
@@ -1051,12 +1165,12 @@ class CopierCompany(models.Model):
                 
                 orientation = "vertical (6x10cm)" if layout == 'vertical' else "horizontal (10x6cm)"
                 record.message_post(
-                    body=f"✅ Sticker corporativo {orientation} generado en HD (300 DPI)",
+                    body=f"✅ Sticker HD {orientation} generado (300 DPI)",
                     message_type='notification'
                 )
                 
         except Exception as e:
-            _logger.error(f"Error generando sticker: {str(e)}")
+            _logger.error(f"Error generando sticker HD: {str(e)}")
             raise UserError(f"Error al generar el sticker: {str(e)}")
         
         return {
@@ -1064,18 +1178,16 @@ class CopierCompany(models.Model):
             'tag': 'display_notification',
             'params': {
                 'title': 'Éxito',
-                'message': 'Sticker corporativo generado correctamente',
+                'message': 'Sticker corporativo HD generado correctamente',
                 'type': 'success',
                 'sticky': False,
             }
         }
 
-    # Métodos de conveniencia
-    def generar_sticker_horizontal(self):
-        return self.generar_sticker_corporativo('horizontal')
-    
-    def generar_sticker_vertical(self):
-        return self.generar_sticker_corporativo('vertical')
+
+
+
+
 
 
 
