@@ -613,7 +613,7 @@ class CopierCompany(models.Model):
                     border-radius: 8px;
                     position: relative;
                     overflow: hidden;
-                    padding: 12px;
+                    padding: 8px 12px 12px 12px;
                     display: grid;
                     grid-template-areas: 
                         "logo logo qr"
@@ -624,15 +624,16 @@ class CopierCompany(models.Model):
                         "modelo modelo qr";
                     grid-template-columns: 1fr 1fr 140px;
                     grid-template-rows: 80px auto auto auto 1fr auto;
-                    gap: 6px;
+                    gap: 4px;
                 }}
                 
                 .header-logo {{
                     grid-area: logo;
                     display: flex;
                     justify-content: center;
-                    align-items: center;
-                    margin-bottom: 8px;
+                    align-items: flex-start;
+                    margin-top: 0;
+                    padding-top: 0;
                 }}
                 
                 .logo {{
@@ -900,8 +901,8 @@ class CopierCompany(models.Model):
             accent_color = '#3b82f6'
             text_color = '#374151'
             
-            # Logo centrado en la parte superior (2.5 veces más grande)
-            logo_y = 20
+            # Logo centrado en la parte superior (sin margen superior)
+            logo_y = 8  # Empezar desde arriba
             logo_size = 175  # 70 * 2.5 = 175px
             logo_x = width // 2 - logo_size // 2  # Centrar logo
             
