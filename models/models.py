@@ -8,6 +8,8 @@ import io
 from dateutil import tz
 from datetime import datetime
 from PIL import Image
+from PIL import ImageDraw, ImageFont
+import textwrap
 import os
 import re
 import requests
