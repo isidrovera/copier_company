@@ -540,7 +540,7 @@ class CopierCompany(models.Model):
 
 
     def _fallback_html_to_image(self, html_content, layout='horizontal'):
-        """Método alternativo usando PIL - Diseño limpio tipo Canon"""
+        """Método alternativo usando PIL - Diseño profesional equilibrado"""
         try:
             # Información dinámica del registro
             serie = getattr(self, 'serie_id', None) or "____________________"
@@ -557,26 +557,27 @@ class CopierCompany(models.Model):
             
             # Cargar fuentes con tamaños proporcionales a la alta resolución
             try:
-                font_title = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 36)
-                font_subtitle = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 28)
-                font_normal = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
-                font_small = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 20)
+                font_title = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 32)
+                font_subtitle = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 24)
+                font_normal = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 20)
+                font_small = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 18)
             except:
                 font_title = font_subtitle = font_normal = font_small = ImageFont.load_default()
             
             # Colores
             primary_color = '#1e40af'
             text_color = '#374151'
-            light_blue = '#dbeafe'
+            light_blue = '#e0f2fe'
             border_color = '#3b82f6'
             
             if layout == 'horizontal':
-                # === DISEÑO HORIZONTAL TIPO CANON ===
-                margin = 30
+                # === DISEÑO HORIZONTAL PROFESIONAL ===
+                margin = 25
                 
+                # === HEADER SECTION ===
                 # LOGO - Esquina superior izquierda
-                logo_width = 200
-                logo_height = 80
+                logo_width = 180
+                logo_height = 60
                 logo_x = margin
                 logo_y = margin
                 
@@ -592,86 +593,88 @@ class CopierCompany(models.Model):
                         else:
                             img.paste(logo_img, (logo_x, logo_y))
                     except:
-                        # Fallback: texto simple
-                        draw.text((logo_x, logo_y), "COPIER COMPANY", fill=primary_color, font=font_subtitle)
+                        # Fallback: logo simple
+                        draw.rectangle([logo_x, logo_y, logo_x+logo_width, logo_y+logo_height], fill=primary_color, outline=None)
+                        draw.text((logo_x+logo_width//2, logo_y+logo_height//2), "COPIER COMPANY", fill='white', font=font_small, anchor="mm")
                 else:
-                    # Fallback: texto simple
-                    draw.text((logo_x, logo_y), "COPIER COMPANY", fill=primary_color, font=font_subtitle)
+                    # Fallback: logo simple
+                    draw.rectangle([logo_x, logo_y, logo_x+logo_width, logo_y+logo_height], fill=primary_color, outline=None)
+                    draw.text((logo_x+logo_width//2, logo_y+logo_height//2), "COPIER COMPANY", fill='white', font=font_small, anchor="mm")
                 
-                # TÍTULO PRINCIPAL - Centrado arriba
-                title_y = margin + 10
-                draw.text((width//2, title_y), "ALQUILER DE FOTOCOPIADORAS", fill=primary_color, font=font_title, anchor="mt")
+                # TÍTULO PRINCIPAL - Centrado en header
+                title_start_x = logo_x + logo_width + 40
+                title_end_x = width - 250  # Dejar espacio para QR
+                title_center_x = (title_start_x + title_end_x) // 2
+                title_y = margin + 15
                 
-                # LÍNEA SEPARADORA
-                line_y = title_y + 50
-                draw.rectangle([margin, line_y, width-margin, line_y + 2], fill=border_color)
+                draw.text((title_center_x, title_y), "ALQUILER DE FOTOCOPIADORAS", fill=primary_color, font=font_title, anchor="mt")
                 
-                # === INFORMACIÓN EN COLUMNAS ===
-                content_start_y = line_y + 30
-                col_width = (width - 3*margin) // 2  # Dividir en 2 columnas principales
+                # LÍNEA SEPARADORA COMPLETA
+                line_y = margin + logo_height + 20
+                draw.rectangle([margin, line_y, width-margin, line_y + 3], fill=border_color)
                 
-                # COLUMNA IZQUIERDA - Información del equipo
-                left_col_x = margin
-                info_y = content_start_y
+                # === QR CODE - Esquina superior derecha ===
+                qr_size = 160
+                qr_x = width - qr_size - margin
+                qr_y = margin
+                
+                # Etiqueta QR
+                draw.text((qr_x + qr_size//2, qr_y - 22), "ESCANÉAME", fill='#0ea5e9', font=font_small, anchor="mm")
+                
+                # === CONTENIDO PRINCIPAL ===
+                content_y = line_y + 30
+                left_content_width = width - qr_size - 3*margin - 20
+                
+                # INFORMACIÓN DEL EQUIPO - Sin cajas, texto directo
+                info_y = content_y
                 
                 # MODELO
-                draw.text((left_col_x, info_y), "MODELO:", fill=primary_color, font=font_small)
-                draw.text((left_col_x, info_y + 25), modelo, fill=text_color, font=font_normal)
+                draw.text((margin, info_y), "MODELO:", fill=primary_color, font=font_subtitle)
+                draw.text((margin, info_y + 28), modelo, fill=text_color, font=font_normal)
                 
-                # SERIE  
-                info_y += 70
-                draw.text((left_col_x, info_y), "SERIE:", fill=primary_color, font=font_small)
-                draw.text((left_col_x, info_y + 25), str(serie), fill=text_color, font=font_normal)
+                # SERIE
+                info_y += 80
+                draw.text((margin, info_y), "SERIE:", fill=primary_color, font=font_subtitle)
+                draw.text((margin, info_y + 28), str(serie), fill=text_color, font=font_normal)
                 
-                # === SECCIÓN DE CONTACTO CENTRAL ===
-                contact_y = content_start_y + 150
-                contact_width = width - 2*margin - 250  # Dejar espacio para QR
-                
-                # Título de soporte
+                # === SECCIÓN DE CONTACTO ===
+                contact_y = info_y + 80
                 draw.text((margin, contact_y), "PARA SOPORTE TÉCNICO:", fill=primary_color, font=font_subtitle)
-                contact_y += 40
                 
-                # Cajas de contacto estilo Canon
-                box_height = 35
-                box_spacing = 10
+                contact_y += 40
+                box_height = 32
+                box_spacing = 8
+                box_width = left_content_width
                 
                 # EMAIL
-                email_box = [margin, contact_y, margin + contact_width, contact_y + box_height]
+                email_box = [margin, contact_y, margin + box_width, contact_y + box_height]
                 draw.rectangle(email_box, fill=light_blue, outline=border_color, width=2)
-                draw.text((margin + 10, contact_y + 5), "EMAIL:", fill=primary_color, font=font_small)
-                draw.text((margin + 10, contact_y + 20), "info@copiercompanysac.com", fill=text_color, font=font_small)
+                draw.text((margin + 12, contact_y + 6), "EMAIL:", fill=primary_color, font=font_small)
+                draw.text((margin + 12, contact_y + 20), "info@copiercompanysac.com", fill=text_color, font=font_small)
                 
                 contact_y += box_height + box_spacing
                 
                 # WHATSAPP
-                whatsapp_box = [margin, contact_y, margin + contact_width, contact_y + box_height]
+                whatsapp_box = [margin, contact_y, margin + box_width, contact_y + box_height]
                 draw.rectangle(whatsapp_box, fill=light_blue, outline=border_color, width=2)
-                draw.text((margin + 10, contact_y + 5), "WHATSAPP:", fill=primary_color, font=font_small)
-                draw.text((margin + 10, contact_y + 20), "975399303", fill=text_color, font=font_small)
+                draw.text((margin + 12, contact_y + 6), "WHATSAPP:", fill=primary_color, font=font_small)
+                draw.text((margin + 12, contact_y + 20), "975399303", fill=text_color, font=font_small)
                 
                 contact_y += box_height + box_spacing
                 
                 # WEBSITE
-                website_box = [margin, contact_y, margin + contact_width, contact_y + box_height]
+                website_box = [margin, contact_y, margin + box_width, contact_y + box_height]
                 draw.rectangle(website_box, fill=light_blue, outline=border_color, width=2)
-                draw.text((margin + 10, contact_y + 5), "WEBSITE:", fill=primary_color, font=font_small)
-                draw.text((margin + 10, contact_y + 20), "copiercompanysac.com", fill=text_color, font=font_small)
-                
-                # === QR CODE - Esquina superior derecha ===
-                qr_size = 200
-                qr_x = width - qr_size - margin
-                qr_y = content_start_y
-                
-                # Etiqueta QR
-                draw.text((qr_x + qr_size//2, qr_y - 25), "ESCANÉAME", fill='#0ea5e9', font=font_small, anchor="mm")
+                draw.text((margin + 12, contact_y + 6), "WEBSITE:", fill=primary_color, font=font_small)
+                draw.text((margin + 12, contact_y + 20), "copiercompanysac.com", fill=text_color, font=font_small)
                 
             else:
                 # === DISEÑO VERTICAL ===
                 margin = 30
                 
                 # LOGO - Centrado arriba
-                logo_width = 300
-                logo_height = 100
+                logo_width = 250
+                logo_height = 80
                 logo_x = (width - logo_width) // 2
                 logo_y = margin
                 
@@ -687,71 +690,68 @@ class CopierCompany(models.Model):
                         else:
                             img.paste(logo_img, (logo_x, logo_y))
                     except:
-                        draw.text((width//2, logo_y + logo_height//2), "COPIER COMPANY", fill=primary_color, font=font_subtitle, anchor="mm")
+                        draw.rectangle([logo_x, logo_y, logo_x+logo_width, logo_y+logo_height], fill=primary_color)
+                        draw.text((logo_x+logo_width//2, logo_y+logo_height//2), "COPIER COMPANY", fill='white', font=font_subtitle, anchor="mm")
                 else:
-                    draw.text((width//2, logo_y + logo_height//2), "COPIER COMPANY", fill=primary_color, font=font_subtitle, anchor="mm")
+                    draw.rectangle([logo_x, logo_y, logo_x+logo_width, logo_y+logo_height], fill=primary_color)
+                    draw.text((logo_x+logo_width//2, logo_y+logo_height//2), "COPIER COMPANY", fill='white', font=font_subtitle, anchor="mm")
                 
                 # TÍTULO
-                title_y = logo_y + logo_height + 30
-                draw.text((width//2, title_y), "ALQUILER DE", fill=primary_color, font=font_title, anchor="mm")
-                draw.text((width//2, title_y + 40), "FOTOCOPIADORAS", fill=primary_color, font=font_title, anchor="mm")
+                title_y = logo_y + logo_height + 25
+                draw.text((width//2, title_y), "ALQUILER DE FOTOCOPIADORAS", fill=primary_color, font=font_title, anchor="mm")
                 
                 # LÍNEA SEPARADORA
-                line_y = title_y + 90
-                draw.rectangle([margin, line_y, width-margin, line_y + 2], fill=border_color)
+                line_y = title_y + 40
+                draw.rectangle([margin, line_y, width-margin, line_y + 3], fill=border_color)
                 
                 # INFORMACIÓN DEL EQUIPO
                 info_y = line_y + 40
-                box_width = width - 2*margin
-                box_height = 50
                 
                 # MODELO
-                model_box = [margin, info_y, margin + box_width, info_y + box_height]
-                draw.rectangle(model_box, fill=light_blue, outline=border_color, width=2)
-                draw.text((margin + 15, info_y + 10), "MODELO:", fill=primary_color, font=font_small)
-                draw.text((margin + 15, info_y + 30), modelo, fill=text_color, font=font_normal)
+                draw.text((margin, info_y), "MODELO:", fill=primary_color, font=font_subtitle)
+                draw.text((margin, info_y + 30), modelo, fill=text_color, font=font_normal)
                 
-                info_y += box_height + 15
+                info_y += 80
                 
                 # SERIE
-                serie_box = [margin, info_y, margin + box_width, info_y + box_height]
-                draw.rectangle(serie_box, fill=light_blue, outline=border_color, width=2)
-                draw.text((margin + 15, info_y + 10), "SERIE:", fill=primary_color, font=font_small)
-                draw.text((margin + 15, info_y + 30), str(serie), fill=text_color, font=font_normal)
+                draw.text((margin, info_y), "SERIE:", fill=primary_color, font=font_subtitle)
+                draw.text((margin, info_y + 30), str(serie), fill=text_color, font=font_normal)
                 
                 # SOPORTE TÉCNICO
-                info_y += box_height + 40
+                info_y += 100
                 draw.text((width//2, info_y), "PARA SOPORTE TÉCNICO:", fill=primary_color, font=font_subtitle, anchor="mm")
                 
                 info_y += 40
-                contact_box_height = 40
+                box_width = width - 2*margin
+                box_height = 35
+                box_spacing = 12
                 
                 # EMAIL
-                email_box = [margin, info_y, margin + box_width, info_y + contact_box_height]
+                email_box = [margin, info_y, margin + box_width, info_y + box_height]
                 draw.rectangle(email_box, fill=light_blue, outline=border_color, width=2)
                 draw.text((width//2, info_y + 8), "EMAIL", fill=primary_color, font=font_small, anchor="mm")
-                draw.text((width//2, info_y + 25), "info@copiercompanysac.com", fill=text_color, font=font_small, anchor="mm")
+                draw.text((width//2, info_y + 23), "info@copiercompanysac.com", fill=text_color, font=font_small, anchor="mm")
                 
-                info_y += contact_box_height + 10
+                info_y += box_height + box_spacing
                 
                 # WHATSAPP
-                whatsapp_box = [margin, info_y, margin + box_width, info_y + contact_box_height]
+                whatsapp_box = [margin, info_y, margin + box_width, info_y + box_height]
                 draw.rectangle(whatsapp_box, fill=light_blue, outline=border_color, width=2)
                 draw.text((width//2, info_y + 8), "WHATSAPP", fill=primary_color, font=font_small, anchor="mm")
-                draw.text((width//2, info_y + 25), "975399303", fill=text_color, font=font_small, anchor="mm")
+                draw.text((width//2, info_y + 23), "975399303", fill=text_color, font=font_small, anchor="mm")
                 
-                info_y += contact_box_height + 10
+                info_y += box_height + box_spacing
                 
                 # WEBSITE
-                website_box = [margin, info_y, margin + box_width, info_y + contact_box_height]
+                website_box = [margin, info_y, margin + box_width, info_y + box_height]
                 draw.rectangle(website_box, fill=light_blue, outline=border_color, width=2)
                 draw.text((width//2, info_y + 8), "WEBSITE", fill=primary_color, font=font_small, anchor="mm")
-                draw.text((width//2, info_y + 25), "copiercompanysac.com", fill=text_color, font=font_small, anchor="mm")
+                draw.text((width//2, info_y + 23), "copiercompanysac.com", fill=text_color, font=font_small, anchor="mm")
                 
-                # QR CODE - Al final
-                qr_size = 180
+                # QR CODE - Al final centrado
+                qr_size = 150
                 qr_x = (width - qr_size) // 2
-                qr_y = height - qr_size - 80
+                qr_y = height - qr_size - 60
                 
                 # Etiqueta QR
                 draw.text((width//2, qr_y - 25), "ESCANÉAME", fill='#0ea5e9', font=font_small, anchor="mm")
@@ -763,8 +763,8 @@ class CopierCompany(models.Model):
                     qr_data = base64.b64decode(qr_base64)
                     qr_img = Image.open(io.BytesIO(qr_data))
                     
-                    # Marco blanco para el QR
-                    frame_size = 8
+                    # Marco para el QR
+                    frame_size = 6
                     draw.rectangle([qr_x - frame_size, qr_y - frame_size, 
                                 qr_x + qr_size + frame_size, qr_y + qr_size + frame_size], 
                                 fill='white', outline='#d1d5db', width=2)
@@ -788,6 +788,235 @@ class CopierCompany(models.Model):
         except Exception as e:
             _logger.error(f"Error en fallback method: {str(e)}")
             raise UserError(f"Error generando sticker con PIL: {str(e)}")
+
+
+    def _create_html_template(self, qr_base64, logo_base64, layout='horizontal'):
+        """Template HTML profesional y equilibrado"""
+        
+        # Información dinámica del registro
+        serie = getattr(self, 'serie_id', None) or "____________________"
+        modelo = getattr(self.name, 'name', None) if hasattr(self, 'name') else "Modelo no especificado"
+        
+        # Dimensiones en alta resolución (300 DPI)
+        if layout == 'vertical':
+            width, height = "708px", "1181px"
+        else:
+            width, height = "1181px", "708px"
+        
+        html_template = f"""
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Sticker Corporativo</title>
+            <style>
+                * {{
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }}
+                
+                body {{
+                    width: {width};
+                    height: {height};
+                    font-family: 'Arial', sans-serif;
+                    background: white;
+                    overflow: hidden;
+                    position: relative;
+                    padding: 25px;
+                }}
+                
+                .header {{
+                    display: flex;
+                    {"flex-direction: column; align-items: center; text-align: center;" if layout == 'vertical' else "justify-content: space-between; align-items: flex-start;"}
+                    margin-bottom: 20px;
+                    position: relative;
+                }}
+                
+                .logo {{
+                    {"width: 250px; height: 80px; margin-bottom: 25px;" if layout == 'vertical' else "width: 180px; height: 60px;"}
+                    background: linear-gradient(135deg, #1e40af, #3b82f6);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 6px;
+                    flex-shrink: 0;
+                }}
+                
+                .logo img {{
+                    max-width: 100%;
+                    max-height: 100%;
+                    object-fit: contain;
+                }}
+                
+                .logo-text {{
+                    color: white;
+                    font-size: {"20px" if layout == 'vertical' else "16px"};
+                    font-weight: bold;
+                    text-align: center;
+                }}
+                
+                .title {{
+                    color: #1e40af;
+                    font-size: {"32px" if layout == 'vertical' else "28px"};
+                    font-weight: bold;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    {"margin-bottom: 20px;" if layout == 'vertical' else "flex-grow: 1; text-align: center; margin: 0 40px; padding-top: 10px;"}
+                }}
+                
+                .qr-section {{
+                    {"text-align: center; margin-top: 40px;" if layout == 'vertical' else "position: absolute; top: 0; right: 0; text-align: center;"}
+                }}
+                
+                .qr-label {{
+                    color: #0ea5e9;
+                    font-size: 14px;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                    margin-bottom: 8px;
+                }}
+                
+                .qr-code {{
+                    {"width: 150px; height: 150px;" if layout == 'vertical' else "width: 160px; height: 160px;"}
+                    background: white;
+                    border: 2px solid #d1d5db;
+                    border-radius: 6px;
+                    padding: 6px;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+                    margin: 0 auto;
+                }}
+                
+                .qr-code img {{
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 3px;
+                }}
+                
+                .divider {{
+                    width: 100%;
+                    height: 3px;
+                    background: #3b82f6;
+                    margin: 20px 0 30px 0;
+                }}
+                
+                .content {{
+                    {"" if layout == 'vertical' else "margin-right: 200px;"}
+                }}
+                
+                .equipment-info {{
+                    margin-bottom: 40px;
+                }}
+                
+                .info-group {{
+                    margin-bottom: 35px;
+                }}
+                
+                .info-label {{
+                    color: #1e40af;
+                    font-size: {"20px" if layout == 'vertical' else "18px"};
+                    font-weight: bold;
+                    text-transform: uppercase;
+                    margin-bottom: 8px;
+                }}
+                
+                .info-value {{
+                    color: #374151;
+                    font-size: {"24px" if layout == 'vertical' else "20px"};
+                    font-weight: normal;
+                    line-height: 1.3;
+                }}
+                
+                .contact-section {{
+                    margin-top: 30px;
+                }}
+                
+                .contact-title {{
+                    color: #1e40af;
+                    font-size: {"20px" if layout == 'vertical' else "18px"};
+                    font-weight: bold;
+                    margin-bottom: 20px;
+                    text-transform: uppercase;
+                }}
+                
+                .contact-item {{
+                    background: #e0f2fe;
+                    border: 2px solid #3b82f6;
+                    padding: 8px 12px;
+                    margin-bottom: 8px;
+                    border-radius: 4px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2px;
+                }}
+                
+                .contact-type {{
+                    color: #1e40af;
+                    font-size: 14px;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                }}
+                
+                .contact-value {{
+                    color: #374151;
+                    font-size: 16px;
+                    font-weight: normal;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <div class="logo">
+                    {f'<img src="data:image/png;base64,{logo_base64}" alt="Logo">' if logo_base64 else '<div class="logo-text">COPIER COMPANY</div>'}
+                </div>
+                <div class="title">Alquiler de Fotocopiadoras</div>
+                <div class="qr-section">
+                    <div class="qr-label">Escanéame</div>
+                    <div class="qr-code">
+                        {f'<img src="data:image/png;base64,{qr_base64}" alt="QR Code">' if qr_base64 else '<div style="background: #f3f4f6; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #6b7280; border-radius: 3px;">QR CODE</div>'}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div class="content">
+                <div class="equipment-info">
+                    <div class="info-group">
+                        <div class="info-label">Modelo:</div>
+                        <div class="info-value">{modelo}</div>
+                    </div>
+                    
+                    <div class="info-group">
+                        <div class="info-label">Serie:</div>
+                        <div class="info-value">{serie}</div>
+                    </div>
+                </div>
+                
+                <div class="contact-section">
+                    <div class="contact-title">Para Soporte Técnico:</div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-type">Email</div>
+                        <div class="contact-value">info@copiercompanysac.com</div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-type">WhatsApp</div>
+                        <div class="contact-value">975399303</div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-type">Website</div>
+                        <div class="contact-value">copiercompanysac.com</div>
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        return html_template
 
 
     def _chrome_headless_method(self, html_content, layout='horizontal'):
@@ -875,237 +1104,6 @@ class CopierCompany(models.Model):
             return None
 
 
-    def _create_html_template(self, qr_base64, logo_base64, layout='horizontal'):
-        """Template HTML limpio estilo Canon"""
-        
-        # Información dinámica del registro
-        serie = getattr(self, 'serie_id', None) or "____________________"
-        modelo = getattr(self.name, 'name', None) if hasattr(self, 'name') else "Modelo no especificado"
-        
-        # Dimensiones en alta resolución (300 DPI)
-        if layout == 'vertical':
-            width, height = "708px", "1181px"
-        else:
-            width, height = "1181px", "708px"
-        
-        html_template = f"""
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Sticker Corporativo</title>
-            <style>
-                * {{
-                    margin: 0;
-                    padding: 0;
-                    box-sizing: border-box;
-                }}
-                
-                body {{
-                    width: {width};
-                    height: {height};
-                    font-family: 'Arial', sans-serif;
-                    background: white;
-                    overflow: hidden;
-                    position: relative;
-                }}
-                
-                .container {{
-                    width: 100%;
-                    height: 100%;
-                    padding: 30px;
-                    {"display: flex; flex-direction: column;" if layout == 'vertical' else "display: grid; grid-template-columns: 1fr 1fr 250px; grid-template-rows: auto 1fr;"}
-                }}
-                
-                .header {{
-                    {"text-align: center; margin-bottom: 20px;" if layout == 'vertical' else "grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;"}
-                }}
-                
-                .logo {{
-                    {"width: 300px; height: 100px; margin: 0 auto 20px;" if layout == 'vertical' else "width: 200px; height: 80px;"}
-                    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    border-radius: 8px;
-                }}
-                
-                .logo img {{
-                    max-width: 100%;
-                    max-height: 100%;
-                    object-fit: contain;
-                }}
-                
-                .logo-text {{
-                    color: white;
-                    font-size: {"24px" if layout == 'vertical' else "20px"};
-                    font-weight: bold;
-                }}
-                
-                .title {{
-                    color: #1e40af;
-                    font-size: {"36px" if layout == 'vertical' else "32px"};
-                    font-weight: bold;
-                    text-transform: uppercase;
-                    {"text-align: center;" if layout == 'vertical' else "text-align: left; flex-grow: 1; margin-left: 30px;"}
-                }}
-                
-                .divider {{
-                    width: 100%;
-                    height: 2px;
-                    background: #3b82f6;
-                    margin: 20px 0;
-                }}
-                
-                .content {{
-                    {"flex-grow: 1;" if layout == 'vertical' else "grid-column: 1 / 3; display: flex; flex-direction: column; gap: 20px;"}
-                }}
-                
-                .equipment-info {{
-                    margin-bottom: 30px;
-                }}
-                
-                .info-item {{
-                    background: #dbeafe;
-                    border: 2px solid #3b82f6;
-                    padding: 12px 15px;
-                    margin-bottom: 15px;
-                    border-radius: 6px;
-                }}
-                
-                .info-label {{
-                    color: #1e40af;
-                    font-size: 16px;
-                    font-weight: bold;
-                    text-transform: uppercase;
-                    margin-bottom: 4px;
-                }}
-                
-                .info-value {{
-                    color: #374151;
-                    font-size: 20px;
-                    font-weight: normal;
-                }}
-                
-                .contact-section {{
-                    margin-top: 20px;
-                }}
-                
-                .contact-title {{
-                    color: #1e40af;
-                    font-size: 20px;
-                    font-weight: bold;
-                    margin-bottom: 15px;
-                    text-transform: uppercase;
-                }}
-                
-                .contact-item {{
-                    background: #dbeafe;
-                    border: 2px solid #3b82f6;
-                    padding: 8px 12px;
-                    margin-bottom: 8px;
-                    border-radius: 4px;
-                }}
-                
-                .contact-type {{
-                    color: #1e40af;
-                    font-size: 14px;
-                    font-weight: bold;
-                    text-transform: uppercase;
-                }}
-                
-                .contact-value {{
-                    color: #374151;
-                    font-size: 16px;
-                    font-weight: normal;
-                }}
-                
-                .qr-section {{
-                    {"text-align: center; margin-top: 30px;" if layout == 'vertical' else "grid-column: 3; grid-row: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 60px;"}
-                }}
-                
-                .qr-label {{
-                    color: #0ea5e9;
-                    font-size: 16px;
-                    font-weight: bold;
-                    text-transform: uppercase;
-                    margin-bottom: 10px;
-                }}
-                
-                .qr-code {{
-                    {"width: 180px; height: 180px;" if layout == 'vertical' else "width: 200px; height: 200px;"}
-                    background: white;
-                    border: 2px solid #d1d5db;
-                    border-radius: 8px;
-                    padding: 8px;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                }}
-                
-                .qr-code img {{
-                    width: 100%;
-                    height: 100%;
-                    border-radius: 4px;
-                }}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <div class="logo">
-                        {f'<img src="data:image/png;base64,{logo_base64}" alt="Logo">' if logo_base64 else '<div class="logo-text">COPIER COMPANY</div>'}
-                    </div>
-                    <div class="title">Alquiler de Fotocopiadoras</div>
-                </div>
-                
-                <div class="divider"></div>
-                
-                <div class="content">
-                    <div class="equipment-info">
-                        <div class="info-item">
-                            <div class="info-label">Modelo</div>
-                            <div class="info-value">{modelo}</div>
-                        </div>
-                        
-                        <div class="info-item">
-                            <div class="info-label">Serie</div>
-                            <div class="info-value">{serie}</div>
-                        </div>
-                    </div>
-                    
-                    <div class="contact-section">
-                        <div class="contact-title">Para Soporte Técnico:</div>
-                        
-                        <div class="contact-item">
-                            <div class="contact-type">Email</div>
-                            <div class="contact-value">info@copiercompanysac.com</div>
-                        </div>
-                        
-                        <div class="contact-item">
-                            <div class="contact-type">WhatsApp</div>
-                            <div class="contact-value">975399303</div>
-                        </div>
-                        
-                        <div class="contact-item">
-                            <div class="contact-type">Website</div>
-                            <div class="contact-value">copiercompanysac.com</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="qr-section">
-                    <div class="qr-label">Escanéame</div>
-                    <div class="qr-code">
-                        {f'<img src="data:image/png;base64,{qr_base64}" alt="QR Code">' if qr_base64 else '<div style="background: #f3f4f6; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #6b7280; border-radius: 4px;">QR CODE</div>'}
-                    </div>
-                </div>
-            </div>
-        </body>
-        </html>
-        """
-        return html_template
-
-
     def _html_to_image(self, html_content, layout='horizontal'):
         """Conversión con resolución mejorada"""
         try:
@@ -1162,16 +1160,16 @@ class CopierCompany(models.Model):
 
 
     def generar_sticker_corporativo(self, layout='horizontal'):
-        """Genera sticker estilo Canon - limpio y profesional"""
+        """Genera sticker profesional y equilibrado"""
         try:
             for record in self:
                 # QR de alta resolución
-                qr_base64 = record._generate_modern_qr((400, 400))
+                qr_base64 = record._generate_modern_qr((320, 320))
                 
                 # Logo de la compañía
                 logo_base64 = record._get_company_logo_base64()
                 
-                # HTML optimizado estilo Canon
+                # HTML optimizado profesional
                 html_content = record._create_html_template(qr_base64, logo_base64, layout)
                 
                 # Convertir con alta resolución
@@ -1182,7 +1180,7 @@ class CopierCompany(models.Model):
                 
                 orientation = "vertical (6x10cm)" if layout == 'vertical' else "horizontal (10x6cm)"
                 record.message_post(
-                    body=f"✅ Sticker profesional {orientation} generado - Estilo Canon (300 DPI)",
+                    body=f"✅ Sticker profesional {orientation} generado correctamente (300 DPI)",
                     message_type='notification'
                 )
                 
@@ -1195,11 +1193,12 @@ class CopierCompany(models.Model):
             'tag': 'display_notification',
             'params': {
                 'title': 'Éxito',
-                'message': 'Sticker corporativo estilo Canon generado correctamente',
+                'message': 'Sticker corporativo profesional generado correctamente',
                 'type': 'success',
                 'sticky': False,
             }
         }
+    
 
 
 
