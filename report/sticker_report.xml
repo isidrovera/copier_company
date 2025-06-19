@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <!-- Formato de papel A4 con sticker 10x6cm -->
+        <!-- Formato de papel A4 sin dimensiones específicas -->
         <record id="paperformat_sticker" model="report.paperformat">
             <field name="name">Sticker en A4 - 10x6cm</field>
             <field name="format">A4</field>
-            <field name="page_height">297</field>
-            <field name="page_width">210</field>
             <field name="margin_top">20</field>
             <field name="margin_bottom">20</field>
             <field name="margin_left">20</field>
@@ -147,19 +145,25 @@
                             </table>
                         </div>
                         
+                        <!-- Información adicional fuera del sticker (opcional) -->
+                        <div style="position: absolute; top: 8cm; left: 2cm; font-size: 10pt; color: #666;">
+                            <div>Sticker: 10cm x 6cm</div>
+                            <div>Cortar por la línea punteada</div>
+                        </div>
+                        
                         <style>
                             @page {
-                                size: 10cm 6cm;
-                                margin: 0;
+                                size: A4;
+                                margin: 2cm;
                             }
                             
                             @media print {
                                 .page {
                                     margin: 0 !important;
-                                    padding: 0 !important;
+                                    padding: 2cm !important;
                                     page-break-after: always;
-                                    width: 10cm !important;
-                                    height: 6cm !important;
+                                    width: 21cm !important;
+                                    height: 29.7cm !important;
                                 }
                                 
                                 * {
