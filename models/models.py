@@ -808,7 +808,7 @@ class CopierCompany(models.Model):
                 
                 <div class="contacts">
                     <div class="contact-item">Modelo: {modelo}</div>
-                    <div class="contact-item">Serie: {serie}</div>
+                    <div class="contact-item">Serie: {serie_id}</div>
                     <div class="contact-item">Correo: info@copiercompanysac.com</div>
                     <div class="contact-item">Celular/WhatsApp: 975399303</div>
                     <div class="contact-item" style="grid-column: 1 / -1; text-align: center; margin-top: 4px;">
@@ -940,7 +940,7 @@ class CopierCompany(models.Model):
             y += 35
             contacts = [
                 f"Modelo: {self.name.name if self.name else 'Modelo no especificado'}",
-                f"Serie: {serie}",
+                f"Serie: {serie_id}",
                 "Correo: info@copiercompanysac.com",
                 "Celular/WhatsApp: 975399303"
             ]
