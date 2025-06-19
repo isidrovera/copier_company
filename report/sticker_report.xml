@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <!-- Formato de papel optimizado para alta resolución -->
+        <!-- Formato de papel A4 con sticker 10x6cm -->
         <record id="paperformat_sticker" model="report.paperformat">
-            <field name="name">Sticker Profesional 10x6cm</field>
-            <field name="format">custom</field>
-            <field name="page_height">60</field>
-            <field name="page_width">100</field>
-            <field name="margin_top">0</field>
-            <field name="margin_bottom">0</field>
-            <field name="margin_left">0</field>
-            <field name="margin_right">0</field>
+            <field name="name">Sticker en A4 - 10x6cm</field>
+            <field name="format">A4</field>
+            <field name="page_height">297</field>
+            <field name="page_width">210</field>
+            <field name="margin_top">20</field>
+            <field name="margin_bottom">20</field>
+            <field name="margin_left">20</field>
+            <field name="margin_right">20</field>
             <field name="orientation">Portrait</field>
             <field name="header_line" eval="False"/>
             <field name="header_spacing">0</field>
@@ -30,37 +30,38 @@
             <field name="paperformat_id" ref="paperformat_sticker"/>
         </record>
 
-        <!-- Template profesional -->
+        <!-- Template profesional en A4 -->
         <template id="sticker_template">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
-                    <div class="page" style="width: 10cm; height: 6cm; margin: 0; padding: 0; font-family: 'Arial', 'Helvetica', sans-serif; background: white; position: relative;">
+                    <!-- Página A4 con sticker centrado -->
+                    <div class="page" style="width: 21cm; height: 29.7cm; margin: 0; padding: 2cm; font-family: 'Arial', 'Helvetica', sans-serif; background: white; display: flex; align-items: flex-start; justify-content: center;">
                         
                         <!-- Asegurar que el QR esté generado -->
                         <t t-if="not doc.qr_code">
                             <t t-set="dummy" t-value="doc.generar_qr_code()"/>
                         </t>
                         
-                        <!-- Contenedor principal con borde punteado -->
-                        <div style="width: 100%; height: 100%; border: 2px dashed #666666; box-sizing: border-box; padding: 0.3cm; position: relative; background: white;">
+                        <!-- Sticker exacto de 10x6cm -->
+                        <div style="width: 10cm; height: 6cm; border: 2px dashed #666666; box-sizing: border-box; padding: 0.3cm; position: relative; background: white; margin: 0;">
                             
-                            <!-- Logo de la empresa centrado en la parte superior -->
-                            <div style="text-align: center; margin-bottom: 0.3cm; height: 1.2cm; display: flex; align-items: center; justify-content: center;">
+                            <!-- Logo de la empresa centrado en la parte superior (3x más grande) -->
+                            <div style="text-align: center; margin-bottom: 0.2cm; height: 2cm; display: flex; align-items: center; justify-content: center;">
                                 <t t-set="company" t-value="request.env.company"/>
                                 <t t-if="company and company.logo">
                                     <img t-att-src="'data:image/png;base64,%s' % company.logo.decode('utf-8')" 
-                                         style="max-height: 1.2cm; max-width: 6cm; object-fit: contain;" 
+                                         style="max-height: 2cm; max-width: 8cm; object-fit: contain;" 
                                          alt="Logo Empresa"/>
                                 </t>
                                 <t t-else="">
-                                    <div style="background: #2563eb; color: white; padding: 0.2cm 0.8cm; border-radius: 6px; font-weight: bold; font-size: 14pt; letter-spacing: 1px;">
+                                    <div style="background: #2563eb; color: white; padding: 0.4cm 1.5cm; border-radius: 8px; font-weight: bold; font-size: 18pt; letter-spacing: 2px;">
                                         COPIER COMPANY
                                     </div>
                                 </t>
                             </div>
                             
                             <!-- Layout principal -->
-                            <table style="width: 100%; height: calc(100% - 1.5cm); border-collapse: collapse; font-size: 10pt;">
+                            <table style="width: 100%; height: calc(100% - 2.2cm); border-collapse: collapse; font-size: 10pt;">
                                 <tr>
                                     <!-- Contenido izquierdo -->
                                     <td style="width: 65%; vertical-align: top; padding-right: 0.2cm;">
@@ -100,7 +101,7 @@
                                         <!-- Texto de soporte -->
                                         <div style="background: #f0f9ff; border-left: 3px solid #0ea5e9; padding: 0.1cm; border-radius: 2px; margin-bottom: 0.2cm;">
                                             <div style="font-size: 8pt; color: #374151; font-weight: 500; text-align: center;">
-                                                Para soporte técnico, escanea el QR o contáctanos:
+                                                Para soporte tecnico, escanea el QR o contactanos:
                                             </div>
                                         </div>
                                         
@@ -108,13 +109,13 @@
                                         <div style="background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 4px; padding: 0.1cm;">
                                             <div style="font-size: 8pt; color: #374151; line-height: 1.3;">
                                                 <div style="margin-bottom: 0.05cm;">
-                                                    <span style="font-weight: bold; color: #1e40af;">📧</span> info@copiercompanysac.com
+                                                    <span style="font-weight: bold; color: #1e40af;">Email:</span> info@copiercompanysac.com
                                                 </div>
                                                 <div style="margin-bottom: 0.05cm;">
-                                                    <span style="font-weight: bold; color: #1e40af;">📱</span> WhatsApp: 975399303
+                                                    <span style="font-weight: bold; color: #1e40af;">WhatsApp:</span> 975399303
                                                 </div>
                                                 <div>
-                                                    <span style="font-weight: bold; color: #1e40af;">🌐</span> https://copiercompanysac.com
+                                                    <span style="font-weight: bold; color: #1e40af;">Web:</span> https://copiercompanysac.com
                                                 </div>
                                             </div>
                                         </div>
@@ -124,7 +125,7 @@
                                     <td style="width: 35%; text-align: center; vertical-align: middle; padding-left: 0.2cm;">
                                         <div style="text-align: center;">
                                             <div style="font-size: 8pt; font-weight: bold; color: #0ea5e9; margin-bottom: 0.1cm; text-transform: uppercase; letter-spacing: 0.5px;">
-                                                ESCANÉAME
+                                                ESCANEAME
                                             </div>
                                             <div style="width: 2.2cm; height: 2.2cm; border: 2px solid #e5e7eb; border-radius: 6px; margin: 0 auto; background: white; display: flex; align-items: center; justify-content: center; padding: 0.1cm; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                                                 <t t-if="doc.qr_code">
