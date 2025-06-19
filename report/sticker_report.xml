@@ -1,292 +1,147 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <!-- Primero definir el formato de papel -->
+        <!-- Formato de papel optimizado -->
         <record id="paperformat_sticker" model="report.paperformat">
             <field name="name">Sticker 10x6cm</field>
             <field name="format">custom</field>
-            <field name="page_height">60</field> <!-- 6cm -->
-            <field name="page_width">100</field> <!-- 10cm -->
-            <field name="margin_top">0</field>
-            <field name="margin_bottom">0</field>
-            <field name="margin_left">0</field>
-            <field name="margin_right">0</field>
+            <field name="page_height">60</field>
+            <field name="page_width">100</field>
+            <field name="margin_top">2</field>
+            <field name="margin_bottom">2</field>
+            <field name="margin_left">2</field>
+            <field name="margin_right">2</field>
             <field name="orientation">Portrait</field>
             <field name="header_line" eval="False"/>
             <field name="header_spacing">0</field>
             <field name="dpi">300</field>
         </record>
 
-        <!-- Después definir el reporte -->
+        <!-- Reporte -->
         <record id="action_report_sticker_corporativo" model="ir.actions.report">
             <field name="name">Sticker Corporativo</field>
             <field name="model">copier.company</field>
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">copier_company.sticker_template</field>
             <field name="report_file">copier_company.sticker_template</field>
-            <field name="print_report_name">'Sticker - %s' % object.name</field>
+            <field name="print_report_name">'Sticker-%s' % (object.name.name if object.name else 'Sin-nombre')</field>
             <field name="binding_model_id" ref="model_copier_company"/>
             <field name="binding_type">report</field>
             <field name="paperformat_id" ref="paperformat_sticker"/>
         </record>
 
-        <!-- Template del sticker -->
+        <!-- Template optimizado -->
         <template id="sticker_template">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
-                    <style>
-                        body {
-                            font-family: 'Arial', 'Helvetica', sans-serif;
-                            margin: 0 !important;
-                            padding: 0 !important;
-                            background: white;
-                            font-size: 8pt;
-                        }
+                    <div class="page" style="width: 9.6cm; height: 5.6cm; margin: 0; padding: 0.2cm; font-family: Arial, sans-serif; background: white; box-sizing: border-box;">
                         
-                        .page {
-                            margin: 0 !important;
-                            padding: 0 !important;
-                        }
+                        <!-- Asegurar que el QR esté generado -->
+                        <t t-if="not doc.qr_code">
+                            <t t-set="dummy" t-value="doc.generar_qr_code()"/>
+                        </t>
                         
-                        .sticker-container {
-                            width: 100%;
-                            height: 100%;
-                            background: white;
-                            border: 2px solid #e5e7eb;
-                            border-radius: 8px;
-                            box-sizing: border-box;
-                            padding: 8px;
-                            display: grid;
-                            grid-template-areas: 
-                                "logo logo logo qr"
-                                "title title title qr"  
-                                "support support support qr"
-                                "info1 info2 info3 qr"
-                                "website website website qr";
-                            grid-template-columns: 1fr 1fr 1fr 2.2cm;
-                            grid-template-rows: 1.2cm 0.8cm 0.6cm 1fr 0.5cm;
-                            gap: 3px;
-                        }
+                        <!-- Layout usando tabla -->
+                        <table style="width: 100%; height: 100%; border-collapse: collapse; border: 2px solid #3b82f6; border-radius: 8px; font-size: 8pt;">
+                            <tr style="height: 1.4cm;">
+                                <!-- Logo/Empresa -->
+                                <td colspan="3" style="background: linear-gradient(135deg, #3b82f6, #1e40af); color: white; text-align: center; font-weight: bold; font-size: 11pt; letter-spacing: 1px; border-radius: 6px 6px 0 0; padding: 6px;">
+                                    COPIER COMPANY
+                                </td>
+                                <!-- QR -->
+                                <td rowspan="5" style="width: 2.4cm; text-align: center; vertical-align: middle; padding: 4px; background: #f8fafc;">
+                                    <div style="font-size: 6pt; font-weight: bold; color: #0ea5e9; margin-bottom: 2px; text-transform: uppercase;">
+                                        ESCANÉAME
+                                    </div>
+                                    <div style="width: 2cm; height: 2cm; border: 1px solid #e2e8f0; border-radius: 4px; margin: 0 auto; background: white; display: flex; align-items: center; justify-content: center; padding: 2px;">
+                                        <t t-if="doc.qr_code">
+                                            <img t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')" 
+                                                 style="width: 1.8cm; height: 1.8cm; object-fit: contain;" 
+                                                 alt="QR Code"/>
+                                        </t>
+                                        <t t-else="">
+                                            <!-- Fallback usando el endpoint de Odoo -->
+                                            <t t-set="qr_url" t-value="'https://copiercompanysac.com/ticket/' + str(doc.id)"/>
+                                            <img t-att-src="'/report/qr?value=' + qr_url + '&amp;width=120&amp;height=120'" 
+                                                 style="width: 1.8cm; height: 1.8cm; object-fit: contain;" 
+                                                 alt="QR Code"/>
+                                        </t>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <tr style="height: 0.7cm;">
+                                <td colspan="3" style="background: #f0f9ff; text-align: center; font-weight: bold; font-size: 9pt; color: #1e40af; text-transform: uppercase; letter-spacing: 0.3px; padding: 3px;">
+                                    ALQUILER DE FOTOCOPIADORAS
+                                </td>
+                            </tr>
+                            
+                            <tr style="height: 0.5cm;">
+                                <td colspan="3" style="background: linear-gradient(90deg, #f0f9ff, #e0f2fe); border-left: 3px solid #0ea5e9; font-size: 7pt; color: #374151; font-weight: 600; text-align: center; padding: 3px;">
+                                    Para soporte técnico, escanea el QR o contáctanos:
+                                </td>
+                            </tr>
+                            
+                            <tr style="height: auto;">
+                                <!-- Información en 3 columnas -->
+                                <td style="width: 32%; background: #f8fafc; border-left: 3px solid #3b82f6; border-radius: 3px; padding: 5px; vertical-align: top;">
+                                    <div style="font-weight: bold; color: #1e40af; font-size: 6pt; text-transform: uppercase; margin-bottom: 2px;">
+                                        MODELO
+                                    </div>
+                                    <div style="color: #374151; font-size: 7pt; font-weight: 500; line-height: 1.2; word-break: break-word;">
+                                        <t t-if="doc.name">
+                                            <t t-esc="doc.name.name"/>
+                                        </t>
+                                        <t t-else="">No especificado</t>
+                                    </div>
+                                </td>
+                                
+                                <td style="width: 32%; background: #f8fafc; border-left: 3px solid #3b82f6; border-radius: 3px; padding: 5px; vertical-align: top;">
+                                    <div style="font-weight: bold; color: #1e40af; font-size: 6pt; text-transform: uppercase; margin-bottom: 2px;">
+                                        SERIE
+                                    </div>
+                                    <div style="color: #374151; font-size: 7pt; font-weight: 500; line-height: 1.2;">
+                                        <t t-esc="doc.serie_id or 'N/A'"/>
+                                    </div>
+                                </td>
+                                
+                                <td style="width: 36%; background: #f8fafc; border-left: 3px solid #3b82f6; border-radius: 3px; padding: 5px; vertical-align: top;">
+                                    <div style="font-weight: bold; color: #1e40af; font-size: 6pt; text-transform: uppercase; margin-bottom: 2px;">
+                                        CONTACTO
+                                    </div>
+                                    <div style="color: #374151; font-size: 6pt; font-weight: 500; line-height: 1.2;">
+                                        info@copiercompanysac.com<br/>
+                                        WhatsApp: 975399303
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <tr style="height: 0.4cm;">
+                                <td colspan="3" style="text-align: center; font-size: 7pt; color: #1e40af; font-weight: bold; padding: 3px; border-top: 1px solid #e2e8f0;">
+                                    https://copiercompanysac.com
+                                </td>
+                            </tr>
+                        </table>
                         
-                        .logo-section {
-                            grid-area: logo;
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                            background: #f8fafc;
-                            border-radius: 4px;
-                        }
-                        
-                        .logo {
-                            max-width: 100%;
-                            max-height: 100%;
-                            object-fit: contain;
-                        }
-                        
-                        .logo-fallback {
-                            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-                            color: white;
-                            font-weight: bold;
-                            font-size: 10pt;
-                            text-align: center;
-                            width: 100%;
-                            height: 100%;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            border-radius: 4px;
-                            letter-spacing: 1px;
-                        }
-                        
-                        .title-section {
-                            grid-area: title;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            text-align: center;
-                            background: #f0f9ff;
-                            border-radius: 4px;
-                            padding: 2px;
-                        }
-                        
-                        .title {
-                            font-size: 10pt;
-                            font-weight: bold;
-                            color: #1e40af;
-                            text-transform: uppercase;
-                            letter-spacing: 0.5px;
-                            line-height: 1;
-                            margin: 0;
-                        }
-                        
-                        .support-section {
-                            grid-area: support;
-                            background: linear-gradient(90deg, #f0f9ff, #e0f2fe);
-                            border-left: 3px solid #0ea5e9;
-                            padding: 3px 5px;
-                            border-radius: 3px;
-                            font-size: 7pt;
-                            color: #374151;
-                            font-weight: 600;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            text-align: center;
-                        }
-                        
-                        .info1 { grid-area: info1; }
-                        .info2 { grid-area: info2; }
-                        .info3 { grid-area: info3; }
-                        
-                        .info-item {
-                            background: #f8fafc;
-                            border-left: 3px solid #3b82f6;
-                            border-radius: 3px;
-                            padding: 4px;
-                            display: flex;
-                            flex-direction: column;
-                            gap: 2px;
-                            font-size: 7pt;
-                        }
-                        
-                        .info-label {
-                            font-weight: bold;
-                            color: #1e40af;
-                            font-size: 6pt;
-                            text-transform: uppercase;
-                            letter-spacing: 0.3px;
-                        }
-                        
-                        .info-value {
-                            color: #374151;
-                            font-weight: 500;
-                            line-height: 1.2;
-                            word-break: break-word;
-                        }
-                        
-                        .qr-section {
-                            grid-area: qr;
-                            display: flex;
-                            flex-direction: column;
-                            align-items: center;
-                            justify-content: center;
-                            gap: 2px;
-                            padding: 2px;
-                        }
-                        
-                        .qr-label {
-                            font-size: 6pt;
-                            font-weight: bold;
-                            color: #0ea5e9;
-                            text-transform: uppercase;
-                            letter-spacing: 0.5px;
-                        }
-                        
-                        .qr-code {
-                            width: 1.8cm;
-                            height: 1.8cm;
-                            background: white;
-                            border: 1px solid #e2e8f0;
-                            border-radius: 4px;
-                            padding: 2px;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                        }
-                        
-                        .qr-code img {
-                            width: 100%;
-                            height: 100%;
-                        }
-                        
-                        .website-section {
-                            grid-area: website;
-                            text-align: center;
-                            font-size: 7pt;
-                            color: #1e40af;
-                            font-weight: bold;
-                            padding: 2px;
-                            border-top: 1px solid #e2e8f0;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                        }
-                        
-                        @media print {
-                            .page {
-                                margin: 0 !important;
-                                padding: 0 !important;
+                        <style>
+                            @media print {
+                                .page {
+                                    margin: 0 !important;
+                                    padding: 0.2cm !important;
+                                    page-break-after: always;
+                                }
+                                
+                                table {
+                                    border: 2px solid #3b82f6 !important;
+                                }
+                                
+                                * {
+                                    -webkit-print-color-adjust: exact !important;
+                                    color-adjust: exact !important;
+                                    print-color-adjust: exact !important;
+                                }
                             }
-                            
-                            .sticker-container {
-                                border: 1px solid #ccc !important;
-                            }
-                        }
-                    </style>
-                    
-                    <div class="page">
-                        <div class="sticker-container">
-                            <!-- Logo -->
-                            <div class="logo-section">
-                                <t t-set="company" t-value="request.env.company"/>
-                                <t t-if="company and company.logo">
-                                    <img class="logo" t-att-src="'data:image/png;base64,%s' % company.logo.decode('utf-8')" alt="Logo"/>
-                                </t>
-                                <t t-else="">
-                                    <div class="logo-fallback">COPIER COMPANY</div>
-                                </t>
-                            </div>
-                            
-                            <!-- Título -->
-                            <div class="title-section">
-                                <h1 class="title">ALQUILER DE FOTOCOPIADORAS</h1>
-                            </div>
-                            
-                            <!-- Soporte -->
-                            <div class="support-section">
-                                Para soporte técnico, escanea el QR o contáctanos:
-                            </div>
-                            
-                            <!-- Información en columnas -->
-                            <div class="info1 info-item">
-                                <div class="info-label">Modelo</div>
-                                <div class="info-value">
-                                    <t t-if="doc.name">
-                                        <t t-esc="doc.name"/>
-                                    </t>
-                                    <t t-else="">Modelo no especificado</t>
-                                </div>
-                            </div>
-                            
-                            <div class="info2 info-item">
-                                <div class="info-label">Serie</div>
-                                <div class="info-value">
-                                    <t t-esc="doc.serie_id or 'N/A'"/>
-                                </div>
-                            </div>
-                            
-                            <div class="info3 info-item">
-                                <div class="info-label">Contacto</div>
-                                <div class="info-value">
-                                    info@copiercompanysac.com<br/>
-                                    WhatsApp: 975399303
-                                </div>
-                            </div>
-                            
-                            <!-- QR Code -->
-                            <div class="qr-section">
-                                <div class="qr-label">Escanéame</div>
-                                <div class="qr-code">
-                                    <t t-set="qr_data" t-value="'https://copiercompanysac.com/ticket/' + str(doc.id)"/>
-                                    <img t-att-src="'/report/qr/?value=' + qr_data + '&amp;width=200&amp;height=200'" alt="QR Code"/>
-                                </div>
-                            </div>
-                            
-                            <!-- Website -->
-                            <div class="website-section">
-                                https://copiercompanysac.com
-                            </div>
-                        </div>
+                        </style>
                     </div>
                 </t>
             </t>
