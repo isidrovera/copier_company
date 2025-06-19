@@ -228,8 +228,9 @@
                         <div class="sticker-container">
                             <!-- Logo -->
                             <div class="logo-section">
-                                <t t-if="doc.company_id and doc.company_id.logo">
-                                    <img class="logo" t-att-src="'data:image/png;base64,%s' % doc.company_id.logo.decode('utf-8')" alt="Logo"/>
+                                <t t-set="company" t-value="request.env.company"/>
+                                <t t-if="company and company.logo">
+                                    <img class="logo" t-att-src="'data:image/png;base64,%s' % company.logo.decode('utf-8')" alt="Logo"/>
                                 </t>
                                 <t t-else="">
                                     <div class="logo-fallback">COPIER COMPANY</div>
