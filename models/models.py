@@ -534,148 +534,525 @@ class CopierCompany(models.Model):
     def _compute_sticker_filename(self):
         for record in self:
             record.sticker_filename = f'sticker_corporativo_{record.secuencia or "new"}_{record.serie_id or "serie"}.png'
+    def _get_company_logo_base64(self):
+        """Obtiene el logo de la compañía en base64"""
+        try:
+            company = self.env.company
+            if company.logo:
+                return company.logo.decode('utf-8')
+            return None
+        except:
+            return None
+    def _generate_modern_qr(self, size=(150, 150)):
+        """Genera un QR code moderno con esquinas redondeadas"""
+        try:
+            base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+            
+            # Crear QR con mejor calidad
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_H,
+                box_size=8,
+                border=2,
+            )
+            qr.add_data(f"{base_url}/public/helpdesk_ticket?copier_company_id={self.id}")
+            qr.make(fit=True)
+            
+            # Generar imagen QR
+            qr_img = qr.make_image(fill_color="#2C3E50", back_color="white")
+            qr_img = qr_img.resize(size, Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.ANTIALIAS)
+            
+            # Convertir a base64
+            buffer = io.BytesIO()
+            qr_img.save(buffer, format='PNG')
+            return base64.b64encode(buffer.getvalue()).decode('utf-8')
+            
+        except Exception as e:
+            _logger.error(f"Error generando QR: {str(e)}")
+            return None
+
+    def _create_html_template(self, qr_base64, logo_base64):
+        """Crea template HTML moderno con CSS avanzado"""
+        
+        # Información dinámica del registro
+        serie = self.serie_id or "____________________"
+        modelo = self.name.name if self.name else "Modelo no especificado"
+        
+        html_template = f"""
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Sticker Corporativo</title>
+            <style>
+                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+                
+                * {{
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }}
+                
+                body {{
+                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    padding: 0;
+                    margin: 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 100vh;
+                }}
+                
+                .sticker {{
+                    width: 378px;  /* 10cm = 378px a 96 DPI */
+                    height: 227px; /* 6cm = 227px a 96 DPI */
+                    background: linear-gradient(145deg, #ffffff, #f8fafc);
+                    border-radius: 16px;
+                    box-shadow: 
+                        0 25px 50px -12px rgba(0, 0, 0, 0.25),
+                        0 0 0 1px rgba(255, 255, 255, 0.8),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+                    position: relative;
+                    overflow: hidden;
+                    padding: 16px;
+                    display: grid;
+                    grid-template-areas: 
+                        "header header qr"
+                        "info info qr"
+                        "services services qr"
+                        "footer footer qr";
+                    grid-template-columns: 1fr 1fr 120px;
+                    grid-template-rows: auto auto 1fr auto;
+                    gap: 8px;
+                }}
+                
+                .sticker::before {{
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
+                    border-radius: 16px 16px 0 0;
+                }}
+                
+                .header {{
+                    grid-area: header;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    margin-bottom: 4px;
+                }}
+                
+                .logo {{
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 10px;
+                    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+                    overflow: hidden;
+                }}
+                
+                .logo img {{
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    border-radius: 8px;
+                }}
+                
+                .logo-fallback {{
+                    color: white;
+                    font-weight: 700;
+                    font-size: 10px;
+                    text-align: center;
+                }}
+                
+                .company-info h1 {{
+                    font-size: 13px;
+                    font-weight: 700;
+                    color: #1e293b;
+                    line-height: 1.1;
+                    margin-bottom: 2px;
+                    letter-spacing: -0.02em;
+                }}
+                
+                .company-info h2 {{
+                    font-size: 9px;
+                    font-weight: 500;
+                    color: #3b82f6;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                }}
+                
+                .info-section {{
+                    grid-area: info;
+                    margin-bottom: 6px;
+                }}
+                
+                .support-text {{
+                    font-size: 8px;
+                    color: #64748b;
+                    margin-bottom: 6px;
+                    font-weight: 500;
+                }}
+                
+                .serial {{
+                    font-size: 10px;
+                    font-weight: 600;
+                    color: #1e293b;
+                    background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+                    padding: 4px 8px;
+                    border-radius: 6px;
+                    border-left: 3px solid #3b82f6;
+                    margin-bottom: 6px;
+                }}
+                
+                .contacts {{
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 2px;
+                    font-size: 7px;
+                    color: #475569;
+                    line-height: 1.3;
+                }}
+                
+                .contact-item {{
+                    display: flex;
+                    align-items: center;
+                    gap: 3px;
+                    padding: 1px 0;
+                }}
+                
+                .contact-icon {{
+                    font-size: 8px;
+                    width: 10px;
+                    text-align: center;
+                }}
+                
+                .services {{
+                    grid-area: services;
+                    display: flex;
+                    gap: 4px;
+                    flex-wrap: wrap;
+                    align-items: flex-start;
+                }}
+                
+                .service-badge {{
+                    background: linear-gradient(135deg, #fef3c7, #fbbf24);
+                    color: #92400e;
+                    font-size: 6px;
+                    font-weight: 600;
+                    padding: 2px 6px;
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    gap: 2px;
+                    box-shadow: 0 1px 3px rgba(251, 191, 36, 0.3);
+                }}
+                
+                .qr-section {{
+                    grid-area: qr;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 4px;
+                }}
+                
+                .qr-label {{
+                    font-size: 7px;
+                    font-weight: 600;
+                    color: #3b82f6;
+                    text-align: center;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                }}
+                
+                .qr-code {{
+                    width: 90px;
+                    height: 90px;
+                    border-radius: 12px;
+                    overflow: hidden;
+                    box-shadow: 
+                        0 10px 25px rgba(0, 0, 0, 0.15),
+                        0 0 0 1px rgba(255, 255, 255, 0.9);
+                    background: white;
+                    padding: 4px;
+                }}
+                
+                .qr-code img {{
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 8px;
+                }}
+                
+                .footer {{
+                    grid-area: footer;
+                    font-size: 7px;
+                    color: #64748b;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding-top: 4px;
+                    border-top: 1px solid #e2e8f0;
+                }}
+                
+                .model-info {{
+                    font-weight: 500;
+                }}
+                
+                .tech-badge {{
+                    background: linear-gradient(135deg, #dcfce7, #22c55e);
+                    color: #166534;
+                    padding: 1px 4px;
+                    border-radius: 4px;
+                    font-weight: 600;
+                    font-size: 6px;
+                }}
+                
+                /* Efectos hover para impresión */
+                @media print {{
+                    body {{
+                        background: white;
+                        padding: 0;
+                        margin: 0;
+                    }}
+                    
+                    .sticker {{
+                        box-shadow: none;
+                        border: 1px solid #e2e8f0;
+                    }}
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="sticker">
+                <div class="header">
+                    <div class="logo">
+                        {f'<img src="data:image/png;base64,{logo_base64}" alt="Logo">' if logo_base64 else '<div class="logo-fallback">CC</div>'}
+                    </div>
+                    <div class="company-info">
+                        <h1>COPIER COMPANY SAC</h1>
+                        <h2>Alquiler de Fotocopiadoras</h2>
+                    </div>
+                </div>
+                
+                <div class="info-section">
+                    <div class="support-text">
+                        📱 Para soporte técnico, escanea el QR o contáctanos:
+                    </div>
+                    <div class="serial">
+                        🏷️ Serial N°: {serie}
+                    </div>
+                    <div class="contacts">
+                        <div class="contact-item">
+                            <span class="contact-icon">📱</span>
+                            <span>+51 999 999 999</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">✉️</span>
+                            <span>soporte@copiercompany.com</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">🌐</span>
+                            <span>copiercompanysac.com</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">📍</span>
+                            <span>Lima - Perú</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="services">
+                    <div class="service-badge">
+                        🔧 Servicio 24/7
+                    </div>
+                    <div class="service-badge">
+                        💼 Planes flexibles
+                    </div>
+                    <div class="service-badge">
+                        📦 Todo incluido
+                    </div>
+                </div>
+                
+                <div class="qr-section">
+                    <div class="qr-label">⬇️ Escanéame</div>
+                    <div class="qr-code">
+                        {f'<img src="data:image/png;base64,{qr_base64}" alt="QR Code">' if qr_base64 else '<div style="background: #f3f4f6; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #6b7280;">QR</div>'}
+                    </div>
+                </div>
+                
+                <div class="footer">
+                    <div class="model-info">📄 {modelo}</div>
+                    <div class="tech-badge">✅ Verificado</div>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        return html_template
+
+    def _html_to_image(self, html_content):
+        """Convierte HTML a imagen usando wkhtmltoimage o Playwright"""
+        try:
+            # Método 1: Usar wkhtmltoimage (más común en servidores)
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False) as html_file:
+                html_file.write(html_content)
+                html_file.flush()
+                
+                with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as img_file:
+                    cmd = [
+                        'wkhtmltoimage',
+                        '--width', '378',
+                        '--height', '227',
+                        '--quality', '100',
+                        '--format', 'png',
+                        html_file.name,
+                        img_file.name
+                    ]
+                    
+                    result = subprocess.run(cmd, capture_output=True, text=True)
+                    
+                    if result.returncode == 0:
+                        with open(img_file.name, 'rb') as f:
+                            return base64.b64encode(f.read())
+                    else:
+                        raise Exception(f"wkhtmltoimage error: {result.stderr}")
+                        
+        except Exception as e:
+            _logger.warning(f"wkhtmltoimage failed: {str(e)}, trying fallback method")
+            return self._fallback_html_to_image(html_content)
+        finally:
+            # Limpiar archivos temporales
+            try:
+                os.unlink(html_file.name)
+                os.unlink(img_file.name)
+            except:
+                pass
+
+    def _fallback_html_to_image(self, html_content):
+        """Método alternativo usando PIL para crear la imagen"""
+        try:
+            # Crear imagen base con dimensiones exactas (10cm x 6cm a 150 DPI)
+            width, height = 591, 354  # 10cm x 6cm a 150 DPI para mejor calidad
+            
+            img = Image.new('RGB', (width, height), '#ffffff')
+            draw = ImageDraw.Draw(img)
+            
+            # Intentar cargar fuentes
+            try:
+                font_title = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 24)
+                font_subtitle = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 16)
+                font_normal = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 14)
+                font_small = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 12)
+            except:
+                font_title = font_subtitle = font_normal = font_small = ImageFont.load_default()
+            
+            # Colores modernos
+            primary_color = '#1e293b'
+            accent_color = '#3b82f6'
+            text_color = '#475569'
+            
+            # Header
+            y = 30
+            
+            # Logo de la empresa (si está disponible)
+            logo_base64 = self._get_company_logo_base64()
+            if logo_base64:
+                try:
+                    logo_data = base64.b64decode(logo_base64)
+                    logo_img = Image.open(io.BytesIO(logo_data))
+                    logo_img = logo_img.resize((60, 60), Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.ANTIALIAS)
+                    img.paste(logo_img, (30, y), logo_img if logo_img.mode == 'RGBA' else None)
+                except:
+                    # Fallback: dibujar rectángulo como logo
+                    draw.rectangle([30, y, 90, y+60], fill=accent_color)
+                    draw.text((60, y+25), "CC", fill='white', font=font_title, anchor="mm")
+            else:
+                # Fallback: dibujar rectángulo como logo
+                draw.rectangle([30, y, 90, y+60], fill=accent_color)
+                draw.text((60, y+25), "CC", fill='white', font=font_title, anchor="mm")
+            
+            # Títulos
+            draw.text((110, y+10), "COPIER COMPANY SAC", fill=primary_color, font=font_title)
+            draw.text((110, y+40), "ALQUILER DE FOTOCOPIADORAS", fill=accent_color, font=font_subtitle)
+            
+            # Información
+            y = 120
+            serie = self.serie_id or "____________________"
+            draw.text((30, y), f"📱 Para soporte técnico, escanea el QR", fill=text_color, font=font_small)
+            y += 25
+            draw.text((30, y), f"🏷️ Serial N°: {serie}", fill=primary_color, font=font_normal)
+            
+            # Contactos
+            y += 40
+            contacts = [
+                "📱 +51 999 999 999",
+                "✉️ soporte@copiercompany.com",
+                "🌐 copiercompanysac.com", 
+                "📍 Lima - Perú"
+            ]
+            
+            for i, contact in enumerate(contacts):
+                x_pos = 30 + (i % 2) * 250
+                y_pos = y + (i // 2) * 20
+                draw.text((x_pos, y_pos), contact, fill=text_color, font=font_small)
+            
+            # QR Code
+            qr_base64 = self._generate_modern_qr((120, 120))
+            if qr_base64:
+                try:
+                    qr_data = base64.b64decode(qr_base64)
+                    qr_img = Image.open(io.BytesIO(qr_data))
+                    img.paste(qr_img, (width-150, height-150))
+                    draw.text((width-150, height-160), "⬇️ Escanéame", fill=primary_color, font=font_small)
+                except:
+                    pass
+            
+            # Modelo
+            if self.name:
+                draw.text((30, height-30), f"📄 {self.name.name}", fill=text_color, font=font_small)
+            
+            # Convertir a base64
+            buffer = io.BytesIO()
+            img.save(buffer, format='PNG', quality=95, dpi=(150, 150))
+            return base64.b64encode(buffer.getvalue())
+            
+        except Exception as e:
+            _logger.error(f"Error en fallback method: {str(e)}")
+            raise UserError(f"Error generando sticker: {str(e)}")
+
     def generar_sticker_corporativo(self):
         """
-        Genera un sticker corporativo profesional con QR code y datos de la empresa
+        Genera un sticker corporativo moderno usando HTML/CSS y conversión a imagen
         """
         try:
             for record in self:
-                # Configuración del sticker
-                width, height = 800, 600
+                # Generar QR moderno
+                qr_base64 = record._generate_modern_qr()
                 
-                # Colores corporativos profesionales
-                color_fondo = '#F8F9FA'  # Gris muy claro
-                color_principal = '#2C3E50'  # Azul oscuro
-                color_secundario = '#3498DB'  # Azul corporativo
-                color_texto = '#34495E'  # Gris oscuro
-                color_acento = '#E74C3C'  # Rojo suave para destacar
+                # Obtener logo de la compañía
+                logo_base64 = record._get_company_logo_base64()
                 
-                # Crear imagen base
-                img = Image.new('RGB', (width, height), color_fondo)
-                draw = ImageDraw.Draw(img)
+                # Crear HTML moderno
+                html_content = record._create_html_template(qr_base64, logo_base64)
                 
-                # Intentar cargar fuentes (usar fuentes por defecto si no están disponibles)
-                try:
-                    font_titulo = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 24)
-                    font_subtitulo = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 16)
-                    font_normal = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 12)
-                    font_pequena = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 10)
-                except:
-                    font_titulo = ImageFont.load_default()
-                    font_subtitulo = ImageFont.load_default()
-                    font_normal = ImageFont.load_default()
-                    font_pequena = ImageFont.load_default()
+                # Convertir HTML a imagen
+                image_base64 = record._html_to_image(html_content)
                 
-                # 1. Header con logo y título
-                y_pos = 20
-                
-                # Intentar cargar logo
-                logo_path = get_module_resource('copier_company', 'static', 'src', 'img', 'logo.png')
-                if logo_path and os.path.isfile(logo_path):
-                    try:
-                        logo = Image.open(logo_path)
-                        logo_size = (60, 60)
-                        logo = logo.resize(logo_size, Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.ANTIALIAS)
-                        img.paste(logo, (30, y_pos), logo if logo.mode == 'RGBA' else None)
-                    except:
-                        pass
-                
-                # Título principal
-                draw.text((110, y_pos + 5), "COPIER COMPANY SAC", fill=color_principal, font=font_titulo)
-                draw.text((110, y_pos + 35), "ALQUILER DE FOTOCOPIADORAS", fill=color_secundario, font=font_subtitulo)
-                
-                # Línea separadora
-                y_pos = 100
-                draw.rectangle([30, y_pos, width-30, y_pos+2], fill=color_secundario)
-                
-                # 2. Información del equipo
-                y_pos = 120
-                
-                # Serie con campo editable
-                draw.text((30, y_pos), "📌 Para soporte técnico, escanea el código QR o contáctanos:", 
-                        fill=color_texto, font=font_normal)
-                
-                y_pos += 30
-                serie_text = f"Serial N°: {record.serie_id or '____________________'}"
-                draw.text((30, y_pos), serie_text, fill=color_principal, font=font_subtitulo)
-                
-                # 3. Información de contacto
-                y_pos += 50
-                contactos = [
-                    "📱 WhatsApp: +51 999 999 999",
-                    "✉️ Correo: soporte@copiercompanysac.com", 
-                    "🌐 Web: www.copiercompanysac.com",
-                    "📍 Dirección: Lima - Perú"
-                ]
-                
-                for contacto in contactos:
-                    draw.text((30, y_pos), contacto, fill=color_texto, font=font_normal)
-                    y_pos += 25
-                
-                # 4. Servicios destacados
-                y_pos += 20
-                servicios = [
-                    "🔧 Servicio técnico inmediato",
-                    "💼 Planes de alquiler mensual", 
-                    "📦 Consumibles incluidos"
-                ]
-                
-                for i, servicio in enumerate(servicios):
-                    x_pos = 30 + (i * 250)
-                    if i < 2:  # Primeros dos en la misma línea
-                        draw.text((x_pos, y_pos), servicio, fill=color_acento, font=font_pequena)
-                    else:  # Tercero abajo
-                        draw.text((30, y_pos + 20), servicio, fill=color_acento, font=font_pequena)
-                
-                # 5. Generar y agregar QR Code
-                qr_size = 150
-                qr_x = width - qr_size - 30
-                qr_y = height - qr_size - 80
-                
-                # Crear QR code
-                base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
-                qr = qrcode.QRCode(
-                    version=1,
-                    error_correction=qrcode.constants.ERROR_CORRECT_M,
-                    box_size=8,
-                    border=2,
-                )
-                qr.add_data(f"{base_url}/public/helpdesk_ticket?copier_company_id={record.id}")
-                qr.make(fit=True)
-                
-                qr_img = qr.make_image(fill_color=color_principal, back_color="white")
-                qr_img = qr_img.resize((qr_size, qr_size))
-                
-                # Pegar QR en la imagen
-                img.paste(qr_img, (qr_x, qr_y))
-                
-                # Texto "Escanéame"
-                draw.text((qr_x + 10, qr_y - 25), "⬇️ Escanéame:", fill=color_principal, font=font_normal)
-                
-                # 6. Borde decorativo
-                border_width = 3
-                draw.rectangle([0, 0, width-1, height-1], outline=color_secundario, width=border_width)
-                
-                # Esquinas redondeadas (efecto visual)
-                corner_size = 20
-                for corner in [(0, 0), (width-corner_size, 0), (0, height-corner_size), (width-corner_size, height-corner_size)]:
-                    draw.rectangle([corner[0], corner[1], corner[0]+corner_size, corner[1]+corner_size], 
-                                fill=color_fondo, outline=color_secundario, width=2)
-                
-                # 7. Información adicional del equipo (si está disponible)
-                if record.name:
-                    info_y = height - 60
-                    modelo_text = f"Modelo: {record.name.name}"
-                    draw.text((30, info_y), modelo_text, fill=color_texto, font=font_pequena)
-                
-                # Convertir a base64
-                buffer = io.BytesIO()
-                img.save(buffer, format='PNG', quality=95)
-                record.sticker_corporativo = base64.b64encode(buffer.getvalue())
+                # Guardar en el registro
+                record.sticker_corporativo = image_base64
                 
                 # Mensaje de éxito
                 record.message_post(
-                    body="✅ Sticker corporativo generado exitosamente",
+                    body="✅ Sticker corporativo moderno generado exitosamente (10cm x 6cm)",
                     message_type='notification'
                 )
                 
@@ -688,7 +1065,7 @@ class CopierCompany(models.Model):
             'tag': 'display_notification',
             'params': {
                 'title': 'Éxito',
-                'message': 'Sticker corporativo generado correctamente',
+                'message': 'Sticker corporativo moderno generado correctamente',
                 'type': 'success',
                 'sticky': False,
             }

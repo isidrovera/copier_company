@@ -18,6 +18,7 @@
     # Añadimos las dependencias externas
     'external_dependencies': {
         'python': ['requests', 'requests_toolbelt','qrcode', 'PIL'],
+        'bin': ['wkhtmltoimage'],
     },
 
     'depends': [
