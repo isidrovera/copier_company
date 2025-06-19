@@ -1119,26 +1119,24 @@ class CopierCompany(models.Model):
                 
                 with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as img_file:
                     cmd = [
-                        'wkhtmltoimage',
-                        '--width', width,
-                        '--height', height,
-                        '--quality', '100',
-                        '--format', 'png',
-                        '--margin-top', '0',
-                        '--margin-bottom', '0', 
-                        '--margin-left', '0',
-                        '--margin-right', '0',
-                        '--disable-smart-shrinking',
-                        '--crop-h', height,
-                        '--crop-w', width,
-                        '--crop-x', '0',
-                        '--crop-y', '0',
-                        '--enable-local-file-access',
-                        '--dpi', '300',
-                        '--image-quality', '100',
-                        html_file.name,
-                        img_file.name
-                    ]
+                                'wkhtmltoimage',
+                                '--width', width,
+                                '--height', height,
+                                '--zoom', '2',  # Nuevo parámetro agregado
+                                '--quality', '100',
+                                '--format', 'png',
+                                '--margin-top', '0',
+                                '--margin-bottom', '0', 
+                                '--margin-left', '0',
+                                '--margin-right', '0',
+                                '--disable-smart-shrinking',
+                                '--enable-local-file-access',
+                                '--dpi', '300',
+                                '--image-quality', '100',
+                                html_file.name,
+                                img_file.name
+                            ]
+
                     
                     result = subprocess.run(cmd, capture_output=True, text=True)
                     
