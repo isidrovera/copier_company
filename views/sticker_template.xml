@@ -25,13 +25,14 @@
                             width: <t t-esc="width"/>;
                             height: <t t-esc="height"/>;
                             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-                            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+                            background: white;
                             overflow: hidden;
                             position: relative;
-                            padding: 30px;
+                            padding: 0;
+                            margin: 0;
                             color: #1e293b;
-                            font-size: 16px;
-                            line-height: 1.4;
+                            font-size: 14px;
+                            line-height: 1.3;
                         }
                         
                         /* Contenedor principal */
@@ -39,13 +40,13 @@
                             width: 100%;
                             height: 100%;
                             background: white;
-                            border-radius: 16px;
-                            box-shadow: 
-                                0 20px 25px -5px rgba(0, 0, 0, 0.1),
-                                0 10px 10px -5px rgba(0, 0, 0, 0.04);
-                            padding: 40px;
+                            border-radius: 0;
+                            box-shadow: none;
+                            padding: 15px;
                             position: relative;
                             overflow: hidden;
+                            display: flex;
+                            flex-direction: column;
                         }
                         
                         /* Patrón de fondo sutil */
@@ -70,9 +71,9 @@
                                 "header header qr"
                                 "content content qr"
                                 "contact contact qr";
-                            grid-template-columns: 1fr 1fr 200px;
+                            grid-template-columns: 1fr 1fr 160px;
                             grid-template-rows: auto 1fr auto;
-                            gap: 30px;
+                            gap: 15px;
                             height: 100%;
                         }
                         
@@ -85,7 +86,7 @@
                                 "contact"
                                 "qr";
                             grid-template-rows: auto 1fr auto auto;
-                            gap: 30px;
+                            gap: 15px;
                             height: 100%;
                         }
                         
@@ -96,7 +97,8 @@
                             flex-direction: column;
                             align-items: center;
                             text-align: center;
-                            gap: 25px;
+                            gap: 8px;
+                            margin-bottom: 0;
                         }
                         
                         .logo-container {
@@ -108,13 +110,13 @@
                         }
                         
                         .layout-horizontal .logo-container {
-                            width: 600px;
-                            height: 240px;
+                            width: 200px;
+                            height: 80px;
                         }
                         
                         .layout-vertical .logo-container {
-                            width: 840px;
-                            height: 300px;
+                            width: 250px;
+                            height: 100px;
                             margin: 0 auto;
                         }
                         
@@ -127,10 +129,10 @@
                         
                         .logo-text {
                             color: #1e40af;
-                            font-size: 42px;
+                            font-size: 24px;
                             font-weight: 900;
                             text-transform: uppercase;
-                            letter-spacing: 2px;
+                            letter-spacing: 1px;
                             text-align: center;
                             background: linear-gradient(135deg, #1e40af, #3b82f6);
                             -webkit-background-clip: text;
@@ -140,23 +142,23 @@
                         
                         .main-title {
                             color: #1e40af;
-                            font-size: 28px;
+                            font-size: 18px;
                             font-weight: 700;
                             text-transform: uppercase;
-                            letter-spacing: 1px;
+                            letter-spacing: 0.5px;
                             line-height: 1.1;
                             text-align: center;
-                            margin-top: 10px;
+                            margin: 0;
                         }
                         
                         /* Decorative line */
                         .decorative-line {
                             width: 100%;
-                            height: 4px;
+                            height: 2px;
                             background: linear-gradient(90deg, #3b82f6, #06b6d4, #8b5cf6);
-                            border-radius: 2px;
-                            margin: 20px 0 30px 0;
-                            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+                            border-radius: 1px;
+                            margin: 8px 0 12px 0;
+                            box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3);
                         }
                         
                         /* Content area */
@@ -164,12 +166,12 @@
                             grid-area: content;
                             display: flex;
                             flex-direction: column;
-                            gap: 35px;
+                            gap: 15px;
                         }
                         
                         .equipment-section {
                             display: grid;
-                            gap: 25px;
+                            gap: 12px;
                         }
                         
                         .layout-horizontal .equipment-section {
@@ -178,9 +180,9 @@
                         
                         .info-group {
                             background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-                            border-radius: 12px;
-                            padding: 25px;
-                            border-left: 5px solid #3b82f6;
+                            border-radius: 8px;
+                            padding: 12px;
+                            border-left: 3px solid #3b82f6;
                             position: relative;
                             transition: all 0.3s ease;
                         }
@@ -199,27 +201,27 @@
                         
                         .info-label {
                             color: #1e40af;
-                            font-size: 18px;
+                            font-size: 14px;
                             font-weight: 700;
                             text-transform: uppercase;
                             letter-spacing: 0.5px;
-                            margin-bottom: 10px;
+                            margin-bottom: 6px;
                             display: flex;
                             align-items: center;
-                            gap: 8px;
+                            gap: 6px;
                         }
                         
                         .info-label::before {
                             content: '●';
                             color: #3b82f6;
-                            font-size: 12px;
+                            font-size: 10px;
                         }
                         
                         .info-value {
                             color: #334155;
-                            font-size: 24px;
+                            font-size: 16px;
                             font-weight: 600;
-                            line-height: 1.3;
+                            line-height: 1.2;
                             word-break: break-word;
                         }
                         
@@ -230,20 +232,20 @@
                         
                         .contact-title {
                             color: #1e40af;
-                            font-size: 18px;
+                            font-size: 14px;
                             font-weight: 700;
                             text-transform: uppercase;
-                            margin-bottom: 18px;
+                            margin-bottom: 8px;
                             text-align: center;
                             position: relative;
                         }
                         
                         .contact-subtitle {
                             color: #64748b;
-                            font-size: 14px;
+                            font-size: 11px;
                             font-weight: 500;
                             text-align: center;
-                            margin-bottom: 15px;
+                            margin-bottom: 10px;
                             font-style: italic;
                         }
                         
@@ -262,15 +264,15 @@
                         .contact-grid {
                             display: flex;
                             flex-wrap: wrap;
-                            gap: 12px;
+                            gap: 8px;
                             justify-content: center;
                         }
                         
                         .contact-item {
                             background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-                            border: 2px solid #3b82f6;
-                            border-radius: 10px;
-                            padding: 12px 20px;
+                            border: 1px solid #3b82f6;
+                            border-radius: 6px;
+                            padding: 6px 12px;
                             text-align: center;
                             position: relative;
                             overflow: hidden;
@@ -295,16 +297,16 @@
                         
                         .contact-type {
                             color: #1e40af;
-                            font-size: 14px;
+                            font-size: 10px;
                             font-weight: 700;
                             text-transform: uppercase;
                             letter-spacing: 0.5px;
-                            margin-bottom: 6px;
+                            margin-bottom: 3px;
                         }
                         
                         .contact-value {
                             color: #1e293b;
-                            font-size: 16px;
+                            font-size: 12px;
                             font-weight: 600;
                             word-break: break-all;
                         }
@@ -326,20 +328,20 @@
                         
                         .qr-label {
                             color: #dc2626;
-                            font-size: 18px;
+                            font-size: 12px;
                             font-weight: 800;
                             text-transform: uppercase;
-                            letter-spacing: 1px;
-                            margin-bottom: 8px;
+                            letter-spacing: 0.5px;
+                            margin-bottom: 4px;
                         }
                         
                         .qr-description {
                             color: #374151;
-                            font-size: 14px;
+                            font-size: 10px;
                             font-weight: 600;
                             text-align: center;
-                            line-height: 1.3;
-                            margin-bottom: 10px;
+                            line-height: 1.2;
+                            margin-bottom: 6px;
                         }
                         
                         @keyframes pulse {
@@ -349,24 +351,22 @@
                         
                         .qr-container {
                             background: white;
-                            padding: 15px;
-                            border-radius: 16px;
-                            box-shadow: 
-                                0 10px 15px -3px rgba(0, 0, 0, 0.1),
-                                0 4px 6px -2px rgba(0, 0, 0, 0.05);
-                            border: 3px solid #e5e7eb;
+                            padding: 8px;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                            border: 2px solid #e5e7eb;
                             position: relative;
                             overflow: hidden;
                         }
                         
                         .layout-horizontal .qr-container {
-                            width: 170px;
-                            height: 170px;
+                            width: 130px;
+                            height: 130px;
                         }
                         
                         .layout-vertical .qr-container {
-                            width: 160px;
-                            height: 160px;
+                            width: 120px;
+                            height: 120px;
                         }
                         
                         .qr-container::before {
