@@ -31,8 +31,8 @@
                             padding: 0;
                             margin: 0;
                             color: #1e293b;
-                            font-size: 12px;
-                            line-height: 1.2;
+                            font-size: 8px;
+                            line-height: 1.1;
                         }
                         
                         /* Contenedor principal */
@@ -42,7 +42,7 @@
                             background: white;
                             border-radius: 0;
                             box-shadow: none;
-                            padding: 12px;
+                            padding: 6px;
                             position: relative;
                             overflow: hidden;
                             display: flex;
@@ -71,9 +71,9 @@
                                 "logo qr"
                                 "content qr"
                                 "contact qr";
-                            grid-template-columns: 1fr 140px;
+                            grid-template-columns: 1fr 70px;
                             grid-template-rows: auto 1fr auto;
-                            gap: 12px;
+                            gap: 6px;
                             height: 100%;
                         }
                         
@@ -86,7 +86,7 @@
                                 "contact"
                                 "qr";
                             grid-template-rows: auto 1fr auto auto;
-                            gap: 15px;
+                            gap: 6px;
                             height: 100%;
                         }
                         
@@ -97,7 +97,7 @@
                             flex-direction: column;
                             align-items: center;
                             text-align: center;
-                            gap: 8px;
+                            gap: 3px;
                             margin-bottom: 0;
                         }
                         
@@ -114,13 +114,13 @@
                         }
                         
                         .layout-horizontal .logo-container {
-                            width: 250px;
-                            height: 100px;
+                            width: 125px;
+                            height: 50px;
                         }
                         
                         .layout-vertical .logo-container {
-                            width: 320px;
-                            height: 128px;
+                            width: 160px;
+                            height: 64px;
                             margin: 0 auto;
                         }
                         
@@ -133,10 +133,10 @@
                         
                         .logo-text {
                             color: #1e40af;
-                            font-size: 24px;
+                            font-size: 12px;
                             font-weight: 900;
                             text-transform: uppercase;
-                            letter-spacing: 1px;
+                            letter-spacing: 0.5px;
                             text-align: center;
                             background: linear-gradient(135deg, #1e40af, #3b82f6);
                             -webkit-background-clip: text;
@@ -146,10 +146,10 @@
                         
                         .main-title {
                             color: #1e40af;
-                            font-size: 16px;
+                            font-size: 8px;
                             font-weight: 700;
                             text-transform: uppercase;
-                            letter-spacing: 0.5px;
+                            letter-spacing: 0.3px;
                             line-height: 1.1;
                             text-align: center;
                             margin: 0;
@@ -158,11 +158,11 @@
                         /* Decorative line */
                         .decorative-line {
                             width: 100%;
-                            height: 2px;
+                            height: 1px;
                             background: linear-gradient(90deg, #3b82f6, #06b6d4, #8b5cf6);
-                            border-radius: 1px;
-                            margin: 8px 0 12px 0;
-                            box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3);
+                            border-radius: 0.5px;
+                            margin: 3px 0 4px 0;
+                            box-shadow: 0 1px 2px rgba(59, 130, 246, 0.2);
                         }
                         
                         /* Content area */
@@ -170,20 +170,20 @@
                             grid-area: content;
                             display: flex;
                             flex-direction: column;
-                            gap: 8px;
+                            gap: 4px;
                         }
                         
                         .equipment-section {
                             display: flex;
                             flex-direction: column;
-                            gap: 8px;
+                            gap: 3px;
                         }
                         
                         .info-group {
                             background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-                            border-radius: 8px;
-                            padding: 10px;
-                            border-left: 3px solid #3b82f6;
+                            border-radius: 4px;
+                            padding: 4px;
+                            border-left: 2px solid #3b82f6;
                             position: relative;
                             transition: all 0.3s ease;
                         }
@@ -202,27 +202,27 @@
                         
                         .info-label {
                             color: #1e40af;
-                            font-size: 14px;
+                            font-size: 7px;
                             font-weight: 700;
                             text-transform: uppercase;
-                            letter-spacing: 0.5px;
-                            margin-bottom: 6px;
+                            letter-spacing: 0.2px;
+                            margin-bottom: 2px;
                             display: flex;
                             align-items: center;
-                            gap: 6px;
+                            gap: 3px;
                         }
                         
                         .info-label::before {
                             content: '●';
                             color: #3b82f6;
-                            font-size: 10px;
+                            font-size: 6px;
                         }
                         
                         .info-value {
                             color: #334155;
-                            font-size: 14px;
+                            font-size: 8px;
                             font-weight: 600;
-                            line-height: 1.2;
+                            line-height: 1.1;
                             word-break: break-word;
                         }
                         
@@ -233,20 +233,20 @@
                         
                         .contact-title {
                             color: #1e40af;
-                            font-size: 12px;
+                            font-size: 6px;
                             font-weight: 700;
                             text-transform: uppercase;
-                            margin-bottom: 6px;
+                            margin-bottom: 2px;
                             text-align: center;
                             position: relative;
                         }
                         
                         .contact-subtitle {
                             color: #64748b;
-                            font-size: 9px;
+                            font-size: 5px;
                             font-weight: 500;
                             text-align: center;
-                            margin-bottom: 8px;
+                            margin-bottom: 3px;
                             font-style: italic;
                         }
                         
@@ -265,15 +265,15 @@
                         .contact-grid {
                             display: flex;
                             flex-direction: column;
-                            gap: 6px;
+                            gap: 2px;
                             align-items: stretch;
                         }
                         
                         .contact-item {
                             background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
                             border: 1px solid #3b82f6;
-                            border-radius: 6px;
-                            padding: 6px 12px;
+                            border-radius: 3px;
+                            padding: 2px 4px;
                             text-align: left;
                             position: relative;
                             overflow: hidden;
@@ -298,17 +298,17 @@
                         
                         .contact-type {
                             color: #1e40af;
-                            font-size: 9px;
+                            font-size: 5px;
                             font-weight: 700;
                             text-transform: uppercase;
-                            letter-spacing: 0.3px;
-                            margin-right: 6px;
+                            letter-spacing: 0.2px;
+                            margin-right: 3px;
                             flex-shrink: 0;
                         }
                         
                         .contact-value {
                             color: #1e293b;
-                            font-size: 9px;
+                            font-size: 5px;
                             font-weight: 600;
                             word-break: break-all;
                             text-align: right;
@@ -331,20 +331,20 @@
                         
                         .qr-label {
                             color: #dc2626;
-                            font-size: 10px;
+                            font-size: 5px;
                             font-weight: 800;
                             text-transform: uppercase;
-                            letter-spacing: 0.3px;
-                            margin-bottom: 3px;
+                            letter-spacing: 0.2px;
+                            margin-bottom: 1px;
                         }
                         
                         .qr-description {
                             color: #374151;
-                            font-size: 8px;
+                            font-size: 4px;
                             font-weight: 600;
                             text-align: center;
-                            line-height: 1.1;
-                            margin-bottom: 4px;
+                            line-height: 1.0;
+                            margin-bottom: 2px;
                         }
                         
                         @keyframes pulse {
@@ -354,22 +354,22 @@
                         
                         .qr-container {
                             background: white;
-                            padding: 8px;
-                            border-radius: 8px;
-                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                            border: 2px solid #e5e7eb;
+                            padding: 3px;
+                            border-radius: 4px;
+                            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+                            border: 1px solid #e5e7eb;
                             position: relative;
                             overflow: hidden;
                         }
                         
                         .layout-horizontal .qr-container {
-                            width: 110px;
-                            height: 110px;
+                            width: 55px;
+                            height: 55px;
                         }
                         
                         .layout-vertical .qr-container {
-                            width: 100px;
-                            height: 100px;
+                            width: 50px;
+                            height: 50px;
                         }
                         
                         .qr-container::before {
