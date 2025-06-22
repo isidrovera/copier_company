@@ -68,10 +68,10 @@
                         .layout-horizontal {
                             display: grid;
                             grid-template-areas: 
-                                "header header qr"
-                                "content content qr"
-                                "contact contact qr";
-                            grid-template-columns: 1fr 1fr 160px;
+                                "logo qr"
+                                "content qr"
+                                "contact qr";
+                            grid-template-columns: 1fr 160px;
                             grid-template-rows: auto 1fr auto;
                             gap: 15px;
                             height: 100%;
@@ -90,15 +90,19 @@
                             height: 100%;
                         }
                         
-                        /* Header */
+                        /* Header/Logo */
                         .header {
-                            grid-area: header;
+                            grid-area: logo;
                             display: flex;
                             flex-direction: column;
                             align-items: center;
                             text-align: center;
                             gap: 8px;
                             margin-bottom: 0;
+                        }
+                        
+                        .layout-vertical .header {
+                            grid-area: header;
                         }
                         
                         .logo-container {
@@ -110,13 +114,13 @@
                         }
                         
                         .layout-horizontal .logo-container {
-                            width: 200px;
-                            height: 80px;
+                            width: 300px;
+                            height: 120px;
                         }
                         
                         .layout-vertical .logo-container {
-                            width: 250px;
-                            height: 100px;
+                            width: 400px;
+                            height: 160px;
                             margin: 0 auto;
                         }
                         
@@ -166,22 +170,19 @@
                             grid-area: content;
                             display: flex;
                             flex-direction: column;
-                            gap: 15px;
+                            gap: 8px;
                         }
                         
                         .equipment-section {
-                            display: grid;
-                            gap: 12px;
-                        }
-                        
-                        .layout-horizontal .equipment-section {
-                            grid-template-columns: 1fr 1fr;
+                            display: flex;
+                            flex-direction: column;
+                            gap: 8px;
                         }
                         
                         .info-group {
                             background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
                             border-radius: 8px;
-                            padding: 12px;
+                            padding: 10px;
                             border-left: 3px solid #3b82f6;
                             position: relative;
                             transition: all 0.3s ease;
@@ -263,9 +264,9 @@
                         
                         .contact-grid {
                             display: flex;
-                            flex-wrap: wrap;
-                            gap: 8px;
-                            justify-content: center;
+                            flex-direction: column;
+                            gap: 6px;
+                            align-items: stretch;
                         }
                         
                         .contact-item {
@@ -273,15 +274,15 @@
                             border: 1px solid #3b82f6;
                             border-radius: 6px;
                             padding: 6px 12px;
-                            text-align: center;
+                            text-align: left;
                             position: relative;
                             overflow: hidden;
                             transition: all 0.3s ease;
-                            display: inline-flex;
-                            flex-direction: column;
+                            display: flex;
+                            flex-direction: row;
                             align-items: center;
-                            min-width: fit-content;
-                            white-space: nowrap;
+                            justify-content: space-between;
+                            width: 100%;
                         }
                         
                         .contact-item::before {
@@ -297,18 +298,20 @@
                         
                         .contact-type {
                             color: #1e40af;
-                            font-size: 10px;
+                            font-size: 11px;
                             font-weight: 700;
                             text-transform: uppercase;
                             letter-spacing: 0.5px;
-                            margin-bottom: 3px;
+                            margin-right: 8px;
+                            flex-shrink: 0;
                         }
                         
                         .contact-value {
                             color: #1e293b;
-                            font-size: 12px;
+                            font-size: 11px;
                             font-weight: 600;
                             word-break: break-all;
+                            text-align: right;
                         }
                         
                         /* QR Section */
@@ -429,7 +432,7 @@
                 <body>
                     <div class="sticker-container">
                         <div t-attf-class="layout-#{layout}">
-                            <!-- Header -->
+                            <!-- Logo Section -->
                             <div class="header">
                                 <div class="logo-container">
                                     <t t-if="logo_base64">
@@ -465,17 +468,17 @@
                                 <div class="contact-subtitle">Para dudas técnicas, mantenimiento o información comercial</div>
                                 <div class="contact-grid">
                                     <div class="contact-item">
-                                        <div class="contact-type">📧 Email</div>
+                                        <div class="contact-type">📧 EMAIL</div>
                                         <div class="contact-value">info@copiercompanysac.com</div>
                                     </div>
                                     
                                     <div class="contact-item">
-                                        <div class="contact-type">📱 WhatsApp</div>
+                                        <div class="contact-type">📱 WHATSAPP</div>
                                         <div class="contact-value">975399303</div>
                                     </div>
                                     
                                     <div class="contact-item">
-                                        <div class="contact-type">🌐 Web</div>
+                                        <div class="contact-type">🌐 WEB</div>
                                         <div class="contact-value">copiercompanysac.com</div>
                                     </div>
                                 </div>
