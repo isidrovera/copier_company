@@ -31,8 +31,8 @@
                             padding: 0;
                             margin: 0;
                             color: #1e293b;
-                            font-size: 14px;
-                            line-height: 1.3;
+                            font-size: 12px;
+                            line-height: 1.2;
                         }
                         
                         /* Contenedor principal */
@@ -42,7 +42,7 @@
                             background: white;
                             border-radius: 0;
                             box-shadow: none;
-                            padding: 15px;
+                            padding: 12px;
                             position: relative;
                             overflow: hidden;
                             display: flex;
@@ -71,9 +71,9 @@
                                 "logo qr"
                                 "content qr"
                                 "contact qr";
-                            grid-template-columns: 1fr 160px;
+                            grid-template-columns: 1fr 140px;
                             grid-template-rows: auto 1fr auto;
-                            gap: 15px;
+                            gap: 12px;
                             height: 100%;
                         }
                         
@@ -114,13 +114,13 @@
                         }
                         
                         .layout-horizontal .logo-container {
-                            width: 300px;
-                            height: 120px;
+                            width: 250px;
+                            height: 100px;
                         }
                         
                         .layout-vertical .logo-container {
-                            width: 400px;
-                            height: 160px;
+                            width: 320px;
+                            height: 128px;
                             margin: 0 auto;
                         }
                         
@@ -146,7 +146,7 @@
                         
                         .main-title {
                             color: #1e40af;
-                            font-size: 18px;
+                            font-size: 16px;
                             font-weight: 700;
                             text-transform: uppercase;
                             letter-spacing: 0.5px;
@@ -220,7 +220,7 @@
                         
                         .info-value {
                             color: #334155;
-                            font-size: 16px;
+                            font-size: 14px;
                             font-weight: 600;
                             line-height: 1.2;
                             word-break: break-word;
@@ -233,20 +233,20 @@
                         
                         .contact-title {
                             color: #1e40af;
-                            font-size: 14px;
+                            font-size: 12px;
                             font-weight: 700;
                             text-transform: uppercase;
-                            margin-bottom: 8px;
+                            margin-bottom: 6px;
                             text-align: center;
                             position: relative;
                         }
                         
                         .contact-subtitle {
                             color: #64748b;
-                            font-size: 11px;
+                            font-size: 9px;
                             font-weight: 500;
                             text-align: center;
-                            margin-bottom: 10px;
+                            margin-bottom: 8px;
                             font-style: italic;
                         }
                         
@@ -298,17 +298,17 @@
                         
                         .contact-type {
                             color: #1e40af;
-                            font-size: 11px;
+                            font-size: 9px;
                             font-weight: 700;
                             text-transform: uppercase;
-                            letter-spacing: 0.5px;
-                            margin-right: 8px;
+                            letter-spacing: 0.3px;
+                            margin-right: 6px;
                             flex-shrink: 0;
                         }
                         
                         .contact-value {
                             color: #1e293b;
-                            font-size: 11px;
+                            font-size: 9px;
                             font-weight: 600;
                             word-break: break-all;
                             text-align: right;
@@ -331,20 +331,20 @@
                         
                         .qr-label {
                             color: #dc2626;
-                            font-size: 12px;
+                            font-size: 10px;
                             font-weight: 800;
                             text-transform: uppercase;
-                            letter-spacing: 0.5px;
-                            margin-bottom: 4px;
+                            letter-spacing: 0.3px;
+                            margin-bottom: 3px;
                         }
                         
                         .qr-description {
                             color: #374151;
-                            font-size: 10px;
+                            font-size: 8px;
                             font-weight: 600;
                             text-align: center;
-                            line-height: 1.2;
-                            margin-bottom: 6px;
+                            line-height: 1.1;
+                            margin-bottom: 4px;
                         }
                         
                         @keyframes pulse {
@@ -363,13 +363,13 @@
                         }
                         
                         .layout-horizontal .qr-container {
-                            width: 130px;
-                            height: 130px;
+                            width: 110px;
+                            height: 110px;
                         }
                         
                         .layout-vertical .qr-container {
-                            width: 120px;
-                            height: 120px;
+                            width: 100px;
+                            height: 100px;
                         }
                         
                         .qr-container::before {
