@@ -35,8 +35,8 @@ class StickerController(http.Controller):
                 'layout': layout,
                 'serie': serie,
                 'modelo': modelo,
-                'width': "708px" if layout == 'vertical' else "1181px",
-                'height': "1181px" if layout == 'vertical' else "708px",
+                'width': "567px" if layout == 'vertical' else "944px",  # 8cm a 300 DPI
+                'height': "944px" if layout == 'vertical' else "567px",  # 6cm a 300 DPI
             }
             
             # Renderizar template
