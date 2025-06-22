@@ -7,3 +7,4 @@ from . import cotizaciones
 from . import portal
 from . import manuals
 from . import website_stock
+from . import sticker_controller
