@@ -1,7 +1,7 @@
 <!-- views/sticker_template.xml -->
 <odoo>
-    <!-- Template Principal del Sticker Vertical Compacto -->
-    <template id="sticker_template_vertical" name="Sticker Corporativo Vertical">
+    <!-- Template Principal del Sticker -->
+    <template id="sticker_template" name="Sticker Corporativo">
         <t t-call="web.html_container">
             <html>
                 <head>
@@ -17,13 +17,13 @@
                         }
                         
                         @page {
-                            size: 80mm 120mm; /* Tamaño compacto para tapa de fotocopiadora */
+                            size: <t t-esc="width"/> <t t-esc="height"/>;
                             margin: 0;
                         }
                         
                         body {
-                            width: 80mm;
-                            height: 120mm;
+                            width: <t t-esc="width"/>;
+                            height: <t t-esc="height"/>;
                             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
                             background: white;
                             overflow: hidden;
@@ -31,7 +31,7 @@
                             padding: 0;
                             margin: 0;
                             color: #1e293b;
-                            font-size: 11px;
+                            font-size: 12px;
                             line-height: 1.2;
                         }
                         
@@ -40,6 +40,8 @@
                             width: 100%;
                             height: 100%;
                             background: white;
+                            border-radius: 0;
+                            box-shadow: none;
                             padding: 8mm;
                             position: relative;
                             overflow: hidden;
@@ -62,14 +64,23 @@
                             pointer-events: none;
                         }
                         
-                        /* Header compacto */
+                        /* LAYOUT SIEMPRE VERTICAL */
+                        .layout-horizontal,
+                        .layout-vertical {
+                            display: flex;
+                            flex-direction: column;
+                            height: 100%;
+                            gap: 8px;
+                        }
+                        
+                        /* Header */
                         .header {
                             display: flex;
                             flex-direction: column;
                             align-items: center;
                             text-align: center;
                             gap: 4px;
-                            margin-bottom: 6px;
+                            flex-shrink: 0;
                         }
                         
                         .logo-container {
@@ -78,6 +89,8 @@
                             background: transparent;
                             border-radius: 4px;
                             padding: 2px;
+                            box-shadow: none;
+                            flex-shrink: 0;
                             display: flex;
                             align-items: center;
                             justify-content: center;
@@ -114,7 +127,7 @@
                             margin: 0;
                         }
                         
-                        /* Línea decorativa */
+                        /* Decorative line */
                         .decorative-line {
                             width: 100%;
                             height: 2px;
@@ -124,12 +137,18 @@
                             box-shadow: 0 1px 2px rgba(59, 130, 246, 0.2);
                         }
                         
-                        /* Sección de información del equipo */
+                        /* Content area */
+                        .content {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 8px;
+                            flex-shrink: 0;
+                        }
+                        
                         .equipment-section {
                             display: flex;
                             flex-direction: column;
                             gap: 6px;
-                            margin-bottom: 8px;
                         }
                         
                         .info-group {
@@ -139,6 +158,18 @@
                             border-left: 2px solid #3b82f6;
                             position: relative;
                             transition: all 0.2s ease;
+                        }
+                        
+                        .info-group::before {
+                            content: '';
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            right: 0;
+                            bottom: 0;
+                            background: linear-gradient(135deg, rgba(59, 130, 246, 0.01), rgba(168, 85, 247, 0.005));
+                            border-radius: 6px;
+                            pointer-events: none;
                         }
                         
                         .info-label {
@@ -167,14 +198,16 @@
                             word-break: break-word;
                         }
                         
-                        /* Sección QR - Prominente */
+                        /* QR Section - Prominente en el centro */
                         .qr-section {
                             display: flex;
                             flex-direction: column;
                             align-items: center;
                             text-align: center;
                             gap: 6px;
-                            margin-bottom: 8px;
+                            flex: 1;
+                            justify-content: center;
+                            margin: 8px 0;
                         }
                         
                         .qr-label {
@@ -193,6 +226,11 @@
                             text-align: center;
                             line-height: 1.2;
                             margin-bottom: 4px;
+                        }
+                        
+                        @keyframes pulse {
+                            0%, 100% { opacity: 1; }
+                            50% { opacity: 0.7; }
                         }
                         
                         .qr-container {
@@ -247,9 +285,9 @@
                             font-weight: 600;
                         }
                         
-                        /* Sección de contacto compacta */
+                        /* Contact section */
                         .contact-section {
-                            margin-top: auto;
+                            flex-shrink: 0;
                         }
                         
                         .contact-title {
@@ -260,6 +298,15 @@
                             margin-bottom: 4px;
                             text-align: center;
                             position: relative;
+                        }
+                        
+                        .contact-subtitle {
+                            color: #64748b;
+                            font-size: 8px;
+                            font-weight: 500;
+                            text-align: center;
+                            margin-bottom: 6px;
+                            font-style: italic;
                         }
                         
                         .contact-title::after {
@@ -298,6 +345,17 @@
                             font-size: 8px;
                         }
                         
+                        .contact-item::before {
+                            content: '';
+                            position: absolute;
+                            top: 0;
+                            left: -100%;
+                            width: 100%;
+                            height: 100%;
+                            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+                            transition: left 0.3s ease;
+                        }
+                        
                         .contact-type {
                             color: #1e40af;
                             font-weight: 700;
@@ -308,15 +366,10 @@
                         .contact-value {
                             color: #1e293b;
                             font-weight: 600;
+                            word-break: break-all;
                         }
                         
-                        /* Efectos sutiles */
-                        .info-group:hover {
-                            transform: translateY(-1px);
-                            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-                        }
-                        
-                        /* Print styles */
+                        /* Responsive adjustments */
                         @media print {
                             body { 
                                 background: white;
@@ -328,81 +381,83 @@
                             }
                         }
                         
-                        /* Responsive para diferentes tamaños */
-                        @media (max-width: 85mm) {
-                            body { font-size: 10px; }
-                            .logo-container { width: 45mm; height: 18mm; }
-                            .qr-container { width: 30mm; height: 30mm; }
+                        /* Subtle animations */
+                        .info-group:hover {
+                            transform: translateY(-1px);
+                            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                        }
+                        
+                        .contact-item:hover::before {
+                            left: 100%;
                         }
                     </style>
                 </head>
                 <body>
                     <div class="sticker-container">
-                        <!-- Header con logo y título -->
-                        <div class="header">
-                            <div class="logo-container">
-                                <t t-if="logo_base64">
-                                    <img t-attf-src="data:image/png;base64,#{logo_base64}" alt="Logo" class="logo-img"/>
-                                </t>
-                                <t t-else="">
-                                    <div class="logo-text">Copier Company</div>
-                                </t>
+                        <div t-attf-class="layout-#{layout}">
+                            <!-- Header -->
+                            <div class="header">
+                                <div class="logo-container">
+                                    <t t-if="logo_base64">
+                                        <img t-attf-src="data:image/png;base64,#{logo_base64}" alt="Logo" class="logo-img"/>
+                                    </t>
+                                    <t t-else="">
+                                        <div class="logo-text">Copier Company</div>
+                                    </t>
+                                </div>
+                                <div class="main-title">Alquiler de Fotocopiadoras</div>
                             </div>
-                            <div class="main-title">Alquiler de Fotocopiadoras</div>
+                            
                             <div class="decorative-line"></div>
-                        </div>
-                        
-                        <!-- Información del equipo -->
-                        <div class="equipment-section">
-                            <div class="info-group">
-                                <div class="info-label">Modelo</div>
-                                <div class="info-value"><t t-esc="modelo"/></div>
+                            
+                            <!-- Content -->
+                            <div class="content">
+                                <div class="equipment-section">
+                                    <div class="info-group">
+                                        <div class="info-label">Modelo</div>
+                                        <div class="info-value"><t t-esc="modelo"/></div>
+                                    </div>
+                                    
+                                    <div class="info-group">
+                                        <div class="info-label">Serie</div>
+                                        <div class="info-value"><t t-esc="serie"/></div>
+                                    </div>
+                                </div>
                             </div>
                             
-                            <div class="info-group">
-                                <div class="info-label">Serie</div>
-                                <div class="info-value"><t t-esc="serie"/></div>
+                            <!-- QR Code prominente -->
+                            <div class="qr-section">
+                                <div class="qr-label">🛠️ SERVICIO TÉCNICO</div>
+                                <div class="qr-description">Escanea para solicitar<br/>mantenimiento o reparación</div>
+                                <div class="qr-container">
+                                    <t t-if="qr_base64">
+                                        <img t-attf-src="data:image/png;base64,#{qr_base64}" alt="QR Code" class="qr-code"/>
+                                    </t>
+                                    <t t-else="">
+                                        <div class="qr-placeholder">QR CODE</div>
+                                    </t>
+                                </div>
                             </div>
                             
-                            <t t-if="ubicacion">
-                                <div class="info-group">
-                                    <div class="info-label">Ubicación</div>
-                                    <div class="info-value"><t t-esc="ubicacion"/></div>
-                                </div>
-                            </t>
-                        </div>
-                        
-                        <!-- QR Code prominente -->
-                        <div class="qr-section">
-                            <div class="qr-label">🛠️ SERVICIO TÉCNICO</div>
-                            <div class="qr-description">Escanea para solicitar<br/>mantenimiento o reparación</div>
-                            <div class="qr-container">
-                                <t t-if="qr_base64">
-                                    <img t-attf-src="data:image/png;base64,#{qr_base64}" alt="QR Code" class="qr-code"/>
-                                </t>
-                                <t t-else="">
-                                    <div class="qr-placeholder">QR CODE</div>
-                                </t>
-                            </div>
-                        </div>
-                        
-                        <!-- Contacto compacto -->
-                        <div class="contact-section">
-                            <div class="contact-title">Soporte y Consultas</div>
-                            <div class="contact-grid">
-                                <div class="contact-item">
-                                    <span class="contact-type">📧</span>
-                                    <span class="contact-value">info@copiercompanysac.com</span>
-                                </div>
-                                
-                                <div class="contact-item">
-                                    <span class="contact-type">📱</span>
-                                    <span class="contact-value">975399303</span>
-                                </div>
-                                
-                                <div class="contact-item">
-                                    <span class="contact-type">🌐</span>
-                                    <span class="contact-value">copiercompanysac.com</span>
+                            <!-- Contact -->
+                            <div class="contact-section">
+                                <div class="contact-title">Soporte y Consultas</div>
+                                <div class="contact-subtitle">Para dudas técnicas, mantenimiento o información comercial</div>
+                                <div class="contact-grid">
+                                    <div class="contact-item">
+                                        <div class="contact-type">📧 Email</div>
+                                        <div class="contact-value">info@copiercompanysac.com</div>
+                                    </div>
+                                    
+                                    <div class="contact-item">
+                                        <div class="contact-type">📱 WhatsApp</div>
+                                        <div class="contact-value">975399303</div>
+                                    </div>
+                                    
+                                    <div class="contact-item">
+                                        <div class="contact-type">🌐 Web</div>
+                                        <div class="contact-value">copiercompanysac.com</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
