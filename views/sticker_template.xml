@@ -21,30 +21,28 @@
                             margin: 0;
                         }
                         
-                        html, body {
+                        body {
                             width: <t t-esc="width"/>;
                             height: <t t-esc="height"/>;
-                            margin: 0;
-                            padding: 0;
                             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
                             background: white;
                             overflow: hidden;
+                            position: relative;
+                            padding: 0;
+                            margin: 0;
                             color: #1e293b;
-                            font-size: 8px;
-                            line-height: 1.1;
+                            font-size: 14px;
+                            line-height: 1.3;
                         }
                         
                         /* Contenedor principal */
                         .sticker-container {
-                            width: <t t-esc="width"/>;
-                            height: <t t-esc="height"/>;
-                            max-width: <t t-esc="width"/>;
-                            max-height: <t t-esc="height"/>;
+                            width: 100%;
+                            height: 100%;
                             background: white;
                             border-radius: 0;
                             box-shadow: none;
-                            padding: 6px;
-                            box-sizing: border-box;
+                            padding: 15px;
                             position: relative;
                             overflow: hidden;
                             display: flex;
@@ -70,12 +68,12 @@
                         .layout-horizontal {
                             display: grid;
                             grid-template-areas: 
-                                "logo qr"
-                                "content qr"
-                                "contact qr";
-                            grid-template-columns: 1fr 70px;
+                                "header header qr"
+                                "content content qr"
+                                "contact contact qr";
+                            grid-template-columns: 1fr 1fr 160px;
                             grid-template-rows: auto 1fr auto;
-                            gap: 6px;
+                            gap: 15px;
                             height: 100%;
                         }
                         
@@ -88,23 +86,19 @@
                                 "contact"
                                 "qr";
                             grid-template-rows: auto 1fr auto auto;
-                            gap: 6px;
+                            gap: 15px;
                             height: 100%;
                         }
                         
-                        /* Header/Logo */
+                        /* Header */
                         .header {
-                            grid-area: logo;
+                            grid-area: header;
                             display: flex;
                             flex-direction: column;
                             align-items: center;
                             text-align: center;
-                            gap: 3px;
+                            gap: 8px;
                             margin-bottom: 0;
-                        }
-                        
-                        .layout-vertical .header {
-                            grid-area: header;
                         }
                         
                         .logo-container {
@@ -116,13 +110,13 @@
                         }
                         
                         .layout-horizontal .logo-container {
-                            width: 125px;
-                            height: 50px;
+                            width: 200px;
+                            height: 80px;
                         }
                         
                         .layout-vertical .logo-container {
-                            width: 160px;
-                            height: 64px;
+                            width: 250px;
+                            height: 100px;
                             margin: 0 auto;
                         }
                         
@@ -135,10 +129,10 @@
                         
                         .logo-text {
                             color: #1e40af;
-                            font-size: 12px;
+                            font-size: 24px;
                             font-weight: 900;
                             text-transform: uppercase;
-                            letter-spacing: 0.5px;
+                            letter-spacing: 1px;
                             text-align: center;
                             background: linear-gradient(135deg, #1e40af, #3b82f6);
                             -webkit-background-clip: text;
@@ -148,10 +142,10 @@
                         
                         .main-title {
                             color: #1e40af;
-                            font-size: 8px;
+                            font-size: 18px;
                             font-weight: 700;
                             text-transform: uppercase;
-                            letter-spacing: 0.3px;
+                            letter-spacing: 0.5px;
                             line-height: 1.1;
                             text-align: center;
                             margin: 0;
@@ -160,11 +154,11 @@
                         /* Decorative line */
                         .decorative-line {
                             width: 100%;
-                            height: 1px;
+                            height: 2px;
                             background: linear-gradient(90deg, #3b82f6, #06b6d4, #8b5cf6);
-                            border-radius: 0.5px;
-                            margin: 3px 0 4px 0;
-                            box-shadow: 0 1px 2px rgba(59, 130, 246, 0.2);
+                            border-radius: 1px;
+                            margin: 8px 0 12px 0;
+                            box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3);
                         }
                         
                         /* Content area */
@@ -172,20 +166,23 @@
                             grid-area: content;
                             display: flex;
                             flex-direction: column;
-                            gap: 4px;
+                            gap: 15px;
                         }
                         
                         .equipment-section {
-                            display: flex;
-                            flex-direction: column;
-                            gap: 3px;
+                            display: grid;
+                            gap: 12px;
+                        }
+                        
+                        .layout-horizontal .equipment-section {
+                            grid-template-columns: 1fr 1fr;
                         }
                         
                         .info-group {
                             background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-                            border-radius: 4px;
-                            padding: 4px;
-                            border-left: 2px solid #3b82f6;
+                            border-radius: 8px;
+                            padding: 12px;
+                            border-left: 3px solid #3b82f6;
                             position: relative;
                             transition: all 0.3s ease;
                         }
@@ -204,27 +201,27 @@
                         
                         .info-label {
                             color: #1e40af;
-                            font-size: 7px;
+                            font-size: 14px;
                             font-weight: 700;
                             text-transform: uppercase;
-                            letter-spacing: 0.2px;
-                            margin-bottom: 2px;
+                            letter-spacing: 0.5px;
+                            margin-bottom: 6px;
                             display: flex;
                             align-items: center;
-                            gap: 3px;
+                            gap: 6px;
                         }
                         
                         .info-label::before {
                             content: '●';
                             color: #3b82f6;
-                            font-size: 6px;
+                            font-size: 10px;
                         }
                         
                         .info-value {
                             color: #334155;
-                            font-size: 8px;
+                            font-size: 16px;
                             font-weight: 600;
-                            line-height: 1.1;
+                            line-height: 1.2;
                             word-break: break-word;
                         }
                         
@@ -235,20 +232,20 @@
                         
                         .contact-title {
                             color: #1e40af;
-                            font-size: 6px;
+                            font-size: 14px;
                             font-weight: 700;
                             text-transform: uppercase;
-                            margin-bottom: 2px;
+                            margin-bottom: 8px;
                             text-align: center;
                             position: relative;
                         }
                         
                         .contact-subtitle {
                             color: #64748b;
-                            font-size: 5px;
+                            font-size: 11px;
                             font-weight: 500;
                             text-align: center;
-                            margin-bottom: 3px;
+                            margin-bottom: 10px;
                             font-style: italic;
                         }
                         
@@ -266,25 +263,25 @@
                         
                         .contact-grid {
                             display: flex;
-                            flex-direction: column;
-                            gap: 2px;
-                            align-items: stretch;
+                            flex-wrap: wrap;
+                            gap: 8px;
+                            justify-content: center;
                         }
                         
                         .contact-item {
                             background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
                             border: 1px solid #3b82f6;
-                            border-radius: 3px;
-                            padding: 2px 4px;
-                            text-align: left;
+                            border-radius: 6px;
+                            padding: 6px 12px;
+                            text-align: center;
                             position: relative;
                             overflow: hidden;
                             transition: all 0.3s ease;
-                            display: flex;
-                            flex-direction: row;
+                            display: inline-flex;
+                            flex-direction: column;
                             align-items: center;
-                            justify-content: space-between;
-                            width: 100%;
+                            min-width: fit-content;
+                            white-space: nowrap;
                         }
                         
                         .contact-item::before {
@@ -300,20 +297,18 @@
                         
                         .contact-type {
                             color: #1e40af;
-                            font-size: 5px;
+                            font-size: 10px;
                             font-weight: 700;
                             text-transform: uppercase;
-                            letter-spacing: 0.2px;
-                            margin-right: 3px;
-                            flex-shrink: 0;
+                            letter-spacing: 0.5px;
+                            margin-bottom: 3px;
                         }
                         
                         .contact-value {
                             color: #1e293b;
-                            font-size: 5px;
+                            font-size: 12px;
                             font-weight: 600;
                             word-break: break-all;
-                            text-align: right;
                         }
                         
                         /* QR Section */
@@ -333,20 +328,20 @@
                         
                         .qr-label {
                             color: #dc2626;
-                            font-size: 5px;
+                            font-size: 12px;
                             font-weight: 800;
                             text-transform: uppercase;
-                            letter-spacing: 0.2px;
-                            margin-bottom: 1px;
+                            letter-spacing: 0.5px;
+                            margin-bottom: 4px;
                         }
                         
                         .qr-description {
                             color: #374151;
-                            font-size: 4px;
+                            font-size: 10px;
                             font-weight: 600;
                             text-align: center;
-                            line-height: 1.0;
-                            margin-bottom: 2px;
+                            line-height: 1.2;
+                            margin-bottom: 6px;
                         }
                         
                         @keyframes pulse {
@@ -356,22 +351,22 @@
                         
                         .qr-container {
                             background: white;
-                            padding: 3px;
-                            border-radius: 4px;
-                            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-                            border: 1px solid #e5e7eb;
+                            padding: 8px;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                            border: 2px solid #e5e7eb;
                             position: relative;
                             overflow: hidden;
                         }
                         
                         .layout-horizontal .qr-container {
-                            width: 55px;
-                            height: 55px;
+                            width: 130px;
+                            height: 130px;
                         }
                         
                         .layout-vertical .qr-container {
-                            width: 50px;
-                            height: 50px;
+                            width: 120px;
+                            height: 120px;
                         }
                         
                         .qr-container::before {
@@ -434,7 +429,7 @@
                 <body>
                     <div class="sticker-container">
                         <div t-attf-class="layout-#{layout}">
-                            <!-- Logo Section -->
+                            <!-- Header -->
                             <div class="header">
                                 <div class="logo-container">
                                     <t t-if="logo_base64">
@@ -470,17 +465,17 @@
                                 <div class="contact-subtitle">Para dudas técnicas, mantenimiento o información comercial</div>
                                 <div class="contact-grid">
                                     <div class="contact-item">
-                                        <div class="contact-type">📧 EMAIL</div>
+                                        <div class="contact-type">📧 Email</div>
                                         <div class="contact-value">info@copiercompanysac.com</div>
                                     </div>
                                     
                                     <div class="contact-item">
-                                        <div class="contact-type">📱 WHATSAPP</div>
+                                        <div class="contact-type">📱 WhatsApp</div>
                                         <div class="contact-value">975399303</div>
                                     </div>
                                     
                                     <div class="contact-item">
-                                        <div class="contact-type">🌐 WEB</div>
+                                        <div class="contact-type">🌐 Web</div>
                                         <div class="contact-value">copiercompanysac.com</div>
                                     </div>
                                 </div>
