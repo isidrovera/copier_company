@@ -30,7 +30,6 @@
         <!-- Template independiente completo para Odoo 18 -->
         <template id="sticker_8x8_template">
             <t t-foreach="docs" t-as="doc">
-                <!DOCTYPE html>
                 <html>
                 <head>
                     <meta charset="utf-8"/>
@@ -376,6 +375,75 @@
                             <div class="equipment-section-8x8">
                                 <div class="info-row-8x8">
                                     <div class="info-item-8x8">
+                                        <div class="info-label-8x8">MODELO</div>
+                                        <div class="info-value-8x8">
+                                            <t t-if="doc.name">
+                                                <t t-esc="doc.name.name"/>
+                                            </t>
+                                            <t t-else="">Modelo no especificado</t>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-row-8x8">
+                                    <div class="info-item-8x8">
+                                        <div class="info-label-8x8">SERIE</div>
+                                        <div class="info-value-8x8">
+                                            <t t-esc="doc.serie_id or 'Serie no especificada'"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Sección QR COMPACTA -->
+                            <div class="qr-section-8x8">
+                                <div class="qr-label-8x8">🛠️ SERVICIO TÉCNICO</div>
+                                <div class="qr-description-8x8">Escanea para solicitar<br/>mantenimiento o reparación</div>
+                                <div class="qr-container-8x8">
+                                    <t t-if="doc.qr_code">
+                                        <img t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')" 
+                                             class="qr-image-8x8" alt="QR Code"/>
+                                    </t>
+                                    <t t-else="">
+                                        <t t-set="qr_url" t-value="'https://copiercompanysac.com/ticket/' + str(doc.id)"/>
+                                        <img t-att-src="'/report/qr?value=' + qr_url + '&amp;width=200&amp;height=200'" 
+                                             class="qr-image-8x8" alt="QR Code"/>
+                                    </t>
+                                </div>
+                            </div>
+                            
+                            <!-- Información de contacto COMPACTA -->
+                            <div class="contact-section-8x8">
+                                <div class="contact-title-8x8">SOPORTE Y CONSULTAS</div>
+                                <div class="contact-subtitle-8x8">Para dudas técnicas, mantenimiento o información comercial</div>
+                                <div class="contact-grid-8x8">
+                                    <div class="contact-item-8x8">
+                                        <span class="contact-type-8x8">📧 EMAIL</span>
+                                        <span class="contact-value-8x8">info@copiercompanysac.com</span>
+                                    </div>
+                                    <div class="contact-item-8x8">
+                                        <span class="contact-type-8x8">📱 WHATSAPP</span>
+                                        <span class="contact-value-8x8">975399303</span>
+                                    </div>
+                                    <div class="contact-item-8x8">
+                                        <span class="contact-type-8x8">🌐 WEB</span>
+                                        <span class="contact-value-8x8">copiercompanysac.com</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Instrucciones de corte -->
+                        <div class="cut-instructions-8x8">
+                            Sticker: 8cm x 8cm (Cuadrado) - Papel A6 (10.5 x 14.8 cm)<br/>
+                            Cortar por la línea punteada
+                        </div>
+                        
+                    </div>
+                </body>
+                </html>
+            </t>
+        </template>="info-item-8x8">
                                         <div class="info-label-8x8">MODELO</div>
                                         <div class="info-value-8x8">
                                             <t t-if="doc.name">
