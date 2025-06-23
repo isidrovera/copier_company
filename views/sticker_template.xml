@@ -17,13 +17,13 @@
                         }
                         
                         @page {
-                            size: <t t-esc="width"/> <t t-esc="height"/>;
+                            size: 40mm 60mm; /* Reducido a la mitad */
                             margin: 0;
                         }
                         
                         body {
-                            width: <t t-esc="width"/>;
-                            height: <t t-esc="height"/>;
+                            width: 40mm;
+                            height: 60mm;
                             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
                             background: white;
                             overflow: hidden;
@@ -42,7 +42,7 @@
                             background: white;
                             border-radius: 0;
                             box-shadow: none;
-                            padding: 8mm;
+                            padding: 3mm; /* Reducido el padding */
                             position: relative;
                             overflow: hidden;
                             display: flex;
@@ -70,7 +70,7 @@
                             display: flex;
                             flex-direction: column;
                             height: 100%;
-                            gap: 8px;
+                            gap: 2mm; /* Reducido el gap */
                         }
                         
                         /* Header */
@@ -84,8 +84,8 @@
                         }
                         
                         .logo-container {
-                            width: 50mm;
-                            height: 20mm;
+                            width: 25mm; /* Reducido proporcionalmente */
+                            height: 10mm; /* Reducido proporcionalmente */
                             background: transparent;
                             border-radius: 4px;
                             padding: 2px;
@@ -141,21 +141,21 @@
                         .content {
                             display: flex;
                             flex-direction: column;
-                            gap: 8px;
+                            gap: 2mm; /* Reducido el gap */
                             flex-shrink: 0;
                         }
                         
                         .equipment-section {
                             display: flex;
                             flex-direction: column;
-                            gap: 6px;
+                            gap: 1.5mm; /* Reducido el gap */
                         }
                         
                         .info-group {
                             background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-                            border-radius: 6px;
-                            padding: 6px 8px;
-                            border-left: 2px solid #3b82f6;
+                            border-radius: 3px; /* Reducido el border-radius */
+                            padding: 3px 4px; /* Reducido el padding */
+                            border-left: 1px solid #3b82f6; /* Border más delgado */
                             position: relative;
                             transition: all 0.2s ease;
                         }
@@ -235,14 +235,14 @@
                         
                         .qr-container {
                             background: white;
-                            padding: 4px;
-                            border-radius: 6px;
-                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-                            border: 2px solid #e5e7eb;
+                            padding: 2px; /* Reducido el padding */
+                            border-radius: 4px;
+                            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+                            border: 1px solid #e5e7eb; /* Border más delgado */
                             position: relative;
                             overflow: hidden;
-                            width: 35mm;
-                            height: 35mm;
+                            width: 18mm; /* Reducido el QR */
+                            height: 18mm; /* Reducido el QR */
                         }
                         
                         .qr-container::before {
@@ -324,25 +324,25 @@
                         .contact-grid {
                             display: flex;
                             flex-direction: column;
-                            gap: 3px;
+                            gap: 1mm; /* Reducido el gap */
                             align-items: center;
                         }
                         
                         .contact-item {
                             background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
                             border: 1px solid #3b82f6;
-                            border-radius: 4px;
-                            padding: 3px 6px;
+                            border-radius: 2px; /* Reducido el border-radius */
+                            padding: 1.5px 3px; /* Reducido el padding */
                             text-align: center;
                             position: relative;
                             overflow: hidden;
                             transition: all 0.2s ease;
                             display: flex;
                             align-items: center;
-                            gap: 4px;
+                            gap: 2px; /* Reducido el gap */
                             min-width: fit-content;
                             white-space: nowrap;
-                            font-size: 8px;
+                            font-size: 7px; /* Reducido el font-size */
                         }
                         
                         .contact-item::before {
