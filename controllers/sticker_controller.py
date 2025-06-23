@@ -49,8 +49,8 @@ class StickerController(http.Controller):
                 'layout': 'vertical',  # Siempre vertical
                 'serie': serie,
                 'modelo': modelo,
-                # Dimensiones para sticker 6cm x 8cm (60mm x 80mm a 300 DPI)
-                'width': "709px",   # 60mm a 300 DPI
+                # Dimensiones para sticker 8cm x 8cm (80mm x 80mm a 300 DPI)
+                'width': "945px",   # 80mm a 300 DPI
                 'height': "945px",  # 80mm a 300 DPI
             }
             
@@ -159,7 +159,7 @@ class StickerController(http.Controller):
                     }}
                     iframe {{
                         border: none;
-                        width: 240px;  /* 6cm aprox en pantalla */
+                        width: 320px;  /* 8cm aprox en pantalla */
                         height: 320px; /* 8cm aprox en pantalla */
                         background: white;
                         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
@@ -170,7 +170,7 @@ class StickerController(http.Controller):
                 <div class="preview-container">
                     <h1>Vista Previa del Sticker</h1>
                     <p>Sticker para: <strong>{record.name if hasattr(record, 'name') else f'Registro {record.id}'}</strong></p>
-                    <p>Tamaño: <strong>6cm x 8cm (Vertical)</strong></p>
+                    <p>Tamaño: <strong>8cm x 8cm (Cuadrado)</strong></p>
                     
                     <div class="sticker-frame">
                         <iframe src="/sticker/generate/{record_id}" 

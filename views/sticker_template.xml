@@ -17,7 +17,7 @@
                         }
                         
                         @page {
-                            size: 60mm 80mm; /* 6cm x 8cm */
+                            size: 80mm 80mm; /* 8cm x 8cm */
                             margin: 0;
                         }
                         
@@ -33,13 +33,13 @@
                         }
                         
                         body {
-                            width: 60mm;
+                            width: 80mm;
                             height: 80mm;
                             background: white;
                             overflow: hidden;
                             position: relative;
                             color: #1e293b;
-                            font-size: 10px;
+                            font-size: 11px;
                             line-height: 1.2;
                             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
                             border-radius: 4px;
@@ -52,26 +52,12 @@
                             background: white;
                             border-radius: 0;
                             box-shadow: none;
-                            padding: 3mm;
+                            padding: 4mm;
                             position: relative;
                             overflow: hidden;
                             display: flex;
                             flex-direction: column;
                             justify-content: space-between;
-                        }
-                        
-                        /* Patrón de fondo sutil */
-                        .sticker-container::before {
-                            content: '';
-                            position: absolute;
-                            top: 0;
-                            left: 0;
-                            right: 0;
-                            bottom: 0;
-                            background-image: 
-                                radial-gradient(circle at 15px 15px, rgba(59, 130, 246, 0.02) 1px, transparent 0);
-                            background-size: 30px 30px;
-                            pointer-events: none;
                         }
                         
                         /* LAYOUT SIEMPRE VERTICAL */
@@ -94,8 +80,8 @@
                         }
                         
                         .logo-container {
-                            width: 35mm;
-                            height: 12mm;
+                            width: 50mm;
+                            height: 18mm;
                             background: transparent;
                             border-radius: 4px;
                             padding: 1mm;
@@ -115,7 +101,7 @@
                         
                         .logo-text {
                             color: #1e40af;
-                            font-size: 14px;
+                            font-size: 16px;
                             font-weight: 900;
                             text-transform: uppercase;
                             letter-spacing: 0.5px;
@@ -128,7 +114,7 @@
                         
                         .main-title {
                             color: #1e40af;
-                            font-size: 9px;
+                            font-size: 10px;
                             font-weight: 700;
                             text-transform: uppercase;
                             letter-spacing: 0.3px;
@@ -390,9 +376,9 @@
                             }
                             
                             body {
-                                width: 60mm;
+                                width: 80mm;
                                 height: 80mm;
-                                max-width: 60mm;
+                                max-width: 80mm;
                                 max-height: 80mm;
                                 background: white;
                                 box-shadow: 0 4px 20px rgba(0,0,0,0.15);
@@ -416,7 +402,7 @@
                                 box-shadow: none;
                                 border-radius: 0;
                                 margin: 0;
-                                width: 60mm;
+                                width: 80mm;
                                 height: 80mm;
                             }
                             .sticker-container { 
@@ -505,6 +491,87 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Botones de descarga -->
+                    <div class="download-buttons" style="position: fixed; bottom: 20px; right: 20px; display: flex; gap: 10px; z-index: 1000;">
+                        <button onclick="downloadAsJPG()" style="
+                            background: #3b82f6; 
+                            color: white; 
+                            border: none; 
+                            padding: 12px 20px; 
+                            border-radius: 6px; 
+                            font-weight: 600; 
+                            cursor: pointer;
+                            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+                            transition: all 0.2s ease;
+                        " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                            📷 Descargar JPG
+                        </button>
+                        
+                        <button onclick="printSticker()" style="
+                            background: #059669; 
+                            color: white; 
+                            border: none; 
+                            padding: 12px 20px; 
+                            border-radius: 6px; 
+                            font-weight: 600; 
+                            cursor: pointer;
+                            box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
+                            transition: all 0.2s ease;
+                        " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                            🖨️ Imprimir
+                        </button>
+                    </div>
+                    
+                    <script>
+                        function downloadAsJPG() {
+                            // Usar html2canvas para convertir a imagen
+                            const sticker = document.querySelector('.sticker-container');
+                            
+                            // Crear canvas temporal
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            
+                            // Configurar tamaño del canvas (8cm x 8cm a 300 DPI)
+                            canvas.width = 945;  // 80mm a 300 DPI
+                            canvas.height = 945; // 80mm a 300 DPI
+                            
+                            // Fondo blanco
+                            ctx.fillStyle = 'white';
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                            
+                            // Usar dom-to-image o html2canvas si está disponible
+                            if (typeof html2canvas !== 'undefined') {
+                                html2canvas(sticker, {
+                                    backgroundColor: 'white',
+                                    scale: 3,
+                                    useCORS: true
+                                }).then(function(canvas) {
+                                    // Crear enlace de descarga
+                                    const link = document.createElement('a');
+                                    link.download = 'sticker_' + new Date().getTime() + '.jpg';
+                                    link.href = canvas.toDataURL('image/jpeg', 0.9);
+                                    link.click();
+                                });
+                            } else {
+                                // Fallback: abrir ventana para guardar manualmente
+                                alert('Para descargar como JPG, haz click derecho en el sticker y selecciona "Guardar imagen como..."');
+                            }
+                        }
+                        
+                        function printSticker() {
+                            window.print();
+                        }
+                        
+                        // Ocultar botones al imprimir
+                        window.addEventListener('beforeprint', function() {
+                            document.querySelector('.download-buttons').style.display = 'none';
+                        });
+                        
+                        window.addEventListener('afterprint', function() {
+                            document.querySelector('.download-buttons').style.display = 'flex';
+                        });
+                    </script>
                 </body>
             </html>
         </t>
