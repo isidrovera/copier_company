@@ -42,7 +42,7 @@
                             background: white;
                             border-radius: 0;
                             box-shadow: none;
-                            padding: 3mm; /* Reducido el padding */
+                            padding: 6mm; /* Solo un poco reducido para más compacto */
                             position: relative;
                             overflow: hidden;
                             display: flex;
@@ -70,7 +70,7 @@
                             display: flex;
                             flex-direction: column;
                             height: 100%;
-                            gap: 2mm; /* Reducido el gap */
+                            gap: 8px; /* Vuelto al gap original */
                         }
                         
                         /* Header */
@@ -84,8 +84,8 @@
                         }
                         
                         .logo-container {
-                            width: 25mm; /* Reducido proporcionalmente */
-                            height: 10mm; /* Reducido proporcionalmente */
+                            width: 50mm; /* Vuelto al tamaño original */
+                            height: 20mm; /* Vuelto al tamaño original */
                             background: transparent;
                             border-radius: 4px;
                             padding: 2px;
@@ -141,21 +141,21 @@
                         .content {
                             display: flex;
                             flex-direction: column;
-                            gap: 2mm; /* Reducido el gap */
+                            gap: 8px; /* Vuelto al gap original */
                             flex-shrink: 0;
                         }
                         
                         .equipment-section {
                             display: flex;
                             flex-direction: column;
-                            gap: 1.5mm; /* Reducido el gap */
+                            gap: 6px; /* Vuelto al gap original */
                         }
                         
                         .info-group {
                             background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-                            border-radius: 3px; /* Reducido el border-radius */
-                            padding: 3px 4px; /* Reducido el padding */
-                            border-left: 1px solid #3b82f6; /* Border más delgado */
+                            border-radius: 6px; /* Vuelto al tamaño original */
+                            padding: 6px 8px; /* Vuelto al padding original */
+                            border-left: 2px solid #3b82f6; /* Vuelto al border original */
                             position: relative;
                             transition: all 0.2s ease;
                         }
@@ -235,14 +235,14 @@
                         
                         .qr-container {
                             background: white;
-                            padding: 2px; /* Reducido el padding */
-                            border-radius: 4px;
-                            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
-                            border: 1px solid #e5e7eb; /* Border más delgado */
+                            padding: 4px; /* Vuelto al tamaño original */
+                            border-radius: 6px;
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+                            border: 2px solid #e5e7eb; /* Vuelto al border original */
                             position: relative;
                             overflow: hidden;
-                            width: 18mm; /* Reducido el QR */
-                            height: 18mm; /* Reducido el QR */
+                            width: 35mm; /* Vuelto al tamaño original */
+                            height: 35mm; /* Vuelto al tamaño original */
                         }
                         
                         .qr-container::before {
@@ -324,25 +324,25 @@
                         .contact-grid {
                             display: flex;
                             flex-direction: column;
-                            gap: 1mm; /* Reducido el gap */
+                            gap: 3px; /* Vuelto al gap original */
                             align-items: center;
                         }
                         
                         .contact-item {
                             background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
                             border: 1px solid #3b82f6;
-                            border-radius: 2px; /* Reducido el border-radius */
-                            padding: 1.5px 3px; /* Reducido el padding */
+                            border-radius: 4px; /* Vuelto al border-radius original */
+                            padding: 3px 6px; /* Vuelto al padding original */
                             text-align: center;
                             position: relative;
                             overflow: hidden;
                             transition: all 0.2s ease;
                             display: flex;
                             align-items: center;
-                            gap: 2px; /* Reducido el gap */
+                            gap: 4px; /* Vuelto al gap original */
                             min-width: fit-content;
                             white-space: nowrap;
-                            font-size: 7px; /* Reducido el font-size */
+                            font-size: 8px; /* Vuelto al font-size original */
                         }
                         
                         .contact-item::before {
