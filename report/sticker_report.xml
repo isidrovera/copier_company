@@ -27,422 +27,416 @@
             <field name="paperformat_id" ref="paperformat_sticker_8x8"/>
         </record>
 
-        <!-- Template independiente completo para Odoo 18 -->
+        <!-- Template para Odoo 18 -->
         <template id="sticker_8x8_template">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
-                    <t t-call="web.external_layout">
-                        <div class="header" style="display: none;"/>
-                        <div class="footer" style="display: none;"/>
+                    <t t-call="web.basic_layout">
                         <div class="page">
-                            <main>
-                    <style>
-                        * {
-                            margin: 0;
-                            padding: 0;
-                            box-sizing: border-box;
-                        }
-                        
-                        html, body {
-                            width: 10.5cm;
-                            height: 14.8cm;
-                            font-family: 'Arial', 'Helvetica', sans-serif;
-                            background: white;
-                            margin: 0;
-                            padding: 0;
-                        }
-                        
-                        .page {
-                            width: 10.5cm;
-                            height: 14.8cm;
-                            padding: 1.25cm;
-                            background: white;
-                            position: relative;
-                        }
-                        
-                        .sticker-container-8x8 {
-                            width: 8cm;
-                            height: 8cm;
-                            border: 2px dashed #3b82f6;
-                            padding: 0.3cm;
-                            background: white;
-                            position: relative;
-                            margin: 0 auto;
-                            display: flex;
-                            flex-direction: column;
-                            justify-content: space-between;
-                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                            border-radius: 3px;
-                        }
-                        
-                        .sticker-header-8x8 {
-                            text-align: center;
-                            flex-shrink: 0;
-                            margin-bottom: 0.15cm;
-                        }
-                        
-                        .company-logo-8x8 {
-                            max-height: 0.7cm;
-                            max-width: 2.6cm;
-                            object-fit: contain;
-                            margin-bottom: 0.05cm;
-                            display: block;
-                            margin-left: auto;
-                            margin-right: auto;
-                        }
-                        
-                        .company-name-8x8 {
-                            background: linear-gradient(135deg, #1e40af, #3b82f6);
-                            color: white;
-                            padding: 0.15cm 0.4cm;
-                            border-radius: 4px;
-                            font-weight: 900;
-                            font-size: 8pt;
-                            letter-spacing: 0.5px;
-                            text-transform: uppercase;
-                            margin-bottom: 0.05cm;
-                            display: inline-block;
-                        }
-                        
-                        .title-8x8 {
-                            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-                            border: 1px solid #3b82f6;
-                            border-radius: 4px;
-                            padding: 0.1cm 0.2cm;
-                            color: #1e40af;
-                            font-size: 7pt;
-                            font-weight: 700;
-                            text-transform: uppercase;
-                            letter-spacing: 0.2px;
-                            margin-top: 0.05cm;
-                            display: inline-block;
-                        }
-                        
-                        .decorative-line-8x8 {
-                            width: 80%;
-                            height: 1.5px;
-                            background: linear-gradient(90deg, #3b82f6, #06b6d4, #8b5cf6);
-                            border-radius: 1px;
-                            margin: 0.15cm auto;
-                            box-shadow: 0 1px 2px rgba(59, 130, 246, 0.2);
-                        }
-                        
-                        .equipment-section-8x8 {
-                            flex-shrink: 0;
-                            margin-bottom: 0.15cm;
-                            display: flex;
-                            gap: 0.1cm;
-                        }
-                        
-                        .info-row-8x8 {
-                            flex: 1;
-                        }
-                        
-                        .info-item-8x8 {
-                            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-                            border-left: 2px solid #3b82f6;
-                            padding: 0.1cm 0.15cm;
-                            border-radius: 3px;
-                            text-align: center;
-                            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-                        }
-                        
-                        .info-label-8x8 {
-                            font-size: 6pt;
-                            font-weight: 700;
-                            color: #1e40af;
-                            text-transform: uppercase;
-                            letter-spacing: 0.2px;
-                            margin-bottom: 0.03cm;
-                            display: block;
-                        }
-                        
-                        .info-value-8x8 {
-                            font-size: 7pt;
-                            color: #334155;
-                            font-weight: 600;
-                            line-height: 1.1;
-                            word-break: break-word;
-                        }
-                        
-                        .qr-section-8x8 {
-                            flex: 1;
-                            display: flex;
-                            flex-direction: column;
-                            align-items: center;
-                            justify-content: center;
-                            text-align: center;
-                            margin: 0.1cm 0;
-                        }
-                        
-                        .qr-label-8x8 {
-                            font-size: 7pt;
-                            font-weight: 800;
-                            color: #dc2626;
-                            text-transform: uppercase;
-                            letter-spacing: 0.2px;
-                            margin-bottom: 0.05cm;
-                        }
-                        
-                        .qr-description-8x8 {
-                            font-size: 5pt;
-                            color: #374151;
-                            font-weight: 600;
-                            line-height: 1.1;
-                            margin-bottom: 0.1cm;
-                        }
-                        
-                        .qr-container-8x8 {
-                            width: 2cm;
-                            height: 2cm;
-                            border: 1.5px solid #e5e7eb;
-                            border-radius: 4px;
-                            background: white;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            padding: 0.05cm;
-                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                            position: relative;
-                            overflow: hidden;
-                        }
-                        
-                        .qr-container-8x8::before {
-                            content: '';
-                            position: absolute;
-                            top: -1px;
-                            left: -1px;
-                            right: -1px;
-                            bottom: -1px;
-                            background: linear-gradient(45deg, #3b82f6, #06b6d4, #8b5cf6, #3b82f6);
-                            border-radius: 6px;
-                            z-index: -1;
-                        }
-                        
-                        .qr-image-8x8 {
-                            width: 1.8cm;
-                            height: 1.8cm;
-                            object-fit: contain;
-                            border-radius: 2px;
-                        }
-                        
-                        .contact-section-8x8 {
-                            flex-shrink: 0;
-                        }
-                        
-                        .contact-title-8x8 {
-                            font-size: 6pt;
-                            font-weight: 700;
-                            color: #1e40af;
-                            text-transform: uppercase;
-                            text-align: center;
-                            margin-bottom: 0.05cm;
-                            position: relative;
-                        }
-                        
-                        .contact-title-8x8::after {
-                            content: '';
-                            position: absolute;
-                            bottom: -0.02cm;
-                            left: 50%;
-                            transform: translateX(-50%);
-                            width: 1.5cm;
-                            height: 0.5px;
-                            background: linear-gradient(90deg, #3b82f6, #06b6d4);
-                            border-radius: 1px;
-                        }
-                        
-                        .contact-subtitle-8x8 {
-                            font-size: 4.5pt;
-                            color: #64748b;
-                            font-weight: 500;
-                            text-align: center;
-                            margin-bottom: 0.08cm;
-                            font-style: italic;
-                            line-height: 1.1;
-                        }
-                        
-                        .contact-grid-8x8 {
-                            display: flex;
-                            flex-direction: column;
-                            gap: 0.05cm;
-                            align-items: center;
-                        }
-                        
-                        .contact-item-8x8 {
-                            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-                            border: 1px solid #3b82f6;
-                            border-radius: 2px;
-                            padding: 0.04cm 0.08cm;
-                            text-align: center;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            gap: 0.05cm;
-                            font-size: 4.5pt;
-                            white-space: nowrap;
-                            max-width: 7cm;
-                            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-                        }
-                        
-                        .contact-type-8x8 {
-                            color: #1e40af;
-                            font-weight: 700;
-                            text-transform: uppercase;
-                            letter-spacing: 0.1px;
-                        }
-                        
-                        .contact-value-8x8 {
-                            color: #1e293b;
-                            font-weight: 600;
-                            font-size: 4.5pt;
-                        }
-                        
-                        .cut-instructions-8x8 {
-                            margin-top: 1.5cm;
-                            text-align: center;
-                            font-size: 8pt;
-                            color: #666;
-                            font-style: italic;
-                            line-height: 1.2;
-                        }
-                        
-                        @page {
-                            size: A6 portrait;
-                            margin: 5mm;
-                        }
-                        
-                        @media print {
-                            html, body {
-                                width: 10.5cm;
-                                height: 14.8cm;
-                                margin: 0;
-                                padding: 0;
-                            }
+                            <style>
+                                * {
+                                    margin: 0;
+                                    padding: 0;
+                                    box-sizing: border-box;
+                                }
+                                
+                                html, body {
+                                    width: 10.5cm;
+                                    height: 14.8cm;
+                                    font-family: 'Arial', 'Helvetica', sans-serif;
+                                    background: white;
+                                    margin: 0;
+                                    padding: 0;
+                                }
+                                
+                                .page {
+                                    width: 10.5cm;
+                                    height: 14.8cm;
+                                    padding: 1.25cm;
+                                    background: white;
+                                    position: relative;
+                                }
+                                
+                                .sticker-container-8x8 {
+                                    width: 8cm;
+                                    height: 8cm;
+                                    border: 2px dashed #3b82f6;
+                                    padding: 0.3cm;
+                                    background: white;
+                                    position: relative;
+                                    margin: 0 auto;
+                                    display: flex;
+                                    flex-direction: column;
+                                    justify-content: space-between;
+                                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                                    border-radius: 3px;
+                                }
+                                
+                                .sticker-header-8x8 {
+                                    text-align: center;
+                                    flex-shrink: 0;
+                                    margin-bottom: 0.15cm;
+                                }
+                                
+                                .company-logo-8x8 {
+                                    max-height: 0.7cm;
+                                    max-width: 2.6cm;
+                                    object-fit: contain;
+                                    margin-bottom: 0.05cm;
+                                    display: block;
+                                    margin-left: auto;
+                                    margin-right: auto;
+                                }
+                                
+                                .company-name-8x8 {
+                                    background: linear-gradient(135deg, #1e40af, #3b82f6);
+                                    color: white;
+                                    padding: 0.15cm 0.4cm;
+                                    border-radius: 4px;
+                                    font-weight: 900;
+                                    font-size: 8pt;
+                                    letter-spacing: 0.5px;
+                                    text-transform: uppercase;
+                                    margin-bottom: 0.05cm;
+                                    display: inline-block;
+                                }
+                                
+                                .title-8x8 {
+                                    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+                                    border: 1px solid #3b82f6;
+                                    border-radius: 4px;
+                                    padding: 0.1cm 0.2cm;
+                                    color: #1e40af;
+                                    font-size: 7pt;
+                                    font-weight: 700;
+                                    text-transform: uppercase;
+                                    letter-spacing: 0.2px;
+                                    margin-top: 0.05cm;
+                                    display: inline-block;
+                                }
+                                
+                                .decorative-line-8x8 {
+                                    width: 80%;
+                                    height: 1.5px;
+                                    background: linear-gradient(90deg, #3b82f6, #06b6d4, #8b5cf6);
+                                    border-radius: 1px;
+                                    margin: 0.15cm auto;
+                                    box-shadow: 0 1px 2px rgba(59, 130, 246, 0.2);
+                                }
+                                
+                                .equipment-section-8x8 {
+                                    flex-shrink: 0;
+                                    margin-bottom: 0.15cm;
+                                    display: flex;
+                                    gap: 0.1cm;
+                                }
+                                
+                                .info-row-8x8 {
+                                    flex: 1;
+                                }
+                                
+                                .info-item-8x8 {
+                                    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+                                    border-left: 2px solid #3b82f6;
+                                    padding: 0.1cm 0.15cm;
+                                    border-radius: 3px;
+                                    text-align: center;
+                                    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+                                }
+                                
+                                .info-label-8x8 {
+                                    font-size: 6pt;
+                                    font-weight: 700;
+                                    color: #1e40af;
+                                    text-transform: uppercase;
+                                    letter-spacing: 0.2px;
+                                    margin-bottom: 0.03cm;
+                                    display: block;
+                                }
+                                
+                                .info-value-8x8 {
+                                    font-size: 7pt;
+                                    color: #334155;
+                                    font-weight: 600;
+                                    line-height: 1.1;
+                                    word-break: break-word;
+                                }
+                                
+                                .qr-section-8x8 {
+                                    flex: 1;
+                                    display: flex;
+                                    flex-direction: column;
+                                    align-items: center;
+                                    justify-content: center;
+                                    text-align: center;
+                                    margin: 0.1cm 0;
+                                }
+                                
+                                .qr-label-8x8 {
+                                    font-size: 7pt;
+                                    font-weight: 800;
+                                    color: #dc2626;
+                                    text-transform: uppercase;
+                                    letter-spacing: 0.2px;
+                                    margin-bottom: 0.05cm;
+                                }
+                                
+                                .qr-description-8x8 {
+                                    font-size: 5pt;
+                                    color: #374151;
+                                    font-weight: 600;
+                                    line-height: 1.1;
+                                    margin-bottom: 0.1cm;
+                                }
+                                
+                                .qr-container-8x8 {
+                                    width: 2cm;
+                                    height: 2cm;
+                                    border: 1.5px solid #e5e7eb;
+                                    border-radius: 4px;
+                                    background: white;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    padding: 0.05cm;
+                                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                                    position: relative;
+                                    overflow: hidden;
+                                }
+                                
+                                .qr-container-8x8::before {
+                                    content: '';
+                                    position: absolute;
+                                    top: -1px;
+                                    left: -1px;
+                                    right: -1px;
+                                    bottom: -1px;
+                                    background: linear-gradient(45deg, #3b82f6, #06b6d4, #8b5cf6, #3b82f6);
+                                    border-radius: 6px;
+                                    z-index: -1;
+                                }
+                                
+                                .qr-image-8x8 {
+                                    width: 1.8cm;
+                                    height: 1.8cm;
+                                    object-fit: contain;
+                                    border-radius: 2px;
+                                }
+                                
+                                .contact-section-8x8 {
+                                    flex-shrink: 0;
+                                }
+                                
+                                .contact-title-8x8 {
+                                    font-size: 6pt;
+                                    font-weight: 700;
+                                    color: #1e40af;
+                                    text-transform: uppercase;
+                                    text-align: center;
+                                    margin-bottom: 0.05cm;
+                                    position: relative;
+                                }
+                                
+                                .contact-title-8x8::after {
+                                    content: '';
+                                    position: absolute;
+                                    bottom: -0.02cm;
+                                    left: 50%;
+                                    transform: translateX(-50%);
+                                    width: 1.5cm;
+                                    height: 0.5px;
+                                    background: linear-gradient(90deg, #3b82f6, #06b6d4);
+                                    border-radius: 1px;
+                                }
+                                
+                                .contact-subtitle-8x8 {
+                                    font-size: 4.5pt;
+                                    color: #64748b;
+                                    font-weight: 500;
+                                    text-align: center;
+                                    margin-bottom: 0.08cm;
+                                    font-style: italic;
+                                    line-height: 1.1;
+                                }
+                                
+                                .contact-grid-8x8 {
+                                    display: flex;
+                                    flex-direction: column;
+                                    gap: 0.05cm;
+                                    align-items: center;
+                                }
+                                
+                                .contact-item-8x8 {
+                                    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+                                    border: 1px solid #3b82f6;
+                                    border-radius: 2px;
+                                    padding: 0.04cm 0.08cm;
+                                    text-align: center;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    gap: 0.05cm;
+                                    font-size: 4.5pt;
+                                    white-space: nowrap;
+                                    max-width: 7cm;
+                                    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                                }
+                                
+                                .contact-type-8x8 {
+                                    color: #1e40af;
+                                    font-weight: 700;
+                                    text-transform: uppercase;
+                                    letter-spacing: 0.1px;
+                                }
+                                
+                                .contact-value-8x8 {
+                                    color: #1e293b;
+                                    font-weight: 600;
+                                    font-size: 4.5pt;
+                                }
+                                
+                                .cut-instructions-8x8 {
+                                    margin-top: 1.5cm;
+                                    text-align: center;
+                                    font-size: 8pt;
+                                    color: #666;
+                                    font-style: italic;
+                                    line-height: 1.2;
+                                }
+                                
+                                @page {
+                                    size: A6 portrait;
+                                    margin: 5mm;
+                                }
+                                
+                                @media print {
+                                    html, body {
+                                        width: 10.5cm;
+                                        height: 14.8cm;
+                                        margin: 0;
+                                        padding: 0;
+                                    }
+                                    
+                                    .page {
+                                        padding: 1.25cm;
+                                        width: 10.5cm;
+                                        height: 14.8cm;
+                                        margin: 0;
+                                    }
+                                    
+                                    .sticker-container-8x8 {
+                                        border: 2px dashed #3b82f6;
+                                        box-shadow: none;
+                                        margin: 0 auto;
+                                    }
+                                    
+                                    * {
+                                        -webkit-print-color-adjust: exact;
+                                        color-adjust: exact;
+                                        print-color-adjust: exact;
+                                    }
+                                    
+                                    .qr-container-8x8::before {
+                                        display: none;
+                                    }
+                                }
+                            </style>
                             
-                            .page {
-                                padding: 1.25cm;
-                                width: 10.5cm;
-                                height: 14.8cm;
-                                margin: 0;
-                            }
+                            <!-- Generar QR si no existe -->
+                            <t t-if="not doc.qr_code">
+                                <t t-set="dummy" t-value="doc.generar_qr_code()"/>
+                            </t>
                             
-                            .sticker-container-8x8 {
-                                border: 2px dashed #3b82f6;
-                                box-shadow: none;
-                                margin: 0 auto;
-                            }
-                            
-                            * {
-                                -webkit-print-color-adjust: exact;
-                                color-adjust: exact;
-                                print-color-adjust: exact;
-                            }
-                            
-                            .qr-container-8x8::before {
-                                display: none;
-                            }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="page">
-                        
-                        <!-- Generar QR si no existe -->
-                        <t t-if="not doc.qr_code">
-                            <t t-set="dummy" t-value="doc.generar_qr_code()"/>
-                        </t>
-                        
-                        <!-- Contenedor del sticker 8x8cm cuadrado -->
-                        <div class="sticker-container-8x8">
-                            
-                            <!-- Header con logo PEQUEÑO -->
-                            <div class="sticker-header-8x8">
-                                <t t-set="company" t-value="request.env.company"/>
-                                <t t-if="company and company.logo">
-                                    <img t-att-src="'data:image/png;base64,%s' % company.logo.decode('utf-8')" 
-                                         class="company-logo-8x8" alt="Logo"/>
-                                </t>
-                                <t t-else="">
-                                    <div class="company-name-8x8">COPIER COMPANY</div>
-                                </t>
-                                <div class="title-8x8">ALQUILER DE FOTOCOPIADORAS</div>
-                            </div>
-                            
-                            <!-- Línea decorativa -->
-                            <div class="decorative-line-8x8"></div>
-                            
-                            <!-- Información del equipo EN HORIZONTAL -->
-                            <div class="equipment-section-8x8">
-                                <div class="info-row-8x8">
-                                    <div class="info-item-8x8">
-                                        <div class="info-label-8x8">MODELO</div>
-                                        <div class="info-value-8x8">
-                                            <t t-if="doc.name">
-                                                <t t-esc="doc.name.name"/>
-                                            </t>
-                                            <t t-else="">Modelo no especificado</t>
+                            <!-- Contenedor del sticker 8x8cm cuadrado -->
+                            <div class="sticker-container-8x8">
+                                
+                                <!-- Header con logo PEQUEÑO -->
+                                <div class="sticker-header-8x8">
+                                    <t t-set="company" t-value="request.env.company"/>
+                                    <t t-if="company and company.logo">
+                                        <img t-att-src="'data:image/png;base64,%s' % company.logo.decode('utf-8')" 
+                                             class="company-logo-8x8" alt="Logo"/>
+                                    </t>
+                                    <t t-else="">
+                                        <div class="company-name-8x8">COPIER COMPANY</div>
+                                    </t>
+                                    <div class="title-8x8">ALQUILER DE FOTOCOPIADORAS</div>
+                                </div>
+                                
+                                <!-- Línea decorativa -->
+                                <div class="decorative-line-8x8"></div>
+                                
+                                <!-- Información del equipo EN HORIZONTAL -->
+                                <div class="equipment-section-8x8">
+                                    <div class="info-row-8x8">
+                                        <div class="info-item-8x8">
+                                            <div class="info-label-8x8">MODELO</div>
+                                            <div class="info-value-8x8">
+                                                <t t-if="doc.name">
+                                                    <t t-esc="doc.name.name"/>
+                                                </t>
+                                                <t t-else="">Modelo no especificado</t>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="info-row-8x8">
+                                        <div class="info-item-8x8">
+                                            <div class="info-label-8x8">SERIE</div>
+                                            <div class="info-value-8x8">
+                                                <t t-esc="doc.serie_id or 'Serie no especificada'"/>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <div class="info-row-8x8">
-                                    <div class="info-item-8x8">
-                                        <div class="info-label-8x8">SERIE</div>
-                                        <div class="info-value-8x8">
-                                            <t t-esc="doc.serie_id or 'Serie no especificada'"/>
+                                <!-- Sección QR COMPACTA -->
+                                <div class="qr-section-8x8">
+                                    <div class="qr-label-8x8">🛠️ SERVICIO TÉCNICO</div>
+                                    <div class="qr-description-8x8">Escanea para solicitar<br/>mantenimiento o reparación</div>
+                                    <div class="qr-container-8x8">
+                                        <t t-if="doc.qr_code">
+                                            <img t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')" 
+                                                 class="qr-image-8x8" alt="QR Code"/>
+                                        </t>
+                                        <t t-else="">
+                                            <t t-set="qr_url" t-value="'https://copiercompanysac.com/ticket/' + str(doc.id)"/>
+                                            <img t-att-src="'/report/qr?value=' + qr_url + '&amp;width=200&amp;height=200'" 
+                                                 class="qr-image-8x8" alt="QR Code"/>
+                                        </t>
+                                    </div>
+                                </div>
+                                
+                                <!-- Información de contacto COMPACTA -->
+                                <div class="contact-section-8x8">
+                                    <div class="contact-title-8x8">SOPORTE Y CONSULTAS</div>
+                                    <div class="contact-subtitle-8x8">Para dudas técnicas, mantenimiento o información comercial</div>
+                                    <div class="contact-grid-8x8">
+                                        <div class="contact-item-8x8">
+                                            <span class="contact-type-8x8">📧 EMAIL</span>
+                                            <span class="contact-value-8x8">info@copiercompanysac.com</span>
+                                        </div>
+                                        <div class="contact-item-8x8">
+                                            <span class="contact-type-8x8">📱 WHATSAPP</span>
+                                            <span class="contact-value-8x8">975399303</span>
+                                        </div>
+                                        <div class="contact-item-8x8">
+                                            <span class="contact-type-8x8">🌐 WEB</span>
+                                            <span class="contact-value-8x8">copiercompanysac.com</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             
-                            <!-- Sección QR COMPACTA -->
-                            <div class="qr-section-8x8">
-                                <div class="qr-label-8x8">🛠️ SERVICIO TÉCNICO</div>
-                                <div class="qr-description-8x8">Escanea para solicitar<br/>mantenimiento o reparación</div>
-                                <div class="qr-container-8x8">
-                                    <t t-if="doc.qr_code">
-                                        <img t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')" 
-                                             class="qr-image-8x8" alt="QR Code"/>
-                                    </t>
-                                    <t t-else="">
-                                        <t t-set="qr_url" t-value="'https://copiercompanysac.com/ticket/' + str(doc.id)"/>
-                                        <img t-att-src="'/report/qr?value=' + qr_url + '&amp;width=200&amp;height=200'" 
-                                             class="qr-image-8x8" alt="QR Code"/>
-                                    </t>
-                                </div>
+                            <!-- Instrucciones de corte -->
+                            <div class="cut-instructions-8x8">
+                                Sticker: 8cm x 8cm (Cuadrado) - Papel A6 (10.5 x 14.8 cm)<br/>
+                                Cortar por la línea punteada
                             </div>
                             
-                            <!-- Información de contacto COMPACTA -->
-                            <div class="contact-section-8x8">
-                                <div class="contact-title-8x8">SOPORTE Y CONSULTAS</div>
-                                <div class="contact-subtitle-8x8">Para dudas técnicas, mantenimiento o información comercial</div>
-                                <div class="contact-grid-8x8">
-                                    <div class="contact-item-8x8">
-                                        <span class="contact-type-8x8">📧 EMAIL</span>
-                                        <span class="contact-value-8x8">info@copiercompanysac.com</span>
-                                    </div>
-                                    <div class="contact-item-8x8">
-                                        <span class="contact-type-8x8">📱 WHATSAPP</span>
-                                        <span class="contact-value-8x8">975399303</span>
-                                    </div>
-                                    <div class="contact-item-8x8">
-                                        <span class="contact-type-8x8">🌐 WEB</span>
-                                        <span class="contact-value-8x8">copiercompanysac.com</span>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
-                        
-                        <!-- Instrucciones de corte -->
-                        <div class="cut-instructions-8x8">
-                            Sticker: 8cm x 8cm (Cuadrado) - Papel A6 (10.5 x 14.8 cm)<br/>
-                            Cortar por la línea punteada
-                        </div>
-                        
-                    </div>
-                </body>
-                </html>
+                    </t>
+                </t>
             </t>
         </template>
 
