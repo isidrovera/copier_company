@@ -21,18 +21,28 @@
                             margin: 0;
                         }
                         
+                        html, body {
+                            margin: 0;
+                            padding: 0;
+                            background: #f0f0f0;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            min-height: 100vh;
+                            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+                        }
+                        
                         body {
                             width: 60mm;
                             height: 80mm;
-                            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
                             background: white;
                             overflow: hidden;
                             position: relative;
-                            padding: 0;
-                            margin: 0;
                             color: #1e293b;
                             font-size: 10px;
                             line-height: 1.2;
+                            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+                            border-radius: 4px;
                         }
                         
                         /* Contenedor principal */
@@ -370,11 +380,44 @@
                         }
                         
                         /* Responsive adjustments */
+                        @media screen {
+                            html, body {
+                                background: #f0f0f0;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                min-height: 100vh;
+                            }
+                            
+                            body {
+                                width: 60mm;
+                                height: 80mm;
+                                max-width: 60mm;
+                                max-height: 80mm;
+                                background: white;
+                                box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+                                border-radius: 4px;
+                                margin: 20px;
+                            }
+                        }
+                        
                         @media print {
+                            html, body {
+                                background: white;
+                                margin: 0;
+                                padding: 0;
+                                display: block;
+                            }
+                            
                             body { 
                                 background: white;
                                 -webkit-print-color-adjust: exact;
                                 print-color-adjust: exact;
+                                box-shadow: none;
+                                border-radius: 0;
+                                margin: 0;
+                                width: 60mm;
+                                height: 80mm;
                             }
                             .sticker-container { 
                                 box-shadow: none;
