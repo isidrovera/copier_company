@@ -29,12 +29,13 @@
 
         <!-- Template independiente completo para Odoo 18 -->
         <template id="sticker_8x8_template">
-            <t t-foreach="docs" t-as="doc">
-                <html>
-                <head>
-                    <meta charset="utf-8"/>
-                    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-                    <title>Sticker 8x8cm</title>
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.external_layout">
+                        <div class="header" style="display: none;"/>
+                        <div class="footer" style="display: none;"/>
+                        <div class="page">
+                            <main>
                     <style>
                         * {
                             margin: 0;
