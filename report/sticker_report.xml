@@ -1,34 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <!-- Formato de papel simple -->
-        <record id="paperformat_sticker_simple" model="report.paperformat">
-            <field name="name">Sticker A4</field>
-            <field name="format">A4</field>
+        <!-- Formato de papel A6 para sticker 8x8cm -->
+        <record id="paperformat_sticker_8x8" model="report.paperformat">
+            <field name="name">Sticker 8x8cm - A6</field>
+            <field name="format">A6</field>
             <field name="orientation">Portrait</field>
-            <field name="margin_top">10</field>
-            <field name="margin_bottom">10</field>
-            <field name="margin_left">10</field>
-            <field name="margin_right">10</field>
+            <field name="margin_top">5</field>
+            <field name="margin_bottom">5</field>
+            <field name="margin_left">5</field>
+            <field name="margin_right">5</field>
             <field name="header_line" eval="False"/>
             <field name="dpi">300</field>
         </record>
 
-        <!-- Reporte simple -->
-        <record id="action_report_sticker_simple" model="ir.actions.report">
-            <field name="name">Sticker Corporativo</field>
+        <!-- Reporte optimizado -->
+        <record id="action_report_sticker_8x8" model="ir.actions.report">
+            <field name="name">Sticker Corporativo 8x8cm</field>
             <field name="model">copier.company</field>
             <field name="report_type">qweb-pdf</field>
-            <field name="report_name">copier_company.sticker_simple_template</field>
-            <field name="report_file">copier_company.sticker_simple_template</field>
-            <field name="print_report_name">'Sticker-%s' % (object.name.name if object.name else 'Sin-nombre')</field>
+            <field name="report_name">copier_company.sticker_8x8_template</field>
+            <field name="report_file">copier_company.sticker_8x8_template</field>
+            <field name="print_report_name">'Sticker-8x8-%s' % (object.name.name if object.name else 'Sin-nombre')</field>
             <field name="binding_model_id" ref="model_copier_company"/>
             <field name="binding_type">report</field>
-            <field name="paperformat_id" ref="paperformat_sticker_simple"/>
+            <field name="paperformat_id" ref="paperformat_sticker_8x8"/>
         </record>
 
-        <!-- Template limpio -->
-        <template id="sticker_simple_template">
+        <!-- Template 8x8cm cuadrado -->
+        <template id="sticker_8x8_template">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
                     <div class="page">
@@ -38,78 +38,91 @@
                             <t t-set="dummy" t-value="doc.generar_qr_code()"/>
                         </t>
                         
-                        <!-- Contenedor del sticker 10x6cm -->
-                        <div class="sticker-container">
+                        <!-- Contenedor del sticker 8x8cm cuadrado -->
+                        <div class="sticker-container-8x8">
                             
-                            <!-- Header con logo -->
-                            <div class="sticker-header">
+                            <!-- Header con logo más grande -->
+                            <div class="sticker-header-8x8">
                                 <t t-set="company" t-value="request.env.company"/>
                                 <t t-if="company and company.logo">
                                     <img t-att-src="'data:image/png;base64,%s' % company.logo.decode('utf-8')" 
-                                         class="company-logo" alt="Logo"/>
+                                         class="company-logo-8x8" alt="Logo"/>
                                 </t>
                                 <t t-else="">
-                                    <div class="company-name">COPIER COMPANY</div>
+                                    <div class="company-name-8x8">COPIER COMPANY</div>
                                 </t>
+                                <div class="title-8x8">ALQUILER DE FOTOCOPIADORAS</div>
                             </div>
                             
-                            <!-- Contenido principal -->
-                            <div class="sticker-content">
-                                <!-- Lado izquierdo -->
-                                <div class="left-content">
-                                    <div class="title">ALQUILER DE FOTOCOPIADORAS</div>
-                                    
-                                    <div class="info-grid">
-                                        <div class="info-item">
-                                            <div class="info-label">MODELO</div>
-                                            <div class="info-value">
-                                                <t t-if="doc.name">
-                                                    <t t-esc="doc.name.name"/>
-                                                </t>
-                                                <t t-else="">No especificado</t>
-                                            </div>
+                            <!-- Línea decorativa -->
+                            <div class="decorative-line-8x8"></div>
+                            
+                            <!-- Información del equipo -->
+                            <div class="equipment-section-8x8">
+                                <div class="info-row-8x8">
+                                    <div class="info-item-8x8">
+                                        <div class="info-label-8x8">● MODELO</div>
+                                        <div class="info-value-8x8">
+                                            <t t-if="doc.name">
+                                                <t t-esc="doc.name.name"/>
+                                            </t>
+                                            <t t-else="">Modelo no especificado</t>
                                         </div>
-                                        
-                                        <div class="info-item">
-                                            <div class="info-label">SERIE</div>
-                                            <div class="info-value">
-                                                <t t-esc="doc.serie_id or 'N/A'"/>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="support-text">
-                                        Para soporte tecnico escanea el QR o contactanos:
-                                    </div>
-                                    
-                                    <div class="contact-info">
-                                        <div>Email: info@copiercompanysac.com</div>
-                                        <div>WhatsApp: 975399303</div>
-                                        <div>Web: https://copiercompanysac.com</div>
                                     </div>
                                 </div>
                                 
-                                <!-- Lado derecho - QR -->
-                                <div class="right-content">
-                                    <div class="qr-label">ESCANEAME</div>
-                                    <div class="qr-container">
-                                        <t t-if="doc.qr_code">
-                                            <img t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')" 
-                                                 class="qr-image" alt="QR Code"/>
-                                        </t>
-                                        <t t-else="">
-                                            <t t-set="qr_url" t-value="'https://copiercompanysac.com/ticket/' + str(doc.id)"/>
-                                            <img t-att-src="'/report/qr?value=' + qr_url + '&amp;width=200&amp;height=200'" 
-                                                 class="qr-image" alt="QR Code"/>
-                                        </t>
+                                <div class="info-row-8x8">
+                                    <div class="info-item-8x8">
+                                        <div class="info-label-8x8">● SERIE</div>
+                                        <div class="info-value-8x8">
+                                            <t t-esc="doc.serie_id or 'Serie no especificada'"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Sección QR prominente -->
+                            <div class="qr-section-8x8">
+                                <div class="qr-label-8x8">🛠️ SERVICIO TÉCNICO</div>
+                                <div class="qr-description-8x8">Escanea para solicitar<br/>mantenimiento o reparación</div>
+                                <div class="qr-container-8x8">
+                                    <t t-if="doc.qr_code">
+                                        <img t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')" 
+                                             class="qr-image-8x8" alt="QR Code"/>
+                                    </t>
+                                    <t t-else="">
+                                        <t t-set="qr_url" t-value="'https://copiercompanysac.com/ticket/' + str(doc.id)"/>
+                                        <img t-att-src="'/report/qr?value=' + qr_url + '&amp;width=300&amp;height=300'" 
+                                             class="qr-image-8x8" alt="QR Code"/>
+                                    </t>
+                                </div>
+                            </div>
+                            
+                            <!-- Información de contacto -->
+                            <div class="contact-section-8x8">
+                                <div class="contact-title-8x8">SOPORTE Y CONSULTAS</div>
+                                <div class="contact-subtitle-8x8">Para dudas técnicas, mantenimiento o información comercial</div>
+                                <div class="contact-grid-8x8">
+                                    <div class="contact-item-8x8">
+                                        <span class="contact-type-8x8">📧 EMAIL</span>
+                                        <span class="contact-value-8x8">info@copiercompanysac.com</span>
+                                    </div>
+                                    <div class="contact-item-8x8">
+                                        <span class="contact-type-8x8">📱 WHATSAPP</span>
+                                        <span class="contact-value-8x8">975399303</span>
+                                    </div>
+                                    <div class="contact-item-8x8">
+                                        <span class="contact-type-8x8">🌐 WEB</span>
+                                        <span class="contact-value-8x8">copiercompanysac.com</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <!-- Instrucciones de corte -->
-                        <div class="cut-instructions">
-                            Sticker: 10cm x 6cm - Cortar por la línea punteada
+                        <!-- Instrucciones de corte optimizadas para A6 -->
+                        <div class="cut-instructions-8x8">
+                            Sticker: 8cm x 8cm (Cuadrado) - Papel A6 (10.5 x 14.8 cm)<br/>
+                            Cortar por la línea punteada
                         </div>
                         
                     </div>
@@ -117,143 +130,144 @@
             </t>
         </template>
         
-        <!-- CSS integrado -->
-        <template id="sticker_styles" inherit_id="web.report_layout">
+        <!-- CSS optimizado para 8x8cm -->
+        <template id="sticker_8x8_styles" inherit_id="web.report_layout">
             <xpath expr="//head" position="inside">
                 <style>
                     .page {
-                        font-family: Arial, sans-serif;
-                        padding: 2cm;
+                        font-family: 'Segoe UI', Arial, sans-serif;
+                        padding: 1.25cm; /* Optimizado para A6 */
                         background: white;
-                    }
-                    
-                    .sticker-container {
-                        width: 10cm;
-                        height: 6cm;
-                        border: 2px dashed #666;
-                        padding: 0.3cm;
-                        background: white;
-                        position: relative;
+                        width: 10.5cm; /* A6 width */
+                        height: 14.8cm; /* A6 height */
                         margin: 0 auto;
                     }
                     
-                    .sticker-header {
-                        text-align: center;
-                        height: 2cm;
+                    /* Contenedor principal 8x8cm */
+                    .sticker-container-8x8 {
+                        width: 8cm;
+                        height: 8cm;
+                        border: 2px dashed #3b82f6;
+                        padding: 0.4cm;
+                        background: white;
+                        position: relative;
+                        margin: 0 auto;
                         display: flex;
-                        align-items: center;
-                        justify-content: center;
+                        flex-direction: column;
+                        justify-content: space-between;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                    }
+                    
+                    /* Header con logo grande */
+                    .sticker-header-8x8 {
+                        text-align: center;
+                        flex-shrink: 0;
                         margin-bottom: 0.2cm;
                     }
                     
-                    .company-logo {
-                        max-height: 2cm;
-                        max-width: 8cm;
+                    .company-logo-8x8 {
+                        max-height: 1.8cm;
+                        max-width: 6.5cm;
                         object-fit: contain;
-                    }
-                    
-                    .company-name {
-                        background: #2563eb;
-                        color: white;
-                        padding: 0.4cm 1.5cm;
-                        border-radius: 8px;
-                        font-weight: bold;
-                        font-size: 18pt;
-                        letter-spacing: 2px;
-                    }
-                    
-                    .sticker-content {
-                        display: flex;
-                        height: calc(100% - 2.2cm);
-                    }
-                    
-                    .left-content {
-                        flex: 1;
-                        padding-right: 0.2cm;
-                    }
-                    
-                    .right-content {
-                        width: 2.5cm;
-                        text-align: center;
-                    }
-                    
-                    .title {
-                        background: #f8fafc;
-                        border: 1px solid #e5e7eb;
-                        border-radius: 4px;
-                        padding: 0.15cm;
-                        text-align: center;
-                        font-size: 11pt;
-                        font-weight: bold;
-                        color: #1e40af;
-                        text-transform: uppercase;
-                        letter-spacing: 0.5px;
-                        margin-bottom: 0.2cm;
-                    }
-                    
-                    .info-grid {
-                        display: flex;
-                        gap: 0.1cm;
-                        margin-bottom: 0.2cm;
-                    }
-                    
-                    .info-item {
-                        flex: 1;
-                        background: #f8fafc;
-                        border-left: 3px solid #2563eb;
-                        padding: 0.1cm;
-                        border-radius: 2px;
-                    }
-                    
-                    .info-label {
-                        font-size: 8pt;
-                        font-weight: bold;
-                        color: #1e40af;
-                        text-transform: uppercase;
-                    }
-                    
-                    .info-value {
-                        font-size: 9pt;
-                        color: #374151;
-                        font-weight: 500;
-                        line-height: 1.2;
-                        margin-top: 0.05cm;
-                    }
-                    
-                    .support-text {
-                        background: #f0f9ff;
-                        border-left: 3px solid #0ea5e9;
-                        padding: 0.1cm;
-                        border-radius: 2px;
-                        font-size: 8pt;
-                        color: #374151;
-                        font-weight: 500;
-                        text-align: center;
-                        margin-bottom: 0.2cm;
-                    }
-                    
-                    .contact-info {
-                        background: #f8fafc;
-                        border: 1px solid #e5e7eb;
-                        border-radius: 4px;
-                        padding: 0.1cm;
-                        font-size: 8pt;
-                        color: #374151;
-                        line-height: 1.3;
-                    }
-                    
-                    .qr-label {
-                        font-size: 8pt;
-                        font-weight: bold;
-                        color: #0ea5e9;
-                        text-transform: uppercase;
-                        letter-spacing: 0.5px;
                         margin-bottom: 0.1cm;
                     }
                     
-                    .qr-container {
-                        width: 2.2cm;
-                        height: 2.2cm;
+                    .company-name-8x8 {
+                        background: linear-gradient(135deg, #1e40af, #3b82f6);
+                        color: white;
+                        padding: 0.3cm 1cm;
+                        border-radius: 6px;
+                        font-weight: 900;
+                        font-size: 14pt;
+                        letter-spacing: 1px;
+                        text-transform: uppercase;
+                        margin-bottom: 0.1cm;
+                        display: inline-block;
+                    }
+                    
+                    .title-8x8 {
+                        color: #1e40af;
+                        font-size: 9pt;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                        letter-spacing: 0.3px;
+                        margin-top: 0.1cm;
+                    }
+                    
+                    /* Línea decorativa */
+                    .decorative-line-8x8 {
+                        width: 100%;
+                        height: 2px;
+                        background: linear-gradient(90deg, #3b82f6, #06b6d4, #8b5cf6);
+                        border-radius: 1px;
+                        margin: 0.2cm 0;
+                        box-shadow: 0 1px 2px rgba(59, 130, 246, 0.2);
+                    }
+                    
+                    /* Sección de equipos */
+                    .equipment-section-8x8 {
+                        flex-shrink: 0;
+                        margin-bottom: 0.2cm;
+                    }
+                    
+                    .info-row-8x8 {
+                        margin-bottom: 0.15cm;
+                    }
+                    
+                    .info-item-8x8 {
+                        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+                        border-left: 3px solid #3b82f6;
+                        padding: 0.15cm 0.2cm;
+                        border-radius: 4px;
+                    }
+                    
+                    .info-label-8x8 {
+                        font-size: 7pt;
+                        font-weight: 700;
+                        color: #1e40af;
+                        text-transform: uppercase;
+                        letter-spacing: 0.3px;
+                        margin-bottom: 0.05cm;
+                    }
+                    
+                    .info-value-8x8 {
+                        font-size: 9pt;
+                        color: #334155;
+                        font-weight: 600;
+                        line-height: 1.1;
+                    }
+                    
+                    /* Sección QR prominente */
+                    .qr-section-8x8 {
+                        flex: 1;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        text-align: center;
+                        margin: 0.2cm 0;
+                    }
+                    
+                    .qr-label-8x8 {
+                        font-size: 8pt;
+                        font-weight: 800;
+                        color: #dc2626;
+                        text-transform: uppercase;
+                        letter-spacing: 0.3px;
+                        margin-bottom: 0.1cm;
+                    }
+                    
+                    .qr-description-8x8 {
+                        font-size: 6pt;
+                        color: #374151;
+                        font-weight: 600;
+                        line-height: 1.2;
+                        margin-bottom: 0.2cm;
+                    }
+                    
+                    .qr-container-8x8 {
+                        width: 2.5cm;
+                        height: 2.5cm;
                         border: 2px solid #e5e7eb;
                         border-radius: 6px;
                         background: white;
@@ -261,35 +275,134 @@
                         align-items: center;
                         justify-content: center;
                         padding: 0.1cm;
-                        margin: 0 auto;
+                        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+                        position: relative;
+                        overflow: hidden;
                     }
                     
-                    .qr-image {
-                        width: 2cm;
-                        height: 2cm;
+                    .qr-container-8x8::before {
+                        content: '';
+                        position: absolute;
+                        top: -2px;
+                        left: -2px;
+                        right: -2px;
+                        bottom: -2px;
+                        background: linear-gradient(45deg, #3b82f6, #06b6d4, #8b5cf6, #3b82f6);
+                        border-radius: 8px;
+                        z-index: -1;
+                    }
+                    
+                    .qr-image-8x8 {
+                        width: 2.2cm;
+                        height: 2.2cm;
                         object-fit: contain;
+                        border-radius: 3px;
                     }
                     
-                    .cut-instructions {
+                    /* Sección de contacto */
+                    .contact-section-8x8 {
+                        flex-shrink: 0;
+                    }
+                    
+                    .contact-title-8x8 {
+                        font-size: 8pt;
+                        font-weight: 700;
+                        color: #1e40af;
+                        text-transform: uppercase;
+                        text-align: center;
+                        margin-bottom: 0.1cm;
+                        position: relative;
+                    }
+                    
+                    .contact-title-8x8::after {
+                        content: '';
+                        position: absolute;
+                        bottom: -0.05cm;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        width: 2cm;
+                        height: 1px;
+                        background: linear-gradient(90deg, #3b82f6, #06b6d4);
+                        border-radius: 1px;
+                    }
+                    
+                    .contact-subtitle-8x8 {
+                        font-size: 5.5pt;
+                        color: #64748b;
+                        font-weight: 500;
+                        text-align: center;
+                        margin-bottom: 0.15cm;
+                        font-style: italic;
+                    }
+                    
+                    .contact-grid-8x8 {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 0.1cm;
+                    }
+                    
+                    .contact-item-8x8 {
+                        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+                        border: 1px solid #3b82f6;
+                        border-radius: 3px;
+                        padding: 0.08cm 0.15cm;
+                        text-align: center;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 0.1cm;
+                        font-size: 6pt;
+                    }
+                    
+                    .contact-type-8x8 {
+                        color: #1e40af;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                        letter-spacing: 0.2px;
+                    }
+                    
+                    .contact-value-8x8 {
+                        color: #1e293b;
+                        font-weight: 600;
+                    }
+                    
+                    /* Instrucciones de corte */
+                    .cut-instructions-8x8 {
                         margin-top: 1cm;
                         text-align: center;
                         font-size: 10pt;
                         color: #666;
+                        font-style: italic;
                     }
                     
+                    /* Optimización para impresión A6 */
                     @media print {
                         .page {
-                            padding: 2cm !important;
+                            padding: 1.25cm !important; /* Centrado perfecto en A6 */
+                            width: 10.5cm !important;
+                            height: 14.8cm !important;
+                            margin: 0 !important;
                         }
                         
-                        .sticker-container {
-                            border: 2px dashed #666 !important;
+                        .sticker-container-8x8 {
+                            border: 2px dashed #3b82f6 !important;
+                            box-shadow: none !important;
+                            margin: 0 auto !important;
                         }
                         
                         * {
                             -webkit-print-color-adjust: exact !important;
                             color-adjust: exact !important;
                             print-color-adjust: exact !important;
+                        }
+                        
+                        .qr-container-8x8::before {
+                            display: none !important;
+                        }
+                        
+                        .cut-instructions-8x8 {
+                            margin-top: 2cm !important; /* Más espacio en A6 */
+                            font-size: 9pt !important;
                         }
                     }
                 </style>
