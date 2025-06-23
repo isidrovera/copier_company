@@ -143,12 +143,12 @@
                         margin: 0 auto;
                     }
                     
-                    /* Contenedor principal 8x8cm */
+                    /* Contenedor principal optimizado para A6 */
                     .sticker-container-8x8 {
                         width: 8cm;
                         height: 8cm;
                         border: 2px dashed #3b82f6;
-                        padding: 0.4cm;
+                        padding: 0.3cm;
                         background: white;
                         position: relative;
                         margin: 0 auto;
@@ -156,88 +156,100 @@
                         flex-direction: column;
                         justify-content: space-between;
                         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                        border-radius: 2px;
                     }
                     
-                    /* Header con logo grande */
+                    /* Header con logo reducido 60% */
                     .sticker-header-8x8 {
                         text-align: center;
                         flex-shrink: 0;
-                        margin-bottom: 0.2cm;
+                        margin-bottom: 0.15cm;
                     }
                     
                     .company-logo-8x8 {
-                        max-height: 1.8cm;
-                        max-width: 6.5cm;
+                        max-height: 0.7cm; /* Reducido 60%: era 1.8cm */
+                        max-width: 2.6cm;  /* Reducido 60%: era 6.5cm */
                         object-fit: contain;
-                        margin-bottom: 0.1cm;
+                        margin-bottom: 0.05cm;
                     }
                     
                     .company-name-8x8 {
                         background: linear-gradient(135deg, #1e40af, #3b82f6);
                         color: white;
-                        padding: 0.3cm 1cm;
-                        border-radius: 6px;
+                        padding: 0.15cm 0.4cm; /* Reducido proporcionalmente */
+                        border-radius: 4px;
                         font-weight: 900;
-                        font-size: 14pt;
-                        letter-spacing: 1px;
+                        font-size: 8pt; /* Reducido de 14pt */
+                        letter-spacing: 0.5px;
                         text-transform: uppercase;
-                        margin-bottom: 0.1cm;
+                        margin-bottom: 0.05cm;
                         display: inline-block;
                     }
                     
                     .title-8x8 {
+                        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+                        border: 1px solid #3b82f6;
+                        border-radius: 4px;
+                        padding: 0.1cm 0.2cm;
                         color: #1e40af;
-                        font-size: 9pt;
+                        font-size: 7pt;
                         font-weight: 700;
                         text-transform: uppercase;
-                        letter-spacing: 0.3px;
-                        margin-top: 0.1cm;
+                        letter-spacing: 0.2px;
+                        margin-top: 0.05cm;
+                        display: inline-block;
                     }
                     
-                    /* Línea decorativa */
+                    /* Línea decorativa más sutil */
                     .decorative-line-8x8 {
-                        width: 100%;
-                        height: 2px;
+                        width: 80%;
+                        height: 1.5px;
                         background: linear-gradient(90deg, #3b82f6, #06b6d4, #8b5cf6);
                         border-radius: 1px;
-                        margin: 0.2cm 0;
+                        margin: 0.15cm auto;
                         box-shadow: 0 1px 2px rgba(59, 130, 246, 0.2);
                     }
                     
-                    /* Sección de equipos */
+                    /* Sección de equipos compacta */
                     .equipment-section-8x8 {
                         flex-shrink: 0;
-                        margin-bottom: 0.2cm;
+                        margin-bottom: 0.15cm;
+                        display: flex;
+                        gap: 0.1cm;
                     }
                     
                     .info-row-8x8 {
-                        margin-bottom: 0.15cm;
+                        flex: 1;
                     }
                     
                     .info-item-8x8 {
                         background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-                        border-left: 3px solid #3b82f6;
-                        padding: 0.15cm 0.2cm;
-                        border-radius: 4px;
+                        border-left: 2px solid #3b82f6;
+                        padding: 0.1cm 0.15cm;
+                        border-radius: 3px;
+                        text-align: center;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
                     }
                     
                     .info-label-8x8 {
-                        font-size: 7pt;
+                        font-size: 6pt;
                         font-weight: 700;
                         color: #1e40af;
                         text-transform: uppercase;
-                        letter-spacing: 0.3px;
-                        margin-bottom: 0.05cm;
+                        letter-spacing: 0.2px;
+                        margin-bottom: 0.03cm;
+                        display: block;
                     }
                     
                     .info-value-8x8 {
-                        font-size: 9pt;
+                        font-size: 7pt;
                         color: #334155;
                         font-weight: 600;
                         line-height: 1.1;
+                        word-break: break-word;
                     }
                     
-                    /* Sección QR prominente */
+                    /* Sección QR más compacta */
                     .qr-section-8x8 {
                         flex: 1;
                         display: flex;
@@ -245,37 +257,37 @@
                         align-items: center;
                         justify-content: center;
                         text-align: center;
-                        margin: 0.2cm 0;
+                        margin: 0.1cm 0;
                     }
                     
                     .qr-label-8x8 {
-                        font-size: 8pt;
+                        font-size: 7pt;
                         font-weight: 800;
                         color: #dc2626;
                         text-transform: uppercase;
-                        letter-spacing: 0.3px;
-                        margin-bottom: 0.1cm;
+                        letter-spacing: 0.2px;
+                        margin-bottom: 0.05cm;
                     }
                     
                     .qr-description-8x8 {
-                        font-size: 6pt;
+                        font-size: 5pt;
                         color: #374151;
                         font-weight: 600;
-                        line-height: 1.2;
-                        margin-bottom: 0.2cm;
+                        line-height: 1.1;
+                        margin-bottom: 0.1cm;
                     }
                     
                     .qr-container-8x8 {
-                        width: 2.5cm;
-                        height: 2.5cm;
-                        border: 2px solid #e5e7eb;
-                        border-radius: 6px;
+                        width: 2cm;
+                        height: 2cm;
+                        border: 1.5px solid #e5e7eb;
+                        border-radius: 4px;
                         background: white;
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        padding: 0.1cm;
-                        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+                        padding: 0.05cm;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
                         position: relative;
                         overflow: hidden;
                     }
@@ -283,87 +295,93 @@
                     .qr-container-8x8::before {
                         content: '';
                         position: absolute;
-                        top: -2px;
-                        left: -2px;
-                        right: -2px;
-                        bottom: -2px;
+                        top: -1px;
+                        left: -1px;
+                        right: -1px;
+                        bottom: -1px;
                         background: linear-gradient(45deg, #3b82f6, #06b6d4, #8b5cf6, #3b82f6);
-                        border-radius: 8px;
+                        border-radius: 6px;
                         z-index: -1;
                     }
                     
                     .qr-image-8x8 {
-                        width: 2.2cm;
-                        height: 2.2cm;
+                        width: 1.8cm;
+                        height: 1.8cm;
                         object-fit: contain;
-                        border-radius: 3px;
+                        border-radius: 2px;
                     }
                     
-                    /* Sección de contacto */
+                    /* Sección de contacto compacta */
                     .contact-section-8x8 {
                         flex-shrink: 0;
                     }
                     
                     .contact-title-8x8 {
-                        font-size: 8pt;
+                        font-size: 6pt;
                         font-weight: 700;
                         color: #1e40af;
                         text-transform: uppercase;
                         text-align: center;
-                        margin-bottom: 0.1cm;
+                        margin-bottom: 0.05cm;
                         position: relative;
                     }
                     
                     .contact-title-8x8::after {
                         content: '';
                         position: absolute;
-                        bottom: -0.05cm;
+                        bottom: -0.02cm;
                         left: 50%;
                         transform: translateX(-50%);
-                        width: 2cm;
-                        height: 1px;
+                        width: 1.5cm;
+                        height: 0.5px;
                         background: linear-gradient(90deg, #3b82f6, #06b6d4);
                         border-radius: 1px;
                     }
                     
                     .contact-subtitle-8x8 {
-                        font-size: 5.5pt;
+                        font-size: 4.5pt;
                         color: #64748b;
                         font-weight: 500;
                         text-align: center;
-                        margin-bottom: 0.15cm;
+                        margin-bottom: 0.08cm;
                         font-style: italic;
+                        line-height: 1.1;
                     }
                     
                     .contact-grid-8x8 {
                         display: flex;
                         flex-direction: column;
-                        gap: 0.1cm;
+                        gap: 0.05cm;
+                        align-items: center;
                     }
                     
                     .contact-item-8x8 {
                         background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
                         border: 1px solid #3b82f6;
-                        border-radius: 3px;
-                        padding: 0.08cm 0.15cm;
+                        border-radius: 2px;
+                        padding: 0.04cm 0.08cm;
                         text-align: center;
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        gap: 0.1cm;
-                        font-size: 6pt;
+                        gap: 0.05cm;
+                        font-size: 4.5pt;
+                        white-space: nowrap;
+                        max-width: 7cm;
+                        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
                     }
                     
                     .contact-type-8x8 {
                         color: #1e40af;
                         font-weight: 700;
                         text-transform: uppercase;
-                        letter-spacing: 0.2px;
+                        letter-spacing: 0.1px;
                     }
                     
                     .contact-value-8x8 {
                         color: #1e293b;
                         font-weight: 600;
+                        font-size: 4.5pt;
                     }
                     
                     /* Instrucciones de corte */
