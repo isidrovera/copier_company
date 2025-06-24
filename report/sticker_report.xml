@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <!-- Formato de papel A6 simple -->
+        <!-- Formato de papel A6 básico -->
         <record id="paperformat_sticker_8x8" model="report.paperformat">
-            <field name="name">Sticker A6 Simple</field>
+            <field name="name">Sticker A6 Básico</field>
             <field name="format">A6</field>
             <field name="orientation">Portrait</field>
             <field name="margin_top">10</field>
@@ -14,9 +14,9 @@
             <field name="dpi">300</field>
         </record>
 
-        <!-- Reporte simple -->
+        <!-- Reporte básico -->
         <record id="action_report_sticker_8x8" model="ir.actions.report">
-            <field name="name">Sticker Corporativo A6</field>
+            <field name="name">Sticker Corporativo Básico</field>
             <field name="model">copier.company</field>
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">copier_company.sticker_8x8_template</field>
@@ -27,133 +27,23 @@
             <field name="paperformat_id" ref="paperformat_sticker_8x8"/>
         </record>
 
-        <!-- Template simple y limpio -->
+        <!-- Template básico sin estilos complejos -->
         <template id="sticker_8x8_template">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
                     <t t-call="web.basic_layout">
                         <div class="page">
                             <style>
-                                @page {
-                                    size: A6 portrait;
-                                    margin: 10mm;
-                                }
-                                
-                                body {
-                                    font-family: Arial, sans-serif;
-                                    font-size: 12pt;
-                                    line-height: 1.3;
-                                    margin: 0;
-                                    padding: 0;
-                                }
-                                
-                                .page {
-                                    width: 100%;
-                                    height: 100%;
-                                    padding: 0;
-                                    margin: 0;
-                                }
-                                
-                                .header {
-                                    text-align: center;
-                                    margin-bottom: 1cm;
-                                    border-bottom: 2px solid #333;
-                                    padding-bottom: 0.5cm;
-                                }
-                                
-                                .company-logo {
-                                    max-height: 2cm;
-                                    max-width: 100%;
-                                    margin-bottom: 0.3cm;
-                                }
-                                
-                                .company-name {
-                                    font-size: 16pt;
-                                    font-weight: bold;
-                                    color: #333;
-                                    margin-bottom: 0.2cm;
-                                }
-                                
-                                .title {
-                                    font-size: 12pt;
-                                    font-weight: bold;
-                                    color: #666;
-                                }
-                                
-                                .equipment-info {
-                                    margin-bottom: 1cm;
-                                }
-                                
-                                .info-row {
-                                    display: flex;
-                                    margin-bottom: 0.3cm;
-                                }
-                                
-                                .info-label {
-                                    font-weight: bold;
-                                    width: 3cm;
-                                    color: #333;
-                                }
-                                
-                                .info-value {
-                                    flex: 1;
-                                    color: #666;
-                                }
-                                
-                                .qr-section {
-                                    text-align: center;
-                                    margin-bottom: 1cm;
-                                    border: 1px solid #ccc;
-                                    padding: 0.5cm;
-                                }
-                                
-                                .qr-title {
-                                    font-size: 14pt;
-                                    font-weight: bold;
-                                    color: #d32f2f;
-                                    margin-bottom: 0.3cm;
-                                }
-                                
-                                .qr-description {
-                                    font-size: 10pt;
-                                    color: #666;
-                                    margin-bottom: 0.5cm;
-                                }
-                                
-                                .qr-code {
-                                    display: block;
-                                    margin: 0 auto;
-                                    max-width: 4cm;
-                                    max-height: 4cm;
-                                    border: 1px solid #ccc;
-                                }
-                                
-                                .contact-section {
-                                    border-top: 2px solid #333;
-                                    padding-top: 0.5cm;
-                                }
-                                
-                                .contact-title {
-                                    font-size: 12pt;
-                                    font-weight: bold;
-                                    text-align: center;
-                                    margin-bottom: 0.5cm;
-                                    color: #333;
-                                }
-                                
-                                .contact-item {
-                                    margin-bottom: 0.2cm;
-                                    font-size: 10pt;
-                                }
-                                
-                                .contact-label {
-                                    font-weight: bold;
-                                    color: #333;
-                                }
-                                
-                                .contact-value {
-                                    color: #666;
-                                }
+                                body { font-family: Arial, sans-serif; margin: 0; padding: 15px; }
+                                h1 { font-size: 18px; text-align: center; margin: 10px 0; }
+                                h2 { font-size: 16px; text-align: center; margin: 8px 0; }
+                                h3 { font-size: 14px; margin: 8px 0; }
+                                p { margin: 5px 0; }
+                                img { max-width: 100%; height: auto; }
+                                .center { text-align: center; }
+                                .logo { max-height: 50px; margin: 10px 0; }
+                                .qr { max-width: 150px; max-height: 150px; margin: 10px auto; display: block; }
+                                hr { margin: 15px 0; }
                             </style>
                             
                             <!-- Generar QR si no existe -->
@@ -161,72 +51,65 @@
                                 <t t-set="dummy" t-value="doc.generar_qr_code()"/>
                             </t>
                             
-                            <!-- Header -->
-                            <div class="header">
+                            <!-- Logo y nombre de empresa -->
+                            <div class="center">
                                 <t t-set="company" t-value="request.env.company"/>
                                 <t t-if="company and company.logo">
                                     <img t-att-src="'data:image/png;base64,%s' % company.logo.decode('utf-8')" 
-                                         class="company-logo" alt="Logo"/>
+                                         class="logo" alt="Logo"/>
                                 </t>
                                 <t t-else="">
-                                    <div class="company-name">COPIER COMPANY</div>
+                                    <h1>COPIER COMPANY</h1>
                                 </t>
-                                <div class="title">ALQUILER DE FOTOCOPIADORAS</div>
+                                <h2>ALQUILER DE FOTOCOPIADORAS</h2>
                             </div>
+                            
+                            <hr/>
                             
                             <!-- Información del equipo -->
-                            <div class="equipment-info">
-                                <div class="info-row">
-                                    <span class="info-label">MODELO:</span>
-                                    <span class="info-value">
-                                        <t t-if="doc.name">
-                                            <t t-esc="doc.name.name"/>
-                                        </t>
-                                        <t t-else="">N/A</t>
-                                    </span>
-                                </div>
-                                <div class="info-row">
-                                    <span class="info-label">SERIE:</span>
-                                    <span class="info-value">
-                                        <t t-esc="doc.serie_id or 'N/A'"/>
-                                    </span>
-                                </div>
-                            </div>
+                            <h3>INFORMACIÓN DEL EQUIPO</h3>
+                            <p><strong>Modelo:</strong> 
+                                <t t-if="doc.name">
+                                    <t t-esc="doc.name.name"/>
+                                </t>
+                                <t t-else="">No especificado</t>
+                            </p>
+                            <p><strong>Serie:</strong> 
+                                <t t-esc="doc.serie_id or 'No especificada'"/>
+                            </p>
                             
-                            <!-- Sección QR -->
-                            <div class="qr-section">
-                                <div class="qr-title">SERVICIO TÉCNICO</div>
-                                <div class="qr-description">
-                                    Escanea para solicitar mantenimiento<br/>
-                                    o reportar problemas técnicos
-                                </div>
+                            <hr/>
+                            
+                            <!-- Servicio técnico -->
+                            <h3 class="center">🔧 SERVICIO TÉCNICO</h3>
+                            <p class="center">Escanea el código QR para solicitar mantenimiento o reportar problemas técnicos</p>
+                            
+                            <!-- QR Code -->
+                            <div class="center">
                                 <t t-if="doc.qr_code">
                                     <img t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')" 
-                                         class="qr-code" alt="Código QR"/>
+                                         class="qr" alt="Código QR"/>
                                 </t>
                                 <t t-else="">
                                     <t t-set="qr_url" t-value="'https://copiercompanysac.com/ticket/' + str(doc.id)"/>
                                     <img t-att-src="'/report/qr?value=' + qr_url + '&amp;width=200&amp;height=200'" 
-                                         class="qr-code" alt="Código QR"/>
+                                         class="qr" alt="Código QR"/>
                                 </t>
                             </div>
                             
+                            <hr/>
+                            
                             <!-- Información de contacto -->
-                            <div class="contact-section">
-                                <div class="contact-title">SOPORTE Y CONSULTAS</div>
-                                <div class="contact-item">
-                                    <span class="contact-label">Email:</span>
-                                    <span class="contact-value">info@copiercompanysac.com</span>
-                                </div>
-                                <div class="contact-item">
-                                    <span class="contact-label">WhatsApp:</span>
-                                    <span class="contact-value">+51 975 399 303</span>
-                                </div>
-                                <div class="contact-item">
-                                    <span class="contact-label">Web:</span>
-                                    <span class="contact-value">copiercompanysac.com</span>
-                                </div>
-                            </div>
+                            <h3>SOPORTE Y CONSULTAS</h3>
+                            <p><strong>📧 Email:</strong> info@copiercompanysac.com</p>
+                            <p><strong>💬 WhatsApp:</strong> +51 975 399 303</p>
+                            <p><strong>🌐 Sitio Web:</strong> copiercompanysac.com</p>
+                            
+                            <hr/>
+                            
+                            <p class="center" style="font-size: 12px; color: #666;">
+                                Asistencia técnica • Consultas comerciales • Mantenimiento
+                            </p>
                             
                         </div>
                     </t>
