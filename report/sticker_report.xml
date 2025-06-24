@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <!-- Formato de papel A6 sin márgenes -->
+        <!-- Formato de papel A6 optimizado para sticker -->
         <record id="paperformat_sticker_8x8" model="report.paperformat">
-            <field name="name">Sticker A6 Full Page</field>
+            <field name="name">Sticker Corporativo A6</field>
             <field name="format">A6</field>
             <field name="orientation">Portrait</field>
-            <field name="margin_top">0</field>
-            <field name="margin_bottom">0</field>
-            <field name="margin_left">0</field>
-            <field name="margin_right">0</field>
+            <field name="margin_top">5</field>
+            <field name="margin_bottom">5</field>
+            <field name="margin_left">5</field>
+            <field name="margin_right">5</field>
             <field name="header_line" eval="False"/>
             <field name="dpi">300</field>
             <field name="header_spacing">0</field>
@@ -17,18 +17,18 @@
 
         <!-- Reporte optimizado para Odoo 18 -->
         <record id="action_report_sticker_8x8" model="ir.actions.report">
-            <field name="name">Sticker Corporativo A6 Completo</field>
+            <field name="name">Sticker Corporativo Premium</field>
             <field name="model">copier.company</field>
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">copier_company.sticker_8x8_template</field>
             <field name="report_file">copier_company.sticker_8x8_template</field>
-            <field name="print_report_name">'Sticker-A6-%s' % (object.name.name if object.name else 'Sin-nombre')</field>
+            <field name="print_report_name">'Sticker-Premium-%s' % (object.name.name if object.name else 'Sin-nombre')</field>
             <field name="binding_model_id" ref="model_copier_company"/>
             <field name="binding_type">report</field>
             <field name="paperformat_id" ref="paperformat_sticker_8x8"/>
         </record>
 
-        <!-- Template que ocupa toda la página A6 -->
+        <!-- Template corregido para A6 completo -->
         <template id="sticker_8x8_template">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
@@ -45,226 +45,161 @@
                                 
                                 @page {
                                     size: A6 portrait;
-                                    margin: 0;
-                                    padding: 0;
+                                    margin: 5mm;
                                 }
                                 
                                 html, body {
                                     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                                    width: 10.5cm;
-                                    height: 14.8cm;
-                                    margin: 0;
-                                    padding: 0;
-                                    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+                                    width: 100%;
+                                    height: 100%;
+                                    background: white;
                                     -webkit-font-smoothing: antialiased;
                                     -moz-osx-font-smoothing: grayscale;
-                                    overflow: hidden;
                                 }
                                 
                                 .page {
-                                    width: 100%;
-                                    height: 100%;
+                                    width: 10.5cm;
+                                    height: 14.8cm;
                                     min-height: 14.8cm;
-                                    padding: 0.4cm;
-                                    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+                                    padding: 0.3cm;
+                                    background: white;
                                     display: flex;
                                     flex-direction: column;
                                     justify-content: space-between;
                                     position: relative;
-                                    overflow: hidden;
                                 }
                                 
-                                /* Header corporativo */
+                                /* Header con logo y título */
                                 .header-section {
                                     text-align: center;
-                                    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #06b6d4 100%);
-                                    color: white;
-                                    padding: 0.6cm 0.4cm;
-                                    border-radius: 0 0 20px 20px;
-                                    margin: -0.4cm -0.4cm 0.5cm -0.4cm;
-                                    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
-                                    position: relative;
-                                    overflow: hidden;
-                                }
-                                
-                                .header-section::before {
-                                    content: '';
-                                    position: absolute;
-                                    top: 0;
-                                    left: 0;
-                                    right: 0;
-                                    bottom: 0;
-                                    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
-                                    animation: shine 3s infinite;
-                                }
-                                
-                                @keyframes shine {
-                                    0% { transform: translateX(-100%); }
-                                    100% { transform: translateX(100%); }
+                                    margin-bottom: 0.5cm;
+                                    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                                    border: 2px solid #3b82f6;
+                                    border-radius: 12px;
+                                    padding: 0.6cm;
+                                    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1);
+                                    flex-shrink: 0;
                                 }
                                 
                                 .company-logo {
-                                    max-height: 2.2cm;
-                                    max-width: 8cm;
+                                    max-height: 2cm;
+                                    max-width: 7cm;
                                     object-fit: contain;
                                     margin-bottom: 0.3cm;
-                                    filter: brightness(0) invert(1) drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+                                    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
                                 }
                                 
                                 .company-name {
-                                    font-weight: 900;
-                                    font-size: 18pt;
-                                    letter-spacing: 2px;
+                                    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #06b6d4 100%);
+                                    color: white;
+                                    padding: 0.4cm 0.8cm;
+                                    border-radius: 8px;
+                                    font-weight: 800;
+                                    font-size: 16pt;
+                                    letter-spacing: 1px;
                                     text-transform: uppercase;
-                                    margin-bottom: 0.2cm;
-                                    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-                                    position: relative;
-                                    z-index: 2;
+                                    margin-bottom: 0.3cm;
+                                    display: inline-block;
+                                    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
                                 }
                                 
                                 .title {
-                                    background: rgba(255,255,255,0.9);
-                                    color: #1e40af;
-                                    padding: 0.2cm 0.5cm;
-                                    border-radius: 25px;
-                                    font-size: 12pt;
+                                    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+                                    color: #92400e;
+                                    padding: 0.3cm 0.5cm;
+                                    border-radius: 6px;
+                                    font-size: 13pt;
                                     font-weight: 700;
                                     text-transform: uppercase;
-                                    letter-spacing: 1px;
+                                    letter-spacing: 0.5px;
                                     display: inline-block;
-                                    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-                                    position: relative;
-                                    z-index: 2;
+                                    border: 2px solid #d97706;
                                 }
                                 
-                                /* Información del equipo - Ancho completo */
+                                /* Información del equipo */
                                 .equipment-section {
-                                    display: flex;
-                                    gap: 0.3cm;
-                                    margin-bottom: 0.5cm;
+                                    display: grid;
+                                    grid-template-columns: 1fr 1fr;
+                                    gap: 0.4cm;
+                                    margin-bottom: 0.6cm;
+                                    flex-shrink: 0;
                                 }
                                 
                                 .info-card {
-                                    flex: 1;
                                     background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
-                                    border: none;
-                                    border-left: 5px solid #0ea5e9;
-                                    border-radius: 10px;
-                                    padding: 0.6cm 0.4cm;
+                                    border: 2px solid #0ea5e9;
+                                    border-radius: 8px;
+                                    padding: 0.5cm;
                                     text-align: center;
-                                    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15);
-                                    position: relative;
-                                    overflow: hidden;
-                                }
-                                
-                                .info-card::before {
-                                    content: '';
-                                    position: absolute;
-                                    top: 0;
-                                    left: 0;
-                                    right: 0;
-                                    height: 2px;
-                                    background: linear-gradient(90deg, #0ea5e9, #06b6d4, #0ea5e9);
+                                    box-shadow: 0 2px 4px rgba(14, 165, 233, 0.1);
                                 }
                                 
                                 .info-label {
-                                    font-size: 10pt;
-                                    font-weight: 800;
+                                    font-size: 11pt;
+                                    font-weight: 700;
                                     color: #0c4a6e;
                                     text-transform: uppercase;
-                                    letter-spacing: 1px;
+                                    letter-spacing: 0.5px;
                                     margin-bottom: 0.2cm;
                                 }
                                 
                                 .info-value {
-                                    font-size: 13pt;
+                                    font-size: 14pt;
                                     color: #1e293b;
-                                    font-weight: 700;
+                                    font-weight: 600;
                                     line-height: 1.2;
                                     word-break: break-word;
                                 }
                                 
-                                /* Sección QR - Ocupa espacio central */
+                                /* Sección QR */
                                 .qr-section {
-                                    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-                                    border-radius: 20px;
-                                    padding: 0.8cm 0.6cm;
+                                    background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%);
+                                    border: 2px solid #f59e0b;
+                                    border-radius: 12px;
+                                    padding: 0.7cm;
                                     text-align: center;
-                                    margin-bottom: 0.5cm;
-                                    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.2);
+                                    margin-bottom: 0.6cm;
+                                    box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.2);
                                     flex-grow: 1;
                                     display: flex;
                                     flex-direction: column;
                                     justify-content: center;
-                                    position: relative;
-                                    border: 3px solid #f59e0b;
-                                }
-                                
-                                .qr-section::before {
-                                    content: '';
-                                    position: absolute;
-                                    top: -2px;
-                                    left: -2px;
-                                    right: -2px;
-                                    bottom: -2px;
-                                    background: linear-gradient(45deg, #f59e0b, #fbbf24, #f59e0b);
-                                    border-radius: 22px;
-                                    z-index: -1;
-                                    animation: pulse 2s infinite;
-                                }
-                                
-                                @keyframes pulse {
-                                    0%, 100% { opacity: 1; }
-                                    50% { opacity: 0.7; }
+                                    min-height: 4.5cm;
                                 }
                                 
                                 .qr-title {
-                                    font-size: 16pt;
-                                    font-weight: 900;
+                                    font-size: 14pt;
+                                    font-weight: 800;
                                     color: #dc2626;
                                     text-transform: uppercase;
-                                    letter-spacing: 1px;
+                                    letter-spacing: 0.5px;
                                     margin-bottom: 0.3cm;
-                                    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    gap: 0.3cm;
                                 }
                                 
                                 .qr-description {
                                     font-size: 11pt;
                                     color: #92400e;
                                     font-weight: 600;
-                                    line-height: 1.4;
+                                    line-height: 1.3;
                                     margin-bottom: 0.4cm;
                                 }
                                 
                                 .qr-container {
-                                    width: 5.5cm;
-                                    height: 5.5cm;
+                                    width: 5cm;
+                                    height: 5cm;
                                     background: white;
-                                    border: 4px solid #dc2626;
-                                    border-radius: 15px;
+                                    border: 3px solid #dc2626;
+                                    border-radius: 8px;
                                     display: flex;
                                     align-items: center;
                                     justify-content: center;
                                     margin: 0 auto;
-                                    padding: 0.3cm;
-                                    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
-                                    position: relative;
-                                }
-                                
-                                .qr-container::before {
-                                    content: '📱';
-                                    position: absolute;
-                                    top: -15px;
-                                    right: -15px;
-                                    font-size: 24pt;
-                                    background: white;
-                                    border-radius: 50%;
-                                    width: 30px;
-                                    height: 30px;
-                                    display: flex;
-                                    align-items: center;
-                                    justify-content: center;
-                                    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                                    padding: 0.2cm;
+                                    box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.2);
                                 }
                                 
                                 .qr-image {
@@ -273,33 +208,33 @@
                                     object-fit: contain;
                                 }
                                 
-                                /* Información de contacto - Ancho completo */
+                                /* Información de contacto */
                                 .contact-section {
-                                    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-                                    color: white;
-                                    border-radius: 20px 20px 0 0;
-                                    padding: 0.6cm 0.4cm;
-                                    margin: 0 -0.4cm -0.4cm -0.4cm;
-                                    box-shadow: 0 -6px 20px rgba(59, 130, 246, 0.3);
-                                    position: relative;
+                                    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+                                    border: 2px solid #3b82f6;
+                                    border-radius: 12px;
+                                    padding: 0.6cm;
+                                    flex-shrink: 0;
+                                    min-height: 3.5cm;
                                 }
                                 
                                 .contact-title {
-                                    font-size: 14pt;
-                                    font-weight: 900;
+                                    font-size: 13pt;
+                                    font-weight: 800;
+                                    color: #1e40af;
                                     text-transform: uppercase;
                                     text-align: center;
                                     margin-bottom: 0.3cm;
-                                    letter-spacing: 1px;
-                                    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                                    letter-spacing: 0.5px;
                                 }
                                 
                                 .contact-subtitle {
-                                    font-size: 9pt;
+                                    font-size: 10pt;
+                                    color: #1e40af;
                                     font-weight: 500;
                                     text-align: center;
                                     margin-bottom: 0.4cm;
-                                    opacity: 0.9;
+                                    font-style: italic;
                                     line-height: 1.3;
                                 }
                                 
@@ -310,54 +245,41 @@
                                 }
                                 
                                 .contact-item {
-                                    background: rgba(255,255,255,0.15);
-                                    border: 1px solid rgba(255,255,255,0.3);
-                                    border-radius: 10px;
-                                    padding: 0.25cm 0.4cm;
+                                    background: white;
+                                    border: 1px solid #3b82f6;
+                                    border-radius: 6px;
+                                    padding: 0.2cm 0.3cm;
                                     display: flex;
                                     align-items: center;
                                     justify-content: space-between;
-                                    backdrop-filter: blur(10px);
-                                    transition: all 0.3s ease;
-                                }
-                                
-                                .contact-item:hover {
-                                    background: rgba(255,255,255,0.25);
-                                    transform: translateY(-1px);
+                                    box-shadow: 0 1px 3px rgba(59, 130, 246, 0.1);
                                 }
                                 
                                 .contact-type {
+                                    color: #1e40af;
                                     font-weight: 700;
-                                    font-size: 9pt;
+                                    font-size: 10pt;
                                     text-transform: uppercase;
-                                    letter-spacing: 0.5px;
-                                    opacity: 0.9;
+                                    letter-spacing: 0.3px;
+                                    min-width: 2.5cm;
                                 }
                                 
                                 .contact-value {
+                                    color: #1e293b;
                                     font-weight: 600;
-                                    font-size: 10pt;
+                                    font-size: 11pt;
                                     text-align: right;
                                 }
                                 
-                                /* Elementos decorativos */
-                                .decorative-accent {
-                                    position: absolute;
-                                    width: 50px;
-                                    height: 50px;
-                                    background: linear-gradient(45deg, #06b6d4, #8b5cf6);
-                                    border-radius: 50%;
-                                    opacity: 0.1;
-                                }
-                                
-                                .accent-1 {
-                                    top: 20%;
-                                    right: -25px;
-                                }
-                                
-                                .accent-2 {
-                                    bottom: 30%;
-                                    left: -25px;
+                                /* Línea decorativa */
+                                .decorative-line {
+                                    width: 100%;
+                                    height: 4px;
+                                    background: linear-gradient(90deg, #3b82f6 0%, #06b6d4 50%, #8b5cf6 100%);
+                                    border-radius: 2px;
+                                    margin: 0.3cm 0;
+                                    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+                                    flex-shrink: 0;
                                 }
                                 
                                 /* Estilos para impresión */
@@ -368,47 +290,21 @@
                                         print-color-adjust: exact !important;
                                     }
                                     
-                                    html, body {
-                                        width: 10.5cm !important;
-                                        height: 14.8cm !important;
-                                        margin: 0 !important;
-                                        padding: 0 !important;
-                                    }
-                                    
                                     .page {
-                                        width: 100% !important;
-                                        height: 100% !important;
-                                        min-height: 14.8cm !important;
-                                        padding: 0.4cm !important;
-                                        margin: 0 !important;
-                                    }
-                                    
-                                    .header-section,
-                                    .contact-section {
-                                        margin-left: -0.4cm !important;
-                                        margin-right: -0.4cm !important;
-                                    }
-                                    
-                                    .header-section {
-                                        margin-top: -0.4cm !important;
-                                    }
-                                    
-                                    .contact-section {
-                                        margin-bottom: -0.4cm !important;
+                                        width: 10.5cm;
+                                        height: 14.8cm;
+                                        min-height: 14.8cm;
+                                        padding: 0.3cm;
                                     }
                                 }
                             </style>
-                            
-                            <!-- Elementos decorativos -->
-                            <div class="decorative-accent accent-1"></div>
-                            <div class="decorative-accent accent-2"></div>
                             
                             <!-- Generar QR si no existe -->
                             <t t-if="not doc.qr_code">
                                 <t t-set="dummy" t-value="doc.generar_qr_code()"/>
                             </t>
                             
-                            <!-- Header corporativo - Ancho completo -->
+                            <!-- Header con logo y título -->
                             <div class="header-section">
                                 <t t-set="company" t-value="request.env.company"/>
                                 <t t-if="company and company.logo">
@@ -420,6 +316,9 @@
                                 </t>
                                 <div class="title">ALQUILER DE FOTOCOPIADORAS</div>
                             </div>
+                            
+                            <!-- Línea decorativa -->
+                            <div class="decorative-line"></div>
                             
                             <!-- Información del equipo -->
                             <div class="equipment-section">
@@ -441,9 +340,11 @@
                                 </div>
                             </div>
                             
-                            <!-- Sección QR principal -->
+                            <!-- Sección QR -->
                             <div class="qr-section">
-                                <div class="qr-title">🔧 SERVICIO TÉCNICO</div>
+                                <div class="qr-title">
+                                    <span>🔧</span> SERVICIO TÉCNICO
+                                </div>
                                 <div class="qr-description">
                                     Escanea para solicitar mantenimiento<br/>
                                     o reportar problemas técnicos
@@ -455,13 +356,13 @@
                                     </t>
                                     <t t-else="">
                                         <t t-set="qr_url" t-value="'https://copiercompanysac.com/ticket/' + str(doc.id)"/>
-                                        <img t-att-src="'/report/qr?value=' + qr_url + '&amp;width=350&amp;height=350&amp;border=2'" 
+                                        <img t-att-src="'/report/qr?value=' + qr_url + '&amp;width=300&amp;height=300&amp;border=2'" 
                                              class="qr-image" alt="Código QR"/>
                                     </t>
                                 </div>
                             </div>
                             
-                            <!-- Información de contacto - Ancho completo -->
+                            <!-- Información de contacto -->
                             <div class="contact-section">
                                 <div class="contact-title">SOPORTE ESPECIALIZADO</div>
                                 <div class="contact-subtitle">
