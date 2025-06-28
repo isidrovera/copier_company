@@ -3,9 +3,6 @@
     <template id="portal_equipment_menu" name="Equipment Services Menu">
         <t t-call="website.layout">
             <div id="wrap">
-                <!-- CSS y JavaScript adicionales -->
-                <t t-call-assets="web.assets_frontend" lazy_load="True"/>
-                
                 <!-- CSS personalizado -->
                 <style>
                     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap');
@@ -29,7 +26,7 @@
                         left: 0;
                         right: 0;
                         bottom: 0;
-                        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="white" opacity="0.1"><polygon points="1000,100 1000,0 0,100"/></svg>');
+                        background: url('data:image/svg+xml,&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="white" opacity="0.1"&gt;&lt;polygon points="1000,100 1000,0 0,100"/&gt;&lt;/svg&gt;');
                         background-size: cover;
                     }
                     
@@ -252,7 +249,14 @@
                                         </div>
                                         <div>
                                             <div class="fw-semibold text-dark">Equipo</div>
-                                            <div class="text-muted small" t-esc="equipment_data['name']">Canon imageRUNNER ADVANCE DX C3835i</div>
+                                            <div class="text-muted small">
+                                                <t t-if="equipment.name">
+                                                    <span t-esc="equipment.name.name"/>
+                                                </t>
+                                                <t t-else="">
+                                                    Sin nombre
+                                                </t>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -263,7 +267,14 @@
                                         </div>
                                         <div>
                                             <div class="fw-semibold text-dark">Serie</div>
-                                            <div class="text-muted small" t-esc="equipment_data['serie']">ABC123456</div>
+                                            <div class="text-muted small">
+                                                <t t-if="equipment.serie_id">
+                                                    <span t-esc="equipment.serie_id"/>
+                                                </t>
+                                                <t t-else="">
+                                                    Sin serie
+                                                </t>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -274,7 +285,14 @@
                                         </div>
                                         <div>
                                             <div class="fw-semibold text-dark">Cliente</div>
-                                            <div class="text-muted small" t-esc="equipment_data['cliente_name']">Empresa Demo SAC</div>
+                                            <div class="text-muted small">
+                                                <t t-if="equipment.cliente_id">
+                                                    <span t-esc="equipment.cliente_id.name"/>
+                                                </t>
+                                                <t t-else="">
+                                                    Sin cliente
+                                                </t>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -285,7 +303,14 @@
                                         </div>
                                         <div>
                                             <div class="fw-semibold text-dark">Ubicación</div>
-                                            <div class="text-muted small" t-esc="equipment_data['ubicacion']">Oficina Principal</div>
+                                            <div class="text-muted small">
+                                                <t t-if="equipment.ubicacion">
+                                                    <span t-esc="equipment.ubicacion"/>
+                                                </t>
+                                                <t t-else="">
+                                                    Sin ubicación
+                                                </t>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -422,13 +447,13 @@
                                     <div class="col-md-4">
                                         <div class="d-flex align-items-center justify-content-center">
                                             <i class="fa fa-phone text-primary me-2"></i>
-                                            <span class="fw-semibold" t-esc="company_phone">+51 999 999 999</span>
+                                            <span class="fw-semibold">+51 999 999 999</span>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="d-flex align-items-center justify-content-center">
                                             <i class="fa fa-envelope text-primary me-2"></i>
-                                            <span class="fw-semibold" t-esc="company_email">info@copiercompanysac.com</span>
+                                            <span class="fw-semibold">info@copiercompanysac.com</span>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
@@ -445,6 +470,7 @@
                 
                 <!-- JavaScript para animaciones -->
                 <script>
+                <![CDATA[
                     document.addEventListener('DOMContentLoaded', function() {
                         // Animación de elementos en scroll
                         const observerOptions = {
@@ -453,7 +479,7 @@
                         };
                         
                         const observer = new IntersectionObserver(function(entries) {
-                            entries.forEach(entry =&gt; {
+                            entries.forEach(entry => {
                                 if (entry.isIntersecting) {
                                     entry.target.classList.add('animate__animated', 'animate__fadeInUp');
                                 }
@@ -461,12 +487,12 @@
                         }, observerOptions);
                         
                         // Observar tarjetas de servicio
-                        document.querySelectorAll('.service-card').forEach(card =&gt; {
+                        document.querySelectorAll('.service-card').forEach(card => {
                             observer.observe(card);
                         });
                         
                         // Efecto de hover mejorado
-                        document.querySelectorAll('.service-card').forEach(card =&gt; {
+                        document.querySelectorAll('.service-card').forEach(card => {
                             card.addEventListener('mouseenter', function() {
                                 this.style.transform = 'translateY(-8px) scale(1.02)';
                                 this.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
@@ -480,6 +506,7 @@
                         // Animación de conteo o loading si es necesario
                         console.log('Portal de equipos cargado exitosamente');
                     });
+                ]]>
                 </script>
             </div>
         </t>
