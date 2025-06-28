@@ -1,177 +1,1686 @@
 <odoo>
-    <template id="public_helpdesk_ticket_form" name="Public Helpdesk Ticket Form">
-    <t t-call="website.layout">
-        <div id="wrap" class="container py-5">
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <!-- Encabezado minimalista -->
-                    <div class="text-center mb-5">
-                        <i class="fa fa-headset mb-3" style="font-size: 3.5rem; color: #2563eb;"></i>
-                        <h1 class="h3 mb-2">Servicio de Soporte Técnico</h1>
-                        <p class="text-muted">Complete el formulario para reportar un problema con su impresora</p>
-                    </div>
+    <!-- MENÚ PRINCIPAL DEL EQUIPO -->
+    <template id="portal_equipment_menu" name="Equipment Services Menu">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <!-- CSS y JavaScript adicionales -->
+                <t t-call-assets="web.assets_frontend" lazy_load="True"/>
+                
+                <!-- CSS personalizado -->
+                <style>
+                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap');
+                    @import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
                     
-                    <!-- Tarjeta para el formulario -->
-                    <div class="card border-0 shadow-sm rounded-lg">
-                        <div class="card-body p-4">
-                            <form action="/public/helpdesk_ticket_submit" method="post" enctype="multipart/form-data" class="needs-validation">
-                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                <input type="hidden" name="copier_company_id" t-att-value="copier_company_id"/>
-                                
-                                <!-- Información del equipo -->
-                                <div class="mb-4 pb-2">
-                                    <div class="d-flex align-items-center mb-3 pb-2 border-bottom">
-                                        <i class="fa fa-server me-3" style="font-size: 1.5rem; color: #2563eb;"></i>
-                                        <h5 class="mb-0 fw-bold" style="color: #2563eb;">Información del equipo</h5>
-                                    </div>
-                                    
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <div class="form-floating mb-3">
-                                                <input type="text" class="form-control" id="partner_name" name="partner_name" t-att-value="partner_name" readonly="readonly"/>
-                                                <label for="partner_name">Empresa</label>
-                                            </div>
+                    * {
+                        font-family: 'Inter', sans-serif;
+                    }
+                    
+                    .hero-section {
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    
+                    .hero-section::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="white" opacity="0.1"><polygon points="1000,100 1000,0 0,100"/></svg>');
+                        background-size: cover;
+                    }
+                    
+                    .equipment-card {
+                        background: white;
+                        border-radius: 20px;
+                        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+                        padding: 30px;
+                        margin: -60px auto 40px;
+                        position: relative;
+                        z-index: 10;
+                        max-width: 800px;
+                        border: 1px solid rgba(255,255,255,0.2);
+                        backdrop-filter: blur(20px);
+                    }
+                    
+                    .service-card {
+                        background: white;
+                        border-radius: 16px;
+                        padding: 30px 25px;
+                        text-align: center;
+                        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                        border: 1px solid #f1f5f9;
+                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                        position: relative;
+                        overflow: hidden;
+                        cursor: pointer;
+                        text-decoration: none;
+                        color: inherit;
+                    }
+                    
+                    .service-card::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: -100%;
+                        width: 100%;
+                        height: 100%;
+                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+                        transition: left 0.5s;
+                    }
+                    
+                    .service-card:hover::before {
+                        left: 100%;
+                    }
+                    
+                    .service-card:hover {
+                        transform: translateY(-8px) scale(1.02);
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+                        border-color: #e2e8f0;
+                    }
+                    
+                    .service-icon {
+                        width: 80px;
+                        height: 80px;
+                        border-radius: 20px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        margin: 0 auto 20px;
+                        font-size: 36px;
+                        transition: all 0.3s ease;
+                        position: relative;
+                    }
+                    
+                    .service-card:hover .service-icon {
+                        transform: scale(1.1) rotate(5deg);
+                    }
+                    
+                    .service-title {
+                        font-size: 1.25rem;
+                        font-weight: 600;
+                        margin-bottom: 12px;
+                        color: #1e293b;
+                    }
+                    
+                    .service-description {
+                        color: #64748b;
+                        font-size: 0.875rem;
+                        line-height: 1.6;
+                    }
+                    
+                    .equipment-info {
+                        background: #f8fafc;
+                        border-radius: 12px;
+                        padding: 20px;
+                        margin-bottom: 20px;
+                    }
+                    
+                    .info-item {
+                        display: flex;
+                        align-items: center;
+                        margin-bottom: 12px;
+                        padding: 8px 12px;
+                        background: white;
+                        border-radius: 8px;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                    }
+                    
+                    .info-item:last-child {
+                        margin-bottom: 0;
+                    }
+                    
+                    .info-icon {
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 8px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        margin-right: 15px;
+                        font-size: 18px;
+                    }
+                    
+                    .fade-in-up {
+                        animation: fadeInUp 0.8s ease-out;
+                    }
+                    
+                    @keyframes fadeInUp {
+                        from {
+                            opacity: 0;
+                            transform: translateY(30px);
+                        }
+                        to {
+                            opacity: 1;
+                            transform: translateY(0);
+                        }
+                    }
+                    
+                    .pulse-animation {
+                        animation: pulse 2s infinite;
+                    }
+                    
+                    @keyframes pulse {
+                        0%, 100% {
+                            transform: scale(1);
+                        }
+                        50% {
+                            transform: scale(1.05);
+                        }
+                    }
+                    
+                    /* Colores específicos para cada servicio */
+                    .service-support { background: linear-gradient(135deg, #ff6b6b, #ff8e8e); }
+                    .service-remote { background: linear-gradient(135deg, #4ecdc4, #44a08d); }
+                    .service-toner { background: linear-gradient(135deg, #45b7d1, #96c93d); }
+                    .service-whatsapp { background: linear-gradient(135deg, #25d366, #128c7e); }
+                    .service-email { background: linear-gradient(135deg, #667eea, #764ba2); }
+                    .service-counters { background: linear-gradient(135deg, #f093fb, #f5576c); }
+                    .service-quote { background: linear-gradient(135deg, #ffeaa7, #fab1a0); }
+                    .service-website { background: linear-gradient(135deg, #a8edea, #fed6e3); }
+                    
+                    .floating {
+                        animation: floating 3s ease-in-out infinite;
+                    }
+                    
+                    @keyframes floating {
+                        0%, 100% { transform: translateY(0px); }
+                        50% { transform: translateY(-10px); }
+                    }
+                    
+                    @media (max-width: 768px) {
+                        .equipment-card {
+                            margin: -40px 15px 30px;
+                            padding: 25px 20px;
+                        }
+                        
+                        .service-card {
+                            padding: 25px 20px;
+                        }
+                        
+                        .service-icon {
+                            width: 70px;
+                            height: 70px;
+                            font-size: 32px;
+                        }
+                    }
+                </style>
+                
+                <!-- Hero Section -->
+                <div class="hero-section py-5">
+                    <div class="container position-relative">
+                        <div class="text-center py-4">
+                            <div class="floating">
+                                <i class="fa fa-cogs mb-3" style="font-size: 4rem; opacity: 0.9;"></i>
+                            </div>
+                            <h1 class="display-5 fw-bold mb-3 animate__animated animate__fadeInDown">
+                                Centro de Servicios
+                            </h1>
+                            <p class="lead mb-0 animate__animated animate__fadeInUp animate__delay-1s" style="opacity: 0.9;">
+                                Gestiona tu equipo de forma rápida y sencilla
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="container">
+                    <!-- Información del Equipo -->
+                    <div class="equipment-card animate__animated animate__fadeInUp">
+                        <div class="row align-items-center mb-4">
+                            <div class="col-md-8">
+                                <h2 class="h4 fw-bold text-primary mb-3">
+                                    <i class="fa fa-server me-2"></i>
+                                    Información del Equipo
+                                </h2>
+                            </div>
+                            <div class="col-md-4 text-md-end">
+                                <span class="badge bg-success fs-6 px-3 py-2 pulse-animation">
+                                    <i class="fa fa-circle me-1"></i>Activo
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="equipment-info">
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <div class="info-icon service-support text-white">
+                                            <i class="fa fa-print"></i>
                                         </div>
-                                        <div class="col-md-6">
-                                            <div class="form-floating mb-3">
-                                                <input type="text" class="form-control" id="sede" name="sede" t-att-value="sede" readonly="readonly"/>
-                                                <label for="sede">Sede</label>
-                                            </div>
+                                        <div>
+                                            <div class="fw-semibold text-dark">Equipo</div>
+                                            <div class="text-muted small" t-esc="equipment_data['name']">Canon imageRUNNER ADVANCE DX C3835i</div>
                                         </div>
-                                    </div>
-                                    
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <div class="form-floating mb-3">
-                                                <input type="text" class="form-control" id="ubicacion" name="ubicacion" t-att-value="ubicacion" readonly="readonly"/>
-                                                <label for="ubicacion">Ubicación</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-floating mb-3">
-                                                <input type="text" class="form-control" id="product_name" name="product_name" t-att-value="product_name.name" readonly="readonly"/>
-                                                <label for="product_name">Equipo</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="form-floating mb-3">
-                                        <input type="text" class="form-control" id="serie_id" name="serie_id" t-att-value="serie_id" readonly="readonly"/>
-                                        <label for="serie_id">Número de Serie</label>
                                     </div>
                                 </div>
-                                
-                                <!-- Detalles del problema -->
-                                <div class="mb-4 pb-2">
-                                    <div class="d-flex align-items-center mb-3 pb-2 border-bottom">
-                                        <i class="fa fa-exclamation-circle me-3" style="font-size: 1.5rem; color: #dc2626;"></i>
-                                        <h5 class="mb-0 fw-bold" style="color: #dc2626;">Detalles del problema</h5>
-                                    </div>
-                                    
-                                    <div class="form-floating mb-3">
-                                        <textarea class="form-control" id="description" name="description" required="1" placeholder="Describe el problema aquí..." style="height: 120px"></textarea>
-                                        <label for="description">Descripción del problema</label>
-                                        <div class="invalid-feedback">
-                                            Por favor ingresa la descripción del problema.
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <div class="info-icon service-remote text-white">
+                                            <i class="fa fa-barcode"></i>
                                         </div>
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <label for="image" class="form-label d-flex align-items-center">
-                                            <i class="fa fa-camera me-2" style="color: #dc2626;"></i>
-                                            <span>Adjuntar imagen del problema (opcional)</span>
-                                        </label>
-                                        <div class="input-group">
-                                            <input type="file" class="form-control" id="image" name="image" accept="image/*"/>
+                                        <div>
+                                            <div class="fw-semibold text-dark">Serie</div>
+                                            <div class="text-muted small" t-esc="equipment_data['serie']">ABC123456</div>
                                         </div>
                                     </div>
                                 </div>
-                                
-                                <!-- Información de contacto -->
-                                <div class="mb-4 pb-2">
-                                    <div class="d-flex align-items-center mb-3 pb-2 border-bottom">
-                                        <i class="fa fa-user-circle me-3" style="font-size: 1.5rem; color: #059669;"></i>
-                                        <h5 class="mb-0 fw-bold" style="color: #059669;">Información de contacto</h5>
-                                    </div>
-                                    
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <div class="form-floating mb-3">
-                                                <input type="text" class="form-control" id="nombre_reporta" name="nombre_reporta" required="1" placeholder="Tu nombre..."/>
-                                                <label for="nombre_reporta">Nombre completo</label>
-                                                <div class="invalid-feedback">
-                                                    Por favor ingresa tu nombre.
-                                                </div>
-                                            </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <div class="info-icon service-toner text-white">
+                                            <i class="fa fa-building"></i>
                                         </div>
-                                        <div class="col-md-6">
-                                            <div class="form-floating mb-3">
-                                                <input type="text" class="form-control" id="celular_reporta" name="celular_reporta" required="1" placeholder="Tu número..."/>
-                                                <label for="celular_reporta">Teléfono de contacto</label>
-                                                <div class="invalid-feedback">
-                                                    Por favor ingresa tu número de celular.
-                                                </div>
-                                            </div>
+                                        <div>
+                                            <div class="fw-semibold text-dark">Cliente</div>
+                                            <div class="text-muted small" t-esc="equipment_data['cliente_name']">Empresa Demo SAC</div>
                                         </div>
                                     </div>
                                 </div>
-                                
-                                <!-- Botón de envío -->
-                                <div class="d-grid gap-2">
-                                    <button type="submit" class="btn btn-primary py-3" style="background-color: #2563eb; border-color: #2563eb;">
-                                        <i class="fa fa-paper-plane me-2"></i>Enviar reporte
-                                    </button>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <div class="info-icon service-whatsapp text-white">
+                                            <i class="fa fa-map-marker-alt"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold text-dark">Ubicación</div>
+                                            <div class="text-muted small" t-esc="equipment_data['ubicacion']">Oficina Principal</div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </form>
+                            </div>
                         </div>
                     </div>
                     
-                    <!-- Nota informativa -->
-                    <div class="text-center mt-4">
-                        <p class="text-muted small">
-                            <i class="fa fa-clock me-1"></i>Nuestro equipo atenderá su solicitud en un plazo máximo de 24 horas.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </t>
-</template>
-
-
-    <template id="helpdesk_ticket_confirmation" name="Helpdesk Ticket Confirmation">
-    <t t-call="website.layout">
-        <div id="wrap" class="mt-4">
-            <div class="container py-5">
-                <div class="row justify-content-center">
-                    <div class="col-lg-6">
-                        <div class="card shadow-sm border-0">
-                            <div class="card-body text-center p-5">
-                                <!-- Icono de confirmación -->
-                                <i class="fa fa-check-circle text-success mb-3" style="font-size: 4rem;"></i>
-                                
-                                <h2 class="mb-3">Confirmación de Ticket de Ayuda</h2>
-                                
-                                <div class="d-flex align-items-center justify-content-center mb-4">
-                                    <i class="fa fa-ticket-alt me-2 text-muted"></i>
-                                    <p class="mb-0">Gracias por enviar su ticket. Nos pondremos en contacto con usted lo antes posible.</p>
+                    <!-- Servicios Disponibles -->
+                    <div class="row g-4 mb-5">
+                        <div class="col-12 text-center mb-4">
+                            <h2 class="h3 fw-bold animate__animated animate__fadeInUp">
+                                ¿Qué necesitas hacer hoy?
+                            </h2>
+                            <p class="text-muted animate__animated animate__fadeInUp animate__delay-1s">
+                                Selecciona el servicio que necesitas
+                            </p>
+                        </div>
+                        
+                        <!-- Reportar Problema -->
+                        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.1s">
+                            <a t-attf-href="/public/helpdesk_ticket?copier_company_id=#{equipment.id}" class="service-card d-block">
+                                <div class="service-icon service-support text-white">
+                                    <i class="fa fa-exclamation-triangle"></i>
                                 </div>
-                                
-                                <div class="d-flex justify-content-center gap-3 mt-4">
-                                    <a href="/" class="btn btn-primary px-4">
-                                        <i class="fa fa-home me-2"></i>Ir al Inicio
-                                    </a>
-                                    <a href="/my/tickets" class="btn btn-outline-secondary px-4">
-                                        <i class="fa fa-list-alt me-2"></i>Ver Mis Tickets
-                                    </a>
+                                <h3 class="service-title">Reportar Problema</h3>
+                                <p class="service-description mb-0">
+                                    Reporta fallas técnicas o problemas con tu equipo
+                                </p>
+                            </a>
+                        </div>
+                        
+                        <!-- Asistencia Remota -->
+                        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.2s">
+                            <a t-attf-href="/public/remote_assistance?copier_company_id=#{equipment.id}" class="service-card d-block">
+                                <div class="service-icon service-remote text-white">
+                                    <i class="fa fa-desktop"></i>
+                                </div>
+                                <h3 class="service-title">Asistencia Remota</h3>
+                                <p class="service-description mb-0">
+                                    Solicita ayuda técnica remota para tu equipo
+                                </p>
+                            </a>
+                        </div>
+                        
+                        <!-- Solicitar Toner -->
+                        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.3s">
+                            <a t-attf-href="/public/request_toner?copier_company_id=#{equipment.id}" class="service-card d-block">
+                                <div class="service-icon service-toner text-white">
+                                    <i class="fa fa-tint"></i>
+                                </div>
+                                <h3 class="service-title">Solicitar Toner</h3>
+                                <p class="service-description mb-0">
+                                    Pide reposición de toner y consumibles
+                                </p>
+                            </a>
+                        </div>
+                        
+                        <!-- Subir Contadores -->
+                        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.4s">
+                            <a t-attf-href="/public/upload_counters?copier_company_id=#{equipment.id}" class="service-card d-block">
+                                <div class="service-icon service-counters text-white">
+                                    <i class="fa fa-chart-bar"></i>
+                                </div>
+                                <h3 class="service-title">Reportar Contadores</h3>
+                                <p class="service-description mb-0">
+                                    Envía las lecturas mensuales de tu equipo
+                                </p>
+                            </a>
+                        </div>
+                        
+                        <!-- WhatsApp -->
+                        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.5s">
+                            <a t-attf-href="/public/send_whatsapp?copier_company_id=#{equipment.id}" class="service-card d-block">
+                                <div class="service-icon service-whatsapp text-white">
+                                    <i class="fab fa-whatsapp"></i>
+                                </div>
+                                <h3 class="service-title">Chat WhatsApp</h3>
+                                <p class="service-description mb-0">
+                                    Contacta directamente por WhatsApp
+                                </p>
+                            </a>
+                        </div>
+                        
+                        <!-- Enviar Email -->
+                        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.6s">
+                            <a t-attf-href="/public/send_email?copier_company_id=#{equipment.id}" class="service-card d-block">
+                                <div class="service-icon service-email text-white">
+                                    <i class="fa fa-envelope"></i>
+                                </div>
+                                <h3 class="service-title">Enviar Email</h3>
+                                <p class="service-description mb-0">
+                                    Contacta por correo electrónico
+                                </p>
+                            </a>
+                        </div>
+                        
+                        <!-- Solicitar Cotización -->
+                        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.7s">
+                            <a href="/contactus" class="service-card d-block">
+                                <div class="service-icon service-quote text-white">
+                                    <i class="fa fa-file-invoice-dollar"></i>
+                                </div>
+                                <h3 class="service-title">Solicitar Cotización</h3>
+                                <p class="service-description mb-0">
+                                    Cotiza nuevos equipos o servicios
+                                </p>
+                            </a>
+                        </div>
+                        
+                        <!-- Visitar Sitio Web -->
+                        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.8s">
+                            <a href="https://copiercompanysac.com" target="_blank" class="service-card d-block">
+                                <div class="service-icon service-website text-white">
+                                    <i class="fa fa-globe"></i>
+                                </div>
+                                <h3 class="service-title">Nuestro Sitio Web</h3>
+                                <p class="service-description mb-0">
+                                    Conoce más sobre nuestros servicios
+                                </p>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Información de Contacto -->
+                    <div class="text-center py-5">
+                        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f8fafc, #e2e8f0);">
+                            <div class="card-body py-4">
+                                <h4 class="fw-bold text-primary mb-3">
+                                    <i class="fa fa-headset me-2"></i>
+                                    ¿Necesitas ayuda adicional?
+                                </h4>
+                                <p class="text-muted mb-4">Nuestro equipo está disponible para asistirte</p>
+                                <div class="row justify-content-center g-4">
+                                    <div class="col-md-4">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <i class="fa fa-phone text-primary me-2"></i>
+                                            <span class="fw-semibold" t-esc="company_phone">+51 999 999 999</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <i class="fa fa-envelope text-primary me-2"></i>
+                                            <span class="fw-semibold" t-esc="company_email">info@copiercompanysac.com</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <i class="fa fa-clock text-primary me-2"></i>
+                                            <span class="fw-semibold">Lun - Vie: 8:00 - 18:00</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                
+                <!-- JavaScript para animaciones -->
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Animación de elementos en scroll
+                        const observerOptions = {
+                            threshold: 0.1,
+                            rootMargin: '0px 0px -50px 0px'
+                        };
+                        
+                        const observer = new IntersectionObserver(function(entries) {
+                            entries.forEach(entry =&gt; {
+                                if (entry.isIntersecting) {
+                                    entry.target.classList.add('animate__animated', 'animate__fadeInUp');
+                                }
+                            });
+                        }, observerOptions);
+                        
+                        // Observar tarjetas de servicio
+                        document.querySelectorAll('.service-card').forEach(card =&gt; {
+                            observer.observe(card);
+                        });
+                        
+                        // Efecto de hover mejorado
+                        document.querySelectorAll('.service-card').forEach(card =&gt; {
+                            card.addEventListener('mouseenter', function() {
+                                this.style.transform = 'translateY(-8px) scale(1.02)';
+                                this.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                            });
+                            
+                            card.addEventListener('mouseleave', function() {
+                                this.style.transform = 'translateY(0) scale(1)';
+                            });
+                        });
+                        
+                        // Animación de conteo o loading si es necesario
+                        console.log('Portal de equipos cargado exitosamente');
+                    });
+                </script>
             </div>
-        </div>
-        <t t-if="whatsapp_script" t-raw="whatsapp_script"/>
-    </t>
-</template>
+        </t>
+    </template>
+    
+    <!-- FORMULARIO DE ASISTENCIA REMOTA -->
+    <template id="portal_remote_assistance" name="Remote Assistance Request Form">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <style>
+                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap');
+                    @import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
+                    
+                    * { font-family: 'Inter', sans-serif; }
+                    
+                    .hero-gradient {
+                        background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+                        color: white;
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    
+                    .hero-gradient::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="white" opacity="0.1"><polygon points="1000,100 1000,0 0,100"/></svg>');
+                    }
+                    
+                    .form-card {
+                        background: white;
+                        border-radius: 20px;
+                        box-shadow: 0 25px 50px rgba(0,0,0,0.1);
+                        margin: -80px auto 40px;
+                        position: relative;
+                        z-index: 10;
+                        border: 1px solid rgba(255,255,255,0.2);
+                    }
+                    
+                    .form-section {
+                        border-left: 4px solid #4ecdc4;
+                        background: #f8fafc;
+                        border-radius: 0 12px 12px 0;
+                        padding: 20px;
+                        margin-bottom: 25px;
+                    }
+                    
+                    .form-floating label {
+                        color: #64748b;
+                    }
+                    
+                    .form-control:focus {
+                        border-color: #4ecdc4;
+                        box-shadow: 0 0 0 0.2rem rgba(78, 205, 196, 0.25);
+                    }
+                    
+                    .btn-remote {
+                        background: linear-gradient(135deg, #4ecdc4, #44a08d);
+                        border: none;
+                        border-radius: 12px;
+                        padding: 15px 30px;
+                        font-weight: 600;
+                        transition: all 0.3s ease;
+                    }
+                    
+                    .btn-remote:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 10px 25px rgba(78, 205, 196, 0.3);
+                    }
+                    
+                    .access-fields {
+                        background: #fff7ed;
+                        border: 2px dashed #fed7aa;
+                        border-radius: 12px;
+                        padding: 20px;
+                        margin: 15px 0;
+                        transition: all 0.3s ease;
+                    }
+                    
+                    .access-fields.show {
+                        background: #f0fdf4;
+                        border-color: #86efac;
+                    }
+                </style>
+                
+                <!-- Hero Section -->
+                <div class="hero-gradient py-5">
+                    <div class="container position-relative">
+                        <div class="text-center py-4">
+                            <i class="fa fa-desktop mb-3 animate__animated animate__bounceIn" style="font-size: 4rem; opacity: 0.9;"></i>
+                            <h1 class="display-5 fw-bold mb-3 animate__animated animate__fadeInDown">
+                                Asistencia Remota
+                            </h1>
+                            <p class="lead mb-0 animate__animated animate__fadeInUp animate__delay-1s" style="opacity: 0.9;">
+                                Solicita ayuda técnica especializada para tu equipo
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="container">
+                    <div class="form-card animate__animated animate__fadeInUp">
+                        <div class="card-body p-5">
+                            <!-- Mensajes de éxito/error -->
+                            <t t-if="success_message">
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    <i class="fa fa-check-circle me-2"></i>
+                                    <span t-raw="success_message"></span>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            </t>
+                            
+                            <t t-if="error_message">
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <i class="fa fa-exclamation-triangle me-2"></i>
+                                    <span t-esc="error_message"></span>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            </t>
+                            
+                            <!-- Información del Equipo -->
+                            <div class="form-section">
+                                <h4 class="fw-bold text-primary mb-3">
+                                    <i class="fa fa-server me-2"></i>
+                                    Información del Equipo
+                                </h4>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center p-3 bg-white rounded-3 shadow-sm">
+                                            <i class="fa fa-print text-primary me-3 fs-5"></i>
+                                            <div>
+                                                <div class="fw-semibold">Equipo</div>
+                                                <div class="text-muted small" t-esc="equipment_data['name']"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center p-3 bg-white rounded-3 shadow-sm">
+                                            <i class="fa fa-barcode text-success me-3 fs-5"></i>
+                                            <div>
+                                                <div class="fw-semibold">Serie</div>
+                                                <div class="text-muted small" t-esc="equipment_data['serie']"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center p-3 bg-white rounded-3 shadow-sm">
+                                            <i class="fa fa-building text-info me-3 fs-5"></i>
+                                            <div>
+                                                <div class="fw-semibold">Cliente</div>
+                                                <div class="text-muted small" t-esc="equipment_data['cliente_name']"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center p-3 bg-white rounded-3 shadow-sm">
+                                            <i class="fa fa-map-marker-alt text-warning me-3 fs-5"></i>
+                                            <div>
+                                                <div class="fw-semibold">Ubicación</div>
+                                                <div class="text-muted small" t-esc="equipment_data['ubicacion']"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Formulario -->
+                            <form method="post" class="needs-validation" novalidate="true">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <input type="hidden" name="equipment_id" t-att-value="equipment.id"/>
+                                
+                                <!-- Información de Contacto -->
+                                <div class="form-section">
+                                    <h4 class="fw-bold text-success mb-3">
+                                        <i class="fa fa-user-circle me-2"></i>
+                                        Información de Contacto
+                                    </h4>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="form-floating">
+                                                <input type="text" class="form-control" id="contact_name" name="contact_name" 
+                                                       t-att-value="equipment_data['cliente_name']" required="true" placeholder="Nombre completo"/>
+                                                <label for="contact_name">Nombre completo *</label>
+                                                <div class="invalid-feedback">Por favor ingresa tu nombre completo</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-floating">
+                                                <input type="email" class="form-control" id="contact_email" name="contact_email" 
+                                                       t-att-value="equipment_data['cliente_email']" required="true" placeholder="Email"/>
+                                                <label for="contact_email">Email de contacto *</label>
+                                                <div class="invalid-feedback">Por favor ingresa un email válido</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-floating">
+                                                <input type="tel" class="form-control" id="contact_phone" name="contact_phone" 
+                                                       t-att-value="equipment_data['cliente_phone']" placeholder="Teléfono"/>
+                                                <label for="contact_phone">Teléfono de contacto</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Tipo de Asistencia -->
+                                <div class="form-section">
+                                    <h4 class="fw-bold text-info mb-3">
+                                        <i class="fa fa-cog me-2"></i>
+                                        Tipo de Asistencia
+                                    </h4>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="form-floating">
+                                                <select class="form-select" id="assistance_type" name="assistance_type" required="true" onchange="toggleAccessFields()">
+                                                    <option value="">Selecciona el tipo de asistencia</option>
+                                                    <option value="general">Asistencia General</option>
+                                                    <option value="scanner_email">Configuración Escáner por Email</option>
+                                                    <option value="network">Problemas de Red</option>
+                                                    <option value="drivers">Instalación de Drivers</option>
+                                                    <option value="printing">Problemas de Impresión</option>
+                                                    <option value="scanning">Problemas de Escaneo</option>
+                                                    <option value="maintenance">Mantenimiento Preventivo</option>
+                                                    <option value="other">Otro</option>
+                                                </select>
+                                                <label for="assistance_type">Tipo de asistencia *</label>
+                                                <div class="invalid-feedback">Por favor selecciona el tipo de asistencia</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-floating">
+                                                <select class="form-select" id="priority" name="priority">
+                                                    <option value="medium" selected="true">Media</option>
+                                                    <option value="low">Baja</option>
+                                                    <option value="high">Alta</option>
+                                                    <option value="urgent">Urgente</option>
+                                                </select>
+                                                <label for="priority">Prioridad</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Descripción del Problema -->
+                                <div class="form-section">
+                                    <h4 class="fw-bold text-danger mb-3">
+                                        <i class="fa fa-exclamation-circle me-2"></i>
+                                        Descripción del Problema
+                                    </h4>
+                                    <div class="form-floating">
+                                        <textarea class="form-control" id="problem_description" name="problem_description" 
+                                                  required="true" placeholder="Describe detalladamente el problema..." style="height: 120px"></textarea>
+                                        <label for="problem_description">Describe detalladamente el problema que estás experimentando *</label>
+                                        <div class="invalid-feedback">Por favor describe el problema que necesitas resolver</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Datos de Acceso Remoto -->
+                                <div id="access_fields" class="access-fields" style="display: none;">
+                                    <h5 class="fw-bold text-warning mb-3">
+                                        <i class="fa fa-key me-2"></i>
+                                        Datos de Acceso Remoto
+                                    </h5>
+                                    <p class="text-muted mb-3">
+                                        <i class="fa fa-info-circle me-1"></i>
+                                        Proporciona los datos necesarios para el acceso remoto a tu equipo
+                                    </p>
+                                    
+                                    <!-- Campos AnyDesk -->
+                                    <div id="anydesk_fields">
+                                        <div class="row g-3 mb-3">
+                                            <div class="col-md-4">
+                                                <div class="form-floating">
+                                                    <input type="text" class="form-control" id="anydesk_id" name="anydesk_id" 
+                                                           placeholder="123456789"/>
+                                                    <label for="anydesk_id">ID de AnyDesk</label>
+                                                    <div class="form-text">Ejemplo: 123 456 789</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-floating">
+                                                    <input type="text" class="form-control" id="username" name="username" 
+                                                           placeholder="Usuario del equipo"/>
+                                                    <label for="username">Usuario del equipo</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-floating">
+                                                    <input type="password" class="form-control" id="user_password" name="user_password" 
+                                                           placeholder="Contraseña"/>
+                                                    <label for="user_password">Contraseña del usuario</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Campos Email Escáner -->
+                                    <div id="scanner_fields" style="display: none;">
+                                        <div class="alert alert-info">
+                                            <i class="fa fa-envelope me-2"></i>
+                                            Para configurar el escáner por email, necesitamos los datos de la cuenta de correo
+                                        </div>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="form-floating">
+                                                    <input type="email" class="form-control" id="scanner_email" name="scanner_email" 
+                                                           placeholder="scanner@empresa.com"/>
+                                                    <label for="scanner_email">Email del escáner</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-floating">
+                                                    <input type="password" class="form-control" id="scanner_password" name="scanner_password" 
+                                                           placeholder="Contraseña del email"/>
+                                                    <label for="scanner_password">Contraseña del email</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Botones -->
+                                <div class="row g-3 mt-4">
+                                    <div class="col-md-6">
+                                        <a t-attf-href="/public/equipment_menu?copier_company_id=#{equipment.id}" 
+                                           class="btn btn-outline-secondary w-100 py-3">
+                                            <i class="fa fa-arrow-left me-2"></i>Regresar al Menú
+                                        </a>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button type="submit" class="btn btn-remote text-white w-100 py-3">
+                                            <i class="fa fa-paper-plane me-2"></i>Solicitar Asistencia Remota
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Información Adicional -->
+                    <div class="text-center py-4">
+                        <div class="card border-0" style="background: linear-gradient(135deg, #f8fafc, #e2e8f0);">
+                            <div class="card-body py-4">
+                                <h5 class="fw-bold text-primary mb-3">
+                                    <i class="fa fa-shield-alt me-2"></i>
+                                    Información de Seguridad
+                                </h5>
+                                <p class="text-muted mb-0">
+                                    Tus datos de acceso están protegidos y solo serán utilizados por nuestro equipo técnico 
+                                    para brindarte asistencia. La sesión remota será supervisada y documentada.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <script>
+                    // Validación del formulario
+                    (function() {
+                        'use strict';
+                        window.addEventListener('load', function() {
+                            var forms = document.getElementsByClassName('needs-validation');
+                            var validation = Array.prototype.filter.call(forms, function(form) {
+                                form.addEventListener('submit', function(event) {
+                                    if (form.checkValidity() === false) {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                    }
+                                    form.classList.add('was-validated');
+                                }, false);
+                            });
+                        }, false);
+                    })();
+                    
+                    // Mostrar/ocultar campos según tipo de asistencia
+                    function toggleAccessFields() {
+                        const assistanceType = document.getElementById('assistance_type').value;
+                        const accessFields = document.getElementById('access_fields');
+                        const anydeskFields = document.getElementById('anydesk_fields');
+                        const scannerFields = document.getElementById('scanner_fields');
+                        
+                        if (assistanceType &amp;&amp; assistanceType !== '') {
+                            accessFields.style.display = 'block';
+                            accessFields.classList.add('show');
+                            
+                            // Mostrar campos específicos según el tipo
+                            if (assistanceType === 'scanner_email') {
+                                scannerFields.style.display = 'block';
+                                anydeskFields.style.display = 'none';
+                                
+                                // Hacer requerido el email del escáner
+                                document.getElementById('scanner_email').required = true;
+                            } else {
+                                scannerFields.style.display = 'none';
+                                anydeskFields.style.display = 'block';
+                                
+                                // Quitar requerimiento del email del escáner
+                                document.getElementById('scanner_email').required = false;
+                            }
+                        } else {
+                            accessFields.style.display = 'none';
+                            accessFields.classList.remove('show');
+                        }
+                    }
+                    
+                    // Animaciones y efectos
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Efecto de focus en inputs
+                        const inputs = document.querySelectorAll('.form-control');
+                        inputs.forEach(input =&gt; {
+                            input.addEventListener('focus', function() {
+                                this.parentElement.style.transform = 'scale(1.02)';
+                                this.parentElement.style.transition = 'transform 0.2s ease';
+                            });
+                            
+                            input.addEventListener('blur', function() {
+                                this.parentElement.style.transform = 'scale(1)';
+                            });
+                        });
+                    });
+                </script>
+            </div>
+        </t>
+    </template>
+    
+    <!-- FORMULARIO MEJORADO DE TICKETS -->
+    <template id="portal_public_create_ticket" name="Enhanced Public Ticket Form">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <style>
+                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap');
+                    @import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
+                    
+                    * { font-family: 'Inter', sans-serif; }
+                    
+                    .hero-ticket {
+                        background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+                        color: white;
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    
+                    .form-section-ticket {
+                        border-left: 4px solid #ff6b6b;
+                        background: #fff5f5;
+                        border-radius: 0 12px 12px 0;
+                        padding: 20px;
+                        margin-bottom: 25px;
+                    }
+                    
+                    .problem-type-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                        gap: 15px;
+                        margin: 20px 0;
+                    }
+                    
+                    .problem-type-card {
+                        border: 2px solid #e2e8f0;
+                        border-radius: 12px;
+                        padding: 20px;
+                        text-align: center;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        background: white;
+                    }
+                    
+                    .problem-type-card:hover {
+                        border-color: #ff6b6b;
+                        transform: translateY(-2px);
+                        box-shadow: 0 8px 25px rgba(255, 107, 107, 0.15);
+                    }
+                    
+                    .problem-type-card.selected {
+                        border-color: #ff6b6b;
+                        background: linear-gradient(135deg, #fff5f5, #fef2f2);
+                    }
+                    
+                    .problem-icon {
+                        width: 60px;
+                        height: 60px;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        margin: 0 auto 15px;
+                        font-size: 24px;
+                        color: white;
+                    }
+                    
+                    .btn-ticket {
+                        background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+                        border: none;
+                        border-radius: 12px;
+                        padding: 15px 30px;
+                        font-weight: 600;
+                        transition: all 0.3s ease;
+                    }
+                    
+                    .btn-ticket:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 10px 25px rgba(255, 107, 107, 0.3);
+                    }
+                </style>
+                
+                <!-- Hero Section -->
+                <div class="hero-ticket py-5">
+                    <div class="container position-relative">
+                        <div class="text-center py-4">
+                            <i class="fa fa-exclamation-triangle mb-3 animate__animated animate__bounceIn" style="font-size: 4rem; opacity: 0.9;"></i>
+                            <h1 class="display-5 fw-bold mb-3 animate__animated animate__fadeInDown">
+                                Reportar Problema
+                            </h1>
+                            <p class="lead mb-0 animate__animated animate__fadeInUp animate__delay-1s" style="opacity: 0.9;">
+                                Reporta fallas técnicas y problemas con tu equipo
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="container">
+                    <div class="form-card animate__animated animate__fadeInUp">
+                        <div class="card-body p-5">
+                            <!-- Mensajes de éxito/error -->
+                            <t t-if="success_message">
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    <i class="fa fa-check-circle me-2"></i>
+                                    <span t-raw="success_message"></span>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            </t>
+                            
+                            <t t-if="error_message">
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <i class="fa fa-exclamation-triangle me-2"></i>
+                                    <span t-esc="error_message"></span>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            </t>
+                            
+                            <!-- Información del Equipo -->
+                            <div class="form-section-ticket">
+                                <h4 class="fw-bold text-primary mb-3">
+                                    <i class="fa fa-server me-2"></i>
+                                    Información del Equipo
+                                </h4>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center p-3 bg-white rounded-3 shadow-sm">
+                                            <i class="fa fa-print text-primary me-3 fs-5"></i>
+                                            <div>
+                                                <div class="fw-semibold">Equipo</div>
+                                                <div class="text-muted small" t-esc="equipment_data['name']"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center p-3 bg-white rounded-3 shadow-sm">
+                                            <i class="fa fa-barcode text-success me-3 fs-5"></i>
+                                            <div>
+                                                <div class="fw-semibold">Serie</div>
+                                                <div class="text-muted small" t-esc="equipment_data['serie']"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center p-3 bg-white rounded-3 shadow-sm">
+                                            <i class="fa fa-building text-info me-3 fs-5"></i>
+                                            <div>
+                                                <div class="fw-semibold">Cliente</div>
+                                                <div class="text-muted small" t-esc="equipment_data['cliente_name']"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center p-3 bg-white rounded-3 shadow-sm">
+                                            <i class="fa fa-map-marker-alt text-warning me-3 fs-5"></i>
+                                            <div>
+                                                <div class="fw-semibold">Ubicación</div>
+                                                <div class="text-muted small" t-esc="equipment_data['ubicacion']"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Formulario -->
+                            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate="true">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <input type="hidden" name="copier_company_id" t-att-value="equipment.id"/>
+                                
+                                <!-- Tipo de Problema -->
+                                <div class="form-section-ticket">
+                                    <h4 class="fw-bold text-danger mb-3">
+                                        <i class="fa fa-exclamation-circle me-2"></i>
+                                        ¿Qué tipo de problema tienes?
+                                    </h4>
+                                    
+                                    <div class="problem-type-grid">
+                                        <div class="problem-type-card" onclick="selectProblemType('printing')">
+                                            <div class="problem-icon" style="background: linear-gradient(135deg, #ff6b6b, #ff8e8e);">
+                                                <i class="fa fa-print"></i>
+                                            </div>
+                                            <h6 class="fw-semibold">Problemas de Impresión</h6>
+                                            <p class="text-muted small mb-0">No imprime, calidad deficiente, velocidad lenta</p>
+                                        </div>
+                                        
+                                        <div class="problem-type-card" onclick="selectProblemType('scanning')">
+                                            <div class="problem-icon" style="background: linear-gradient(135deg, #4ecdc4, #44a08d);">
+                                                <i class="fa fa-scanner"></i>
+                                            </div>
+                                            <h6 class="fw-semibold">Problemas de Escaneo</h6>
+                                            <p class="text-muted small mb-0">No escanea, calidad deficiente, errores</p>
+                                        </div>
+                                        
+                                        <div class="problem-type-card" onclick="selectProblemType('paper_jam')">
+                                            <div class="problem-icon" style="background: linear-gradient(135deg, #ffa726, #ff7043);">
+                                                <i class="fa fa-file-alt"></i>
+                                            </div>
+                                            <h6 class="fw-semibold">Atasco de Papel</h6>
+                                            <p class="text-muted small mb-0">Papel atascado, alimentación incorrecta</p>
+                                        </div>
+                                        
+                                        <div class="problem-type-card" onclick="selectProblemType('toner')">
+                                            <div class="problem-icon" style="background: linear-gradient(135deg, #ab47bc, #8e24aa);">
+                                                <i class="fa fa-tint"></i>
+                                            </div>
+                                            <h6 class="fw-semibold">Problemas de Toner</h6>
+                                            <p class="text-muted small mb-0">Toner vacío, calidad de impresión</p>
+                                        </div>
+                                        
+                                        <div class="problem-type-card" onclick="selectProblemType('network')">
+                                            <div class="problem-icon" style="background: linear-gradient(135deg, #42a5f5, #1e88e5);">
+                                                <i class="fa fa-wifi"></i>
+                                            </div>
+                                            <h6 class="fw-semibold">Problemas de Red</h6>
+                                            <p class="text-muted small mb-0">Conexión perdida, no detecta la red</p>
+                                        </div>
+                                        
+                                        <div class="problem-type-card" onclick="selectProblemType('general')">
+                                            <div class="problem-icon" style="background: linear-gradient(135deg, #66bb6a, #4caf50);">
+                                                <i class="fa fa-cog"></i>
+                                            </div>
+                                            <h6 class="fw-semibold">Otro Problema</h6>
+                                            <p class="text-muted small mb-0">Problema no listado anteriormente</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <input type="hidden" id="problem_type" name="problem_type" required="true"/>
+                                    <div class="invalid-feedback">Por favor selecciona el tipo de problema</div>
+                                </div>
+                                
+                                <!-- Descripción y Urgencia -->
+                                <div class="form-section-ticket">
+                                    <h4 class="fw-bold text-warning mb-3">
+                                        <i class="fa fa-edit me-2"></i>
+                                        Describe el Problema
+                                    </h4>
+                                    
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-8">
+                                            <div class="form-floating">
+                                                <textarea class="form-control" id="description" name="description" 
+                                                          required="true" placeholder="Describe el problema..." style="height: 120px"></textarea>
+                                                <label for="description">Descripción detallada del problema *</label>
+                                                <div class="invalid-feedback">Por favor describe el problema</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-floating mb-3">
+                                                <select class="form-select" id="urgency" name="urgency">
+                                                    <option value="low">Baja - Puede esperar</option>
+                                                    <option value="medium" selected="true">Media - Normal</option>
+                                                    <option value="high">Alta - Urgente</option>
+                                                    <option value="urgent">Crítica - Muy urgente</option>
+                                                </select>
+                                                <label for="urgency">Urgencia</label>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="image" class="form-label">
+                                                    <i class="fa fa-camera me-2"></i>Foto del problema (opcional)
+                                                </label>
+                                                <input type="file" class="form-control" id="image" name="image" accept="image/*"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Información de Contacto -->
+                                <div class="form-section-ticket">
+                                    <h4 class="fw-bold text-success mb-3">
+                                        <i class="fa fa-user-circle me-2"></i>
+                                        Información de Contacto
+                                    </h4>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="form-floating">
+                                                <input type="text" class="form-control" id="name" name="name" 
+                                                       t-att-value="equipment_data['cliente_name']" required="true" placeholder="Nombre completo"/>
+                                                <label for="name">Nombre completo *</label>
+                                                <div class="invalid-feedback">Por favor ingresa tu nombre</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-floating">
+                                                <input type="email" class="form-control" id="email" name="email" 
+                                                       t-att-value="equipment_data['cliente_email']" required="true" placeholder="Email"/>
+                                                <label for="email">Email de contacto *</label>
+                                                <div class="invalid-feedback">Por favor ingresa un email válido</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-floating">
+                                                <input type="tel" class="form-control" id="phone" name="phone" 
+                                                       t-att-value="equipment_data['cliente_phone']" placeholder="Teléfono"/>
+                                                <label for="phone">Teléfono de contacto</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Botones -->
+                                <div class="row g-3 mt-4">
+                                    <div class="col-md-6">
+                                        <a t-attf-href="/public/equipment_menu?copier_company_id=#{equipment.id}" 
+                                           class="btn btn-outline-secondary w-100 py-3">
+                                            <i class="fa fa-arrow-left me-2"></i>Regresar al Menú
+                                        </a>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button type="submit" class="btn btn-ticket text-white w-100 py-3">
+                                            <i class="fa fa-paper-plane me-2"></i>Enviar Reporte de Problema
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <script>
+                    let selectedProblemType = '';
+                    
+                    function selectProblemType(type) {
+                        // Remover selección anterior
+                        document.querySelectorAll('.problem-type-card').forEach(card =&gt; {
+                            card.classList.remove('selected');
+                        });
+                        
+                        // Agregar selección actual
+                        event.currentTarget.classList.add('selected');
+                        selectedProblemType = type;
+                        document.getElementById('problem_type').value = type;
+                        
+                        // Eliminar mensaje de error si existe
+                        document.getElementById('problem_type').classList.remove('is-invalid');
+                    }
+                    
+                    // Validación del formulario
+                    (function() {
+                        'use strict';
+                        window.addEventListener('load', function() {
+                            var forms = document.getElementsByClassName('needs-validation');
+                            var validation = Array.prototype.filter.call(forms, function(form) {
+                                form.addEventListener('submit', function(event) {
+                                    // Validar tipo de problema
+                                    if (!selectedProblemType) {
+                                        document.getElementById('problem_type').classList.add('is-invalid');
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                        return;
+                                    }
+                                    
+                                    if (form.checkValidity() === false) {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                    }
+                                    form.classList.add('was-validated');
+                                }, false);
+                            });
+                        }, false);
+                    })();
+                    
+                    // Animaciones
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Animación de hover en tarjetas de problema
+                        document.querySelectorAll('.problem-type-card').forEach(card =&gt; {
+                            card.addEventListener('mouseenter', function() {
+                                if (!this.classList.contains('selected')) {
+                                    this.style.transform = 'translateY(-5px) scale(1.02)';
+                                }
+                            });
+                            
+                            card.addEventListener('mouseleave', function() {
+                                if (!this.classList.contains('selected')) {
+                                    this.style.transform = 'translateY(0) scale(1)';
+                                }
+                            });
+                        });
+                    });
+                </script>
+            </div>
+        </t>
+    </template>
+    
+    <!-- FORMULARIO DE SOLICITUD DE TONER -->
+    <template id="portal_request_toner" name="Request Toner Form">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <style>
+                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap');
+                    
+                    * { font-family: 'Inter', sans-serif; }
+                    
+                    .hero-toner {
+                        background: linear-gradient(135deg, #45b7d1 0%, #96c93d 100%);
+                        color: white;
+                    }
+                    
+                    .toner-card {
+                        border: 2px solid #e2e8f0;
+                        border-radius: 12px;
+                        padding: 20px;
+                        text-align: center;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        background: white;
+                        margin-bottom: 15px;
+                    }
+                    
+                    .toner-card:hover {
+                        border-color: #45b7d1;
+                        transform: translateY(-2px);
+                        box-shadow: 0 8px 25px rgba(69, 183, 209, 0.15);
+                    }
+                    
+                    .toner-card.selected {
+                        border-color: #45b7d1;
+                        background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+                    }
+                </style>
+                
+                <!-- Hero Section -->
+                <div class="hero-toner py-5">
+                    <div class="container position-relative">
+                        <div class="text-center py-4">
+                            <i class="fa fa-tint mb-3" style="font-size: 4rem; opacity: 0.9;"></i>
+                            <h1 class="display-5 fw-bold mb-3">Solicitar Toner</h1>
+                            <p class="lead mb-0" style="opacity: 0.9;">
+                                Solicita reposición de toner y consumibles
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="container">
+                    <div class="form-card">
+                        <div class="card-body p-5">
+                            <form method="post" class="needs-validation" novalidate="true">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <input type="hidden" name="equipment_id" t-att-value="equipment.id"/>
+                                
+                                <!-- Información del Equipo -->
+                                <div class="form-section mb-4">
+                                    <h4 class="fw-bold text-primary mb-3">
+                                        <i class="fa fa-server me-2"></i>
+                                        Información del Equipo
+                                    </h4>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-center p-3 bg-light rounded-3">
+                                                <i class="fa fa-print text-primary me-3 fs-5"></i>
+                                                <div>
+                                                    <div class="fw-semibold">Equipo</div>
+                                                    <div class="text-muted small" t-esc="equipment.name.name"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-center p-3 bg-light rounded-3">
+                                                <i class="fa fa-barcode text-success me-3 fs-5"></i>
+                                                <div>
+                                                    <div class="fw-semibold">Serie</div>
+                                                    <div class="text-muted small" t-esc="equipment.serie_id"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Tipo de Consumible -->
+                                <div class="form-section mb-4">
+                                    <h4 class="fw-bold text-info mb-3">
+                                        <i class="fa fa-list me-2"></i>
+                                        ¿Qué necesitas?
+                                    </h4>
+                                    
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <div class="toner-card" onclick="selectTonerType('toner_black')">
+                                                <i class="fa fa-tint mb-3" style="font-size: 2rem; color: #333;"></i>
+                                                <h6 class="fw-semibold">Toner Negro</h6>
+                                                <p class="text-muted small mb-0">Cartucho de toner negro</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="toner-card" onclick="selectTonerType('toner_color')">
+                                                <i class="fa fa-palette mb-3" style="font-size: 2rem; color: #ff6b6b;"></i>
+                                                <h6 class="fw-semibold">Toner Color</h6>
+                                                <p class="text-muted small mb-0">Cartuchos de colores</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="toner-card" onclick="selectTonerType('maintenance')">
+                                                <i class="fa fa-cogs mb-3" style="font-size: 2rem; color: #45b7d1;"></i>
+                                                <h6 class="fw-semibold">Kit Mantenimiento</h6>
+                                                <p class="text-muted small mb-0">Kit de mantenimiento</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <input type="hidden" id="toner_type" name="toner_type" required="true"/>
+                                </div>
+                                
+                                <!-- Información de Contacto -->
+                                <div class="form-section mb-4">
+                                    <h4 class="fw-bold text-success mb-3">
+                                        <i class="fa fa-user me-2"></i>
+                                        Datos de Contacto
+                                    </h4>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="form-floating">
+                                                <input type="text" class="form-control" id="contact_name" name="contact_name" 
+                                                       t-att-value="equipment.cliente_id.name" required="true"/>
+                                                <label for="contact_name">Nombre completo *</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-floating">
+                                                <input type="email" class="form-control" id="contact_email" name="contact_email" 
+                                                       t-att-value="equipment.cliente_id.email" required="true"/>
+                                                <label for="contact_email">Email *</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-floating">
+                                                <textarea class="form-control" id="notes" name="notes" style="height: 100px" 
+                                                          placeholder="Notas adicionales..."></textarea>
+                                                <label for="notes">Notas adicionales (opcional)</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Botones -->
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <a t-attf-href="/public/equipment_menu?copier_company_id=#{equipment.id}" 
+                                           class="btn btn-outline-secondary w-100 py-3">
+                                            <i class="fa fa-arrow-left me-2"></i>Regresar
+                                        </a>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button type="submit" class="btn w-100 py-3 text-white" 
+                                                style="background: linear-gradient(135deg, #45b7d1, #96c93d);">
+                                            <i class="fa fa-paper-plane me-2"></i>Solicitar Toner
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <script>
+                    let selectedTonerType = '';
+                    
+                    function selectTonerType(type) {
+                        document.querySelectorAll('.toner-card').forEach(card =&gt; {
+                            card.classList.remove('selected');
+                        });
+                        
+                        event.currentTarget.classList.add('selected');
+                        selectedTonerType = type;
+                        document.getElementById('toner_type').value = type;
+                    }
+                </script>
+            </div>
+        </t>
+    </template>
+    
+    <!-- FORMULARIO DE SUBIR CONTADORES -->
+    <template id="portal_upload_counters" name="Upload Counters Form">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <style>
+                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap');
+                    
+                    * { font-family: 'Inter', sans-serif; }
+                    
+                    .hero-counters {
+                        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                        color: white;
+                    }
+                    
+                    .counter-input {
+                        text-align: center;
+                        font-size: 1.5rem;
+                        font-weight: 600;
+                        border: 3px solid #e2e8f0;
+                        border-radius: 12px;
+                        padding: 20px;
+                        transition: all 0.3s ease;
+                    }
+                    
+                    .counter-input:focus {
+                        border-color: #f093fb;
+                        box-shadow: 0 0 0 0.2rem rgba(240, 147, 251, 0.25);
+                        transform: scale(1.05);
+                    }
+                    
+                    .counter-card {
+                        background: linear-gradient(135deg, #fff, #f8fafc);
+                        border: 2px solid #e2e8f0;
+                        border-radius: 16px;
+                        padding: 25px;
+                        text-align: center;
+                        margin-bottom: 20px;
+                        transition: all 0.3s ease;
+                    }
+                    
+                    .counter-card:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+                    }
+                </style>
+                
+                <!-- Hero Section -->
+                <div class="hero-counters py-5">
+                    <div class="container position-relative">
+                        <div class="text-center py-4">
+                            <i class="fa fa-chart-bar mb-3" style="font-size: 4rem; opacity: 0.9;"></i>
+                            <h1 class="display-5 fw-bold mb-3">Reportar Contadores</h1>
+                            <p class="lead mb-0" style="opacity: 0.9;">
+                                Envía las lecturas mensuales de tu equipo
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="container">
+                    <div class="form-card">
+                        <div class="card-body p-5">
+                            <form method="post" class="needs-validation" novalidate="true">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <input type="hidden" name="equipment_id" t-att-value="equipment.id"/>
+                                
+                                <!-- Información del Equipo -->
+                                <div class="form-section mb-4">
+                                    <h4 class="fw-bold text-primary mb-3">
+                                        <i class="fa fa-server me-2"></i>
+                                        Información del Equipo
+                                    </h4>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-center p-3 bg-light rounded-3">
+                                                <i class="fa fa-print text-primary me-3 fs-5"></i>
+                                                <div>
+                                                    <div class="fw-semibold">Equipo</div>
+                                                    <div class="text-muted small" t-esc="equipment.name.name"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-center p-3 bg-light rounded-3">
+                                                <i class="fa fa-barcode text-success me-3 fs-5"></i>
+                                                <div>
+                                                    <div class="fw-semibold">Serie</div>
+                                                    <div class="text-muted small" t-esc="equipment.serie_id"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Contadores -->
+                                <div class="form-section mb-4">
+                                    <h4 class="fw-bold text-info mb-3">
+                                        <i class="fa fa-tachometer-alt me-2"></i>
+                                        Lecturas de Contadores
+                                    </h4>
+                                    
+                                    <div class="row g-4">
+                                        <div class="col-md-6">
+                                            <div class="counter-card">
+                                                <i class="fa fa-print mb-3" style="font-size: 2.5rem; color: #333;"></i>
+                                                <h5 class="fw-bold mb-3">Contador Blanco y Negro</h5>
+                                                <input type="number" class="form-control counter-input" 
+                                                       id="counter_bn" name="counter_bn" required="true" 
+                                                       placeholder="0" min="0"/>
+                                                <div class="invalid-feedback">Ingresa el contador B/N</div>
+                                                <small class="text-muted mt-2 d-block">Total de copias en blanco y negro</small>
+                                            </div>
+                                        </div>
+                                        
+                                        <t t-if="equipment.tipo == 'color'">
+                                            <div class="col-md-6">
+                                                <div class="counter-card">
+                                                    <i class="fa fa-palette mb-3" style="font-size: 2.5rem; color: #ff6b6b;"></i>
+                                                    <h5 class="fw-bold mb-3">Contador Color</h5>
+                                                    <input type="number" class="form-control counter-input" 
+                                                           id="counter_color" name="counter_color" 
+                                                           placeholder="0" min="0"/>
+                                                    <small class="text-muted mt-2 d-block">Total de copias a color</small>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </div>
+                                
+                                <!-- Información Adicional -->
+                                <div class="form-section mb-4">
+                                    <h4 class="fw-bold text-warning mb-3">
+                                        <i class="fa fa-calendar me-2"></i>
+                                        Información del Período
+                                    </h4>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="form-floating">
+                                                <input type="month" class="form-control" id="period" name="period" 
+                                                       required="true"/>
+                                                <label for="period">Período de facturación *</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-floating">
+                                                <input type="text" class="form-control" id="reporter_name" name="reporter_name" 
+                                                       t-att-value="equipment.cliente_id.name" required="true"/>
+                                                <label for="reporter_name">Nombre de quien reporta *</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-floating">
+                                                <textarea class="form-control" id="notes" name="notes" style="height: 100px" 
+                                                          placeholder="Observaciones..."></textarea>
+                                                <label for="notes">Observaciones (opcional)</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Botones -->
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <a t-attf-href="/public/equipment_menu?copier_company_id=#{equipment.id}" 
+                                           class="btn btn-outline-secondary w-100 py-3">
+                                            <i class="fa fa-arrow-left me-2"></i>Regresar
+                                        </a>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button type="submit" class="btn w-100 py-3 text-white" 
+                                                style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                                            <i class="fa fa-upload me-2"></i>Enviar Contadores
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <script>
+                    // Establecer período actual por defecto
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const now = new Date();
+                        const currentMonth = now.toISOString().slice(0, 7);
+                        document.getElementById('period').value = currentMonth;
+                    });
+                    
+                    // Validación del formulario
+                    (function() {
+                        'use strict';
+                        window.addEventListener('load', function() {
+                            var forms = document.getElementsByClassName('needs-validation');
+                            var validation = Array.prototype.filter.call(forms, function(form) {
+                                form.addEventListener('submit', function(event) {
+                                    if (form.checkValidity() === false) {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                    }
+                                    form.classList.add('was-validated');
+                                }, false);
+                            });
+                        }, false);
+                    })();
+                </script>
+            </div>
+        </t>
+    </template>
 </odoo>
