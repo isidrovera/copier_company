@@ -1022,6 +1022,28 @@
                         z-index: 10;
                         border: 1px solid rgba(255,255,255,0.2);
                     }
+                    
+                    .description-section {
+                        display: none;
+                        animation: fadeIn 0.5s ease-in;
+                    }
+                    
+                    .description-section.show {
+                        display: block;
+                    }
+                    
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: translateY(20px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                    
+                    .auto-description {
+                        background: #f0f9ff;
+                        border: 1px solid #bae6fd;
+                        border-radius: 8px;
+                        padding: 15px;
+                        margin: 15px 0;
+                    }
                 </style>
                 
                 <!-- Hero Section -->
@@ -1197,41 +1219,54 @@
                                     
                                     <input type="hidden" id="problem_type" name="problem_type" required="true"/>
                                     <div class="invalid-feedback">Por favor selecciona el tipo de problema</div>
+                                    
+                                    <!-- Descripción automática -->
+                                    <div id="auto_description_section" class="auto-description" style="display: none;">
+                                        <h6 class="fw-bold text-info mb-2">
+                                            <i class="fa fa-info-circle me-2"></i>Descripción del problema:
+                                        </h6>
+                                        <p id="auto_description_text" class="mb-0"></p>
+                                    </div>
                                 </div>
                                 
-                                <!-- Descripción y Urgencia -->
-                                <div class="form-section-ticket">
+                                <!-- Descripción adicional SOLO para "general" -->
+                                <div id="description_section" class="form-section-ticket description-section">
                                     <h4 class="fw-bold text-warning mb-3">
                                         <i class="fa fa-edit me-2"></i>
-                                        Describe el Problema
+                                        Describe el Problema Específico
+                                    </h4>
+                                    <div class="form-floating">
+                                        <textarea class="form-control" id="additional_description" name="additional_description" 
+                                                  placeholder="Describe detalladamente el problema..." style="height: 120px"></textarea>
+                                        <label for="additional_description">Descripción detallada del problema *</label>
+                                        <div class="invalid-feedback">Por favor describe el problema específico</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Urgencia y Foto -->
+                                <div class="form-section-ticket">
+                                    <h4 class="fw-bold text-info mb-3">
+                                        <i class="fa fa-exclamation me-2"></i>
+                                        Información Adicional
                                     </h4>
                                     
-                                    <div class="row g-3 mb-3">
-                                        <div class="col-md-8">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
                                             <div class="form-floating">
-                                                <textarea class="form-control" id="description" name="description" 
-                                                          required="true" placeholder="Describe el problema..." style="height: 120px"></textarea>
-                                                <label for="description">Descripción detallada del problema *</label>
-                                                <div class="invalid-feedback">Por favor describe el problema</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="form-floating mb-3">
-                                                <select class="form-select" id="urgency" name="urgency">
+                                                <select class="form-select" id="urgency" name="urgency" required="true">
                                                     <option value="low">Baja - Puede esperar</option>
                                                     <option value="medium" selected="true">Media - Normal</option>
                                                     <option value="high">Alta - Urgente</option>
                                                     <option value="urgent">Crítica - Muy urgente</option>
                                                 </select>
-                                                <label for="urgency">Urgencia</label>
+                                                <label for="urgency">Nivel de Urgencia *</label>
                                             </div>
-                                            
-                                            <div class="mb-3">
-                                                <label for="image" class="form-label">
-                                                    <i class="fa fa-camera me-2"></i>Foto del problema (opcional)
-                                                </label>
-                                                <input type="file" class="form-control" id="image" name="image" accept="image/*"/>
-                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="image" class="form-label">
+                                                <i class="fa fa-camera me-2"></i>Foto del problema (opcional)
+                                            </label>
+                                            <input type="file" class="form-control" id="image" name="image" accept="image/*"/>
                                         </div>
                                     </div>
                                 </div>
@@ -1245,10 +1280,10 @@
                                     <div class="row g-3">
                                         <div class="col-md-6">
                                             <div class="form-floating">
-                                                <input type="text" class="form-control" id="name" name="name" 
+                                                <input type="text" class="form-control" id="nombre_reporta" name="nombre_reporta" 
                                                        t-att-value="equipment.cliente_id.name if equipment and equipment.cliente_id else ''" 
                                                        required="true" placeholder="Nombre completo"/>
-                                                <label for="name">Nombre completo *</label>
+                                                <label for="nombre_reporta">Nombre completo *</label>
                                                 <div class="invalid-feedback">Por favor ingresa tu nombre</div>
                                             </div>
                                         </div>
@@ -1263,10 +1298,11 @@
                                         </div>
                                         <div class="col-12">
                                             <div class="form-floating">
-                                                <input type="tel" class="form-control" id="phone" name="phone" 
+                                                <input type="tel" class="form-control" id="celular_reporta" name="celular_reporta" 
                                                        t-att-value="equipment.cliente_id.mobile if equipment and equipment.cliente_id else ''" 
-                                                       placeholder="Teléfono"/>
-                                                <label for="phone">Teléfono de contacto</label>
+                                                       required="true" placeholder="Teléfono"/>
+                                                <label for="celular_reporta">Teléfono de contacto *</label>
+                                                <div class="invalid-feedback">Por favor ingresa tu teléfono</div>
                                             </div>
                                         </div>
                                     </div>
@@ -1295,9 +1331,20 @@
                 <![CDATA[
                     let selectedProblemType = '';
                     
+                    // Descripciones automáticas para cada tipo de problema
+                    const problemDescriptions = {
+                        'printing': 'El equipo presenta problemas de impresión. Se requiere revisión técnica para identificar y solucionar la falla en el sistema de impresión.',
+                        'scanning': 'Se reportan problemas en la función de escaneo del equipo. Es necesaria una revisión técnica del módulo de escaneado.',
+                        'paper_jam': 'El equipo presenta atascos de papel frecuentes. Se requiere revisión del sistema de alimentación de papel y limpieza de rodillos.',
+                        'toner': 'Problemas relacionados con el toner o calidad de impresión. Puede requerir reemplazo de toner o revisión del sistema de impresión.',
+                        'network': 'El equipo presenta problemas de conectividad de red. Se requiere revisión de la configuración de red y conectividad.',
+                        'maintenance': 'Se solicita mantenimiento preventivo del equipo según el plan de mantenimiento programado.',
+                        'general': 'Problema general que requiere evaluación técnica específica.'
+                    };
+                    
                     function selectProblemType(type) {
                         // Remover selección anterior
-                        document.querySelectorAll('.problem-type-card').forEach(card =&gt; {
+                        document.querySelectorAll('.problem-type-card').forEach(function(card) {
                             card.classList.remove('selected');
                         });
                         
@@ -1308,6 +1355,27 @@
                         
                         // Eliminar mensaje de error si existe
                         document.getElementById('problem_type').classList.remove('is-invalid');
+                        
+                        // Mostrar descripción automática
+                        const autoDescSection = document.getElementById('auto_description_section');
+                        const autoDescText = document.getElementById('auto_description_text');
+                        const descSection = document.getElementById('description_section');
+                        const additionalDescInput = document.getElementById('additional_description');
+                        
+                        if (problemDescriptions[type]) {
+                            autoDescText.textContent = problemDescriptions[type];
+                            autoDescSection.style.display = 'block';
+                        }
+                        
+                        // Mostrar campo de descripción adicional SOLO para "general"
+                        if (type === 'general') {
+                            descSection.classList.add('show');
+                            additionalDescInput.required = true;
+                        } else {
+                            descSection.classList.remove('show');
+                            additionalDescInput.required = false;
+                            additionalDescInput.value = '';
+                        }
                     }
                     
                     // Validación del formulario
@@ -1317,28 +1385,56 @@
                             var forms = document.getElementsByClassName('needs-validation');
                             var validation = Array.prototype.filter.call(forms, function(form) {
                                 form.addEventListener('submit', function(event) {
+                                    var isValid = true;
+                                    
                                     // Validar tipo de problema
                                     if (!selectedProblemType) {
                                         document.getElementById('problem_type').classList.add('is-invalid');
-                                        event.preventDefault();
-                                        event.stopPropagation();
-                                        return;
+                                        isValid = false;
                                     }
                                     
-                                    if (form.checkValidity() === false) {
+                                    // Validar descripción adicional para "general"
+                                    if (selectedProblemType === 'general') {
+                                        const additionalDesc = document.getElementById('additional_description');
+                                        if (!additionalDesc.value.trim()) {
+                                            additionalDesc.classList.add('is-invalid');
+                                            isValid = false;
+                                        }
+                                    }
+                                    
+                                    // Validar campos requeridos
+                                    const requiredFields = ['nombre_reporta', 'email', 'celular_reporta'];
+                                    requiredFields.forEach(function(fieldId) {
+                                        const field = document.getElementById(fieldId);
+                                        if (!field.value.trim()) {
+                                            field.classList.add('is-invalid');
+                                            isValid = false;
+                                        }
+                                    });
+                                    
+                                    // Validar email
+                                    const emailField = document.getElementById('email');
+                                    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                                    if (emailField.value && !emailPattern.test(emailField.value)) {
+                                        emailField.classList.add('is-invalid');
+                                        isValid = false;
+                                    }
+                                    
+                                    if (!isValid || form.checkValidity() === false) {
                                         event.preventDefault();
                                         event.stopPropagation();
                                     }
+                                    
                                     form.classList.add('was-validated');
                                 }, false);
                             });
                         }, false);
                     })();
                     
-                    // Animaciones
+                    // Animaciones y efectos
                     document.addEventListener('DOMContentLoaded', function() {
                         // Animación de hover en tarjetas de problema
-                        document.querySelectorAll('.problem-type-card').forEach(card => {
+                        document.querySelectorAll('.problem-type-card').forEach(function(card) {
                             card.addEventListener('mouseenter', function() {
                                 if (!this.classList.contains('selected')) {
                                     this.style.transform = 'translateY(-5px) scale(1.02)';
@@ -1351,6 +1447,19 @@
                                 }
                             });
                         });
+                        
+                        // Limpiar mensajes de error en tiempo real
+                        const inputs = document.querySelectorAll('.form-control');
+                        inputs.forEach(function(input) {
+                            input.addEventListener('input', function() {
+                                if (this.classList.contains('is-invalid') && this.value.trim()) {
+                                    this.classList.remove('is-invalid');
+                                }
+                            });
+                        });
+                        
+                        // Pre-llenar campos si hay datos del equipo
+                        console.log('Formulario de tickets cargado correctamente');
                     });
                 ]]>
                 </script>
