@@ -480,6 +480,67 @@ class CopierCompany(models.Model):
             record.monto_igv = igv_valor
             record.total_facturar_mensual = subtotal_con_descuento + igv_valor
 
+    def debug_urgente_company(self):
+        """Debug urgente para identificar el problema real"""
+        _logger.info("🔍 === DEBUG URGENTE COPIER.COMPANY ===")
+        self.ensure_one()
+        
+        # Forzar recálculo
+        self._compute_renta_mensual()
+        
+        _logger.info("DATOS BÁSICOS:")
+        _logger.info("- ID: %s", self.id)
+        _logger.info("- Secuencia: %s", self.secuencia)
+        _logger.info("- Tipo cálculo: %s", self.tipo_calculo)
+        
+        _logger.info("VOLÚMENES:")
+        _logger.info("- Volumen B/N: %s", self.volumen_mensual_bn)
+        _logger.info("- Volumen Color: %s", self.volumen_mensual_color)
+        
+        _logger.info("COSTOS:")
+        _logger.info("- Costo B/N: %s", self.costo_copia_bn)
+        _logger.info("- Costo Color: %s", self.costo_copia_color)
+        
+        _logger.info("CONFIGURACIÓN:")
+        _logger.info("- Descuento: %s%%", self.descuento)
+        _logger.info("- IGV: %s%%", self.igv)
+        
+        _logger.info("CAMPOS MANUALES:")
+        _logger.info("- Monto mensual B/N: %s", self.monto_mensual_bn)
+        _logger.info("- Monto mensual Color: %s", self.monto_mensual_color)
+        _logger.info("- Monto mensual Total: %s", self.monto_mensual_total)
+        
+        _logger.info("RESULTADOS COMPANY:")
+        _logger.info("- Renta mensual B/N: %s", self.renta_mensual_bn)
+        _logger.info("- Renta mensual Color: %s", self.renta_mensual_color)
+        _logger.info("- Subtotal sin IGV: %s", self.subtotal_sin_igv)
+        _logger.info("- Monto IGV: %s", self.monto_igv)
+        _logger.info("- Total facturar: %s", self.total_facturar_mensual)
+        
+        # CÁLCULO MANUAL PARA VERIFICAR
+        _logger.info("🧮 VERIFICACIÓN MANUAL:")
+        if self.tipo_calculo == 'auto':
+            calc_bn = self.volumen_mensual_bn * self.costo_copia_bn
+            calc_color = self.volumen_mensual_color * self.costo_copia_color
+            _logger.info("- Cálculo manual B/N: %s × %s = %s", self.volumen_mensual_bn, self.costo_copia_bn, calc_bn)
+            _logger.info("- Cálculo manual Color: %s × %s = %s", self.volumen_mensual_color, self.costo_copia_color, calc_color)
+            subtotal_manual = calc_bn + calc_color
+            igv_manual = subtotal_manual * (self.igv / 100.0)
+            total_manual = subtotal_manual + igv_manual
+            _logger.info("- Subtotal manual: %s", subtotal_manual)
+            _logger.info("- IGV manual: %s", igv_manual)
+            _logger.info("- Total manual: %s", total_manual)
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Debug Company Completado',
+                'message': f'Total: {self.total_facturar_mensual}. Ver logs para análisis completo.',
+                'type': 'info',
+                'sticky': True,
+            }
+        }
 
     @api.depends('fecha_inicio_alquiler', 'duracion_alquiler_id')
     def _calcular_fecha_fin(self):
