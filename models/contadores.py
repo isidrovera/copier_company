@@ -264,28 +264,129 @@ class CopierCounter(models.Model):
                 record.total_copias_color,
                 record.maquina_id.volumen_mensual_color or 0
             )
-   
+    descuento_porcentaje = fields.Float(
+        'Descuento (%)',
+        related='maquina_id.descuento',
+        store=True,
+        readonly=True,
+        help="Porcentaje de descuento de la máquina"
+    )
+    
+    subtotal_antes_descuento = fields.Monetary(
+        'Subtotal Antes Descuento',
+        compute='_compute_totales',
+        store=True,
+        currency_field='currency_id',
+        help="Subtotal antes de aplicar descuento"
+    )
+    
+    monto_descuento = fields.Monetary(
+        'Monto Descuento',
+        compute='_compute_totales',
+        store=True,
+        currency_field='currency_id',
+        help="Monto del descuento aplicado"
+    )
     @api.depends('copias_facturables_bn', 'copias_facturables_color',
-            'precio_bn_sin_igv', 'precio_color_sin_igv')
+                'precio_bn_sin_igv', 'precio_color_sin_igv', 'descuento_porcentaje')
     def _compute_totales(self):
-        """Calcula totales separados para B/N y Color, y totales generales"""
+        """
+        Calcula totales usando la MISMA LÓGICA que copier.company
+        para garantizar consistencia entre ambos modelos
+        """
+        _logger.info("=== INICIANDO _compute_totales SINCRONIZADO en copier.counter ===")
+        
         for record in self:
-            # Calcular subtotales separados
-            record.subtotal_bn = round(record.copias_facturables_bn * record.precio_bn_sin_igv, 2)
-            record.subtotal_color = round(record.copias_facturables_color * record.precio_color_sin_igv, 2)
-            
-            # Calcular IGV separados
-            record.igv_bn = round(record.subtotal_bn * 0.18, 2)
-            record.igv_color = round(record.subtotal_color * 0.18, 2)
-            
-            # Calcular totales separados
-            record.total_bn = round(record.subtotal_bn * 1.18, 2)
-            record.total_color = round(record.subtotal_color * 1.18, 2)
-            
-            # Calcular totales generales (suma de ambos)
-            record.subtotal = record.subtotal_bn + record.subtotal_color
-            record.igv = record.igv_bn + record.igv_color
-            record.total = record.total_bn + record.total_color
+            try:
+                _logger.info("Procesando counter ID: %s, Serie: %s", record.id, record.serie)
+                
+                # Calcular subtotales separados (sin descuento ni IGV) - IGUAL QUE copier.company
+                subtotal_bn_bruto = round(record.copias_facturables_bn * record.precio_bn_sin_igv, 2)
+                subtotal_color_bruto = round(record.copias_facturables_color * record.precio_color_sin_igv, 2)
+                
+                _logger.info("Subtotales brutos - B/N: %s, Color: %s", subtotal_bn_bruto, subtotal_color_bruto)
+                
+                # Subtotal total antes de descuento - IGUAL QUE copier.company
+                subtotal_antes_descuento = subtotal_bn_bruto + subtotal_color_bruto
+                record.subtotal_antes_descuento = subtotal_antes_descuento
+                
+                # Aplicar descuento ANTES del IGV - IGUAL QUE copier.company
+                descuento_valor = subtotal_antes_descuento * (record.descuento_porcentaje / 100.0)
+                record.monto_descuento = descuento_valor
+                
+                # Subtotal después del descuento - IGUAL QUE copier.company
+                subtotal_con_descuento = subtotal_antes_descuento - descuento_valor
+                
+                _logger.info("Descuento aplicado: %s%% = %s, Subtotal con descuento: %s", 
+                           record.descuento_porcentaje, descuento_valor, subtotal_con_descuento)
+                
+                # Distribuir el descuento proporcionalmente entre B/N y Color
+                if subtotal_antes_descuento > 0:
+                    factor_descuento = subtotal_con_descuento / subtotal_antes_descuento
+                    subtotal_bn_final = subtotal_bn_bruto * factor_descuento
+                    subtotal_color_final = subtotal_color_bruto * factor_descuento
+                else:
+                    subtotal_bn_final = 0
+                    subtotal_color_final = 0
+                
+                # Calcular IGV sobre subtotales con descuento - IGUAL QUE copier.company
+                igv_bn = round(subtotal_bn_final * 0.18, 2)
+                igv_color = round(subtotal_color_final * 0.18, 2)
+                
+                # Calcular totales finales - IGUAL QUE copier.company
+                total_bn = round(subtotal_bn_final + igv_bn, 2)
+                total_color = round(subtotal_color_final + igv_color, 2)
+                
+                # Asignar valores calculados
+                record.subtotal_bn = subtotal_bn_final
+                record.subtotal_color = subtotal_color_final
+                record.igv_bn = igv_bn
+                record.igv_color = igv_color
+                record.total_bn = total_bn
+                record.total_color = total_color
+                
+                # Totales generales - IGUAL QUE copier.company
+                record.subtotal = subtotal_con_descuento
+                record.igv = igv_bn + igv_color
+                record.total = total_bn + total_color
+                
+                _logger.info("=== TOTALES FINALES COUNTER (SINCRONIZADOS) ===")
+                _logger.info("Subtotal (con descuento): %s", record.subtotal)
+                _logger.info("IGV total: %s", record.igv)
+                _logger.info("Total final: %s", record.total)
+                
+                # VERIFICACIÓN DE CONSISTENCIA con copier.company
+                if record.maquina_id:
+                    company_total = record.maquina_id.total_facturar_mensual
+                    diferencia = abs(record.total - company_total)
+                    
+                    _logger.info("=== VERIFICACIÓN DE CONSISTENCIA ===")
+                    _logger.info("Total company: %s", company_total)
+                    _logger.info("Total counter: %s", record.total)
+                    _logger.info("Diferencia: %s", diferencia)
+                    
+                    if diferencia > 0.01:  # Tolerancia de 1 centavo
+                        _logger.warning("⚠️ DISCREPANCIA DETECTADA: Company=%s vs Counter=%s (diff=%s)", 
+                                      company_total, record.total, diferencia)
+                    else:
+                        _logger.info("✅ TOTALES SINCRONIZADOS CORRECTAMENTE")
+                
+            except Exception as e:
+                _logger.exception("Error en _compute_totales para counter ID %s: %s", record.id, str(e))
+                # Valores por defecto en caso de error
+                record.subtotal_antes_descuento = 0.0
+                record.monto_descuento = 0.0
+                record.subtotal_bn = 0.0
+                record.subtotal_color = 0.0
+                record.igv_bn = 0.0
+                record.igv_color = 0.0
+                record.total_bn = 0.0
+                record.total_color = 0.0
+                record.subtotal = 0.0
+                record.igv = 0.0
+                record.total = 0.0
+                
+        _logger.info("=== FINALIZANDO _compute_totales SINCRONIZADO ===")
 
     def action_confirm(self):
         self.ensure_one()
