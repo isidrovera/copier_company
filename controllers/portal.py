@@ -8,7 +8,7 @@ from odoo.exceptions import AccessError, MissingError, ValidationError
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
 from odoo.osv.expression import OR, AND
-
+import base64
 _logger = logging.getLogger(__name__)
 
 
@@ -419,7 +419,15 @@ class CopierCompanyPortal(CustomerPortal):
                         equipment.id, 
                         self._safe_get_text(equipment.name.name) if equipment.name else 'Sin nombre',
                         self._safe_get_text(equipment.cliente_id.name) if equipment.cliente_id else 'Sin cliente')
-
+            _logger.info("=== DEBUG DETALLADO DEL EQUIPO ===")
+            _logger.info("Equipment.id: %s", equipment.id)
+            _logger.info("Equipment.name: %s", equipment.name)
+            _logger.info("Equipment.name.name: %s", equipment.name.name if equipment.name else None)
+            _logger.info("Equipment.serie_id: %s", equipment.serie_id)
+            _logger.info("Equipment.cliente_id: %s", equipment.cliente_id)
+            _logger.info("Equipment.cliente_id.name: %s", equipment.cliente_id.name if equipment.cliente_id else None)
+            _logger.info("Equipment.ubicacion: %s", equipment.ubicacion)
+            _logger.info("Values que se envían: %s", values)
             # ✅ CAMBIO PRINCIPAL: Pasar 'equipment' directamente al template
             values = {
                 'equipment': equipment,  # ← Esta es la variable que necesita el template
