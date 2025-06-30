@@ -400,19 +400,19 @@ class CopierCompanyPortal(CustomerPortal):
     # Ruta para el acceso público desde QR
     @http.route(['/public/helpdesk_ticket'], type='http', auth="public", website=True)
     def public_create_ticket(self, copier_company_id=None, **kw):
-        """Permite crear tickets desde el menú de equipos (mantener compatibilidad)"""
-        _logger.info("=== INICIANDO public_create_ticket (MODIFICADO) ===")
+        """Permite crear tickets desde el menú de equipos"""
+        _logger.info("=== INICIANDO public_create_ticket ===")
         _logger.info("Parámetros recibidos - copier_company_id: %s, kw: %s", copier_company_id, kw)
         
         try:
             if not copier_company_id:
-                _logger.error("No se proporcionó ID de equipo - Redirigiendo a home")
+                _logger.error("No se proporcionó ID de equipo")
                 return request.redirect('/')
                     
-            # Buscar el equipo (modo sudo porque es acceso público)
+            # Buscar el equipo
             equipment = request.env['copier.company'].sudo().browse(int(copier_company_id))
             if not equipment.exists():
-                _logger.error("Equipo ID %s no encontrado - Redirigiendo a home", copier_company_id)
+                _logger.error("Equipo ID %s no encontrado", copier_company_id)
                 return request.redirect('/')
                     
             _logger.info("Equipo encontrado: ID=%s, Nombre=%s, Cliente=%s", 
@@ -420,29 +420,9 @@ class CopierCompanyPortal(CustomerPortal):
                         self._safe_get_text(equipment.name.name) if equipment.name else 'Sin nombre',
                         self._safe_get_text(equipment.cliente_id.name) if equipment.cliente_id else 'Sin cliente')
 
-            # Preparar datos pre-cargados del equipo
-            equipment_data = {
-                'id': equipment.id,
-                'name': self._safe_get_text(equipment.name.name) if equipment.name else 'Equipo sin nombre',
-                'serie': self._safe_get_text(equipment.serie_id) or 'Sin serie',
-                'marca': self._safe_get_text(equipment.marca_id.name) if equipment.marca_id else 'Sin marca',
-                'cliente_name': self._safe_get_text(equipment.cliente_id.name) if equipment.cliente_id else 'Sin cliente',
-                'cliente_email': self._safe_get_text(equipment.cliente_id.email) if equipment.cliente_id else '',
-                'cliente_phone': self._safe_get_text(equipment.cliente_id.mobile) or self._safe_get_text(equipment.cliente_id.phone) or '',
-                'ubicacion': self._safe_get_text(equipment.ubicacion) or 'Sin ubicación',
-                'sede': self._safe_get_text(equipment.sede) or '',
-                'ip': self._safe_get_text(equipment.ip_id) or '',
-                'tipo': 'Color' if equipment.tipo == 'color' else 'Blanco y Negro',
-                'contacto_equipo': self._safe_get_text(equipment.contacto) or '',
-                'celular_equipo': self._safe_get_text(equipment.celular) or '',
-                'correo_equipo': self._safe_get_text(equipment.correo) or ''
-            }
-            
-            _logger.info("Datos del equipo pre-cargados para ticket: %s", equipment_data)
-                    
+            # ✅ CAMBIO PRINCIPAL: Pasar 'equipment' directamente al template
             values = {
-                'equipment': equipment,
-                'equipment_data': equipment_data,
+                'equipment': equipment,  # ← Esta es la variable que necesita el template
                 'page_title': _('Reportar Problema Técnico'),
             }
             
@@ -451,198 +431,142 @@ class CopierCompanyPortal(CustomerPortal):
                 _logger.info("Procesando formulario POST de ticket")
                 
                 try:
-                    # Capturar datos del formulario
-                    contact_name = kw.get('name', '').strip()
-                    contact_email = kw.get('email', '').strip()
-                    contact_phone = kw.get('phone', '').strip()
-                    description = kw.get('description', '').strip()
-                    problem_type = kw.get('problem_type', 'general')
-                    urgency = kw.get('urgency', 'medium')
+                    # Capturar datos del formulario - NOMBRES ACTUALIZADOS
+                    form_data = {
+                        'producto_id': int(copier_company_id),  # ← Campo correcto del modelo
+                        'nombre_reporta': kw.get('nombre_reporta', '').strip(),  # ← Nombre correcto
+                        'partner_email': kw.get('email', '').strip(),
+                        'celular_reporta': kw.get('celular_reporta', '').strip(),  # ← Nombre correcto
+                        'problem_type': kw.get('problem_type', ''),  # ← Nuevo campo
+                        'urgency': kw.get('urgency', 'medium'),  # ← Nuevo campo
+                        'additional_description': kw.get('additional_description', '').strip(),  # ← Nuevo campo
+                        'image': kw.get('image'),  # ← Para la imagen
+                    }
                     
-                    _logger.info("Datos del formulario de ticket - Nombre: %s, Email: %s, Teléfono: %s, Tipo: %s", 
-                                contact_name, contact_email, contact_phone, problem_type)
+                    _logger.info("Datos del formulario capturados: %s", 
+                            {k: v for k, v in form_data.items() if k != 'image'})
                     
                     # Validaciones básicas
-                    if not contact_name or not contact_email or not description:
+                    if not form_data['nombre_reporta'] or not form_data['partner_email'] or not form_data['problem_type']:
                         _logger.warning("Datos incompletos en el formulario de ticket")
-                        values['error_message'] = _("Por favor completa todos los campos obligatorios (Nombre, Email y Descripción del problema).")
-                        return request.render("copier_company.portal_public_create_ticket", values)
+                        values['error_message'] = _("Por favor completa todos los campos obligatorios.")
+                        return request.render("copier_company.public_helpdesk_ticket_form", values)
                     
                     # Validar email
                     import re
                     email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-                    if not re.match(email_pattern, contact_email):
-                        _logger.warning("Email inválido en ticket: %s", contact_email)
+                    if not re.match(email_pattern, form_data['partner_email']):
+                        _logger.warning("Email inválido en ticket: %s", form_data['partner_email'])
                         values['error_message'] = _("El formato del email no es válido.")
-                        return request.render("copier_company.portal_public_create_ticket", values)
+                        return request.render("copier_company.public_helpdesk_ticket_form", values)
                     
-                    # Buscar o crear partner basado en email
-                    partner = request.env['res.partner'].sudo().search([('email', '=', contact_email)], limit=1)
+                    # Buscar o crear partner
+                    partner = request.env['res.partner'].sudo().search([('email', '=', form_data['partner_email'])], limit=1)
                     if partner:
-                        _logger.info("Partner encontrado para ticket con email %s: ID=%s, Nombre=%s", contact_email, partner.id, partner.name)
+                        _logger.info("Partner encontrado: ID=%s, Nombre=%s", partner.id, partner.name)
                         # Actualizar nombre si es diferente
-                        if partner.name != contact_name:
-                            partner.sudo().write({'name': contact_name})
-                            _logger.info("Nombre del partner actualizado para ticket: %s", contact_name)
-                        # Actualizar teléfono si no tiene
-                        if contact_phone and not partner.mobile:
-                            partner.sudo().write({'mobile': contact_phone})
-                            _logger.info("Teléfono del partner actualizado para ticket: %s", contact_phone)
-                    elif contact_name:
+                        if partner.name != form_data['nombre_reporta']:
+                            partner.sudo().write({'name': form_data['nombre_reporta']})
+                    else:
                         try:
-                            _logger.info("Creando nuevo partner para ticket: %s <%s>", contact_name, contact_email)
                             partner = request.env['res.partner'].sudo().create({
-                                'name': contact_name,
-                                'email': contact_email,
-                                'phone': contact_phone,
+                                'name': form_data['nombre_reporta'],
+                                'email': form_data['partner_email'],
+                                'mobile': form_data['celular_reporta'],
                             })
-                            partner._doc_number_change()
-                            _logger.info("Partner creado para ticket: ID=%s", partner.id)
+                            _logger.info("Partner creado: ID=%s", partner.id)
                         except Exception as e:
-                            _logger.exception("Error al crear partner para ticket: %s", str(e))
-                            values['error_message'] = _("Error al procesar los datos del contacto. Por favor intenta nuevamente.")
-                            return request.render("copier_company.portal_public_create_ticket", values)
+                            _logger.exception("Error al crear partner: %s", str(e))
+                            values['error_message'] = _("Error al procesar los datos del contacto.")
+                            return request.render("copier_company.public_helpdesk_ticket_form", values)
                     
-                    # Crear ticket
+                    # Crear ticket con los nuevos campos
                     if 'helpdesk.ticket' in request.env and partner:
                         try:
                             _logger.info("Creando ticket para partner ID: %s", partner.id)
                             
-                            # Mapear tipos de problema
-                            problem_type_map = {
-                                'printing': 'Problemas de Impresión',
-                                'scanning': 'Problemas de Escaneo',
-                                'network': 'Problemas de Red',
-                                'paper_jam': 'Atasco de Papel',
-                                'toner': 'Problemas de Toner',
-                                'maintenance': 'Mantenimiento',
-                                'general': 'Problema General'
-                            }
-                            
-                            problem_description = problem_type_map.get(problem_type, 'Problema General')
-                            
-                            # Preparar valores para el ticket
+                            # Preparar valores para el ticket - CAMPOS ACTUALIZADOS
                             ticket_vals = {
                                 'partner_id': partner.id,
-                                'name': f"{problem_description} - {equipment_data['name']} (Serie: {equipment_data['serie']})",
-                                'description': f"""INFORMACIÓN DEL EQUIPO:
-    • Equipo: {equipment_data['name']}
-    • Serie: {equipment_data['serie']}
-    • Marca: {equipment_data['marca']}
-    • Tipo: {equipment_data['tipo']}
-    • Cliente: {equipment_data['cliente_name']}
-    • Ubicación: {equipment_data['ubicacion']}
-    • Sede: {equipment_data['sede']}
-    • IP: {equipment_data['ip']}
-
-    INFORMACIÓN DEL CONTACTO:
-    • Nombre: {contact_name}
-    • Email: {contact_email}
-    • Teléfono: {contact_phone or 'No proporcionado'}
-
-    TIPO DE PROBLEMA: {problem_description}
-    URGENCIA: {urgency.title()}
-
-    DESCRIPCIÓN DEL PROBLEMA:
-    {description}
-
-    --- 
-    Ticket creado desde portal público via código QR del equipo.""",
+                                'name': f"Problema: {dict(request.env['helpdesk.ticket']._fields['problem_type'].selection if 'problem_type' in request.env['helpdesk.ticket']._fields else {}).get(form_data['problem_type'], form_data['problem_type'])} - {equipment.name.name if equipment.name else 'Equipo'} (Serie: {equipment.serie_id or 'Sin serie'})",
+                                
+                                # ✅ CAMPOS NUEVOS DEL MODELO
+                                'producto_id': equipment.id,
+                                'nombre_reporta': form_data['nombre_reporta'],
+                                'celular_reporta': form_data['celular_reporta'],
+                                'problem_type': form_data['problem_type'],
+                                'urgency': form_data['urgency'],
+                                'additional_description': form_data['additional_description'],
                             }
                             
-                            # Agregar campos personalizados si existen
-                            fields_info = request.env['helpdesk.ticket'].fields_get()
-                            _logger.info("Campos disponibles en helpdesk.ticket: %s", list(fields_info.keys())[:10])  # Solo los primeros 10
+                            # Manejar imagen si se subió
+                            if form_data['image']:
+                                try:
+                                    image_data = form_data['image'].read()
+                                    ticket_vals['image'] = base64.b64encode(image_data)
+                                    _logger.info("Imagen adjuntada al ticket")
+                                except Exception as e:
+                                    _logger.error("Error procesando imagen: %s", str(e))
                             
-                            # Campos comunes que podrían existir
-                            if 'producto_id' in fields_info:
-                                ticket_vals['producto_id'] = equipment.id
-                                _logger.info("Agregando campo producto_id=%s al ticket", equipment.id)
-                                
-                            if 'serie_id' in fields_info and equipment.serie_id:
-                                ticket_vals['serie_id'] = equipment.serie_id
-                                _logger.info("Agregando campo serie_id=%s al ticket", equipment.serie_id)
-                            
-                            if 'priority' in fields_info:
-                                # Mapear urgencia a prioridad del ticket
-                                priority_map = {
-                                    'low': '0',
-                                    'medium': '1', 
-                                    'high': '2',
-                                    'urgent': '3'
-                                }
-                                ticket_vals['priority'] = priority_map.get(urgency, '1')
-                                _logger.info("Agregando prioridad=%s al ticket", ticket_vals['priority'])
-                            
-                            if 'tag_ids' in fields_info:
-                                # Buscar o crear tag para tickets públicos
-                                public_tag = request.env['helpdesk.tag'].sudo().search([('name', '=', 'Portal Público')], limit=1)
-                                if not public_tag:
-                                    try:
-                                        public_tag = request.env['helpdesk.tag'].sudo().create({
-                                            'name': 'Portal Público',
-                                            'color': 5  # Color azul
-                                        })
-                                        _logger.info("Tag 'Portal Público' creado: ID=%s", public_tag.id)
-                                    except Exception as e:
-                                        _logger.error("Error creando tag: %s", str(e))
-                                
-                                if public_tag:
-                                    ticket_vals['tag_ids'] = [(6, 0, [public_tag.id])]
-                                    _logger.info("Agregando tag 'Portal Público' al ticket")
-                            
-                            _logger.info("Valores finales del ticket: %s", {k: v for k, v in ticket_vals.items() if k != 'description'})
+                            _logger.info("Valores del ticket: %s", {k: v for k, v in ticket_vals.items() if k != 'image'})
                             ticket = request.env['helpdesk.ticket'].sudo().create(ticket_vals)
                             _logger.info("Ticket creado exitosamente: ID=%s", ticket.id)
                             
-                            # Mensaje de éxito personalizado
+                            # Mensaje de éxito
+                            problem_names = {
+                                'printing': 'Problemas de Impresión',
+                                'scanning': 'Problemas de Escaneo',
+                                'paper_jam': 'Atasco de Papel',
+                                'toner': 'Problemas de Toner',
+                                'network': 'Problemas de Red',
+                                'maintenance': 'Mantenimiento',
+                                'general': 'Otro Problema'
+                            }
+                            
+                            problem_name = problem_names.get(form_data['problem_type'], 'Problema Técnico')
+                            
                             success_message = _(
                                 "¡Ticket de soporte creado exitosamente!<br/><br/>"
                                 "<strong>Número de ticket:</strong> #{}<br/>"
                                 "<strong>Equipo:</strong> {} (Serie: {})<br/>"
-                                "<strong>Tipo de problema:</strong> {}<br/><br/>"
+                                "<strong>Tipo de problema:</strong> {}<br/>"
+                                "<strong>Urgencia:</strong> {}<br/><br/>"
                                 "Nuestro equipo técnico se pondrá en contacto contigo pronto.<br/>"
                                 "Recibirás actualizaciones en: {}"
                             ).format(
                                 ticket.id,
-                                equipment_data['name'],
-                                equipment_data['serie'],
-                                problem_description,
-                                contact_email
+                                equipment.name.name if equipment.name else 'Sin nombre',
+                                equipment.serie_id or 'Sin serie',
+                                problem_name,
+                                dict(ticket._fields['urgency'].selection).get(form_data['urgency'], 'Media'),
+                                form_data['partner_email']
                             )
                             
                             values['success_message'] = success_message
                             values['ticket'] = ticket
                             
-                            # Enviar notificación al equipo técnico
-                            try:
-                                self._send_ticket_notification(ticket, equipment_data, contact_name, contact_email, problem_description)
-                            except Exception as e:
-                                _logger.error("Error enviando notificación de ticket: %s", str(e))
-                            
                         except Exception as e:
                             _logger.exception("Error al crear ticket: %s", str(e))
                             values['error_message'] = _("Ocurrió un error al crear el ticket. Por favor intenta nuevamente.")
                     else:
-                        _logger.warning("No se pudo crear ticket: módulo helpdesk no instalado o partner no creado")
-                        values['error_message'] = _("El servicio de tickets no está disponible en este momento. Por favor contacta directamente con soporte.")
+                        _logger.warning("No se pudo crear ticket: módulo helpdesk no instalado")
+                        values['error_message'] = _("El servicio de tickets no está disponible.")
                         
                 except Exception as e:
-                    _logger.exception("Error procesando formulario de ticket: %s", str(e))
-                    values['error_message'] = _("Error al procesar el formulario. Por favor verifica los datos e intenta nuevamente.")
+                    _logger.exception("Error procesando formulario: %s", str(e))
+                    values['error_message'] = _("Error al procesar el formulario.")
             
-            # Verificar existencia del template
-            template = 'copier_company.portal_public_create_ticket'
+            # Verificar template
+            template = 'copier_company.public_helpdesk_ticket_form'
             if not request.env['ir.ui.view'].sudo().search([('key', '=', template)]):
-                _logger.error("¡ERROR! Template %s no encontrado", template)
+                _logger.error("Template %s no encontrado", template)
                 return request.redirect(f'/public/equipment_menu?copier_company_id={copier_company_id}')
             
             _logger.info("Renderizando template de ticket: %s", template)
-            _logger.info("=== FINALIZANDO public_create_ticket ===")
             return request.render(template, values)
             
         except Exception as e:
-            _logger.exception("¡EXCEPCIÓN GENERAL en public_create_ticket!: %s", str(e))
+            _logger.exception("Error general en public_create_ticket: %s", str(e))
             return request.redirect('/')
 
     def _send_ticket_notification(self, ticket, equipment_data, contact_name, contact_email, problem_description):
