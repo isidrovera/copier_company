@@ -33,6 +33,11 @@
                 <button name="action_print_report" string="Imprimir Cotización" type="object" class="btn-success"/>
                 <button name="enviar_correo_propuesta" string="Enviar Propuesta" type="object" class="oe_highlight"/>
                 <field name="estado_renovacion" widget="statusbar" statusbar_visible="vigente,por_vencer,renovado,finalizado"/>
+                <button name="debug_urgente_company" 
+        string="🔍 Debug Company" 
+        type="object" 
+        class="btn-warning"
+        help="Debug urgente para identificar discrepancia en totales"/>
                 <button name="action_renovar_contrato" 
                         string="Renovar Contrato" 
                         type="object" 

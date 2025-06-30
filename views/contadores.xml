@@ -139,6 +139,12 @@
                         string="Crear Factura"
                         class="oe_highlight"
                         invisible="state != 'confirmed'"/>
+                        <button name="debug_urgente_counter" 
+        string="🔍 Debug Counter" 
+        type="object" 
+        class="btn-warning"
+        help="Debug urgente para identificar discrepancia en totales"/>
+
                     <field name="state" widget="statusbar"
                         statusbar_visible="draft,confirmed,invoiced" />
                 </header>
