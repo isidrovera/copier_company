@@ -24,10 +24,7 @@ class CopierCounter(models.Model):
         domain=[('estado_maquina_id.name', '=', 'Alquilada')]
     )
     payment_term_id = fields.Many2one(
-        'account.payment.term',related="maquina_id.payment_term__id",
-            
-        
-        string='Términos de pago',
+        'account.payment.term',related="maquina_id.payment_term_id", string='Términos de pago',
         help='Términos de pago para esta transacción'
     )
     cliente_id = fields.Many2one(
