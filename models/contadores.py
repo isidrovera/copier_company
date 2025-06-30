@@ -962,7 +962,7 @@ class CopierCounter(models.Model):
             'partner_id': self.cliente_id.id,
             'move_type': 'out_invoice',
             'invoice_date': self.fecha_facturacion,
-            'payment_term_id': self.payment_term_id,
+            'invoice_payment_term_id': self.payment_term_id.id,
             'invoice_origin': self.name,
             'narration': f'Facturación por uso de máquina {self.serie} - {self.mes_facturacion}\n{info_maquina}',
         }
