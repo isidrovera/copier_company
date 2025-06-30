@@ -471,105 +471,194 @@ class CopierCounter(models.Model):
         help="Monto del descuento aplicado"
     )
     @api.depends('copias_facturables_bn', 'copias_facturables_color',
-                'precio_bn_sin_igv', 'precio_color_sin_igv', 'descuento_porcentaje')
+                'precio_bn_sin_igv', 'precio_color_sin_igv', 'descuento_porcentaje',
+                'maquina_id.tipo_calculo', 'maquina_id.monto_mensual_bn', 
+                'maquina_id.monto_mensual_color', 'maquina_id.monto_mensual_total')
     def _compute_totales(self):
         """
-        Calcula totales usando la MISMA LÓGICA que copier.company
-        para garantizar consistencia entre ambos modelos
+        Calcula totales usando la MISMA LÓGICA Y TIPO DE CÁLCULO que copier.company
         """
-        _logger.info("=== INICIANDO _compute_totales SINCRONIZADO en copier.counter ===")
+        _logger.info("=== INICIANDO _compute_totales SINCRONIZADO COMPLETO ===")
         
         for record in self:
             try:
                 _logger.info("Procesando counter ID: %s, Serie: %s", record.id, record.serie)
                 
-                # Calcular subtotales separados (sin descuento ni IGV) - IGUAL QUE copier.company
-                subtotal_bn_bruto = round(record.copias_facturables_bn * record.precio_bn_sin_igv, 2)
-                subtotal_color_bruto = round(record.copias_facturables_color * record.precio_color_sin_igv, 2)
+                if not record.maquina_id:
+                    _logger.warning("Counter sin máquina asociada")
+                    record._set_zero_values()
+                    continue
                 
-                _logger.info("Subtotales brutos - B/N: %s, Color: %s", subtotal_bn_bruto, subtotal_color_bruto)
+                # OBTENER TIPO DE CÁLCULO DE LA MÁQUINA
+                tipo_calculo = record.maquina_id.tipo_calculo or 'auto'
+                _logger.info("🎯 TIPO DE CÁLCULO DETECTADO: %s", tipo_calculo)
                 
-                # Subtotal total antes de descuento - IGUAL QUE copier.company
-                subtotal_antes_descuento = subtotal_bn_bruto + subtotal_color_bruto
+                # CALCULAR RENTAS SEGÚN EL MISMO TIPO QUE COMPANY
+                if tipo_calculo == 'auto':
+                    _logger.info(">>> APLICANDO CÁLCULO AUTOMÁTICO EN COUNTER")
+                    renta_bn = record.copias_facturables_bn * record.precio_bn_sin_igv
+                    renta_color = record.copias_facturables_color * record.precio_color_sin_igv
+                    _logger.info("- Renta B/N automática: %s × %s = %s", record.copias_facturables_bn, record.precio_bn_sin_igv, renta_bn)
+                    _logger.info("- Renta Color automática: %s × %s = %s", record.copias_facturables_color, record.precio_color_sin_igv, renta_color)
+                
+                elif tipo_calculo in ['manual_sin_igv_bn', 'manual_con_igv_bn']:
+                    _logger.info(">>> APLICANDO CÁLCULO MANUAL B/N EN COUNTER: %s", tipo_calculo)
+                    
+                    # B/N usa monto manual
+                    if tipo_calculo == 'manual_sin_igv_bn':
+                        renta_bn = record.maquina_id.monto_mensual_bn or 0
+                        _logger.info("- Renta B/N manual (sin IGV): %s", renta_bn)
+                    else:  # manual_con_igv_bn
+                        monto_con_igv = record.maquina_id.monto_mensual_bn or 0
+                        igv_rate = (record.maquina_id.igv or 18) / 100
+                        renta_bn = monto_con_igv / (1 + igv_rate)
+                        _logger.info("- Renta B/N manual (con IGV): %s / %s = %s", monto_con_igv, (1 + igv_rate), renta_bn)
+                    
+                    # Color sigue automático
+                    renta_color = record.copias_facturables_color * record.precio_color_sin_igv
+                    _logger.info("- Renta Color automática: %s × %s = %s", record.copias_facturables_color, record.precio_color_sin_igv, renta_color)
+                
+                elif tipo_calculo in ['manual_sin_igv_color', 'manual_con_igv_color']:
+                    _logger.info(">>> APLICANDO CÁLCULO MANUAL COLOR EN COUNTER: %s", tipo_calculo)
+                    
+                    # B/N sigue automático
+                    renta_bn = record.copias_facturables_bn * record.precio_bn_sin_igv
+                    _logger.info("- Renta B/N automática: %s × %s = %s", record.copias_facturables_bn, record.precio_bn_sin_igv, renta_bn)
+                    
+                    # Color usa monto manual
+                    if tipo_calculo == 'manual_sin_igv_color':
+                        renta_color = record.maquina_id.monto_mensual_color or 0
+                        _logger.info("- Renta Color manual (sin IGV): %s", renta_color)
+                    else:  # manual_con_igv_color
+                        monto_con_igv = record.maquina_id.monto_mensual_color or 0
+                        igv_rate = (record.maquina_id.igv or 18) / 100
+                        renta_color = monto_con_igv / (1 + igv_rate)
+                        _logger.info("- Renta Color manual (con IGV): %s / %s = %s", monto_con_igv, (1 + igv_rate), renta_color)
+                
+                elif tipo_calculo in ['manual_sin_igv_total', 'manual_con_igv_total']:
+                    _logger.info(">>> APLICANDO CÁLCULO MANUAL TOTAL EN COUNTER: %s", tipo_calculo)
+                    
+                    # Determinar monto total sin IGV
+                    if tipo_calculo == 'manual_sin_igv_total':
+                        monto_total = record.maquina_id.monto_mensual_total or 0
+                        _logger.info("- Monto total manual (sin IGV): %s", monto_total)
+                    else:  # manual_con_igv_total
+                        monto_con_igv = record.maquina_id.monto_mensual_total or 0
+                        igv_rate = (record.maquina_id.igv or 18) / 100
+                        monto_total = monto_con_igv / (1 + igv_rate)
+                        _logger.info("- Monto total manual (con IGV): %s / %s = %s", monto_con_igv, (1 + igv_rate), monto_total)
+                    
+                    # Distribuir proporcionalmente usando los costos unitarios
+                    volumen_total = record.copias_facturables_bn + record.copias_facturables_color
+                    
+                    if volumen_total > 0:
+                        # Calcular usando costos unitarios actuales
+                        costo_bn_base = record.copias_facturables_bn * record.precio_bn_sin_igv
+                        costo_color_base = record.copias_facturables_color * record.precio_color_sin_igv
+                        costo_total_base = costo_bn_base + costo_color_base
+                        
+                        if costo_total_base > 0:
+                            # Distribuir proporcionalmente
+                            factor = monto_total / costo_total_base
+                            renta_bn = costo_bn_base * factor
+                            renta_color = costo_color_base * factor
+                            _logger.info("- Distribución proporcional: factor=%s, B/N=%s, Color=%s", factor, renta_bn, renta_color)
+                        else:
+                            # Si no hay base, asignar todo a B/N
+                            renta_bn = monto_total
+                            renta_color = 0
+                            _logger.info("- Sin base de costos, asignando todo a B/N: %s", renta_bn)
+                    else:
+                        renta_bn = monto_total
+                        renta_color = 0
+                        _logger.info("- Sin volumen, asignando todo a B/N: %s", renta_bn)
+                
+                else:
+                    _logger.warning("Tipo de cálculo no reconocido: %s, usando automático", tipo_calculo)
+                    renta_bn = record.copias_facturables_bn * record.precio_bn_sin_igv
+                    renta_color = record.copias_facturables_color * record.precio_color_sin_igv
+                
+                # APLICAR LÓGICA DE TOTALES (igual que company)
+                _logger.info("=== CALCULANDO TOTALES FINALES ===")
+                
+                subtotal_antes_descuento = renta_bn + renta_color
                 record.subtotal_antes_descuento = subtotal_antes_descuento
                 
-                # Aplicar descuento ANTES del IGV - IGUAL QUE copier.company
+                # Aplicar descuento
                 descuento_valor = subtotal_antes_descuento * (record.descuento_porcentaje / 100.0)
                 record.monto_descuento = descuento_valor
-                
-                # Subtotal después del descuento - IGUAL QUE copier.company
                 subtotal_con_descuento = subtotal_antes_descuento - descuento_valor
                 
-                _logger.info("Descuento aplicado: %s%% = %s, Subtotal con descuento: %s", 
-                           record.descuento_porcentaje, descuento_valor, subtotal_con_descuento)
+                _logger.info("- Subtotal antes descuento: %s", subtotal_antes_descuento)
+                _logger.info("- Descuento (%s%%): %s", record.descuento_porcentaje, descuento_valor)
+                _logger.info("- Subtotal con descuento: %s", subtotal_con_descuento)
                 
-                # Distribuir el descuento proporcionalmente entre B/N y Color
+                # Distribuir descuento proporcionalmente
                 if subtotal_antes_descuento > 0:
                     factor_descuento = subtotal_con_descuento / subtotal_antes_descuento
-                    subtotal_bn_final = subtotal_bn_bruto * factor_descuento
-                    subtotal_color_final = subtotal_color_bruto * factor_descuento
+                    subtotal_bn_final = renta_bn * factor_descuento
+                    subtotal_color_final = renta_color * factor_descuento
                 else:
                     subtotal_bn_final = 0
                     subtotal_color_final = 0
                 
-                # Calcular IGV sobre subtotales con descuento - IGUAL QUE copier.company
-                igv_bn = round(subtotal_bn_final * 0.18, 2)
-                igv_color = round(subtotal_color_final * 0.18, 2)
+                # Calcular IGV
+                igv_rate = (record.maquina_id.igv or 18) / 100.0
+                igv_bn = subtotal_bn_final * igv_rate
+                igv_color = subtotal_color_final * igv_rate
                 
-                # Calcular totales finales - IGUAL QUE copier.company
-                total_bn = round(subtotal_bn_final + igv_bn, 2)
-                total_color = round(subtotal_color_final + igv_color, 2)
+                # Totales finales
+                total_bn = subtotal_bn_final + igv_bn
+                total_color = subtotal_color_final + igv_color
                 
-                # Asignar valores calculados
-                record.subtotal_bn = subtotal_bn_final
-                record.subtotal_color = subtotal_color_final
-                record.igv_bn = igv_bn
-                record.igv_color = igv_color
-                record.total_bn = total_bn
-                record.total_color = total_color
+                # Asignar valores
+                record.subtotal_bn = round(subtotal_bn_final, 2)
+                record.subtotal_color = round(subtotal_color_final, 2)
+                record.igv_bn = round(igv_bn, 2)
+                record.igv_color = round(igv_color, 2)
+                record.total_bn = round(total_bn, 2)
+                record.total_color = round(total_color, 2)
+                record.subtotal = round(subtotal_con_descuento, 2)
+                record.igv = round(igv_bn + igv_color, 2)
+                record.total = round(total_bn + total_color, 2)
                 
-                # Totales generales - IGUAL QUE copier.company
-                record.subtotal = subtotal_con_descuento
-                record.igv = igv_bn + igv_color
-                record.total = total_bn + total_color
+                _logger.info("=== TOTALES FINALES SINCRONIZADOS ===")
+                _logger.info("- Subtotal: %s", record.subtotal)
+                _logger.info("- IGV: %s", record.igv)
+                _logger.info("- Total: %s", record.total)
                 
-                _logger.info("=== TOTALES FINALES COUNTER (SINCRONIZADOS) ===")
-                _logger.info("Subtotal (con descuento): %s", record.subtotal)
-                _logger.info("IGV total: %s", record.igv)
-                _logger.info("Total final: %s", record.total)
+                # VERIFICACIÓN FINAL
+                company_total = record.maquina_id.total_facturar_mensual
+                diferencia = abs(record.total - company_total)
+                _logger.info("=== VERIFICACIÓN FINAL ===")
+                _logger.info("- Company total: %s", company_total)
+                _logger.info("- Counter total: %s", record.total)
+                _logger.info("- Diferencia: %s", diferencia)
                 
-                # VERIFICACIÓN DE CONSISTENCIA con copier.company
-                if record.maquina_id:
-                    company_total = record.maquina_id.total_facturar_mensual
-                    diferencia = abs(record.total - company_total)
-                    
-                    _logger.info("=== VERIFICACIÓN DE CONSISTENCIA ===")
-                    _logger.info("Total company: %s", company_total)
-                    _logger.info("Total counter: %s", record.total)
-                    _logger.info("Diferencia: %s", diferencia)
-                    
-                    if diferencia > 0.01:  # Tolerancia de 1 centavo
-                        _logger.warning("⚠️ DISCREPANCIA DETECTADA: Company=%s vs Counter=%s (diff=%s)", 
-                                      company_total, record.total, diferencia)
-                    else:
-                        _logger.info("✅ TOTALES SINCRONIZADOS CORRECTAMENTE")
+                if diferencia <= 0.01:
+                    _logger.info("✅ TOTALES PERFECTAMENTE SINCRONIZADOS!")
+                else:
+                    _logger.warning("⚠️ Pequeña diferencia: %s", diferencia)
                 
             except Exception as e:
                 _logger.exception("Error en _compute_totales para counter ID %s: %s", record.id, str(e))
-                # Valores por defecto en caso de error
-                record.subtotal_antes_descuento = 0.0
-                record.monto_descuento = 0.0
-                record.subtotal_bn = 0.0
-                record.subtotal_color = 0.0
-                record.igv_bn = 0.0
-                record.igv_color = 0.0
-                record.total_bn = 0.0
-                record.total_color = 0.0
-                record.subtotal = 0.0
-                record.igv = 0.0
-                record.total = 0.0
-                
-        _logger.info("=== FINALIZANDO _compute_totales SINCRONIZADO ===")
+                record._set_zero_values()
+        
+        _logger.info("=== FINALIZANDO _compute_totales SINCRONIZADO COMPLETO ===")
+    
+    def _set_zero_values(self):
+        """Helper para asignar valores cero en caso de error"""
+        self.subtotal_antes_descuento = 0.0
+        self.monto_descuento = 0.0
+        self.subtotal_bn = 0.0
+        self.subtotal_color = 0.0
+        self.igv_bn = 0.0
+        self.igv_color = 0.0
+        self.total_bn = 0.0
+        self.total_color = 0.0
+        self.subtotal = 0.0
+        self.igv = 0.0
+        self.total = 0.0
 
     def action_confirm(self):
         self.ensure_one()
