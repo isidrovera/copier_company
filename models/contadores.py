@@ -266,11 +266,154 @@ class CopierCounter(models.Model):
             )
     descuento_porcentaje = fields.Float(
         'Descuento (%)',
+        compute='_compute_descuento_desde_maquina',
+        store=True,
+        help="Porcentaje de descuento de la máquina"
+    )
+    # =============================================================================
+# PROBLEMA IDENTIFICADO Y SOLUCIÓN
+# =============================================================================
+
+"""
+PROBLEMA: El campo descuento_porcentaje no está obteniendo el valor correcto de copier.company
+
+CAUSA: El campo related podría no estar funcionando correctamente o 
+       copier.company no tiene descuento configurado
+
+SOLUCIÓN: Verificar y corregir el campo descuento
+"""
+
+# PASO 1: VERIFICAR si copier.company tiene descuento configurado
+# Ir a la máquina y verificar que el campo "Descuento (%)" tenga un valor > 0
+
+# PASO 2: CORREGIR el campo descuento_porcentaje en copier.counter
+# REEMPLAZAR este campo:
+
+    descuento_porcentaje = fields.Float(
+        'Descuento (%)',
         related='maquina_id.descuento',
         store=True,
         readonly=True,
         help="Porcentaje de descuento de la máquina"
     )
+
+# POR ESTA VERSIÓN MEJORADA:
+
+    descuento_porcentaje = fields.Float(
+        'Descuento (%)',
+        compute='_compute_descuento_desde_maquina',
+        store=True,
+        help="Porcentaje de descuento de la máquina"
+    )
+
+# PASO 3: AGREGAR este método compute en copier.counter:
+
+    @api.depends('maquina_id', 'maquina_id.descuento')
+    def _compute_descuento_desde_maquina(self):
+        """Obtiene el descuento de la máquina con logs para debugging"""
+        _logger.info("=== INICIANDO _compute_descuento_desde_maquina ===")
+        
+        for record in self:
+            try:
+                if record.maquina_id:
+                    descuento_maquina = record.maquina_id.descuento or 0.0
+                    record.descuento_porcentaje = descuento_maquina
+                    
+                    _logger.info("Counter ID: %s - Descuento de máquina: %s%%", 
+                               record.id, descuento_maquina)
+                    
+                    if descuento_maquina == 0.0:
+                        _logger.warning("⚠️ La máquina %s no tiene descuento configurado", 
+                                      record.maquina_id.secuencia)
+                else:
+                    record.descuento_porcentaje = 0.0
+                    _logger.warning("⚠️ Counter sin máquina asociada")
+                    
+            except Exception as e:
+                _logger.exception("Error obteniendo descuento: %s", str(e))
+                record.descuento_porcentaje = 0.0
+    def debug_descuento_maquina(self):
+        """Debug específico para verificar el descuento"""
+        self.ensure_one()
+        
+        _logger.info("=== DEBUG DESCUENTO MÁQUINA ===")
+        _logger.info("Counter ID: %s", self.id)
+        _logger.info("Serie: %s", self.serie)
+        
+        if self.maquina_id:
+            _logger.info("Máquina ID: %s", self.maquina_id.id)
+            _logger.info("Secuencia máquina: %s", self.maquina_id.secuencia)
+            _logger.info("Descuento en company: %s%%", self.maquina_id.descuento)
+            _logger.info("Descuento en counter: %s%%", self.descuento_porcentaje)
+            
+            # Verificar otros campos relevantes
+            _logger.info("IGV company: %s%%", self.maquina_id.igv)
+            _logger.info("Subtotal company: %s", self.maquina_id.subtotal_sin_igv)
+            _logger.info("Total company: %s", self.maquina_id.total_facturar_mensual)
+            
+            # Verificar tipo de cálculo
+            _logger.info("Tipo de cálculo: %s", self.maquina_id.tipo_calculo)
+            
+        else:
+            _logger.error("❌ No hay máquina asociada al counter")
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Debug Descuento',
+                'message': f'Descuento: {self.descuento_porcentaje}%. Ver logs para detalles.',
+                'type': 'info',
+                'sticky': True,
+            }
+        }
+
+# PASO 5: TAMBIÉN AGREGAR este método en copier.company para debug:
+
+    def debug_totales_company(self):
+        """Método de debug para copier.company"""
+        _logger.info("=== DEBUG TOTALES COMPANY para %s ===", self.secuencia)
+        self.ensure_one()
+        
+        try:
+            _logger.info("CONFIGURACIÓN BÁSICA:")
+            _logger.info("- Company ID: %s", self.id)
+            _logger.info("- Secuencia: %s", self.secuencia)
+            _logger.info("- Tipo de cálculo: %s", self.tipo_calculo)
+            
+            _logger.info("VOLÚMENES Y COSTOS:")
+            _logger.info("- Volumen B/N: %s", self.volumen_mensual_bn)
+            _logger.info("- Volumen Color: %s", self.volumen_mensual_color)
+            _logger.info("- Costo B/N: %s", self.costo_copia_bn)
+            _logger.info("- Costo Color: %s", self.costo_copia_color)
+            
+            _logger.info("CONFIGURACIÓN FINANCIERA:")
+            _logger.info("- Descuento: %s%%", self.descuento)
+            _logger.info("- IGV: %s%%", self.igv)
+            
+            _logger.info("RENTAS CALCULADAS:")
+            _logger.info("- Renta B/N: %s", self.renta_mensual_bn)
+            _logger.info("- Renta Color: %s", self.renta_mensual_color)
+            
+            _logger.info("TOTALES FINALES:")
+            _logger.info("- Subtotal sin IGV: %s", self.subtotal_sin_igv)
+            _logger.info("- Monto IGV: %s", self.monto_igv)
+            _logger.info("- Total a facturar: %s", self.total_facturar_mensual)
+            
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Debug Company',
+                    'message': f'Total: {self.total_facturar_mensual}. Ver logs para detalles.',
+                    'type': 'info',
+                    'sticky': True,
+                }
+            }
+            
+        except Exception as e:
+            _logger.exception("Error en debug_totales_company: %s", str(e))
+
     
     subtotal_antes_descuento = fields.Monetary(
         'Subtotal Antes Descuento',
