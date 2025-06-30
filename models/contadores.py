@@ -264,41 +264,7 @@ class CopierCounter(models.Model):
                 record.total_copias_color,
                 record.maquina_id.volumen_mensual_color or 0
             )
-    descuento_porcentaje = fields.Float(
-        'Descuento (%)',
-        compute='_compute_descuento_desde_maquina',
-        store=True,
-        help="Porcentaje de descuento de la máquina"
-    )
-    # =============================================================================
-# PROBLEMA IDENTIFICADO Y SOLUCIÓN
-# =============================================================================
-
-"""
-PROBLEMA: El campo descuento_porcentaje no está obteniendo el valor correcto de copier.company
-
-CAUSA: El campo related podría no estar funcionando correctamente o 
-       copier.company no tiene descuento configurado
-
-SOLUCIÓN: Verificar y corregir el campo descuento
-"""
-
-# PASO 1: VERIFICAR si copier.company tiene descuento configurado
-# Ir a la máquina y verificar que el campo "Descuento (%)" tenga un valor > 0
-
-# PASO 2: CORREGIR el campo descuento_porcentaje en copier.counter
-# REEMPLAZAR este campo:
-
-    descuento_porcentaje = fields.Float(
-        'Descuento (%)',
-        related='maquina_id.descuento',
-        store=True,
-        readonly=True,
-        help="Porcentaje de descuento de la máquina"
-    )
-
-# POR ESTA VERSIÓN MEJORADA:
-
+    
     descuento_porcentaje = fields.Float(
         'Descuento (%)',
         compute='_compute_descuento_desde_maquina',
