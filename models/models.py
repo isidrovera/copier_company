@@ -479,6 +479,11 @@ class CopierCompany(models.Model):
             record.subtotal_sin_igv = subtotal_con_descuento
             record.monto_igv = igv_valor
             record.total_facturar_mensual = subtotal_con_descuento + igv_valor
+    payment_term_id = fields.Many2one(
+        'account.payment.term',
+        string='Términos de pago',
+        help='Términos de pago para esta transacción'
+    )
 
     def debug_urgente_company(self):
         """Debug urgente para identificar el problema real"""

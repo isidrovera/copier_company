@@ -99,6 +99,8 @@
                         <group>
                             <group string="Configuración">
                                 <field name="currency_id"/>
+                                <field name="payment_term_id" 
+                           options="{'no_create': True, 'no_edit': True}"/>
                                 <field name="fecha_inicio_alquiler" required="1"/>
                                 <field name="duracion_alquiler_id" required="1"/>
                                 <field name="fecha_fin_alquiler" readonly="1"/>

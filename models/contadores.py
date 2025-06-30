@@ -23,6 +23,13 @@ class CopierCounter(models.Model):
         tracking=True,
         domain=[('estado_maquina_id.name', '=', 'Alquilada')]
     )
+    payment_term_id = fields.Many2one(
+        'account.payment.term',related="maquina_id.payment_term__id",
+            
+        
+        string='Términos de pago',
+        help='Términos de pago para esta transacción'
+    )
     cliente_id = fields.Many2one(
         'res.partner',
         related='maquina_id.cliente_id',
@@ -958,6 +965,7 @@ class CopierCounter(models.Model):
             'partner_id': self.cliente_id.id,
             'move_type': 'out_invoice',
             'invoice_date': self.fecha_facturacion,
+            'payment_term_id': self.payment_term_id,
             'invoice_origin': self.name,
             'narration': f'Facturación por uso de máquina {self.serie} - {self.mes_facturacion}\n{info_maquina}',
         }
