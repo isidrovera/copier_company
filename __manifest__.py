@@ -73,6 +73,7 @@
         'views/stock_copier_detail_template.xml',      
         'static/src/xml/counter_charts_templates.xml',
         'views/sticker_template.xml',
+        'views/view_remote_assistance_request.xml',
         
         
         

@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista Tree/List -->
+    <record id="view_remote_assistance_request_tree" model="ir.ui.view">
+        <field name="name">remote.assistance.request.tree</field>
+        <field name="model">remote.assistance.request</field>
+        <field name="arch" type="xml">
+            <list string="Solicitudes de Asistencia Remota" default_order="request_date desc" 
+                  decoration-info="state == 'pending'" 
+                  decoration-warning="state == 'scheduled'" 
+                  decoration-success="state == 'completed'" 
+                  decoration-danger="state == 'cancelled'"
+                  decoration-muted="state == 'failed'">
+                
+                <field name="secuencia" string="Número"/>
+                <field name="request_date" string="Fecha Solicitud"/>
+                <field name="equipment_id" string="Equipo"/>
+                <field name="equipment_serie" string="Serie" optional="hide"/>
+                <field name="partner_id" string="Cliente"/>
+                <field name="contact_name" string="Contacto"/>
+                <field name="contact_email" string="Email" optional="hide"/>
+                <field name="assistance_type" string="Tipo"/>
+                <field name="priority" string="Prioridad" widget="priority"/>
+                <field name="technician_id" string="Técnico" optional="show"/>
+                <field name="scheduled_datetime" string="Programado Para" optional="hide"/>
+                <field name="state" string="Estado" widget="badge" 
+                       decoration-info="state == 'pending'" 
+                       decoration-warning="state == 'scheduled'" 
+                       decoration-primary="state == 'in_progress'"
+                       decoration-success="state == 'completed'" 
+                       decoration-danger="state == 'cancelled'"
+                       decoration-muted="state == 'failed'"/>
+                <field name="actual_duration" string="Duración (h)" optional="hide" widget="float_time"/>
+                
+                <!-- Botones de acción rápida -->
+                <button name="action_schedule" type="object" string="Programar" 
+                        class="btn-primary" icon="fa-calendar"
+                        invisible="state not in ('pending',)"/>
+                <button name="action_start_session" type="object" string="Iniciar" 
+                        class="btn-success" icon="fa-play"
+                        invisible="state not in ('scheduled', 'pending')"/>
+                <button name="action_complete" type="object" string="Completar" 
+                        class="btn-success" icon="fa-check"
+                        invisible="state not in ('in_progress',)"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Form -->
+    <record id="view_remote_assistance_request_form" model="ir.ui.view">
+        <field name="name">remote.assistance.request.form</field>
+        <field name="model">remote.assistance.request</field>
+        <field name="arch" type="xml">
+            <form string="Solicitud de Asistencia Remota">
+                <header>
+                    <!-- Statusbar -->
+                    <field name="state" widget="statusbar" 
+                           statusbar_visible="pending,scheduled,in_progress,completed"/>
+                    
+                    <!-- Botones de acción -->
+                    <button name="action_schedule" string="Programar" type="object" 
+                            class="btn-primary" invisible="state not in ('pending',)"/>
+                    <button name="action_start_session" string="Iniciar Sesión" type="object" 
+                            class="btn-success" invisible="state not in ('scheduled', 'pending')"/>
+                    <button name="action_end_session" string="Finalizar Sesión" type="object" 
+                            class="btn-warning" invisible="state != 'in_progress'"/>
+                    <button name="action_complete" string="Completar" type="object" 
+                            class="btn-success" invisible="state not in ('in_progress',)"/>
+                    <button name="action_cancel" string="Cancelar" type="object" 
+                            class="btn-secondary" invisible="state in ('completed', 'cancelled')"/>
+                    <button name="action_reset_to_pending" string="Regresar a Pendiente" type="object" 
+                            class="btn-secondary" invisible="state in ('pending', 'in_progress')"/>
+                </header>
+
+                <sheet>
+                    <!-- Título y badges -->
+                    <div class="oe_title">
+                        <h1>
+                            <field name="secuencia" readonly="1" class="o_text_overflow"/>
+                        </h1>
+                        <h2>
+                            <field name="display_name" readonly="1" class="o_text_overflow"/>
+                        </h2>
+                    </div>
+
+                    <!-- Badges de estado y prioridad -->
+                    <div class="o_row">
+                        <field name="priority" widget="priority"/>
+                        <field name="state" widget="badge" 
+                               decoration-info="state == 'pending'" 
+                               decoration-warning="state == 'scheduled'" 
+                               decoration-primary="state == 'in_progress'"
+                               decoration-success="state == 'completed'" 
+                               decoration-danger="state == 'cancelled'"
+                               decoration-muted="state == 'failed'"/>
+                    </div>
+
+                    <group>
+                        <group string="Información del Equipo">
+                            <field name="equipment_id" options="{'no_create': True, 'no_edit': True}"/>
+                            <field name="partner_id" readonly="1"/>
+                            <field name="equipment_serie" readonly="1"/>
+                            <field name="equipment_location" readonly="1"/>
+                        </group>
+
+                        <group string="Información de la Solicitud">
+                            <field name="request_date"/>
+                            <field name="assistance_type"/>
+                            <field name="technician_id" options="{'no_create': True}"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="estimated_cost" widget="monetary"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group string="Datos de Contacto">
+                            <field name="contact_name"/>
+                            <field name="contact_email" widget="email"/>
+                            <field name="contact_phone" widget="phone"/>
+                        </group>
+
+                        <group string="Programación">
+                            <field name="scheduled_datetime" 
+                                   invisible="state == 'pending'"/>
+                            <field name="estimated_duration" widget="float_time"/>
+                            <field name="actual_cost" widget="monetary" 
+                                   invisible="state not in ('completed',)"/>
+                        </group>
+                    </group>
+
+                    <!-- Notebook con pestañas -->
+                    <notebook>
+                        <!-- Pestaña principal -->
+                        <page string="Detalles del Problema" name="problem_details">
+                            <group>
+                                <field name="problem_description" nolabel="1" 
+                                       placeholder="Describa detalladamente el problema que requiere asistencia remota..."/>
+                            </group>
+                        </page>
+
+                        <!-- Pestaña de acceso remoto -->
+                        <page string="Acceso Remoto" name="remote_access">
+                            <group>
+                                <group string="Datos de Acceso al Equipo">
+                                    <field name="anydesk_id" placeholder="ej: 123456789"/>
+                                    <field name="username" placeholder="Nombre de usuario del equipo"/>
+                                    <field name="user_password" password="True" 
+                                           placeholder="Contraseña del usuario"/>
+                                </group>
+
+                                <group string="Configuración de Escáner (si aplica)" 
+                                       invisible="assistance_type != 'scanner_email'">
+                                    <field name="scanner_email" widget="email" 
+                                           placeholder="email@scanner.com"/>
+                                    <field name="scanner_password" password="True" 
+                                           placeholder="Contraseña del email"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <!-- Pestaña de seguimiento -->
+                        <page string="Seguimiento de Sesión" name="session_tracking">
+                            <group>
+                                <group string="Tiempos de Sesión">
+                                    <field name="session_start_time" readonly="1"/>
+                                    <field name="session_end_time" readonly="1"/>
+                                    <field name="actual_duration" widget="float_time" readonly="1"/>
+                                </group>
+                            </group>
+
+                            <group string="Notas de la Sesión">
+                                <field name="remote_session_notes" nolabel="1" 
+                                       placeholder="Detalles de lo realizado durante la sesión remota..."/>
+                            </group>
+
+                            <group string="Solución Implementada">
+                                <field name="solution_description" nolabel="1" 
+                                       placeholder="Descripción de la solución implementada..."/>
+                            </group>
+                        </page>
+
+                        <!-- Pestaña de notas internas -->
+                        <page string="Notas Internas" name="internal_notes" 
+                              groups="base.group_user">
+                            <group>
+                                <field name="internal_notes" nolabel="1" 
+                                       placeholder="Notas internas para el equipo técnico..."/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <!-- Chatter -->
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista Search -->
+    <record id="view_remote_assistance_request_search" model="ir.ui.view">
+        <field name="name">remote.assistance.request.search</field>
+        <field name="model">remote.assistance.request</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Solicitudes de Asistencia Remota">
+                <!-- Campos de búsqueda -->
+                <field name="secuencia" string="Número de Solicitud"/>
+                <field name="equipment_id" string="Equipo"/>
+                <field name="equipment_serie" string="Serie"/>
+                <field name="partner_id" string="Cliente"/>
+                <field name="contact_name" string="Contacto"/>
+                <field name="contact_email" string="Email"/>
+                <field name="technician_id" string="Técnico"/>
+                <field name="problem_description" string="Descripción"/>
+
+                <!-- Filtros predefinidos -->
+                <filter name="pending" string="Pendientes" 
+                        domain="[('state', '=', 'pending')]"/>
+                <filter name="scheduled" string="Programados" 
+                        domain="[('state', '=', 'scheduled')]"/>
+                <filter name="in_progress" string="En Proceso" 
+                        domain="[('state', '=', 'in_progress')]"/>
+                <filter name="completed" string="Completados" 
+                        domain="[('state', '=', 'completed')]"/>
+
+                <separator/>
+                
+                <filter name="high_priority" string="Alta Prioridad" 
+                        domain="[('priority', 'in', ['high', 'urgent'])]"/>
+                <filter name="my_requests" string="Mis Solicitudes" 
+                        domain="[('technician_id', '=', uid)]"/>
+
+                <separator/>
+
+                <filter name="today" string="Hoy" 
+                        domain="[('request_date', '>=', datetime.datetime.combine(context_today(), datetime.time(0,0,0))), 
+                                ('request_date', '&lt;', datetime.datetime.combine(context_today() + datetime.timedelta(days=1), datetime.time(0,0,0)))]"/>
+                <filter name="this_week" string="Esta Semana" 
+                        domain="[('request_date', '>=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d')),
+                                ('request_date', '&lt;', (context_today() + datetime.timedelta(days=7-context_today().weekday())).strftime('%Y-%m-%d'))]"/>
+
+                <!-- Agrupaciones -->
+                <group expand="0" string="Agrupar Por">
+                    <filter name="group_by_state" string="Estado" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_technician" string="Técnico" context="{'group_by': 'technician_id'}"/>
+                    <filter name="group_by_assistance_type" string="Tipo de Asistencia" context="{'group_by': 'assistance_type'}"/>
+                    <filter name="group_by_priority" string="Prioridad" context="{'group_by': 'priority'}"/>
+                    <filter name="group_by_client" string="Cliente" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_by_request_date" string="Fecha de Solicitud" context="{'group_by': 'request_date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Vista Kanban -->
+    <record id="view_remote_assistance_request_kanban" model="ir.ui.view">
+        <field name="name">remote.assistance.request.kanban</field>
+        <field name="model">remote.assistance.request</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="id"/>
+                <field name="secuencia"/>
+                <field name="equipment_id"/>
+                <field name="partner_id"/>
+                <field name="contact_name"/>
+                <field name="assistance_type"/>
+                <field name="priority"/>
+                <field name="state"/>
+                <field name="technician_id"/>
+                <field name="request_date"/>
+                <field name="scheduled_datetime"/>
+                <field name="problem_description"/>
+
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <!-- Header con número y prioridad -->
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="secuencia"/>
+                                        </strong>
+                                        <br/>
+                                        <small class="o_kanban_record_subtitle text-muted">
+                                            <field name="equipment_id"/>
+                                        </small>
+                                    </div>
+                                    <div class="o_kanban_record_title">
+                                        <field name="priority" widget="priority"/>
+                                    </div>
+                                </div>
+
+                                <!-- Información del cliente y contacto -->
+                                <div class="o_kanban_record_body">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <i class="fa fa-building-o"/> <field name="partner_id"/>
+                                        </div>
+                                        <div class="col-12">
+                                            <i class="fa fa-user"/> <field name="contact_name"/>
+                                        </div>
+                                        <div class="col-12">
+                                            <i class="fa fa-wrench"/> 
+                                            <field name="assistance_type"/>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Descripción del problema (truncada) -->
+                                    <div class="mt-2">
+                                        <field name="problem_description" widget="text" 
+                                               class="text-muted" style="max-height: 40px; overflow: hidden;"/>
+                                    </div>
+                                </div>
+
+                                <!-- Footer con técnico y fecha -->
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        <field name="technician_id" widget="many2one_avatar_user"/>
+                                    </div>
+                                    <div class="oe_kanban_bottom_right">
+                                        <small class="text-muted">
+                                            <field name="request_date" widget="date"/>
+                                        </small>
+                                        <t t-if="record.scheduled_datetime.raw_value">
+                                            <br/>
+                                            <small class="text-info">
+                                                <i class="fa fa-calendar"/> 
+                                                <field name="scheduled_datetime" widget="datetime"/>
+                                            </small>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Menú dropdown -->
+                            <div class="oe_kanban_action_dropdown">
+                                <div class="dropdown">
+                                    <a class="dropdown-toggle o-no-caret btn" data-bs-toggle="dropdown" href="#" role="button" aria-label="Dropdown menu" title="Dropdown menu">
+                                        <span class="fa fa-ellipsis-v"/>
+                                    </a>
+                                    <div class="dropdown-menu" role="menu">
+                                        <a t-if="record.state.raw_value == 'pending'" 
+                                           name="action_schedule" type="object" role="menuitem" 
+                                           class="dropdown-item">Programar</a>
+                                        <a t-if="record.state.raw_value in ['pending', 'scheduled']" 
+                                           name="action_start_session" type="object" role="menuitem" 
+                                           class="dropdown-item">Iniciar Sesión</a>
+                                        <a t-if="record.state.raw_value == 'in_progress'" 
+                                           name="action_complete" type="object" role="menuitem" 
+                                           class="dropdown-item">Completar</a>
+                                        <a t-if="record.state.raw_value not in ['completed', 'cancelled']" 
+                                           name="action_cancel" type="object" role="menuitem" 
+                                           class="dropdown-item">Cancelar</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Vista Calendar -->
+    <record id="view_remote_assistance_request_calendar" model="ir.ui.view">
+        <field name="name">remote.assistance.request.calendar</field>
+        <field name="model">remote.assistance.request</field>
+        <field name="arch" type="xml">
+            <calendar string="Calendario de Asistencias Remotas" 
+                      date_start="scheduled_datetime" 
+                      date_stop="scheduled_datetime"
+                      color="priority"
+                      mode="month"
+                      quick_create="False">
+                <field name="secuencia"/>
+                <field name="equipment_id"/>
+                <field name="partner_id"/>
+                <field name="contact_name"/>
+                <field name="technician_id"/>
+                <field name="assistance_type"/>
+                <field name="state"/>
+                <field name="priority"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Vista Pivot -->
+    <record id="view_remote_assistance_request_pivot" model="ir.ui.view">
+        <field name="name">remote.assistance.request.pivot</field>
+        <field name="model">remote.assistance.request</field>
+        <field name="arch" type="xml">
+            <pivot string="Análisis de Solicitudes de Asistencia Remota">
+                <field name="technician_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="assistance_type" type="row"/>
+                <field name="priority" type="row"/>
+                <field name="actual_duration" type="measure"/>
+                <field name="estimated_cost" type="measure"/>
+                <field name="actual_cost" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Vista Graph -->
+    <record id="view_remote_assistance_request_graph" model="ir.ui.view">
+        <field name="name">remote.assistance.request.graph</field>
+        <field name="model">remote.assistance.request</field>
+        <field name="arch" type="xml">
+            <graph string="Estadísticas de Asistencias Remotas" type="bar">
+                <field name="state" type="row"/>
+                <field name="assistance_type" type="row"/>
+                <field name="technician_id" type="row"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Acción de ventana -->
+    <record id="action_remote_assistance_request" model="ir.actions.act_window">
+        <field name="name">Solicitudes de Asistencia Remota</field>
+        <field name="res_model">remote.assistance.request</field>
+        <field name="view_mode">kanban,list,form,calendar,pivot,graph</field>
+        <field name="search_view_id" ref="view_remote_assistance_request_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                ¡Crea tu primera solicitud de asistencia remota!
+            </p>
+            <p>
+                Las solicitudes de asistencia remota te permiten gestionar y dar seguimiento 
+                a todas las sesiones de soporte técnico remoto para tus equipos.
+            </p>
+        </field>
+        <field name="context">{
+            'search_default_pending': 1,
+            'search_default_my_requests': 1
+        }</field>
+    </record>
+
+    <!-- Acción para solicitudes pendientes -->
+    <record id="action_remote_assistance_request_pending" model="ir.actions.act_window">
+        <field name="name">Solicitudes Pendientes</field>
+        <field name="res_model">remote.assistance.request</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('state', '=', 'pending')]</field>
+        <field name="context">{'search_default_high_priority': 1}</field>
+    </record>
+
+    <!-- Acción para mis solicitudes -->
+    <record id="action_remote_assistance_request_my" model="ir.actions.act_window">
+        <field name="name">Mis Solicitudes</field>
+        <field name="res_model">remote.assistance.request</field>
+        <field name="view_mode">kanban,list,form,calendar</field>
+        <field name="domain">[('technician_id', '=', uid)]</field>
+        <field name="context">{'search_default_in_progress': 1}</field>
+    </record>
+
+    <!-- Menú principal -->
+    <menuitem id="menu_remote_assistance_root" 
+              name="Asistencia Remota" 
+              parent="copier_company.menu_root"
+              sequence="30"/>
+
+    <!-- Submenú principal -->
+    <menuitem id="menu_remote_assistance_requests" 
+              name="Solicitudes" 
+              parent="copier_company.menu_root" 
+              action="action_remote_assistance_request" 
+              sequence="40"/>
+
+    <!-- Submenús adicionales -->
+    <menuitem id="menu_remote_assistance_pending" 
+              name="Pendientes" 
+              parent="copier_company.menu_root" 
+              action="action_remote_assistance_request_pending" 
+              sequence="50"/>
+
+    <menuitem id="menu_remote_assistance_my" 
+              name="Mis Solicitudes" 
+              parent="copier_company.menu_root" 
+              action="action_remote_assistance_request_my" 
+              sequence="60"/>
+
+    <!-- Menú de configuración -->
+    <menuitem id="menu_remote_assistance_config" 
+              name="Configuración" 
+              parent="copier_company.menu_root" 
+              sequence="70"
+              groups="base.group_system"/>
+
+</odoo>
