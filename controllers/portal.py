@@ -401,6 +401,14 @@ class CopierCompanyPortal(CustomerPortal):
     @http.route(['/public/helpdesk_ticket'], type='http', auth="public", website=True)
     def public_create_ticket(self, copier_company_id=None, **kw):
         """Permite crear tickets desde el menú de equipos"""
+        # ✅ LOG MUY VISIBLE PARA DEBUGGING
+        print("🚨🚨🚨🚨🚨 MÉTODO public_create_ticket EJECUTÁNDOSE 🚨🚨🚨🚨🚨")
+        print(f"🚨 copier_company_id: {copier_company_id}")
+        print("🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨")
+        
+        _logger.info("🚨🚨🚨 MÉTODO public_create_ticket EJECUTÁNDOSE 🚨🚨🚨")
+        _logger.info("=== INICIANDO public_create_ticket ===")
+        _logger.info("Parámetros recibidos - copier_company_id: %s, kw: %s", copier_company_id, kw)
         _logger.info("=== INICIANDO public_create_ticket ===")
         _logger.info("Parámetros recibidos - copier_company_id: %s, kw: %s", copier_company_id, kw)
         
