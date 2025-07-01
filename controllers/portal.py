@@ -397,18 +397,10 @@ class CopierCompanyPortal(CustomerPortal):
             return request.redirect('/my')
 
     
-    # Ruta para el acceso público desde QR
     @http.route(['/public/helpdesk_ticket'], type='http', auth="public", website=True)
     def public_create_ticket(self, copier_company_id=None, **kw):
         """Permite crear tickets desde el menú de equipos"""
-        # ✅ LOG MUY VISIBLE PARA DEBUGGING
-        print("🚨🚨🚨🚨🚨 MÉTODO public_create_ticket EJECUTÁNDOSE 🚨🚨🚨🚨🚨")
-        print(f"🚨 copier_company_id: {copier_company_id}")
-        print("🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨")
-        
         _logger.info("🚨🚨🚨 MÉTODO public_create_ticket EJECUTÁNDOSE 🚨🚨🚨")
-        _logger.info("=== INICIANDO public_create_ticket ===")
-        _logger.info("Parámetros recibidos - copier_company_id: %s, kw: %s", copier_company_id, kw)
         _logger.info("=== INICIANDO public_create_ticket ===")
         _logger.info("Parámetros recibidos - copier_company_id: %s, kw: %s", copier_company_id, kw)
         
@@ -428,45 +420,36 @@ class CopierCompanyPortal(CustomerPortal):
                         self._safe_get_text(equipment.name.name) if equipment.name else 'Sin nombre',
                         self._safe_get_text(equipment.cliente_id.name) if equipment.cliente_id else 'Sin cliente')
             
-            # ✅ PREPARAR DATOS COMPLETOS DEL EQUIPO Y CLIENTE
+            # ✅ PREPARAR SOLO DATOS DEL EQUIPO (NO CONTACTO)
             equipment_data = {
                 'id': equipment.id,
                 'name': self._safe_get_text(equipment.name.name) if equipment.name else 'Sin nombre',
                 'serie': self._safe_get_text(equipment.serie_id) or 'Sin serie',
                 'marca': self._safe_get_text(equipment.marca_id.name) if equipment.marca_id else 'Sin marca',
                 'cliente_name': self._safe_get_text(equipment.cliente_id.name) if equipment.cliente_id else 'Sin cliente',
-                'cliente_email': self._safe_get_text(equipment.cliente_id.email) if equipment.cliente_id else '',
-                'cliente_phone': self._safe_get_text(equipment.cliente_id.mobile) or self._safe_get_text(equipment.cliente_id.phone) or '',
                 'ubicacion': self._safe_get_text(equipment.ubicacion) or 'Sin ubicación',
                 'sede': self._safe_get_text(equipment.sede) or 'Sin sede',
                 'ip': self._safe_get_text(equipment.ip_id) or 'Sin IP',
                 'tipo': 'Color' if equipment.tipo == 'color' else 'Blanco y Negro',
-                'contacto_equipo': self._safe_get_text(equipment.contacto) or '',
-                'celular_equipo': self._safe_get_text(equipment.celular) or '',
-                'correo_equipo': self._safe_get_text(equipment.correo) or ''
             }
             
             _logger.info("Equipment_data preparado: %s", equipment_data)
             
-            # ✅ VALORES PARA EL TEMPLATE - INCLUIR DATOS DE CONTACTO
+            # ✅ VALUES SOLO CON DATOS DEL EQUIPO (SIN DATOS DE CONTACTO)
             values = {
                 'equipment': equipment,
                 'equipment_data': equipment_data,
                 'page_title': _('Reportar Problema Técnico'),
-                # ✅ DATOS DE CONTACTO PREDETERMINADOS PARA JAVASCRIPT
-                'default_contact_name': equipment_data['cliente_name'],
-                'default_contact_email': equipment_data['cliente_email'],
-                'default_contact_phone': equipment_data['cliente_phone'],
             }
             
-            _logger.info("Values preparados para template: %s", {k: v for k, v in values.items() if k not in ['equipment']})
+            _logger.info("Values preparados para template (solo equipo): %s", {k: v for k, v in values.items() if k != 'equipment'})
             
             # Si es una solicitud POST, procesar el formulario
             if request.httprequest.method == 'POST':
                 _logger.info("Procesando formulario POST de ticket")
                 
                 try:
-                    # Capturar datos del formulario
+                    # Capturar datos del formulario (el usuario ingresa sus propios datos)
                     form_data = {
                         'producto_id': int(copier_company_id),
                         'nombre_reporta': kw.get('nombre_reporta', '').strip(),
@@ -495,7 +478,7 @@ class CopierCompanyPortal(CustomerPortal):
                         values['error_message'] = _("El formato del email no es válido.")
                         return request.render("copier_company.public_helpdesk_ticket_form", values)
                     
-                    # Buscar o crear partner
+                    # Buscar o crear partner con los datos que ingresó el usuario
                     partner = request.env['res.partner'].sudo().search([('email', '=', form_data['partner_email'])], limit=1)
                     if partner:
                         _logger.info("Partner encontrado: ID=%s, Nombre=%s", partner.id, partner.name)
@@ -570,7 +553,7 @@ class CopierCompanyPortal(CustomerPortal):
                             description_parts.append(f"- IP: {equipment_data['ip']}")
                             description_parts.append(f"- Tipo: {equipment_data['tipo']}")
                             
-                            # Información de contacto
+                            # Información de contacto (datos ingresados por el usuario)
                             description_parts.append(f"\n\nInformación de Contacto:")
                             description_parts.append(f"- Nombre: {form_data['nombre_reporta']}")
                             description_parts.append(f"- Email: {form_data['partner_email']}")
@@ -583,8 +566,6 @@ class CopierCompanyPortal(CustomerPortal):
                                 'partner_id': partner.id,
                                 'name': f"{problem_name} - {equipment_data['name']} (Serie: {equipment_data['serie']})",
                                 'description': ticket_description,
-                                
-                                # Campos personalizados si existen en el modelo
                                 'urgency': form_data['urgency'],
                             }
                             
@@ -629,7 +610,8 @@ class CopierCompanyPortal(CustomerPortal):
                                 "<strong>Número de ticket:</strong> #{}<br/>"
                                 "<strong>Equipo:</strong> {} (Serie: {})<br/>"
                                 "<strong>Tipo de problema:</strong> {}<br/>"
-                                "<strong>Urgencia:</strong> {}<br/><br/>"
+                                "<strong>Urgencia:</strong> {}<br/>"
+                                "<strong>Reportado por:</strong> {}<br/><br/>"
                                 "Nuestro equipo técnico se pondrá en contacto contigo pronto.<br/>"
                                 "Recibirás actualizaciones en: {}"
                             ).format(
@@ -638,6 +620,7 @@ class CopierCompanyPortal(CustomerPortal):
                                 equipment_data['serie'],
                                 problem_name,
                                 urgency_names.get(form_data['urgency'], 'Media'),
+                                form_data['nombre_reporta'],
                                 form_data['partner_email']
                             )
                             
@@ -674,167 +657,166 @@ class CopierCompanyPortal(CustomerPortal):
         except Exception as e:
             _logger.exception("Error general en public_create_ticket: %s", str(e))
             return request.redirect('/')
-
-    def _send_ticket_notification(self, ticket, equipment_data, contact_name, contact_email, problem_description):
-        """Envía notificación por email para nuevo ticket"""
-        _logger.info("=== INICIANDO _send_ticket_notification para ticket %s ===", ticket.id)
-        
-        try:
-            # Emails del equipo técnico
-            technical_emails = [
-                'soporte@copiercompanysac.com',
-                'tecnico@copiercompanysac.com'
-            ]
+        def _send_ticket_notification(self, ticket, equipment_data, contact_name, contact_email, problem_description):
+            """Envía notificación por email para nuevo ticket"""
+            _logger.info("=== INICIANDO _send_ticket_notification para ticket %s ===", ticket.id)
             
-            email_body = f"""
-            <h2>🎫 Nuevo Ticket de Soporte Técnico</h2>
-            
-            <h3>📋 Información del Ticket</h3>
-            <p><strong>ID del Ticket:</strong> #{ticket.id}</p>
-            <p><strong>Fecha:</strong> {ticket.create_date.strftime('%d/%m/%Y %H:%M')}</p>
-            <p><strong>Tipo de Problema:</strong> {problem_description}</p>
-            
-            <h3>🖨️ Información del Equipo</h3>
-            <p><strong>Equipo:</strong> {equipment_data['name']}</p>
-            <p><strong>Serie:</strong> {equipment_data['serie']}</p>
-            <p><strong>Marca:</strong> {equipment_data['marca']}</p>
-            <p><strong>Tipo:</strong> {equipment_data['tipo']}</p>
-            <p><strong>Cliente:</strong> {equipment_data['cliente_name']}</p>
-            <p><strong>Ubicación:</strong> {equipment_data['ubicacion']}</p>
-            <p><strong>Sede:</strong> {equipment_data['sede']}</p>
-            <p><strong>IP:</strong> {equipment_data['ip']}</p>
-            
-            <h3>👤 Información del Contacto</h3>
-            <p><strong>Nombre:</strong> {contact_name}</p>
-            <p><strong>Email:</strong> {contact_email}</p>
-            
-            <h3>🔧 Descripción del Problema</h3>
-            <p>{ticket.description.replace(chr(10), '<br/>')}</p>
-            
-            <h3>⚡ Acciones</h3>
-            <ul>
-                <li><a href="{request.env['ir.config_parameter'].sudo().get_param('web.base.url')}/web#id={ticket.id}&model=helpdesk.ticket&view_type=form">Ver Ticket en el Sistema</a></li>
-                <li>Contactar al cliente para más información</li>
-                <li>Asignar técnico responsable</li>
-                <li>Programar visita técnica si es necesario</li>
-            </ul>
-            
-            <hr/>
-            <p><small>Ticket generado automáticamente desde el portal público de Copier Company.</small></p>
-            """
-            
-            for email in technical_emails:
-                try:
-                    mail_values = {
-                        'subject': f'🎫 Nuevo Ticket #{ticket.id} - {equipment_data["name"]} - {problem_description}',
-                        'email_to': email,
-                        'email_from': 'noreply@copiercompanysac.com',
-                        'body_html': email_body,
-                        'auto_delete': False,
-                    }
-                    
-                    mail = request.env['mail.mail'].sudo().create(mail_values)
-                    mail.send()
-                    _logger.info("Notificación de ticket enviada a: %s", email)
-                    
-                except Exception as e:
-                    _logger.error("Error enviando notificación de ticket a %s: %s", email, str(e))
-            
-        except Exception as e:
-            _logger.exception("Error en _send_ticket_notification: %s", str(e))
-
-    # Método adicional para verificar la estructura del portal via JSON
-    @http.route(['/my/copier/api/verify'], type='http', auth="user", website=True)
-    def portal_api_verify(self, **kw):
-        """API para verificar el estado del portal (devuelve JSON)"""
-        _logger.info("=== INICIANDO portal_api_verify ===")
-        
-        try:
-            partner = request.env.user.partner_id
-            result = {
-                'timestamp': fields.Datetime.now().isoformat(),
-                'user': {
-                    'id': request.env.user.id,
-                    'name': request.env.user.name,
-                    'partner_id': partner.id,
-                },
-                'models': {},
-                'templates': {},
-                'equipment_count': 0,
-                'errors': [],
-                'status': 'success'
-            }
-            
-            # Verificar modelos
-            for model_name in ['copier.company', 'copier.counter', 'helpdesk.ticket']:
-                if model_name in request.env:
-                    model_fields = list(request.env[model_name].fields_get().keys())
-                    result['models'][model_name] = {
-                        'status': 'ok',
-                        'fields_count': len(model_fields),
-                        'sample_fields': model_fields[:5]
-                    }
-                else:
-                    result['models'][model_name] = {
-                        'status': 'error',
-                        'message': f"Model {model_name} not found"
-                    }
-                    result['errors'].append(f"Model {model_name} not found")
-            
-            # Verificar templates
-            for template_key in [
-                'copier_company.portal_my_copier_equipments',
-                'copier_company.portal_my_copier_equipment',
-                'copier_company.portal_my_copier_counters'
-            ]:
-                template = request.env['ir.ui.view'].sudo().search([('key', '=', template_key)], limit=1)
-                if template:
-                    result['templates'][template_key] = {
-                        'status': 'ok',
-                        'id': template.id,
-                        'name': template.name,
-                    }
-                else:
-                    result['templates'][template_key] = {
-                        'status': 'error',
-                        'message': f"Template {template_key} not found"
-                    }
-                    result['errors'].append(f"Template {template_key} not found")
-            
-            # Contar equipos
-            if 'copier.company' in request.env:
-                equipment_count = request.env['copier.company'].sudo().search_count([
-                    ('cliente_id', '=', partner.id)
-                ])
-                result['equipment_count'] = equipment_count
+            try:
+                # Emails del equipo técnico
+                technical_emails = [
+                    'soporte@copiercompanysac.com',
+                    'tecnico@copiercompanysac.com'
+                ]
                 
-                if equipment_count == 0:
-                    result['errors'].append(f"No equipment found for partner_id {partner.id}")
-            else:
-                result['errors'].append("Cannot count equipment: model copier.company not found")
+                email_body = f"""
+                <h2>🎫 Nuevo Ticket de Soporte Técnico</h2>
+                
+                <h3>📋 Información del Ticket</h3>
+                <p><strong>ID del Ticket:</strong> #{ticket.id}</p>
+                <p><strong>Fecha:</strong> {ticket.create_date.strftime('%d/%m/%Y %H:%M')}</p>
+                <p><strong>Tipo de Problema:</strong> {problem_description}</p>
+                
+                <h3>🖨️ Información del Equipo</h3>
+                <p><strong>Equipo:</strong> {equipment_data['name']}</p>
+                <p><strong>Serie:</strong> {equipment_data['serie']}</p>
+                <p><strong>Marca:</strong> {equipment_data['marca']}</p>
+                <p><strong>Tipo:</strong> {equipment_data['tipo']}</p>
+                <p><strong>Cliente:</strong> {equipment_data['cliente_name']}</p>
+                <p><strong>Ubicación:</strong> {equipment_data['ubicacion']}</p>
+                <p><strong>Sede:</strong> {equipment_data['sede']}</p>
+                <p><strong>IP:</strong> {equipment_data['ip']}</p>
+                
+                <h3>👤 Información del Contacto</h3>
+                <p><strong>Nombre:</strong> {contact_name}</p>
+                <p><strong>Email:</strong> {contact_email}</p>
+                
+                <h3>🔧 Descripción del Problema</h3>
+                <p>{ticket.description.replace(chr(10), '<br/>')}</p>
+                
+                <h3>⚡ Acciones</h3>
+                <ul>
+                    <li><a href="{request.env['ir.config_parameter'].sudo().get_param('web.base.url')}/web#id={ticket.id}&model=helpdesk.ticket&view_type=form">Ver Ticket en el Sistema</a></li>
+                    <li>Contactar al cliente para más información</li>
+                    <li>Asignar técnico responsable</li>
+                    <li>Programar visita técnica si es necesario</li>
+                </ul>
+                
+                <hr/>
+                <p><small>Ticket generado automáticamente desde el portal público de Copier Company.</small></p>
+                """
+                
+                for email in technical_emails:
+                    try:
+                        mail_values = {
+                            'subject': f'🎫 Nuevo Ticket #{ticket.id} - {equipment_data["name"]} - {problem_description}',
+                            'email_to': email,
+                            'email_from': 'noreply@copiercompanysac.com',
+                            'body_html': email_body,
+                            'auto_delete': False,
+                        }
+                        
+                        mail = request.env['mail.mail'].sudo().create(mail_values)
+                        mail.send()
+                        _logger.info("Notificación de ticket enviada a: %s", email)
+                        
+                    except Exception as e:
+                        _logger.error("Error enviando notificación de ticket a %s: %s", email, str(e))
+                
+            except Exception as e:
+                _logger.exception("Error en _send_ticket_notification: %s", str(e))
+
+        # Método adicional para verificar la estructura del portal via JSON
+        @http.route(['/my/copier/api/verify'], type='http', auth="user", website=True)
+        def portal_api_verify(self, **kw):
+            """API para verificar el estado del portal (devuelve JSON)"""
+            _logger.info("=== INICIANDO portal_api_verify ===")
             
-            if result['errors']:
-                result['status'] = 'warning'
-            
-            _logger.info("Verificación API completada con %s errores", len(result['errors']))
-            _logger.info("=== FINALIZANDO portal_api_verify ===")
-            
-            return request.make_response(
-                json.dumps(result),
-                headers=[('Content-Type', 'application/json')]
-            )
-            
-        except Exception as e:
-            _logger.exception("¡EXCEPCIÓN GENERAL en portal_api_verify!: %s", str(e))
-            error_result = {
-                'timestamp': fields.Datetime.now().isoformat(),
-                'status': 'error',
-                'message': str(e)
-            }
-            return request.make_response(
-                json.dumps(error_result),
-                headers=[('Content-Type', 'application/json')]
-            )
+            try:
+                partner = request.env.user.partner_id
+                result = {
+                    'timestamp': fields.Datetime.now().isoformat(),
+                    'user': {
+                        'id': request.env.user.id,
+                        'name': request.env.user.name,
+                        'partner_id': partner.id,
+                    },
+                    'models': {},
+                    'templates': {},
+                    'equipment_count': 0,
+                    'errors': [],
+                    'status': 'success'
+                }
+                
+                # Verificar modelos
+                for model_name in ['copier.company', 'copier.counter', 'helpdesk.ticket']:
+                    if model_name in request.env:
+                        model_fields = list(request.env[model_name].fields_get().keys())
+                        result['models'][model_name] = {
+                            'status': 'ok',
+                            'fields_count': len(model_fields),
+                            'sample_fields': model_fields[:5]
+                        }
+                    else:
+                        result['models'][model_name] = {
+                            'status': 'error',
+                            'message': f"Model {model_name} not found"
+                        }
+                        result['errors'].append(f"Model {model_name} not found")
+                
+                # Verificar templates
+                for template_key in [
+                    'copier_company.portal_my_copier_equipments',
+                    'copier_company.portal_my_copier_equipment',
+                    'copier_company.portal_my_copier_counters'
+                ]:
+                    template = request.env['ir.ui.view'].sudo().search([('key', '=', template_key)], limit=1)
+                    if template:
+                        result['templates'][template_key] = {
+                            'status': 'ok',
+                            'id': template.id,
+                            'name': template.name,
+                        }
+                    else:
+                        result['templates'][template_key] = {
+                            'status': 'error',
+                            'message': f"Template {template_key} not found"
+                        }
+                        result['errors'].append(f"Template {template_key} not found")
+                
+                # Contar equipos
+                if 'copier.company' in request.env:
+                    equipment_count = request.env['copier.company'].sudo().search_count([
+                        ('cliente_id', '=', partner.id)
+                    ])
+                    result['equipment_count'] = equipment_count
+                    
+                    if equipment_count == 0:
+                        result['errors'].append(f"No equipment found for partner_id {partner.id}")
+                else:
+                    result['errors'].append("Cannot count equipment: model copier.company not found")
+                
+                if result['errors']:
+                    result['status'] = 'warning'
+                
+                _logger.info("Verificación API completada con %s errores", len(result['errors']))
+                _logger.info("=== FINALIZANDO portal_api_verify ===")
+                
+                return request.make_response(
+                    json.dumps(result),
+                    headers=[('Content-Type', 'application/json')]
+                )
+                
+            except Exception as e:
+                _logger.exception("¡EXCEPCIÓN GENERAL en portal_api_verify!: %s", str(e))
+                error_result = {
+                    'timestamp': fields.Datetime.now().isoformat(),
+                    'status': 'error',
+                    'message': str(e)
+                }
+                return request.make_response(
+                    json.dumps(error_result),
+                    headers=[('Content-Type', 'application/json')]
+                )
 
 
 
