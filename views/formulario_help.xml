@@ -1466,7 +1466,7 @@
                                 // Validar email
                                 const emailField = document.getElementById('email');
                                 const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-                                if (emailField.value && !emailPattern.test(emailField.value)) {
+                                if (emailField.value &amp;&amp; !emailPattern.test(emailField.value)) {
                                     emailField.classList.add('is-invalid');
                                     isValid = false;
                                 }
@@ -1506,7 +1506,7 @@
                     const inputs = document.querySelectorAll('.form-control');
                     inputs.forEach(function(input) {
                         input.addEventListener('input', function() {
-                            if (this.classList.contains('is-invalid') && this.value.trim()) {
+                            if (this.classList.contains('is-invalid') &amp;&amp; this.value.trim()) {
                                 this.classList.remove('is-invalid');
                             }
                         });
