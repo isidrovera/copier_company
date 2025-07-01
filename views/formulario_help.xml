@@ -935,537 +935,614 @@
     </template>
     
     <!-- FORMULARIO MEJORADO DE TICKETS -->
-    <template id="public_helpdesk_ticket_form" name="Enhanced Public Ticket Form">
-        <t t-call="website.layout">
-            <div id="wrap">
-                <style>
-                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap');
-                    @import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
-                    
-                    * { font-family: 'Inter', sans-serif; }
-                    
-                    .hero-ticket {
-                        background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
-                        color: white;
-                        position: relative;
-                        overflow: hidden;
-                    }
-                    
-                    .form-section-ticket {
-                        border-left: 4px solid #ff6b6b;
-                        background: #fff5f5;
-                        border-radius: 0 12px 12px 0;
-                        padding: 20px;
-                        margin-bottom: 25px;
-                    }
-                    
-                    .problem-type-grid {
-                        display: grid;
-                        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                        gap: 15px;
-                        margin: 20px 0;
-                    }
-                    
-                    .problem-type-card {
-                        border: 2px solid #e2e8f0;
-                        border-radius: 12px;
-                        padding: 20px;
-                        text-align: center;
-                        cursor: pointer;
-                        transition: all 0.3s ease;
-                        background: white;
-                    }
-                    
-                    .problem-type-card:hover {
-                        border-color: #ff6b6b;
-                        transform: translateY(-2px);
-                        box-shadow: 0 8px 25px rgba(255, 107, 107, 0.15);
-                    }
-                    
-                    .problem-type-card.selected {
-                        border-color: #ff6b6b;
-                        background: linear-gradient(135deg, #fff5f5, #fef2f2);
-                    }
-                    
-                    .problem-icon {
-                        width: 60px;
-                        height: 60px;
-                        border-radius: 50%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        margin: 0 auto 15px;
-                        font-size: 24px;
-                        color: white;
-                    }
-                    
-                    .btn-ticket {
-                        background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
-                        border: none;
-                        border-radius: 12px;
-                        padding: 15px 30px;
-                        font-weight: 600;
-                        transition: all 0.3s ease;
-                    }
-                    
-                    .btn-ticket:hover {
-                        transform: translateY(-2px);
-                        box-shadow: 0 10px 25px rgba(255, 107, 107, 0.3);
-                    }
-                    
-                    .form-card {
-                        background: white;
-                        border-radius: 20px;
-                        box-shadow: 0 25px 50px rgba(0,0,0,0.1);
-                        margin: -80px auto 40px;
-                        position: relative;
-                        z-index: 10;
-                        border: 1px solid rgba(255,255,255,0.2);
-                    }
-                    
-                    .description-section {
-                        display: none;
-                        animation: fadeIn 0.5s ease-in;
-                    }
-                    
-                    .description-section.show {
-                        display: block;
-                    }
-                    
-                    @keyframes fadeIn {
-                        from { opacity: 0; transform: translateY(20px); }
-                        to { opacity: 1; transform: translateY(0); }
-                    }
-                    
-                    .auto-description {
-                        background: #f0f9ff;
-                        border: 1px solid #bae6fd;
-                        border-radius: 8px;
-                        padding: 15px;
-                        margin: 15px 0;
-                    }
-                </style>
+    <!-- FORMULARIO MEJORADO DE TICKETS - TEMPLATE COMPLETO CORREGIDO -->
+<template id="public_helpdesk_ticket_form" name="Enhanced Public Ticket Form">
+    <t t-call="website.layout">
+        <div id="wrap">
+            <style>
+                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap');
+                @import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
                 
-                <!-- Hero Section -->
-                <div class="hero-ticket py-5">
-                    <div class="container position-relative">
-                        <div class="text-center py-4">
-                            <i class="fa fa-exclamation-triangle mb-3 animate__animated animate__bounceIn" style="font-size: 4rem; opacity: 0.9;"></i>
-                            <h1 class="display-5 fw-bold mb-3 animate__animated animate__fadeInDown">
-                                Reportar Problema
-                            </h1>
-                            <p class="lead mb-0 animate__animated animate__fadeInUp animate__delay-1s" style="opacity: 0.9;">
-                                Reporta fallas técnicas y problemas con tu equipo
-                            </p>
-                        </div>
+                * { font-family: 'Inter', sans-serif; }
+                
+                .hero-ticket {
+                    background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+                    color: white;
+                    position: relative;
+                    overflow: hidden;
+                }
+                
+                .form-section-ticket {
+                    border-left: 4px solid #ff6b6b;
+                    background: #fff5f5;
+                    border-radius: 0 12px 12px 0;
+                    padding: 20px;
+                    margin-bottom: 25px;
+                }
+                
+                .problem-type-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                    gap: 15px;
+                    margin: 20px 0;
+                }
+                
+                .problem-type-card {
+                    border: 2px solid #e2e8f0;
+                    border-radius: 12px;
+                    padding: 20px;
+                    text-align: center;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    background: white;
+                }
+                
+                .problem-type-card:hover {
+                    border-color: #ff6b6b;
+                    transform: translateY(-2px);
+                    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.15);
+                }
+                
+                .problem-type-card.selected {
+                    border-color: #ff6b6b;
+                    background: linear-gradient(135deg, #fff5f5, #fef2f2);
+                }
+                
+                .problem-icon {
+                    width: 60px;
+                    height: 60px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto 15px;
+                    font-size: 24px;
+                    color: white;
+                }
+                
+                .btn-ticket {
+                    background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+                    border: none;
+                    border-radius: 12px;
+                    padding: 15px 30px;
+                    font-weight: 600;
+                    transition: all 0.3s ease;
+                }
+                
+                .btn-ticket:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 10px 25px rgba(255, 107, 107, 0.3);
+                }
+                
+                .form-card {
+                    background: white;
+                    border-radius: 20px;
+                    box-shadow: 0 25px 50px rgba(0,0,0,0.1);
+                    margin: -80px auto 40px;
+                    position: relative;
+                    z-index: 10;
+                    border: 1px solid rgba(255,255,255,0.2);
+                }
+                
+                .description-section {
+                    display: none;
+                    animation: fadeIn 0.5s ease-in;
+                }
+                
+                .description-section.show {
+                    display: block;
+                }
+                
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                
+                .auto-description {
+                    background: #f0f9ff;
+                    border: 1px solid #bae6fd;
+                    border-radius: 8px;
+                    padding: 15px;
+                    margin: 15px 0;
+                }
+            </style>
+            
+            <!-- Hero Section -->
+            <div class="hero-ticket py-5">
+                <div class="container position-relative">
+                    <div class="text-center py-4">
+                        <i class="fa fa-exclamation-triangle mb-3 animate__animated animate__bounceIn" style="font-size: 4rem; opacity: 0.9;"></i>
+                        <h1 class="display-5 fw-bold mb-3 animate__animated animate__fadeInDown">
+                            Reportar Problema
+                        </h1>
+                        <p class="lead mb-0 animate__animated animate__fadeInUp animate__delay-1s" style="opacity: 0.9;">
+                            Reporta fallas técnicas y problemas con tu equipo
+                        </p>
                     </div>
                 </div>
-                
-                <div class="container">
-                    <div class="form-card animate__animated animate__fadeInUp">
-                        <div class="card-body p-5">
-                            <!-- Mensajes de éxito/error -->
-                            <t t-if="success_message">
-                                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                    <i class="fa fa-check-circle me-2"></i>
-                                    <span t-raw="success_message"></span>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            <div class="container">
+                <div class="form-card animate__animated animate__fadeInUp">
+                    <div class="card-body p-5">
+                        <!-- Mensajes de éxito/error -->
+                        <t t-if="success_message">
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fa fa-check-circle me-2"></i>
+                                <span t-raw="success_message"></span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        </t>
+                        
+                        <t t-if="error_message">
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fa fa-exclamation-triangle me-2"></i>
+                                <span t-esc="error_message"></span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        </t>
+                        
+                        <!-- ✅ INFORMACIÓN DEL EQUIPO - SECCIÓN CORREGIDA -->
+                        <div class="form-section-ticket">
+                            <h4 class="fw-bold text-primary mb-3">
+                                <i class="fa fa-server me-2"></i>
+                                Información del Equipo
+                            </h4>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center p-3 bg-white rounded-3 shadow-sm">
+                                        <i class="fa fa-print text-primary me-3 fs-5"></i>
+                                        <div>
+                                            <div class="fw-semibold">Equipo</div>
+                                            <div class="text-muted small">
+                                                <!-- ✅ USAR equipment_data SI ESTÁ DISPONIBLE, SINO USAR equipment -->
+                                                <t t-if="equipment_data">
+                                                    <span t-esc="equipment_data.get('name', 'Sin nombre')"/>
+                                                </t>
+                                                <t t-elif="equipment and equipment.name">
+                                                    <span t-esc="equipment.name.name"/>
+                                                </t>
+                                                <t t-else="">
+                                                    Sin nombre
+                                                </t>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </t>
-                            
-                            <t t-if="error_message">
-                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                    <i class="fa fa-exclamation-triangle me-2"></i>
-                                    <span t-esc="error_message"></span>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center p-3 bg-white rounded-3 shadow-sm">
+                                        <i class="fa fa-barcode text-success me-3 fs-5"></i>
+                                        <div>
+                                            <div class="fw-semibold">Serie</div>
+                                            <div class="text-muted small">
+                                                <t t-if="equipment_data">
+                                                    <span t-esc="equipment_data.get('serie', 'Sin serie')"/>
+                                                </t>
+                                                <t t-elif="equipment and equipment.serie_id">
+                                                    <span t-esc="equipment.serie_id"/>
+                                                </t>
+                                                <t t-else="">
+                                                    Sin serie
+                                                </t>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </t>
-                            
-                            <!-- Información del Equipo -->
-                            <div class="form-section-ticket">
-                                <h4 class="fw-bold text-primary mb-3">
-                                    <i class="fa fa-server me-2"></i>
-                                    Información del Equipo
-                                </h4>
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <div class="d-flex align-items-center p-3 bg-white rounded-3 shadow-sm">
-                                            <i class="fa fa-print text-primary me-3 fs-5"></i>
-                                            <div>
-                                                <div class="fw-semibold">Equipo</div>
-                                                <div class="text-muted small">
-                                                    <t t-if="equipment and equipment.name">
-                                                        <span t-esc="equipment.name.name"/>
-                                                    </t>
-                                                    <t t-else="">
-                                                        Sin nombre
-                                                    </t>
-                                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center p-3 bg-white rounded-3 shadow-sm">
+                                        <i class="fa fa-building text-info me-3 fs-5"></i>
+                                        <div>
+                                            <div class="fw-semibold">Cliente</div>
+                                            <div class="text-muted small">
+                                                <t t-if="equipment_data">
+                                                    <span t-esc="equipment_data.get('cliente_name', 'Sin cliente')"/>
+                                                </t>
+                                                <t t-elif="equipment and equipment.cliente_id">
+                                                    <span t-esc="equipment.cliente_id.name"/>
+                                                </t>
+                                                <t t-else="">
+                                                    Sin cliente
+                                                </t>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="d-flex align-items-center p-3 bg-white rounded-3 shadow-sm">
-                                            <i class="fa fa-barcode text-success me-3 fs-5"></i>
-                                            <div>
-                                                <div class="fw-semibold">Serie</div>
-                                                <div class="text-muted small">
-                                                    <t t-if="equipment and equipment.serie_id">
-                                                        <span t-esc="equipment.serie_id"/>
-                                                    </t>
-                                                    <t t-else="">
-                                                        Sin serie
-                                                    </t>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="d-flex align-items-center p-3 bg-white rounded-3 shadow-sm">
-                                            <i class="fa fa-building text-info me-3 fs-5"></i>
-                                            <div>
-                                                <div class="fw-semibold">Cliente</div>
-                                                <div class="text-muted small">
-                                                    <t t-if="equipment and equipment.cliente_id">
-                                                        <span t-esc="equipment.cliente_id.name"/>
-                                                    </t>
-                                                    <t t-else="">
-                                                        Sin cliente
-                                                    </t>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="d-flex align-items-center p-3 bg-white rounded-3 shadow-sm">
-                                            <i class="fa fa-map-marker-alt text-warning me-3 fs-5"></i>
-                                            <div>
-                                                <div class="fw-semibold">Ubicación</div>
-                                                <div class="text-muted small">
-                                                    <t t-if="equipment and equipment.ubicacion">
-                                                        <span t-esc="equipment.ubicacion"/>
-                                                    </t>
-                                                    <t t-else="">
-                                                        Sin ubicación
-                                                    </t>
-                                                </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center p-3 bg-white rounded-3 shadow-sm">
+                                        <i class="fa fa-map-marker-alt text-warning me-3 fs-5"></i>
+                                        <div>
+                                            <div class="fw-semibold">Ubicación</div>
+                                            <div class="text-muted small">
+                                                <t t-if="equipment_data">
+                                                    <span t-esc="equipment_data.get('ubicacion', 'Sin ubicación')"/>
+                                                </t>
+                                                <t t-elif="equipment and equipment.ubicacion">
+                                                    <span t-esc="equipment.ubicacion"/>
+                                                </t>
+                                                <t t-else="">
+                                                    Sin ubicación
+                                                </t>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <!-- Formulario -->
-                            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate="true">
-                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                <input type="hidden" name="copier_company_id" t-att-value="equipment.id if equipment else ''"/>
-                                
-                                <!-- Tipo de Problema -->
-                                <div class="form-section-ticket">
-                                    <h4 class="fw-bold text-danger mb-3">
-                                        <i class="fa fa-exclamation-circle me-2"></i>
-                                        ¿Qué tipo de problema tienes?
-                                    </h4>
-                                    
-                                    <div class="problem-type-grid">
-                                        <div class="problem-type-card" onclick="selectProblemType('printing')">
-                                            <div class="problem-icon" style="background: linear-gradient(135deg, #ff6b6b, #ff8e8e);">
-                                                <i class="fa fa-print"></i>
-                                            </div>
-                                            <h6 class="fw-semibold">Problemas de Impresión</h6>
-                                            <p class="text-muted small mb-0">No imprime, calidad deficiente, velocidad lenta</p>
-                                        </div>
-                                        
-                                        <div class="problem-type-card" onclick="selectProblemType('scanning')">
-                                            <div class="problem-icon" style="background: linear-gradient(135deg, #4ecdc4, #44a08d);">
-                                                <i class="fa fa-scanner"></i>
-                                            </div>
-                                            <h6 class="fw-semibold">Problemas de Escaneo</h6>
-                                            <p class="text-muted small mb-0">No escanea, calidad deficiente, errores</p>
-                                        </div>
-                                        
-                                        <div class="problem-type-card" onclick="selectProblemType('paper_jam')">
-                                            <div class="problem-icon" style="background: linear-gradient(135deg, #ffa726, #ff7043);">
-                                                <i class="fa fa-file-alt"></i>
-                                            </div>
-                                            <h6 class="fw-semibold">Atasco de Papel</h6>
-                                            <p class="text-muted small mb-0">Papel atascado, alimentación incorrecta</p>
-                                        </div>
-                                        
-                                        <div class="problem-type-card" onclick="selectProblemType('toner')">
-                                            <div class="problem-icon" style="background: linear-gradient(135deg, #ab47bc, #8e24aa);">
-                                                <i class="fa fa-tint"></i>
-                                            </div>
-                                            <h6 class="fw-semibold">Problemas de Toner</h6>
-                                            <p class="text-muted small mb-0">Toner vacío, calidad de impresión</p>
-                                        </div>
-                                        
-                                        <div class="problem-type-card" onclick="selectProblemType('network')">
-                                            <div class="problem-icon" style="background: linear-gradient(135deg, #42a5f5, #1e88e5);">
-                                                <i class="fa fa-wifi"></i>
-                                            </div>
-                                            <h6 class="fw-semibold">Problemas de Red</h6>
-                                            <p class="text-muted small mb-0">Conexión perdida, no detecta la red</p>
-                                        </div>
-                                        
-                                        <div class="problem-type-card" onclick="selectProblemType('general')">
-                                            <div class="problem-icon" style="background: linear-gradient(135deg, #66bb6a, #4caf50);">
-                                                <i class="fa fa-cog"></i>
-                                            </div>
-                                            <h6 class="fw-semibold">Otro Problema</h6>
-                                            <p class="text-muted small mb-0">Problema no listado anteriormente</p>
-                                        </div>
-                                    </div>
-                                    
-                                    <input type="hidden" id="problem_type" name="problem_type" required="true"/>
-                                    <div class="invalid-feedback">Por favor selecciona el tipo de problema</div>
-                                    
-                                    <!-- Descripción automática -->
-                                    <div id="auto_description_section" class="auto-description" style="display: none;">
-                                        <h6 class="fw-bold text-info mb-2">
-                                            <i class="fa fa-info-circle me-2"></i>Descripción del problema:
-                                        </h6>
-                                        <p id="auto_description_text" class="mb-0"></p>
-                                    </div>
-                                </div>
-                                
-                                <!-- Descripción adicional SOLO para "general" -->
-                                <div id="description_section" class="form-section-ticket description-section">
-                                    <h4 class="fw-bold text-warning mb-3">
-                                        <i class="fa fa-edit me-2"></i>
-                                        Describe el Problema Específico
-                                    </h4>
-                                    <div class="form-floating">
-                                        <textarea class="form-control" id="additional_description" name="additional_description" 
-                                                  placeholder="Describe detalladamente el problema..." style="height: 120px"></textarea>
-                                        <label for="additional_description">Descripción detallada del problema *</label>
-                                        <div class="invalid-feedback">Por favor describe el problema específico</div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Urgencia y Foto -->
-                                <div class="form-section-ticket">
-                                    <h4 class="fw-bold text-info mb-3">
-                                        <i class="fa fa-exclamation me-2"></i>
-                                        Información Adicional
-                                    </h4>
-                                    
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <div class="form-floating">
-                                                <select class="form-select" id="urgency" name="urgency" required="true">
-                                                    <option value="low">Baja - Puede esperar</option>
-                                                    <option value="medium" selected="true">Media - Normal</option>
-                                                    <option value="high">Alta - Urgente</option>
-                                                    <option value="urgent">Crítica - Muy urgente</option>
-                                                </select>
-                                                <label for="urgency">Nivel de Urgencia *</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="image" class="form-label">
-                                                <i class="fa fa-camera me-2"></i>Foto del problema (opcional)
-                                            </label>
-                                            <input type="file" class="form-control" id="image" name="image" accept="image/*"/>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Información de Contacto -->
-                                <div class="form-section-ticket">
-                                    <h4 class="fw-bold text-success mb-3">
-                                        <i class="fa fa-user-circle me-2"></i>
-                                        Información de Contacto
-                                    </h4>
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <div class="form-floating">
-                                                <input type="text" class="form-control" id="nombre_reporta" name="nombre_reporta" 
-                                                       t-att-value="equipment.cliente_id.name if equipment and equipment.cliente_id else ''" 
-                                                       required="true" placeholder="Nombre completo"/>
-                                                <label for="nombre_reporta">Nombre completo *</label>
-                                                <div class="invalid-feedback">Por favor ingresa tu nombre</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-floating">
-                                                <input type="email" class="form-control" id="email" name="email" 
-                                                       t-att-value="equipment.cliente_id.email if equipment and equipment.cliente_id else ''" 
-                                                       required="true" placeholder="Email"/>
-                                                <label for="email">Email de contacto *</label>
-                                                <div class="invalid-feedback">Por favor ingresa un email válido</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-floating">
-                                                <input type="tel" class="form-control" id="celular_reporta" name="celular_reporta" 
-                                                       t-att-value="equipment.cliente_id.mobile if equipment and equipment.cliente_id else ''" 
-                                                       required="true" placeholder="Teléfono"/>
-                                                <label for="celular_reporta">Teléfono de contacto *</label>
-                                                <div class="invalid-feedback">Por favor ingresa tu teléfono</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Botones -->
-                                <div class="row g-3 mt-4">
-                                    <div class="col-md-6">
-                                        <a t-attf-href="/public/equipment_menu?copier_company_id=#{equipment.id if equipment else ''}" 
-                                           class="btn btn-outline-secondary w-100 py-3">
-                                            <i class="fa fa-arrow-left me-2"></i>Regresar al Menú
-                                        </a>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <button type="submit" class="btn btn-ticket text-white w-100 py-3">
-                                            <i class="fa fa-paper-plane me-2"></i>Enviar Reporte de Problema
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
                         </div>
+                        
+                        <!-- Formulario -->
+                        <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate="true">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <!-- ✅ USAR equipment.id SI ESTÁ DISPONIBLE -->
+                            <input type="hidden" name="copier_company_id">
+                                <t t-if="equipment">
+                                    <t t-set="equipment_id_value" t-value="equipment.id"/>
+                                </t>
+                                <t t-elif="equipment_data">
+                                    <t t-set="equipment_id_value" t-value="equipment_data.get('id', '')"/>
+                                </t>
+                                <t t-else="">
+                                    <t t-set="equipment_id_value" t-value="''"/>
+                                </t>
+                                <t t-att-value="equipment_id_value"/>
+                            </input>
+                            
+                            <!-- Tipo de Problema -->
+                            <div class="form-section-ticket">
+                                <h4 class="fw-bold text-danger mb-3">
+                                    <i class="fa fa-exclamation-circle me-2"></i>
+                                    ¿Qué tipo de problema tienes?
+                                </h4>
+                                
+                                <div class="problem-type-grid">
+                                    <div class="problem-type-card" onclick="selectProblemType('printing')">
+                                        <div class="problem-icon" style="background: linear-gradient(135deg, #ff6b6b, #ff8e8e);">
+                                            <i class="fa fa-print"></i>
+                                        </div>
+                                        <h6 class="fw-semibold">Problemas de Impresión</h6>
+                                        <p class="text-muted small mb-0">No imprime, calidad deficiente, velocidad lenta</p>
+                                    </div>
+                                    
+                                    <div class="problem-type-card" onclick="selectProblemType('scanning')">
+                                        <div class="problem-icon" style="background: linear-gradient(135deg, #4ecdc4, #44a08d);">
+                                            <i class="fa fa-scanner"></i>
+                                        </div>
+                                        <h6 class="fw-semibold">Problemas de Escaneo</h6>
+                                        <p class="text-muted small mb-0">No escanea, calidad deficiente, errores</p>
+                                    </div>
+                                    
+                                    <div class="problem-type-card" onclick="selectProblemType('paper_jam')">
+                                        <div class="problem-icon" style="background: linear-gradient(135deg, #ffa726, #ff7043);">
+                                            <i class="fa fa-file-alt"></i>
+                                        </div>
+                                        <h6 class="fw-semibold">Atasco de Papel</h6>
+                                        <p class="text-muted small mb-0">Papel atascado, alimentación incorrecta</p>
+                                    </div>
+                                    
+                                    <div class="problem-type-card" onclick="selectProblemType('toner')">
+                                        <div class="problem-icon" style="background: linear-gradient(135deg, #ab47bc, #8e24aa);">
+                                            <i class="fa fa-tint"></i>
+                                        </div>
+                                        <h6 class="fw-semibold">Problemas de Toner</h6>
+                                        <p class="text-muted small mb-0">Toner vacío, calidad de impresión</p>
+                                    </div>
+                                    
+                                    <div class="problem-type-card" onclick="selectProblemType('network')">
+                                        <div class="problem-icon" style="background: linear-gradient(135deg, #42a5f5, #1e88e5);">
+                                            <i class="fa fa-wifi"></i>
+                                        </div>
+                                        <h6 class="fw-semibold">Problemas de Red</h6>
+                                        <p class="text-muted small mb-0">Conexión perdida, no detecta la red</p>
+                                    </div>
+                                    
+                                    <div class="problem-type-card" onclick="selectProblemType('general')">
+                                        <div class="problem-icon" style="background: linear-gradient(135deg, #66bb6a, #4caf50);">
+                                            <i class="fa fa-cog"></i>
+                                        </div>
+                                        <h6 class="fw-semibold">Otro Problema</h6>
+                                        <p class="text-muted small mb-0">Problema no listado anteriormente</p>
+                                    </div>
+                                </div>
+                                
+                                <input type="hidden" id="problem_type" name="problem_type" required="true"/>
+                                <div class="invalid-feedback">Por favor selecciona el tipo de problema</div>
+                                
+                                <!-- Descripción automática -->
+                                <div id="auto_description_section" class="auto-description" style="display: none;">
+                                    <h6 class="fw-bold text-info mb-2">
+                                        <i class="fa fa-info-circle me-2"></i>Descripción del problema:
+                                    </h6>
+                                    <p id="auto_description_text" class="mb-0"></p>
+                                </div>
+                            </div>
+                            
+                            <!-- Descripción adicional SOLO para "general" -->
+                            <div id="description_section" class="form-section-ticket description-section">
+                                <h4 class="fw-bold text-warning mb-3">
+                                    <i class="fa fa-edit me-2"></i>
+                                    Describe el Problema Específico
+                                </h4>
+                                <div class="form-floating">
+                                    <textarea class="form-control" id="additional_description" name="additional_description" 
+                                              placeholder="Describe detalladamente el problema..." style="height: 120px"></textarea>
+                                    <label for="additional_description">Descripción detallada del problema *</label>
+                                    <div class="invalid-feedback">Por favor describe el problema específico</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Urgencia y Foto -->
+                            <div class="form-section-ticket">
+                                <h4 class="fw-bold text-info mb-3">
+                                    <i class="fa fa-exclamation me-2"></i>
+                                    Información Adicional
+                                </h4>
+                                
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <select class="form-select" id="urgency" name="urgency" required="true">
+                                                <option value="low">Baja - Puede esperar</option>
+                                                <option value="medium" selected="true">Media - Normal</option>
+                                                <option value="high">Alta - Urgente</option>
+                                                <option value="urgent">Crítica - Muy urgente</option>
+                                            </select>
+                                            <label for="urgency">Nivel de Urgencia *</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="image" class="form-label">
+                                            <i class="fa fa-camera me-2"></i>Foto del problema (opcional)
+                                        </label>
+                                        <input type="file" class="form-control" id="image" name="image" accept="image/*"/>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- ✅ INFORMACIÓN DE CONTACTO - SECCIÓN CORREGIDA -->
+                            <div class="form-section-ticket">
+                                <h4 class="fw-bold text-success mb-3">
+                                    <i class="fa fa-user-circle me-2"></i>
+                                    Información de Contacto
+                                </h4>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="nombre_reporta" name="nombre_reporta" 
+                                                   required="true" placeholder="Nombre completo"/>
+                                            <label for="nombre_reporta">Nombre completo *</label>
+                                            <div class="invalid-feedback">Por favor ingresa tu nombre</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input type="email" class="form-control" id="email" name="email" 
+                                                   required="true" placeholder="Email"/>
+                                            <label for="email">Email de contacto *</label>
+                                            <div class="invalid-feedback">Por favor ingresa un email válido</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-floating">
+                                            <input type="tel" class="form-control" id="celular_reporta" name="celular_reporta" 
+                                                   required="true" placeholder="Teléfono"/>
+                                            <label for="celular_reporta">Teléfono de contacto *</label>
+                                            <div class="invalid-feedback">Por favor ingresa tu teléfono</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Botones -->
+                            <div class="row g-3 mt-4">
+                                <div class="col-md-6">
+                                    <a class="btn btn-outline-secondary w-100 py-3">
+                                        <!-- ✅ ENLACE DE REGRESO CORREGIDO -->
+                                        <t t-if="equipment">
+                                            <t t-set="back_url" t-value="'/public/equipment_menu?copier_company_id=' + str(equipment.id)"/>
+                                        </t>
+                                        <t t-elif="equipment_data">
+                                            <t t-set="back_url" t-value="'/public/equipment_menu?copier_company_id=' + str(equipment_data.get('id', ''))"/>
+                                        </t>
+                                        <t t-else="">
+                                            <t t-set="back_url" t-value="'/'"/>
+                                        </t>
+                                        <t t-att-href="back_url"/>
+                                        <i class="fa fa-arrow-left me-2"></i>Regresar al Menú
+                                    </a>
+                                </div>
+                                <div class="col-md-6">
+                                    <button type="submit" class="btn btn-ticket text-white w-100 py-3">
+                                        <i class="fa fa-paper-plane me-2"></i>Enviar Reporte de Problema
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
+            </div>
+            
+            <script>
+            <![CDATA[
+                let selectedProblemType = '';
                 
-                <script>
-                <![CDATA[
-                    let selectedProblemType = '';
+                // Descripciones automáticas para cada tipo de problema
+                const problemDescriptions = {
+                    'printing': 'El equipo presenta problemas de impresión. Se requiere revisión técnica para identificar y solucionar la falla en el sistema de impresión.',
+                    'scanning': 'Se reportan problemas en la función de escaneo del equipo. Es necesaria una revisión técnica del módulo de escaneado.',
+                    'paper_jam': 'El equipo presenta atascos de papel frecuentes. Se requiere revisión del sistema de alimentación de papel y limpieza de rodillos.',
+                    'toner': 'Problemas relacionados con el toner o calidad de impresión. Puede requerir reemplazo de toner o revisión del sistema de impresión.',
+                    'network': 'El equipo presenta problemas de conectividad de red. Se requiere revisión de la configuración de red y conectividad.',
+                    'maintenance': 'Se solicita mantenimiento preventivo del equipo según el plan de mantenimiento programado.',
+                    'general': 'Problema general que requiere evaluación técnica específica.'
+                };
+                
+                function selectProblemType(type) {
+                    // Remover selección anterior
+                    document.querySelectorAll('.problem-type-card').forEach(function(card) {
+                        card.classList.remove('selected');
+                    });
                     
-                    // Descripciones automáticas para cada tipo de problema
-                    const problemDescriptions = {
-                        'printing': 'El equipo presenta problemas de impresión. Se requiere revisión técnica para identificar y solucionar la falla en el sistema de impresión.',
-                        'scanning': 'Se reportan problemas en la función de escaneo del equipo. Es necesaria una revisión técnica del módulo de escaneado.',
-                        'paper_jam': 'El equipo presenta atascos de papel frecuentes. Se requiere revisión del sistema de alimentación de papel y limpieza de rodillos.',
-                        'toner': 'Problemas relacionados con el toner o calidad de impresión. Puede requerir reemplazo de toner o revisión del sistema de impresión.',
-                        'network': 'El equipo presenta problemas de conectividad de red. Se requiere revisión de la configuración de red y conectividad.',
-                        'maintenance': 'Se solicita mantenimiento preventivo del equipo según el plan de mantenimiento programado.',
-                        'general': 'Problema general que requiere evaluación técnica específica.'
-                    };
+                    // Agregar selección actual
+                    event.currentTarget.classList.add('selected');
+                    selectedProblemType = type;
+                    document.getElementById('problem_type').value = type;
                     
-                    function selectProblemType(type) {
-                        // Remover selección anterior
-                        document.querySelectorAll('.problem-type-card').forEach(function(card) {
-                            card.classList.remove('selected');
-                        });
-                        
-                        // Agregar selección actual
-                        event.currentTarget.classList.add('selected');
-                        selectedProblemType = type;
-                        document.getElementById('problem_type').value = type;
-                        
-                        // Eliminar mensaje de error si existe
-                        document.getElementById('problem_type').classList.remove('is-invalid');
-                        
-                        // Mostrar descripción automática
-                        const autoDescSection = document.getElementById('auto_description_section');
-                        const autoDescText = document.getElementById('auto_description_text');
-                        const descSection = document.getElementById('description_section');
-                        const additionalDescInput = document.getElementById('additional_description');
-                        
-                        if (problemDescriptions[type]) {
-                            autoDescText.textContent = problemDescriptions[type];
-                            autoDescSection.style.display = 'block';
-                        }
-                        
-                        // Mostrar campo de descripción adicional SOLO para "general"
-                        if (type === 'general') {
-                            descSection.classList.add('show');
-                            additionalDescInput.required = true;
-                        } else {
-                            descSection.classList.remove('show');
-                            additionalDescInput.required = false;
-                            additionalDescInput.value = '';
-                        }
+                    // Eliminar mensaje de error si existe
+                    document.getElementById('problem_type').classList.remove('is-invalid');
+                    
+                    // Mostrar descripción automática
+                    const autoDescSection = document.getElementById('auto_description_section');
+                    const autoDescText = document.getElementById('auto_description_text');
+                    const descSection = document.getElementById('description_section');
+                    const additionalDescInput = document.getElementById('additional_description');
+                    
+                    if (problemDescriptions[type]) {
+                        autoDescText.textContent = problemDescriptions[type];
+                        autoDescSection.style.display = 'block';
                     }
                     
-                    // Validación del formulario
-                    (function() {
-                        'use strict';
-                        window.addEventListener('load', function() {
-                            var forms = document.getElementsByClassName('needs-validation');
-                            var validation = Array.prototype.filter.call(forms, function(form) {
-                                form.addEventListener('submit', function(event) {
-                                    var isValid = true;
-                                    
-                                    // Validar tipo de problema
-                                    if (!selectedProblemType) {
-                                        document.getElementById('problem_type').classList.add('is-invalid');
-                                        isValid = false;
-                                    }
-                                    
-                                    // Validar descripción adicional para "general"
-                                    if (selectedProblemType === 'general') {
-                                        const additionalDesc = document.getElementById('additional_description');
-                                        if (!additionalDesc.value.trim()) {
-                                            additionalDesc.classList.add('is-invalid');
-                                            isValid = false;
-                                        }
-                                    }
-                                    
-                                    // Validar campos requeridos
-                                    const requiredFields = ['nombre_reporta', 'email', 'celular_reporta'];
-                                    requiredFields.forEach(function(fieldId) {
-                                        const field = document.getElementById(fieldId);
-                                        if (!field.value.trim()) {
-                                            field.classList.add('is-invalid');
-                                            isValid = false;
-                                        }
-                                    });
-                                    
-                                    // Validar email
-                                    const emailField = document.getElementById('email');
-                                    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-                                    if (emailField.value && !emailPattern.test(emailField.value)) {
-                                        emailField.classList.add('is-invalid');
-                                        isValid = false;
-                                    }
-                                    
-                                    if (!isValid || form.checkValidity() === false) {
-                                        event.preventDefault();
-                                        event.stopPropagation();
-                                    }
-                                    
-                                    form.classList.add('was-validated');
-                                }, false);
-                            });
-                        }, false);
-                    })();
+                    // Mostrar campo de descripción adicional SOLO para "general"
+                    if (type === 'general') {
+                        descSection.classList.add('show');
+                        additionalDescInput.required = true;
+                    } else {
+                        descSection.classList.remove('show');
+                        additionalDescInput.required = false;
+                        additionalDescInput.value = '';
+                    }
+                }
+                
+                // ✅ FUNCIÓN PARA PRELLENAR CAMPOS DE CONTACTO
+                function fillContactFields() {
+                    // Obtener datos del equipo desde el template
+                    var equipmentData = {};
                     
-                    // Animaciones y efectos
-                    document.addEventListener('DOMContentLoaded', function() {
-                        // Animación de hover en tarjetas de problema
-                        document.querySelectorAll('.problem-type-card').forEach(function(card) {
-                            card.addEventListener('mouseenter', function() {
-                                if (!this.classList.contains('selected')) {
-                                    this.style.transform = 'translateY(-5px) scale(1.02)';
+                    // Intentar obtener datos desde equipment_data o equipment
+                    try {
+                        // Estos valores son establecidos por el servidor
+                        var nameValue = '';
+                        var emailValue = '';
+                        var phoneValue = '';
+                        
+                        // Buscar datos en el DOM o desde variables del template
+                        var equipmentSections = document.querySelectorAll('.form-section-ticket .text-muted.small');
+                        if (equipmentSections.length >= 3) {
+                            // El tercer elemento debería ser el cliente
+                            var clienteName = equipmentSections[2].textContent.trim();
+                            if (clienteName && clienteName !== 'Sin cliente') {
+                                nameValue = clienteName;
+                            }
+                        }
+                        
+                        // Llenar campos si están vacíos
+                        var nameField = document.getElementById('nombre_reporta');
+                        var emailField = document.getElementById('email');
+                        var phoneField = document.getElementById('celular_reporta');
+                        
+                        if (nameField && !nameField.value && nameValue) {
+                            nameField.value = nameValue;
+                        }
+                        
+                        // Nota: email y teléfono requieren ser pasados desde el controlador
+                        // porque no están visibles en la información del equipo
+                        
+                    } catch (error) {
+                        console.log('No se pudieron prellenar todos los campos de contacto:', error);
+                    }
+                }
+                
+                // Validación del formulario
+                (function() {
+                    'use strict';
+                    window.addEventListener('load', function() {
+                        var forms = document.getElementsByClassName('needs-validation');
+                        var validation = Array.prototype.filter.call(forms, function(form) {
+                            form.addEventListener('submit', function(event) {
+                                var isValid = true;
+                                
+                                // Validar tipo de problema
+                                if (!selectedProblemType) {
+                                    document.getElementById('problem_type').classList.add('is-invalid');
+                                    isValid = false;
                                 }
-                            });
-                            
-                            card.addEventListener('mouseleave', function() {
-                                if (!this.classList.contains('selected')) {
-                                    this.style.transform = 'translateY(0) scale(1)';
+                                
+                                // Validar descripción adicional para "general"
+                                if (selectedProblemType === 'general') {
+                                    const additionalDesc = document.getElementById('additional_description');
+                                    if (!additionalDesc.value.trim()) {
+                                        additionalDesc.classList.add('is-invalid');
+                                        isValid = false;
+                                    }
                                 }
-                            });
+                                
+                                // Validar campos requeridos
+                                const requiredFields = ['nombre_reporta', 'email', 'celular_reporta'];
+                                requiredFields.forEach(function(fieldId) {
+                                    const field = document.getElementById(fieldId);
+                                    if (!field.value.trim()) {
+                                        field.classList.add('is-invalid');
+                                        isValid = false;
+                                    }
+                                });
+                                
+                                // Validar email
+                                const emailField = document.getElementById('email');
+                                const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                                if (emailField.value && !emailPattern.test(emailField.value)) {
+                                    emailField.classList.add('is-invalid');
+                                    isValid = false;
+                                }
+                                
+                                if (!isValid || form.checkValidity() === false) {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                }
+                                
+                                form.classList.add('was-validated');
+                            }, false);
                         });
                         
-                        // Limpiar mensajes de error en tiempo real
-                        const inputs = document.querySelectorAll('.form-control');
-                        inputs.forEach(function(input) {
-                            input.addEventListener('input', function() {
-                                if (this.classList.contains('is-invalid') && this.value.trim()) {
-                                    this.classList.remove('is-invalid');
-                                }
-                            });
+                        // ✅ LLAMAR A LA FUNCIÓN PARA PRELLENAR CAMPOS
+                        fillContactFields();
+                    }, false);
+                })();
+                
+                // Animaciones y efectos
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Animación de hover en tarjetas de problema
+                    document.querySelectorAll('.problem-type-card').forEach(function(card) {
+                        card.addEventListener('mouseenter', function() {
+                            if (!this.classList.contains('selected')) {
+                                this.style.transform = 'translateY(-5px) scale(1.02)';
+                            }
                         });
                         
-                        // Pre-llenar campos si hay datos del equipo
-                        console.log('Formulario de tickets cargado correctamente');
+                        card.addEventListener('mouseleave', function() {
+                            if (!this.classList.contains('selected')) {
+                                this.style.transform = 'translateY(0) scale(1)';
+                            }
+                        });
                     });
-                ]]>
-                </script>
-            </div>
-        </t>
-    </template>
+                    
+                    // Limpiar mensajes de error en tiempo real
+                    const inputs = document.querySelectorAll('.form-control');
+                    inputs.forEach(function(input) {
+                        input.addEventListener('input', function() {
+                            if (this.classList.contains('is-invalid') && this.value.trim()) {
+                                this.classList.remove('is-invalid');
+                            }
+                        });
+                    });
+                    
+                    // ✅ PRELLENAR CAMPOS AL CARGAR LA PÁGINA
+                    fillContactFields();
+                    
+                    console.log('Formulario de tickets cargado correctamente');
+                });
+            ]]>
+            </script>
+        </div>
+    </t>
+</template>
     
     <!-- FORMULARIO DE SOLICITUD DE TONER -->
     <template id="portal_request_toner" name="Request Toner Form">

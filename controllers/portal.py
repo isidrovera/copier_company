@@ -419,6 +419,8 @@ class CopierCompanyPortal(CustomerPortal):
                         equipment.id, 
                         self._safe_get_text(equipment.name.name) if equipment.name else 'Sin nombre',
                         self._safe_get_text(equipment.cliente_id.name) if equipment.cliente_id else 'Sin cliente')
+            
+            # ✅ DEBUGGING: Log detallado de los datos del equipo
             _logger.info("=== DEBUG DETALLADO DEL EQUIPO ===")
             _logger.info("Equipment.id: %s", equipment.id)
             _logger.info("Equipment.name: %s", equipment.name)
@@ -427,12 +429,29 @@ class CopierCompanyPortal(CustomerPortal):
             _logger.info("Equipment.cliente_id: %s", equipment.cliente_id)
             _logger.info("Equipment.cliente_id.name: %s", equipment.cliente_id.name if equipment.cliente_id else None)
             _logger.info("Equipment.ubicacion: %s", equipment.ubicacion)
-            _logger.info("Values que se envían: %s", values)
-            # ✅ CAMBIO PRINCIPAL: Pasar 'equipment' directamente al template
+            
+            # ✅ CAMBIO PRINCIPAL: Preparar datos del equipo de forma más robusta
+            equipment_data = {
+                'id': equipment.id,
+                'name': self._safe_get_text(equipment.name.name) if equipment.name else 'Sin nombre',
+                'serie': self._safe_get_text(equipment.serie_id) or 'Sin serie',
+                'marca': self._safe_get_text(equipment.marca_id.name) if equipment.marca_id else 'Sin marca',
+                'cliente_name': self._safe_get_text(equipment.cliente_id.name) if equipment.cliente_id else 'Sin cliente',
+                'cliente_email': self._safe_get_text(equipment.cliente_id.email) if equipment.cliente_id else '',
+                'cliente_phone': self._safe_get_text(equipment.cliente_id.mobile) or self._safe_get_text(equipment.cliente_id.phone) or '',
+                'ubicacion': self._safe_get_text(equipment.ubicacion) or 'Sin ubicación',
+            }
+            
+            _logger.info("Equipment_data preparado: %s", equipment_data)
+            
+            # ✅ PASAR TANTO 'equipment' COMO 'equipment_data'
             values = {
-                'equipment': equipment,  # ← Esta es la variable que necesita el template
+                'equipment': equipment,           # ← Para el template
+                'equipment_data': equipment_data, # ← Datos seguros preparados
                 'page_title': _('Reportar Problema Técnico'),
             }
+            
+            _logger.info("Values que se envían al template: %s", {k: v for k, v in values.items() if k != 'equipment'})
             
             # Si es una solicitud POST, procesar el formulario
             if request.httprequest.method == 'POST':
@@ -496,7 +515,7 @@ class CopierCompanyPortal(CustomerPortal):
                             # Preparar valores para el ticket - CAMPOS ACTUALIZADOS
                             ticket_vals = {
                                 'partner_id': partner.id,
-                                'name': f"Problema: {dict(request.env['helpdesk.ticket']._fields['problem_type'].selection if 'problem_type' in request.env['helpdesk.ticket']._fields else {}).get(form_data['problem_type'], form_data['problem_type'])} - {equipment.name.name if equipment.name else 'Equipo'} (Serie: {equipment.serie_id or 'Sin serie'})",
+                                'name': f"Problema: {dict(request.env['helpdesk.ticket']._fields['problem_type'].selection if 'problem_type' in request.env['helpdesk.ticket']._fields else {}).get(form_data['problem_type'], form_data['problem_type'])} - {equipment_data['name']} (Serie: {equipment_data['serie']})",
                                 
                                 # ✅ CAMPOS NUEVOS DEL MODELO
                                 'producto_id': equipment.id,
@@ -543,8 +562,8 @@ class CopierCompanyPortal(CustomerPortal):
                                 "Recibirás actualizaciones en: {}"
                             ).format(
                                 ticket.id,
-                                equipment.name.name if equipment.name else 'Sin nombre',
-                                equipment.serie_id or 'Sin serie',
+                                equipment_data['name'],
+                                equipment_data['serie'],
                                 problem_name,
                                 dict(ticket._fields['urgency'].selection).get(form_data['urgency'], 'Media'),
                                 form_data['partner_email']
@@ -571,6 +590,7 @@ class CopierCompanyPortal(CustomerPortal):
                 return request.redirect(f'/public/equipment_menu?copier_company_id={copier_company_id}')
             
             _logger.info("Renderizando template de ticket: %s", template)
+            _logger.info("=== FINALIZANDO public_create_ticket ===")
             return request.render(template, values)
             
         except Exception as e:
