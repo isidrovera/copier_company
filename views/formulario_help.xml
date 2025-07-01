@@ -1071,9 +1071,10 @@
                     <div class="card-body p-5">
                         <!-- Mensajes de éxito/error -->
                         <t t-if="success_message">
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <div class="alert alert-success alert-dismissible fade show position-fixed" 
+                                style="top: 20px; right: 20px; z-index: 9999; max-width: 400px;" role="alert">
                                 <i class="fa fa-check-circle me-2"></i>
-                                <span t-out="success_message"></span>
+                                <span t-esc="success_message"></span>
                                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                             </div>
                         </t>
@@ -1510,7 +1511,20 @@
                     
                     console.log('Formulario de tickets cargado correctamente');
                 });
+                // Auto-cerrar mensaje de éxito después de 5 segundos
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const successAlert = document.querySelector('.alert-success');
+                        if (successAlert) {
+                            setTimeout(function() {
+                                successAlert.style.opacity = '0';
+                                setTimeout(function() {
+                                    successAlert.remove();
+                                }, 300);
+                            }, 5000);
+                        }
+                    });
             </script>
+            
         </div>
     </t>
 </template>

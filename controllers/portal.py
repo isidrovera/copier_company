@@ -493,15 +493,23 @@ class CopierCompanyPortal(CustomerPortal):
                         equipment_ip = self._safe_get_text(equipment.ip_id) or 'Sin IP'
                         equipment_tipo = 'Color' if equipment.tipo == 'color' else 'Blanco y Negro'
 
+                        # Descripción solo del problema
                         auto_descriptions = {
-                            'printing': 'El equipo presenta problemas de impresión...',
-                            'scanning': 'Se reportan problemas en la función de escaneo...',
-                            'paper_jam': 'El equipo presenta atascos de papel frecuentes...',
-                            'toner': 'Problemas relacionados con el toner...',
-                            'network': 'El equipo presenta problemas de conectividad...',
-                            'maintenance': 'Se solicita mantenimiento preventivo...',
+                            'printing': 'El equipo presenta problemas de impresión que requieren revisión técnica.',
+                            'scanning': 'Se reportan problemas en la función de escaneo del equipo.',
+                            'paper_jam': 'El equipo presenta atascos de papel frecuentes.',
+                            'toner': 'Problemas relacionados con el toner o calidad de impresión.',
+                            'network': 'El equipo presenta problemas de conectividad de red.',
+                            'maintenance': 'Se solicita mantenimiento preventivo del equipo.',
                             'general': 'Problema general que requiere evaluación técnica.'
                         }
+
+                        # Solo la descripción del problema
+                        ticket_description = auto_descriptions.get(form_data['problem_type'], 'Problema técnico reportado.')
+
+                        # Si hay descripción adicional, agregarla
+                        if form_data['additional_description']:
+                            ticket_description += f"\n\nDescripción adicional: {form_data['additional_description']}"
 
                         description_parts = [auto_descriptions.get(form_data['problem_type'], 'Problema técnico reportado.')]
 
@@ -534,9 +542,9 @@ class CopierCompanyPortal(CustomerPortal):
                         form_data['priority'] = priority_mapping.get(form_data['urgency'], '1')
 
                         ticket_vals = {
-                            'partner_id': partner.id,
+                            'partner_id': equipment.cliente_id.id if equipment.cliente_id else partner.id,  # Cliente del equipo
                             'name': f"{problem_name} - {equipment_name} (Serie: {equipment_serie})",
-                            'description': ticket_description,
+                            'description': ticket_description,  # Solo descripción del problema
                             'priority': form_data['priority'],
                         }
 
@@ -573,21 +581,11 @@ class CopierCompanyPortal(CustomerPortal):
                         }
 
                         values['success_message'] = _(
-                            "¡Ticket de soporte creado exitosamente!<br/><br/>"
-                            "<strong>Número de ticket:</strong> #{}<br/>"
-                            "<strong>Equipo:</strong> {} (Serie: {})<br/>"
-                            "<strong>Tipo de problema:</strong> {}<br/>"
-                            "<strong>Urgencia:</strong> {}<br/>"
-                            "<strong>Reportado por:</strong> {}<br/><br/>"
-                            "Nuestro equipo técnico se pondrá en contacto contigo pronto.<br/>"
+                            "¡Ticket #{} creado exitosamente! "
+                            "Nuestro equipo técnico se pondrá en contacto contigo pronto. "
                             "Recibirás actualizaciones en: {}"
                         ).format(
                             ticket.id,
-                            equipment_name,
-                            equipment_serie,
-                            problem_name,
-                            urgency_names.get(form_data['urgency'], 'Media'),
-                            form_data['nombre_reporta'],
                             form_data['partner_email']
                         )
                         values['ticket'] = ticket
