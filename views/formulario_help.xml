@@ -935,7 +935,7 @@
     </template>
     
     <!-- FORMULARIO MEJORADO DE TICKETS -->
-    <!-- FORMULARIO MEJORADO DE TICKETS - TEMPLATE COMPLETO CORREGIDO -->
+   <!-- FORMULARIO MEJORADO DE TICKETS - TEMPLATE COMPLETO CORREGIDO -->
 <template id="public_helpdesk_ticket_form" name="Enhanced Public Ticket Form">
     <t t-call="website.layout">
         <div id="wrap">
@@ -1360,6 +1360,25 @@
                 </div>
             </div>
             
+            <!-- ✅ SCRIPT PARA ESTABLECER DATOS DE CONTACTO DESDE EL CONTROLADOR -->
+            <script>
+                // Establecer datos de contacto desde las variables del template
+                window.equipmentContactData = {
+                    name: '<t t-if="default_contact_name"><t t-esc="default_contact_name"/></t>',
+                    email: '<t t-if="default_contact_email"><t t-esc="default_contact_email"/></t>',
+                    phone: '<t t-if="default_contact_phone"><t t-esc="default_contact_phone"/></t>'
+                };
+                
+                // Limpiar valores vacíos
+                Object.keys(window.equipmentContactData).forEach(function(key) {
+                    if (!window.equipmentContactData[key] || window.equipmentContactData[key].trim() === '') {
+                        window.equipmentContactData[key] = '';
+                    }
+                });
+                
+                console.log('Datos de contacto disponibles:', window.equipmentContactData);
+            </script>
+            
             <script>
             <![CDATA[
                 let selectedProblemType = '';
@@ -1413,17 +1432,13 @@
                 
                 // ✅ FUNCIÓN PARA PRELLENAR CAMPOS DE CONTACTO
                 function fillContactFields() {
-                    // Obtener datos del equipo desde el template
-                    var equipmentData = {};
-                    
-                    // Intentar obtener datos desde equipment_data o equipment
                     try {
-                        // Estos valores son establecidos por el servidor
+                        // Obtener datos desde las variables del template (establecidas por el controlador)
                         var nameValue = '';
                         var emailValue = '';
                         var phoneValue = '';
                         
-                        // Buscar datos en el DOM o desde variables del template
+                        // Extraer datos de la información del equipo mostrada
                         var equipmentSections = document.querySelectorAll('.form-section-ticket .text-muted.small');
                         if (equipmentSections.length >= 3) {
                             // El tercer elemento debería ser el cliente
@@ -1433,6 +1448,14 @@
                             }
                         }
                         
+                        // ✅ INTENTAR OBTENER DATOS DESDE VARIABLES GLOBALES DEL TEMPLATE
+                        // Estos serán establecidos por el template usando datos del controlador
+                        if (typeof window.equipmentContactData !== 'undefined') {
+                            nameValue = window.equipmentContactData.name || nameValue;
+                            emailValue = window.equipmentContactData.email || '';
+                            phoneValue = window.equipmentContactData.phone || '';
+                        }
+                        
                         // Llenar campos si están vacíos
                         var nameField = document.getElementById('nombre_reporta');
                         var emailField = document.getElementById('email');
@@ -1440,13 +1463,21 @@
                         
                         if (nameField && !nameField.value && nameValue) {
                             nameField.value = nameValue;
+                            console.log('Campo nombre prellenado con:', nameValue);
                         }
                         
-                        // Nota: email y teléfono requieren ser pasados desde el controlador
-                        // porque no están visibles en la información del equipo
+                        if (emailField && !emailField.value && emailValue) {
+                            emailField.value = emailValue;
+                            console.log('Campo email prellenado con:', emailValue);
+                        }
+                        
+                        if (phoneField && !phoneField.value && phoneValue) {
+                            phoneField.value = phoneValue;
+                            console.log('Campo teléfono prellenado con:', phoneValue);
+                        }
                         
                     } catch (error) {
-                        console.log('No se pudieron prellenar todos los campos de contacto:', error);
+                        console.log('Error al prellenar campos de contacto:', error);
                     }
                 }
                 
