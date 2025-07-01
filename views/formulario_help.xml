@@ -1292,12 +1292,16 @@
                                     <i class="fa fa-user-circle me-2"></i>
                                     Información de Contacto
                                 </h4>
+                                <p class="text-muted mb-3">
+                                    <i class="fa fa-info-circle me-2"></i>
+                                    Ingresa tus datos de contacto para que podamos comunicarnos contigo sobre este reporte.
+                                </p>
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <div class="form-floating">
                                             <input type="text" class="form-control" id="nombre_reporta" name="nombre_reporta" 
                                                    required="true" placeholder="Nombre completo"/>
-                                            <label for="nombre_reporta">Nombre completo *</label>
+                                            <label for="nombre_reporta">Tu nombre completo *</label>
                                             <div class="invalid-feedback">Por favor ingresa tu nombre</div>
                                         </div>
                                     </div>
@@ -1305,7 +1309,7 @@
                                         <div class="form-floating">
                                             <input type="email" class="form-control" id="email" name="email" 
                                                    required="true" placeholder="Email"/>
-                                            <label for="email">Email de contacto *</label>
+                                            <label for="email">Tu email de contacto *</label>
                                             <div class="invalid-feedback">Por favor ingresa un email válido</div>
                                         </div>
                                     </div>
@@ -1313,7 +1317,7 @@
                                         <div class="form-floating">
                                             <input type="tel" class="form-control" id="celular_reporta" name="celular_reporta" 
                                                    required="true" placeholder="Teléfono"/>
-                                            <label for="celular_reporta">Teléfono de contacto *</label>
+                                            <label for="celular_reporta">Tu teléfono de contacto *</label>
                                             <div class="invalid-feedback">Por favor ingresa tu teléfono</div>
                                         </div>
                                     </div>
@@ -1340,14 +1344,16 @@
             </div>
             
             <script>
-                // Establecer datos de contacto desde las variables del template
-                window.equipmentContactData = {
-                    name: '<t t-esc="default_contact_name or \'\'"/>',
-                    email: '<t t-esc="default_contact_email or \'\'"/>',
-                    phone: '<t t-esc="default_contact_phone or \'\'"/>'
+                // Solo establecer datos del equipo (NO prellenar contacto - cualquiera puede reportar)
+                window.equipmentInfo = {
+                    id: '<t t-esc="equipment.id if equipment else (equipment_data.get(\'id\', \'\') if equipment_data else \'\')"/>',
+                    name: '<t t-esc="equipment_data.get(\'name\', \'Sin nombre\') if equipment_data else (equipment.name.name if equipment and equipment.name else \'Sin nombre\')"/>',
+                    serie: '<t t-esc="equipment_data.get(\'serie\', \'Sin serie\') if equipment_data else (equipment.serie_id if equipment else \'Sin serie\')"/>',
+                    ubicacion: '<t t-esc="equipment_data.get(\'ubicacion\', \'Sin ubicación\') if equipment_data else (equipment.ubicacion if equipment else \'Sin ubicación\')"/>'
                 };
                 
-                console.log('Datos de contacto disponibles:', window.equipmentContactData);
+                console.log('Información del equipo disponible:', window.equipmentInfo);
+                console.log('📝 Los campos de contacto están en blanco para que el usuario ingrese sus propios datos');
             </script>
             
             <script>
@@ -1403,31 +1409,18 @@
                 
                 // Función para prellenar campos de contacto
                 function fillContactFields() {
-                    try {
-                        // Obtener datos desde las variables del template
-                        var nameValue = window.equipmentContactData?.name || '';
-                        var emailValue = window.equipmentContactData?.email || '';
-                        var phoneValue = window.equipmentContactData?.phone || '';
-                        
-                        // Llenar campos si están vacíos
-                        var nameField = document.getElementById('nombre_reporta');
-                        var emailField = document.getElementById('email');
-                        var phoneField = document.getElementById('celular_reporta');
-                        
-                        if (nameField && !nameField.value && nameValue) {
-                            nameField.value = nameValue;
-                        }
-                        
-                        if (emailField && !emailField.value && emailValue) {
-                            emailField.value = emailValue;
-                        }
-                        
-                        if (phoneField && !phoneField.value && phoneValue) {
-                            phoneField.value = phoneValue;
-                        }
-                        
-                    } catch (error) {
-                        console.log('Error al prellenar campos de contacto:', error);
+                    // ✅ NO PRELLENAR DATOS DE CONTACTO
+                    // Los campos de contacto permanecen vacíos para que cualquier persona
+                    // pueda reportar el problema e ingresar sus propios datos
+                    
+                    console.log('📝 Campos de contacto listos para que el usuario ingrese sus datos');
+                    console.log('🖨️ Información del equipo ya mostrada en la sección correspondiente');
+                    
+                    // Solo mostrar información del equipo disponible en consola para debugging
+                    if (typeof window.equipmentInfo !== 'undefined') {
+                        console.log('📋 Equipo: ' + window.equipmentInfo.name);
+                        console.log('🔢 Serie: ' + window.equipmentInfo.serie);
+                        console.log('📍 Ubicación: ' + window.equipmentInfo.ubicacion);
                     }
                 }
                 
