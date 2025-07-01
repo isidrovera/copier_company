@@ -941,54 +941,6 @@
 <template id="public_helpdesk_ticket_form" name="Enhanced Public Ticket Form">
     <t t-call="website.layout">
         <div id="wrap">
-            <div style="background: yellow; padding: 20px; margin: 10px; border: 3px solid red; font-family: monospace;">
-        <h3>🔍 DEBUG - Datos disponibles en el template:</h3>
-        
-        <h4>1. Variable 'equipment':</h4>
-        <t t-if="equipment">
-            ✅ Equipment existe<br/>
-            - ID: <span t-esc="equipment.id"/><br/>
-            - Name object: <span t-esc="equipment.name"/><br/>
-            <t t-if="equipment.name">
-                - Name.name: <span t-esc="equipment.name.name"/><br/>
-            </t>
-            <t t-else="">
-                ❌ equipment.name es False/None<br/>
-            </t>
-            - Serie: <span t-esc="equipment.serie_id"/><br/>
-            <t t-if="equipment.cliente_id">
-                - Cliente: <span t-esc="equipment.cliente_id.name"/><br/>
-            </t>
-            <t t-else="">
-                ❌ equipment.cliente_id es False/None<br/>
-            </t>
-            - Ubicación: <span t-esc="equipment.ubicacion"/><br/>
-        </t>
-        <t t-else="">
-            ❌ Variable 'equipment' NO EXISTE o es False
-        </t>
-        
-        <h4>2. Variable 'equipment_data':</h4>
-        <t t-if="equipment_data">
-            ✅ equipment_data existe<br/>
-            - Tipo: <span t-esc="type(equipment_data)"/><br/>
-            - Contenido: <span t-esc="equipment_data"/><br/>
-        </t>
-        <t t-else="">
-            ❌ Variable 'equipment_data' NO EXISTE
-        </t>
-        
-        <h4>3. Otras variables:</h4>
-        <t t-if="default_contact_name">
-            - default_contact_name: <span t-esc="default_contact_name"/><br/>
-        </t>
-        <t t-if="default_contact_email">
-            - default_contact_email: <span t-esc="default_contact_email"/><br/>
-        </t>
-        <t t-if="default_contact_phone">
-            - default_contact_phone: <span t-esc="default_contact_phone"/><br/>
-        </t>
-    </div>
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap');
                 @import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
@@ -1119,7 +1071,7 @@
                         <t t-if="success_message">
                             <div class="alert alert-success alert-dismissible fade show" role="alert">
                                 <i class="fa fa-check-circle me-2"></i>
-                                <span t-raw="success_message"></span>
+                                <span t-out="success_message"></span>
                                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                             </div>
                         </t>
@@ -1132,7 +1084,7 @@
                             </div>
                         </t>
                         
-                        <!-- ✅ INFORMACIÓN DEL EQUIPO - SECCIÓN CORREGIDA -->
+                        <!-- Información del Equipo -->
                         <div class="form-section-ticket">
                             <h4 class="fw-bold text-primary mb-3">
                                 <i class="fa fa-server me-2"></i>
@@ -1145,7 +1097,6 @@
                                         <div>
                                             <div class="fw-semibold">Equipo</div>
                                             <div class="text-muted small">
-                                                <!-- ✅ USAR equipment_data SI ESTÁ DISPONIBLE, SINO USAR equipment -->
                                                 <t t-if="equipment_data">
                                                     <span t-esc="equipment_data.get('name', 'Sin nombre')"/>
                                                 </t>
@@ -1222,19 +1173,7 @@
                         <!-- Formulario -->
                         <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate="true">
                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                            <!-- ✅ USAR equipment.id SI ESTÁ DISPONIBLE -->
-                            <input type="hidden" name="copier_company_id">
-                                <t t-if="equipment">
-                                    <t t-set="equipment_id_value" t-value="equipment.id"/>
-                                </t>
-                                <t t-elif="equipment_data">
-                                    <t t-set="equipment_id_value" t-value="equipment_data.get('id', '')"/>
-                                </t>
-                                <t t-else="">
-                                    <t t-set="equipment_id_value" t-value="''"/>
-                                </t>
-                                <t t-att-value="equipment_id_value"/>
-                            </input>
+                            <input type="hidden" name="copier_company_id" t-att-value="equipment.id if equipment else (equipment_data.get('id', '') if equipment_data else '')"/>
                             
                             <!-- Tipo de Problema -->
                             <div class="form-section-ticket">
@@ -1347,7 +1286,7 @@
                                 </div>
                             </div>
                             
-                            <!-- ✅ INFORMACIÓN DE CONTACTO - SECCIÓN CORREGIDA -->
+                            <!-- Información de Contacto -->
                             <div class="form-section-ticket">
                                 <h4 class="fw-bold text-success mb-3">
                                     <i class="fa fa-user-circle me-2"></i>
@@ -1384,18 +1323,8 @@
                             <!-- Botones -->
                             <div class="row g-3 mt-4">
                                 <div class="col-md-6">
-                                    <a class="btn btn-outline-secondary w-100 py-3">
-                                        <!-- ✅ ENLACE DE REGRESO CORREGIDO -->
-                                        <t t-if="equipment">
-                                            <t t-set="back_url" t-value="'/public/equipment_menu?copier_company_id=' + str(equipment.id)"/>
-                                        </t>
-                                        <t t-elif="equipment_data">
-                                            <t t-set="back_url" t-value="'/public/equipment_menu?copier_company_id=' + str(equipment_data.get('id', ''))"/>
-                                        </t>
-                                        <t t-else="">
-                                            <t t-set="back_url" t-value="'/'"/>
-                                        </t>
-                                        <t t-att-href="back_url"/>
+                                    <a t-attf-href="/public/equipment_menu?copier_company_id=#{equipment.id if equipment else (equipment_data.get('id', '') if equipment_data else '')}" 
+                                       class="btn btn-outline-secondary w-100 py-3">
                                         <i class="fa fa-arrow-left me-2"></i>Regresar al Menú
                                     </a>
                                 </div>
@@ -1410,21 +1339,13 @@
                 </div>
             </div>
             
-            <!-- ✅ SCRIPT PARA ESTABLECER DATOS DE CONTACTO DESDE EL CONTROLADOR -->
             <script>
                 // Establecer datos de contacto desde las variables del template
                 window.equipmentContactData = {
-                    name: '<t t-if="default_contact_name"><t t-esc="default_contact_name"/></t>',
-                    email: '<t t-if="default_contact_email"><t t-esc="default_contact_email"/></t>',
-                    phone: '<t t-if="default_contact_phone"><t t-esc="default_contact_phone"/></t>'
+                    name: '<t t-esc="default_contact_name or \'\'"/>',
+                    email: '<t t-esc="default_contact_email or \'\'"/>',
+                    phone: '<t t-esc="default_contact_phone or \'\'"/>'
                 };
-                
-                // Limpiar valores vacíos
-                Object.keys(window.equipmentContactData).forEach(function(key) {
-                    if (!window.equipmentContactData[key] || window.equipmentContactData[key].trim() === '') {
-                        window.equipmentContactData[key] = '';
-                    }
-                });
                 
                 console.log('Datos de contacto disponibles:', window.equipmentContactData);
             </script>
@@ -1480,31 +1401,13 @@
                     }
                 }
                 
-                // ✅ FUNCIÓN PARA PRELLENAR CAMPOS DE CONTACTO
+                // Función para prellenar campos de contacto
                 function fillContactFields() {
                     try {
-                        // Obtener datos desde las variables del template (establecidas por el controlador)
-                        var nameValue = '';
-                        var emailValue = '';
-                        var phoneValue = '';
-                        
-                        // Extraer datos de la información del equipo mostrada
-                        var equipmentSections = document.querySelectorAll('.form-section-ticket .text-muted.small');
-                        if (equipmentSections.length >= 3) {
-                            // El tercer elemento debería ser el cliente
-                            var clienteName = equipmentSections[2].textContent.trim();
-                            if (clienteName && clienteName !== 'Sin cliente') {
-                                nameValue = clienteName;
-                            }
-                        }
-                        
-                        // ✅ INTENTAR OBTENER DATOS DESDE VARIABLES GLOBALES DEL TEMPLATE
-                        // Estos serán establecidos por el template usando datos del controlador
-                        if (typeof window.equipmentContactData !== 'undefined') {
-                            nameValue = window.equipmentContactData.name || nameValue;
-                            emailValue = window.equipmentContactData.email || '';
-                            phoneValue = window.equipmentContactData.phone || '';
-                        }
+                        // Obtener datos desde las variables del template
+                        var nameValue = window.equipmentContactData?.name || '';
+                        var emailValue = window.equipmentContactData?.email || '';
+                        var phoneValue = window.equipmentContactData?.phone || '';
                         
                         // Llenar campos si están vacíos
                         var nameField = document.getElementById('nombre_reporta');
@@ -1513,17 +1416,14 @@
                         
                         if (nameField && !nameField.value && nameValue) {
                             nameField.value = nameValue;
-                            console.log('Campo nombre prellenado con:', nameValue);
                         }
                         
                         if (emailField && !emailField.value && emailValue) {
                             emailField.value = emailValue;
-                            console.log('Campo email prellenado con:', emailValue);
                         }
                         
                         if (phoneField && !phoneField.value && phoneValue) {
                             phoneField.value = phoneValue;
-                            console.log('Campo teléfono prellenado con:', phoneValue);
                         }
                         
                     } catch (error) {
@@ -1582,7 +1482,7 @@
                             }, false);
                         });
                         
-                        // ✅ LLAMAR A LA FUNCIÓN PARA PRELLENAR CAMPOS
+                        // Prellenar campos al cargar
                         fillContactFields();
                     }, false);
                 })();
@@ -1614,8 +1514,8 @@
                         });
                     });
                     
-                    // ✅ PRELLENAR CAMPOS AL CARGAR LA PÁGINA
-                    fillContactFields();
+                    // Prellenar campos al cargar la página
+                    setTimeout(fillContactFields, 100);
                     
                     console.log('Formulario de tickets cargado correctamente');
                 });
