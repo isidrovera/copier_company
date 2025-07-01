@@ -481,7 +481,7 @@ class CopierCompanyPortal(CustomerPortal):
                     
                     # Validar email
                     import re
-                    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}
+                    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
                     if not re.match(email_pattern, form_data['partner_email']):
                         _logger.warning("Email inválido en ticket: %s", form_data['partner_email'])
                         values['error_message'] = _("El formato del email no es válido.")
