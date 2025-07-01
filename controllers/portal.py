@@ -9,17 +9,21 @@ from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
 from odoo.osv.expression import OR, AND
 import base64
+
 _logger = logging.getLogger(__name__)
 
 
 class CopierCompanyPortal(CustomerPortal):
-    @staticmethod
-    def _safe_get_text(field):
-        """Método para obtener texto de manera segura"""
+    
+    # ✅ MÉTODO _safe_get_text CORREGIDO - SOLO UNA VERSIÓN
+    def _safe_get_text(self, value):
+        """Método auxiliar para asegurar que siempre devolvamos strings seguros"""
         try:
-            return str(field) if field else ''
+            if value is None:
+                return ''
+            return str(value).strip()
         except Exception as e:
-            _logger.warning(f"Error al obtener texto: {e}")
+            _logger.warning("Error al obtener texto: %s", str(e))
             return ''
 
     def _prepare_home_portal_values(self, counters):
@@ -396,7 +400,6 @@ class CopierCompanyPortal(CustomerPortal):
             _logger.exception("¡EXCEPCIÓN GENERAL en portal_equipment_counters!: %s", str(e))
             return request.redirect('/my')
 
-    
     @http.route(['/public/helpdesk_ticket'], type='http', auth="public", website=True)
     def public_create_ticket(self, copier_company_id=None, **kw):
         """Permite crear tickets desde el menú de equipos"""
@@ -591,7 +594,6 @@ class CopierCompanyPortal(CustomerPortal):
                                 try:
                                     image_data = form_data['image'].read()
                                     if hasattr(ticket_model, '_fields') and 'image' in ticket_model._fields:
-                                        import base64
                                         ticket_vals['image'] = base64.b64encode(image_data)
                                     _logger.info("Imagen adjuntada al ticket")
                                 except Exception as e:
@@ -662,11 +664,73 @@ class CopierCompanyPortal(CustomerPortal):
             _logger.exception("Error general en public_create_ticket: %s", str(e))
             return request.redirect('/')
 
-    def _safe_get_text(self, value):
-        """Método auxiliar para asegurar que siempre devolvamos strings seguros"""
-        if value is None:
-            return ''
-        return str(value).strip()
+    def _send_ticket_notification(self, ticket, equipment_data, contact_name, contact_email, problem_description):
+        """Envía notificación por email para nuevo ticket"""
+        _logger.info("=== INICIANDO _send_ticket_notification para ticket %s ===", ticket.id)
+        
+        try:
+            # Emails del equipo técnico
+            technical_emails = [
+                'soporte@copiercompanysac.com',
+                'tecnico@copiercompanysac.com'
+            ]
+            
+            email_body = f"""
+            <h2>🎫 Nuevo Ticket de Soporte Técnico</h2>
+            
+            <h3>📋 Información del Ticket</h3>
+            <p><strong>ID del Ticket:</strong> #{ticket.id}</p>
+            <p><strong>Fecha:</strong> {ticket.create_date.strftime('%d/%m/%Y %H:%M')}</p>
+            <p><strong>Tipo de Problema:</strong> {problem_description}</p>
+            
+            <h3>🖨️ Información del Equipo</h3>
+            <p><strong>Equipo:</strong> {equipment_data['name']}</p>
+            <p><strong>Serie:</strong> {equipment_data['serie']}</p>
+            <p><strong>Marca:</strong> {equipment_data['marca']}</p>
+            <p><strong>Tipo:</strong> {equipment_data['tipo']}</p>
+            <p><strong>Cliente:</strong> {equipment_data['cliente_name']}</p>
+            <p><strong>Ubicación:</strong> {equipment_data['ubicacion']}</p>
+            <p><strong>Sede:</strong> {equipment_data['sede']}</p>
+            <p><strong>IP:</strong> {equipment_data['ip']}</p>
+            
+            <h3>👤 Información del Contacto</h3>
+            <p><strong>Nombre:</strong> {contact_name}</p>
+            <p><strong>Email:</strong> {contact_email}</p>
+            
+            <h3>🔧 Descripción del Problema</h3>
+            <p>{ticket.description.replace(chr(10), '<br/>')}</p>
+            
+            <h3>⚡ Acciones</h3>
+            <ul>
+                <li><a href="{request.env['ir.config_parameter'].sudo().get_param('web.base.url')}/web#id={ticket.id}&model=helpdesk.ticket&view_type=form">Ver Ticket en el Sistema</a></li>
+                <li>Contactar al cliente para más información</li>
+                <li>Asignar técnico responsable</li>
+                <li>Programar visita técnica si es necesario</li>
+            </ul>
+            
+            <hr/>
+            <p><small>Ticket generado automáticamente desde el portal público de Copier Company.</small></p>
+            """
+            
+            for email in technical_emails:
+                try:
+                    mail_values = {
+                        'subject': f'🎫 Nuevo Ticket #{ticket.id} - {equipment_data["name"]} - {problem_description}',
+                        'email_to': email,
+                        'email_from': 'noreply@copiercompanysac.com',
+                        'body_html': email_body,
+                        'auto_delete': False,
+                    }
+                    
+                    mail = request.env['mail.mail'].sudo().create(mail_values)
+                    mail.send()
+                    _logger.info("Notificación de ticket enviada a: %s", email)
+                    
+                except Exception as e:
+                    _logger.error("Error enviando notificación de ticket a %s: %s", email, str(e))
+            
+        except Exception as e:
+            _logger.exception("Error en _send_ticket_notification: %s", str(e))
 
     @http.route(['/public/equipment_menu'], type='http', auth="public", website=True)
     def public_equipment_menu(self, copier_company_id=None, **kw):
@@ -715,6 +779,7 @@ class CopierCompanyPortal(CustomerPortal):
             _logger.exception("¡EXCEPCIÓN GENERAL en public_equipment_menu!: %s", str(e))
             return request.redirect('/')
 
+  
     @http.route(['/public/remote_assistance'], type='http', auth="public", website=True)
     def public_remote_assistance(self, copier_company_id=None, **kw):
         """Formulario de asistencia remota con datos pre-cargados del equipo"""
