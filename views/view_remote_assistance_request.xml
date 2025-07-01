@@ -255,7 +255,136 @@
         </field>
     </record>
 
-    
+    <!-- Vista Kanban Corregida -->
+<record id="view_remote_assistance_request_kanban" model="ir.ui.view">
+    <field name="name">remote.assistance.request.kanban</field>
+    <field name="model">remote.assistance.request</field>
+    <field name="arch" type="xml">
+        <kanban default_group_by="state" class="o_kanban_small_column">
+            <field name="id"/>
+            <field name="secuencia"/>
+            <field name="equipment_id"/>
+            <field name="partner_id"/>
+            <field name="contact_name"/>
+            <field name="assistance_type"/>
+            <field name="priority"/>
+            <field name="state"/>
+            <field name="technician_id"/>
+            <field name="request_date"/>
+            <field name="scheduled_datetime"/>
+            <field name="problem_description"/>
+            <field name="display_name"/>
+
+            <templates>
+                <t t-name="kanban-box">
+                    <div class="oe_kanban_card oe_kanban_global_click">
+                        <div class="oe_kanban_content">
+                            <!-- Header con número y prioridad -->
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <t t-esc="record.secuencia.value"/>
+                                    </strong>
+                                    <br/>
+                                    <small class="o_kanban_record_subtitle text-muted">
+                                        <t t-if="record.equipment_id.value">
+                                            <t t-esc="record.equipment_id.value"/>
+                                        </t>
+                                    </small>
+                                </div>
+                                <div class="o_kanban_record_title">
+                                    <field name="priority" widget="priority"/>
+                                </div>
+                            </div>
+
+                            <!-- Información del cliente y contacto -->
+                            <div class="o_kanban_record_body">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <i class="fa fa-building-o"/> 
+                                        <t t-if="record.partner_id.value">
+                                            <t t-esc="record.partner_id.value"/>
+                                        </t>
+                                        <t t-else="">Sin cliente</t>
+                                    </div>
+                                    <div class="col-12">
+                                        <i class="fa fa-user"/> 
+                                        <t t-esc="record.contact_name.value"/>
+                                    </div>
+                                    <div class="col-12">
+                                        <i class="fa fa-wrench"/> 
+                                        <t t-esc="record.assistance_type.value"/>
+                                    </div>
+                                </div>
+                                
+                                <!-- Descripción del problema (truncada) -->
+                                <div class="mt-2">
+                                    <t t-if="record.problem_description.value">
+                                        <span class="text-muted" style="max-height: 40px; overflow: hidden; display: block;">
+                                            <t t-esc="record.problem_description.value"/>
+                                        </span>
+                                    </t>
+                                </div>
+                            </div>
+
+                            <!-- Footer con técnico y fecha -->
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                    <t t-if="record.technician_id.value">
+                                        <field name="technician_id" widget="many2one_avatar_user"/>
+                                    </t>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <small class="text-muted">
+                                        <t t-esc="record.request_date.value"/>
+                                    </small>
+                                    <t t-if="record.scheduled_datetime.value">
+                                        <br/>
+                                        <small class="text-info">
+                                            <i class="fa fa-calendar"/> 
+                                            <t t-esc="record.scheduled_datetime.value"/>
+                                        </small>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Menú dropdown -->
+                        <div class="oe_kanban_action_dropdown">
+                            <div class="dropdown">
+                                <a class="dropdown-toggle o-no-caret btn" data-bs-toggle="dropdown" href="#" role="button" aria-label="Dropdown menu" title="Dropdown menu">
+                                    <span class="fa fa-ellipsis-v"/>
+                                </a>
+                                <div class="dropdown-menu" role="menu">
+                                    <t t-if="record.state.raw_value == 'pending'">
+                                        <a name="action_schedule" type="object" role="menuitem" class="dropdown-item">
+                                            Programar
+                                        </a>
+                                    </t>
+                                    <t t-if="record.state.raw_value == 'pending' or record.state.raw_value == 'scheduled'">
+                                        <a name="action_start_session" type="object" role="menuitem" class="dropdown-item">
+                                            Iniciar Sesión
+                                        </a>
+                                    </t>
+                                    <t t-if="record.state.raw_value == 'in_progress'">
+                                        <a name="action_complete" type="object" role="menuitem" class="dropdown-item">
+                                            Completar
+                                        </a>
+                                    </t>
+                                    <t t-if="record.state.raw_value != 'completed' and record.state.raw_value != 'cancelled'">
+                                        <a name="action_cancel" type="object" role="menuitem" class="dropdown-item">
+                                            Cancelar
+                                        </a>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </templates>
+        </kanban>
+    </field>
+</record>
 
     <!-- Vista Calendar -->
     <record id="view_remote_assistance_request_calendar" model="ir.ui.view">
