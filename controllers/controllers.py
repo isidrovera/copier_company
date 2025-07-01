@@ -9,35 +9,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 class PublicHelpdeskController(http.Controller):
-    @http.route('/public/helpdesk_ticket', type='http', auth='public', website=True)
-    def public_helpdesk_ticket(self, copier_company_id=None, **kwargs):
-        copier_company = None
-        partner_name = ''
-        product_name = ''
-        serie_id = ''
-        sede = ''
-        ubicacion = ''
-        if copier_company_id:
-            try:
-                copier_company = request.env['copier.company'].sudo().browse(int(copier_company_id))
-                if copier_company.exists():
-                    partner_name = copier_company.cliente_id.name
-                    product_name = copier_company.name
-                    serie_id = copier_company.serie_id
-                    sede = copier_company.sede
-                    ubicacion = copier_company.ubicacion
-            except ValueError:
-                return request.redirect('/error')
-
-        return request.render("copier_company.public_helpdesk_ticket_form", {
-            'copier_company_id': copier_company_id,
-            'partner_name': partner_name,
-            'product_name': product_name,
-            'serie_id': serie_id,
-            'sede': sede,
-            'ubicacion': ubicacion
-        })
-
+    
     @http.route('/public/helpdesk_ticket_submit', type='http', auth='public', methods=['POST'], website=True, csrf=True)
     def submit_helpdesk_ticket(self, **post):
         try:
