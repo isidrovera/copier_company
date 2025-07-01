@@ -3,54 +3,7 @@
     <template id="portal_equipment_menu" name="Equipment Services Menu">
         <t t-call="website.layout">
             <div id="wrap">
-                <div style="background: yellow; padding: 20px; margin: 10px; border: 3px solid red; font-family: monospace;">
-        <h3>🔍 DEBUG - Datos disponibles en el template:</h3>
-        
-        <h4>1. Variable 'equipment':</h4>
-        <t t-if="equipment">
-            ✅ Equipment existe<br/>
-            - ID: <span t-esc="equipment.id"/><br/>
-            - Name object: <span t-esc="equipment.name"/><br/>
-            <t t-if="equipment.name">
-                - Name.name: <span t-esc="equipment.name.name"/><br/>
-            </t>
-            <t t-else="">
-                ❌ equipment.name es False/None<br/>
-            </t>
-            - Serie: <span t-esc="equipment.serie_id"/><br/>
-            <t t-if="equipment.cliente_id">
-                - Cliente: <span t-esc="equipment.cliente_id.name"/><br/>
-            </t>
-            <t t-else="">
-                ❌ equipment.cliente_id es False/None<br/>
-            </t>
-            - Ubicación: <span t-esc="equipment.ubicacion"/><br/>
-        </t>
-        <t t-else="">
-            ❌ Variable 'equipment' NO EXISTE o es False
-        </t>
-        
-        <h4>2. Variable 'equipment_data':</h4>
-        <t t-if="equipment_data">
-            ✅ equipment_data existe<br/>
-            - Tipo: <span t-esc="type(equipment_data)"/><br/>
-            - Contenido: <span t-esc="equipment_data"/><br/>
-        </t>
-        <t t-else="">
-            ❌ Variable 'equipment_data' NO EXISTE
-        </t>
-        
-        <h4>3. Otras variables:</h4>
-        <t t-if="default_contact_name">
-            - default_contact_name: <span t-esc="default_contact_name"/><br/>
-        </t>
-        <t t-if="default_contact_email">
-            - default_contact_email: <span t-esc="default_contact_email"/><br/>
-        </t>
-        <t t-if="default_contact_phone">
-            - default_contact_phone: <span t-esc="default_contact_phone"/><br/>
-        </t>
-    </div>
+                
                 <!-- CSS personalizado -->
                 <style>
                     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap');
@@ -988,6 +941,54 @@
 <template id="public_helpdesk_ticket_form" name="Enhanced Public Ticket Form">
     <t t-call="website.layout">
         <div id="wrap">
+            <div style="background: yellow; padding: 20px; margin: 10px; border: 3px solid red; font-family: monospace;">
+        <h3>🔍 DEBUG - Datos disponibles en el template:</h3>
+        
+        <h4>1. Variable 'equipment':</h4>
+        <t t-if="equipment">
+            ✅ Equipment existe<br/>
+            - ID: <span t-esc="equipment.id"/><br/>
+            - Name object: <span t-esc="equipment.name"/><br/>
+            <t t-if="equipment.name">
+                - Name.name: <span t-esc="equipment.name.name"/><br/>
+            </t>
+            <t t-else="">
+                ❌ equipment.name es False/None<br/>
+            </t>
+            - Serie: <span t-esc="equipment.serie_id"/><br/>
+            <t t-if="equipment.cliente_id">
+                - Cliente: <span t-esc="equipment.cliente_id.name"/><br/>
+            </t>
+            <t t-else="">
+                ❌ equipment.cliente_id es False/None<br/>
+            </t>
+            - Ubicación: <span t-esc="equipment.ubicacion"/><br/>
+        </t>
+        <t t-else="">
+            ❌ Variable 'equipment' NO EXISTE o es False
+        </t>
+        
+        <h4>2. Variable 'equipment_data':</h4>
+        <t t-if="equipment_data">
+            ✅ equipment_data existe<br/>
+            - Tipo: <span t-esc="type(equipment_data)"/><br/>
+            - Contenido: <span t-esc="equipment_data"/><br/>
+        </t>
+        <t t-else="">
+            ❌ Variable 'equipment_data' NO EXISTE
+        </t>
+        
+        <h4>3. Otras variables:</h4>
+        <t t-if="default_contact_name">
+            - default_contact_name: <span t-esc="default_contact_name"/><br/>
+        </t>
+        <t t-if="default_contact_email">
+            - default_contact_email: <span t-esc="default_contact_email"/><br/>
+        </t>
+        <t t-if="default_contact_phone">
+            - default_contact_phone: <span t-esc="default_contact_phone"/><br/>
+        </t>
+    </div>
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap');
                 @import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
