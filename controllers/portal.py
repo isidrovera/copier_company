@@ -662,12 +662,11 @@ class CopierCompanyPortal(CustomerPortal):
             _logger.exception("Error general en public_create_ticket: %s", str(e))
             return request.redirect('/')
 
-def _safe_get_text(self, value):
-    """Método auxiliar para asegurar que siempre devolvamos strings seguros"""
-    if value is None:
-        return ''
-    return str(value).strip()
-# Agregar estas rutas al archivo controllers.py existente
+    def _safe_get_text(self, value):
+        """Método auxiliar para asegurar que siempre devolvamos strings seguros"""
+        if value is None:
+            return ''
+        return str(value).strip()
 
     @http.route(['/public/equipment_menu'], type='http', auth="public", website=True)
     def public_equipment_menu(self, copier_company_id=None, **kw):
