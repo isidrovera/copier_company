@@ -937,8 +937,8 @@
     </template>
     
     <!-- FORMULARIO MEJORADO DE TICKETS -->
-<!-- VERSIÓN CORREGIDA DEL TEMPLATE -->
-<!-- TEMPLATE COMPLETAMENTE CORREGIDO -->
+
+<!-- TEMPLATE CORREGIDO BASADO EN EL PATRÓN QUE FUNCIONA -->
 <template id="public_helpdesk_ticket_form" name="Enhanced Public Ticket Form">
     <t t-call="website.layout">
         <div id="wrap">
@@ -1099,10 +1099,7 @@
                                         <div>
                                             <div class="fw-semibold">Equipo</div>
                                             <div class="text-muted small">
-                                                <t t-if="equipment_data and equipment_data['name']">
-                                                    <span t-esc="equipment_data['name']"/>
-                                                </t>
-                                                <t t-elif="equipment and equipment.name">
+                                                <t t-if="equipment and equipment.name">
                                                     <span t-esc="equipment.name.name"/>
                                                 </t>
                                                 <t t-else="">
@@ -1118,10 +1115,7 @@
                                         <div>
                                             <div class="fw-semibold">Serie</div>
                                             <div class="text-muted small">
-                                                <t t-if="equipment_data and equipment_data['serie']">
-                                                    <span t-esc="equipment_data['serie']"/>
-                                                </t>
-                                                <t t-elif="equipment and equipment.serie_id">
+                                                <t t-if="equipment and equipment.serie_id">
                                                     <span t-esc="equipment.serie_id"/>
                                                 </t>
                                                 <t t-else="">
@@ -1137,10 +1131,7 @@
                                         <div>
                                             <div class="fw-semibold">Cliente</div>
                                             <div class="text-muted small">
-                                                <t t-if="equipment_data and equipment_data['cliente_name']">
-                                                    <span t-esc="equipment_data['cliente_name']"/>
-                                                </t>
-                                                <t t-elif="equipment and equipment.cliente_id">
+                                                <t t-if="equipment and equipment.cliente_id">
                                                     <span t-esc="equipment.cliente_id.name"/>
                                                 </t>
                                                 <t t-else="">
@@ -1156,10 +1147,7 @@
                                         <div>
                                             <div class="fw-semibold">Ubicación</div>
                                             <div class="text-muted small">
-                                                <t t-if="equipment_data and equipment_data['ubicacion']">
-                                                    <span t-esc="equipment_data['ubicacion']"/>
-                                                </t>
-                                                <t t-elif="equipment and equipment.ubicacion">
+                                                <t t-if="equipment and equipment.ubicacion">
                                                     <span t-esc="equipment.ubicacion"/>
                                                 </t>
                                                 <t t-else="">
@@ -1175,17 +1163,7 @@
                         <!-- Formulario -->
                         <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate="true">
                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                            
-                            <!-- ✅ CORRECCIÓN PRINCIPAL: Campo copier_company_id simplificado -->
-                            <t t-if="equipment">
-                                <input type="hidden" name="copier_company_id" t-att-value="equipment.id"/>
-                            </t>
-                            <t t-elif="equipment_data">
-                                <input type="hidden" name="copier_company_id" t-att-value="equipment_data['id']"/>
-                            </t>
-                            <t t-else="">
-                                <input type="hidden" name="copier_company_id" value=""/>
-                            </t>
+                            <input type="hidden" name="copier_company_id" t-att-value="equipment.id"/>
                             
                             <!-- Tipo de Problema -->
                             <div class="form-section-ticket">
@@ -1339,22 +1317,10 @@
                             <!-- Botones -->
                             <div class="row g-3 mt-4">
                                 <div class="col-md-6">
-                                    <!-- ✅ CORRECCIÓN: Enlaces de regreso simplificados -->
-                                    <t t-if="equipment">
-                                        <a class="btn btn-outline-secondary w-100 py-3" t-attf-href="/public/equipment_menu?copier_company_id=#{equipment.id}">
-                                            <i class="fa fa-arrow-left me-2"></i>Regresar al Menú
-                                        </a>
-                                    </t>
-                                    <t t-elif="equipment_data">
-                                        <a class="btn btn-outline-secondary w-100 py-3" t-attf-href="/public/equipment_menu?copier_company_id=#{equipment_data['id']}">
-                                            <i class="fa fa-arrow-left me-2"></i>Regresar al Menú
-                                        </a>
-                                    </t>
-                                    <t t-else="">
-                                        <a class="btn btn-outline-secondary w-100 py-3" href="/">
-                                            <i class="fa fa-arrow-left me-2"></i>Regresar al Menú
-                                        </a>
-                                    </t>
+                                    <a t-attf-href="/public/equipment_menu?copier_company_id=#{equipment.id}" 
+                                       class="btn btn-outline-secondary w-100 py-3">
+                                        <i class="fa fa-arrow-left me-2"></i>Regresar al Menú
+                                    </a>
                                 </div>
                                 <div class="col-md-6">
                                     <button type="submit" class="btn btn-ticket text-white w-100 py-3">
@@ -1367,45 +1333,23 @@
                 </div>
             </div>
             
-            <!-- ✅ CORRECCIÓN: JavaScript completamente simplificado -->
+            <!-- JavaScript simplificado -->
             <script>
-                // Solo establecer datos del equipo disponibles
-                window.equipmentInfo = {};
-                
-                // Establecer datos paso a paso usando condiciones simples
-                <t t-if="equipment">
-                    window.equipmentInfo.id = '<t t-esc="equipment.id"/>';
-                    <t t-if="equipment.name">
-                        window.equipmentInfo.name = '<t t-esc="equipment.name.name"/>';
+                // Información del equipo disponible en JavaScript
+                window.equipmentInfo = {
+                    <t t-if="equipment">
+                        id: '<t t-esc="equipment.id"/>',
+                        name: '<t t-if="equipment.name"><t t-esc="equipment.name.name"/></t><t t-else="">Sin nombre</t>',
+                        serie: '<t t-if="equipment.serie_id"><t t-esc="equipment.serie_id"/></t><t t-else="">Sin serie</t>',
+                        ubicacion: '<t t-if="equipment.ubicacion"><t t-esc="equipment.ubicacion"/></t><t t-else="">Sin ubicación</t>'
                     </t>
                     <t t-else="">
-                        window.equipmentInfo.name = 'Sin nombre';
+                        id: '',
+                        name: 'Sin nombre',
+                        serie: 'Sin serie',
+                        ubicacion: 'Sin ubicación'
                     </t>
-                    <t t-if="equipment.serie_id">
-                        window.equipmentInfo.serie = '<t t-esc="equipment.serie_id"/>';
-                    </t>
-                    <t t-else="">
-                        window.equipmentInfo.serie = 'Sin serie';
-                    </t>
-                    <t t-if="equipment.ubicacion">
-                        window.equipmentInfo.ubicacion = '<t t-esc="equipment.ubicacion"/>';
-                    </t>
-                    <t t-else="">
-                        window.equipmentInfo.ubicacion = 'Sin ubicación';
-                    </t>
-                </t>
-                <t t-elif="equipment_data">
-                    window.equipmentInfo.id = '<t t-esc="equipment_data[\'id\']"/>';
-                    window.equipmentInfo.name = '<t t-esc="equipment_data[\'name\']"/>';
-                    window.equipmentInfo.serie = '<t t-esc="equipment_data[\'serie\']"/>';
-                    window.equipmentInfo.ubicacion = '<t t-esc="equipment_data[\'ubicacion\']"/>';
-                </t>
-                <t t-else="">
-                    window.equipmentInfo.id = '';
-                    window.equipmentInfo.name = 'Sin nombre';
-                    window.equipmentInfo.serie = 'Sin serie';
-                    window.equipmentInfo.ubicacion = 'Sin ubicación';
-                </t>
+                };
                 
                 console.log('Información del equipo disponible:', window.equipmentInfo);
                 console.log('📝 Los campos de contacto están en blanco para que el usuario ingrese sus propios datos');

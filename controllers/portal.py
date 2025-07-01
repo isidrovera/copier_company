@@ -423,29 +423,13 @@ class CopierCompanyPortal(CustomerPortal):
                         self._safe_get_text(equipment.name.name) if equipment.name else 'Sin nombre',
                         self._safe_get_text(equipment.cliente_id.name) if equipment.cliente_id else 'Sin cliente')
             
-            # ✅ PREPARAR DATOS DEL EQUIPO - ASEGURAR QUE SIEMPRE SEAN STRINGS
-            equipment_data = {
-                'id': equipment.id,  # Mantener como int para el formulario
-                'name': self._safe_get_text(equipment.name.name) if equipment.name else 'Sin nombre',
-                'serie': self._safe_get_text(equipment.serie_id) or 'Sin serie',
-                'marca': self._safe_get_text(equipment.marca_id.name) if equipment.marca_id else 'Sin marca',
-                'cliente_name': self._safe_get_text(equipment.cliente_id.name) if equipment.cliente_id else 'Sin cliente',
-                'ubicacion': self._safe_get_text(equipment.ubicacion) or 'Sin ubicación',
-                'sede': self._safe_get_text(equipment.sede) or 'Sin sede',
-                'ip': self._safe_get_text(equipment.ip_id) or 'Sin IP',
-                'tipo': 'Color' if equipment.tipo == 'color' else 'Blanco y Negro',
-            }
-            
-            _logger.info("Equipment_data preparado: %s", equipment_data)
-            
-            # ✅ VALUES CON DATOS CORREGIDOS
+            # ✅ VALORES SIMPLIFICADOS - SOLO PASAMOS EL OBJETO equipment
             values = {
                 'equipment': equipment,
-                'equipment_data': equipment_data,
                 'page_title': _('Reportar Problema Técnico'),
             }
             
-            _logger.info("Values preparados para template: %s", {k: v for k, v in values.items() if k != 'equipment'})
+            _logger.info("Values preparados para template (simplificados)")
             
             # Si es una solicitud POST, procesar el formulario
             if request.httprequest.method == 'POST':
@@ -526,6 +510,15 @@ class CopierCompanyPortal(CustomerPortal):
                             
                             problem_name = problem_names.get(form_data['problem_type'], 'Problema Técnico')
                             
+                            # Preparar datos del equipo para la descripción
+                            equipment_name = self._safe_get_text(equipment.name.name) if equipment.name else 'Sin nombre'
+                            equipment_serie = self._safe_get_text(equipment.serie_id) or 'Sin serie'
+                            equipment_marca = self._safe_get_text(equipment.marca_id.name) if equipment.marca_id else 'Sin marca'
+                            equipment_ubicacion = self._safe_get_text(equipment.ubicacion) or 'Sin ubicación'
+                            equipment_sede = self._safe_get_text(equipment.sede) or 'Sin sede'
+                            equipment_ip = self._safe_get_text(equipment.ip_id) or 'Sin IP'
+                            equipment_tipo = 'Color' if equipment.tipo == 'color' else 'Blanco y Negro'
+                            
                             # Preparar descripción del ticket
                             description_parts = []
                             
@@ -548,13 +541,13 @@ class CopierCompanyPortal(CustomerPortal):
                             
                             # Información del equipo
                             description_parts.append(f"\n\nInformación del Equipo:")
-                            description_parts.append(f"- Equipo: {equipment_data['name']}")
-                            description_parts.append(f"- Serie: {equipment_data['serie']}")
-                            description_parts.append(f"- Marca: {equipment_data['marca']}")
-                            description_parts.append(f"- Ubicación: {equipment_data['ubicacion']}")
-                            description_parts.append(f"- Sede: {equipment_data['sede']}")
-                            description_parts.append(f"- IP: {equipment_data['ip']}")
-                            description_parts.append(f"- Tipo: {equipment_data['tipo']}")
+                            description_parts.append(f"- Equipo: {equipment_name}")
+                            description_parts.append(f"- Serie: {equipment_serie}")
+                            description_parts.append(f"- Marca: {equipment_marca}")
+                            description_parts.append(f"- Ubicación: {equipment_ubicacion}")
+                            description_parts.append(f"- Sede: {equipment_sede}")
+                            description_parts.append(f"- IP: {equipment_ip}")
+                            description_parts.append(f"- Tipo: {equipment_tipo}")
                             
                             # Información de contacto (datos ingresados por el usuario)
                             description_parts.append(f"\n\nInformación de Contacto:")
@@ -567,7 +560,7 @@ class CopierCompanyPortal(CustomerPortal):
                             # Preparar valores para el ticket
                             ticket_vals = {
                                 'partner_id': partner.id,
-                                'name': f"{problem_name} - {equipment_data['name']} (Serie: {equipment_data['serie']})",
+                                'name': f"{problem_name} - {equipment_name} (Serie: {equipment_serie})",
                                 'description': ticket_description,
                                 'priority': form_data['urgency'],  # Cambiar 'urgency' por 'priority' si es necesario
                             }
@@ -622,8 +615,8 @@ class CopierCompanyPortal(CustomerPortal):
                                 "Recibirás actualizaciones en: {}"
                             ).format(
                                 ticket.id,
-                                equipment_data['name'],
-                                equipment_data['serie'],
+                                equipment_name,
+                                equipment_serie,
                                 problem_name,
                                 urgency_names.get(form_data['urgency'], 'Media'),
                                 form_data['nombre_reporta'],
@@ -635,7 +628,18 @@ class CopierCompanyPortal(CustomerPortal):
                             
                             # Enviar notificación al equipo técnico
                             try:
-                                self._send_ticket_notification(ticket, equipment_data, form_data['nombre_reporta'], form_data['partner_email'], problem_name)
+                                # Crear equipment_data para la notificación
+                                equipment_data_for_notification = {
+                                    'name': equipment_name,
+                                    'serie': equipment_serie,
+                                    'marca': equipment_marca,
+                                    'cliente_name': self._safe_get_text(equipment.cliente_id.name) if equipment.cliente_id else 'Sin cliente',
+                                    'ubicacion': equipment_ubicacion,
+                                    'sede': equipment_sede,
+                                    'ip': equipment_ip,
+                                    'tipo': equipment_tipo,
+                                }
+                                self._send_ticket_notification(ticket, equipment_data_for_notification, form_data['nombre_reporta'], form_data['partner_email'], problem_name)
                             except Exception as e:
                                 _logger.error("Error enviando notificación: %s", str(e))
                             
