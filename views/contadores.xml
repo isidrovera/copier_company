@@ -178,7 +178,7 @@
                                     string="Cargar Usuarios Asociados"
                                     type="object" 
                                     class="btn btn-primary"
-                                    column_invisible="not informe_por_usuario or state != 'draft'"/>
+                                    invisible="not informe_por_usuario or state != 'draft'"/>
                         </group>
                     </div>
                 </div>
@@ -187,7 +187,7 @@
 
                 <!-- Detalle de Usuarios - Solo visible cuando informe_por_usuario está activado -->
                 <div class="mt-3">
-                    <field name="usuario_detalle_ids" column_invisible="not informe_por_usuario">
+                    <field name="usuario_detalle_ids" invisible="not informe_por_usuario">
                         <list editable="bottom" decoration-info="True" class="table-striped">
                             <field name="usuario_id" readonly="1"/>
                             <field name="cantidad_copias" sum="Total de Copias" class="text-end"/>
