@@ -716,7 +716,7 @@ class CopierCompanyPortal(CustomerPortal):
                 'equipment': equipment,
                 'page_title': _('Servicios para su Equipo'),
                 'company_name': 'Copier Company',
-                'company_phone': '+51 999 999 999',  # Configurar según tus datos
+                'company_phone': '+51 975 399 303',  # Configurar según tus datos
                 'company_email': 'info@copiercompanysac.com',
                 'company_website': 'https://copiercompanysac.com'
             }
