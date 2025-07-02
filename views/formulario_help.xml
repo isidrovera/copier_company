@@ -1,595 +1,721 @@
 <odoo>
     <!-- MENÚ PRINCIPAL DEL EQUIPO -->
-<div class="col-md-4">
-                                        <div class="d-flex align-items-center justify-content-center">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="current<template id="portal_equipment_menu" name="Equipment Services Menu">
-        <t t-call="website.layout">
-            <div id="wrap">
+<template id="portal_equipment_menu" name="Equipment Services Menu">
+    <t t-call="website.layout">
+        <div id="wrap">
+            
+            <!-- CDN Libraries -->
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet"/>
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet"/>
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+            
+            <!-- CSS personalizado -->
+            <style>
+                :root {
+                    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                    --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+                    --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+                    --warning-gradient: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+                    --danger-gradient: linear-gradient(135deg, #ff6b6b 0%, #ffa726 100%);
+                    --glass-bg: rgba(255, 255, 255, 0.25);
+                    --glass-border: rgba(255, 255, 255, 0.18);
+                    --shadow-soft: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+                    --shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.1), 0 3px 10px rgba(0, 0, 0, 0.07);
+                    --border-radius: 20px;
+                    --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+                }
                 
-                <!-- CSS personalizado -->
-                <style>
-                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap');
-                    @import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
-                    @import url('https://unpkg.com/lucide@latest/dist/umd/lucide.js');
-                    
-                    * {
-                        font-family: 'Inter', sans-serif;
+                * {
+                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                }
+                
+                body {
+                    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                    min-height: 100vh;
+                }
+                
+                /* Hero Section */
+                .hero-section {
+                    background: var(--primary-gradient);
+                    color: white;
+                    position: relative;
+                    overflow: hidden;
+                    min-height: 400px;
+                    display: flex;
+                    align-items: center;
+                }
+                
+                .hero-section::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+                }
+                
+                .hero-content {
+                    position: relative;
+                    z-index: 2;
+                }
+                
+                .hero-icon {
+                    width: 120px;
+                    height: 120px;
+                    background: var(--glass-bg);
+                    border: 1px solid var(--glass-border);
+                    backdrop-filter: blur(10px);
+                    border-radius: 30px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto 2rem;
+                    animation: float 3s ease-in-out infinite;
+                }
+                
+                @keyframes float {
+                    0%, 100% { transform: translateY(0px); }
+                    50% { transform: translateY(-10px); }
+                }
+                
+                .hero-title {
+                    font-size: 3.5rem;
+                    font-weight: 800;
+                    margin-bottom: 1rem;
+                    background: linear-gradient(45deg, #fff, #f8f9fa);
+                    background-clip: text;
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                }
+                
+                .hero-subtitle {
+                    font-size: 1.25rem;
+                    opacity: 0.9;
+                    font-weight: 400;
+                }
+                
+                /* Glass Card */
+                .glass-card {
+                    background: var(--glass-bg);
+                    border: 1px solid var(--glass-border);
+                    backdrop-filter: blur(20px);
+                    border-radius: var(--border-radius);
+                    box-shadow: var(--shadow-soft);
+                    padding: 2.5rem;
+                    margin: -100px auto 3rem;
+                    position: relative;
+                    z-index: 10;
+                    max-width: 900px;
+                }
+                
+                /* Equipment Info Grid */
+                .equipment-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                    gap: 1.5rem;
+                    margin-bottom: 2rem;
+                }
+                
+                .info-card {
+                    background: rgba(255, 255, 255, 0.9);
+                    border-radius: 16px;
+                    padding: 1.5rem;
+                    border: 1px solid rgba(255, 255, 255, 0.3);
+                    transition: var(--transition);
+                    position: relative;
+                    overflow: hidden;
+                }
+                
+                .info-card::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 4px;
+                    height: 100%;
+                    background: var(--primary-gradient);
+                    border-radius: 2px;
+                }
+                
+                .info-card:hover {
+                    transform: translateY(-2px);
+                    box-shadow: var(--shadow-hover);
+                }
+                
+                .info-header {
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 0.75rem;
+                }
+                
+                .info-icon {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-right: 1rem;
+                    color: white;
+                    font-size: 1.1rem;
+                }
+                
+                .info-label {
+                    font-weight: 600;
+                    color: #1e293b;
+                    font-size: 0.9rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                }
+                
+                .info-value {
+                    color: #64748b;
+                    font-size: 1rem;
+                    font-weight: 500;
+                }
+                
+                /* Service Cards */
+                .services-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                    gap: 2rem;
+                    margin-bottom: 3rem;
+                }
+                
+                .service-card {
+                    background: white;
+                    border-radius: var(--border-radius);
+                    padding: 2rem;
+                    text-align: center;
+                    transition: var(--transition);
+                    border: 1px solid #e2e8f0;
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                    position: relative;
+                    overflow: hidden;
+                    cursor: pointer;
+                    text-decoration: none;
+                    color: inherit;
+                    display: block;
+                }
+                
+                .service-card::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+                    transition: left 0.6s;
+                }
+                
+                .service-card:hover::before {
+                    left: 100%;
+                }
+                
+                .service-card:hover {
+                    transform: translateY(-8px) scale(1.02);
+                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+                    border-color: transparent;
+                    text-decoration: none;
+                    color: inherit;
+                }
+                
+                .service-icon {
+                    width: 80px;
+                    height: 80px;
+                    border-radius: 20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto 1.5rem;
+                    font-size: 2rem;
+                    transition: var(--transition);
+                    color: white;
+                    position: relative;
+                }
+                
+                .service-card:hover .service-icon {
+                    transform: scale(1.1) rotate(5deg);
+                }
+                
+                .service-title {
+                    font-size: 1.25rem;
+                    font-weight: 700;
+                    margin-bottom: 0.75rem;
+                    color: #1e293b;
+                }
+                
+                .service-description {
+                    color: #64748b;
+                    font-size: 0.95rem;
+                    line-height: 1.6;
+                    margin: 0;
+                }
+                
+                /* Status Badge */
+                .status-badge {
+                    background: var(--success-gradient);
+                    color: white;
+                    padding: 0.5rem 1.25rem;
+                    border-radius: 50px;
+                    font-weight: 600;
+                    font-size: 0.9rem;
+                    border: none;
+                    box-shadow: 0 4px 15px rgba(17, 153, 142, 0.4);
+                    animation: pulse 2s infinite;
+                }
+                
+                @keyframes pulse {
+                    0%, 100% { box-shadow: 0 4px 15px rgba(17, 153, 142, 0.4); }
+                    50% { box-shadow: 0 4px 25px rgba(17, 153, 142, 0.6); }
+                }
+                
+                /* Contact Card */
+                .contact-card {
+                    background: white;
+                    border-radius: var(--border-radius);
+                    padding: 2.5rem;
+                    box-shadow: var(--shadow-soft);
+                    border: 1px solid rgba(255, 255, 255, 0.3);
+                    position: relative;
+                    overflow: hidden;
+                }
+                
+                .contact-card::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 4px;
+                    background: var(--primary-gradient);
+                }
+                
+                .contact-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 2rem;
+                    margin-top: 2rem;
+                }
+                
+                .contact-item {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 1rem;
+                    background: #f8fafc;
+                    border-radius: 12px;
+                    transition: var(--transition);
+                }
+                
+                .contact-item:hover {
+                    background: #e2e8f0;
+                    transform: translateY(-2px);
+                }
+                
+                .contact-icon {
+                    margin-right: 0.75rem;
+                    color: #667eea;
+                    font-size: 1.25rem;
+                }
+                
+                /* Service Colors */
+                .service-support { background: var(--danger-gradient); }
+                .service-remote { background: var(--accent-gradient); }
+                .service-toner { background: var(--success-gradient); }
+                .service-whatsapp { background: linear-gradient(135deg, #25d366, #128c7e); }
+                .service-email { background: var(--primary-gradient); }
+                .service-counters { background: var(--secondary-gradient); }
+                .service-quote { background: var(--warning-gradient); }
+                .service-website { background: linear-gradient(135deg, #a8edea, #fed6e3); }
+                
+                /* Responsive */
+                @media (max-width: 768px) {
+                    .hero-title {
+                        font-size: 2.5rem;
                     }
                     
-                    .hero-section {
-                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                        color: white;
-                        position: relative;
-                        overflow: hidden;
+                    .glass-card {
+                        margin: -60px 1rem 2rem;
+                        padding: 2rem 1.5rem;
                     }
                     
-                    .hero-section::before {
-                        content: '';
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        right: 0;
-                        bottom: 0;
-                        background: url('data:image/svg+xml,&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="white" opacity="0.1"&gt;&lt;polygon points="1000,100 1000,0 0,100"/&gt;&lt;/svg&gt;');
-                        background-size: cover;
-                    }
-                    
-                    .equipment-card {
-                        background: white;
-                        border-radius: 20px;
-                        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-                        padding: 30px;
-                        margin: -60px auto 40px;
-                        position: relative;
-                        z-index: 10;
-                        max-width: 800px;
-                        border: 1px solid rgba(255,255,255,0.2);
-                        backdrop-filter: blur(20px);
+                    .services-grid {
+                        grid-template-columns: 1fr;
+                        gap: 1.5rem;
                     }
                     
                     .service-card {
-                        background: white;
-                        border-radius: 16px;
-                        padding: 30px 25px;
-                        text-align: center;
-                        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                        border: 1px solid #f1f5f9;
-                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-                        position: relative;
-                        overflow: hidden;
-                        cursor: pointer;
-                        text-decoration: none;
-                        color: inherit;
-                    }
-                    
-                    .service-card::before {
-                        content: '';
-                        position: absolute;
-                        top: 0;
-                        left: -100%;
-                        width: 100%;
-                        height: 100%;
-                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-                        transition: left 0.5s;
-                    }
-                    
-                    .service-card:hover::before {
-                        left: 100%;
-                    }
-                    
-                    .service-card:hover {
-                        transform: translateY(-8px) scale(1.02);
-                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-                        border-color: #e2e8f0;
+                        padding: 1.5rem;
                     }
                     
                     .service-icon {
-                        width: 80px;
-                        height: 80px;
-                        border-radius: 20px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        margin: 0 auto 20px;
-                        font-size: 36px;
-                        transition: all 0.3s ease;
-                        position: relative;
+                        width: 70px;
+                        height: 70px;
+                        font-size: 1.75rem;
                     }
                     
-                    .service-card:hover .service-icon {
-                        transform: scale(1.1) rotate(5deg);
+                    .equipment-grid {
+                        grid-template-columns: 1fr;
+                        gap: 1rem;
                     }
-                    
-                    .service-title {
-                        font-size: 1.25rem;
-                        font-weight: 600;
-                        margin-bottom: 12px;
-                        color: #1e293b;
-                    }
-                    
-                    .service-description {
-                        color: #64748b;
-                        font-size: 0.875rem;
-                        line-height: 1.6;
-                    }
-                    
-                    .equipment-info {
-                        background: #f8fafc;
-                        border-radius: 12px;
-                        padding: 20px;
-                        margin-bottom: 20px;
-                    }
-                    
-                    .info-item {
-                        display: flex;
-                        align-items: center;
-                        margin-bottom: 12px;
-                        padding: 8px 12px;
-                        background: white;
-                        border-radius: 8px;
-                        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-                    }
-                    
-                    .info-item:last-child {
-                        margin-bottom: 0;
-                    }
-                    
-                    .info-icon {
-                        width: 40px;
-                        height: 40px;
-                        border-radius: 8px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        margin-right: 15px;
-                        font-size: 18px;
-                    }
-                    
-                    .fade-in-up {
-                        animation: fadeInUp 0.8s ease-out;
-                    }
-                    
-                    @keyframes fadeInUp {
-                        from {
-                            opacity: 0;
-                            transform: translateY(30px);
-                        }
-                        to {
-                            opacity: 1;
-                            transform: translateY(0);
-                        }
-                    }
-                    
-                    .pulse-animation {
-                        animation: pulse 2s infinite;
-                    }
-                    
-                    @keyframes pulse {
-                        0%, 100% {
-                            transform: scale(1);
-                        }
-                        50% {
-                            transform: scale(1.05);
-                        }
-                    }
-                    
-                    /* Colores específicos para cada servicio */
-                    .service-support { background: linear-gradient(135deg, #ff6b6b, #ff8e8e); }
-                    .service-remote { background: linear-gradient(135deg, #4ecdc4, #44a08d); }
-                    .service-toner { background: linear-gradient(135deg, #45b7d1, #96c93d); }
-                    .service-whatsapp { background: linear-gradient(135deg, #25d366, #128c7e); }
-                    .service-email { background: linear-gradient(135deg, #667eea, #764ba2); }
-                    .service-counters { background: linear-gradient(135deg, #f093fb, #f5576c); }
-                    .service-quote { background: linear-gradient(135deg, #ffeaa7, #fab1a0); }
-                    .service-website { background: linear-gradient(135deg, #a8edea, #fed6e3); }
-                    
-                    .floating {
-                        animation: floating 3s ease-in-out infinite;
-                    }
-                    
-                    @keyframes floating {
-                        0%, 100% { transform: translateY(0px); }
-                        50% { transform: translateY(-10px); }
-                    }
-                    
-                    @media (max-width: 768px) {
-                        .equipment-card {
-                            margin: -40px 15px 30px;
-                            padding: 25px 20px;
-                        }
-                        
-                        .service-card {
-                            padding: 25px 20px;
-                        }
-                        
-                        .service-icon {
-                            width: 70px;
-                            height: 70px;
-                            font-size: 32px;
-                        }
-                    }
-                </style>
+                }
                 
-                <!-- Hero Section -->
-                <div class="hero-section py-5">
-                    <div class="container position-relative">
-                        <div class="text-center py-4">
-                            <div class="floating">
-                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.9;">
-                                    <path d="M12 2v20m4-18H8m8 0v4a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V4"/>
-                                </svg>
-                            </div>
-                            <h1 class="display-5 fw-bold mb-3 animate__animated animate__fadeInDown">
-                                Centro de Servicios
-                            </h1>
-                            <p class="lead mb-0 animate__animated animate__fadeInUp animate__delay-1s" style="opacity: 0.9;">
-                                Gestiona tu equipo de forma rápida y sencilla
-                            </p>
-                        </div>
-                    </div>
-                </div>
+                /* Custom scrollbar */
+                ::-webkit-scrollbar {
+                    width: 8px;
+                }
                 
+                ::-webkit-scrollbar-track {
+                    background: #f1f1f1;
+                    border-radius: 4px;
+                }
+                
+                ::-webkit-scrollbar-thumb {
+                    background: var(--primary-gradient);
+                    border-radius: 4px;
+                }
+                
+                ::-webkit-scrollbar-thumb:hover {
+                    background: #667eea;
+                }
+                
+                /* Loading animation */
+                .loading {
+                    opacity: 0;
+                    transform: translateY(30px);
+                    transition: all 0.6s ease-out;
+                }
+                
+                .loading.loaded {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            </style>
+            
+            <!-- Hero Section -->
+            <div class="hero-section">
                 <div class="container">
-                    <!-- Información del Equipo -->
-                    <div class="equipment-card animate__animated animate__fadeInUp">
-                        <div class="row align-items-center mb-4">
-                            <div class="col-md-8">
-                                <h2 class="h4 fw-bold text-primary mb-3">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
-                                        <rect width="20" height="14" x="2" y="3" rx="2"/>
-                                        <line x1="8" x2="16" y1="21" y2="21"/>
-                                        <line x1="12" x2="12" y1="17" y2="21"/>
-                                    </svg>
-                                    Información del Equipo
-                                </h2>
-                            </div>
-                            <div class="col-md-4 text-md-end">
-                                <span class="badge bg-success fs-6 px-3 py-2 pulse-animation">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" class="me-1">
-                                        <circle cx="12" cy="12" r="10"/>
-                                    </svg>Activo
-                                </span>
-                            </div>
+                    <div class="hero-content text-center" data-aos="fade-up">
+                        <div class="hero-icon">
+                            <i data-lucide="settings" style="width: 48px; height: 48px;"></i>
                         </div>
-                        
-                        <div class="equipment-info">
-                            <div class="row g-2">
-                                <div class="col-md-6">
-                                    <div class="info-item">
-                                        <div class="info-icon service-support text-white">
-                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M6 9a6 6 0 1 0 12 0c0 4-3 7-6 7s-6-3-6-7"/>
-                                                <path d="m12 2 3 6H9l3-6"/>
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <div class="fw-semibold text-dark">Equipo</div>
-                                            <div class="text-muted small">
-                                                <t t-if="equipment.name">
-                                                    <span t-esc="equipment.name.name"/>
-                                                </t>
-                                                <t t-else="">
-                                                    Sin nombre
-                                                </t>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="info-item">
-                                        <div class="info-icon service-remote text-white">
-                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5Z"/>
-                                                <path d="M10 7v6h4V7H10Z"/>
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <div class="fw-semibold text-dark">Serie</div>
-                                            <div class="text-muted small">
-                                                <t t-if="equipment.serie_id">
-                                                    <span t-esc="equipment.serie_id"/>
-                                                </t>
-                                                <t t-else="">
-                                                    Sin serie
-                                                </t>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="info-item">
-                                        <div class="info-icon service-toner text-white">
-                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
-                                                <path d="M3 6h18"/>
-                                                <path d="M16 10a4 4 0 0 1-8 0"/>
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <div class="fw-semibold text-dark">Cliente</div>
-                                            <div class="text-muted small">
-                                                <t t-if="equipment.cliente_id">
-                                                    <span t-esc="equipment.cliente_id.name"/>
-                                                </t>
-                                                <t t-else="">
-                                                    Sin cliente
-                                                </t>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="info-item">
-                                        <div class="info-icon service-whatsapp text-white">
-                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
-                                                <circle cx="12" cy="10" r="3"/>
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <div class="fw-semibold text-dark">Ubicación</div>
-                                            <div class="text-muted small">
-                                                <t t-if="equipment.ubicacion">
-                                                    <span t-esc="equipment.ubicacion"/>
-                                                </t>
-                                                <t t-else="">
-                                                    Sin ubicación
-                                                </t>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <h1 class="hero-title">Centro de Servicios</h1>
+                        <p class="hero-subtitle">
+                            Gestiona tu equipo de forma rápida y sencilla
+                        </p>
                     </div>
-                    
-                    <!-- Servicios Disponibles -->
-                    <div class="row g-4 mb-5">
-                        <div class="col-12 text-center mb-4">
-                            <h2 class="h3 fw-bold animate__animated animate__fadeInUp">
-                                ¿Qué necesitas hacer hoy?
+                </div>
+            </div>
+            
+            <div class="container">
+                <!-- Información del Equipo -->
+                <div class="glass-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+                        <div>
+                            <h2 class="h3 fw-bold text-dark mb-2">
+                                <i data-lucide="server" style="width: 24px; height: 24px; margin-right: 0.5rem;"></i>
+                                Información del Equipo
                             </h2>
-                            <p class="text-muted animate__animated animate__fadeInUp animate__delay-1s">
-                                Selecciona el servicio que necesitas
-                            </p>
+                            <p class="text-muted mb-0">Detalles de tu equipo registrado</p>
                         </div>
-                        
-                        <!-- Reportar Problema -->
-                        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.1s">
-                            <a t-attf-href="/public/helpdesk_ticket?copier_company_id=#{equipment.id}" class="service-card d-block">
-                                <div class="service-icon service-support text-white">
-                                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/>
-                                        <path d="M12 9v4"/>
-                                        <path d="m12 17 .01 0"/>
-                                    </svg>
-                                </div>
-                                <h3 class="service-title">Reportar Problema</h3>
-                                <p class="service-description mb-0">
-                                    Reporta fallas técnicas o problemas con tu equipo
-                                </p>
-                            </a>
-                        </div>
-                        
-                        <!-- Asistencia Remota -->
-                        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.2s">
-                            <a t-attf-href="/public/remote_assistance?copier_company_id=#{equipment.id}" class="service-card d-block">
-                                <div class="service-icon service-remote text-white">
-                                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <rect width="20" height="14" x="2" y="3" rx="2"/>
-                                        <line x1="8" x2="16" y1="21" y2="21"/>
-                                        <line x1="12" x2="12" y1="17" y2="21"/>
-                                    </svg>
-                                </div>
-                                <h3 class="service-title">Asistencia Remota</h3>
-                                <p class="service-description mb-0">
-                                    Solicita ayuda técnica remota para tu equipo
-                                </p>
-                            </a>
-                        </div>
-                        
-                        <!-- Solicitar Toner -->
-                        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.3s">
-                            <a t-attf-href="/public/request_toner?copier_company_id=#{equipment.id}" class="service-card d-block">
-                                <div class="service-icon service-toner text-white">
-                                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/>
-                                        <path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775L16.804 9.5"/>
-                                        <path d="m14 16-3 3.5"/>
-                                        <path d="M6 16.5 9.5 20"/>
-                                        <path d="m12.5 17.5 2.5 2.5"/>
-                                        <path d="M9 4.5 11.5 7 14 4.5"/>
-                                        <path d="m15.5 7 1.5 1.5"/>
-                                        <path d="M16.5 4.5 14 7l2.5 2.5"/>
-                                    </svg>
-                                </div>
-                                <h3 class="service-title">Solicitar Toner</h3>
-                                <p class="service-description mb-0">
-                                    Pide reposición de toner y consumibles
-                                </p>
-                            </a>
-                        </div>
-                        
-                        <!-- Subir Contadores -->
-                        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.4s">
-                            <a t-attf-href="/public/upload_counters?copier_company_id=#{equipment.id}" class="service-card d-block">
-                                <div class="service-icon service-counters text-white">
-                                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <line x1="12" x2="12" y1="20" y2="10"/>
-                                        <line x1="18" x2="18" y1="20" y2="4"/>
-                                        <line x1="6" x2="6" y1="20" y2="16"/>
-                                    </svg>
-                                </div>
-                                <h3 class="service-title">Reportar Contadores</h3>
-                                <p class="service-description mb-0">
-                                    Envía las lecturas mensuales de tu equipo
-                                </p>
-                            </a>
-                        </div>
-                        
-                        <!-- WhatsApp -->
-                        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.5s">
-                            <a href="https://wa.me/message/XNGGOGE4PPOGO1" target="_blank" class="service-card d-block">
-                                <div class="service-icon service-whatsapp text-white">
-                                    <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.465 3.488"/>
-                                    </svg>
-                                </div>
-                                <h3 class="service-title">Chat WhatsApp</h3>
-                                <p class="service-description mb-0">
-                                    Contacta directamente por WhatsApp
-                                </p>
-                            </a>
-                        </div>
-                        
-                        <!-- Enviar Email -->
-                        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.6s">
-                            <a href="mailto:info@copiercompanysac.com?subject=Consulta%20sobre%20equipo&amp;body=Hola,%20tengo%20una%20consulta%20sobre%20mi%20equipo." class="service-card d-block">
-                                <div class="service-icon service-email text-white">
-                                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                                        <polyline points="22,6 12,13 2,6"/>
-                                    </svg>
-                                </div>
-                                <h3 class="service-title">Enviar Email</h3>
-                                <p class="service-description mb-0">
-                                    Contacta por correo electrónico
-                                </p>
-                            </a>
-                        </div>
-                        
-                        <!-- Solicitar Cotización -->
-                        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.7s">
-                            <a href="https://copiercompanysac.com/cotizacion/form" target="_blank" class="service-card d-block">
-                                <div class="service-icon service-quote text-white">
-                                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                        <polyline points="14,2 14,8 20,8"/>
-                                        <line x1="16" x2="8" y1="13" y2="13"/>
-                                        <line x1="16" x2="8" y1="17" y2="17"/>
-                                        <polyline points="10,9 9,9 8,9"/>
-                                        <circle cx="17" cy="18" r="3"/>
-                                        <path d="m19 16-2 3-1-1"/>
-                                    </svg>
-                                </div>
-                                <h3 class="service-title">Solicitar Cotización</h3>
-                                <p class="service-description mb-0">
-                                    Cotiza nuevos equipos o servicios
-                                </p>
-                            </a>
-                        </div>
-                        
-                        <!-- Visitar Sitio Web -->
-                        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.8s">
-                            <a href="https://copiercompanysac.com" target="_blank" class="service-card d-block">
-                                <div class="service-icon service-website text-white">
-                                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="10"/>
-                                        <path d="m4.93 4.93 4.24 4.24"/>
-                                        <path d="m14.83 9.17 4.24-4.24"/>
-                                        <path d="m14.83 14.83 4.24 4.24"/>
-                                        <path d="m9.17 14.83-4.24 4.24"/>
-                                        <circle cx="12" cy="12" r="4"/>
-                                    </svg>
-                                </div>
-                                <h3 class="service-title">Nuestro Sitio Web</h3>
-                                <p class="service-description mb-0">
-                                    Conoce más sobre nuestros servicios
-                                </p>
-                            </a>
+                        <div class="status-badge">
+                            <i data-lucide="wifi" style="width: 16px; height: 16px; margin-right: 0.5rem;"></i>
+                            Activo
                         </div>
                     </div>
                     
-                    <!-- Información de Contacto -->
-                    <div class="text-center py-5">
-                        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f8fafc, #e2e8f0);">
-                            <div class="card-body py-4">
-                                <h4 class="fw-bold text-primary mb-3">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
-                                        <path d="M9 12l2 2 4-4"/>
-                                        <path d="M21 12c-1.5 1.5-4 3-9 3s-7.5-1.5-9-3c1.5-1.5 4-3 9-3s7.5 1.5 9 3"/>
-                                        <circle cx="12" cy="12" r="1"/>
-                                    </svg>
-                                    ¿Necesitas ayuda adicional?
-                                </h4>
-                                <p class="text-muted mb-4">Nuestro equipo está disponible para asistirte</p>
-                                <div class="row justify-content-center g-4">
-                                    <div class="col-md-4">
-                                        <div class="d-flex align-items-center justify-content-center">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary me-2">
-                                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                                            </svg>
-                                            <span class="fw-semibold">+51 999 999 999</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="d-flex align-items-center justify-content-center">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary me-2">
-                                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                                                <polyline points="22,6 12,13 2,6"/>
-                                            </svg>
-                                            <span class="fw-semibold">info@copiercompanysac.com</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="d-flex align-items-center justify-content-center">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary me-2">
-                                                <circle cx="12" cy="12" r="10"/>
-                                                <polyline points="12,6 12,12 16,14"/>
-                                            </svg>
-                                            <span class="fw-semibold">Lun - Vie: 8:00 - 18:00</span>
-                                        </div>
-                                    </div>
+                    <div class="equipment-grid">
+                        <div class="info-card" data-aos="fade-up" data-aos-delay="300">
+                            <div class="info-header">
+                                <div class="info-icon service-support">
+                                    <i data-lucide="printer"></i>
                                 </div>
+                                <div class="info-label">Equipo</div>
+                            </div>
+                            <div class="info-value">
+                                <t t-if="equipment.name">
+                                    <span t-esc="equipment.name.name"/>
+                                </t>
+                                <t t-else="">
+                                    Sin nombre
+                                </t>
+                            </div>
+                        </div>
+                        
+                        <div class="info-card" data-aos="fade-up" data-aos-delay="350">
+                            <div class="info-header">
+                                <div class="info-icon service-remote">
+                                    <i data-lucide="hash"></i>
+                                </div>
+                                <div class="info-label">Serie</div>
+                            </div>
+                            <div class="info-value">
+                                <t t-if="equipment.serie_id">
+                                    <span t-esc="equipment.serie_id"/>
+                                </t>
+                                <t t-else="">
+                                    Sin serie
+                                </t>
+                            </div>
+                        </div>
+                        
+                        <div class="info-card" data-aos="fade-up" data-aos-delay="400">
+                            <div class="info-header">
+                                <div class="info-icon service-toner">
+                                    <i data-lucide="building"></i>
+                                </div>
+                                <div class="info-label">Cliente</div>
+                            </div>
+                            <div class="info-value">
+                                <t t-if="equipment.cliente_id">
+                                    <span t-esc="equipment.cliente_id.name"/>
+                                </t>
+                                <t t-else="">
+                                    Sin cliente
+                                </t>
+                            </div>
+                        </div>
+                        
+                        <div class="info-card" data-aos="fade-up" data-aos-delay="450">
+                            <div class="info-header">
+                                <div class="info-icon service-whatsapp">
+                                    <i data-lucide="map-pin"></i>
+                                </div>
+                                <div class="info-label">Ubicación</div>
+                            </div>
+                            <div class="info-value">
+                                <t t-if="equipment.ubicacion">
+                                    <span t-esc="equipment.ubicacion"/>
+                                </t>
+                                <t t-else="">
+                                    Sin ubicación
+                                </t>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- JavaScript para animaciones -->
-                <script>
-                <![CDATA[
-                    document.addEventListener('DOMContentLoaded', function() {
-                        // Animación de elementos en scroll
-                        const observerOptions = {
-                            threshold: 0.1,
-                            rootMargin: '0px 0px -50px 0px'
-                        };
+                <!-- Servicios Disponibles -->
+                <div class="text-center mb-5" data-aos="fade-up">
+                    <h2 class="h2 fw-bold mb-3">¿Qué necesitas hacer hoy?</h2>
+                    <p class="text-muted fs-5">Selecciona el servicio que necesitas</p>
+                </div>
+                
+                <div class="services-grid mb-5">
+                    <!-- Reportar Problema -->
+                    <a t-attf-href="/public/helpdesk_ticket?copier_company_id=#{equipment.id}" 
+                       class="service-card loading" data-aos="fade-up" data-aos-delay="100">
+                        <div class="service-icon service-support">
+                            <i data-lucide="alert-triangle"></i>
+                        </div>
+                        <h3 class="service-title">Reportar Problema</h3>
+                        <p class="service-description">
+                            Reporta fallas técnicas o problemas con tu equipo
+                        </p>
+                    </a>
+                    
+                    <!-- Asistencia Remota -->
+                    <a t-attf-href="/public/remote_assistance?copier_company_id=#{equipment.id}" 
+                       class="service-card loading" data-aos="fade-up" data-aos-delay="200">
+                        <div class="service-icon service-remote">
+                            <i data-lucide="monitor"></i>
+                        </div>
+                        <h3 class="service-title">Asistencia Remota</h3>
+                        <p class="service-description">
+                            Solicita ayuda técnica remota para tu equipo
+                        </p>
+                    </a>
+                    
+                    <!-- Solicitar Toner -->
+                    <a t-attf-href="/public/request_toner?copier_company_id=#{equipment.id}" 
+                       class="service-card loading" data-aos="fade-up" data-aos-delay="300">
+                        <div class="service-icon service-toner">
+                            <i data-lucide="droplet"></i>
+                        </div>
+                        <h3 class="service-title">Solicitar Toner</h3>
+                        <p class="service-description">
+                            Pide reposición de toner y consumibles
+                        </p>
+                    </a>
+                    
+                    <!-- Subir Contadores -->
+                    <a t-attf-href="/public/upload_counters?copier_company_id=#{equipment.id}" 
+                       class="service-card loading" data-aos="fade-up" data-aos-delay="400">
+                        <div class="service-icon service-counters">
+                            <i data-lucide="bar-chart-3"></i>
+                        </div>
+                        <h3 class="service-title">Reportar Contadores</h3>
+                        <p class="service-description">
+                            Envía las lecturas mensuales de tu equipo
+                        </p>
+                    </a>
+                    
+                    <!-- WhatsApp -->
+                    <a href="https://wa.me/message/XNGGOGE4PPOGO1" target="_blank" 
+                       class="service-card loading" data-aos="fade-up" data-aos-delay="500">
+                        <div class="service-icon service-whatsapp">
+                            <i data-lucide="message-circle"></i>
+                        </div>
+                        <h3 class="service-title">Chat WhatsApp</h3>
+                        <p class="service-description">
+                            Contacta directamente por WhatsApp
+                        </p>
+                    </a>
+                    
+                    <!-- Enviar Email -->
+                    <a href="mailto:info@copiercompanysac.com?subject=Consulta%20sobre%20equipo&amp;body=Hola,%20tengo%20una%20consulta%20sobre%20mi%20equipo." 
+                       class="service-card loading" data-aos="fade-up" data-aos-delay="600">
+                        <div class="service-icon service-email">
+                            <i data-lucide="mail"></i>
+                        </div>
+                        <h3 class="service-title">Enviar Email</h3>
+                        <p class="service-description">
+                            Contacta por correo electrónico
+                        </p>
+                    </a>
+                    
+                    <!-- Solicitar Cotización -->
+                    <a href="https://copiercompanysac.com/cotizacion/form" target="_blank" 
+                       class="service-card loading" data-aos="fade-up" data-aos-delay="700">
+                        <div class="service-icon service-quote">
+                            <i data-lucide="file-text"></i>
+                        </div>
+                        <h3 class="service-title">Solicitar Cotización</h3>
+                        <p class="service-description">
+                            Cotiza nuevos equipos o servicios
+                        </p>
+                    </a>
+                    
+                    <!-- Visitar Sitio Web -->
+                    <a href="https://copiercompanysac.com" target="_blank" 
+                       class="service-card loading" data-aos="fade-up" data-aos-delay="800">
+                        <div class="service-icon service-website">
+                            <i data-lucide="globe"></i>
+                        </div>
+                        <h3 class="service-title">Nuestro Sitio Web</h3>
+                        <p class="service-description">
+                            Conoce más sobre nuestros servicios
+                        </p>
+                    </a>
+                </div>
+                
+                <!-- Información de Contacto -->
+                <div class="contact-card" data-aos="fade-up" data-aos-delay="900">
+                    <div class="text-center">
+                        <div class="hero-icon mx-auto mb-3" style="width: 80px; height: 80px;">
+                            <i data-lucide="headphones" style="width: 32px; height: 32px;"></i>
+                        </div>
+                        <h4 class="fw-bold text-primary mb-3">
+                            ¿Necesitas ayuda adicional?
+                        </h4>
+                        <p class="text-muted mb-4 fs-5">Nuestro equipo está disponible para asistirte</p>
                         
-                        const observer = new IntersectionObserver(function(entries) {
-                            entries.forEach(entry => {
-                                if (entry.isIntersecting) {
-                                    entry.target.classList.add('animate__animated', 'animate__fadeInUp');
-                                }
-                            });
-                        }, observerOptions);
-                        
-                        // Observar tarjetas de servicio
-                        document.querySelectorAll('.service-card').forEach(card => {
-                            observer.observe(card);
-                        });
-                        
-                        // Efecto de hover mejorado
-                        document.querySelectorAll('.service-card').forEach(card => {
-                            card.addEventListener('mouseenter', function() {
-                                this.style.transform = 'translateY(-8px) scale(1.02)';
-                                this.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-                            });
-                            
-                            card.addEventListener('mouseleave', function() {
-                                this.style.transform = 'translateY(0) scale(1)';
-                            });
-                        });
-                        
-                        // Animación de conteo o loading si es necesario
-                        console.log('Portal de equipos cargado exitosamente');
-                    });
-                ]]>
-                </script>
+                        <div class="contact-grid">
+                            <div class="contact-item">
+                                <i data-lucide="phone" class="contact-icon"></i>
+                                <span class="fw-semibold">+51 999 999 999</span>
+                            </div>
+                            <div class="contact-item">
+                                <i data-lucide="mail" class="contact-icon"></i>
+                                <span class="fw-semibold">info@copiercompanysac.com</span>
+                            </div>
+                            <div class="contact-item">
+                                <i data-lucide="clock" class="contact-icon"></i>
+                                <span class="fw-semibold">Lun - Vie: 8:00 - 18:00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-        </t>
-    </template>
+            
+            <!-- Scripts -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+            
+            <script>
+            <![CDATA[
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Initialize Lucide icons
+                    lucide.createIcons();
+                    
+                    // Initialize AOS animations
+                    AOS.init({
+                        duration: 800,
+                        easing: 'ease-out-cubic',
+                        once: true,
+                        offset: 100
+                    });
+                    
+                    // Loading animation for service cards
+                    setTimeout(() => {
+                        document.querySelectorAll('.loading').forEach((el, index) => {
+                            setTimeout(() => {
+                                el.classList.add('loaded');
+                            }, index * 100);
+                        });
+                    }, 500);
+                    
+                    // Enhanced hover effects
+                    document.querySelectorAll('.service-card').forEach(card => {
+                        card.addEventListener('mouseenter', function() {
+                            this.style.transform = 'translateY(-8px) scale(1.02)';
+                            this.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.15)';
+                        });
+                        
+                        card.addEventListener('mouseleave', function() {
+                            this.style.transform = 'translateY(0) scale(1)';
+                            this.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+                        });
+                    });
+                    
+                    // Smooth scroll for better UX
+                    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                        anchor.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            const target = document.querySelector(this.getAttribute('href'));
+                            if (target) {
+                                target.scrollIntoView({
+                                    behavior: 'smooth',
+                                    block: 'start'
+                                });
+                            }
+                        });
+                    });
+                    
+                    // Performance optimization: Lazy load animations
+                    const observerOptions = {
+                        threshold: 0.1,
+                        rootMargin: '0px 0px -50px 0px'
+                    };
+                    
+                    const observer = new IntersectionObserver(function(entries) {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                entry.target.style.opacity = '1';
+                                entry.target.style.transform = 'translateY(0)';
+                            }
+                        });
+                    }, observerOptions);
+                    
+                    // Observe elements for lazy animation
+                    document.querySelectorAll('.info-card, .contact-item').forEach(el => {
+                        observer.observe(el);
+                    });
+                    
+                    // Console log for debugging
+                    console.log('🚀 Portal de equipos modernizado cargado exitosamente');
+                    console.log('📱 Responsive design activado');
+                    console.log('✨ Animaciones inicializadas');
+                });
+            ]]>
+            </script>
+        </div>
+    </t>
+</template>
     <!-- FORMULARIO DE ASISTENCIA REMOTA -->
 <template id="portal_remote_assistance" name="Remote Assistance Request Form">
     <t t-call="website.layout">
