@@ -1041,34 +1041,311 @@ class CopierCompanyPortal(CustomerPortal):
 
     @http.route(['/public/request_toner'], type='http', auth="public", website=True)
     def public_request_toner(self, copier_company_id=None, **kw):
-        """Formulario para solicitar toner con datos pre-cargados"""
+        """Formulario para solicitar toner con datos pre-cargados del equipo"""
         _logger.info("=== INICIANDO public_request_toner ===")
         _logger.info("Parámetros recibidos - copier_company_id: %s, kw: %s", copier_company_id, kw)
         
         try:
             if not copier_company_id:
+                _logger.error("No se proporcionó ID de equipo")
                 return request.redirect('/')
                 
+            # Buscar el equipo
             equipment = request.env['copier.company'].sudo().browse(int(copier_company_id))
             if not equipment.exists():
+                _logger.error("Equipo ID %s no encontrado", copier_company_id)
                 return request.redirect('/')
+            
+            _logger.info("Cargando formulario de solicitud de toner para equipo: %s", 
+                        equipment.name.name if equipment.name else 'Sin nombre')
+            
+            # Preparar datos pre-cargados del equipo
+            equipment_data = {
+                'id': equipment.id,
+                'name': self._safe_get_text(equipment.name.name) if equipment.name else 'Equipo sin nombre',
+                'serie': self._safe_get_text(equipment.serie_id) or 'Sin serie',
+                'marca': self._safe_get_text(equipment.marca_id.name) if equipment.marca_id else 'Sin marca',
+                'cliente_name': self._safe_get_text(equipment.cliente_id.name) if equipment.cliente_id else 'Sin cliente',
+                'cliente_email': self._safe_get_text(equipment.cliente_id.email) if equipment.cliente_id else '',
+                'cliente_phone': self._safe_get_text(equipment.cliente_id.mobile) or self._safe_get_text(equipment.cliente_id.phone) or '',
+                'ubicacion': self._safe_get_text(equipment.ubicacion) or 'Sin ubicación',
+                'sede': self._safe_get_text(equipment.sede) or '',
+                'tipo': 'Color' if equipment.tipo == 'color' else 'Blanco y Negro',
+                'contacto_equipo': self._safe_get_text(equipment.contacto) or '',
+                'celular_equipo': self._safe_get_text(equipment.celular) or '',
+                'correo_equipo': self._safe_get_text(equipment.correo) or ''
+            }
+            
+            _logger.info("Datos del equipo pre-cargados: %s", equipment_data)
             
             values = {
                 'equipment': equipment,
+                'equipment_data': equipment_data,
                 'page_title': _('Solicitar Toner'),
             }
             
-            # Si es POST, procesar solicitud
+            # Si es una solicitud POST, procesar el formulario
             if request.httprequest.method == 'POST':
-                # Lógica para procesar solicitud de toner
-                # Similar a asistencia remota pero más simple
-                pass
+                _logger.info("Procesando formulario POST de solicitud de toner")
+                
+                try:
+                    # Capturar datos del formulario
+                    form_data = {
+                        'equipment_id': int(copier_company_id),
+                        'client_name': kw.get('client_name', '').strip(),
+                        'client_email': kw.get('client_email', '').strip(),
+                        'client_phone': kw.get('client_phone', '').strip(),
+                        'toner_type': kw.get('toner_type', ''),
+                        'quantity': int(kw.get('quantity', 1)) if kw.get('quantity') else 1,
+                        'urgency': kw.get('urgency', 'medium'),
+                        'current_toner_level': kw.get('current_toner_level', ''),
+                        'reason': kw.get('reason', '').strip(),
+                    }
+                    
+                    _logger.info("Datos del formulario capturados: %s", form_data)
+                    
+                    # Validaciones básicas
+                    if not form_data['client_name']:
+                        _logger.warning("Nombre del solicitante requerido")
+                        values['error_message'] = _("El nombre del solicitante es requerido.")
+                        return request.render("copier_company.portal_request_toner", values)
+                    
+                    if not form_data['client_email']:
+                        _logger.warning("Email del solicitante requerido")
+                        values['error_message'] = _("El email del solicitante es requerido.")
+                        return request.render("copier_company.portal_request_toner", values)
+                    
+                    if not form_data['toner_type']:
+                        _logger.warning("Tipo de toner requerido")
+                        values['error_message'] = _("Debe seleccionar el tipo de toner.")
+                        return request.render("copier_company.portal_request_toner", values)
+                    
+                    # Validar email
+                    import re
+                    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+                    if not re.match(email_pattern, form_data['client_email']):
+                        _logger.warning("Email inválido: %s", form_data['client_email'])
+                        values['error_message'] = _("El formato del email no es válido.")
+                        return request.render("copier_company.portal_request_toner", values)
+                    
+                    # Validar cantidad
+                    if form_data['quantity'] <= 0:
+                        _logger.warning("Cantidad inválida: %s", form_data['quantity'])
+                        values['error_message'] = _("La cantidad debe ser mayor a cero.")
+                        return request.render("copier_company.portal_request_toner", values)
+                    
+                    # Buscar o crear partner basado en email
+                    partner = request.env['res.partner'].sudo().search([('email', '=', form_data['client_email'])], limit=1)
+                    if partner:
+                        _logger.info("Partner encontrado para email %s: ID=%s, Nombre=%s", form_data['client_email'], partner.id, partner.name)
+                        # Actualizar datos si es necesario
+                        update_vals = {}
+                        if partner.name != form_data['client_name']:
+                            update_vals['name'] = form_data['client_name']
+                        if form_data['client_phone'] and not partner.mobile:
+                            update_vals['mobile'] = form_data['client_phone']
+                        if update_vals:
+                            partner.sudo().write(update_vals)
+                            _logger.info("Partner actualizado: %s", update_vals)
+                    else:
+                        try:
+                            partner = request.env['res.partner'].sudo().create({
+                                'name': form_data['client_name'],
+                                'email': form_data['client_email'],
+                                'mobile': form_data['client_phone'],
+                                'is_company': False
+                            })
+                            _logger.info("Nuevo partner creado: ID=%s, Nombre=%s, Email=%s", partner.id, partner.name, partner.email)
+                        except Exception as e:
+                            _logger.exception("Error al crear partner: %s", str(e))
+                            values['error_message'] = _("Error al procesar los datos del contacto. Por favor intente nuevamente.")
+                            return request.render("copier_company.portal_request_toner", values)
+                    
+                    # Crear solicitud de toner
+                    if 'toner.request' in request.env:
+                        try:
+                            _logger.info("Creando solicitud de toner")
+                            
+                            toner_request = request.env['toner.request'].sudo().create_from_public_form(form_data)
+                            _logger.info("Solicitud de toner creada exitosamente: ID=%s, Secuencia=%s", 
+                                    toner_request.id, toner_request.secuencia)
+                            
+                            # Enviar notificación por email al equipo de logística
+                            try:
+                                self._send_toner_notification(toner_request)
+                            except Exception as e:
+                                _logger.error("Error enviando notificación de toner: %s", str(e))
+                            
+                            # Mapeo de tipos de toner para el mensaje
+                            toner_types = {
+                                'black': 'Negro',
+                                'cyan': 'Cian', 
+                                'magenta': 'Magenta',
+                                'yellow': 'Amarillo',
+                                'complete_set': 'Juego Completo',
+                                'maintenance_kit': 'Kit de Mantenimiento'
+                            }
+                            
+                            # Mensaje de éxito con información detallada
+                            success_message = _(
+                                "¡Solicitud de toner creada exitosamente!<br/><br/>"
+                                "<strong>Número de solicitud:</strong> {}<br/>"
+                                "<strong>Equipo:</strong> {} (Serie: {})<br/>"
+                                "<strong>Tipo de toner:</strong> {}<br/>"
+                                "<strong>Cantidad:</strong> {}<br/><br/>"
+                                "Nuestro equipo se pondrá en contacto contigo para coordinar la entrega.<br/>"
+                                "Recibirás actualizaciones en: {}"
+                            ).format(
+                                toner_request.secuencia,
+                                equipment_data['name'],
+                                equipment_data['serie'],
+                                toner_types.get(toner_request.toner_type, 'Desconocido'),
+                                toner_request.quantity,
+                                form_data['client_email']
+                            )
+                            
+                            values['success_message'] = success_message
+                            values['toner_request'] = toner_request
+                            
+                        except Exception as e:
+                            _logger.exception("Error al crear solicitud de toner: %s", str(e))
+                            values['error_message'] = _("Ocurrió un error al procesar la solicitud. Por favor intente nuevamente o contacte directamente con soporte.")
+                    else:
+                        _logger.warning("Modelo toner.request no disponible")
+                        values['error_message'] = _("El servicio de solicitud de toner no está disponible en este momento. Por favor contacte directamente con soporte.")
+                    
+                except Exception as e:
+                    _logger.exception("Error procesando formulario de toner: %s", str(e))
+                    values['error_message'] = _("Error al procesar el formulario. Por favor verifique los datos e intente nuevamente.")
             
-            return request.render('copier_company.portal_request_toner', values)
+            # Verificar existencia del template
+            template = 'copier_company.portal_request_toner'
+            if not request.env['ir.ui.view'].sudo().search([('key', '=', template)]):
+                _logger.error("¡ERROR! Template %s no encontrado", template)
+                return request.redirect(f'/public/equipment_menu?copier_company_id={copier_company_id}')
+            
+            _logger.info("Renderizando template de solicitud de toner: %s", template)
+            _logger.info("=== FINALIZANDO public_request_toner ===")
+            return request.render(template, values)
             
         except Exception as e:
-            _logger.exception("Error en public_request_toner: %s", str(e))
+            _logger.exception("¡EXCEPCIÓN GENERAL en public_request_toner!: %s", str(e))
             return request.redirect('/')
+
+    def _send_toner_notification(self, toner_request):
+        """Envía notificación por email para nueva solicitud de toner"""
+        _logger.info("=== INICIANDO _send_toner_notification para solicitud %s ===", toner_request.secuencia)
+        
+        try:
+            # Emails del equipo de logística/ventas
+            logistics_emails = [
+                'logistica@copiercompanysac.com',
+                'ventas@copiercompanysac.com',
+                'administracion@copiercompanysac.com'
+            ]
+            
+            # Mapeo de tipos de toner
+            toner_types = {
+                'black': 'Negro',
+                'cyan': 'Cian', 
+                'magenta': 'Magenta',
+                'yellow': 'Amarillo',
+                'complete_set': 'Juego Completo',
+                'maintenance_kit': 'Kit de Mantenimiento'
+            }
+            
+            urgency_names = {
+                'low': 'Baja',
+                'medium': 'Media',
+                'high': 'Alta',
+                'urgent': 'Urgente'
+            }
+            
+            urgency_icons = {
+                'low': '🟢',
+                'medium': '🟡', 
+                'high': '🟠',
+                'urgent': '🔴'
+            }
+            
+            toner_level_names = {
+                'empty': 'Vacío (0%)',
+                'low': 'Bajo (1-10%)',
+                'medium_low': 'Medio-Bajo (11-25%)',
+                'medium': 'Medio (26-50%)',
+                'high': 'Alto (51-75%)',
+                'full': 'Lleno (76-100%)'
+            }
+            
+            # Preparar datos del equipo
+            equipment = toner_request.equipment_id
+            
+            email_body = f"""
+            <h2>🖨️ Nueva Solicitud de Toner</h2>
+            
+            <h3>📋 Información de la Solicitud</h3>
+            <p><strong>Número:</strong> {toner_request.secuencia}</p>
+            <p><strong>Fecha:</strong> {toner_request.request_date.strftime('%d/%m/%Y %H:%M')}</p>
+            <p><strong>Urgencia:</strong> {urgency_icons.get(toner_request.urgency, '⚪')} {urgency_names.get(toner_request.urgency, 'Media')}</p>
+            
+            <h3>🖨️ Información del Equipo</h3>
+            <p><strong>Equipo:</strong> {equipment.name.name if equipment.name else 'Sin nombre'}</p>
+            <p><strong>Serie:</strong> {equipment.serie_id or 'Sin serie'}</p>
+            <p><strong>Marca:</strong> {equipment.marca_id.name if equipment.marca_id else 'Sin marca'}</p>
+            <p><strong>Tipo:</strong> {'Color' if equipment.tipo == 'color' else 'Blanco y Negro'}</p>
+            <p><strong>Cliente:</strong> {equipment.cliente_id.name if equipment.cliente_id else 'Sin cliente'}</p>
+            <p><strong>Ubicación:</strong> {equipment.ubicacion or 'Sin ubicación'}</p>
+            <p><strong>Sede:</strong> {equipment.sede or 'Sin sede'}</p>
+            <p><strong>IP:</strong> {equipment.ip_id or 'Sin IP'}</p>
+            
+            <h3>👤 Información del Solicitante</h3>
+            <p><strong>Nombre:</strong> {toner_request.client_name}</p>
+            <p><strong>Email:</strong> {toner_request.client_email}</p>
+            <p><strong>Teléfono:</strong> {toner_request.client_phone or 'No proporcionado'}</p>
+            
+            <h3>🖨️ Detalles del Toner Solicitado</h3>
+            <p><strong>Tipo de Toner:</strong> {toner_types.get(toner_request.toner_type, 'Desconocido')}</p>
+            <p><strong>Cantidad:</strong> {toner_request.quantity}</p>
+            <p><strong>Nivel Actual:</strong> {toner_level_names.get(toner_request.current_toner_level, 'No especificado') if toner_request.current_toner_level else 'No especificado'}</p>
+            
+            {f'<h3>📝 Motivo de la Solicitud</h3><p>{toner_request.reason}</p>' if toner_request.reason else ''}
+            
+            <h3>⚡ Acciones Sugeridas</h3>
+            <ul>
+                <li><a href="{request.env['ir.config_parameter'].sudo().get_param('web.base.url')}/web#id={toner_request.id}&model=toner.request&view_type=form">Ver Solicitud en el Sistema</a></li>
+                <li>Verificar disponibilidad de stock del toner solicitado</li>
+                <li>Contactar al cliente para coordinar la entrega</li>
+                <li>Programar la entrega e instalación del toner</li>
+                <li>Actualizar el estado de la solicitud en el sistema</li>
+            </ul>
+            
+            <hr/>
+            <p><small>Esta solicitud fue generada automáticamente desde el portal de equipos de Copier Company.</small></p>
+            """
+            
+            # Enviar email a cada persona del equipo de logística
+            for email in logistics_emails:
+                if email:
+                    try:
+                        mail_values = {
+                            'subject': f'🖨️ Nueva Solicitud de Toner - {toner_request.secuencia} - {equipment.name.name if equipment.name else "Equipo"}',
+                            'email_to': email,
+                            'email_from': 'noreply@copiercompanysac.com',
+                            'body_html': email_body,
+                            'auto_delete': False,
+                        }
+                        
+                        mail = request.env['mail.mail'].sudo().create(mail_values)
+                        mail.send()
+                        _logger.info("Notificación de toner enviada a: %s", email)
+                        
+                    except Exception as e:
+                        _logger.error("Error enviando notificación de toner a %s: %s", email, str(e))
+            
+            _logger.info("Proceso de notificación de toner completado")
+            
+        except Exception as e:
+            _logger.exception("Error en _send_toner_notification: %s", str(e))
 
     @http.route(['/public/send_whatsapp'], type='http', auth="public", website=True)
     def public_send_whatsapp(self, copier_company_id=None, **kw):
@@ -1159,32 +1436,391 @@ class CopierCompanyPortal(CustomerPortal):
             _logger.exception("Error en public_send_email: %s", str(e))
             return request.redirect('/')
 
+    # Reemplazar el método public_upload_counters en tu controlador con esta implementación completa
+
     @http.route(['/public/upload_counters'], type='http', auth="public", website=True)
     def public_upload_counters(self, copier_company_id=None, **kw):
         """Formulario para subir contadores"""
         _logger.info("=== INICIANDO public_upload_counters ===")
+        _logger.info("Parámetros recibidos - copier_company_id: %s, kw: %s", copier_company_id, kw)
         
         try:
             if not copier_company_id:
+                _logger.error("No se proporcionó ID de equipo")
                 return request.redirect('/')
                 
+            # Buscar el equipo
             equipment = request.env['copier.company'].sudo().browse(int(copier_company_id))
             if not equipment.exists():
+                _logger.error("Equipo ID %s no encontrado", copier_company_id)
                 return request.redirect('/')
+            
+            _logger.info("Cargando formulario de contadores para equipo: %s", 
+                        equipment.name.name if equipment.name else 'Sin nombre')
+            
+            # Obtener último contador oficial para mostrar como referencia
+            last_counter = None
+            last_counter_data = {}
+            
+            if 'copier.counter' in request.env:
+                try:
+                    last_counter = request.env['copier.counter'].sudo().search([
+                        ('maquina_id', '=', equipment.id),
+                        ('state', 'in', ['confirmed', 'invoiced'])
+                    ], order='fecha desc', limit=1)
+                    
+                    if last_counter:
+                        last_counter_data = {
+                            'date': last_counter.fecha.strftime('%d/%m/%Y') if last_counter.fecha else 'Sin fecha',
+                            'counter_bn': last_counter.contador_actual_bn or 0,
+                            'counter_color': last_counter.contador_actual_color or 0,
+                            'copies_bn': last_counter.total_copias_bn or 0,
+                            'copies_color': last_counter.total_copias_color or 0,
+                        }
+                        _logger.info("Último contador encontrado: Fecha=%s, B/N=%s, Color=%s", 
+                                last_counter_data['date'], last_counter_data['counter_bn'], last_counter_data['counter_color'])
+                    else:
+                        _logger.info("No se encontraron contadores anteriores para el equipo")
+                except Exception as e:
+                    _logger.error("Error buscando último contador: %s", str(e))
+            else:
+                _logger.warning("Modelo copier.counter no disponible")
+            
+            # Preparar datos del equipo
+            equipment_data = {
+                'id': equipment.id,
+                'name': self._safe_get_text(equipment.name.name) if equipment.name else 'Equipo sin nombre',
+                'serie': self._safe_get_text(equipment.serie_id) or 'Sin serie',
+                'marca': self._safe_get_text(equipment.marca_id.name) if equipment.marca_id else 'Sin marca',
+                'cliente_name': self._safe_get_text(equipment.cliente_id.name) if equipment.cliente_id else 'Sin cliente',
+                'cliente_email': self._safe_get_text(equipment.cliente_id.email) if equipment.cliente_id else '',
+                'cliente_phone': self._safe_get_text(equipment.cliente_id.mobile) or self._safe_get_text(equipment.cliente_id.phone) or '',
+                'ubicacion': self._safe_get_text(equipment.ubicacion) or 'Sin ubicación',
+                'sede': self._safe_get_text(equipment.sede) or '',
+                'tipo': 'Color' if equipment.tipo == 'color' else 'Blanco y Negro',
+                'contacto_equipo': self._safe_get_text(equipment.contacto) or '',
+                'celular_equipo': self._safe_get_text(equipment.celular) or '',
+                'correo_equipo': self._safe_get_text(equipment.correo) or ''
+            }
+            
+            _logger.info("Datos del equipo pre-cargados: %s", equipment_data)
             
             values = {
                 'equipment': equipment,
+                'equipment_data': equipment_data,
+                'last_counter': last_counter,
+                'last_counter_data': last_counter_data,
                 'page_title': _('Reportar Contadores'),
             }
             
-            # Si es POST, procesar contadores
+            # Si es una solicitud POST, procesar el formulario
             if request.httprequest.method == 'POST':
-                # Lógica para procesar contadores
-                # Crear registro en copier.counter
-                pass
+                _logger.info("Procesando formulario POST de contadores")
+                
+                try:
+                    # Capturar datos del formulario
+                    form_data = {
+                        'equipment_id': int(copier_company_id),
+                        'client_name': kw.get('client_name', '').strip(),
+                        'client_email': kw.get('client_email', '').strip(),
+                        'client_phone': kw.get('client_phone', '').strip(),
+                        'counter_bn': int(kw.get('counter_bn', 0)) if kw.get('counter_bn') else 0,
+                        'counter_color': int(kw.get('counter_color', 0)) if kw.get('counter_color') else 0,
+                        'notes': kw.get('notes', '').strip(),
+                        'counter_photo': kw.get('counter_photo'),
+                    }
+                    
+                    _logger.info("Datos del formulario capturados: %s", 
+                            {k: v for k, v in form_data.items() if k != 'counter_photo'})
+                    
+                    # Validaciones básicas
+                    if not form_data['client_name']:
+                        _logger.warning("Nombre del reportante requerido")
+                        values['error_message'] = _("El nombre del reportante es requerido.")
+                        return request.render("copier_company.portal_upload_counters", values)
+                    
+                    if not form_data['client_email']:
+                        _logger.warning("Email del reportante requerido")
+                        values['error_message'] = _("El email del reportante es requerido.")
+                        return request.render("copier_company.portal_upload_counters", values)
+                    
+                    if form_data['counter_bn'] < 0:
+                        _logger.warning("Contador B/N negativo: %s", form_data['counter_bn'])
+                        values['error_message'] = _("El contador de blanco y negro no puede ser negativo.")
+                        return request.render("copier_company.portal_upload_counters", values)
+                    
+                    if form_data['counter_color'] < 0:
+                        _logger.warning("Contador Color negativo: %s", form_data['counter_color'])
+                        values['error_message'] = _("El contador de color no puede ser negativo.")
+                        return request.render("copier_company.portal_upload_counters", values)
+                    
+                    # Validar email
+                    import re
+                    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+                    if not re.match(email_pattern, form_data['client_email']):
+                        _logger.warning("Email inválido: %s", form_data['client_email'])
+                        values['error_message'] = _("El formato del email no es válido.")
+                        return request.render("copier_company.portal_upload_counters", values)
+                    
+                    # Validar que los contadores no sean menores a los anteriores
+                    if last_counter:
+                        last_bn = last_counter.contador_actual_bn or 0
+                        last_color = last_counter.contador_actual_color or 0
+                        
+                        if form_data['counter_bn'] < last_bn:
+                            _logger.warning("Contador B/N menor al anterior: %s < %s", form_data['counter_bn'], last_bn)
+                            values['error_message'] = _(
+                                "El contador B/N ({:,}) no puede ser menor al contador anterior ({:,})."
+                            ).format(form_data['counter_bn'], last_bn)
+                            return request.render("copier_company.portal_upload_counters", values)
+                        
+                        if form_data['counter_color'] < last_color:
+                            _logger.warning("Contador Color menor al anterior: %s < %s", form_data['counter_color'], last_color)
+                            values['error_message'] = _(
+                                "El contador Color ({:,}) no puede ser menor al contador anterior ({:,})."
+                            ).format(form_data['counter_color'], last_color)
+                            return request.render("copier_company.portal_upload_counters", values)
+                    
+                    # Procesar imagen si se envió
+                    if form_data['counter_photo'] and hasattr(form_data['counter_photo'], 'read'):
+                        try:
+                            import base64
+                            photo_data = form_data['counter_photo'].read()
+                            form_data['counter_photo'] = base64.b64encode(photo_data)
+                            form_data['counter_photo_filename'] = getattr(form_data['counter_photo'], 'filename', 'counter_photo.jpg')
+                            _logger.info("Imagen procesada exitosamente, tamaño: %s bytes", len(photo_data))
+                        except Exception as e:
+                            _logger.error("Error procesando imagen: %s", str(e))
+                            form_data['counter_photo'] = False
+                            form_data['counter_photo_filename'] = False
+                    else:
+                        form_data['counter_photo'] = False
+                        form_data['counter_photo_filename'] = False
+                    
+                    # Buscar o crear partner basado en email
+                    partner = request.env['res.partner'].sudo().search([('email', '=', form_data['client_email'])], limit=1)
+                    if partner:
+                        _logger.info("Partner encontrado para email %s: ID=%s, Nombre=%s", form_data['client_email'], partner.id, partner.name)
+                        # Actualizar datos si es necesario
+                        update_vals = {}
+                        if partner.name != form_data['client_name']:
+                            update_vals['name'] = form_data['client_name']
+                        if form_data['client_phone'] and not partner.mobile:
+                            update_vals['mobile'] = form_data['client_phone']
+                        if update_vals:
+                            partner.sudo().write(update_vals)
+                            _logger.info("Partner actualizado: %s", update_vals)
+                    else:
+                        try:
+                            partner = request.env['res.partner'].sudo().create({
+                                'name': form_data['client_name'],
+                                'email': form_data['client_email'],
+                                'mobile': form_data['client_phone'],
+                                'is_company': False
+                            })
+                            _logger.info("Nuevo partner creado: ID=%s, Nombre=%s, Email=%s", partner.id, partner.name, partner.email)
+                        except Exception as e:
+                            _logger.exception("Error al crear partner: %s", str(e))
+                            values['error_message'] = _("Error al procesar los datos del contacto. Por favor intente nuevamente.")
+                            return request.render("copier_company.portal_upload_counters", values)
+                    
+                    # Crear reporte de contadores
+                    if 'client.counter.submission' in request.env:
+                        try:
+                            _logger.info("Creando reporte de contadores")
+                            
+                            counter_submission = request.env['client.counter.submission'].sudo().create_from_public_form(form_data)
+                            _logger.info("Reporte de contadores creado exitosamente: ID=%s, Secuencia=%s", 
+                                    counter_submission.id, counter_submission.secuencia)
+                            
+                            # Calcular copias del período para el mensaje
+                            copies_bn_period = counter_submission.copies_bn_period
+                            copies_color_period = counter_submission.copies_color_period
+                            total_copies_period = copies_bn_period + copies_color_period
+                            
+                            # Enviar notificación por email al equipo administrativo
+                            try:
+                                self._send_counter_notification(counter_submission)
+                            except Exception as e:
+                                _logger.error("Error enviando notificación de contadores: %s", str(e))
+                            
+                            # Mensaje de éxito con información detallada
+                            success_message = _(
+                                "¡Contadores reportados exitosamente!<br/><br/>"
+                                "<strong>Número de reporte:</strong> {}<br/>"
+                                "<strong>Equipo:</strong> {} (Serie: {})<br/>"
+                                "<strong>Contador B/N:</strong> {:,}<br/>"
+                                "<strong>Contador Color:</strong> {:,}<br/>"
+                                "<strong>Copias B/N del período:</strong> {:,}<br/>"
+                                "<strong>Copias Color del período:</strong> {:,}<br/>"
+                                "<strong>Total de copias del período:</strong> {:,}<br/><br/>"
+                                "Los contadores serán revisados y procesados para la facturación.<br/>"
+                                "Recibirás confirmación en: {}"
+                            ).format(
+                                counter_submission.secuencia,
+                                equipment_data['name'],
+                                equipment_data['serie'],
+                                counter_submission.counter_bn,
+                                counter_submission.counter_color,
+                                copies_bn_period,
+                                copies_color_period,
+                                total_copies_period,
+                                form_data['client_email']
+                            )
+                            
+                            values['success_message'] = success_message
+                            values['counter_submission'] = counter_submission
+                            
+                            # Agregar datos del reporte para mostrar en la pantalla de éxito
+                            values['submission_data'] = {
+                                'secuencia': counter_submission.secuencia,
+                                'counter_bn': counter_submission.counter_bn,
+                                'counter_color': counter_submission.counter_color,
+                                'copies_bn_period': copies_bn_period,
+                                'copies_color_period': copies_color_period,
+                                'total_copies_period': total_copies_period,
+                                'estimated_amount': counter_submission.estimated_total_amount,
+                            }
+                            
+                        except Exception as e:
+                            _logger.exception("Error al crear reporte de contadores: %s", str(e))
+                            values['error_message'] = _("Ocurrió un error al procesar el reporte. Por favor intente nuevamente o contacte directamente con administración.")
+                    else:
+                        _logger.warning("Modelo client.counter.submission no disponible")
+                        values['error_message'] = _("El servicio de reporte de contadores no está disponible en este momento. Por favor contacte directamente con administración.")
+                    
+                except ValueError as ve:
+                    _logger.error("Error de valor en formulario de contadores: %s", str(ve))
+                    values['error_message'] = _("Los valores de los contadores deben ser números válidos.")
+                    return request.render("copier_company.portal_upload_counters", values)
+                except Exception as e:
+                    _logger.exception("Error procesando formulario de contadores: %s", str(e))
+                    values['error_message'] = _("Error al procesar el formulario. Por favor verifique los datos e intente nuevamente.")
             
-            return request.render('copier_company.portal_upload_counters', values)
+            # Verificar existencia del template
+            template = 'copier_company.portal_upload_counters'
+            if not request.env['ir.ui.view'].sudo().search([('key', '=', template)]):
+                _logger.error("¡ERROR! Template %s no encontrado", template)
+                return request.redirect(f'/public/equipment_menu?copier_company_id={copier_company_id}')
+            
+            _logger.info("Renderizando template de contadores: %s", template)
+            _logger.info("=== FINALIZANDO public_upload_counters ===")
+            return request.render(template, values)
             
         except Exception as e:
-            _logger.exception("Error en public_upload_counters: %s", str(e))
+            _logger.exception("¡EXCEPCIÓN GENERAL en public_upload_counters!: %s", str(e))
             return request.redirect('/')
+
+    def _send_counter_notification(self, counter_submission):
+        """Envía notificación por email para nuevo reporte de contadores"""
+        _logger.info("=== INICIANDO _send_counter_notification para reporte %s ===", counter_submission.secuencia)
+        
+        try:
+            # Emails del equipo administrativo/contable
+            admin_emails = [
+                'administracion@copiercompanysac.com',
+                'contabilidad@copiercompanysac.com',
+                'facturacion@copiercompanysac.com'
+            ]
+            
+            # Preparar datos del equipo
+            equipment = counter_submission.equipment_id
+            
+            # Calcular totales
+            total_copies_period = counter_submission.copies_bn_period + counter_submission.copies_color_period
+            
+            email_body = f"""
+            <h2>📊 Nuevo Reporte de Contadores</h2>
+            
+            <h3>📋 Información del Reporte</h3>
+            <p><strong>Número:</strong> {counter_submission.secuencia}</p>
+            <p><strong>Fecha:</strong> {counter_submission.submission_date.strftime('%d/%m/%Y %H:%M')}</p>
+            
+            <h3>🖨️ Información del Equipo</h3>
+            <p><strong>Equipo:</strong> {equipment.name.name if equipment.name else 'Sin nombre'}</p>
+            <p><strong>Serie:</strong> {equipment.serie_id or 'Sin serie'}</p>
+            <p><strong>Marca:</strong> {equipment.marca_id.name if equipment.marca_id else 'Sin marca'}</p>
+            <p><strong>Tipo:</strong> {'Color' if equipment.tipo == 'color' else 'Blanco y Negro'}</p>
+            <p><strong>Cliente:</strong> {equipment.cliente_id.name if equipment.cliente_id else 'Sin cliente'}</p>
+            <p><strong>Ubicación:</strong> {equipment.ubicacion or 'Sin ubicación'}</p>
+            <p><strong>Sede:</strong> {equipment.sede or 'Sin sede'}</p>
+            <p><strong>IP:</strong> {equipment.ip_id or 'Sin IP'}</p>
+            
+            <h3>👤 Información del Reportante</h3>
+            <p><strong>Nombre:</strong> {counter_submission.client_name}</p>
+            <p><strong>Email:</strong> {counter_submission.client_email}</p>
+            <p><strong>Teléfono:</strong> {counter_submission.client_phone or 'No proporcionado'}</p>
+            
+            <h3>📊 Contadores Reportados</h3>
+            <table border="1" style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+                <tr style="background-color: #f0f0f0;">
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Tipo</th>
+                    <th style="padding: 8px; text-align: right; border: 1px solid #ddd;">Contador Anterior</th>
+                    <th style="padding: 8px; text-align: right; border: 1px solid #ddd;">Contador Actual</th>
+                    <th style="padding: 8px; text-align: right; border: 1px solid #ddd;">Copias del Período</th>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">Blanco y Negro</td>
+                    <td style="padding: 8px; text-align: right; border: 1px solid #ddd;">{counter_submission.previous_counter_bn:,}</td>
+                    <td style="padding: 8px; text-align: right; border: 1px solid #ddd;">{counter_submission.counter_bn:,}</td>
+                    <td style="padding: 8px; text-align: right; border: 1px solid #ddd;">{counter_submission.copies_bn_period:,}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">Color</td>
+                    <td style="padding: 8px; text-align: right; border: 1px solid #ddd;">{counter_submission.previous_counter_color:,}</td>
+                    <td style="padding: 8px; text-align: right; border: 1px solid #ddd;">{counter_submission.counter_color:,}</td>
+                    <td style="padding: 8px; text-align: right; border: 1px solid #ddd;">{counter_submission.copies_color_period:,}</td>
+                </tr>
+                <tr style="background-color: #f9f9f9; font-weight: bold;">
+                    <td style="padding: 8px; border: 1px solid #ddd;">TOTAL</td>
+                    <td style="padding: 8px; text-align: right; border: 1px solid #ddd;">-</td>
+                    <td style="padding: 8px; text-align: right; border: 1px solid #ddd;">-</td>
+                    <td style="padding: 8px; text-align: right; border: 1px solid #ddd;">{total_copies_period:,}</td>
+                </tr>
+            </table>
+            
+            <h3>💰 Información Financiera Estimada</h3>
+            <p><strong>Monto Estimado B/N:</strong> S/ {counter_submission.estimated_amount_bn:,.2f}</p>
+            <p><strong>Monto Estimado Color:</strong> S/ {counter_submission.estimated_amount_color:,.2f}</p>
+            <p><strong>Monto Total Estimado:</strong> S/ {counter_submission.estimated_total_amount:,.2f}</p>
+            
+            {f'<h3>📝 Observaciones del Cliente</h3><p>{counter_submission.notes}</p>' if counter_submission.notes else ''}
+            
+            <h3>⚡ Acciones Sugeridas</h3>
+            <ul>
+                <li><a href="{request.env['ir.config_parameter'].sudo().get_param('web.base.url')}/web#id={counter_submission.id}&model=client.counter.submission&view_type=form">Ver Reporte en el Sistema</a></li>
+                <li>Revisar y validar los contadores reportados</li>
+                <li>Comparar con lecturas anteriores para detectar anomalías</li>
+                <li>Aprobar y generar contador oficial para facturación</li>
+                <li>Contactar al cliente si hay discrepancias o consultas</li>
+                <li>Actualizar el estado del reporte en el sistema</li>
+            </ul>
+            
+            <hr/>
+            <p><small>Este reporte fue generado automáticamente desde el portal de equipos de Copier Company.</small></p>
+            """
+            
+            # Enviar email a cada persona del equipo administrativo
+            for email in admin_emails:
+                if email:
+                    try:
+                        mail_values = {
+                            'subject': f'📊 Nuevo Reporte de Contadores - {counter_submission.secuencia} - {equipment.name.name if equipment.name else "Equipo"}',
+                            'email_to': email,
+                            'email_from': 'noreply@copiercompanysac.com',
+                            'body_html': email_body,
+                            'auto_delete': False,
+                        }
+                        
+                        mail = request.env['mail.mail'].sudo().create(mail_values)
+                        mail.send()
+                        _logger.info("Notificación de contadores enviada a: %s", email)
+                        
+                    except Exception as e:
+                        _logger.error("Error enviando notificación de contadores a %s: %s", email, str(e))
+            
+            _logger.info("Proceso de notificación de contadores completado")
+            
+        except Exception as e:
+            _logger.exception("Error en _send_counter_notification: %s", str(e))
+            # No re-lanzar la excepción para no interrumpir el flujo principal

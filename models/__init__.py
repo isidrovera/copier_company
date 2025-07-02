@@ -9,4 +9,5 @@ from . import security_control
 from . import contadores
 from . import manuals
 from . import copier_stock
-
+from . import counter_web
+from . import toner_web
