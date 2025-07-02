@@ -110,7 +110,6 @@
     </t>
 </template>
     
-    <!-- Template para la página de detalle de un equipo -->
     <template id="portal_my_copier_equipment" name="My Rental Equipment Details">
     <t t-call="portal.portal_layout">
         <t t-set="wrapwrap_classes" t-value="'o_portal_bg_dark'"/>
@@ -352,21 +351,10 @@
                                 <div class="col-12">
                                     <a t-att-href="'/my/copier/equipment/%s/counters' % equipment.id" class="action-card">
                                         <div class="action-icon bg-gradient-purple">
-                                            <i class="fa fa-history"></i>
+                                            <i class="fa fa-tachometer-alt"></i>
                                         </div>
-                                        <h6 class="fw-semibold mb-2">Historial</h6>
-                                        <p class="text-muted small mb-0">Ver lecturas anteriores</p>
-                                    </a>
-                                </div>
-                                
-                                <!-- Contacto Directo -->
-                                <div class="col-12">
-                                    <a t-attf-href="/public/send_whatsapp?copier_company_id=#{equipment.id}" class="action-card">
-                                        <div class="action-icon bg-gradient-warning">
-                                            <i class="fab fa-whatsapp"></i>
-                                        </div>
-                                        <h6 class="fw-semibold mb-2">WhatsApp</h6>
-                                        <p class="text-muted small mb-0">Contacto directo</p>
+                                        <h6 class="fw-semibold mb-2">Ver Lecturas</h6>
+                                        <p class="text-muted small mb-0">Historial de contadores</p>
                                     </a>
                                 </div>
                             </div>
