@@ -104,6 +104,8 @@
             'copier_company/static/lib/pdfjs/pdf.worker.mjs',
             'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
             'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',
+            'https://unpkg.com/lucide@latest/dist/umd/lucide.js',
+            
         ],
         'web.assets_frontend_libs': [
             ('https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js', {'type': 'external'}),
