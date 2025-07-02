@@ -515,123 +515,212 @@
     </template>
     
     <!-- FORMULARIO DE ASISTENCIA REMOTA -->
-    <template id="portal_remote_assistance" name="Remote Assistance Request Form">
-        <t t-call="website.layout">
-            <div id="wrap">
-                <style>
-                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap');
-                    @import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
-                    
-                    * { font-family: 'Inter', sans-serif; }
-                    
-                    .hero-gradient {
-                        background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
-                        color: white;
-                        position: relative;
-                        overflow: hidden;
-                    }
-                    
-                    .hero-gradient::before {
-                        content: '';
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        right: 0;
-                        bottom: 0;
-                        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="white" opacity="0.1"><polygon points="1000,100 1000,0 0,100"/></svg>');
-                    }
-                    
-                    .form-card {
-                        background: white;
-                        border-radius: 20px;
-                        box-shadow: 0 25px 50px rgba(0,0,0,0.1);
-                        margin: -80px auto 40px;
-                        position: relative;
-                        z-index: 10;
-                        border: 1px solid rgba(255,255,255,0.2);
-                    }
-                    
-                    .form-section {
-                        border-left: 4px solid #4ecdc4;
-                        background: #f8fafc;
-                        border-radius: 0 12px 12px 0;
-                        padding: 20px;
-                        margin-bottom: 25px;
-                    }
-                    
-                    .form-floating label {
-                        color: #64748b;
-                    }
-                    
-                    .form-control:focus {
-                        border-color: #4ecdc4;
-                        box-shadow: 0 0 0 0.2rem rgba(78, 205, 196, 0.25);
-                    }
-                    
-                    .btn-remote {
-                        background: linear-gradient(135deg, #4ecdc4, #44a08d);
-                        border: none;
-                        border-radius: 12px;
-                        padding: 15px 30px;
-                        font-weight: 600;
-                        transition: all 0.3s ease;
-                    }
-                    
-                    .btn-remote:hover {
-                        transform: translateY(-2px);
-                        box-shadow: 0 10px 25px rgba(78, 205, 196, 0.3);
-                    }
-                    
-                    .access-fields {
-                        background: #fff7ed;
-                        border: 2px dashed #fed7aa;
-                        border-radius: 12px;
-                        padding: 20px;
-                        margin: 15px 0;
-                        transition: all 0.3s ease;
-                    }
-                    
-                    .access-fields.show {
-                        background: #f0fdf4;
-                        border-color: #86efac;
-                    }
-                </style>
+<template id="portal_remote_assistance" name="Remote Assistance Request Form">
+    <t t-call="website.layout">
+        <div id="wrap">
+            <style>
+                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap');
+                @import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
                 
-                <!-- Hero Section -->
-                <div class="hero-gradient py-5">
-                    <div class="container position-relative">
-                        <div class="text-center py-4">
-                            <i class="fa fa-desktop mb-3 animate__animated animate__bounceIn" style="font-size: 4rem; opacity: 0.9;"></i>
-                            <h1 class="display-5 fw-bold mb-3 animate__animated animate__fadeInDown">
-                                Asistencia Remota
-                            </h1>
-                            <p class="lead mb-0 animate__animated animate__fadeInUp animate__delay-1s" style="opacity: 0.9;">
-                                Solicita ayuda técnica especializada para tu equipo
-                            </p>
-                        </div>
+                * { font-family: 'Inter', sans-serif; }
+                
+                .hero-gradient {
+                    background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+                    color: white;
+                    position: relative;
+                    overflow: hidden;
+                }
+                
+                .hero-gradient::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="white" opacity="0.1"><polygon points="1000,100 1000,0 0,100"/></svg>');
+                }
+                
+                .form-card {
+                    background: white;
+                    border-radius: 20px;
+                    box-shadow: 0 25px 50px rgba(0,0,0,0.1);
+                    margin: -80px auto 40px;
+                    position: relative;
+                    z-index: 10;
+                    border: 1px solid rgba(255,255,255,0.2);
+                }
+                
+                .form-section {
+                    border-left: 4px solid #4ecdc4;
+                    background: #f8fafc;
+                    border-radius: 0 12px 12px 0;
+                    padding: 20px;
+                    margin-bottom: 25px;
+                }
+                
+                .form-floating label {
+                    color: #64748b;
+                }
+                
+                .form-control:focus {
+                    border-color: #4ecdc4;
+                    box-shadow: 0 0 0 0.2rem rgba(78, 205, 196, 0.25);
+                }
+                
+                .btn-remote {
+                    background: linear-gradient(135deg, #4ecdc4, #44a08d);
+                    border: none;
+                    border-radius: 12px;
+                    padding: 15px 30px;
+                    font-weight: 600;
+                    transition: all 0.3s ease;
+                }
+                
+                .btn-remote:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 10px 25px rgba(78, 205, 196, 0.3);
+                }
+                
+                .access-fields {
+                    background: #fff7ed;
+                    border: 2px dashed #fed7aa;
+                    border-radius: 12px;
+                    padding: 20px;
+                    margin: 15px 0;
+                    transition: all 0.3s ease;
+                }
+                
+                .access-fields.show {
+                    background: #f0fdf4;
+                    border-color: #86efac;
+                }
+
+                .alert-success {
+                    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+                    border: 1px solid #b8dacc;
+                    border-radius: 12px;
+                }
+                
+                .alert-danger {
+                    background: linear-gradient(135deg, #f8d7da, #f1b0b7);
+                    border: 1px solid #f5c6cb;
+                    border-radius: 12px;
+                }
+            </style>
+            
+            <!-- Hero Section -->
+            <div class="hero-gradient py-5">
+                <div class="container position-relative">
+                    <div class="text-center py-4">
+                        <i class="fa fa-desktop mb-3 animate__animated animate__bounceIn" style="font-size: 4rem; opacity: 0.9;"></i>
+                        <h1 class="display-5 fw-bold mb-3 animate__animated animate__fadeInDown">
+                            Asistencia Remota
+                        </h1>
+                        <p class="lead mb-0 animate__animated animate__fadeInUp animate__delay-1s" style="opacity: 0.9;">
+                            Solicita ayuda técnica especializada para tu equipo
+                        </p>
                     </div>
                 </div>
-                
-                <div class="container">
-                    <div class="form-card animate__animated animate__fadeInUp">
-                        <div class="card-body p-5">
-                            <!-- Mensajes de éxito/error -->
-                            <t t-if="success_message">
-                                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                    <i class="fa fa-check-circle me-2"></i>
-                                    <span t-raw="success_message"></span>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            <div class="container">
+                <div class="form-card animate__animated animate__fadeInUp">
+                    <div class="card-body p-5">
+                        
+                        <!-- Mensajes de éxito o error -->
+                        <t t-if="success_message">
+                            <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                                <h5 class="alert-heading">
+                                    <i class="fa fa-check-circle me-2"></i>¡Solicitud Enviada!
+                                </h5>
+                                <t t-raw="success_message"/>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                            
+                            <!-- Resumen de la solicitud enviada -->
+                            <t t-if="request_data">
+                                <div class="card mb-4" style="border: 2px solid #28a745;">
+                                    <div class="card-header bg-success text-white">
+                                        <h6 class="mb-0">
+                                            <i class="fa fa-desktop me-2"></i>
+                                            Resumen de la Solicitud - <t t-esc="request_data['secuencia']"/>
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="fw-semibold">Tipo de Asistencia:</span>
+                                                    <span><t t-esc="request_data['assistance_type']"/></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="fw-semibold">Prioridad:</span>
+                                                    <span><t t-esc="request_data['priority']"/></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6" t-if="request_data['anydesk_id'] != 'No proporcionado'">
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="fw-semibold">AnyDesk ID:</span>
+                                                    <span><t t-esc="request_data['anydesk_id']"/></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6" t-if="request_data['username'] != 'No proporcionado'">
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="fw-semibold">Usuario:</span>
+                                                    <span><t t-esc="request_data['username']"/></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6" t-if="request_data['scanner_email'] != 'No proporcionado'">
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="fw-semibold">Email Escáner:</span>
+                                                    <span><t t-esc="request_data['scanner_email']"/></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </t>
                             
-                            <t t-if="error_message">
-                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                    <i class="fa fa-exclamation-triangle me-2"></i>
-                                    <span t-esc="error_message"></span>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            <!-- Botones de acción después del éxito -->
+                            <div class="text-center mb-4">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <a t-attf-href="/public/equipment_menu?copier_company_id=#{equipment.id}" 
+                                           class="btn btn-outline-primary w-100">
+                                            <i class="fa fa-arrow-left me-2"></i>Volver al Menú
+                                        </a>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <a t-attf-href="/public/remote_assistance?copier_company_id=#{equipment.id}" 
+                                           class="btn btn-outline-success w-100">
+                                            <i class="fa fa-plus me-2"></i>Nueva Solicitud
+                                        </a>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <a t-attf-href="/public/helpdesk_ticket?copier_company_id=#{equipment.id}" 
+                                           class="btn btn-outline-warning w-100">
+                                            <i class="fa fa-wrench me-2"></i>Reportar Problema
+                                        </a>
+                                    </div>
                                 </div>
-                            </t>
-                            
+                            </div>
+                        </t>
+                        
+                        <t t-if="error_message">
+                            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                                <h5 class="alert-heading">
+                                    <i class="fa fa-exclamation-triangle me-2"></i>Error
+                                </h5>
+                                <t t-esc="error_message"/>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        </t>
+                        
+                        <!-- Formulario solo si no hay éxito -->
+                        <t t-if="not success_message">
                             <!-- Información del Equipo -->
                             <div class="form-section">
                                 <h4 class="fw-bold text-primary mb-3">
@@ -687,13 +776,13 @@
                                 <div class="form-section">
                                     <h4 class="fw-bold text-success mb-3">
                                         <i class="fa fa-user-circle me-2"></i>
-                                        Información de Contacto
+                                        Información del Solicitante
                                     </h4>
                                     <div class="row g-3">
                                         <div class="col-md-6">
                                             <div class="form-floating">
                                                 <input type="text" class="form-control" id="contact_name" name="contact_name" 
-                                                       t-att-value="equipment_data['cliente_name']" required="true" placeholder="Nombre completo"/>
+                                                       placeholder="Ingresa tu nombre completo" required="true"/>
                                                 <label for="contact_name">Nombre completo *</label>
                                                 <div class="invalid-feedback">Por favor ingresa tu nombre completo</div>
                                             </div>
@@ -701,7 +790,7 @@
                                         <div class="col-md-6">
                                             <div class="form-floating">
                                                 <input type="email" class="form-control" id="contact_email" name="contact_email" 
-                                                       t-att-value="equipment_data['cliente_email']" required="true" placeholder="Email"/>
+                                                       placeholder="tu.email@empresa.com" required="true"/>
                                                 <label for="contact_email">Email de contacto *</label>
                                                 <div class="invalid-feedback">Por favor ingresa un email válido</div>
                                             </div>
@@ -709,7 +798,7 @@
                                         <div class="col-12">
                                             <div class="form-floating">
                                                 <input type="tel" class="form-control" id="contact_phone" name="contact_phone" 
-                                                       t-att-value="equipment_data['cliente_phone']" placeholder="Teléfono"/>
+                                                       placeholder="999 999 999"/>
                                                 <label for="contact_phone">Teléfono de contacto</label>
                                             </div>
                                         </div>
@@ -847,94 +936,95 @@
                                     </div>
                                 </div>
                             </form>
-                        </div>
-                    </div>
-                    
-                    <!-- Información Adicional -->
-                    <div class="text-center py-4">
-                        <div class="card border-0" style="background: linear-gradient(135deg, #f8fafc, #e2e8f0);">
-                            <div class="card-body py-4">
-                                <h5 class="fw-bold text-primary mb-3">
-                                    <i class="fa fa-shield-alt me-2"></i>
-                                    Información de Seguridad
-                                </h5>
-                                <p class="text-muted mb-0">
-                                    Tus datos de acceso están protegidos y solo serán utilizados por nuestro equipo técnico 
-                                    para brindarte asistencia. La sesión remota será supervisada y documentada.
-                                </p>
-                            </div>
-                        </div>
+                        </t>
                     </div>
                 </div>
                 
-                <script>
-                    // Validación del formulario
-                    (function() {
-                        'use strict';
-                        window.addEventListener('load', function() {
-                            var forms = document.getElementsByClassName('needs-validation');
-                            var validation = Array.prototype.filter.call(forms, function(form) {
-                                form.addEventListener('submit', function(event) {
-                                    if (form.checkValidity() === false) {
-                                        event.preventDefault();
-                                        event.stopPropagation();
-                                    }
-                                    form.classList.add('was-validated');
-                                }, false);
-                            });
-                        }, false);
-                    })();
+                <!-- Información Adicional -->
+                <div class="text-center py-4">
+                    <div class="card border-0" style="background: linear-gradient(135deg, #f8fafc, #e2e8f0);">
+                        <div class="card-body py-4">
+                            <h5 class="fw-bold text-primary mb-3">
+                                <i class="fa fa-shield-alt me-2"></i>
+                                Información de Seguridad
+                            </h5>
+                            <p class="text-muted mb-0">
+                                Tus datos de acceso están protegidos y solo serán utilizados por nuestro equipo técnico 
+                                para brindarte asistencia. La sesión remota será supervisada y documentada.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <script>
+                // Validación del formulario
+                (function() {
+                    'use strict';
+                    window.addEventListener('load', function() {
+                        var forms = document.getElementsByClassName('needs-validation');
+                        var validation = Array.prototype.filter.call(forms, function(form) {
+                            form.addEventListener('submit', function(event) {
+                                if (form.checkValidity() === false) {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                }
+                                form.classList.add('was-validated');
+                            }, false);
+                        });
+                    }, false);
+                })();
+                
+                // Mostrar/ocultar campos según tipo de asistencia
+                function toggleAccessFields() {
+                    const assistanceType = document.getElementById('assistance_type').value;
+                    const accessFields = document.getElementById('access_fields');
+                    const anydeskFields = document.getElementById('anydesk_fields');
+                    const scannerFields = document.getElementById('scanner_fields');
                     
-                    // Mostrar/ocultar campos según tipo de asistencia
-                    function toggleAccessFields() {
-                        const assistanceType = document.getElementById('assistance_type').value;
-                        const accessFields = document.getElementById('access_fields');
-                        const anydeskFields = document.getElementById('anydesk_fields');
-                        const scannerFields = document.getElementById('scanner_fields');
+                    if (assistanceType && assistanceType !== '') {
+                        accessFields.style.display = 'block';
+                        accessFields.classList.add('show');
                         
-                        if (assistanceType &amp;&amp; assistanceType !== '') {
-                            accessFields.style.display = 'block';
-                            accessFields.classList.add('show');
+                        // Mostrar campos específicos según el tipo
+                        if (assistanceType === 'scanner_email') {
+                            scannerFields.style.display = 'block';
+                            anydeskFields.style.display = 'none';
                             
-                            // Mostrar campos específicos según el tipo
-                            if (assistanceType === 'scanner_email') {
-                                scannerFields.style.display = 'block';
-                                anydeskFields.style.display = 'none';
-                                
-                                // Hacer requerido el email del escáner
-                                document.getElementById('scanner_email').required = true;
-                            } else {
-                                scannerFields.style.display = 'none';
-                                anydeskFields.style.display = 'block';
-                                
-                                // Quitar requerimiento del email del escáner
-                                document.getElementById('scanner_email').required = false;
-                            }
+                            // Hacer requerido el email del escáner
+                            document.getElementById('scanner_email').required = true;
                         } else {
-                            accessFields.style.display = 'none';
-                            accessFields.classList.remove('show');
-                        }
-                    }
-                    
-                    // Animaciones y efectos
-                    document.addEventListener('DOMContentLoaded', function() {
-                        // Efecto de focus en inputs
-                        const inputs = document.querySelectorAll('.form-control');
-                        inputs.forEach(input =&gt; {
-                            input.addEventListener('focus', function() {
-                                this.parentElement.style.transform = 'scale(1.02)';
-                                this.parentElement.style.transition = 'transform 0.2s ease';
-                            });
+                            scannerFields.style.display = 'none';
+                            anydeskFields.style.display = 'block';
                             
-                            input.addEventListener('blur', function() {
-                                this.parentElement.style.transform = 'scale(1)';
-                            });
+                            // Quitar requerimiento del email del escáner
+                            document.getElementById('scanner_email').required = false;
+                        }
+                    } else {
+                        accessFields.style.display = 'none';
+                        accessFields.classList.remove('show');
+                    }
+                }
+                
+                // Animaciones y efectos
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Efecto de focus en inputs
+                    const inputs = document.querySelectorAll('.form-control');
+                    inputs.forEach(input => {
+                        input.addEventListener('focus', function() {
+                            this.parentElement.style.transform = 'scale(1.02)';
+                            this.parentElement.style.transition = 'transform 0.2s ease';
+                        });
+                        
+                        input.addEventListener('blur', function() {
+                            this.parentElement.style.transform = 'scale(1)';
                         });
                     });
-                </script>
-            </div>
-        </t>
-    </template>
+                });
+            </script>
+        </div>
+    </t>
+</template>
     
     <!-- FORMULARIO MEJORADO DE TICKETS -->
 

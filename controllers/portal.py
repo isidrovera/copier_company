@@ -738,7 +738,7 @@ class CopierCompanyPortal(CustomerPortal):
   
     @http.route(['/public/remote_assistance'], type='http', auth="public", website=True)
     def public_remote_assistance(self, copier_company_id=None, **kw):
-        """Formulario de asistencia remota con datos pre-cargados del equipo"""
+        """Formulario de asistencia remota"""
         _logger.info("=== INICIANDO public_remote_assistance ===")
         _logger.info("Parámetros recibidos - copier_company_id: %s, kw: %s", copier_company_id, kw)
         
@@ -753,9 +753,10 @@ class CopierCompanyPortal(CustomerPortal):
                 _logger.error("Equipo ID %s no encontrado", copier_company_id)
                 return request.redirect('/')
                 
-            _logger.info("Cargando formulario de asistencia remota para equipo: %s", equipment.name.name if equipment.name else 'Sin nombre')
+            _logger.info("Cargando formulario de asistencia remota para equipo: %s", 
+                        equipment.name.name if equipment.name else 'Sin nombre')
             
-            # Preparar datos pre-cargados del equipo
+            # Preparar datos del equipo (SIN datos de contacto del equipo)
             equipment_data = {
                 'id': equipment.id,
                 'name': self._safe_get_text(equipment.name.name) if equipment.name else 'Equipo sin nombre',
@@ -768,9 +769,6 @@ class CopierCompanyPortal(CustomerPortal):
                 'sede': self._safe_get_text(equipment.sede) or '',
                 'ip': self._safe_get_text(equipment.ip_id) or '',
                 'tipo': 'Color' if equipment.tipo == 'color' else 'Blanco y Negro',
-                'contacto_equipo': self._safe_get_text(equipment.contacto) or '',
-                'celular_equipo': self._safe_get_text(equipment.celular) or '',
-                'correo_equipo': self._safe_get_text(equipment.correo) or ''
             }
             
             _logger.info("Datos del equipo pre-cargados: %s", equipment_data)
@@ -806,9 +804,10 @@ class CopierCompanyPortal(CustomerPortal):
                         'scanner_password': kw.get('scanner_password', '').strip(),
                     }
                     
-                    _logger.info("Datos del formulario capturados: %s", {k: v if k not in ['user_password', 'scanner_password'] else '***' for k, v in form_data.items()})
+                    _logger.info("Datos del formulario capturados: %s", 
+                            {k: v if k not in ['user_password', 'scanner_password'] else '***' for k, v in form_data.items()})
                     
-                    # Validaciones
+                    # Validaciones básicas
                     if not form_data['contact_name']:
                         _logger.warning("Nombre de contacto requerido")
                         values['error_message'] = _("El nombre de contacto es requerido.")
@@ -842,14 +841,17 @@ class CopierCompanyPortal(CustomerPortal):
                     # Buscar o crear partner basado en email
                     partner = request.env['res.partner'].sudo().search([('email', '=', form_data['contact_email'])], limit=1)
                     if partner:
-                        _logger.info("Partner encontrado para email %s: ID=%s, Nombre=%s", form_data['contact_email'], partner.id, partner.name)
+                        _logger.info("Partner encontrado para email %s: ID=%s, Nombre=%s", 
+                                form_data['contact_email'], partner.id, partner.name)
                         # Actualizar datos si es necesario
+                        update_vals = {}
                         if partner.name != form_data['contact_name']:
-                            partner.sudo().write({'name': form_data['contact_name']})
-                            _logger.info("Nombre del partner actualizado a: %s", form_data['contact_name'])
+                            update_vals['name'] = form_data['contact_name']
                         if form_data['contact_phone'] and not partner.mobile:
-                            partner.sudo().write({'mobile': form_data['contact_phone']})
-                            _logger.info("Teléfono del partner actualizado a: %s", form_data['contact_phone'])
+                            update_vals['mobile'] = form_data['contact_phone']
+                        if update_vals:
+                            partner.sudo().write(update_vals)
+                            _logger.info("Partner actualizado: %s", update_vals)
                     else:
                         try:
                             partner = request.env['res.partner'].sudo().create({
@@ -858,7 +860,8 @@ class CopierCompanyPortal(CustomerPortal):
                                 'mobile': form_data['contact_phone'],
                                 'is_company': False
                             })
-                            _logger.info("Nuevo partner creado: ID=%s, Nombre=%s, Email=%s", partner.id, partner.name, partner.email)
+                            _logger.info("Nuevo partner creado: ID=%s, Nombre=%s, Email=%s", 
+                                    partner.id, partner.name, partner.email)
                         except Exception as e:
                             _logger.exception("Error al crear partner: %s", str(e))
                             values['error_message'] = _("Error al procesar los datos del contacto. Por favor intente nuevamente.")
@@ -870,7 +873,8 @@ class CopierCompanyPortal(CustomerPortal):
                             _logger.info("Creando solicitud de asistencia remota")
                             
                             assistance_request = request.env['remote.assistance.request'].sudo().create_from_public_form(form_data)
-                            _logger.info("Solicitud de asistencia remota creada exitosamente: ID=%s, Secuencia=%s", assistance_request.id, assistance_request.secuencia)
+                            _logger.info("Solicitud de asistencia remota creada exitosamente: ID=%s, Secuencia=%s", 
+                                    assistance_request.id, assistance_request.secuencia)
                             
                             # Enviar notificación por email al equipo técnico
                             try:
@@ -878,24 +882,48 @@ class CopierCompanyPortal(CustomerPortal):
                             except Exception as e:
                                 _logger.error("Error enviando notificación técnica: %s", str(e))
                             
+                            # Mapeo de tipos de asistencia para el mensaje
+                            assistance_types = {
+                                'general': 'Asistencia General',
+                                'scanner_email': 'Configuración Escáner por Email',
+                                'network': 'Problemas de Red',
+                                'drivers': 'Instalación de Drivers',
+                                'printing': 'Problemas de Impresión',
+                                'scanning': 'Problemas de Escaneo',
+                                'maintenance': 'Mantenimiento Preventivo',
+                                'other': 'Otro'
+                            }
+                            
                             # Mensaje de éxito con información detallada
                             success_message = _(
                                 "¡Solicitud de asistencia remota creada exitosamente!<br/><br/>"
                                 "<strong>Número de solicitud:</strong> {}<br/>"
                                 "<strong>Equipo:</strong> {} (Serie: {})<br/>"
-                                "<strong>Tipo de asistencia:</strong> {}<br/><br/>"
+                                "<strong>Tipo de asistencia:</strong> {}<br/>"
+                                "<strong>Prioridad:</strong> {}<br/><br/>"
                                 "Nuestro equipo técnico se pondrá en contacto contigo pronto.<br/>"
-                                "Recibirás un email de confirmación en: {}"
+                                "Recibirás actualizaciones en: {}"
                             ).format(
                                 assistance_request.secuencia,
                                 equipment_data['name'],
                                 equipment_data['serie'],
-                                dict(assistance_request._fields['assistance_type'].selection).get(assistance_request.assistance_type, 'General'),
+                                assistance_types.get(assistance_request.assistance_type, 'General'),
+                                dict(assistance_request._fields['priority'].selection).get(assistance_request.priority, 'Media'),
                                 form_data['contact_email']
                             )
                             
                             values['success_message'] = success_message
                             values['assistance_request'] = assistance_request
+                            
+                            # Agregar datos de la solicitud para mostrar en la pantalla de éxito
+                            values['request_data'] = {
+                                'secuencia': assistance_request.secuencia,
+                                'assistance_type': assistance_types.get(assistance_request.assistance_type, 'General'),
+                                'priority': dict(assistance_request._fields['priority'].selection).get(assistance_request.priority, 'Media'),
+                                'anydesk_id': assistance_request.anydesk_id or 'No proporcionado',
+                                'username': assistance_request.username or 'No proporcionado',
+                                'scanner_email': assistance_request.scanner_email or 'No proporcionado',
+                            }
                             
                         except Exception as e:
                             _logger.exception("Error al crear solicitud de asistencia remota: %s", str(e))
@@ -922,6 +950,152 @@ class CopierCompanyPortal(CustomerPortal):
             _logger.exception("¡EXCEPCIÓN GENERAL en public_remote_assistance!: %s", str(e))
             return request.redirect('/')
 
+    def _send_technical_notification(self, assistance_request):
+        """Envía notificación por email para nueva solicitud de asistencia remota"""
+        _logger.info("=== INICIANDO _send_technical_notification para solicitud %s ===", assistance_request.secuencia)
+        
+        try:
+            # Emails del equipo técnico
+            technical_emails = [
+                'soporte@copiercompanysac.com',
+                'tecnico@copiercompanysac.com',
+                'administracion@copiercompanysac.com'
+            ]
+            
+            # Buscar el servidor de correo Outlook configurado
+            mail_server = request.env['ir.mail_server'].sudo().search([
+                ('name', '=', 'Outlook')
+            ], limit=1)
+            
+            if not mail_server:
+                _logger.error("No se encontró el servidor de correo 'Outlook'")
+                # Buscar cualquier servidor de correo disponible como fallback
+                mail_server = request.env['ir.mail_server'].sudo().search([], limit=1)
+                if mail_server:
+                    _logger.info("Usando servidor de correo fallback: %s", mail_server.name)
+                else:
+                    _logger.error("No hay servidores de correo configurados")
+                    return False
+            else:
+                _logger.info("Usando servidor de correo: %s (ID: %s)", mail_server.name, mail_server.id)
+            
+            # Mapeo de tipos de asistencia
+            assistance_types = {
+                'general': 'Asistencia General',
+                'scanner_email': 'Configuración Escáner por Email',
+                'network': 'Problemas de Red',
+                'drivers': 'Instalación de Drivers',
+                'printing': 'Problemas de Impresión',
+                'scanning': 'Problemas de Escaneo',
+                'maintenance': 'Mantenimiento Preventivo',
+                'other': 'Otro'
+            }
+            
+            priority_names = {
+                'low': 'Baja',
+                'medium': 'Media',
+                'high': 'Alta',
+                'urgent': 'Urgente'
+            }
+            
+            priority_icons = {
+                'low': '🟢',
+                'medium': '🟡', 
+                'high': '🟠',
+                'urgent': '🔴'
+            }
+            
+            # Preparar datos del equipo
+            equipment = assistance_request.equipment_id
+            
+            email_body = f"""
+            <h2>🛠️ Nueva Solicitud de Asistencia Remota</h2>
+            
+            <h3>📋 Información de la Solicitud</h3>
+            <p><strong>Número:</strong> {assistance_request.secuencia}</p>
+            <p><strong>Fecha:</strong> {assistance_request.request_date.strftime('%d/%m/%Y %H:%M')}</p>
+            <p><strong>Prioridad:</strong> {priority_icons.get(assistance_request.priority, '⚪')} {priority_names.get(assistance_request.priority, 'Media')}</p>
+            
+            <h3>🖨️ Información del Equipo</h3>
+            <p><strong>Equipo:</strong> {equipment.name.name if equipment.name else 'Sin nombre'}</p>
+            <p><strong>Serie:</strong> {equipment.serie_id or 'Sin serie'}</p>
+            <p><strong>Marca:</strong> {equipment.marca_id.name if equipment.marca_id else 'Sin marca'}</p>
+            <p><strong>Tipo:</strong> {'Color' if equipment.tipo == 'color' else 'Blanco y Negro'}</p>
+            <p><strong>Cliente:</strong> {equipment.cliente_id.name if equipment.cliente_id else 'Sin cliente'}</p>
+            <p><strong>Ubicación:</strong> {equipment.ubicacion or 'Sin ubicación'}</p>
+            <p><strong>Sede:</strong> {equipment.sede or 'Sin sede'}</p>
+            <p><strong>IP:</strong> {equipment.ip_id or 'Sin IP'}</p>
+            
+            <h3>👤 Información del Contacto</h3>
+            <p><strong>Nombre:</strong> {assistance_request.contact_name}</p>
+            <p><strong>Email:</strong> {assistance_request.contact_email}</p>
+            <p><strong>Teléfono:</strong> {assistance_request.contact_phone or 'No proporcionado'}</p>
+            
+            <h3>🛠️ Detalles de la Asistencia</h3>
+            <table border="1" style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+                <tr style="background-color: #f0f0f0;">
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Detalle</th>
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Información</th>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">Tipo de Asistencia</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">{assistance_types.get(assistance_request.assistance_type, 'Desconocido')}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">Prioridad</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">{priority_icons.get(assistance_request.priority, '⚪')} {priority_names.get(assistance_request.priority, 'Media')}</td>
+                </tr>
+                {f'<tr><td style="padding: 8px; border: 1px solid #ddd;">AnyDesk ID</td><td style="padding: 8px; border: 1px solid #ddd;">{assistance_request.anydesk_id}</td></tr>' if assistance_request.anydesk_id else ''}
+                {f'<tr><td style="padding: 8px; border: 1px solid #ddd;">Usuario del Equipo</td><td style="padding: 8px; border: 1px solid #ddd;">{assistance_request.username}</td></tr>' if assistance_request.username else ''}
+                {f'<tr><td style="padding: 8px; border: 1px solid #ddd;">Email del Escáner</td><td style="padding: 8px; border: 1px solid #ddd;">{assistance_request.scanner_email}</td></tr>' if assistance_request.scanner_email else ''}
+            </table>
+            
+            <h3>🔍 Descripción del Problema</h3>
+            <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #007bff; margin: 10px 0;">
+                <p style="margin: 0;">{assistance_request.problem_description}</p>
+            </div>
+            
+            <h3>⚡ Acciones Sugeridas</h3>
+            <ul>
+                <li><a href="{request.env['ir.config_parameter'].sudo().get_param('web.base.url')}/web#id={assistance_request.id}&model=remote.assistance.request&view_type=form">Ver Solicitud en el Sistema</a></li>
+                <li>Contactar al cliente para coordinar la sesión de asistencia remota</li>
+                <li>Verificar la disponibilidad de acceso remoto (AnyDesk, TeamViewer, etc.)</li>
+                <li>Programar la fecha y hora de la asistencia</li>
+                <li>Preparar las herramientas necesarias según el tipo de problema</li>
+                <li>Actualizar el estado de la solicitud en el sistema</li>
+            </ul>
+            
+            <hr/>
+            <p><small>Esta solicitud fue generada automáticamente desde el portal de equipos de Copier Company.</small></p>
+            """
+            
+            # Enviar email a cada persona del equipo técnico
+            for email in technical_emails:
+                if email:
+                    try:
+                        mail_values = {
+                            'subject': f'🛠️ Nueva Solicitud de Asistencia Remota - {assistance_request.secuencia} - {equipment.name.name if equipment.name else "Equipo"}',
+                            'email_to': email,
+                            'email_from': 'info@copiercompanysac.com',
+                            'body_html': email_body,
+                            'auto_delete': False,
+                            'mail_server_id': mail_server.id,  # ✅ USAR SERVIDOR OUTLOOK
+                        }
+                        
+                        mail = request.env['mail.mail'].sudo().create(mail_values)
+                        mail.send()
+                        _logger.info("Notificación de asistencia remota enviada a: %s usando servidor: %s", 
+                                email, mail_server.name)
+                        
+                    except Exception as e:
+                        _logger.error("Error enviando notificación de asistencia remota a %s: %s", email, str(e))
+            
+            _logger.info("Proceso de notificación de asistencia remota completado")
+            return True
+            
+        except Exception as e:
+            _logger.exception("Error en _send_technical_notification: %s", str(e))
+            return False
     def _send_technical_notification(self, assistance_request):
         """Envía notificación por email al equipo técnico"""
         _logger.info("=== INICIANDO _send_technical_notification para solicitud %s ===", assistance_request.secuencia)
