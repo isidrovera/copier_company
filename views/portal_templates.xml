@@ -112,161 +112,507 @@
     
     <!-- Template para la página de detalle de un equipo -->
     <template id="portal_my_copier_equipment" name="My Rental Equipment Details">
-        <t t-call="portal.portal_layout">
-            <t t-set="wrapwrap_classes" t-value="'o_portal_bg_dark'"/>
-            <div class="row mt-4">
-                <div class="col-lg-4 d-print-none">
-                    <!-- Panel lateral con acciones -->
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">Acciones</h5>
-                            <div class="d-grid gap-2">
-                                <a t-att-href="'/my/copier/equipment/%s/ticket' % equipment.id" class="btn btn-danger">
-                                    <i class="fa fa-ticket me-1"/>Reportar problema
-                                </a>
-                                <a t-att-href="'/my/copier/equipment/%s/counters' % equipment.id" class="btn btn-info">
-                                    <i class="fa fa-tachometer me-1"/>Ver lecturas
-                                </a>
-                            </div>
-                        </div>
+    <t t-call="portal.portal_layout">
+        <t t-set="wrapwrap_classes" t-value="'o_portal_bg_dark'"/>
+        
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap');
+            @import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
+            
+            * { font-family: 'Inter', sans-serif; }
+            
+            .hero-equipment {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border-radius: 0 0 30px 30px;
+                margin: -20px -15px 0;
+                padding: 40px 15px;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .hero-equipment::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="white" opacity="0.1"><polygon points="1000,100 1000,0 0,100"/></svg>');
+                background-size: cover;
+            }
+            
+            .equipment-card {
+                background: white;
+                border-radius: 20px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+                border: none;
+                transition: all 0.3s ease;
+                margin-top: -40px;
+                position: relative;
+                z-index: 10;
+            }
+            
+            .equipment-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 25px 80px rgba(0,0,0,0.15);
+            }
+            
+            .action-card {
+                background: linear-gradient(135deg, #fff, #f8fafc);
+                border: 2px solid #e2e8f0;
+                border-radius: 16px;
+                padding: 20px;
+                text-align: center;
+                transition: all 0.3s ease;
+                text-decoration: none;
+                color: inherit;
+                display: block;
+                height: 100%;
+            }
+            
+            .action-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+                border-color: #3b82f6;
+                text-decoration: none;
+                color: #1f2937;
+            }
+            
+            .action-icon {
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 15px;
+                font-size: 24px;
+                color: white;
+                transition: all 0.3s ease;
+            }
+            
+            .action-card:hover .action-icon {
+                transform: scale(1.1);
+            }
+            
+            .bg-gradient-primary { background: linear-gradient(135deg, #3b82f6, #1e40af) !important; }
+            .bg-gradient-success { background: linear-gradient(135deg, #10b981, #047857) !important; }
+            .bg-gradient-warning { background: linear-gradient(135deg, #f59e0b, #d97706) !important; }
+            .bg-gradient-danger { background: linear-gradient(135deg, #ef4444, #dc2626) !important; }
+            .bg-gradient-info { background: linear-gradient(135deg, #06b6d4, #0891b2) !important; }
+            .bg-gradient-purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important; }
+            
+            .info-card {
+                background: white;
+                border-radius: 16px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+                border: 1px solid #e5e7eb;
+                margin-bottom: 20px;
+                overflow: hidden;
+            }
+            
+            .info-card-header {
+                background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+                padding: 20px;
+                border-bottom: 1px solid #e5e7eb;
+            }
+            
+            .info-row {
+                padding: 12px 20px;
+                border-bottom: 1px solid #f3f4f6;
+                transition: background 0.2s ease;
+            }
+            
+            .info-row:last-child {
+                border-bottom: none;
+            }
+            
+            .info-row:hover {
+                background: #f9fafb;
+            }
+            
+            .qr-card {
+                background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+                border: 2px solid #0ea5e9;
+                border-radius: 16px;
+                text-align: center;
+                padding: 20px;
+            }
+            
+            .status-badge {
+                padding: 8px 16px;
+                border-radius: 20px;
+                font-weight: 600;
+                font-size: 0.875rem;
+            }
+            
+            .equipment-image {
+                max-width: 100%;
+                height: auto;
+                border-radius: 16px;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            }
+            
+            @media (max-width: 768px) {
+                .hero-equipment {
+                    margin: -20px -15px 0;
+                    border-radius: 0 0 20px 20px;
+                    padding: 30px 15px;
+                }
+                
+                .equipment-card {
+                    margin-top: -20px;
+                }
+            }
+        </style>
+        
+        <!-- Hero Section -->
+        <div class="hero-equipment animate__animated animate__fadeInDown">
+            <div class="container position-relative">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1 class="display-6 fw-bold mb-2">
+                            <i class="fa fa-print me-3"></i>
+                            <span t-field="equipment.name.name"/>
+                        </h1>
+                        <p class="lead mb-0 opacity-90">
+                            Serie: <span t-field="equipment.serie_id"/> | 
+                            <span t-if="equipment.tipo == 'monocroma'">Blanco y Negro</span>
+                            <span t-else="">Color</span>
+                        </p>
                     </div>
-                    <!-- Código QR -->
-                    <div class="card mb-4" t-if="equipment.qr_code">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">Código QR</h5>
-                            <img class="img-fluid" t-att-src="image_data_uri(equipment.qr_code)" alt="Código QR"/>
-                            <p class="text-muted mt-2">Escanea para crear un ticket</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-8">
-                    <!-- Información principal del equipo -->
-                    <div class="card mb-4">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0"><i class="fa fa-print me-2"/>Detalles del Equipo</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <!-- Imagen del equipo -->
-                                <div class="col-md-4 text-center" t-if="equipment.imagen_id">
-                                    <img class="img-fluid rounded" t-att-src="image_data_uri(equipment.imagen_id)" alt="Imagen de la Máquina"/>
-                                </div>
-                                
-                                <!-- Datos básicos -->
-                                <div t-att-class="equipment.imagen_id and 'col-md-8' or 'col-md-12'">
-                                    <h4 t-field="equipment.name.name" class="mb-3"/>
-                                    <div class="row mb-2">
-                                        <div class="col-sm-4 text-muted">Marca:</div>
-                                        <div class="col-sm-8" t-field="equipment.marca_id.name"/>
-                                    </div>
-                                    <div class="row mb-2">
-                                        <div class="col-sm-4 text-muted">Serie:</div>
-                                        <div class="col-sm-8" t-field="equipment.serie_id"/>
-                                    </div>
-                                    <div class="row mb-2">
-                                        <div class="col-sm-4 text-muted">Tipo:</div>
-                                        <div class="col-sm-8">
-                                            <span t-if="equipment.tipo == 'monocroma'">Blanco y negro</span>
-                                            <span t-else="">Color</span>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-2">
-                                        <div class="col-sm-4 text-muted">Formato:</div>
-                                        <div class="col-sm-8" t-field="equipment.formato"/>
-                                    </div>
-                                    <div class="row mb-2">
-                                        <div class="col-sm-4 text-muted">Ubicación:</div>
-                                        <div class="col-sm-8" t-field="equipment.ubicacion"/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Información del contrato -->
-                    <div class="card mb-4">
-                        <div class="card-header bg-success text-white">
-                            <h5 class="mb-0"><i class="fa fa-file-contract me-2"/>Información del Contrato</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row mb-2">
-                                <div class="col-sm-4 text-muted">Cotización:</div>
-                                <div class="col-sm-8" t-field="equipment.secuencia"/>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col-sm-4 text-muted">Inicio del alquiler:</div>
-                                <div class="col-sm-8" t-field="equipment.fecha_inicio_alquiler"/>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col-sm-4 text-muted">Fin del alquiler:</div>
-                                <div class="col-sm-8" t-field="equipment.fecha_fin_alquiler"/>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col-sm-4 text-muted">Duración:</div>
-                                <div class="col-sm-8" t-field="equipment.duracion_alquiler_id.name"/>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col-sm-4 text-muted">Estado:</div>
-                                <div class="col-sm-8">
-                                    <span t-field="equipment.estado_renovacion" t-attf-class="badge rounded-pill bg-{{ equipment.estado_renovacion == 'vigente' and 'success' or (equipment.estado_renovacion == 'por_vencer' and 'warning' or 'danger') }}"/>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Información de precios y costos -->
-                    <div class="card mb-4">
-                        <div class="card-header bg-info text-white">
-                            <h5 class="mb-0"><i class="fa fa-money-bill me-2"/>Información de Costos</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row mb-2" t-if="equipment.tipo == 'monocroma' or equipment.tipo == 'color'">
-                                <div class="col-sm-4 text-muted">Costo por copia B/N:</div>
-                                <div class="col-sm-8">
-                                    <span t-field="equipment.costo_copia_bn"/>
-                                    <t t-if="equipment.precio_bn_incluye_igv"> (incluye IGV)</t>
-                                </div>
-                            </div>
-                            <div class="row mb-2" t-if="equipment.tipo == 'color'">
-                                <div class="col-sm-4 text-muted">Costo por copia color:</div>
-                                <div class="col-sm-8">
-                                    <span t-field="equipment.costo_copia_color"/>
-                                    <t t-if="equipment.precio_color_incluye_igv"> (incluye IGV)</t>
-                                </div>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col-sm-4 text-muted">Volumen mensual B/N:</div>
-                                <div class="col-sm-8" t-field="equipment.volumen_mensual_bn"/>
-                            </div>
-                            <div class="row mb-2" t-if="equipment.tipo == 'color'">
-                                <div class="col-sm-4 text-muted">Volumen mensual color:</div>
-                                <div class="col-sm-8" t-field="equipment.volumen_mensual_color"/>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col-sm-4 text-muted">Renta mensual B/N:</div>
-                                <div class="col-sm-8" t-field="equipment.renta_mensual_bn"/>
-                            </div>
-                            <div class="row mb-2" t-if="equipment.tipo == 'color'">
-                                <div class="col-sm-4 text-muted">Renta mensual color:</div>
-                                <div class="col-sm-8" t-field="equipment.renta_mensual_color"/>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col-sm-4 text-muted">Día de facturación:</div>
-                                <div class="col-sm-8" t-field="equipment.dia_facturacion"/>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Especificaciones técnicas -->
-                    <div class="card mb-4" t-if="equipment.especificaciones_id">
-                        <div class="card-header bg-secondary text-white">
-                            <h5 class="mb-0"><i class="fa fa-cogs me-2"/>Especificaciones Técnicas</h5>
-                        </div>
-                        <div class="card-body">
-                            <div t-field="equipment.especificaciones_id"/>
+                    <div class="col-md-4 text-end">
+                        <div class="status-badge bg-success text-white">
+                            <i class="fa fa-check-circle me-2"></i>
+                            Equipo Activo
                         </div>
                     </div>
                 </div>
             </div>
-        </t>
-    </template>
+        </div>
+        
+        <div class="container mt-4">
+            <div class="row">
+                <!-- Panel de Acciones -->
+                <div class="col-lg-4 mb-4">
+                    <div class="equipment-card animate__animated animate__fadeInLeft">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-4 text-center">
+                                <i class="fa fa-bolt me-2 text-primary"></i>
+                                Acciones Rápidas
+                            </h5>
+                            
+                            <div class="row g-3">
+                                <!-- Reportar Contadores -->
+                                <div class="col-12">
+                                    <a t-attf-href="/public/upload_counters?copier_company_id=#{equipment.id}" class="action-card">
+                                        <div class="action-icon bg-gradient-primary">
+                                            <i class="fa fa-chart-bar"></i>
+                                        </div>
+                                        <h6 class="fw-semibold mb-2">Reportar Contadores</h6>
+                                        <p class="text-muted small mb-0">Envía las lecturas mensuales</p>
+                                    </a>
+                                </div>
+                                
+                                <!-- Solicitar Toner -->
+                                <div class="col-12">
+                                    <a t-attf-href="/public/request_toner?copier_company_id=#{equipment.id}" class="action-card">
+                                        <div class="action-icon bg-gradient-success">
+                                            <i class="fa fa-tint"></i>
+                                        </div>
+                                        <h6 class="fw-semibold mb-2">Solicitar Toner</h6>
+                                        <p class="text-muted small mb-0">Pide reposición de consumibles</p>
+                                    </a>
+                                </div>
+                                
+                                <!-- Asistencia Remota -->
+                                <div class="col-12">
+                                    <a t-attf-href="/public/remote_assistance?copier_company_id=#{equipment.id}" class="action-card">
+                                        <div class="action-icon bg-gradient-info">
+                                            <i class="fa fa-desktop"></i>
+                                        </div>
+                                        <h6 class="fw-semibold mb-2">Asistencia Remota</h6>
+                                        <p class="text-muted small mb-0">Solicita ayuda técnica</p>
+                                    </a>
+                                </div>
+                                
+                                <!-- Reportar Problema -->
+                                <div class="col-12">
+                                    <a t-attf-href="/public/helpdesk_ticket?copier_company_id=#{equipment.id}" class="action-card">
+                                        <div class="action-icon bg-gradient-danger">
+                                            <i class="fa fa-exclamation-triangle"></i>
+                                        </div>
+                                        <h6 class="fw-semibold mb-2">Reportar Problema</h6>
+                                        <p class="text-muted small mb-0">Reporta fallas o incidencias</p>
+                                    </a>
+                                </div>
+                                
+                                <!-- Ver Lecturas -->
+                                <div class="col-12">
+                                    <a t-att-href="'/my/copier/equipment/%s/counters' % equipment.id" class="action-card">
+                                        <div class="action-icon bg-gradient-purple">
+                                            <i class="fa fa-history"></i>
+                                        </div>
+                                        <h6 class="fw-semibold mb-2">Historial</h6>
+                                        <p class="text-muted small mb-0">Ver lecturas anteriores</p>
+                                    </a>
+                                </div>
+                                
+                                <!-- Contacto Directo -->
+                                <div class="col-12">
+                                    <a t-attf-href="/public/send_whatsapp?copier_company_id=#{equipment.id}" class="action-card">
+                                        <div class="action-icon bg-gradient-warning">
+                                            <i class="fab fa-whatsapp"></i>
+                                        </div>
+                                        <h6 class="fw-semibold mb-2">WhatsApp</h6>
+                                        <p class="text-muted small mb-0">Contacto directo</p>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Código QR -->
+                    <div class="qr-card animate__animated animate__fadeInLeft animate__delay-1s" t-if="equipment.qr_code">
+                        <h5 class="fw-bold mb-3 text-primary">
+                            <i class="fa fa-qrcode me-2"></i>
+                            Código QR
+                        </h5>
+                        <img class="img-fluid mb-3" t-att-src="image_data_uri(equipment.qr_code)" alt="Código QR" style="max-width: 200px;"/>
+                        <p class="text-muted mb-0">Escanea para acceso rápido</p>
+                    </div>
+                </div>
+                
+                <!-- Información Principal -->
+                <div class="col-lg-8">
+                    <div class="row">
+                        <!-- Detalles del Equipo -->
+                        <div class="col-12 mb-4">
+                            <div class="info-card animate__animated animate__fadeInRight">
+                                <div class="info-card-header">
+                                    <h5 class="fw-bold mb-0 text-primary">
+                                        <i class="fa fa-info-circle me-2"></i>
+                                        Detalles del Equipo
+                                    </h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="row">
+                                        <!-- Imagen del equipo -->
+                                        <div class="col-md-4 p-4 text-center" t-if="equipment.imagen_id">
+                                            <img class="equipment-image" t-att-src="image_data_uri(equipment.imagen_id)" alt="Imagen de la Máquina"/>
+                                        </div>
+                                        
+                                        <!-- Datos básicos -->
+                                        <div t-att-class="equipment.imagen_id and 'col-md-8 p-0' or 'col-md-12 p-0'">
+                                            <div class="info-row">
+                                                <div class="row">
+                                                    <div class="col-sm-4 fw-semibold text-muted">Marca:</div>
+                                                    <div class="col-sm-8" t-field="equipment.marca_id.name"/>
+                                                </div>
+                                            </div>
+                                            <div class="info-row">
+                                                <div class="row">
+                                                    <div class="col-sm-4 fw-semibold text-muted">Serie:</div>
+                                                    <div class="col-sm-8 fw-mono" t-field="equipment.serie_id"/>
+                                                </div>
+                                            </div>
+                                            <div class="info-row">
+                                                <div class="row">
+                                                    <div class="col-sm-4 fw-semibold text-muted">Tipo:</div>
+                                                    <div class="col-sm-8">
+                                                        <span t-if="equipment.tipo == 'monocroma'" class="badge bg-secondary">Blanco y Negro</span>
+                                                        <span t-else="" class="badge bg-primary">Color</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="info-row">
+                                                <div class="row">
+                                                    <div class="col-sm-4 fw-semibold text-muted">Formato:</div>
+                                                    <div class="col-sm-8" t-field="equipment.formato"/>
+                                                </div>
+                                            </div>
+                                            <div class="info-row">
+                                                <div class="row">
+                                                    <div class="col-sm-4 fw-semibold text-muted">Ubicación:</div>
+                                                    <div class="col-sm-8">
+                                                        <i class="fa fa-map-marker-alt text-warning me-2"></i>
+                                                        <span t-field="equipment.ubicacion"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="info-row" t-if="equipment.sede">
+                                                <div class="row">
+                                                    <div class="col-sm-4 fw-semibold text-muted">Sede:</div>
+                                                    <div class="col-sm-8" t-field="equipment.sede"/>
+                                                </div>
+                                            </div>
+                                            <div class="info-row" t-if="equipment.ip_id">
+                                                <div class="row">
+                                                    <div class="col-sm-4 fw-semibold text-muted">IP:</div>
+                                                    <div class="col-sm-8 fw-mono text-info" t-field="equipment.ip_id"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Información del Contrato -->
+                        <div class="col-md-6 mb-4">
+                            <div class="info-card animate__animated animate__fadeInRight animate__delay-1s">
+                                <div class="info-card-header">
+                                    <h5 class="fw-bold mb-0 text-success">
+                                        <i class="fa fa-file-contract me-2"></i>
+                                        Contrato
+                                    </h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="info-row">
+                                        <div class="row">
+                                            <div class="col-6 fw-semibold text-muted">Cotización:</div>
+                                            <div class="col-6 fw-mono" t-field="equipment.secuencia"/>
+                                        </div>
+                                    </div>
+                                    <div class="info-row">
+                                        <div class="row">
+                                            <div class="col-6 fw-semibold text-muted">Inicio:</div>
+                                            <div class="col-6" t-field="equipment.fecha_inicio_alquiler"/>
+                                        </div>
+                                    </div>
+                                    <div class="info-row">
+                                        <div class="row">
+                                            <div class="col-6 fw-semibold text-muted">Fin:</div>
+                                            <div class="col-6" t-field="equipment.fecha_fin_alquiler"/>
+                                        </div>
+                                    </div>
+                                    <div class="info-row">
+                                        <div class="row">
+                                            <div class="col-6 fw-semibold text-muted">Duración:</div>
+                                            <div class="col-6" t-field="equipment.duracion_alquiler_id.name"/>
+                                        </div>
+                                    </div>
+                                    <div class="info-row">
+                                        <div class="row">
+                                            <div class="col-6 fw-semibold text-muted">Estado:</div>
+                                            <div class="col-6">
+                                                <span t-field="equipment.estado_renovacion" 
+                                                      t-attf-class="badge {{ equipment.estado_renovacion == 'vigente' and 'bg-success' or (equipment.estado_renovacion == 'por_vencer' and 'bg-warning' or 'bg-danger') }}"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Información de Costos -->
+                        <div class="col-md-6 mb-4">
+                            <div class="info-card animate__animated animate__fadeInRight animate__delay-2s">
+                                <div class="info-card-header">
+                                    <h5 class="fw-bold mb-0 text-info">
+                                        <i class="fa fa-money-bill-wave me-2"></i>
+                                        Costos
+                                    </h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="info-row">
+                                        <div class="row">
+                                            <div class="col-7 fw-semibold text-muted">Copia B/N:</div>
+                                            <div class="col-5 text-end">
+                                                <span class="fw-bold text-primary">S/ <span t-field="equipment.costo_copia_bn"/></span>
+                                                <t t-if="equipment.precio_bn_incluye_igv">
+                                                    <br/><small class="text-muted">(inc. IGV)</small>
+                                                </t>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="info-row" t-if="equipment.tipo == 'color'">
+                                        <div class="row">
+                                            <div class="col-7 fw-semibold text-muted">Copia Color:</div>
+                                            <div class="col-5 text-end">
+                                                <span class="fw-bold text-danger">S/ <span t-field="equipment.costo_copia_color"/></span>
+                                                <t t-if="equipment.precio_color_incluye_igv">
+                                                    <br/><small class="text-muted">(inc. IGV)</small>
+                                                </t>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="info-row">
+                                        <div class="row">
+                                            <div class="col-7 fw-semibold text-muted">Vol. mensual B/N:</div>
+                                            <div class="col-5 text-end fw-bold" t-field="equipment.volumen_mensual_bn"/>
+                                        </div>
+                                    </div>
+                                    <div class="info-row" t-if="equipment.tipo == 'color'">
+                                        <div class="row">
+                                            <div class="col-7 fw-semibold text-muted">Vol. mensual Color:</div>
+                                            <div class="col-5 text-end fw-bold" t-field="equipment.volumen_mensual_color"/>
+                                        </div>
+                                    </div>
+                                    <div class="info-row">
+                                        <div class="row">
+                                            <div class="col-7 fw-semibold text-muted">Facturación día:</div>
+                                            <div class="col-5 text-end fw-bold" t-field="equipment.dia_facturacion"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Especificaciones Técnicas -->
+                        <div class="col-12 mb-4" t-if="equipment.especificaciones_id">
+                            <div class="info-card animate__animated animate__fadeInUp">
+                                <div class="info-card-header">
+                                    <h5 class="fw-bold mb-0 text-secondary">
+                                        <i class="fa fa-cogs me-2"></i>
+                                        Especificaciones Técnicas
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div t-field="equipment.especificaciones_id" class="specifications-content"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            // Efectos adicionales
+            document.addEventListener('DOMContentLoaded', function() {
+                // Efecto hover en las tarjetas de información
+                const infoRows = document.querySelectorAll('.info-row');
+                infoRows.forEach(row =&gt; {
+                    row.addEventListener('mouseenter', function() {
+                        this.style.transform = 'translateX(5px)';
+                        this.style.transition = 'transform 0.2s ease';
+                    });
+                    
+                    row.addEventListener('mouseleave', function() {
+                        this.style.transform = 'translateX(0)';
+                    });
+                });
+                
+                // Animación secuencial de las tarjetas de acción
+                const actionCards = document.querySelectorAll('.action-card');
+                actionCards.forEach((card, index) =&gt; {
+                    setTimeout(() =&gt; {
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(20px)';
+                        card.style.transition = 'all 0.5s ease';
+                        
+                        setTimeout(() =&gt; {
+                            card.style.opacity = '1';
+                            card.style.transform = 'translateY(0)';
+                        }, 100);
+                    }, index * 100);
+                });
+            });
+        </script>
+    </t>
+</template>
     
     <!-- Template para la creación pública de tickets desde QR -->
     <template id="portal_public_create_ticket" name="Create Ticket from QR">
