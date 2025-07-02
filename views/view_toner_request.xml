@@ -264,149 +264,149 @@
 
     <!-- Vista Kanban -->
     <record id="view_toner_request_kanban" model="ir.ui.view">
-        <field name="name">toner.request.kanban</field>
-        <field name="model">toner.request</field>
-        <field name="arch" type="xml">
-            <kanban default_group_by="state" class="o_kanban_small_column">
-                <field name="id"/>
-                <field name="secuencia"/>
-                <field name="equipment_id"/>
-                <field name="partner_id"/>
-                <field name="client_name"/>
-                <field name="toner_type"/>
-                <field name="quantity"/>
-                <field name="urgency"/>
-                <field name="state"/>
-                <field name="responsible_id"/>
-                <field name="request_date"/>
-                <field name="current_toner_level"/>
-                <field name="reason"/>
-                <field name="display_name"/>
+    <field name="name">toner.request.kanban</field>
+    <field name="model">toner.request</field>
+    <field name="arch" type="xml">
+        <kanban default_group_by="state" class="o_kanban_small_column">
+            <field name="id"/>
+            <field name="secuencia"/>
+            <field name="equipment_id"/>
+            <field name="partner_id"/>
+            <field name="client_name"/>
+            <field name="toner_type"/>
+            <field name="quantity"/>
+            <field name="urgency"/>
+            <field name="state"/>
+            <field name="responsible_id"/>
+            <field name="request_date"/>
+            <field name="current_toner_level"/>
+            <field name="reason"/>
+            <field name="display_name"/>
 
-                <templates>
-                    <t t-name="kanban-box">
-                        <div class="oe_kanban_card oe_kanban_global_click">
-                            <div class="oe_kanban_content">
-                                <!-- Header con número y urgencia -->
-                                <div class="o_kanban_record_top">
-                                    <div class="o_kanban_record_headings">
-                                        <strong class="o_kanban_record_title">
-                                            <t t-esc="record.secuencia.value"/>
-                                        </strong>
-                                        <br/>
-                                        <small class="o_kanban_record_subtitle text-muted">
-                                            <t t-if="record.equipment_id.value">
-                                                <t t-esc="record.equipment_id.value"/>
-                                            </t>
-                                        </small>
-                                    </div>
-                                    <div class="o_kanban_record_title">
-                                        <!-- Badge de urgencia -->
-                                        <span t-att-class="'badge ' + (record.urgency.raw_value == 'urgent' ? 'text-bg-danger' : 
-                                                                      record.urgency.raw_value == 'high' ? 'text-bg-warning' : 
-                                                                      record.urgency.raw_value == 'medium' ? 'text-bg-info' : 'text-bg-success')">
-                                            <t t-esc="record.urgency.value"/>
-                                        </span>
-                                    </div>
+            <templates>
+                <t t-name="kanban-box">
+                    <div class="oe_kanban_card oe_kanban_global_click">
+                        <div class="oe_kanban_content">
+                            <!-- Header con número y urgencia -->
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <t t-esc="record.secuencia.value"/>
+                                    </strong>
+                                    <br/>
+                                    <small class="o_kanban_record_subtitle text-muted">
+                                        <t t-if="record.equipment_id.value">
+                                            <t t-esc="record.equipment_id.value"/>
+                                        </t>
+                                    </small>
                                 </div>
-
-                                <!-- Información del cliente y toner -->
-                                <div class="o_kanban_record_body">
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <i class="fa fa-building-o"/> 
-                                            <t t-if="record.partner_id.value">
-                                                <t t-esc="record.partner_id.value"/>
-                                            </t>
-                                            <t t-else="">Sin cliente</t>
-                                        </div>
-                                        <div class="col-12">
-                                            <i class="fa fa-user"/> 
-                                            <t t-esc="record.client_name.value"/>
-                                        </div>
-                                        <div class="col-12">
-                                            <i class="fa fa-tint"/> 
-                                            <t t-esc="record.toner_type.value"/>
-                                            <span class="badge text-bg-primary ms-1">
-                                                <t t-esc="record.quantity.value"/>x
-                                            </span>
-                                        </div>
-                                        <t t-if="record.current_toner_level.value">
-                                            <div class="col-12">
-                                                <i class="fa fa-battery-half"/> 
-                                                <small class="text-muted">
-                                                    <t t-esc="record.current_toner_level.value"/>
-                                                </small>
-                                            </div>
-                                        </t>
-                                    </div>
-                                    
-                                    <!-- Motivo (truncado) -->
-                                    <div class="mt-2">
-                                        <t t-if="record.reason.value">
-                                            <span class="text-muted" style="max-height: 40px; overflow: hidden; display: block;">
-                                                <t t-esc="record.reason.value"/>
-                                            </span>
-                                        </t>
-                                    </div>
-                                </div>
-
-                                <!-- Footer con responsable y fecha -->
-                                <div class="o_kanban_record_bottom">
-                                    <div class="oe_kanban_bottom_left">
-                                        <t t-if="record.responsible_id.value">
-                                            <field name="responsible_id" widget="many2one_avatar_user"/>
-                                        </t>
-                                    </div>
-                                    <div class="oe_kanban_bottom_right">
-                                        <small class="text-muted">
-                                            <t t-esc="record.request_date.value"/>
-                                        </small>
-                                    </div>
+                                <div class="o_kanban_record_title">
+                                    <!-- Badge de urgencia -->
+                                    <span t-att-class="'badge ' + (record.urgency.raw_value == 'urgent' ? 'text-bg-danger' : 
+                                                                  record.urgency.raw_value == 'high' ? 'text-bg-warning' : 
+                                                                  record.urgency.raw_value == 'medium' ? 'text-bg-info' : 'text-bg-success')">
+                                        <t t-esc="record.urgency.value"/>
+                                    </span>
                                 </div>
                             </div>
 
-                            <!-- Menú dropdown -->
-                            <div class="oe_kanban_action_dropdown">
-                                <div class="dropdown">
-                                    <a class="dropdown-toggle o-no-caret btn" data-bs-toggle="dropdown" href="#" role="button" aria-label="Dropdown menu" title="Dropdown menu">
-                                        <span class="fa fa-ellipsis-v"/>
-                                    </a>
-                                    <div class="dropdown-menu" role="menu">
-                                        <t t-if="record.state.raw_value == 'pending'">
-                                            <a name="action_approve" type="object" role="menuitem" class="dropdown-item">
-                                                Aprobar
-                                            </a>
+                            <!-- Información del cliente y toner -->
+                            <div class="o_kanban_record_body">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <i class="fa fa-building-o"/> 
+                                        <t t-if="record.partner_id.value">
+                                            <t t-esc="record.partner_id.value"/>
                                         </t>
-                                        <t t-if="record.state.raw_value == 'approved'">
-                                            <a name="action_dispatch" type="object" role="menuitem" class="dropdown-item">
-                                                Despachar
-                                            </a>
-                                        </t>
-                                        <t t-if="record.state.raw_value == 'dispatched'">
-                                            <a name="action_deliver" type="object" role="menuitem" class="dropdown-item">
-                                                Entregar
-                                            </a>
-                                        </t>
-                                        <t t-if="record.state.raw_value == 'delivered'">
-                                            <a name="action_install" type="object" role="menuitem" class="dropdown-item">
-                                                Instalar
-                                            </a>
-                                        </t>
-                                        <t t-if="record.state.raw_value not in ('installed', 'rejected', 'cancelled')">
-                                            <a name="action_cancel" type="object" role="menuitem" class="dropdown-item">
-                                                Cancelar
-                                            </a>
-                                        </t>
+                                        <t t-else="">Sin cliente</t>
                                     </div>
+                                    <div class="col-12">
+                                        <i class="fa fa-user"/> 
+                                        <t t-esc="record.client_name.value"/>
+                                    </div>
+                                    <div class="col-12">
+                                        <i class="fa fa-tint"/> 
+                                        <t t-esc="record.toner_type.value"/>
+                                        <span class="badge text-bg-primary ms-1">
+                                            <t t-esc="record.quantity.value"/>x
+                                        </span>
+                                    </div>
+                                    <t t-if="record.current_toner_level.value">
+                                        <div class="col-12">
+                                            <i class="fa fa-battery-half"/> 
+                                            <small class="text-muted">
+                                                <t t-esc="record.current_toner_level.value"/>
+                                            </small>
+                                        </div>
+                                    </t>
+                                </div>
+                                
+                                <!-- Motivo (truncado) -->
+                                <div class="mt-2">
+                                    <t t-if="record.reason.value">
+                                        <span class="text-muted" style="max-height: 40px; overflow: hidden; display: block;">
+                                            <t t-esc="record.reason.value"/>
+                                        </span>
+                                    </t>
+                                </div>
+                            </div>
+
+                            <!-- Footer con responsable y fecha -->
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                    <t t-if="record.responsible_id.value">
+                                        <field name="responsible_id" widget="many2one_avatar_user"/>
+                                    </t>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <small class="text-muted">
+                                        <t t-esc="record.request_date.value"/>
+                                    </small>
                                 </div>
                             </div>
                         </div>
-                    </t>
-                </templates>
-            </kanban>
-        </field>
-    </record>
+
+                        <!-- Menú dropdown -->
+                        <div class="oe_kanban_action_dropdown">
+                            <div class="dropdown">
+                                <a class="dropdown-toggle o-no-caret btn" data-bs-toggle="dropdown" href="#" role="button" aria-label="Dropdown menu" title="Dropdown menu">
+                                    <span class="fa fa-ellipsis-v"/>
+                                </a>
+                                <div class="dropdown-menu" role="menu">
+                                    <t t-if="record.state.raw_value == 'pending'">
+                                        <a name="action_approve" type="object" role="menuitem" class="dropdown-item">
+                                            Aprobar
+                                        </a>
+                                    </t>
+                                    <t t-if="record.state.raw_value == 'approved'">
+                                        <a name="action_dispatch" type="object" role="menuitem" class="dropdown-item">
+                                            Despachar
+                                        </a>
+                                    </t>
+                                    <t t-if="record.state.raw_value == 'dispatched'">
+                                        <a name="action_deliver" type="object" role="menuitem" class="dropdown-item">
+                                            Entregar
+                                        </a>
+                                    </t>
+                                    <t t-if="record.state.raw_value == 'delivered'">
+                                        <a name="action_install" type="object" role="menuitem" class="dropdown-item">
+                                            Instalar
+                                        </a>
+                                    </t>
+                                    <t t-if="record.state.raw_value != 'installed' and record.state.raw_value != 'rejected' and record.state.raw_value != 'cancelled'">
+                                        <a name="action_cancel" type="object" role="menuitem" class="dropdown-item">
+                                            Cancelar
+                                        </a>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </templates>
+        </kanban>
+    </field>
+</record>
 
     <!-- Vista Calendar -->
     <record id="view_toner_request_calendar" model="ir.ui.view">
