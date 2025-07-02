@@ -5,19 +5,26 @@
         <div id="wrap">
             
             <!-- CDN Libraries -->
-            <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet"/>
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet"/>
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.css" rel="stylesheet"/>
             <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet"/>
             <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
             
             <!-- CSS personalizado -->
             <style>
                 :root {
-                    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-                    --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-                    --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-                    --warning-gradient: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
-                    --danger-gradient: linear-gradient(135deg, #ff6b6b 0%, #ffa726 100%);
+                    --primary: #667eea;
+                    --primary-dark: #764ba2;
+                    --secondary: #f093fb;
+                    --secondary-dark: #f5576c;
+                    --accent: #4facfe;
+                    --accent-dark: #00f2fe;
+                    --success: #11998e;
+                    --success-dark: #38ef7d;
+                    --warning: #ffeaa7;
+                    --warning-dark: #fab1a0;
+                    --danger: #ff6b6b;
+                    --danger-dark: #ffa726;
                     --glass-bg: rgba(255, 255, 255, 0.25);
                     --glass-border: rgba(255, 255, 255, 0.18);
                     --shadow-soft: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
@@ -37,7 +44,7 @@
                 
                 /* Hero Section */
                 .hero-section {
-                    background: var(--primary-gradient);
+                    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
                     color: white;
                     position: relative;
                     overflow: hidden;
@@ -73,6 +80,7 @@
                     justify-content: center;
                     margin: 0 auto 2rem;
                     animation: float 3s ease-in-out infinite;
+                    font-size: 3rem;
                 }
                 
                 @keyframes float {
@@ -135,7 +143,7 @@
                     left: 0;
                     width: 4px;
                     height: 100%;
-                    background: var(--primary-gradient);
+                    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
                     border-radius: 2px;
                 }
                 
@@ -257,7 +265,7 @@
                 
                 /* Status Badge */
                 .status-badge {
-                    background: var(--success-gradient);
+                    background: linear-gradient(135deg, var(--success), var(--success-dark));
                     color: white;
                     padding: 0.5rem 1.25rem;
                     border-radius: 50px;
@@ -291,7 +299,7 @@
                     left: 0;
                     right: 0;
                     height: 4px;
-                    background: var(--primary-gradient);
+                    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
                 }
                 
                 .contact-grid {
@@ -318,18 +326,18 @@
                 
                 .contact-icon {
                     margin-right: 0.75rem;
-                    color: #667eea;
+                    color: var(--primary);
                     font-size: 1.25rem;
                 }
                 
                 /* Service Colors */
-                .service-support { background: var(--danger-gradient); }
-                .service-remote { background: var(--accent-gradient); }
-                .service-toner { background: var(--success-gradient); }
+                .service-support { background: linear-gradient(135deg, var(--danger), var(--danger-dark)); }
+                .service-remote { background: linear-gradient(135deg, var(--accent), var(--accent-dark)); }
+                .service-toner { background: linear-gradient(135deg, var(--success), var(--success-dark)); }
                 .service-whatsapp { background: linear-gradient(135deg, #25d366, #128c7e); }
-                .service-email { background: var(--primary-gradient); }
-                .service-counters { background: var(--secondary-gradient); }
-                .service-quote { background: var(--warning-gradient); }
+                .service-email { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); }
+                .service-counters { background: linear-gradient(135deg, var(--secondary), var(--secondary-dark)); }
+                .service-quote { background: linear-gradient(135deg, var(--warning), var(--warning-dark)); }
                 .service-website { background: linear-gradient(135deg, #a8edea, #fed6e3); }
                 
                 /* Responsive */
@@ -364,25 +372,6 @@
                     }
                 }
                 
-                /* Custom scrollbar */
-                ::-webkit-scrollbar {
-                    width: 8px;
-                }
-                
-                ::-webkit-scrollbar-track {
-                    background: #f1f1f1;
-                    border-radius: 4px;
-                }
-                
-                ::-webkit-scrollbar-thumb {
-                    background: var(--primary-gradient);
-                    border-radius: 4px;
-                }
-                
-                ::-webkit-scrollbar-thumb:hover {
-                    background: #667eea;
-                }
-                
                 /* Loading animation */
                 .loading {
                     opacity: 0;
@@ -394,17 +383,56 @@
                     opacity: 1;
                     transform: translateY(0);
                 }
+                
+                /* Custom animations */
+                .animate-fadeInUp {
+                    animation: fadeInUp 0.8s ease-out;
+                }
+                
+                @keyframes fadeInUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(30px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                
+                .animate-fadeInDown {
+                    animation: fadeInDown 0.8s ease-out;
+                }
+                
+                @keyframes fadeInDown {
+                    from {
+                        opacity: 0;
+                        transform: translateY(-30px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                
+                .animate-delay-1s {
+                    animation-delay: 1s;
+                }
+                
+                .animate-delay-2s {
+                    animation-delay: 2s;
+                }
             </style>
             
             <!-- Hero Section -->
             <div class="hero-section">
                 <div class="container">
-                    <div class="hero-content text-center" data-aos="fade-up">
+                    <div class="hero-content text-center animate-fadeInUp">
                         <div class="hero-icon">
-                            <i data-lucide="settings" style="width: 48px; height: 48px;"></i>
+                            <i class="bi bi-gear-fill"></i>
                         </div>
-                        <h1 class="hero-title">Centro de Servicios</h1>
-                        <p class="hero-subtitle">
+                        <h1 class="hero-title animate-fadeInDown">Centro de Servicios</h1>
+                        <p class="hero-subtitle animate-fadeInUp animate-delay-1s">
                             Gestiona tu equipo de forma rápida y sencilla
                         </p>
                     </div>
@@ -413,26 +441,26 @@
             
             <div class="container">
                 <!-- Información del Equipo -->
-                <div class="glass-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="glass-card animate-fadeInUp">
                     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
                         <div>
                             <h2 class="h3 fw-bold text-dark mb-2">
-                                <i data-lucide="server" style="width: 24px; height: 24px; margin-right: 0.5rem;"></i>
+                                <i class="bi bi-server me-2"></i>
                                 Información del Equipo
                             </h2>
                             <p class="text-muted mb-0">Detalles de tu equipo registrado</p>
                         </div>
                         <div class="status-badge">
-                            <i data-lucide="wifi" style="width: 16px; height: 16px; margin-right: 0.5rem;"></i>
+                            <i class="bi bi-wifi me-2"></i>
                             Activo
                         </div>
                     </div>
                     
                     <div class="equipment-grid">
-                        <div class="info-card" data-aos="fade-up" data-aos-delay="300">
+                        <div class="info-card loading">
                             <div class="info-header">
                                 <div class="info-icon service-support">
-                                    <i data-lucide="printer"></i>
+                                    <i class="bi bi-printer"></i>
                                 </div>
                                 <div class="info-label">Equipo</div>
                             </div>
@@ -446,10 +474,10 @@
                             </div>
                         </div>
                         
-                        <div class="info-card" data-aos="fade-up" data-aos-delay="350">
+                        <div class="info-card loading">
                             <div class="info-header">
                                 <div class="info-icon service-remote">
-                                    <i data-lucide="hash"></i>
+                                    <i class="bi bi-hash"></i>
                                 </div>
                                 <div class="info-label">Serie</div>
                             </div>
@@ -463,10 +491,10 @@
                             </div>
                         </div>
                         
-                        <div class="info-card" data-aos="fade-up" data-aos-delay="400">
+                        <div class="info-card loading">
                             <div class="info-header">
                                 <div class="info-icon service-toner">
-                                    <i data-lucide="building"></i>
+                                    <i class="bi bi-building"></i>
                                 </div>
                                 <div class="info-label">Cliente</div>
                             </div>
@@ -480,10 +508,10 @@
                             </div>
                         </div>
                         
-                        <div class="info-card" data-aos="fade-up" data-aos-delay="450">
+                        <div class="info-card loading">
                             <div class="info-header">
                                 <div class="info-icon service-whatsapp">
-                                    <i data-lucide="map-pin"></i>
+                                    <i class="bi bi-geo-alt"></i>
                                 </div>
                                 <div class="info-label">Ubicación</div>
                             </div>
@@ -500,7 +528,7 @@
                 </div>
                 
                 <!-- Servicios Disponibles -->
-                <div class="text-center mb-5" data-aos="fade-up">
+                <div class="text-center mb-5 animate-fadeInUp">
                     <h2 class="h2 fw-bold mb-3">¿Qué necesitas hacer hoy?</h2>
                     <p class="text-muted fs-5">Selecciona el servicio que necesitas</p>
                 </div>
@@ -508,9 +536,9 @@
                 <div class="services-grid mb-5">
                     <!-- Reportar Problema -->
                     <a t-attf-href="/public/helpdesk_ticket?copier_company_id=#{equipment.id}" 
-                       class="service-card loading" data-aos="fade-up" data-aos-delay="100">
+                       class="service-card loading">
                         <div class="service-icon service-support">
-                            <i data-lucide="alert-triangle"></i>
+                            <i class="bi bi-exclamation-triangle-fill"></i>
                         </div>
                         <h3 class="service-title">Reportar Problema</h3>
                         <p class="service-description">
@@ -520,9 +548,9 @@
                     
                     <!-- Asistencia Remota -->
                     <a t-attf-href="/public/remote_assistance?copier_company_id=#{equipment.id}" 
-                       class="service-card loading" data-aos="fade-up" data-aos-delay="200">
+                       class="service-card loading">
                         <div class="service-icon service-remote">
-                            <i data-lucide="monitor"></i>
+                            <i class="bi bi-display"></i>
                         </div>
                         <h3 class="service-title">Asistencia Remota</h3>
                         <p class="service-description">
@@ -532,9 +560,9 @@
                     
                     <!-- Solicitar Toner -->
                     <a t-attf-href="/public/request_toner?copier_company_id=#{equipment.id}" 
-                       class="service-card loading" data-aos="fade-up" data-aos-delay="300">
+                       class="service-card loading">
                         <div class="service-icon service-toner">
-                            <i data-lucide="droplet"></i>
+                            <i class="bi bi-droplet-fill"></i>
                         </div>
                         <h3 class="service-title">Solicitar Toner</h3>
                         <p class="service-description">
@@ -544,9 +572,9 @@
                     
                     <!-- Subir Contadores -->
                     <a t-attf-href="/public/upload_counters?copier_company_id=#{equipment.id}" 
-                       class="service-card loading" data-aos="fade-up" data-aos-delay="400">
+                       class="service-card loading">
                         <div class="service-icon service-counters">
-                            <i data-lucide="bar-chart-3"></i>
+                            <i class="bi bi-bar-chart-fill"></i>
                         </div>
                         <h3 class="service-title">Reportar Contadores</h3>
                         <p class="service-description">
@@ -556,9 +584,9 @@
                     
                     <!-- WhatsApp -->
                     <a href="https://wa.me/message/XNGGOGE4PPOGO1" target="_blank" 
-                       class="service-card loading" data-aos="fade-up" data-aos-delay="500">
+                       class="service-card loading">
                         <div class="service-icon service-whatsapp">
-                            <i data-lucide="message-circle"></i>
+                            <i class="bi bi-whatsapp"></i>
                         </div>
                         <h3 class="service-title">Chat WhatsApp</h3>
                         <p class="service-description">
@@ -568,9 +596,9 @@
                     
                     <!-- Enviar Email -->
                     <a href="mailto:info@copiercompanysac.com?subject=Consulta%20sobre%20equipo&amp;body=Hola,%20tengo%20una%20consulta%20sobre%20mi%20equipo." 
-                       class="service-card loading" data-aos="fade-up" data-aos-delay="600">
+                       class="service-card loading">
                         <div class="service-icon service-email">
-                            <i data-lucide="mail"></i>
+                            <i class="bi bi-envelope-fill"></i>
                         </div>
                         <h3 class="service-title">Enviar Email</h3>
                         <p class="service-description">
@@ -580,9 +608,9 @@
                     
                     <!-- Solicitar Cotización -->
                     <a href="https://copiercompanysac.com/cotizacion/form" target="_blank" 
-                       class="service-card loading" data-aos="fade-up" data-aos-delay="700">
+                       class="service-card loading">
                         <div class="service-icon service-quote">
-                            <i data-lucide="file-text"></i>
+                            <i class="bi bi-file-earmark-text-fill"></i>
                         </div>
                         <h3 class="service-title">Solicitar Cotización</h3>
                         <p class="service-description">
@@ -592,9 +620,9 @@
                     
                     <!-- Visitar Sitio Web -->
                     <a href="https://copiercompanysac.com" target="_blank" 
-                       class="service-card loading" data-aos="fade-up" data-aos-delay="800">
+                       class="service-card loading">
                         <div class="service-icon service-website">
-                            <i data-lucide="globe"></i>
+                            <i class="bi bi-globe"></i>
                         </div>
                         <h3 class="service-title">Nuestro Sitio Web</h3>
                         <p class="service-description">
@@ -604,10 +632,10 @@
                 </div>
                 
                 <!-- Información de Contacto -->
-                <div class="contact-card" data-aos="fade-up" data-aos-delay="900">
+                <div class="contact-card animate-fadeInUp">
                     <div class="text-center">
-                        <div class="hero-icon mx-auto mb-3" style="width: 80px; height: 80px;">
-                            <i data-lucide="headphones" style="width: 32px; height: 32px;"></i>
+                        <div class="hero-icon mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                            <i class="bi bi-headset"></i>
                         </div>
                         <h4 class="fw-bold text-primary mb-3">
                             ¿Necesitas ayuda adicional?
@@ -616,15 +644,15 @@
                         
                         <div class="contact-grid">
                             <div class="contact-item">
-                                <i data-lucide="phone" class="contact-icon"></i>
+                                <i class="bi bi-telephone-fill contact-icon"></i>
                                 <span class="fw-semibold">+51 999 999 999</span>
                             </div>
                             <div class="contact-item">
-                                <i data-lucide="mail" class="contact-icon"></i>
+                                <i class="bi bi-envelope-fill contact-icon"></i>
                                 <span class="fw-semibold">info@copiercompanysac.com</span>
                             </div>
                             <div class="contact-item">
-                                <i data-lucide="clock" class="contact-icon"></i>
+                                <i class="bi bi-clock-fill contact-icon"></i>
                                 <span class="fw-semibold">Lun - Vie: 8:00 - 18:00</span>
                             </div>
                         </div>
@@ -633,22 +661,20 @@
             </div>
             
             <!-- Scripts -->
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
             
             <script>
             <![CDATA[
                 document.addEventListener('DOMContentLoaded', function() {
-                    // Initialize Lucide icons
-                    lucide.createIcons();
-                    
-                    // Initialize AOS animations
-                    AOS.init({
-                        duration: 800,
-                        easing: 'ease-out-cubic',
-                        once: true,
-                        offset: 100
-                    });
+                    // Initialize AOS animations if available
+                    if (typeof AOS !== 'undefined') {
+                        AOS.init({
+                            duration: 800,
+                            easing: 'ease-out-cubic',
+                            once: true,
+                            offset: 100
+                        });
+                    }
                     
                     // Loading animation for service cards
                     setTimeout(() => {
@@ -664,11 +690,13 @@
                         card.addEventListener('mouseenter', function() {
                             this.style.transform = 'translateY(-8px) scale(1.02)';
                             this.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.15)';
+                            this.style.borderColor = 'transparent';
                         });
                         
                         card.addEventListener('mouseleave', function() {
                             this.style.transform = 'translateY(0) scale(1)';
                             this.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+                            this.style.borderColor = '#e2e8f0';
                         });
                     });
                     
@@ -686,7 +714,7 @@
                         });
                     });
                     
-                    // Performance optimization: Lazy load animations
+                    // Performance optimization: Intersection Observer for animations
                     const observerOptions = {
                         threshold: 0.1,
                         rootMargin: '0px 0px -50px 0px'
@@ -697,6 +725,7 @@
                             if (entry.isIntersecting) {
                                 entry.target.style.opacity = '1';
                                 entry.target.style.transform = 'translateY(0)';
+                                entry.target.classList.add('animate-fadeInUp');
                             }
                         });
                     }, observerOptions);
@@ -706,10 +735,23 @@
                         observer.observe(el);
                     });
                     
+                    // Add dynamic background patterns
+                    function addBackgroundAnimation() {
+                        const heroSection = document.querySelector('.hero-section');
+                        if (heroSection) {
+                            setInterval(() => {
+                                heroSection.style.backgroundPosition = Math.random() * 100 + 'px ' + Math.random() * 100 + 'px';
+                            }, 3000);
+                        }
+                    }
+                    
+                    addBackgroundAnimation();
+                    
                     // Console log for debugging
                     console.log('🚀 Portal de equipos modernizado cargado exitosamente');
                     console.log('📱 Responsive design activado');
                     console.log('✨ Animaciones inicializadas');
+                    console.log('🎨 Bootstrap Icons cargados');
                 });
             ]]>
             </script>
