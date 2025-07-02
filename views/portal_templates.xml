@@ -1001,173 +1001,313 @@
     
     <!-- Template para la página de contadores -->
     <template id="portal_my_copier_counters" name="My Equipment Counters">
-        <t t-call="portal.portal_layout">
-            <t t-set="breadcrumbs_searchbar" t-value="True"/>
-            
-            <!-- Incluir Chart.js y nuestro archivo JavaScript -->
-            <t t-set="head">
-                <link rel="stylesheet" type="text/css" href="/copier_company/static/src/css/counter_charts.css"/>
-                <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-                <script type="text/javascript" src="/copier_company/static/src/js/counter_charts.js"></script>
-            </t>
-            
-            <t t-call="portal.portal_searchbar">
-                <t t-set="title">Historial de Lecturas</t>
-            </t>
-            
-            <div class="row mt-4">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4 class="mb-0">
-                                <i class="fa fa-tachometer me-2"></i>Lecturas de la máquina 
-                                <strong t-field="equipment.name.name"/> 
-                                (Serie: <span t-field="equipment.serie_id"/>)
-                            </h4>
+    <t t-call="portal.portal_layout">
+        <t t-set="breadcrumbs_searchbar" t-value="True"/>
+        
+        <!-- Incluir Chart.js y archivos CSS/JS optimizados -->
+        <t t-set="head">
+            <link rel="stylesheet" type="text/css" href="/copier_company/static/src/css/counter_charts.css"/>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+            <script type="text/javascript" src="/copier_company/static/src/js/counter_charts.js"></script>
+        </t>
+        
+        <t t-call="portal.portal_searchbar">
+            <t t-set="title">Historial de Lecturas</t>
+        </t>
+        
+        <!-- Header del equipo con diseño mejorado -->
+        <div class="container-fluid px-0">
+            <div class="row g-4">
+                <div class="col-12">
+                    <!-- Card principal con mejor diseño -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-primary text-white py-3">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <h3 class="mb-1 fw-bold">
+                                        <i class="fa fa-tachometer-alt me-2"></i>
+                                        <span t-field="equipment.name.name"/>
+                                    </h3>
+                                    <p class="mb-0 opacity-75">
+                                        <i class="fa fa-barcode me-1"></i>
+                                        Serie: <span t-field="equipment.serie_id" class="fw-semibold"/>
+                                    </p>
+                                </div>
+                                <div class="text-end">
+                                    <span t-field="equipment.tipo" 
+                                          t-attf-class="badge fs-6 px-3 py-2 bg-{{ equipment.tipo == 'color' and 'success' or 'info' }}">
+                                        <i t-attf-class="fa fa-{{ equipment.tipo == 'color' and 'palette' or 'circle' }} me-1"></i>
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
+                        
+                        <div class="card-body p-4">
+                            <!-- Estado sin datos -->
                             <t t-if="not counters">
-                                <div class="alert alert-info text-center">
-                                    <p>No hay registros de lecturas para este equipo</p>
+                                <div class="text-center py-5">
+                                    <div class="mb-4">
+                                        <i class="fa fa-chart-line fa-4x text-muted opacity-50"></i>
+                                    </div>
+                                    <h5 class="text-muted">No hay registros de lecturas</h5>
+                                    <p class="text-muted">Aún no se han registrado lecturas para este equipo</p>
                                 </div>
                             </t>
+                            
+                            <!-- Contenido principal cuando hay datos -->
                             <t t-if="counters">
-                                <!-- Gráficos de consumo -->
-                                <div class="mb-4">
-                                    <h5>Gráficos de Consumo</h5>
-                                    <ul class="nav nav-tabs" id="graphTabs" role="tablist">
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link active" id="monthly-tab" data-bs-toggle="tab" data-bs-target="#monthly" type="button" role="tab" aria-controls="monthly" aria-selected="true">Consumo Mensual</button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="yearly-tab" data-bs-toggle="tab" data-bs-target="#yearly" type="button" role="tab" aria-controls="yearly" aria-selected="false">Consumo Anual</button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="user-monthly-tab" data-bs-toggle="tab" data-bs-target="#user-monthly" type="button" role="tab" aria-controls="user-monthly" aria-selected="false">Copias Mensuales por Usuario</button>
-                                        </li>
-                                    </ul>
-                                    <div class="tab-content p-3 border border-top-0 rounded-bottom" id="graphTabsContent">
-                                        <div class="tab-pane fade show active" id="monthly" role="tabpanel" aria-labelledby="monthly-tab">
-                                            <div class="chart-container">
-                                                <canvas id="monthlyChart"></canvas>
+                                <!-- Tarjetas de resumen mejoradas -->
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6">
+                                        <div class="card border-0 bg-light">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-shrink-0">
+                                                        <div class="bg-primary text-white rounded-circle p-3">
+                                                            <i class="fa fa-file-contract fa-lg"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex-grow-1 ms-3">
+                                                        <h6 class="mb-1 text-muted">Volumen Contratado</h6>
+                                                        <div class="row g-2 small">
+                                                            <div class="col-6">
+                                                                <strong>B/N:</strong> 
+                                                                <span t-field="equipment.volumen_mensual_bn" class="text-primary fw-bold"/>
+                                                            </div>
+                                                            <div class="col-6" t-if="equipment.tipo == 'color'">
+                                                                <strong>Color:</strong> 
+                                                                <span t-field="equipment.volumen_mensual_color" class="text-success fw-bold"/>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="tab-pane fade" id="yearly" role="tabpanel" aria-labelledby="yearly-tab">
-                                            <div class="chart-container">
-                                                <canvas id="yearlyChart"></canvas>
-                                            </div>
-                                        </div>
-                                        <div class="tab-pane fade" id="user-monthly" role="tabpanel" aria-labelledby="user-monthly-tab">
-                                            <div class="chart-container">
-                                                <canvas id="userMonthlyChart"></canvas>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="card border-0 bg-light">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-shrink-0">
+                                                        <div class="bg-success text-white rounded-circle p-3">
+                                                            <i class="fa fa-chart-bar fa-lg"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex-grow-1 ms-3">
+                                                        <h6 class="mb-1 text-muted">Consumo Actual</h6>
+                                                        <t t-if="counters and counters[0].state != 'draft'">
+                                                            <div class="row g-2 small">
+                                                                <div class="col-6">
+                                                                    <strong>B/N:</strong> 
+                                                                    <span t-field="counters[0].total_copias_bn" class="text-primary fw-bold"/>
+                                                                </div>
+                                                                <div class="col-6" t-if="equipment.tipo == 'color'">
+                                                                    <strong>Color:</strong> 
+                                                                    <span t-field="counters[0].total_copias_color" class="text-success fw-bold"/>
+                                                                </div>
+                                                            </div>
+                                                        </t>
+                                                        <small t-else="" class="text-muted">Sin datos confirmados</small>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <div class="table-responsive">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Referencia</th>
-                                                <th>Fecha</th>
-                                                <th>Mes Facturación</th>
-                                                <th>Anterior B/N</th>
-                                                <th>Actual B/N</th>
-                                                <th>Total B/N</th>
-                                                <th t-if="equipment.tipo == 'color'">Anterior Color</th>
-                                                <th t-if="equipment.tipo == 'color'">Actual Color</th>
-                                                <th t-if="equipment.tipo == 'color'">Total Color</th>
-                                                <th>Estado</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr t-foreach="counters" t-as="counter">
-                                                <td>
-                                                    <span t-field="counter.name"/>
-                                                </td>
-                                                <td>
-                                                    <span t-field="counter.fecha"/>
-                                                </td>
-                                                <td>
-                                                    <span t-field="counter.mes_facturacion"/>
-                                                </td>
-                                                <td class="text-end">
-                                                    <span t-field="counter.contador_anterior_bn"/>
-                                                </td>
-                                                <td class="text-end">
-                                                    <span t-field="counter.contador_actual_bn"/>
-                                                </td>
-                                                <td class="text-end">
-                                                    <span t-field="counter.total_copias_bn"/>
-                                                </td>
-                                                <td t-if="equipment.tipo == 'color'" class="text-end">
-                                                    <span t-field="counter.contador_anterior_color"/>
-                                                </td>
-                                                <td t-if="equipment.tipo == 'color'" class="text-end">
-                                                    <span t-field="counter.contador_actual_color"/>
-                                                </td>
-                                                <td t-if="equipment.tipo == 'color'" class="text-end">
-                                                    <span t-field="counter.total_copias_color"/>
-                                                </td>
-                                                <td>
-                                                    <span t-field="counter.state" t-attf-class="badge rounded-pill bg-{{ counter.state == 'draft' and 'warning' or (counter.state == 'confirmed' and 'success' or (counter.state == 'invoiced' and 'info' or 'danger')) }}"/>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                <!-- Gráficos con diseño mejorado -->
+                                <div class="card border-0 shadow-sm mb-4">
+                                    <div class="card-header bg-white border-bottom">
+                                        <h5 class="mb-0 fw-bold">
+                                            <i class="fa fa-chart-line me-2 text-primary"></i>
+                                            Análisis de Consumo
+                                        </h5>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <!-- Navegación de pestañas mejorada -->
+                                        <ul class="nav nav-pills nav-fill border-bottom mb-0" id="graphTabs" role="tablist">
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link active rounded-0 py-3" 
+                                                        id="monthly-tab" 
+                                                        data-bs-toggle="tab" 
+                                                        data-bs-target="#monthly" 
+                                                        type="button" 
+                                                        role="tab">
+                                                    <i class="fa fa-calendar-alt me-2"></i>
+                                                    Consumo Mensual
+                                                </button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link rounded-0 py-3" 
+                                                        id="yearly-tab" 
+                                                        data-bs-toggle="tab" 
+                                                        data-bs-target="#yearly" 
+                                                        type="button" 
+                                                        role="tab">
+                                                    <i class="fa fa-chart-area me-2"></i>
+                                                    Consumo Anual
+                                                </button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link rounded-0 py-3" 
+                                                        id="user-monthly-tab" 
+                                                        data-bs-toggle="tab" 
+                                                        data-bs-target="#user-monthly" 
+                                                        type="button" 
+                                                        role="tab">
+                                                    <i class="fa fa-users me-2"></i>
+                                                    Por Usuario
+                                                </button>
+                                            </li>
+                                        </ul>
+                                        
+                                        <div class="tab-content" id="graphTabsContent">
+                                            <div class="tab-pane fade show active p-4" id="monthly" role="tabpanel">
+                                                <div class="chart-container" style="height: 400px;">
+                                                    <canvas id="monthlyChart"></canvas>
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane fade p-4" id="yearly" role="tabpanel">
+                                                <div class="chart-container" style="height: 400px;">
+                                                    <canvas id="yearlyChart"></canvas>
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane fade p-4" id="user-monthly" role="tabpanel">
+                                                <div class="chart-container" style="height: 400px;">
+                                                    <canvas id="userMonthlyChart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 
-                                <!-- Resumen de facturación -->
-                                <div class="mt-4">
-                                    <h5>Resumen de Facturación</h5>
-                                    <div class="row mb-4">
-                                        <div class="col-md-6">
-                                            <div class="card shadow-sm">
-                                                <div class="card-header bg-light">
-                                                    <h6 class="mb-0">Volumen Mensual Contratado</h6>
-                                                </div>
-                                                <div class="card-body">
-                                                    <div class="row">
-                                                        <div class="col-sm-6">
-                                                            <p><strong>B/N:</strong> <span t-field="equipment.volumen_mensual_bn"/> copias</p>
-                                                        </div>
-                                                        <div class="col-sm-6" t-if="equipment.tipo == 'color'">
-                                                            <p><strong>Color:</strong> <span t-field="equipment.volumen_mensual_color"/> copias</p>
+                                <!-- Tabla de datos mejorada -->
+                                <div class="card border-0 shadow-sm mb-4">
+                                    <div class="card-header bg-white border-bottom">
+                                        <h5 class="mb-0 fw-bold">
+                                            <i class="fa fa-table me-2 text-primary"></i>
+                                            Historial de Lecturas
+                                        </h5>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover mb-0 align-middle">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th class="fw-bold">Referencia</th>
+                                                        <th class="fw-bold">Fecha</th>
+                                                        <th class="fw-bold">Mes Facturación</th>
+                                                        <th class="fw-bold text-center">Anterior B/N</th>
+                                                        <th class="fw-bold text-center">Actual B/N</th>
+                                                        <th class="fw-bold text-center">Total B/N</th>
+                                                        <th t-if="equipment.tipo == 'color'" class="fw-bold text-center">Anterior Color</th>
+                                                        <th t-if="equipment.tipo == 'color'" class="fw-bold text-center">Actual Color</th>
+                                                        <th t-if="equipment.tipo == 'color'" class="fw-bold text-center">Total Color</th>
+                                                        <th class="fw-bold text-center">Estado</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr t-foreach="counters" t-as="counter" class="border-bottom">
+                                                        <td class="fw-semibold">
+                                                            <span t-field="counter.name"/>
+                                                        </td>
+                                                        <td>
+                                                            <span t-field="counter.fecha" t-options="{'widget': 'date'}"/>
+                                                        </td>
+                                                        <td>
+                                                            <span t-field="counter.mes_facturacion"/>
+                                                        </td>
+                                                        <td class="text-center font-monospace">
+                                                            <span t-field="counter.contador_anterior_bn" t-options="{'widget': 'integer'}"/>
+                                                        </td>
+                                                        <td class="text-center font-monospace">
+                                                            <span t-field="counter.contador_actual_bn" t-options="{'widget': 'integer'}"/>
+                                                        </td>
+                                                        <td class="text-center font-monospace fw-bold text-primary">
+                                                            <span t-field="counter.total_copias_bn" t-options="{'widget': 'integer'}"/>
+                                                        </td>
+                                                        <td t-if="equipment.tipo == 'color'" class="text-center font-monospace">
+                                                            <span t-field="counter.contador_anterior_color" t-options="{'widget': 'integer'}"/>
+                                                        </td>
+                                                        <td t-if="equipment.tipo == 'color'" class="text-center font-monospace">
+                                                            <span t-field="counter.contador_actual_color" t-options="{'widget': 'integer'}"/>
+                                                        </td>
+                                                        <td t-if="equipment.tipo == 'color'" class="text-center font-monospace fw-bold text-success">
+                                                            <span t-field="counter.total_copias_color" t-options="{'widget': 'integer'}"/>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span t-field="counter.state" 
+                                                                  t-attf-class="badge rounded-pill px-3 py-2 bg-{{ counter.state == 'draft' and 'warning' or (counter.state == 'confirmed' and 'success' or (counter.state == 'invoiced' and 'info' or 'danger')) }}"/>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Detalle de facturación mejorado -->
+                                <div class="row g-4 mb-4">
+                                    <div class="col-lg-6">
+                                        <div class="card border-0 bg-primary bg-opacity-10">
+                                            <div class="card-body">
+                                                <h6 class="card-title text-primary fw-bold mb-3">
+                                                    <i class="fa fa-calculator me-2"></i>
+                                                    Tarifas Contratadas
+                                                </h6>
+                                                <div class="row g-3">
+                                                    <div class="col-sm-6">
+                                                        <div class="d-flex justify-content-between">
+                                                            <span class="text-muted">Precio B/N:</span>
+                                                            <span t-field="equipment.costo_copia_bn" 
+                                                                  t-options="{'widget': 'monetary', 'display_currency': equipment.currency_id}" 
+                                                                  class="fw-bold"/>
                                                         </div>
                                                     </div>
-                                                    <div class="row">
-                                                        <div class="col-sm-6">
-                                                            <p><strong>Precio B/N:</strong> <span t-field="equipment.costo_copia_bn" t-options="{'widget': 'monetary', 'display_currency': equipment.currency_id}"/></p>
-                                                        </div>
-                                                        <div class="col-sm-6" t-if="equipment.tipo == 'color'">
-                                                            <p><strong>Precio Color:</strong> <span t-field="equipment.costo_copia_color" t-options="{'widget': 'monetary', 'display_currency': equipment.currency_id}"/></p>
+                                                    <div class="col-sm-6" t-if="equipment.tipo == 'color'">
+                                                        <div class="d-flex justify-content-between">
+                                                            <span class="text-muted">Precio Color:</span>
+                                                            <span t-field="equipment.costo_copia_color" 
+                                                                  t-options="{'widget': 'monetary', 'display_currency': equipment.currency_id}" 
+                                                                  class="fw-bold"/>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
-                                            <div class="card shadow-sm">
-                                                <div class="card-header bg-light">
-                                                    <h6 class="mb-0">Consumo Actual</h6>
-                                                </div>
-                                                <div class="card-body">
-                                                    <t t-if="counters and counters[0].state != 'draft'">
-                                                        <div class="row">
-                                                            <div class="col-sm-6">
-                                                                <p><strong>Total B/N:</strong> <span t-field="counters[0].total_copias_bn"/> copias</p>
-                                                                <p><strong>Exceso B/N:</strong> <span t-field="counters[0].exceso_bn"/> copias</p>
-                                                            </div>
-                                                            <div class="col-sm-6" t-if="equipment.tipo == 'color'">
-                                                                <p><strong>Total Color:</strong> <span t-field="counters[0].total_copias_color"/> copias</p>
-                                                                <p><strong>Exceso Color:</strong> <span t-field="counters[0].exceso_color"/> copias</p>
+                                    </div>
+                                    
+                                    <div class="col-lg-6">
+                                        <div class="card border-0 bg-success bg-opacity-10">
+                                            <div class="card-body">
+                                                <h6 class="card-title text-success fw-bold mb-3">
+                                                    <i class="fa fa-chart-pie me-2"></i>
+                                                    Excesos del Período
+                                                </h6>
+                                                <t t-if="counters and counters[0].state != 'draft'">
+                                                    <div class="row g-3">
+                                                        <div class="col-sm-6">
+                                                            <div class="d-flex justify-content-between">
+                                                                <span class="text-muted">Exceso B/N:</span>
+                                                                <span t-field="counters[0].exceso_bn" 
+                                                                      t-options="{'widget': 'integer'}" 
+                                                                      class="fw-bold"/>
                                                             </div>
                                                         </div>
-                                                    </t>
-                                                    <div t-else="" class="alert alert-info">
-                                                        No hay datos de consumo confirmados para el período actual.
+                                                        <div class="col-sm-6" t-if="equipment.tipo == 'color'">
+                                                            <div class="d-flex justify-content-between">
+                                                                <span class="text-muted">Exceso Color:</span>
+                                                                <span t-field="counters[0].exceso_color" 
+                                                                      t-options="{'widget': 'integer'}" 
+                                                                      class="fw-bold"/>
+                                                            </div>
+                                                        </div>
                                                     </div>
+                                                </t>
+                                                <div t-else="" class="text-center text-muted">
+                                                    <i class="fa fa-clock me-1"></i>
+                                                    Esperando confirmación de datos
                                                 </div>
                                             </div>
                                         </div>
@@ -1178,61 +1318,102 @@
                     </div>
                 </div>
             </div>
-            <!-- Detalle mensual por usuario (si está activado) -->
+            
+            <!-- Detalle por usuario mejorado -->
             <t t-if="counters and equipment and counters[0].informe_por_usuario">
-                <div class="card mt-4">
-                <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0">
-                    <i class="fa fa-users me-2"></i>Detalle de Copias por Usuario
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <t t-if="counters[0].usuario_detalle_ids">
-                    <div class="table-responsive">
-                        <table class="table table-sm table-striped">
-                        <thead>
-                            <tr>
-                            <th>Usuario / Empresa</th>
-                            <th>Total de Copias</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr t-foreach="counters[0].usuario_detalle_ids" t-as="line">
-                            <td><t t-esc="line.usuario_id.name"/></td>
-                            <td><t t-esc="line.cantidad_copias"/></td>
-                            </tr>
-                        </tbody>
-                        </table>
+                <div class="row g-4 mt-2">
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-dark text-white">
+                                <h5 class="mb-0 fw-bold">
+                                    <i class="fa fa-users me-2"></i>
+                                    Detalle de Copias por Usuario
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <t t-if="counters[0].usuario_detalle_ids">
+                                    <div class="row g-4">
+                                        <div class="col-lg-6">
+                                            <div class="table-responsive">
+                                                <table class="table table-hover align-middle">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th class="fw-bold">Usuario / Empresa</th>
+                                                            <th class="fw-bold text-center">Copias</th>
+                                                            <th class="fw-bold text-center">Porcentaje</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr t-foreach="counters[0].usuario_detalle_ids" t-as="line">
+                                                            <td>
+                                                                <div class="d-flex align-items-center">
+                                                                    <div class="bg-primary text-white rounded-circle p-2 me-2" style="width: 32px; height: 32px; font-size: 12px;">
+                                                                        <i class="fa fa-user"></i>
+                                                                    </div>
+                                                                    <span t-esc="line.usuario_id.name" class="fw-semibold"/>
+                                                                </div>
+                                                            </td>
+                                                            <td class="text-center font-monospace fw-bold">
+                                                                <span t-esc="line.cantidad_copias"/>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <div class="progress" style="height: 8px;">
+                                                                    <div class="progress-bar bg-primary" 
+                                                                         role="progressbar" 
+                                                                         t-att-style="'width: %s%%' % (line.cantidad_copias / counters[0].total_copias_bn * 100 if counters[0].total_copias_bn > 0 else 0)">
+                                                                    </div>
+                                                                </div>
+                                                                <small class="text-muted">
+                                                                    <span t-esc="round(line.cantidad_copias / counters[0].total_copias_bn * 100, 1) if counters[0].total_copias_bn > 0 else 0"/>%
+                                                                </small>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="chart-container" style="height: 300px;">
+                                                <canvas id="userChart"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <div class="text-center py-4">
+                                        <i class="fa fa-user-slash fa-3x text-muted opacity-50 mb-3"></i>
+                                        <h6 class="text-muted">Sin datos de usuarios</h6>
+                                        <p class="text-muted mb-0">No hay registros de copias por usuario en este período</p>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
                     </div>
-                    </t>
-                    <t t-else="">
-                    <div class="alert alert-warning text-center">
-                        No hay datos de copias por usuario en este período.
-                    </div>
-                    </t>
-                </div>
                 </div>
             </t>
-            <!-- Gráfico por usuario -->
-            <div class="mt-4">
-                <h5>Gráfico de Copias por Usuario</h5>
-                <div class="chart-container" style="height: 300px;">
-                    <canvas id="userChart"></canvas>
+            
+            <!-- Botones de acción mejorados -->
+            <div class="text-center mt-4 mb-4">
+                <div class="btn-group" role="group">
+                    <a t-att-href="'/my/copier/equipment/%s' % equipment.id" 
+                       class="btn btn-outline-primary btn-lg">
+                        <i class="fa fa-arrow-left me-2"></i>
+                        Volver al Equipo
+                    </a>
+                    <button type="button" class="btn btn-primary btn-lg" onclick="window.print()">
+                        <i class="fa fa-print me-2"></i>
+                        Imprimir Reporte
+                    </button>
                 </div>
             </div>
-    
-            <!-- Botón para volver a la página de detalle del equipo -->
-            <div class="text-center mt-4">
-                <a t-att-href="'/my/copier/equipment/%s' % equipment.id" class="btn btn-secondary">
-                    <i class="fa fa-arrow-left me-1"></i>Volver al Equipo
-                </a>
-            </div>
             
-            <!-- Elemento con datos para los gráficos -->
+            <!-- Datos para gráficos (oculto) -->
             <div id="charts-data" 
                  t-att-data-chart-data="chart_data"
                  t-att-data-is-color="'true' if equipment.tipo == 'color' else 'false'"
-                 style="display: none;"></div>
-        </t>
-    </template>
+                 class="d-none">
+            </div>
+        </div>
+    </t>
+</template>
 </odoo>
