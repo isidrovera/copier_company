@@ -39,13 +39,13 @@
                 <!-- Botones de acción rápida -->
                 <button name="action_review" type="object" string="Revisar" 
                         class="btn-primary" icon="fa-eye"
-                        invisible="state not in ('pending',)"/>
+                        invisible="state != 'pending'"/>
                 <button name="action_approve" type="object" string="Aprobar" 
                         class="btn-success" icon="fa-check"
                         invisible="state not in ('pending', 'reviewed')"/>
                 <button name="action_process_to_official" type="object" string="Procesar" 
                         class="btn-warning" icon="fa-cogs"
-                        invisible="state not in ('approved',)"/>
+                        invisible="state != 'approved'"/>
                 <button name="action_reject" type="object" string="Rechazar" 
                         class="btn-danger" icon="fa-times"
                         invisible="state not in ('pending', 'reviewed')"/>
@@ -66,15 +66,15 @@
                     
                     <!-- Botones de acción -->
                     <button name="action_review" string="Marcar como Revisado" type="object" 
-                            class="btn-primary" invisible="state not in ('pending',)"/>
+                            class="btn-primary" invisible="state != 'pending'"/>
                     <button name="action_approve" string="Aprobar" type="object" 
                             class="btn-success" invisible="state not in ('pending', 'reviewed')"/>
                     <button name="action_process_to_official" string="Procesar a Contador Oficial" type="object" 
-                            class="btn-warning" invisible="state not in ('approved',)"/>
+                            class="btn-warning" invisible="state != 'approved'"/>
                     <button name="action_reject" string="Rechazar" type="object" 
                             class="btn-danger" invisible="state not in ('pending', 'reviewed')"/>
                     <button name="action_reset_to_pending" string="Regresar a Pendiente" type="object" 
-                            class="btn-secondary" invisible="state in ('pending',)"/>
+                            class="btn-secondary" invisible="state == 'pending'"/>
                 </header>
 
                 <sheet>
@@ -130,29 +130,30 @@
 
                     <!-- Contadores en una sección destacada -->
                     <group string="📊 Contadores Reportados" class="oe_subtotal_footer">
-    <group>
-        <group string="Contadores Anteriores (Referencia)" class="text-muted">
-            <field name="previous_counter_bn" readonly="1" widget="integer"/>
-            <field name="previous_counter_color" readonly="1" widget="integer"/>
-        </group>
-    </group>
-    
-    <group>
-        <group string="Contadores Actuales">
-            <field name="counter_bn" widget="integer" readonly="state != 'pending'"/>
-            <field name="counter_color" widget="integer" readonly="state != 'pending'"/>
-        </group>
-    </group>
+                        <group>
+                            <group string="Contadores Anteriores (Referencia)" class="text-muted">
+                                <field name="previous_counter_bn" readonly="1" widget="integer"/>
+                                <field name="previous_counter_color" readonly="1" widget="integer"/>
+                            </group>
+                        </group>
+                        
+                        <group>
+                            <group string="Contadores Actuales">
+                                <field name="counter_bn" widget="integer" readonly="state != 'pending'"/>
+                                <field name="counter_color" widget="integer" readonly="state != 'pending'"/>
+                            </group>
+                        </group>
 
-    <group class="oe_subtotal_footer_separator">
-        <group string="Copias del Período (Calculado)" class="text-primary">
-            <field name="copies_bn_period" readonly="1" widget="integer"/>
-            <field name="copies_color_period" readonly="1" widget="integer"/>
-            <!-- Campo computed para mostrar el total -->
-            <field name="total_copies_period" readonly="1" widget="integer" string="Total Copias"/>
-        </group>
-    </group>
-</group>
+                        <group class="oe_subtotal_footer_separator">
+                            <group string="Copias del Período (Calculado)" class="text-primary">
+                                <field name="copies_bn_period" readonly="1" widget="integer"/>
+                                <field name="copies_color_period" readonly="1" widget="integer"/>
+                                <!-- Campo computed para mostrar el total -->
+                                <field name="total_copies_period" readonly="1" widget="integer" string="Total Copias"/>
+                            </group>
+                        </group>
+                    </group>
+
                     <!-- Montos estimados -->
                     <group string="💰 Estimación Financiera" class="oe_subtotal_footer">
                         <field name="estimated_amount_bn" widget="monetary"/>
@@ -244,15 +245,17 @@
 
                 <separator/>
 
+                <!-- Filtros de fecha corregidos para Odoo 18 -->
                 <filter name="today" string="Hoy" 
-                        domain="[('submission_date', '>=', datetime.datetime.combine(context_today(), datetime.time(0,0,0))), 
-                                ('submission_date', '&lt;', datetime.datetime.combine(context_today() + datetime.timedelta(days=1), datetime.time(0,0,0)))]"/>
+                        domain="[('submission_date', '=', context_today())]"/>
                 <filter name="this_week" string="Esta Semana" 
-                        domain="[('submission_date', '>=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d')),
-                                ('submission_date', '&lt;', (context_today() + datetime.timedelta(days=7-context_today().weekday())).strftime('%Y-%m-%d'))]"/>
+                        domain="[('submission_date', '>=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%%Y-%%m-%%d')),
+                                ('submission_date', '&lt;=', (context_today() + datetime.timedelta(days=6-context_today().weekday())).strftime('%%Y-%%m-%%d'))]"/>
                 <filter name="this_month" string="Este Mes" 
-                        domain="[('submission_date', '>=', datetime.datetime.combine(context_today().replace(day=1), datetime.time(0,0,0))),
-                                ('submission_date', '&lt;', datetime.datetime.combine((context_today().replace(day=1) + datetime.timedelta(days=32)).replace(day=1), datetime.time(0,0,0)))]"/>
+                        domain="[('submission_date', '>=', context_today().strftime('%%Y-%%m-01')),
+                                ('submission_date', '&lt;=', (context_today().replace(day=28) + datetime.timedelta(days=4)).replace(day=1) - datetime.timedelta(days=1))]"/>
+                <filter name="last_30_days" string="Últimos 30 días" 
+                        domain="[('submission_date', '>=', (context_today() - datetime.timedelta(days=30)).strftime('%%Y-%%m-%%d'))]"/>
 
                 <!-- Agrupaciones -->
                 <group expand="0" string="Agrupar Por">
@@ -269,145 +272,145 @@
 
     <!-- Vista Kanban -->
     <record id="view_client_counter_submission_kanban" model="ir.ui.view">
-    <field name="name">client.counter.submission.kanban</field>
-    <field name="model">client.counter.submission</field>
-    <field name="arch" type="xml">
-        <kanban default_group_by="state" class="o_kanban_small_column">
-            <field name="id"/>
-            <field name="secuencia"/>
-            <field name="equipment_id"/>
-            <field name="partner_id"/>
-            <field name="client_name"/>
-            <field name="counter_bn"/>
-            <field name="counter_color"/>
-            <field name="copies_bn_period"/>
-            <field name="copies_color_period"/>
-            <field name="estimated_total_amount"/>
-            <field name="state"/>
-            <field name="reviewer_id"/>
-            <field name="submission_date"/>
-            <field name="display_name"/>
-            <field name="currency_id"/>
+        <field name="name">client.counter.submission.kanban</field>
+        <field name="model">client.counter.submission</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="id"/>
+                <field name="secuencia"/>
+                <field name="equipment_id"/>
+                <field name="partner_id"/>
+                <field name="client_name"/>
+                <field name="counter_bn"/>
+                <field name="counter_color"/>
+                <field name="copies_bn_period"/>
+                <field name="copies_color_period"/>
+                <field name="estimated_total_amount"/>
+                <field name="state"/>
+                <field name="reviewer_id"/>
+                <field name="submission_date"/>
+                <field name="display_name"/>
+                <field name="currency_id"/>
 
-            <templates>
-                <t t-name="kanban-box">
-                    <div class="oe_kanban_card oe_kanban_global_click">
-                        <div class="oe_kanban_content">
-                            <!-- Header con número y monto -->
-                            <div class="o_kanban_record_top">
-                                <div class="o_kanban_record_headings">
-                                    <strong class="o_kanban_record_title">
-                                        <t t-esc="record.secuencia.value"/>
-                                    </strong>
-                                    <br/>
-                                    <small class="o_kanban_record_subtitle text-muted">
-                                        <t t-if="record.equipment_id.value">
-                                            <t t-esc="record.equipment_id.value"/>
-                                        </t>
-                                    </small>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <!-- Header con número y monto -->
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <t t-esc="record.secuencia.value"/>
+                                        </strong>
+                                        <br/>
+                                        <small class="o_kanban_record_subtitle text-muted">
+                                            <t t-if="record.equipment_id.value">
+                                                <t t-esc="record.equipment_id.value"/>
+                                            </t>
+                                        </small>
+                                    </div>
+                                    <div class="o_kanban_record_title">
+                                        <span class="text-primary fw-bold">
+                                            S/ <t t-esc="record.estimated_total_amount.value"/>
+                                        </span>
+                                    </div>
                                 </div>
-                                <div class="o_kanban_record_title">
-                                    <span class="text-primary fw-bold">
-                                        S/ <t t-esc="record.estimated_total_amount.value"/>
-                                    </span>
+
+                                <!-- Información del cliente y contadores -->
+                                <div class="o_kanban_record_body">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <i class="fa fa-building-o"/> 
+                                            <t t-if="record.partner_id.value">
+                                                <t t-esc="record.partner_id.value"/>
+                                            </t>
+                                            <t t-else="">Sin cliente</t>
+                                        </div>
+                                        <div class="col-12">
+                                            <i class="fa fa-user"/> 
+                                            <t t-esc="record.client_name.value"/>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Contadores -->
+                                    <div class="mt-2">
+                                        <div class="row text-center">
+                                            <div class="col-6">
+                                                <div class="border rounded p-2">
+                                                    <small class="text-muted d-block">B/N</small>
+                                                    <strong><t t-esc="record.counter_bn.value"/></strong>
+                                                    <small class="text-success d-block">
+                                                        +<t t-esc="record.copies_bn_period.value"/>
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="border rounded p-2">
+                                                    <small class="text-muted d-block">Color</small>
+                                                    <strong><t t-esc="record.counter_color.value"/></strong>
+                                                    <small class="text-warning d-block">
+                                                        +<t t-esc="record.copies_color_period.value"/>
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Footer con revisor y fecha -->
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        <t t-if="record.reviewer_id.value">
+                                            <field name="reviewer_id" widget="many2one_avatar_user"/>
+                                        </t>
+                                    </div>
+                                    <div class="oe_kanban_bottom_right">
+                                        <small class="text-muted">
+                                            <t t-esc="record.submission_date.value"/>
+                                        </small>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Información del cliente y contadores -->
-                            <div class="o_kanban_record_body">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <i class="fa fa-building-o"/> 
-                                        <t t-if="record.partner_id.value">
-                                            <t t-esc="record.partner_id.value"/>
+                            <!-- Menú dropdown -->
+                            <div class="oe_kanban_action_dropdown">
+                                <div class="dropdown">
+                                    <a class="dropdown-toggle o-no-caret btn" data-bs-toggle="dropdown" href="#" role="button" aria-label="Dropdown menu" title="Dropdown menu">
+                                        <span class="fa fa-ellipsis-v"/>
+                                    </a>
+                                    <div class="dropdown-menu" role="menu">
+                                        <t t-if="record.state.raw_value == 'pending'">
+                                            <a name="action_review" type="object" role="menuitem" class="dropdown-item">
+                                                Revisar
+                                            </a>
+                                            <a name="action_approve" type="object" role="menuitem" class="dropdown-item">
+                                                Aprobar
+                                            </a>
                                         </t>
-                                        <t t-else="">Sin cliente</t>
+                                        <t t-if="record.state.raw_value == 'reviewed'">
+                                            <a name="action_approve" type="object" role="menuitem" class="dropdown-item">
+                                                Aprobar
+                                            </a>
+                                        </t>
+                                        <t t-if="record.state.raw_value == 'approved'">
+                                            <a name="action_process_to_official" type="object" role="menuitem" class="dropdown-item">
+                                                Procesar
+                                            </a>
+                                        </t>
+                                        <t t-if="record.state.raw_value == 'pending' or record.state.raw_value == 'reviewed'">
+                                            <a name="action_reject" type="object" role="menuitem" class="dropdown-item">
+                                                Rechazar
+                                            </a>
+                                        </t>
                                     </div>
-                                    <div class="col-12">
-                                        <i class="fa fa-user"/> 
-                                        <t t-esc="record.client_name.value"/>
-                                    </div>
-                                </div>
-                                
-                                <!-- Contadores -->
-                                <div class="mt-2">
-                                    <div class="row text-center">
-                                        <div class="col-6">
-                                            <div class="border rounded p-2">
-                                                <small class="text-muted d-block">B/N</small>
-                                                <strong><t t-esc="record.counter_bn.value"/></strong>
-                                                <small class="text-success d-block">
-                                                    +<t t-esc="record.copies_bn_period.value"/>
-                                                </small>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="border rounded p-2">
-                                                <small class="text-muted d-block">Color</small>
-                                                <strong><t t-esc="record.counter_color.value"/></strong>
-                                                <small class="text-warning d-block">
-                                                    +<t t-esc="record.copies_color_period.value"/>
-                                                </small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Footer con revisor y fecha -->
-                            <div class="o_kanban_record_bottom">
-                                <div class="oe_kanban_bottom_left">
-                                    <t t-if="record.reviewer_id.value">
-                                        <field name="reviewer_id" widget="many2one_avatar_user"/>
-                                    </t>
-                                </div>
-                                <div class="oe_kanban_bottom_right">
-                                    <small class="text-muted">
-                                        <t t-esc="record.submission_date.value"/>
-                                    </small>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Menú dropdown -->
-                        <div class="oe_kanban_action_dropdown">
-                            <div class="dropdown">
-                                <a class="dropdown-toggle o-no-caret btn" data-bs-toggle="dropdown" href="#" role="button" aria-label="Dropdown menu" title="Dropdown menu">
-                                    <span class="fa fa-ellipsis-v"/>
-                                </a>
-                                <div class="dropdown-menu" role="menu">
-                                    <t t-if="record.state.raw_value == 'pending'">
-                                        <a name="action_review" type="object" role="menuitem" class="dropdown-item">
-                                            Revisar
-                                        </a>
-                                        <a name="action_approve" type="object" role="menuitem" class="dropdown-item">
-                                            Aprobar
-                                        </a>
-                                    </t>
-                                    <t t-if="record.state.raw_value == 'reviewed'">
-                                        <a name="action_approve" type="object" role="menuitem" class="dropdown-item">
-                                            Aprobar
-                                        </a>
-                                    </t>
-                                    <t t-if="record.state.raw_value == 'approved'">
-                                        <a name="action_process_to_official" type="object" role="menuitem" class="dropdown-item">
-                                            Procesar
-                                        </a>
-                                    </t>
-                                    <t t-if="record.state.raw_value == 'pending' or record.state.raw_value == 'reviewed'">
-                                        <a name="action_reject" type="object" role="menuitem" class="dropdown-item">
-                                            Rechazar
-                                        </a>
-                                    </t>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </t>
-            </templates>
-        </kanban>
-    </field>
-</record>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
 
     <!-- Vista Calendar -->
     <record id="view_client_counter_submission_calendar" model="ir.ui.view">
@@ -480,7 +483,7 @@
         </field>
         <field name="context">{
             'search_default_pending': 1,
-            'search_default_this_month': 1
+            'search_default_last_30_days': 1
         }</field>
     </record>
 
