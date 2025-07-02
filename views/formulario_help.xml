@@ -982,7 +982,7 @@
                     const anydeskFields = document.getElementById('anydesk_fields');
                     const scannerFields = document.getElementById('scanner_fields');
                     
-                    if (assistanceType && assistanceType !== '') {
+                    if (assistanceType &amp;&amp; assistanceType !== '') {
                         accessFields.style.display = 'block';
                         accessFields.classList.add('show');
                         
@@ -1010,7 +1010,7 @@
                 document.addEventListener('DOMContentLoaded', function() {
                     // Efecto de focus en inputs
                     const inputs = document.querySelectorAll('.form-control');
-                    inputs.forEach(input => {
+                    inputs.forEach(input =&gt; {
                         input.addEventListener('focus', function() {
                             this.parentElement.style.transform = 'scale(1.02)';
                             this.parentElement.style.transition = 'transform 0.2s ease';
