@@ -41,5 +41,29 @@
             <field name="padding">4</field>
             <field name="company_id" eval="False"/>
           </record>
+          <record id="seq_client_counter_submission" model="ir.sequence">
+            <field name="name">Reportes de Contadores Cliente</field>
+            <field name="code">client.counter.submission</field>
+            <field name="prefix">CCR/</field>
+            <field name="suffix"></field>
+            <field name="padding">3</field>
+            <field name="number_increment">1</field>
+            <field name="number_next">1</field>
+            <field name="company_id" eval="False"/>
+            <field name="implementation">standard</field>
+        </record>
+
+        <!-- SECUENCIA PARA TONER REQUEST -->
+        <record id="seq_toner_request" model="ir.sequence">
+            <field name="name">Solicitudes de Toner</field>
+            <field name="code">toner.request</field>
+            <field name="prefix">TR/</field>
+            <field name="suffix"></field>
+            <field name="padding">3</field>
+            <field name="number_increment">1</field>
+            <field name="number_next">1</field>
+            <field name="company_id" eval="False"/>
+            <field name="implementation">standard</field>
+        </record>
     </data>
 </odoo>
