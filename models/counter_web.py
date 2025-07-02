@@ -283,7 +283,18 @@ class ClientCounterSubmission(models.Model):
         store=True,
         readonly=True
     )
+    total_copies_period = fields.Integer(
+        string='Total Copias del Período',
+        compute='_compute_total_copies_period',
+        store=True,
+        help='Total de copias del período (B/N + Color)'
+    )
 
+    @api.depends('copies_bn_period', 'copies_color_period')
+    def _compute_total_copies_period(self):
+        """Calcula el total de copias del período"""
+        for record in self:
+            record.total_copies_period = record.copies_bn_period + record.copies_color_period
     @api.depends('copies_bn_period', 'copies_color_period', 'equipment_id.costo_copia_bn', 'equipment_id.costo_copia_color')
     def _compute_estimated_amounts(self):
         """Calcula los montos estimados basado en los costos del equipo"""

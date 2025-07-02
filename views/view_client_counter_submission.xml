@@ -130,36 +130,29 @@
 
                     <!-- Contadores en una sección destacada -->
                     <group string="📊 Contadores Reportados" class="oe_subtotal_footer">
-                        <group>
-                            <group string="Contadores Anteriores (Referencia)" class="text-muted">
-                                <field name="previous_counter_bn" readonly="1" widget="integer"/>
-                                <field name="previous_counter_color" readonly="1" widget="integer"/>
-                            </group>
-                        </group>
-                        
-                        <group>
-                            <group string="Contadores Actuales">
-                                <field name="counter_bn" widget="integer" readonly="state != 'pending'"/>
-                                <field name="counter_color" widget="integer" readonly="state != 'pending'"/>
-                            </group>
-                        </group>
+    <group>
+        <group string="Contadores Anteriores (Referencia)" class="text-muted">
+            <field name="previous_counter_bn" readonly="1" widget="integer"/>
+            <field name="previous_counter_color" readonly="1" widget="integer"/>
+        </group>
+    </group>
+    
+    <group>
+        <group string="Contadores Actuales">
+            <field name="counter_bn" widget="integer" readonly="state != 'pending'"/>
+            <field name="counter_color" widget="integer" readonly="state != 'pending'"/>
+        </group>
+    </group>
 
-                        <group class="oe_subtotal_footer_separator">
-                            <group string="Copias del Período (Calculado)" class="text-primary">
-                                <field name="copies_bn_period" readonly="1" widget="integer"/>
-                                <field name="copies_color_period" readonly="1" widget="integer"/>
-                                <label for="copies_total" string="Total Copias:"/>
-                                <div name="copies_total" class="text-end">
-                                    <field name="copies_bn_period" readonly="1" widget="integer" nolabel="1" class="oe_subtotal_footer_separator"/> +
-                                    <field name="copies_color_period" readonly="1" widget="integer" nolabel="1" class="oe_subtotal_footer_separator"/> =
-                                    <span class="fw-bold fs-4 text-primary">
-                                        <t t-esc="copies_bn_period + copies_color_period"/> copias
-                                    </span>
-                                </div>
-                            </group>
-                        </group>
-                    </group>
-
+    <group class="oe_subtotal_footer_separator">
+        <group string="Copias del Período (Calculado)" class="text-primary">
+            <field name="copies_bn_period" readonly="1" widget="integer"/>
+            <field name="copies_color_period" readonly="1" widget="integer"/>
+            <!-- Campo computed para mostrar el total -->
+            <field name="total_copies_period" readonly="1" widget="integer" string="Total Copias"/>
+        </group>
+    </group>
+</group>
                     <!-- Montos estimados -->
                     <group string="💰 Estimación Financiera" class="oe_subtotal_footer">
                         <field name="estimated_amount_bn" widget="monetary"/>
