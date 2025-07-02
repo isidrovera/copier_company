@@ -78,6 +78,41 @@
     </record>
 
     <!-- Tree/List View -->
+    <record id="view_copier_counter_tree" model="ir.ui.view">
+        <field name="name">copier.counter.tree</field>
+        <field name="model">copier.counter</field>
+        <field name="arch" type="xml">
+            <list decoration-info="state == 'draft'"
+                decoration-success="state == 'confirmed'"
+                decoration-warning="state == 'invoiced'"
+                decoration-danger="state == 'cancelled'"
+                sample="1">
+
+                <!--<field name="name" widget="many2one_avatar_user" />-->
+                <field name="cliente_id" optional="hide" />
+                <field name="maquina_id" />
+                <field name="serie" />
+                <field name="mes_facturacion" optional="hide" />
+                <field name="contador_actual_bn" sum="Total B/N" optional="hide"/>
+                <field name="total_copias_bn" sum="Total Copias B/N" />
+                <field name="copias_facturables_bn" sum="Total Facturable B/N" optional="hide"/>
+                <field name="contador_actual_color" sum="Total Color" optional="hide"/>
+                <field name="total_copias_color" sum="Total Copias Color" />
+                <field name="copias_facturables_color" sum="Total Facturable Color" />
+                
+                <field name="subtotal" sum="Subtotal" widget="monetary" optional="hide"/>
+                <field name="total" sum="Total" widget="monetary" />
+                <field name="currency_id" optional="hide"/>
+                <field name="state" widget="badge"
+                    decoration-info="state == 'draft'"
+                    decoration-success="state == 'confirmed'"
+                    decoration-warning="state == 'invoiced'"
+                    decoration-danger="state == 'cancelled'" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
     <record id="view_copier_counter_form" model="ir.ui.view">
     <field name="name">copier.counter.form</field>
     <field name="model">copier.counter</field>
@@ -261,7 +296,6 @@
         </form>
     </field>
 </record>
-
     <!-- Search View -->
     <record id="view_copier_counter_search" model="ir.ui.view">
         <field name="name">copier.counter.search</field>
