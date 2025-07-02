@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista List -->
+    <record id="view_toner_request_list" model="ir.ui.view">
+        <field name="name">toner.request.list</field>
+        <field name="model">toner.request</field>
+        <field name="arch" type="xml">
+            <list string="Solicitudes de Toner" default_order="request_date desc" 
+                  decoration-info="state == 'pending'" 
+                  decoration-warning="state == 'approved'" 
+                  decoration-primary="state == 'dispatched'"
+                  decoration-success="state in ('delivered', 'installed')" 
+                  decoration-danger="state in ('rejected', 'cancelled')"
+                  decoration-muted="state == 'cancelled'">
+                
+                <field name="secuencia" string="Número"/>
+                <field name="request_date" string="Fecha Solicitud"/>
+                <field name="equipment_id" string="Equipo"/>
+                <field name="equipment_serie" string="Serie" optional="hide"/>
+                <field name="partner_id" string="Cliente"/>
+                <field name="client_name" string="Solicitante"/>
+                <field name="client_email" string="Email" optional="hide"/>
+                <field name="toner_type" string="Tipo de Toner"/>
+                <field name="quantity" string="Cantidad"/>
+                <field name="urgency" string="Urgencia" widget="badge" 
+                       decoration-success="urgency == 'low'" 
+                       decoration-warning="urgency == 'medium'" 
+                       decoration-danger="urgency in ('high', 'urgent')"/>
+                <field name="responsible_id" string="Responsable" optional="show"/>
+                <field name="dispatch_date" string="Despachado" optional="hide"/>
+                <field name="delivery_date" string="Entregado" optional="hide"/>
+                <field name="state" string="Estado" widget="badge" 
+                       decoration-info="state == 'pending'" 
+                       decoration-warning="state == 'approved'" 
+                       decoration-primary="state == 'dispatched'"
+                       decoration-success="state in ('delivered', 'installed')" 
+                       decoration-danger="state in ('rejected', 'cancelled')"/>
+                <field name="estimated_cost" string="Costo Est." optional="hide" widget="monetary"/>
+                <field name="currency_id" column_invisible="1"/>
+                
+                <!-- Botones de acción rápida -->
+                <button name="action_approve" type="object" string="Aprobar" 
+                        class="btn-success" icon="fa-check"
+                        invisible="state not in ('pending',)"/>
+                <button name="action_dispatch" type="object" string="Despachar" 
+                        class="btn-primary" icon="fa-truck"
+                        invisible="state not in ('approved',)"/>
+                <button name="action_deliver" type="object" string="Entregar" 
+                        class="btn-warning" icon="fa-handshake-o"
+                        invisible="state not in ('dispatched',)"/>
+                <button name="action_install" type="object" string="Instalar" 
+                        class="btn-success" icon="fa-wrench"
+                        invisible="state not in ('delivered',)"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Form -->
+    <record id="view_toner_request_form" model="ir.ui.view">
+        <field name="name">toner.request.form</field>
+        <field name="model">toner.request</field>
+        <field name="arch" type="xml">
+            <form string="Solicitud de Toner">
+                <header>
+                    <!-- Statusbar -->
+                    <field name="state" widget="statusbar" 
+                           statusbar_visible="pending,approved,dispatched,delivered,installed"/>
+                    
+                    <!-- Botones de acción -->
+                    <button name="action_approve" string="Aprobar" type="object" 
+                            class="btn-success" invisible="state not in ('pending',)"/>
+                    <button name="action_dispatch" string="Despachar" type="object" 
+                            class="btn-primary" invisible="state not in ('approved',)"/>
+                    <button name="action_deliver" string="Entregar" type="object" 
+                            class="btn-warning" invisible="state not in ('dispatched',)"/>
+                    <button name="action_install" string="Instalar" type="object" 
+                            class="btn-success" invisible="state not in ('delivered',)"/>
+                    <button name="action_reject" string="Rechazar" type="object" 
+                            class="btn-danger" invisible="state not in ('pending', 'approved')"/>
+                    <button name="action_cancel" string="Cancelar" type="object" 
+                            class="btn-secondary" invisible="state in ('installed', 'rejected', 'cancelled')"/>
+                    <button name="action_reset_to_pending" string="Regresar a Pendiente" type="object" 
+                            class="btn-secondary" invisible="state in ('pending',)"/>
+                </header>
+
+                <sheet>
+                    <!-- Título y badges -->
+                    <div class="oe_title">
+                        <h1>
+                            <field name="secuencia" readonly="1" class="o_text_overflow"/>
+                        </h1>
+                        <h2>
+                            <field name="display_name" readonly="1" class="o_text_overflow"/>
+                        </h2>
+                    </div>
+
+                    <!-- Badges de estado y urgencia -->
+                    <div class="o_row">
+                        <field name="urgency" widget="badge" 
+                               decoration-success="urgency == 'low'" 
+                               decoration-warning="urgency == 'medium'" 
+                               decoration-danger="urgency in ('high', 'urgent')"/>
+                        <field name="state" widget="badge" 
+                               decoration-info="state == 'pending'" 
+                               decoration-warning="state == 'approved'" 
+                               decoration-primary="state == 'dispatched'"
+                               decoration-success="state in ('delivered', 'installed')" 
+                               decoration-danger="state in ('rejected', 'cancelled')"/>
+                    </div>
+
+                    <group>
+                        <group string="Información del Equipo">
+                            <field name="equipment_id" options="{'no_create': True, 'no_edit': True}"/>
+                            <field name="partner_id" readonly="1"/>
+                            <field name="equipment_serie" readonly="1"/>
+                            <field name="equipment_location" readonly="1"/>
+                        </group>
+
+                        <group string="Información de la Solicitud">
+                            <field name="request_date"/>
+                            <field name="toner_type"/>
+                            <field name="quantity"/>
+                            <field name="current_toner_level"/>
+                            <field name="responsible_id" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group string="Datos del Solicitante">
+                            <field name="client_name"/>
+                            <field name="client_email" widget="email"/>
+                            <field name="client_phone" widget="phone"/>
+                        </group>
+
+                        <group string="Gestión y Costos">
+                            <field name="currency_id" column_invisible="1"/>
+                            <field name="estimated_cost" widget="monetary"/>
+                            <field name="actual_cost" widget="monetary" 
+                                   readonly="state not in ('delivered', 'installed')"/>
+                        </group>
+                    </group>
+
+                    <!-- Fechas de seguimiento -->
+                    <group string="Seguimiento de Fechas" invisible="state == 'pending'">
+                        <group>
+                            <field name="approval_date" readonly="1" 
+                                   invisible="state == 'pending'"/>
+                            <field name="dispatch_date" readonly="1" 
+                                   invisible="state in ('pending', 'approved')"/>
+                        </group>
+                        <group>
+                            <field name="delivery_date" readonly="1" 
+                                   invisible="state in ('pending', 'approved', 'dispatched')"/>
+                            <field name="installation_date" readonly="1" 
+                                   invisible="state != 'installed'"/>
+                        </group>
+                    </group>
+
+                    <!-- Notebook con pestañas -->
+                    <notebook>
+                        <!-- Pestaña principal -->
+                        <page string="Motivo de la Solicitud" name="request_reason">
+                            <group>
+                                <field name="reason" nolabel="1" 
+                                       placeholder="Describa el motivo por el cual solicita el toner..."/>
+                            </group>
+                        </page>
+
+                        <!-- Pestaña de entrega -->
+                        <page string="Información de Entrega" name="delivery_info" 
+                              invisible="state in ('pending', 'approved')">
+                            <group>
+                                <group string="Detalles de Entrega">
+                                    <field name="delivery_person" 
+                                           placeholder="Nombre de quien recibe"/>
+                                </group>
+                            </group>
+                            
+                            <group string="Notas de Entrega">
+                                <field name="delivery_notes" nolabel="1" 
+                                       placeholder="Observaciones sobre la entrega, instalación, problemas encontrados, etc."/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <!-- Chatter -->
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista Search -->
+    <record id="view_toner_request_search" model="ir.ui.view">
+        <field name="name">toner.request.search</field>
+        <field name="model">toner.request</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Solicitudes de Toner">
+                <!-- Campos de búsqueda -->
+                <field name="secuencia" string="Número de Solicitud"/>
+                <field name="equipment_id" string="Equipo"/>
+                <field name="equipment_serie" string="Serie"/>
+                <field name="partner_id" string="Cliente"/>
+                <field name="client_name" string="Solicitante"/>
+                <field name="client_email" string="Email"/>
+                <field name="responsible_id" string="Responsable"/>
+                <field name="toner_type" string="Tipo de Toner"/>
+
+                <!-- Filtros predefinidos -->
+                <filter name="pending" string="Pendientes" 
+                        domain="[('state', '=', 'pending')]"/>
+                <filter name="approved" string="Aprobados" 
+                        domain="[('state', '=', 'approved')]"/>
+                <filter name="dispatched" string="Despachados" 
+                        domain="[('state', '=', 'dispatched')]"/>
+                <filter name="delivered" string="Entregados" 
+                        domain="[('state', '=', 'delivered')]"/>
+                <filter name="installed" string="Instalados" 
+                        domain="[('state', '=', 'installed')]"/>
+
+                <separator/>
+                
+                <filter name="urgent" string="Urgente" 
+                        domain="[('urgency', '=', 'urgent')]"/>
+                <filter name="high_urgency" string="Alta Urgencia" 
+                        domain="[('urgency', 'in', ['high', 'urgent'])]"/>
+                <filter name="my_requests" string="Mis Solicitudes" 
+                        domain="[('responsible_id', '=', uid)]"/>
+
+                <separator/>
+
+                <filter name="black_toner" string="Toner Negro" 
+                        domain="[('toner_type', '=', 'black')]"/>
+                <filter name="color_toner" string="Toners Color" 
+                        domain="[('toner_type', 'in', ['cyan', 'magenta', 'yellow', 'complete_set'])]"/>
+                <filter name="maintenance_kit" string="Kit Mantenimiento" 
+                        domain="[('toner_type', '=', 'maintenance_kit')]"/>
+
+                <separator/>
+
+                <filter name="today" string="Hoy" 
+                        domain="[('request_date', '>=', datetime.datetime.combine(context_today(), datetime.time(0,0,0))), 
+                                ('request_date', '&lt;', datetime.datetime.combine(context_today() + datetime.timedelta(days=1), datetime.time(0,0,0)))]"/>
+                <filter name="this_week" string="Esta Semana" 
+                        domain="[('request_date', '>=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d')),
+                                ('request_date', '&lt;', (context_today() + datetime.timedelta(days=7-context_today().weekday())).strftime('%Y-%m-%d'))]"/>
+
+                <!-- Agrupaciones -->
+                <group expand="0" string="Agrupar Por">
+                    <filter name="group_by_state" string="Estado" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_responsible" string="Responsable" context="{'group_by': 'responsible_id'}"/>
+                    <filter name="group_by_toner_type" string="Tipo de Toner" context="{'group_by': 'toner_type'}"/>
+                    <filter name="group_by_urgency" string="Urgencia" context="{'group_by': 'urgency'}"/>
+                    <filter name="group_by_client" string="Cliente" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_by_request_date" string="Fecha de Solicitud" context="{'group_by': 'request_date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Vista Kanban -->
+    <record id="view_toner_request_kanban" model="ir.ui.view">
+        <field name="name">toner.request.kanban</field>
+        <field name="model">toner.request</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="id"/>
+                <field name="secuencia"/>
+                <field name="equipment_id"/>
+                <field name="partner_id"/>
+                <field name="client_name"/>
+                <field name="toner_type"/>
+                <field name="quantity"/>
+                <field name="urgency"/>
+                <field name="state"/>
+                <field name="responsible_id"/>
+                <field name="request_date"/>
+                <field name="current_toner_level"/>
+                <field name="reason"/>
+                <field name="display_name"/>
+
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <!-- Header con número y urgencia -->
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <t t-esc="record.secuencia.value"/>
+                                        </strong>
+                                        <br/>
+                                        <small class="o_kanban_record_subtitle text-muted">
+                                            <t t-if="record.equipment_id.value">
+                                                <t t-esc="record.equipment_id.value"/>
+                                            </t>
+                                        </small>
+                                    </div>
+                                    <div class="o_kanban_record_title">
+                                        <!-- Badge de urgencia -->
+                                        <span t-att-class="'badge ' + (record.urgency.raw_value == 'urgent' ? 'text-bg-danger' : 
+                                                                      record.urgency.raw_value == 'high' ? 'text-bg-warning' : 
+                                                                      record.urgency.raw_value == 'medium' ? 'text-bg-info' : 'text-bg-success')">
+                                            <t t-esc="record.urgency.value"/>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Información del cliente y toner -->
+                                <div class="o_kanban_record_body">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <i class="fa fa-building-o"/> 
+                                            <t t-if="record.partner_id.value">
+                                                <t t-esc="record.partner_id.value"/>
+                                            </t>
+                                            <t t-else="">Sin cliente</t>
+                                        </div>
+                                        <div class="col-12">
+                                            <i class="fa fa-user"/> 
+                                            <t t-esc="record.client_name.value"/>
+                                        </div>
+                                        <div class="col-12">
+                                            <i class="fa fa-tint"/> 
+                                            <t t-esc="record.toner_type.value"/>
+                                            <span class="badge text-bg-primary ms-1">
+                                                <t t-esc="record.quantity.value"/>x
+                                            </span>
+                                        </div>
+                                        <t t-if="record.current_toner_level.value">
+                                            <div class="col-12">
+                                                <i class="fa fa-battery-half"/> 
+                                                <small class="text-muted">
+                                                    <t t-esc="record.current_toner_level.value"/>
+                                                </small>
+                                            </div>
+                                        </t>
+                                    </div>
+                                    
+                                    <!-- Motivo (truncado) -->
+                                    <div class="mt-2">
+                                        <t t-if="record.reason.value">
+                                            <span class="text-muted" style="max-height: 40px; overflow: hidden; display: block;">
+                                                <t t-esc="record.reason.value"/>
+                                            </span>
+                                        </t>
+                                    </div>
+                                </div>
+
+                                <!-- Footer con responsable y fecha -->
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        <t t-if="record.responsible_id.value">
+                                            <field name="responsible_id" widget="many2one_avatar_user"/>
+                                        </t>
+                                    </div>
+                                    <div class="oe_kanban_bottom_right">
+                                        <small class="text-muted">
+                                            <t t-esc="record.request_date.value"/>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Menú dropdown -->
+                            <div class="oe_kanban_action_dropdown">
+                                <div class="dropdown">
+                                    <a class="dropdown-toggle o-no-caret btn" data-bs-toggle="dropdown" href="#" role="button" aria-label="Dropdown menu" title="Dropdown menu">
+                                        <span class="fa fa-ellipsis-v"/>
+                                    </a>
+                                    <div class="dropdown-menu" role="menu">
+                                        <t t-if="record.state.raw_value == 'pending'">
+                                            <a name="action_approve" type="object" role="menuitem" class="dropdown-item">
+                                                Aprobar
+                                            </a>
+                                        </t>
+                                        <t t-if="record.state.raw_value == 'approved'">
+                                            <a name="action_dispatch" type="object" role="menuitem" class="dropdown-item">
+                                                Despachar
+                                            </a>
+                                        </t>
+                                        <t t-if="record.state.raw_value == 'dispatched'">
+                                            <a name="action_deliver" type="object" role="menuitem" class="dropdown-item">
+                                                Entregar
+                                            </a>
+                                        </t>
+                                        <t t-if="record.state.raw_value == 'delivered'">
+                                            <a name="action_install" type="object" role="menuitem" class="dropdown-item">
+                                                Instalar
+                                            </a>
+                                        </t>
+                                        <t t-if="record.state.raw_value not in ('installed', 'rejected', 'cancelled')">
+                                            <a name="action_cancel" type="object" role="menuitem" class="dropdown-item">
+                                                Cancelar
+                                            </a>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Vista Calendar -->
+    <record id="view_toner_request_calendar" model="ir.ui.view">
+        <field name="name">toner.request.calendar</field>
+        <field name="model">toner.request</field>
+        <field name="arch" type="xml">
+            <calendar string="Calendario de Solicitudes de Toner" 
+                      date_start="request_date" 
+                      color="urgency"
+                      mode="month"
+                      quick_create="False">
+                <field name="secuencia"/>
+                <field name="equipment_id"/>
+                <field name="partner_id"/>
+                <field name="client_name"/>
+                <field name="toner_type"/>
+                <field name="quantity"/>
+                <field name="responsible_id"/>
+                <field name="state"/>
+                <field name="urgency"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Vista Pivot -->
+    <record id="view_toner_request_pivot" model="ir.ui.view">
+        <field name="name">toner.request.pivot</field>
+        <field name="model">toner.request</field>
+        <field name="arch" type="xml">
+            <pivot string="Análisis de Solicitudes de Toner">
+                <field name="responsible_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="toner_type" type="row"/>
+                <field name="urgency" type="row"/>
+                <field name="quantity" type="measure"/>
+                <field name="estimated_cost" type="measure"/>
+                <field name="actual_cost" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Vista Graph -->
+    <record id="view_toner_request_graph" model="ir.ui.view">
+        <field name="name">toner.request.graph</field>
+        <field name="model">toner.request</field>
+        <field name="arch" type="xml">
+            <graph string="Estadísticas de Solicitudes de Toner" type="bar">
+                <field name="state" type="row"/>
+                <field name="toner_type" type="row"/>
+                <field name="urgency" type="row"/>
+                <field name="quantity" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Acción de ventana principal -->
+    <record id="action_toner_request" model="ir.actions.act_window">
+        <field name="name">Solicitudes de Toner</field>
+        <field name="res_model">toner.request</field>
+        <field name="view_mode">kanban,list,form,calendar,pivot,graph</field>
+        <field name="search_view_id" ref="view_toner_request_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                ¡Crea tu primera solicitud de toner!
+            </p>
+            <p>
+                Las solicitudes de toner te permiten gestionar y dar seguimiento 
+                a todas las solicitudes de consumibles para tus equipos.
+            </p>
+        </field>
+        <field name="context">{
+            'search_default_pending': 1,
+            'search_default_my_requests': 1
+        }</field>
+    </record>
+
+    <!-- Menú: Solicitudes de Toner -->
+    <menuitem id="menu_toner_requests" 
+              name="Solicitudes de Toner" 
+              parent="copier_company.menu_root" 
+              action="action_toner_request" 
+              sequence="80"/>
+
+</odoo>

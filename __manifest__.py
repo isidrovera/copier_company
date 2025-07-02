@@ -74,6 +74,8 @@
         'static/src/xml/counter_charts_templates.xml',
         'views/sticker_template.xml',
         'views/view_remote_assistance_request.xml',
+        'views/view_client_counter_submission.xml',
+        'views/view_toner_request.xml',
         
         
         

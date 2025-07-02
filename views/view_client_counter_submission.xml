@@ -1,0 +1,501 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista List -->
+    <record id="view_client_counter_submission_list" model="ir.ui.view">
+        <field name="name">client.counter.submission.list</field>
+        <field name="model">client.counter.submission</field>
+        <field name="arch" type="xml">
+            <list string="Contadores de Clientes" default_order="submission_date desc" 
+                  decoration-info="state == 'pending'" 
+                  decoration-warning="state == 'reviewed'" 
+                  decoration-primary="state == 'approved'"
+                  decoration-success="state == 'processed'" 
+                  decoration-danger="state == 'rejected'"
+                  decoration-muted="state == 'rejected'">
+                
+                <field name="secuencia" string="Número"/>
+                <field name="submission_date" string="Fecha Reporte"/>
+                <field name="equipment_id" string="Equipo"/>
+                <field name="equipment_serie" string="Serie" optional="hide"/>
+                <field name="partner_id" string="Cliente"/>
+                <field name="client_name" string="Reportante"/>
+                <field name="client_email" string="Email" optional="hide"/>
+                <field name="counter_bn" string="Contador B/N" widget="integer" sum="Total B/N"/>
+                <field name="counter_color" string="Contador Color" widget="integer" sum="Total Color"/>
+                <field name="copies_bn_period" string="Copias B/N Período" widget="integer" sum="Total Copias B/N"/>
+                <field name="copies_color_period" string="Copias Color Período" widget="integer" sum="Total Copias Color"/>
+                <field name="estimated_total_amount" string="Monto Est." widget="monetary"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="reviewer_id" string="Revisado por" optional="show"/>
+                <field name="review_date" string="Fecha Revisión" optional="hide"/>
+                <field name="state" string="Estado" widget="badge" 
+                       decoration-info="state == 'pending'" 
+                       decoration-warning="state == 'reviewed'" 
+                       decoration-primary="state == 'approved'"
+                       decoration-success="state == 'processed'" 
+                       decoration-danger="state == 'rejected'"/>
+                <field name="official_counter_id" string="Contador Oficial" optional="hide"/>
+                
+                <!-- Botones de acción rápida -->
+                <button name="action_review" type="object" string="Revisar" 
+                        class="btn-primary" icon="fa-eye"
+                        invisible="state not in ('pending',)"/>
+                <button name="action_approve" type="object" string="Aprobar" 
+                        class="btn-success" icon="fa-check"
+                        invisible="state not in ('pending', 'reviewed')"/>
+                <button name="action_process_to_official" type="object" string="Procesar" 
+                        class="btn-warning" icon="fa-cogs"
+                        invisible="state not in ('approved',)"/>
+                <button name="action_reject" type="object" string="Rechazar" 
+                        class="btn-danger" icon="fa-times"
+                        invisible="state not in ('pending', 'reviewed')"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Form -->
+    <record id="view_client_counter_submission_form" model="ir.ui.view">
+        <field name="name">client.counter.submission.form</field>
+        <field name="model">client.counter.submission</field>
+        <field name="arch" type="xml">
+            <form string="Reporte de Contadores">
+                <header>
+                    <!-- Statusbar -->
+                    <field name="state" widget="statusbar" 
+                           statusbar_visible="pending,reviewed,approved,processed"/>
+                    
+                    <!-- Botones de acción -->
+                    <button name="action_review" string="Marcar como Revisado" type="object" 
+                            class="btn-primary" invisible="state not in ('pending',)"/>
+                    <button name="action_approve" string="Aprobar" type="object" 
+                            class="btn-success" invisible="state not in ('pending', 'reviewed')"/>
+                    <button name="action_process_to_official" string="Procesar a Contador Oficial" type="object" 
+                            class="btn-warning" invisible="state not in ('approved',)"/>
+                    <button name="action_reject" string="Rechazar" type="object" 
+                            class="btn-danger" invisible="state not in ('pending', 'reviewed')"/>
+                    <button name="action_reset_to_pending" string="Regresar a Pendiente" type="object" 
+                            class="btn-secondary" invisible="state in ('pending',)"/>
+                </header>
+
+                <sheet>
+                    <!-- Título y badges -->
+                    <div class="oe_title">
+                        <h1>
+                            <field name="secuencia" readonly="1" class="o_text_overflow"/>
+                        </h1>
+                        <h2>
+                            <field name="display_name" readonly="1" class="o_text_overflow"/>
+                        </h2>
+                    </div>
+
+                    <!-- Badge de estado -->
+                    <div class="o_row">
+                        <field name="state" widget="badge" 
+                               decoration-info="state == 'pending'" 
+                               decoration-warning="state == 'reviewed'" 
+                               decoration-primary="state == 'approved'"
+                               decoration-success="state == 'processed'" 
+                               decoration-danger="state == 'rejected'"/>
+                    </div>
+
+                    <group>
+                        <group string="Información del Equipo">
+                            <field name="equipment_id" options="{'no_create': True, 'no_edit': True}"/>
+                            <field name="partner_id" readonly="1"/>
+                            <field name="equipment_serie" readonly="1"/>
+                            <field name="equipment_location" readonly="1"/>
+                        </group>
+
+                        <group string="Información del Reporte">
+                            <field name="submission_date"/>
+                            <field name="currency_id" column_invisible="1"/>
+                            <field name="estimated_total_amount" widget="monetary"/>
+                            <field name="official_counter_id" readonly="1" 
+                                   invisible="state != 'processed'"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group string="Datos del Reportante">
+                            <field name="client_name"/>
+                            <field name="client_email" widget="email"/>
+                            <field name="client_phone" widget="phone"/>
+                        </group>
+
+                        <group string="Revisión" invisible="state == 'pending'">
+                            <field name="reviewer_id" readonly="1"/>
+                            <field name="review_date" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <!-- Contadores en una sección destacada -->
+                    <group string="📊 Contadores Reportados" class="oe_subtotal_footer">
+                        <group>
+                            <group string="Contadores Anteriores (Referencia)" class="text-muted">
+                                <field name="previous_counter_bn" readonly="1" widget="integer"/>
+                                <field name="previous_counter_color" readonly="1" widget="integer"/>
+                            </group>
+                        </group>
+                        
+                        <group>
+                            <group string="Contadores Actuales">
+                                <field name="counter_bn" widget="integer" readonly="state != 'pending'"/>
+                                <field name="counter_color" widget="integer" readonly="state != 'pending'"/>
+                            </group>
+                        </group>
+
+                        <group class="oe_subtotal_footer_separator">
+                            <group string="Copias del Período (Calculado)" class="text-primary">
+                                <field name="copies_bn_period" readonly="1" widget="integer"/>
+                                <field name="copies_color_period" readonly="1" widget="integer"/>
+                                <label for="copies_total" string="Total Copias:"/>
+                                <div name="copies_total" class="text-end">
+                                    <field name="copies_bn_period" readonly="1" widget="integer" nolabel="1" class="oe_subtotal_footer_separator"/> +
+                                    <field name="copies_color_period" readonly="1" widget="integer" nolabel="1" class="oe_subtotal_footer_separator"/> =
+                                    <span class="fw-bold fs-4 text-primary">
+                                        <t t-esc="copies_bn_period + copies_color_period"/> copias
+                                    </span>
+                                </div>
+                            </group>
+                        </group>
+                    </group>
+
+                    <!-- Montos estimados -->
+                    <group string="💰 Estimación Financiera" class="oe_subtotal_footer">
+                        <field name="estimated_amount_bn" widget="monetary"/>
+                        <field name="estimated_amount_color" widget="monetary"/>
+                        <div class="oe_subtotal_footer_separator oe_right">
+                            <field name="estimated_total_amount" widget="monetary" class="oe_subtotal_footer_separator"/>
+                        </div>
+                    </group>
+
+                    <!-- Notebook con pestañas -->
+                    <notebook>
+                        <!-- Pestaña principal -->
+                        <page string="Observaciones del Cliente" name="client_notes">
+                            <group>
+                                <field name="notes" nolabel="1" 
+                                       placeholder="Observaciones del cliente sobre los contadores reportados..."
+                                       readonly="state != 'pending'"/>
+                            </group>
+                        </page>
+
+                        <!-- Pestaña de evidencia -->
+                        <page string="Evidencia Fotográfica" name="photo_evidence">
+                            <group>
+                                <field name="counter_photo" widget="image" class="oe_avatar" 
+                                       readonly="state != 'pending'"/>
+                                <field name="counter_photo_filename" readonly="1" 
+                                       invisible="not counter_photo"/>
+                            </group>
+                        </page>
+
+                        <!-- Pestaña de revisión -->
+                        <page string="Notas de Revisión" name="review_notes" 
+                              invisible="state == 'pending'">
+                            <group>
+                                <field name="review_notes" nolabel="1" 
+                                       placeholder="Notas del revisor sobre los contadores, discrepancias encontradas, acciones tomadas, etc."/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <!-- Chatter -->
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista Search -->
+    <record id="view_client_counter_submission_search" model="ir.ui.view">
+        <field name="name">client.counter.submission.search</field>
+        <field name="model">client.counter.submission</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Contadores de Clientes">
+                <!-- Campos de búsqueda -->
+                <field name="secuencia" string="Número de Reporte"/>
+                <field name="equipment_id" string="Equipo"/>
+                <field name="equipment_serie" string="Serie"/>
+                <field name="partner_id" string="Cliente"/>
+                <field name="client_name" string="Reportante"/>
+                <field name="client_email" string="Email"/>
+                <field name="reviewer_id" string="Revisor"/>
+
+                <!-- Filtros predefinidos -->
+                <filter name="pending" string="Pendientes" 
+                        domain="[('state', '=', 'pending')]"/>
+                <filter name="reviewed" string="Revisados" 
+                        domain="[('state', '=', 'reviewed')]"/>
+                <filter name="approved" string="Aprobados" 
+                        domain="[('state', '=', 'approved')]"/>
+                <filter name="processed" string="Procesados" 
+                        domain="[('state', '=', 'processed')]"/>
+                <filter name="rejected" string="Rechazados" 
+                        domain="[('state', '=', 'rejected')]"/>
+
+                <separator/>
+                
+                <filter name="high_volume" string="Alto Volumen" 
+                        domain="['|', ('copies_bn_period', '>', 10000), ('copies_color_period', '>', 5000)]"/>
+                <filter name="with_photo" string="Con Foto" 
+                        domain="[('counter_photo', '!=', False)]"/>
+                <filter name="my_reviews" string="Mis Revisiones" 
+                        domain="[('reviewer_id', '=', uid)]"/>
+                <filter name="pending_processing" string="Listos para Procesar" 
+                        domain="[('state', '=', 'approved')]"/>
+
+                <separator/>
+
+                <filter name="today" string="Hoy" 
+                        domain="[('submission_date', '>=', datetime.datetime.combine(context_today(), datetime.time(0,0,0))), 
+                                ('submission_date', '&lt;', datetime.datetime.combine(context_today() + datetime.timedelta(days=1), datetime.time(0,0,0)))]"/>
+                <filter name="this_week" string="Esta Semana" 
+                        domain="[('submission_date', '>=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d')),
+                                ('submission_date', '&lt;', (context_today() + datetime.timedelta(days=7-context_today().weekday())).strftime('%Y-%m-%d'))]"/>
+                <filter name="this_month" string="Este Mes" 
+                        domain="[('submission_date', '>=', datetime.datetime.combine(context_today().replace(day=1), datetime.time(0,0,0))),
+                                ('submission_date', '&lt;', datetime.datetime.combine((context_today().replace(day=1) + datetime.timedelta(days=32)).replace(day=1), datetime.time(0,0,0)))]"/>
+
+                <!-- Agrupaciones -->
+                <group expand="0" string="Agrupar Por">
+                    <filter name="group_by_state" string="Estado" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_reviewer" string="Revisor" context="{'group_by': 'reviewer_id'}"/>
+                    <filter name="group_by_client" string="Cliente" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_by_equipment" string="Equipo" context="{'group_by': 'equipment_id'}"/>
+                    <filter name="group_by_submission_date" string="Fecha de Reporte" context="{'group_by': 'submission_date:day'}"/>
+                    <filter name="group_by_submission_month" string="Mes de Reporte" context="{'group_by': 'submission_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Vista Kanban -->
+    <record id="view_client_counter_submission_kanban" model="ir.ui.view">
+        <field name="name">client.counter.submission.kanban</field>
+        <field name="model">client.counter.submission</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="id"/>
+                <field name="secuencia"/>
+                <field name="equipment_id"/>
+                <field name="partner_id"/>
+                <field name="client_name"/>
+                <field name="counter_bn"/>
+                <field name="counter_color"/>
+                <field name="copies_bn_period"/>
+                <field name="copies_color_period"/>
+                <field name="estimated_total_amount"/>
+                <field name="state"/>
+                <field name="reviewer_id"/>
+                <field name="submission_date"/>
+                <field name="display_name"/>
+                <field name="currency_id"/>
+
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <!-- Header con número y monto -->
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <t t-esc="record.secuencia.value"/>
+                                        </strong>
+                                        <br/>
+                                        <small class="o_kanban_record_subtitle text-muted">
+                                            <t t-if="record.equipment_id.value">
+                                                <t t-esc="record.equipment_id.value"/>
+                                            </t>
+                                        </small>
+                                    </div>
+                                    <div class="o_kanban_record_title">
+                                        <span class="text-primary fw-bold">
+                                            S/ <t t-esc="record.estimated_total_amount.value"/>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Información del cliente y contadores -->
+                                <div class="o_kanban_record_body">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <i class="fa fa-building-o"/> 
+                                            <t t-if="record.partner_id.value">
+                                                <t t-esc="record.partner_id.value"/>
+                                            </t>
+                                            <t t-else="">Sin cliente</t>
+                                        </div>
+                                        <div class="col-12">
+                                            <i class="fa fa-user"/> 
+                                            <t t-esc="record.client_name.value"/>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Contadores -->
+                                    <div class="mt-2">
+                                        <div class="row text-center">
+                                            <div class="col-6">
+                                                <div class="border rounded p-2">
+                                                    <small class="text-muted d-block">B/N</small>
+                                                    <strong><t t-esc="record.counter_bn.value"/></strong>
+                                                    <small class="text-success d-block">
+                                                        +<t t-esc="record.copies_bn_period.value"/>
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="border rounded p-2">
+                                                    <small class="text-muted d-block">Color</small>
+                                                    <strong><t t-esc="record.counter_color.value"/></strong>
+                                                    <small class="text-warning d-block">
+                                                        +<t t-esc="record.copies_color_period.value"/>
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Footer con revisor y fecha -->
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        <t t-if="record.reviewer_id.value">
+                                            <field name="reviewer_id" widget="many2one_avatar_user"/>
+                                        </t>
+                                    </div>
+                                    <div class="oe_kanban_bottom_right">
+                                        <small class="text-muted">
+                                            <t t-esc="record.submission_date.value"/>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Menú dropdown -->
+                            <div class="oe_kanban_action_dropdown">
+                                <div class="dropdown">
+                                    <a class="dropdown-toggle o-no-caret btn" data-bs-toggle="dropdown" href="#" role="button" aria-label="Dropdown menu" title="Dropdown menu">
+                                        <span class="fa fa-ellipsis-v"/>
+                                    </a>
+                                    <div class="dropdown-menu" role="menu">
+                                        <t t-if="record.state.raw_value == 'pending'">
+                                            <a name="action_review" type="object" role="menuitem" class="dropdown-item">
+                                                Revisar
+                                            </a>
+                                            <a name="action_approve" type="object" role="menuitem" class="dropdown-item">
+                                                Aprobar
+                                            </a>
+                                        </t>
+                                        <t t-if="record.state.raw_value == 'reviewed'">
+                                            <a name="action_approve" type="object" role="menuitem" class="dropdown-item">
+                                                Aprobar
+                                            </a>
+                                        </t>
+                                        <t t-if="record.state.raw_value == 'approved'">
+                                            <a name="action_process_to_official" type="object" role="menuitem" class="dropdown-item">
+                                                Procesar
+                                            </a>
+                                        </t>
+                                        <t t-if="record.state.raw_value in ('pending', 'reviewed')">
+                                            <a name="action_reject" type="object" role="menuitem" class="dropdown-item">
+                                                Rechazar
+                                            </a>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Vista Calendar -->
+    <record id="view_client_counter_submission_calendar" model="ir.ui.view">
+        <field name="name">client.counter.submission.calendar</field>
+        <field name="model">client.counter.submission</field>
+        <field name="arch" type="xml">
+            <calendar string="Calendario de Reportes de Contadores" 
+                      date_start="submission_date" 
+                      color="state"
+                      mode="month"
+                      quick_create="False">
+                <field name="secuencia"/>
+                <field name="equipment_id"/>
+                <field name="partner_id"/>
+                <field name="client_name"/>
+                <field name="copies_bn_period"/>
+                <field name="copies_color_period"/>
+                <field name="estimated_total_amount"/>
+                <field name="reviewer_id"/>
+                <field name="state"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Vista Pivot -->
+    <record id="view_client_counter_submission_pivot" model="ir.ui.view">
+        <field name="name">client.counter.submission.pivot</field>
+        <field name="model">client.counter.submission</field>
+        <field name="arch" type="xml">
+            <pivot string="Análisis de Contadores de Clientes">
+                <field name="partner_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="equipment_id" type="row"/>
+                <field name="submission_date" type="row" interval="month"/>
+                <field name="copies_bn_period" type="measure"/>
+                <field name="copies_color_period" type="measure"/>
+                <field name="estimated_total_amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Vista Graph -->
+    <record id="view_client_counter_submission_graph" model="ir.ui.view">
+        <field name="name">client.counter.submission.graph</field>
+        <field name="model">client.counter.submission</field>
+        <field name="arch" type="xml">
+            <graph string="Estadísticas de Contadores" type="line">
+                <field name="submission_date" type="row" interval="month"/>
+                <field name="copies_bn_period" type="measure"/>
+                <field name="copies_color_period" type="measure"/>
+                <field name="estimated_total_amount" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Acción de ventana principal -->
+    <record id="action_client_counter_submission" model="ir.actions.act_window">
+        <field name="name">Contadores de Clientes</field>
+        <field name="res_model">client.counter.submission</field>
+        <field name="view_mode">kanban,list,form,calendar,pivot,graph</field>
+        <field name="search_view_id" ref="view_client_counter_submission_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                ¡Aquí aparecerán los contadores reportados por los clientes!
+            </p>
+            <p>
+                Los contadores de clientes te permiten revisar, aprobar y procesar 
+                las lecturas mensuales enviadas por tus clientes para la facturación.
+            </p>
+        </field>
+        <field name="context">{
+            'search_default_pending': 1,
+            'search_default_this_month': 1
+        }</field>
+    </record>
+
+    <!-- Menú: Contadores de Clientes -->
+    <menuitem id="menu_client_counter_submissions" 
+              name="Contadores de Clientes" 
+              parent="copier_company.menu_root" 
+              action="action_client_counter_submission" 
+              sequence="90"/>
+
+</odoo>
