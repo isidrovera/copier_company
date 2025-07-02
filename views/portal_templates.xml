@@ -110,13 +110,14 @@
     </t>
 </template>
     
-    <template id="portal_my_copier_equipment" name="My Rental Equipment Details">
+ <template id="portal_my_copier_equipment" name="My Rental Equipment Details">
     <t t-call="portal.portal_layout">
         <t t-set="wrapwrap_classes" t-value="'o_portal_bg_dark'"/>
         
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap');
             @import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
+            @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css');
             
             * { font-family: 'Inter', sans-serif; }
             
@@ -272,7 +273,7 @@
                 <div class="row align-items-center">
                     <div class="col-md-8">
                         <h1 class="display-6 fw-bold mb-2">
-                            <i class="fa fa-print me-3"></i>
+                            <i class="bi bi-printer me-3"></i>
                             <span t-field="equipment.name.name"/>
                         </h1>
                         <p class="lead mb-0 opacity-90">
@@ -283,7 +284,7 @@
                     </div>
                     <div class="col-md-4 text-end">
                         <div class="status-badge bg-success text-white">
-                            <i class="fa fa-check-circle me-2"></i>
+                            <i class="bi bi-check-circle me-2"></i>
                             Equipo Activo
                         </div>
                     </div>
@@ -298,7 +299,7 @@
                     <div class="equipment-card animate__animated animate__fadeInLeft">
                         <div class="card-body p-4">
                             <h5 class="fw-bold mb-4 text-center">
-                                <i class="fa fa-bolt me-2 text-primary"></i>
+                                <i class="bi bi-lightning me-2 text-primary"></i>
                                 Acciones Rápidas
                             </h5>
                             
@@ -307,7 +308,7 @@
                                 <div class="col-12">
                                     <a t-attf-href="/public/upload_counters?copier_company_id=#{equipment.id}" class="action-card">
                                         <div class="action-icon bg-gradient-primary">
-                                            <i class="fa fa-chart-bar"></i>
+                                            <i class="bi bi-bar-chart"></i>
                                         </div>
                                         <h6 class="fw-semibold mb-2">Reportar Contadores</h6>
                                         <p class="text-muted small mb-0">Envía las lecturas mensuales</p>
@@ -318,7 +319,7 @@
                                 <div class="col-12">
                                     <a t-attf-href="/public/request_toner?copier_company_id=#{equipment.id}" class="action-card">
                                         <div class="action-icon bg-gradient-success">
-                                            <i class="fa fa-tint"></i>
+                                            <i class="bi bi-droplet"></i>
                                         </div>
                                         <h6 class="fw-semibold mb-2">Solicitar Toner</h6>
                                         <p class="text-muted small mb-0">Pide reposición de consumibles</p>
@@ -329,7 +330,7 @@
                                 <div class="col-12">
                                     <a t-attf-href="/public/remote_assistance?copier_company_id=#{equipment.id}" class="action-card">
                                         <div class="action-icon bg-gradient-info">
-                                            <i class="fa fa-desktop"></i>
+                                            <i class="bi bi-display"></i>
                                         </div>
                                         <h6 class="fw-semibold mb-2">Asistencia Remota</h6>
                                         <p class="text-muted small mb-0">Solicita ayuda técnica</p>
@@ -340,7 +341,7 @@
                                 <div class="col-12">
                                     <a t-attf-href="/public/helpdesk_ticket?copier_company_id=#{equipment.id}" class="action-card">
                                         <div class="action-icon bg-gradient-danger">
-                                            <i class="fa fa-exclamation-triangle"></i>
+                                            <i class="bi bi-exclamation-triangle"></i>
                                         </div>
                                         <h6 class="fw-semibold mb-2">Reportar Problema</h6>
                                         <p class="text-muted small mb-0">Reporta fallas o incidencias</p>
@@ -351,7 +352,7 @@
                                 <div class="col-12">
                                     <a t-att-href="'/my/copier/equipment/%s/counters' % equipment.id" class="action-card">
                                         <div class="action-icon bg-gradient-purple">
-                                            <i class="fa fa-tachometer-alt"></i>
+                                            <i class="bi bi-speedometer2"></i>
                                         </div>
                                         <h6 class="fw-semibold mb-2">Ver Lecturas</h6>
                                         <p class="text-muted small mb-0">Historial de contadores</p>
@@ -364,7 +365,7 @@
                     <!-- Código QR -->
                     <div class="qr-card animate__animated animate__fadeInLeft animate__delay-1s" t-if="equipment.qr_code">
                         <h5 class="fw-bold mb-3 text-primary">
-                            <i class="fa fa-qrcode me-2"></i>
+                            <i class="bi bi-qr-code me-2"></i>
                             Código QR
                         </h5>
                         <img class="img-fluid mb-3" t-att-src="image_data_uri(equipment.qr_code)" alt="Código QR" style="max-width: 200px;"/>
@@ -380,7 +381,7 @@
                             <div class="info-card animate__animated animate__fadeInRight">
                                 <div class="info-card-header">
                                     <h5 class="fw-bold mb-0 text-primary">
-                                        <i class="fa fa-info-circle me-2"></i>
+                                        <i class="bi bi-info-circle me-2"></i>
                                         Detalles del Equipo
                                     </h5>
                                 </div>
@@ -424,7 +425,7 @@
                                                 <div class="row">
                                                     <div class="col-sm-4 fw-semibold text-muted">Ubicación:</div>
                                                     <div class="col-sm-8">
-                                                        <i class="fa fa-map-marker-alt text-warning me-2"></i>
+                                                        <i class="bi bi-geo-alt text-warning me-2"></i>
                                                         <span t-field="equipment.ubicacion"/>
                                                     </div>
                                                 </div>
@@ -452,7 +453,7 @@
                             <div class="info-card animate__animated animate__fadeInRight animate__delay-1s">
                                 <div class="info-card-header">
                                     <h5 class="fw-bold mb-0 text-success">
-                                        <i class="fa fa-file-contract me-2"></i>
+                                        <i class="bi bi-file-earmark-text me-2"></i>
                                         Contrato
                                     </h5>
                                 </div>
@@ -499,7 +500,7 @@
                             <div class="info-card animate__animated animate__fadeInRight animate__delay-2s">
                                 <div class="info-card-header">
                                     <h5 class="fw-bold mb-0 text-info">
-                                        <i class="fa fa-money-bill-wave me-2"></i>
+                                        <i class="bi bi-cash-coin me-2"></i>
                                         Costos
                                     </h5>
                                 </div>
