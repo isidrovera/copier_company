@@ -1004,8 +1004,9 @@
     <t t-call="portal.portal_layout">
         <t t-set="breadcrumbs_searchbar" t-value="True"/>
         
-        <!-- Incluir Chart.js y archivos CSS/JS optimizados -->
+        <!-- Incluir Bootstrap Icons, Chart.js y archivos CSS/JS -->
         <t t-set="head">
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"/>
             <link rel="stylesheet" type="text/css" href="/copier_company/static/src/css/counter_charts.css"/>
             <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
             <script type="text/javascript" src="/copier_company/static/src/js/counter_charts.js"></script>
@@ -1021,22 +1022,22 @@
                 <div class="col-12">
                     <!-- Card principal con mejor diseño -->
                     <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-primary text-white py-3">
+                        <div class="card-header bg-dark text-white py-3">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div>
-                                    <h3 class="mb-1 fw-bold">
-                                        <i class="fa fa-tachometer-alt me-2"></i>
+                                    <h3 class="mb-1 fw-bold text-white">
+                                        <i class="bi bi-speedometer2 me-2"></i>
                                         <span t-field="equipment.name.name"/>
                                     </h3>
-                                    <p class="mb-0 opacity-75">
-                                        <i class="fa fa-barcode me-1"></i>
-                                        Serie: <span t-field="equipment.serie_id" class="fw-semibold"/>
+                                    <p class="mb-0 text-white-50">
+                                        <i class="bi bi-upc-scan me-1"></i>
+                                        Serie: <span t-field="equipment.serie_id" class="fw-semibold text-white"/>
                                     </p>
                                 </div>
                                 <div class="text-end">
                                     <span t-field="equipment.tipo" 
-                                          t-attf-class="badge fs-6 px-3 py-2 bg-{{ equipment.tipo == 'color' and 'success' or 'info' }}">
-                                        <i t-attf-class="fa fa-{{ equipment.tipo == 'color' and 'palette' or 'circle' }} me-1"></i>
+                                          t-attf-class="badge fs-6 px-3 py-2 text-dark bg-{{ equipment.tipo == 'color' and 'warning' or 'light' }}">
+                                        <i t-attf-class="bi bi-{{ equipment.tipo == 'color' and 'palette' or 'circle-fill' }} me-1"></i>
                                     </span>
                                 </div>
                             </div>
@@ -1047,7 +1048,7 @@
                             <t t-if="not counters">
                                 <div class="text-center py-5">
                                     <div class="mb-4">
-                                        <i class="fa fa-chart-line fa-4x text-muted opacity-50"></i>
+                                        <i class="bi bi-graph-up text-muted" style="font-size: 4rem; opacity: 0.5;"></i>
                                     </div>
                                     <h5 class="text-muted">No hay registros de lecturas</h5>
                                     <p class="text-muted">Aún no se han registrado lecturas para este equipo</p>
@@ -1059,23 +1060,23 @@
                                 <!-- Tarjetas de resumen mejoradas -->
                                 <div class="row g-3 mb-4">
                                     <div class="col-md-6">
-                                        <div class="card border-0 bg-light">
+                                        <div class="card border-0 shadow-sm">
                                             <div class="card-body">
                                                 <div class="d-flex align-items-center">
                                                     <div class="flex-shrink-0">
-                                                        <div class="bg-primary text-white rounded-circle p-3">
-                                                            <i class="fa fa-file-contract fa-lg"></i>
+                                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                                            <i class="bi bi-file-earmark-text fs-5"></i>
                                                         </div>
                                                     </div>
                                                     <div class="flex-grow-1 ms-3">
-                                                        <h6 class="mb-1 text-muted">Volumen Contratado</h6>
+                                                        <h6 class="mb-1 text-dark fw-semibold">Volumen Contratado</h6>
                                                         <div class="row g-2 small">
                                                             <div class="col-6">
-                                                                <strong>B/N:</strong> 
+                                                                <strong class="text-dark">B/N:</strong> 
                                                                 <span t-field="equipment.volumen_mensual_bn" class="text-primary fw-bold"/>
                                                             </div>
                                                             <div class="col-6" t-if="equipment.tipo == 'color'">
-                                                                <strong>Color:</strong> 
+                                                                <strong class="text-dark">Color:</strong> 
                                                                 <span t-field="equipment.volumen_mensual_color" class="text-success fw-bold"/>
                                                             </div>
                                                         </div>
@@ -1086,29 +1087,31 @@
                                     </div>
                                     
                                     <div class="col-md-6">
-                                        <div class="card border-0 bg-light">
+                                        <div class="card border-0 shadow-sm">
                                             <div class="card-body">
                                                 <div class="d-flex align-items-center">
                                                     <div class="flex-shrink-0">
-                                                        <div class="bg-success text-white rounded-circle p-3">
-                                                            <i class="fa fa-chart-bar fa-lg"></i>
+                                                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                                            <i class="bi bi-bar-chart fs-5"></i>
                                                         </div>
                                                     </div>
                                                     <div class="flex-grow-1 ms-3">
-                                                        <h6 class="mb-1 text-muted">Consumo Actual</h6>
+                                                        <h6 class="mb-1 text-dark fw-semibold">Consumo Actual</h6>
                                                         <t t-if="counters and counters[0].state != 'draft'">
                                                             <div class="row g-2 small">
                                                                 <div class="col-6">
-                                                                    <strong>B/N:</strong> 
+                                                                    <strong class="text-dark">B/N:</strong> 
                                                                     <span t-field="counters[0].total_copias_bn" class="text-primary fw-bold"/>
                                                                 </div>
                                                                 <div class="col-6" t-if="equipment.tipo == 'color'">
-                                                                    <strong>Color:</strong> 
+                                                                    <strong class="text-dark">Color:</strong> 
                                                                     <span t-field="counters[0].total_copias_color" class="text-success fw-bold"/>
                                                                 </div>
                                                             </div>
                                                         </t>
-                                                        <small t-else="" class="text-muted">Sin datos confirmados</small>
+                                                        <small t-else="" class="text-muted">
+                                                            <i class="bi bi-clock me-1"></i>Sin datos confirmados
+                                                        </small>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1119,8 +1122,8 @@
                                 <!-- Gráficos con diseño mejorado -->
                                 <div class="card border-0 shadow-sm mb-4">
                                     <div class="card-header bg-white border-bottom">
-                                        <h5 class="mb-0 fw-bold">
-                                            <i class="fa fa-chart-line me-2 text-primary"></i>
+                                        <h5 class="mb-0 fw-bold text-dark">
+                                            <i class="bi bi-graph-up me-2 text-primary"></i>
                                             Análisis de Consumo
                                         </h5>
                                     </div>
@@ -1128,35 +1131,35 @@
                                         <!-- Navegación de pestañas mejorada -->
                                         <ul class="nav nav-pills nav-fill border-bottom mb-0" id="graphTabs" role="tablist">
                                             <li class="nav-item" role="presentation">
-                                                <button class="nav-link active rounded-0 py-3" 
+                                                <button class="nav-link active rounded-0 py-3 text-dark" 
                                                         id="monthly-tab" 
                                                         data-bs-toggle="tab" 
                                                         data-bs-target="#monthly" 
                                                         type="button" 
                                                         role="tab">
-                                                    <i class="fa fa-calendar-alt me-2"></i>
+                                                    <i class="bi bi-calendar3 me-2"></i>
                                                     Consumo Mensual
                                                 </button>
                                             </li>
                                             <li class="nav-item" role="presentation">
-                                                <button class="nav-link rounded-0 py-3" 
+                                                <button class="nav-link rounded-0 py-3 text-dark" 
                                                         id="yearly-tab" 
                                                         data-bs-toggle="tab" 
                                                         data-bs-target="#yearly" 
                                                         type="button" 
                                                         role="tab">
-                                                    <i class="fa fa-chart-area me-2"></i>
+                                                    <i class="bi bi-bar-chart-line me-2"></i>
                                                     Consumo Anual
                                                 </button>
                                             </li>
                                             <li class="nav-item" role="presentation">
-                                                <button class="nav-link rounded-0 py-3" 
+                                                <button class="nav-link rounded-0 py-3 text-dark" 
                                                         id="user-monthly-tab" 
                                                         data-bs-toggle="tab" 
                                                         data-bs-target="#user-monthly" 
                                                         type="button" 
                                                         role="tab">
-                                                    <i class="fa fa-users me-2"></i>
+                                                    <i class="bi bi-people me-2"></i>
                                                     Por Usuario
                                                 </button>
                                             </li>
@@ -1185,8 +1188,8 @@
                                 <!-- Tabla de datos mejorada -->
                                 <div class="card border-0 shadow-sm mb-4">
                                     <div class="card-header bg-white border-bottom">
-                                        <h5 class="mb-0 fw-bold">
-                                            <i class="fa fa-table me-2 text-primary"></i>
+                                        <h5 class="mb-0 fw-bold text-dark">
+                                            <i class="bi bi-table me-2 text-primary"></i>
                                             Historial de Lecturas
                                         </h5>
                                     </div>
@@ -1250,27 +1253,27 @@
                                 <!-- Detalle de facturación mejorado -->
                                 <div class="row g-4 mb-4">
                                     <div class="col-lg-6">
-                                        <div class="card border-0 bg-primary bg-opacity-10">
+                                        <div class="card border-0 bg-primary bg-opacity-10 border-start border-primary border-4">
                                             <div class="card-body">
                                                 <h6 class="card-title text-primary fw-bold mb-3">
-                                                    <i class="fa fa-calculator me-2"></i>
+                                                    <i class="bi bi-calculator me-2"></i>
                                                     Tarifas Contratadas
                                                 </h6>
                                                 <div class="row g-3">
                                                     <div class="col-sm-6">
                                                         <div class="d-flex justify-content-between">
-                                                            <span class="text-muted">Precio B/N:</span>
+                                                            <span class="text-dark">Precio B/N:</span>
                                                             <span t-field="equipment.costo_copia_bn" 
                                                                   t-options="{'widget': 'monetary', 'display_currency': equipment.currency_id}" 
-                                                                  class="fw-bold"/>
+                                                                  class="fw-bold text-dark"/>
                                                         </div>
                                                     </div>
                                                     <div class="col-sm-6" t-if="equipment.tipo == 'color'">
                                                         <div class="d-flex justify-content-between">
-                                                            <span class="text-muted">Precio Color:</span>
+                                                            <span class="text-dark">Precio Color:</span>
                                                             <span t-field="equipment.costo_copia_color" 
                                                                   t-options="{'widget': 'monetary', 'display_currency': equipment.currency_id}" 
-                                                                  class="fw-bold"/>
+                                                                  class="fw-bold text-dark"/>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1279,34 +1282,34 @@
                                     </div>
                                     
                                     <div class="col-lg-6">
-                                        <div class="card border-0 bg-success bg-opacity-10">
+                                        <div class="card border-0 bg-success bg-opacity-10 border-start border-success border-4">
                                             <div class="card-body">
                                                 <h6 class="card-title text-success fw-bold mb-3">
-                                                    <i class="fa fa-chart-pie me-2"></i>
+                                                    <i class="bi bi-pie-chart me-2"></i>
                                                     Excesos del Período
                                                 </h6>
                                                 <t t-if="counters and counters[0].state != 'draft'">
                                                     <div class="row g-3">
                                                         <div class="col-sm-6">
                                                             <div class="d-flex justify-content-between">
-                                                                <span class="text-muted">Exceso B/N:</span>
+                                                                <span class="text-dark">Exceso B/N:</span>
                                                                 <span t-field="counters[0].exceso_bn" 
                                                                       t-options="{'widget': 'integer'}" 
-                                                                      class="fw-bold"/>
+                                                                      class="fw-bold text-dark"/>
                                                             </div>
                                                         </div>
                                                         <div class="col-sm-6" t-if="equipment.tipo == 'color'">
                                                             <div class="d-flex justify-content-between">
-                                                                <span class="text-muted">Exceso Color:</span>
+                                                                <span class="text-dark">Exceso Color:</span>
                                                                 <span t-field="counters[0].exceso_color" 
                                                                       t-options="{'widget': 'integer'}" 
-                                                                      class="fw-bold"/>
+                                                                      class="fw-bold text-dark"/>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </t>
                                                 <div t-else="" class="text-center text-muted">
-                                                    <i class="fa fa-clock me-1"></i>
+                                                    <i class="bi bi-clock me-1"></i>
                                                     Esperando confirmación de datos
                                                 </div>
                                             </div>
@@ -1325,8 +1328,8 @@
                     <div class="col-12">
                         <div class="card border-0 shadow-sm">
                             <div class="card-header bg-dark text-white">
-                                <h5 class="mb-0 fw-bold">
-                                    <i class="fa fa-users me-2"></i>
+                                <h5 class="mb-0 fw-bold text-white">
+                                    <i class="bi bi-people me-2"></i>
                                     Detalle de Copias por Usuario
                                 </h5>
                             </div>
@@ -1347,10 +1350,10 @@
                                                         <tr t-foreach="counters[0].usuario_detalle_ids" t-as="line">
                                                             <td>
                                                                 <div class="d-flex align-items-center">
-                                                                    <div class="bg-primary text-white rounded-circle p-2 me-2" style="width: 32px; height: 32px; font-size: 12px;">
-                                                                        <i class="fa fa-user"></i>
+                                                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+                                                                        <i class="bi bi-person-fill" style="font-size: 14px;"></i>
                                                                     </div>
-                                                                    <span t-esc="line.usuario_id.name" class="fw-semibold"/>
+                                                                    <span t-esc="line.usuario_id.name" class="fw-semibold text-dark"/>
                                                                 </div>
                                                             </td>
                                                             <td class="text-center font-monospace fw-bold">
@@ -1381,7 +1384,7 @@
                                 </t>
                                 <t t-else="">
                                     <div class="text-center py-4">
-                                        <i class="fa fa-user-slash fa-3x text-muted opacity-50 mb-3"></i>
+                                        <i class="bi bi-person-x text-muted mb-3" style="font-size: 3rem; opacity: 0.5;"></i>
                                         <h6 class="text-muted">Sin datos de usuarios</h6>
                                         <p class="text-muted mb-0">No hay registros de copias por usuario en este período</p>
                                     </div>
@@ -1392,16 +1395,35 @@
                 </div>
             </t>
             
+            <!-- Gráfico por usuario adicional -->
+            <div class="row g-4 mt-2">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-bottom">
+                            <h5 class="mb-0 fw-bold text-dark">
+                                <i class="bi bi-pie-chart me-2 text-primary"></i>
+                                Gráfico de Copias por Usuario
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container" style="height: 300px;">
+                                <canvas id="userChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Botones de acción mejorados -->
             <div class="text-center mt-4 mb-4">
                 <div class="btn-group" role="group">
                     <a t-att-href="'/my/copier/equipment/%s' % equipment.id" 
                        class="btn btn-outline-primary btn-lg">
-                        <i class="fa fa-arrow-left me-2"></i>
+                        <i class="bi bi-arrow-left me-2"></i>
                         Volver al Equipo
                     </a>
                     <button type="button" class="btn btn-primary btn-lg" onclick="window.print()">
-                        <i class="fa fa-print me-2"></i>
+                        <i class="bi bi-printer me-2"></i>
                         Imprimir Reporte
                     </button>
                 </div>
