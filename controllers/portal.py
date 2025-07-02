@@ -1720,6 +1720,23 @@ class CopierCompanyPortal(CustomerPortal):
                 'facturacion@copiercompanysac.com'
             ]
             
+            # Buscar el servidor de correo Outlook configurado
+            mail_server = request.env['ir.mail_server'].sudo().search([
+                ('name', '=', 'Outlook')
+            ], limit=1)
+            
+            if not mail_server:
+                _logger.error("No se encontró el servidor de correo 'Outlook'")
+                # Buscar cualquier servidor de correo disponible como fallback
+                mail_server = request.env['ir.mail_server'].sudo().search([], limit=1)
+                if mail_server:
+                    _logger.info("Usando servidor de correo fallback: %s", mail_server.name)
+                else:
+                    _logger.error("No hay servidores de correo configurados")
+                    return False
+            else:
+                _logger.info("Usando servidor de correo: %s (ID: %s)", mail_server.name, mail_server.id)
+            
             # Preparar datos del equipo
             equipment = counter_submission.equipment_id
             
@@ -1807,17 +1824,19 @@ class CopierCompanyPortal(CustomerPortal):
                             'email_from': 'info@copiercompanysac.com',
                             'body_html': email_body,
                             'auto_delete': False,
+                            'mail_server_id': mail_server.id,  # ✅ AGREGAR ESTA LÍNEA
                         }
                         
                         mail = request.env['mail.mail'].sudo().create(mail_values)
                         mail.send()
-                        _logger.info("Notificación de contadores enviada a: %s", email)
+                        _logger.info("Notificación de contadores enviada a: %s usando servidor: %s", email, mail_server.name)
                         
                     except Exception as e:
                         _logger.error("Error enviando notificación de contadores a %s: %s", email, str(e))
             
             _logger.info("Proceso de notificación de contadores completado")
+            return True
             
         except Exception as e:
             _logger.exception("Error en _send_counter_notification: %s", str(e))
-            # No re-lanzar la excepción para no interrumpir el flujo principal
+            return False
