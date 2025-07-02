@@ -1039,9 +1039,10 @@ class CopierCompanyPortal(CustomerPortal):
             _logger.exception("Error en _send_technical_notification: %s", str(e))
             raise
 
+    
     @http.route(['/public/request_toner'], type='http', auth="public", website=True)
     def public_request_toner(self, copier_company_id=None, **kw):
-        """Formulario para solicitar toner con datos pre-cargados del equipo"""
+        """Formulario para solicitar toner"""
         _logger.info("=== INICIANDO public_request_toner ===")
         _logger.info("Parámetros recibidos - copier_company_id: %s, kw: %s", copier_company_id, kw)
         
@@ -1059,7 +1060,7 @@ class CopierCompanyPortal(CustomerPortal):
             _logger.info("Cargando formulario de solicitud de toner para equipo: %s", 
                         equipment.name.name if equipment.name else 'Sin nombre')
             
-            # Preparar datos pre-cargados del equipo
+            # Preparar datos del equipo (SIN datos de contacto del equipo)
             equipment_data = {
                 'id': equipment.id,
                 'name': self._safe_get_text(equipment.name.name) if equipment.name else 'Equipo sin nombre',
@@ -1071,9 +1072,6 @@ class CopierCompanyPortal(CustomerPortal):
                 'ubicacion': self._safe_get_text(equipment.ubicacion) or 'Sin ubicación',
                 'sede': self._safe_get_text(equipment.sede) or '',
                 'tipo': 'Color' if equipment.tipo == 'color' else 'Blanco y Negro',
-                'contacto_equipo': self._safe_get_text(equipment.contacto) or '',
-                'celular_equipo': self._safe_get_text(equipment.celular) or '',
-                'correo_equipo': self._safe_get_text(equipment.correo) or ''
             }
             
             _logger.info("Datos del equipo pre-cargados: %s", equipment_data)
@@ -1207,6 +1205,15 @@ class CopierCompanyPortal(CustomerPortal):
                             values['success_message'] = success_message
                             values['toner_request'] = toner_request
                             
+                            # Agregar datos de la solicitud para mostrar en la pantalla de éxito
+                            values['request_data'] = {
+                                'secuencia': toner_request.secuencia,
+                                'toner_type': toner_types.get(toner_request.toner_type, 'Desconocido'),
+                                'quantity': toner_request.quantity,
+                                'urgency': dict(toner_request._fields['urgency'].selection).get(toner_request.urgency, 'Media'),
+                                'current_level': dict(toner_request._fields['current_toner_level'].selection).get(toner_request.current_toner_level, 'No especificado') if toner_request.current_toner_level else 'No especificado',
+                            }
+                            
                         except Exception as e:
                             _logger.exception("Error al crear solicitud de toner: %s", str(e))
                             values['error_message'] = _("Ocurrió un error al procesar la solicitud. Por favor intente nuevamente o contacte directamente con soporte.")
@@ -1243,6 +1250,23 @@ class CopierCompanyPortal(CustomerPortal):
                 'ventas@copiercompanysac.com',
                 'administracion@copiercompanysac.com'
             ]
+            
+            # Buscar el servidor de correo Outlook configurado
+            mail_server = request.env['ir.mail_server'].sudo().search([
+                ('name', '=', 'Outlook')
+            ], limit=1)
+            
+            if not mail_server:
+                _logger.error("No se encontró el servidor de correo 'Outlook'")
+                # Buscar cualquier servidor de correo disponible como fallback
+                mail_server = request.env['ir.mail_server'].sudo().search([], limit=1)
+                if mail_server:
+                    _logger.info("Usando servidor de correo fallback: %s", mail_server.name)
+                else:
+                    _logger.error("No hay servidores de correo configurados")
+                    return False
+            else:
+                _logger.info("Usando servidor de correo: %s (ID: %s)", mail_server.name, mail_server.id)
             
             # Mapeo de tipos de toner
             toner_types = {
@@ -1304,9 +1328,28 @@ class CopierCompanyPortal(CustomerPortal):
             <p><strong>Teléfono:</strong> {toner_request.client_phone or 'No proporcionado'}</p>
             
             <h3>🖨️ Detalles del Toner Solicitado</h3>
-            <p><strong>Tipo de Toner:</strong> {toner_types.get(toner_request.toner_type, 'Desconocido')}</p>
-            <p><strong>Cantidad:</strong> {toner_request.quantity}</p>
-            <p><strong>Nivel Actual:</strong> {toner_level_names.get(toner_request.current_toner_level, 'No especificado') if toner_request.current_toner_level else 'No especificado'}</p>
+            <table border="1" style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+                <tr style="background-color: #f0f0f0;">
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Detalle</th>
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Información</th>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">Tipo de Toner</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">{toner_types.get(toner_request.toner_type, 'Desconocido')}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">Cantidad</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">{toner_request.quantity}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">Nivel Actual</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">{toner_level_names.get(toner_request.current_toner_level, 'No especificado') if toner_request.current_toner_level else 'No especificado'}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">Urgencia</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">{urgency_icons.get(toner_request.urgency, '⚪')} {urgency_names.get(toner_request.urgency, 'Media')}</td>
+                </tr>
+            </table>
             
             {f'<h3>📝 Motivo de la Solicitud</h3><p>{toner_request.reason}</p>' if toner_request.reason else ''}
             
@@ -1330,22 +1373,25 @@ class CopierCompanyPortal(CustomerPortal):
                         mail_values = {
                             'subject': f'🖨️ Nueva Solicitud de Toner - {toner_request.secuencia} - {equipment.name.name if equipment.name else "Equipo"}',
                             'email_to': email,
-                            'email_from': 'noreply@copiercompanysac.com',
+                            'email_from': 'info@copiercompanysac.com',
                             'body_html': email_body,
                             'auto_delete': False,
+                            'mail_server_id': mail_server.id,  # ✅ USAR SERVIDOR OUTLOOK
                         }
                         
                         mail = request.env['mail.mail'].sudo().create(mail_values)
                         mail.send()
-                        _logger.info("Notificación de toner enviada a: %s", email)
+                        _logger.info("Notificación de toner enviada a: %s usando servidor: %s", email, mail_server.name)
                         
                     except Exception as e:
                         _logger.error("Error enviando notificación de toner a %s: %s", email, str(e))
             
             _logger.info("Proceso de notificación de toner completado")
+            return True
             
         except Exception as e:
             _logger.exception("Error en _send_toner_notification: %s", str(e))
+            return False
 
     @http.route(['/public/send_whatsapp'], type='http', auth="public", website=True)
     def public_send_whatsapp(self, copier_company_id=None, **kw):
@@ -1436,8 +1482,7 @@ class CopierCompanyPortal(CustomerPortal):
             _logger.exception("Error en public_send_email: %s", str(e))
             return request.redirect('/')
 
-    # Reemplazar el método public_upload_counters en tu controlador con esta implementación completa
-
+   
     @http.route(['/public/upload_counters'], type='http', auth="public", website=True)
     def public_upload_counters(self, copier_company_id=None, **kw):
         """Formulario para subir contadores"""
@@ -1715,8 +1760,6 @@ class CopierCompanyPortal(CustomerPortal):
         try:
             # Emails del equipo administrativo/contable
             admin_emails = [
-                'administracion@copiercompanysac.com',
-                'contabilidad@copiercompanysac.com',
                 'facturacion@copiercompanysac.com'
             ]
             
