@@ -1498,9 +1498,6 @@ class CopierCompanyPortal(CustomerPortal):
                 'ubicacion': self._safe_get_text(equipment.ubicacion) or 'Sin ubicación',
                 'sede': self._safe_get_text(equipment.sede) or '',
                 'tipo': 'Color' if equipment.tipo == 'color' else 'Blanco y Negro',
-                'contacto_equipo': self._safe_get_text(equipment.contacto) or '',
-                'celular_equipo': self._safe_get_text(equipment.celular) or '',
-                'correo_equipo': self._safe_get_text(equipment.correo) or ''
             }
             
             _logger.info("Datos del equipo pre-cargados: %s", equipment_data)
@@ -1807,7 +1804,7 @@ class CopierCompanyPortal(CustomerPortal):
                         mail_values = {
                             'subject': f'📊 Nuevo Reporte de Contadores - {counter_submission.secuencia} - {equipment.name.name if equipment.name else "Equipo"}',
                             'email_to': email,
-                            'email_from': 'noreply@copiercompanysac.com',
+                            'email_from': 'info@copiercompanysac.com',
                             'body_html': email_body,
                             'auto_delete': False,
                         }
