@@ -232,6 +232,24 @@
     .icon-toner {
         color: #dc2626; /* Rojo/magenta para solicitud de tóner */
     }
+    .contact-icon {
+        font-size: 48px;
+        width: 48px;
+        text-align: center;
+    }
+
+    /* Colores originales según el ícono */
+    .icon-email {
+        color: #2563eb; /* Azul para correo */
+    }
+
+    .icon-whatsapp {
+        color: #22c55e; /* Verde para WhatsApp */
+    }
+
+    .icon-web {
+        color: #0ea5e9; /* Celeste para sitio web */
+    }
 
 
     @media print {
@@ -309,7 +327,7 @@
                         <i class="fas fa-wrench icon-support"></i>
                         <i class="fas fa-headset icon-support"></i>
                         <i class="fas fa-tint icon-toner"></i>
-                        Escanee el código QR para <strong>solicitar soporte técnico</strong>, <strong>asistencia remota</strong> o <strong>tóner</strong>
+                        Escanee el código QR para <strong>solicitar soporte</strong>, <strong>asistencia remota</strong> o <strong>tóner</strong>
                     </div>
 
 
@@ -332,33 +350,35 @@
                     
                     <hr/>
                     
+                  
                     <!-- Información de contacto -->
                     <div class="contact-card">
                         <div class="card-title">
                             <i class="fas fa-headset"></i> SOPORTE Y CONSULTAS
                         </div>
+
                         <div class="contact-item">
-                            <span class="contact-icon">
+                            <span class="contact-icon icon-email">
                                 <i class="fas fa-envelope"></i>
                             </span>
-                            <span class="contact-label">Email:</span>
                             <span class="contact-value">info@copiercompanysac.com</span>
                         </div>
+
                         <div class="contact-item">
-                            <span class="contact-icon">
+                            <span class="contact-icon icon-whatsapp">
                                 <i class="fab fa-whatsapp"></i>
                             </span>
-                            <span class="contact-label">WhatsApp:</span>
                             <span class="contact-value">+51 975 399 303</span>
                         </div>
+
                         <div class="contact-item">
-                            <span class="contact-icon">
+                            <span class="contact-icon icon-web">
                                 <i class="fas fa-globe"></i>
                             </span>
-                            <span class="contact-label">Sitio Web:</span>
                             <span class="contact-value">copiercompanysac.com</span>
                         </div>
                     </div>
+
                     
                     <hr/>
                     
