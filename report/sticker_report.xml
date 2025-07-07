@@ -125,21 +125,32 @@
     }
 
     .equipment-item {
+        background: #f0f9ff;
+        padding: 12px;
         display: flex;
         align-items: center;
-        gap: 8px;
-        padding: 4px 0;
+        gap: 12px;
     }
 
-    .equipment-label,
-    .equipment-value {
+    .equipment-label {
+        font-size: 32px;
+        font-weight: 700;
+        color: #0369a1;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 0;
         display: inline;
-        font-size: 40px; /* Ajusta al tamaño deseado */
+    }
+
+    .equipment-value {
+        font-size: 40px;
         font-weight: 600;
         color: #1e293b;
+        word-break: break-word;
+        display: inline;
     }
 
-    
+
     .contact-grid {
         display: flex;
         flex-direction: column;
@@ -246,30 +257,31 @@
                     
     
                     <!-- Información del equipo -->
-                    <div class="equipment-card">
-                        <div class="card-title">
-                            <i class="fas fa-print"></i> INFORMACIÓN DEL EQUIPO
-                        </div>
-                        <div class="equipment-item">
-                            <span class="equipment-label">
-                                <i class="fas fa-laptop"></i> Modelo:
-                            </span>
-                            <span class="equipment-value">
-                                <t t-if="doc.name">
-                                    <t t-esc="doc.name.name"/>
-                                </t>
-                                <t t-else="">No especificado</t>
-                            </span>
-                        </div>
-                        <div class="equipment-item">
-                            <span class="equipment-label">
-                                <i class="fas fa-barcode"></i> Serie:
-                            </span>
-                            <span class="equipment-value">
-                                <t t-esc="doc.serie_id or 'No especificada'"/>
-                            </span>
-                        </div>
-                    </div>
+<div class="equipment-card">
+    <div class="card-title">
+        <i class="fas fa-print"></i> INFORMACIÓN DEL EQUIPO
+    </div>
+    <div class="equipment-item">
+        <span class="equipment-label">
+            <i class="fas fa-laptop"></i> Modelo:
+        </span>
+        <span class="equipment-value">
+            <t t-if="doc.name">
+                <t t-esc="doc.name.name"/>
+            </t>
+            <t t-else="">No especificado</t>
+        </span>
+    </div>
+    <div class="equipment-item">
+        <span class="equipment-label">
+            <i class="fas fa-barcode"></i> Serie:
+        </span>
+        <span class="equipment-value">
+            <t t-esc="doc.serie_id or 'No especificada'"/>
+        </span>
+    </div>
+</div>
+
 
                     
                     <hr/>
