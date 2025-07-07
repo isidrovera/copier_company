@@ -29,13 +29,15 @@
         </record>
 
         <!-- Template básico sin estilos complejos -->
-        <template id="sticker_8x8_template">
+ <template id="sticker_8x8_template">
     <t t-call="web.html_container">
         <t t-foreach="docs" t-as="doc">
             <t t-call="web.basic_layout">
                 <div class="page">
                     <style>
                         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap');
+                        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+                        @import url('https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css');
                         
                         @page {
                             size: A6 portrait;
@@ -46,9 +48,9 @@
                             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
                             margin: 0; 
                             padding: 0; 
-                            font-size: 10px;
-                            line-height: 1.4;
-                            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+                            font-size: 15px;
+                            line-height: 1.5;
+                            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
                             color: #1e293b;
                         }
                         
@@ -321,66 +323,90 @@
                     <hr/>
                     
                     <!-- Información del equipo -->
-                    <div class="card-title">INFORMACIÓN DEL EQUIPO</div>
-                    <div class="equipment-item">
-                        <span class="equipment-label">Modelo:</span>
-                        <span class="equipment-value">
-                            <t t-if="doc.name">
-                                <t t-esc="doc.name.name"/>
-                            </t>
-                            <t t-else="">No especificado</t>
-                        </span>
-                    </div>
-                    <div class="equipment-item">
-                        <span class="equipment-label">Serie:</span>
-                        <span class="equipment-value">
-                            <t t-esc="doc.serie_id or 'No especificada'"/>
-                        </span>
+                    <div class="equipment-card">
+                        <div class="card-title">
+                            <i class="fas fa-print"></i> INFORMACIÓN DEL EQUIPO
+                        </div>
+                        <div class="equipment-item">
+                            <span class="equipment-label">
+                                <i class="fas fa-laptop"></i> Modelo:
+                            </span>
+                            <span class="equipment-value">
+                                <t t-if="doc.name">
+                                    <t t-esc="doc.name.name"/>
+                                </t>
+                                <t t-else="">No especificado</t>
+                            </span>
+                        </div>
+                        <div class="equipment-item">
+                            <span class="equipment-label">
+                                <i class="fas fa-barcode"></i> Serie:
+                            </span>
+                            <span class="equipment-value">
+                                <t t-esc="doc.serie_id or 'No especificada'"/>
+                            </span>
+                        </div>
                     </div>
                     
                     <hr/>
                     
                     <!-- Servicio técnico -->
-                    <div class="qr-title center">🔧 SERVICIO TÉCNICO</div>
-                    <div class="qr-description center">Escanea el código QR para solicitar mantenimiento o reportar problemas técnicos</div>
+                    <div class="qr-title center">
+                        <i class="fas fa-tools"></i> SERVICIO TÉCNICO
+                    </div>
+                    <div class="qr-description center">
+                        Escanea el código QR para solicitar mantenimiento o reportar problemas técnicos
+                    </div>
                     
                     <!-- QR Code -->
                     <div class="center">
-                        <t t-if="doc.qr_code">
-                            <img t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')" 
-                                 class="qr-image" alt="Código QR"/>
-                        </t>
-                        <t t-else="">
-                            <t t-set="qr_url" t-value="'https://copiercompanysac.com/ticket/' + str(doc.id)"/>
-                            <img t-att-src="'/report/qr?value=' + qr_url + '&amp;width=200&amp;height=200'" 
-                                 class="qr-image" alt="Código QR"/>
-                        </t>
+                        <div class="qr-container">
+                            <t t-if="doc.qr_code">
+                                <img t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')" 
+                                     class="qr-image" alt="Código QR"/>
+                            </t>
+                            <t t-else="">
+                                <t t-set="qr_url" t-value="'https://copiercompanysac.com/ticket/' + str(doc.id)"/>
+                                <img t-att-src="'/report/qr?value=' + qr_url + '&amp;width=200&amp;height=200'" 
+                                     class="qr-image" alt="Código QR"/>
+                            </t>
+                        </div>
                     </div>
                     
                     <hr/>
                     
                     <!-- Información de contacto -->
-                    <div class="card-title">SOPORTE Y CONSULTAS</div>
-                    <div class="contact-item">
-                        <span class="contact-icon">📧</span>
-                        <span class="contact-label">Email:</span>
-                        <span class="contact-value">info@copiercompanysac.com</span>
-                    </div>
-                    <div class="contact-item">
-                        <span class="contact-icon">💬</span>
-                        <span class="contact-label">WhatsApp:</span>
-                        <span class="contact-value">+51 975 399 303</span>
-                    </div>
-                    <div class="contact-item">
-                        <span class="contact-icon">🌐</span>
-                        <span class="contact-label">Sitio Web:</span>
-                        <span class="contact-value">copiercompanysac.com</span>
+                    <div class="contact-card">
+                        <div class="card-title">
+                            <i class="fas fa-headset"></i> SOPORTE Y CONSULTAS
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">
+                                <i class="fas fa-envelope"></i>
+                            </span>
+                            <span class="contact-label">Email:</span>
+                            <span class="contact-value">info@copiercompanysac.com</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">
+                                <i class="fab fa-whatsapp"></i>
+                            </span>
+                            <span class="contact-label">WhatsApp:</span>
+                            <span class="contact-value">+51 975 399 303</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">
+                                <i class="fas fa-globe"></i>
+                            </span>
+                            <span class="contact-label">Sitio Web:</span>
+                            <span class="contact-value">copiercompanysac.com</span>
+                        </div>
                     </div>
                     
                     <hr/>
                     
                     <div class="qr-footer center">
-                        Asistencia técnica • Consultas comerciales • Mantenimiento
+                        <i class="fas fa-star"></i> Asistencia técnica • Consultas comerciales • Mantenimiento <i class="fas fa-star"></i>
                     </div>
                 </div>
             </t>
