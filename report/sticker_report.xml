@@ -304,7 +304,8 @@
                                 <t t-set="company" t-value="request.env.company"/>
                                 <t t-if="company and company.logo">
                                     <img t-att-src="'data:image/png;base64,%s' % company.logo.decode('utf-8')" 
-                                         class="logo" alt="Logo"/>
+                                        class="company-logo" alt="Logo"/>
+
                                 </t>
                                 <t t-else="">
                                     <h1>COPIER COMPANY</h1>
