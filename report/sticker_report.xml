@@ -341,7 +341,7 @@
                             <div class="center">
                                 <t t-if="doc.qr_code">
                                     <img t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')" 
-                                         class="qr" alt="Código QR"/>
+                                         class="qr-image" alt="Código QR"/>
                                 </t>
                                 <t t-else="">
                                     <t t-set="qr_url" t-value="'https://copiercompanysac.com/ticket/' + str(doc.id)"/>
