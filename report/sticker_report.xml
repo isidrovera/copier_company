@@ -82,7 +82,7 @@
     .company-logo {
         max-height: 500px;
         max-width: 1600px;
-        margin: 0px auto 4px auto; /* ← eliminamos margen superior */
+        margin: -20px auto -20px auto; /* ← eliminamos margen superior */
         display: block;
         filter: brightness(0) invert(1);
     }
@@ -233,6 +233,11 @@
             print-color-adjust: exact !important;
         }
     }
+        html, body, .page, .center {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
 </style>
 
                     
