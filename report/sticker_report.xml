@@ -10,7 +10,7 @@
             <field name="margin_bottom">8</field>
             <field name="margin_left">8</field>
             <field name="margin_right">8</field>
-            <field name="header_line" eval="False"/>
+            <field name="header_line" eval="False" />
             <field name="dpi">300</field>
         </record>
 
@@ -22,375 +22,780 @@
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">copier_company.sticker_8x8_template</field>
             <field name="report_file">copier_company.sticker_8x8_template</field>
-            <field name="print_report_name">'Sticker-%s' % (object.name.name if object.name else 'Sin-nombre')</field>
-            <field name="binding_model_id" ref="model_copier_company"/>
+            <field name="print_report_name">'Sticker-%s' % (object.name.name if object.name else
+                'Sin-nombre')</field>
+            <field name="binding_model_id" ref="model_copier_company" />
             <field name="binding_type">report</field>
-            <field name="paperformat_id" ref="paperformat_sticker_8x8"/>
+            <field name="paperformat_id" ref="paperformat_sticker_8x8" />
         </record>
 
         <!-- Template básico sin estilos complejos -->
- <template id="sticker_8x8_template">
-    <t t-call="web.html_container">
-        <t t-foreach="docs" t-as="doc">
-            <t t-call="web.basic_layout">
-                <div class="page">
-                    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap');
-                        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
-                        @import url('https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css');
+        <template id="sticker_8x8_template">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.basic_layout">
+                        <div class="page">
+                            <style>
+                                @import
+                                url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap');
+                                @import
+                                url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+                                @import
+                                url('https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css');
+                                @page {
+                                size: A6 portrait;
+                                margin: 2mm;
+                                }
 
-    @page {
-        size: A6 portrait;
-        margin: 2mm;
-    }
+                                * {
+                                border: none !important;
+                                border-radius: 0 !important;
+                                box-shadow: none !important;
+                                }
 
-    * {
-        border: none !important;
-        border-radius: 0 !important;
-        box-shadow: none !important;
-    }
+                                body {
+                                font-family: 'Inter', sans-serif;
+                                margin: 0;
+                                padding: 0;
+                                font-size: 30px; /* antes 15px */
+                                line-height: 1.5;
+                                background: white;
+                                color: #1e293b;
+                                }
 
-    body {
-        font-family: 'Inter', sans-serif;
-        margin: 0;
-        padding: 0;
-        font-size: 30px; /* antes 15px */
-        line-height: 1.5;
-        background: white;
-        color: #1e293b;
-    }
+                                .page {
+                                width: 100%;
+                                height: 100%;
+                                display: grid;
+                                grid-template-columns: 1fr 1fr;
+                                gap: 12px;
+                                padding: 8px;
+                                }
 
-    .page {
-        width: 100%;
-        height: 100%;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-        padding: 8px;
-    }
+                                .left-section, .right-section {
+                                display: flex;
+                                flex-direction: column;
+                                gap: 8px;
+                                }
 
-    .left-section, .right-section {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
+                                .center {
+                                text-align: center;
+                                }
 
-    .center {
-        text-align: center;
-    }
-
-    .company-logo {
-        max-height: 550px;
-        max-width: 1650px;
-        margin: -125px auto -20px auto; /* ← eliminamos margen superior */
-        display: block;
-        filter: brightness(0) invert(1);
-    }
-
-
-    .company-name {
-        font-size: 24px;
-        font-weight: 800;
-        letter-spacing: 1px;
-        margin-bottom: 6px;
-    }
-
-    .company-title {
-        font-size: 40px;
-        font-weight: 600;
-        opacity: 0.9;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .equipment-card,
-    .contact-card {
-        background: white;
-        padding: 8px;
-    }
-
-    .card-title {
-        font-size: 36px;
-        font-weight: 700;
-        color: #0c4a6e;
-        margin-bottom: 12px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .equipment-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-    }
-
-    .equipment-item {
-        background: #f0f9ff;
-        padding: 12px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .equipment-label {
-        font-size: 32px;
-        font-weight: 700;
-        color: #0369a1;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin: 0;
-        display: inline;
-    }
-
-    .equipment-value {
-        font-size: 40px;
-        font-weight: 600;
-        color: #1e293b;
-        word-break: break-word;
-        display: inline;
-    }
+                                .company-logo {
+                                max-height: 550px;
+                                max-width: 1650px;
+                                margin: -125px auto -20px auto; /* ← eliminamos margen superior */
+                                display: block;
+                                filter: brightness(0) invert(1);
+                                }
 
 
-    .contact-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
+                                .company-name {
+                                font-size: 24px;
+                                font-weight: 800;
+                                letter-spacing: 1px;
+                                margin-bottom: 6px;
+                                }
 
-    .contact-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        background: #f0fdf4;
-        padding: 8px 12px;
-    }
+                                .company-title {
+                                font-size: 40px;
+                                font-weight: 600;
+                                opacity: 0.9;
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                                }
 
-    .contact-icon {
-        font-size: 48px;
-        width: 32px;
-        text-align: center;
-    }
+                                .equipment-card,
+                                .contact-card {
+                                background: white;
+                                padding: 8px;
+                                }
 
-    .contact-label {
-        font-size: 32px;
-        font-weight: 700;
-        color: #065f46;
-        text-transform: uppercase;
-        min-width: 80px;
-    }
+                                .card-title {
+                                font-size: 36px;
+                                font-weight: 700;
+                                color: #0c4a6e;
+                                margin-bottom: 12px;
+                                display: flex;
+                                align-items: center;
+                                gap: 8px;
+                                }
 
-    .contact-value {
-        font-size: 36px;
-        font-weight: 600;
-        color: #1e293b;
-        flex: 1;
-    }
+                                .equipment-grid {
+                                display: grid;
+                                grid-template-columns: 1fr 1fr;
+                                gap: 12px;
+                                }
 
-    .qr-title {
-        font-size: 44px;
-        font-weight: 800;
-        color: #dc2626;
-        margin-bottom: 12px;
-        text-align: center;
-    }
+                                .equipment-item {
+                                background: #f0f9ff;
+                                padding: 12px;
+                                display: flex;
+                                align-items: center;
+                                gap: 12px;
+                                }
 
-    .qr-description {
-        font-size: 32px;
-        color: #92400e;
-        font-weight: 600;
-        text-align: center;
-        margin-bottom: 16px;
-        line-height: 1.3;
-    }
+                                .equipment-label {
+                                font-size: 32px;
+                                font-weight: 700;
+                                color: #0369a1;
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                                margin: 0;
+                                display: inline;
+                                }
 
-    .qr-container {
-        background: white;
-        padding: 32px;
-        text-align: center;
-    }
-
-    .qr-image {
-        width: 550px;
-        height: 550px;
-        object-fit: contain;
-        display: block;
-        margin: auto;
-    }
-
-    .qr-footer {
-        font-size: 30px;
-        color: #92400e;
-        text-align: center;
-        margin-top: 12px;
-        font-weight: 500;
-    }
-    .icon-support {
-        color: #1e3a8a; /* Azul marino para soporte técnico y asistencia */
-    }
-
-    .icon-toner {
-        color: #dc2626; /* Rojo/magenta para solicitud de tóner */
-    }
-    .contact-icon {
-        font-size: 48px;
-        width: 48px;
-        text-align: center;
-    }
-
-    /* Colores originales según el ícono */
-    .icon-email {
-        color: #2563eb; /* Azul para correo */
-    }
-
-    .icon-whatsapp {
-        color: #22c55e; /* Verde para WhatsApp */
-    }
-
-    .icon-web {
-        color: #0ea5e9; /* Celeste para sitio web */
-    }
+                                .equipment-value {
+                                font-size: 40px;
+                                font-weight: 600;
+                                color: #1e293b;
+                                word-break: break-word;
+                                display: inline;
+                                }
 
 
-    @media print {
-        * {
-            -webkit-print-color-adjust: exact !important;
-            color-adjust: exact !important;
-            print-color-adjust: exact !important;
-        }
-    }
-        html, body, .page, .center {
-        margin-top: 0 !important;
-        padding-top: 0 !important;
-    }
+                                .contact-grid {
+                                display: flex;
+                                flex-direction: column;
+                                gap: 8px;
+                                }
+
+                                .contact-item {
+                                display: flex;
+                                align-items: center;
+                                gap: 12px;
+                                background: #f0fdf4;
+                                padding: 8px 12px;
+                                }
+
+                                .contact-icon {
+                                font-size: 48px;
+                                width: 32px;
+                                text-align: center;
+                                }
+
+                                .contact-label {
+                                font-size: 32px;
+                                font-weight: 700;
+                                color: #065f46;
+                                text-transform: uppercase;
+                                min-width: 80px;
+                                }
+
+                                .contact-value {
+                                font-size: 36px;
+                                font-weight: 600;
+                                color: #1e293b;
+                                flex: 1;
+                                }
+
+                                .qr-title {
+                                font-size: 44px;
+                                font-weight: 800;
+                                color: #dc2626;
+                                margin-bottom: 12px;
+                                text-align: center;
+                                }
+
+                                .qr-description {
+                                font-size: 32px;
+                                color: #92400e;
+                                font-weight: 600;
+                                text-align: center;
+                                margin-bottom: 16px;
+                                line-height: 1.3;
+                                }
+
+                                .qr-container {
+                                background: white;
+                                padding: 32px;
+                                text-align: center;
+                                }
+
+                                .qr-image {
+                                width: 550px;
+                                height: 550px;
+                                object-fit: contain;
+                                display: block;
+                                margin: auto;
+                                }
+
+                                .qr-footer {
+                                font-size: 30px;
+                                color: #92400e;
+                                text-align: center;
+                                margin-top: 12px;
+                                font-weight: 500;
+                                }
+                                .icon-support {
+                                color: #1e3a8a; /* Azul marino para soporte técnico y asistencia */
+                                }
+
+                                .icon-toner {
+                                color: #dc2626; /* Rojo/magenta para solicitud de tóner */
+                                }
+                                .contact-icon {
+                                font-size: 48px;
+                                width: 48px;
+                                text-align: center;
+                                }
+
+                                /* Colores originales según el ícono */
+                                .icon-email {
+                                color: #2563eb; /* Azul para correo */
+                                }
+
+                                .icon-whatsapp {
+                                color: #22c55e; /* Verde para WhatsApp */
+                                }
+
+                                .icon-web {
+                                color: #0ea5e9; /* Celeste para sitio web */
+                                }
 
 
-</style>
+                                @media print {
+                                * {
+                                -webkit-print-color-adjust: exact !important;
+                                color-adjust: exact !important;
+                                print-color-adjust: exact !important;
+                                }
+                                }
+                                html, body, .page, .center {
+                                margin-top: 0 !important;
+                                padding-top: 0 !important;
+                                }
 
-                    
-                    <!-- Generar QR si no existe -->
-                    <t t-if="not doc.qr_code">
-                        <t t-set="dummy" t-value="doc.generar_qr_code()"/>
+
+                            </style>
+
+
+                            <!-- Generar QR si no existe -->
+                            <t t-if="not doc.qr_code">
+                                <t t-set="dummy" t-value="doc.generar_qr_code()" />
+                            </t>
+
+                            <!-- Logo y nombre de empresa -->
+                            <div class="center">
+                                <t t-set="company" t-value="request.env.company" />
+                                <t t-if="company and company.logo">
+                                    <img
+                                        t-att-src="'data:image/png;base64,%s' % company.logo.decode('utf-8')"
+                                        class="company-logo" alt="Logo" />
+                                </t>
+                                <t t-else="">
+                                    <div class="company-name">COPIER COMPANY</div>
+                                </t>
+                                <div class="company-title">SOLUCIONES EN ALQUILER DE
+                                    MULTIFUNCIONALES</div>
+
+                            </div>
+
+                            <hr />
+
+
+                            <!-- Información del equipo -->
+                            <div class="equipment-card">
+                                <div class="card-title">
+                                    <i class="fas fa-print"></i> INFORMACIÓN DEL EQUIPO </div>
+                                <div class="equipment-item">
+                                    <span class="equipment-label">
+                                        <i class="fas fa-laptop"></i> Modelo: </span>
+                                    <span class="equipment-value">
+                                        <t t-if="doc.name">
+                                            <t t-esc="doc.name.name" />
+                                        </t>
+                                        <t t-else="">No especificado</t>
+                                    </span>
+                                </div>
+                                <div class="equipment-item">
+                                    <span class="equipment-label">
+                                        <i class="fas fa-barcode"></i> Serie: </span>
+                                    <span class="equipment-value">
+                                        <t t-esc="doc.serie_id or 'No especificada'" />
+                                    </span>
+                                </div>
+                            </div>
+
+
+                            <hr />
+
+                            <!-- Servicio técnico -->
+                            <div class="qr-title center">
+                                <i class="fas fa-tools icon-support"></i> GESTIÓN DE EQUIPO </div>
+                            <div class="qr-description center">
+                                <i class="fas fa-wrench icon-support"></i>
+                        <i
+                                    class="fas fa-headset icon-support"></i>
+                        <i
+                                    class="fas fa-tint icon-toner"></i> Escanee el código QR para <strong>solicitar
+                                soporte</strong>, <strong>asistencia remota</strong> o <strong>tóner</strong>
+                            </div>
+
+
+                            <!-- QR Code -->
+                            <div class="center">
+                                <div class="qr-container">
+                                    <t t-if="doc.qr_code">
+                                        <img
+                                            t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')"
+                                            class="qr-image" alt="Código QR" />
+                                    </t>
+                                    <t t-else="">
+                                        <t t-set="qr_url"
+                                            t-value="'https://copiercompanysac.com/ticket/' + str(doc.id)" />
+                                        <img
+                                            t-att-src="'/report/qr?value=' + qr_url + '&amp;width=200&amp;height=200'"
+                                            class="qr-image" alt="Código QR" />
+                                    </t>
+                                </div>
+                            </div>
+
+                            <hr />
+
+
+                            <!-- Información de contacto -->
+                            <div class="contact-card">
+                                <div class="card-title">
+                                    <i class="fas fa-headset"></i> SOPORTE Y CONSULTAS </div>
+
+                                <div class="contact-item">
+                                    <span class="contact-icon icon-email">
+                                        <i class="fas fa-envelope"></i>
+                                    </span>
+                                    <span class="contact-value">info@copiercompanysac.com</span>
+                                </div>
+
+                                <div class="contact-item">
+                                    <span class="contact-icon icon-whatsapp">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </span>
+                                    <span class="contact-value">+51 975 399 303</span>
+                                </div>
+
+                                <div class="contact-item">
+                                    <span class="contact-icon icon-web">
+                                        <i class="fas fa-globe"></i>
+                                    </span>
+                                    <span class="contact-value">https://copiercompanysac.com</span>
+                                </div>
+                            </div>
+
+
+                            <hr />
+
+                            <div class="qr-footer center">
+                                <i class="fas fa-star"></i> Asistencia técnica • Consultas
+                                comerciales • Mantenimiento <i class="fas fa-star"></i>
+                            </div>
+                        </div>
                     </t>
-                    
-                    <!-- Logo y nombre de empresa -->
-                    <div class="center">
-                        <t t-set="company" t-value="request.env.company"/>
-                        <t t-if="company and company.logo">
-                            <img t-att-src="'data:image/png;base64,%s' % company.logo.decode('utf-8')" 
-                                class="company-logo" alt="Logo"/>
-                        </t>
-                        <t t-else="">
-                            <div class="company-name">COPIER COMPANY</div>
-                        </t>
-                        <div class="company-title">SOLUCIONES EN ALQUILER DE MULTIFUNCIONALES</div>
-
-                    </div>
-                    
-                    <hr/>
-                    
-    
-                    <!-- Información del equipo -->
-<div class="equipment-card">
-    <div class="card-title">
-        <i class="fas fa-print"></i> INFORMACIÓN DEL EQUIPO
-    </div>
-    <div class="equipment-item">
-        <span class="equipment-label">
-            <i class="fas fa-laptop"></i> Modelo:
-        </span>
-        <span class="equipment-value">
-            <t t-if="doc.name">
-                <t t-esc="doc.name.name"/>
+                </t>
             </t>
-            <t t-else="">No especificado</t>
-        </span>
-    </div>
-    <div class="equipment-item">
-        <span class="equipment-label">
-            <i class="fas fa-barcode"></i> Serie:
-        </span>
-        <span class="equipment-value">
-            <t t-esc="doc.serie_id or 'No especificada'"/>
-        </span>
-    </div>
-</div>
+        </template>
 
+        <!-- NUEVO: Formato de papel A4 para múltiples stickers -->
+        <record id="paperformat_sticker_a4_multiple" model="report.paperformat">
+            <field name="name">Stickers A4 Multiple (2x2)</field>
+            <field name="format">A4</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">5</field>
+            <field name="margin_bottom">5</field>
+            <field name="margin_left">5</field>
+            <field name="margin_right">5</field>
+            <field name="header_line" eval="False" />
+            <field name="dpi">300</field>
+        </record>
 
-                    
-                    <hr/>
-                    
-                    <!-- Servicio técnico -->
-                    <div class="qr-title center">
-                        <i class="fas fa-tools icon-support"></i> GESTIÓN DE EQUIPO
+        <!-- NUEVO: Reporte múltiple para A4 -->
+        <record id="action_report_sticker_a4_multiple" model="ir.actions.report">
+            <field name="name">Stickers A4 - Múltiples (2x2)</field>
+            <field name="model">copier.company</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">copier_company.sticker_a4_multiple_template</field>
+            <field name="report_file">copier_company.sticker_a4_multiple_template</field>
+            <field name="print_report_name">'Stickers-A4-%s-registros' % (len(objects) if objects else 'multiple')</field>
+            <field name="binding_model_id" ref="model_copier_company" />
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="paperformat_sticker_a4_multiple" />
+            <field name="multi">True</field>
+        </record>
+
+        <!-- NUEVO: Template que reutiliza el contenido del sticker individual -->
+        <template id="sticker_content_scaled">
+            <!-- Contenido del sticker individual pero con estilos escalados -->
+            <div class="sticker-individual">
+                <!-- Generar QR si no existe -->
+                <t t-if="not doc.qr_code">
+                    <t t-set="dummy" t-value="doc.generar_qr_code()" />
+                </t>
+
+                <!-- Logo y nombre de empresa -->
+                <div class="center">
+                    <t t-set="company" t-value="request.env.company" />
+                    <t t-if="company and company.logo">
+                        <img t-att-src="'data:image/png;base64,%s' % company.logo.decode('utf-8')" class="company-logo" alt="Logo" />
+                    </t>
+                    <t t-else="">
+                        <div class="company-name">COPIER COMPANY</div>
+                    </t>
+                    <div class="company-title">SOLUCIONES EN ALQUILER DE MULTIFUNCIONALES</div>
+                </div>
+
+                <hr />
+
+                <!-- Información del equipo -->
+                <div class="equipment-card">
+                    <div class="card-title">
+                        <i class="fas fa-print"></i> INFORMACIÓN DEL EQUIPO
                     </div>
-                    <div class="qr-description center">
-                        <i class="fas fa-wrench icon-support"></i>
-                        <i class="fas fa-headset icon-support"></i>
-                        <i class="fas fa-tint icon-toner"></i>
-                        Escanee el código QR para <strong>solicitar soporte</strong>, <strong>asistencia remota</strong> o <strong>tóner</strong>
-                    </div>
-
-
-
-                    
-                    <!-- QR Code -->
-                    <div class="center">
-                        <div class="qr-container">
-                            <t t-if="doc.qr_code">
-                                <img t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')" 
-                                     class="qr-image" alt="Código QR"/>
+                    <div class="equipment-item">
+                        <span class="equipment-label">
+                            <i class="fas fa-laptop"></i> Modelo:
+                        </span>
+                        <span class="equipment-value">
+                            <t t-if="doc.name">
+                                <t t-esc="doc.name.name" />
                             </t>
-                            <t t-else="">
-                                <t t-set="qr_url" t-value="'https://copiercompanysac.com/ticket/' + str(doc.id)"/>
-                                <img t-att-src="'/report/qr?value=' + qr_url + '&amp;width=200&amp;height=200'" 
-                                     class="qr-image" alt="Código QR"/>
-                            </t>
-                        </div>
+                            <t t-else="">No especificado</t>
+                        </span>
                     </div>
-                    
-                    <hr/>
-                    
-                  
-                    <!-- Información de contacto -->
-                    <div class="contact-card">
-                        <div class="card-title">
-                            <i class="fas fa-headset"></i> SOPORTE Y CONSULTAS
-                        </div>
-
-                        <div class="contact-item">
-                            <span class="contact-icon icon-email">
-                                <i class="fas fa-envelope"></i>
-                            </span>
-                            <span class="contact-value">info@copiercompanysac.com</span>
-                        </div>
-
-                        <div class="contact-item">
-                            <span class="contact-icon icon-whatsapp">
-                                <i class="fab fa-whatsapp"></i>
-                            </span>
-                            <span class="contact-value">+51 975 399 303</span>
-                        </div>
-
-                        <div class="contact-item">
-                            <span class="contact-icon icon-web">
-                                <i class="fas fa-globe"></i>
-                            </span>
-                            <span class="contact-value">https://copiercompanysac.com</span>
-                        </div>
-                    </div>
-
-                    
-                    <hr/>
-                    
-                    <div class="qr-footer center">
-                        <i class="fas fa-star"></i> Asistencia técnica • Consultas comerciales • Mantenimiento <i class="fas fa-star"></i>
+                    <div class="equipment-item">
+                        <span class="equipment-label">
+                            <i class="fas fa-barcode"></i> Serie:
+                        </span>
+                        <span class="equipment-value">
+                            <t t-esc="doc.serie_id or 'No especificada'" />
+                        </span>
                     </div>
                 </div>
+
+                <hr />
+
+                <!-- Servicio técnico -->
+                <div class="qr-title center">
+                    <i class="fas fa-tools icon-support"></i> GESTIÓN DE EQUIPO
+                </div>
+                <div class="qr-description center">
+                    <i class="fas fa-wrench icon-support"></i>
+                    <i class="fas fa-headset icon-support"></i>
+                    <i class="fas fa-tint icon-toner"></i>
+                    Escanee el código QR para <strong>solicitar soporte</strong>, <strong>asistencia remota</strong> o <strong>tóner</strong>
+                </div>
+
+                <!-- QR Code -->
+                <div class="center">
+                    <div class="qr-container">
+                        <t t-if="doc.qr_code">
+                            <img t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')" class="qr-image" alt="Código QR" />
+                        </t>
+                        <t t-else="">
+                            <t t-set="qr_url" t-value="'https://copiercompanysac.com/ticket/' + str(doc.id)" />
+                            <img t-att-src="'/report/qr?value=' + qr_url + '&amp;width=200&amp;height=200'" class="qr-image" alt="Código QR" />
+                        </t>
+                    </div>
+                </div>
+
+                <hr />
+
+                <!-- Información de contacto -->
+                <div class="contact-card">
+                    <div class="card-title">
+                        <i class="fas fa-headset"></i> SOPORTE Y CONSULTAS
+                    </div>
+
+                    <div class="contact-item">
+                        <span class="contact-icon icon-email">
+                            <i class="fas fa-envelope"></i>
+                        </span>
+                        <span class="contact-value">info@copiercompanysac.com</span>
+                    </div>
+
+                    <div class="contact-item">
+                        <span class="contact-icon icon-whatsapp">
+                            <i class="fab fa-whatsapp"></i>
+                        </span>
+                        <span class="contact-value">+51 975 399 303</span>
+                    </div>
+
+                    <div class="contact-item">
+                        <span class="contact-icon icon-web">
+                            <i class="fas fa-globe"></i>
+                        </span>
+                        <span class="contact-value">https://copiercompanysac.com</span>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="qr-footer center">
+                    <i class="fas fa-star"></i> Asistencia técnica • Consultas comerciales • Mantenimiento <i class="fas fa-star"></i>
+                </div>
+            </div>
+        </template>
+
+        <!-- NUEVO: Template principal A4 que usa el contenido individual -->
+        <template id="sticker_a4_multiple_template">
+            <t t-call="web.html_container">
+                <t t-call="web.basic_layout">
+                    <div class="page">
+                        <style>
+                            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap');
+                            @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+                            @import url('https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css');
+                            
+                            @page {
+                                size: A4 portrait;
+                                margin: 5mm;
+                            }
+
+                            * {
+                                border: none !important;
+                                border-radius: 0 !important;
+                                box-shadow: none !important;
+                            }
+
+                            body {
+                                font-family: 'Inter', sans-serif;
+                                margin: 0;
+                                padding: 0;
+                                background: white;
+                                color: #1e293b;
+                            }
+
+                            .page {
+                                width: 100%;
+                                height: 100%;
+                                display: grid;
+                                grid-template-columns: 1fr 1fr;
+                                grid-template-rows: 1fr 1fr;
+                                gap: 8px;
+                                padding: 8px;
+                            }
+
+                            .sticker-individual {
+                                border: 1px solid #e2e8f0;
+                                padding: 6px;
+                                display: flex;
+                                flex-direction: column;
+                                background: white;
+                                page-break-inside: avoid;
+                                /* Escalamos todo el contenido del sticker original */
+                                transform: scale(0.35);
+                                transform-origin: top left;
+                                width: 285%; /* Compensamos el scale */
+                                height: 285%; /* Compensamos el scale */
+                                overflow: hidden;
+                            }
+
+                            /* Mantenemos los estilos originales del sticker individual */
+                            .left-section, .right-section {
+                                display: flex;
+                                flex-direction: column;
+                                gap: 8px;
+                            }
+
+                            .center {
+                                text-align: center;
+                            }
+
+                            .company-logo {
+                                max-height: 550px;
+                                max-width: 1650px;
+                                margin: -125px auto -20px auto;
+                                display: block;
+                                filter: brightness(0) invert(1);
+                            }
+
+                            .company-name {
+                                font-size: 24px;
+                                font-weight: 800;
+                                letter-spacing: 1px;
+                                margin-bottom: 6px;
+                            }
+
+                            .company-title {
+                                font-size: 40px;
+                                font-weight: 600;
+                                opacity: 0.9;
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                            }
+
+                            .equipment-card,
+                            .contact-card {
+                                background: white;
+                                padding: 8px;
+                            }
+
+                            .card-title {
+                                font-size: 36px;
+                                font-weight: 700;
+                                color: #0c4a6e;
+                                margin-bottom: 12px;
+                                display: flex;
+                                align-items: center;
+                                gap: 8px;
+                            }
+
+                            .equipment-item {
+                                background: #f0f9ff;
+                                padding: 12px;
+                                display: flex;
+                                align-items: center;
+                                gap: 12px;
+                                margin-bottom: 8px;
+                            }
+
+                            .equipment-label {
+                                font-size: 32px;
+                                font-weight: 700;
+                                color: #0369a1;
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                                margin: 0;
+                                display: inline;
+                            }
+
+                            .equipment-value {
+                                font-size: 40px;
+                                font-weight: 600;
+                                color: #1e293b;
+                                word-break: break-word;
+                                display: inline;
+                            }
+
+                            .contact-item {
+                                display: flex;
+                                align-items: center;
+                                gap: 12px;
+                                background: #f0fdf4;
+                                padding: 8px 12px;
+                                margin-bottom: 8px;
+                            }
+
+                            .contact-icon {
+                                font-size: 48px;
+                                width: 48px;
+                                text-align: center;
+                            }
+
+                            .contact-value {
+                                font-size: 36px;
+                                font-weight: 600;
+                                color: #1e293b;
+                                flex: 1;
+                            }
+
+                            .qr-title {
+                                font-size: 44px;
+                                font-weight: 800;
+                                color: #dc2626;
+                                margin-bottom: 12px;
+                                text-align: center;
+                            }
+
+                            .qr-description {
+                                font-size: 32px;
+                                color: #92400e;
+                                font-weight: 600;
+                                text-align: center;
+                                margin-bottom: 16px;
+                                line-height: 1.3;
+                            }
+
+                            .qr-container {
+                                background: white;
+                                padding: 32px;
+                                text-align: center;
+                            }
+
+                            .qr-image {
+                                width: 550px;
+                                height: 550px;
+                                object-fit: contain;
+                                display: block;
+                                margin: auto;
+                            }
+
+                            .qr-footer {
+                                font-size: 30px;
+                                color: #92400e;
+                                text-align: center;
+                                margin-top: 12px;
+                                font-weight: 500;
+                            }
+
+                            .icon-support {
+                                color: #1e3a8a;
+                            }
+
+                            .icon-toner {
+                                color: #dc2626;
+                            }
+
+                            .icon-email {
+                                color: #2563eb;
+                            }
+
+                            .icon-whatsapp {
+                                color: #22c55e;
+                            }
+
+                            .icon-web {
+                                color: #0ea5e9;
+                            }
+
+                            hr {
+                                border: 0;
+                                height: 1px;
+                                background: #e2e8f0;
+                                margin: 12px 0;
+                            }
+
+                            .empty-sticker {
+                                border: 1px dashed #cbd5e1;
+                                background: #f8fafc;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                color: #94a3b8;
+                                font-size: 14px;
+                                font-weight: 500;
+                            }
+
+                            @media print {
+                                * {
+                                    -webkit-print-color-adjust: exact !important;
+                                    color-adjust: exact !important;
+                                    print-color-adjust: exact !important;
+                                }
+                            }
+                        </style>
+
+                        <!-- Generar hasta 4 stickers -->
+                        <t t-set="docs_list" t-value="list(docs)" />
+                        <t t-set="total_docs" t-value="len(docs_list)" />
+                        
+                        <t t-for="i in range(4)" t-as="i">
+                            <t t-if="i &lt; total_docs">
+                                <t t-set="doc" t-value="docs_list[i]" />
+                                <t t-call="copier_company.sticker_content_scaled" />
+                            </t>
+                            <t t-else="">
+                                <div class="empty-sticker">
+                                    <div>
+                                        <i class="fas fa-plus-circle" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+                                        Espacio disponible
+                                    </div>
+                                </div>
+                            </t>
+                        </t>
+                    </div>
+                </t>
             </t>
-        </t>
-    </t>
-</template>
+        </template>
 
     </data>
 </odoo>
