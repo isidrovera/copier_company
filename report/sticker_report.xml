@@ -107,11 +107,15 @@
                         }
                         
                         .company-logo {
-                            max-height: 40px;
-                            max-width: 120px;
+                            max-height: 500px;
+                            max-width: 1600px;
                             margin: 0 auto 4px auto;
                             display: block;
                             filter: brightness(0) invert(1);
+                        }
+                        
+                        .center {
+                            text-align: center;
                         }
                         
                         .company-name {
@@ -267,8 +271,8 @@
                         }
                         
                         .qr-image {
-                            width: 80px;
-                            height: 80px;
+                            width: 520px;
+                            height: 520px;
                             object-fit: contain;
                             display: block;
                         }
@@ -301,92 +305,82 @@
                         <t t-set="dummy" t-value="doc.generar_qr_code()"/>
                     </t>
                     
-                    <!-- Sección izquierda -->
-                    <div class="left-section">
-                        <!-- Header con logo y nombre de empresa -->
-                        <div class="header-card">
-                            <t t-set="company" t-value="request.env.company"/>
-                            <t t-if="company and company.logo">
-                                <img t-att-src="'data:image/png;base64,%s' % company.logo.decode('utf-8')" 
-                                    class="company-logo" alt="Logo"/>
-                            </t>
-                            <div class="company-name">
-                                <t t-if="company and company.name">
-                                    <t t-esc="company.name"/>
-                                </t>
-                                <t t-else="">COPIER COMPANY</t>
-                            </div>
-                            <div class="company-title">ALQUILER DE FOTOCOPIADORAS</div>
-                        </div>
-                        
-                        <!-- Información del equipo -->
-                        <div class="equipment-card">
-                            <div class="card-title">🖨️ INFORMACIÓN DEL EQUIPO</div>
-                            <div class="equipment-grid">
-                                <div class="equipment-item">
-                                    <div class="equipment-label">Modelo</div>
-                                    <div class="equipment-value">
-                                        <t t-if="doc.name">
-                                            <t t-esc="doc.name.name"/>
-                                        </t>
-                                        <t t-else="">No especificado</t>
-                                    </div>
-                                </div>
-                                <div class="equipment-item">
-                                    <div class="equipment-label">Serie</div>
-                                    <div class="equipment-value">
-                                        <t t-esc="doc.serie_id or 'No especificada'"/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Información de contacto -->
-                        <div class="contact-card">
-                            <div class="card-title">📞 SOPORTE Y CONSULTAS</div>
-                            <div class="contact-grid">
-                                <div class="contact-item">
-                                    <div class="contact-icon">📧</div>
-                                    <div class="contact-label">Email</div>
-                                    <div class="contact-value">info@copiercompanysac.com</div>
-                                </div>
-                                <div class="contact-item">
-                                    <div class="contact-icon">💬</div>
-                                    <div class="contact-label">WhatsApp</div>
-                                    <div class="contact-value">+51 975 399 303</div>
-                                </div>
-                                <div class="contact-item">
-                                    <div class="contact-icon">🌐</div>
-                                    <div class="contact-label">Web</div>
-                                    <div class="contact-value">copiercompanysac.com</div>
-                                </div>
-                            </div>
-                        </div>
+                    <!-- Logo y nombre de empresa -->
+                    <div class="center">
+                        <t t-set="company" t-value="request.env.company"/>
+                        <t t-if="company and company.logo">
+                            <img t-att-src="'data:image/png;base64,%s' % company.logo.decode('utf-8')" 
+                                class="company-logo" alt="Logo"/>
+                        </t>
+                        <t t-else="">
+                            <div class="company-name">COPIER COMPANY</div>
+                        </t>
+                        <div class="company-title">ALQUILER DE FOTOCOPIADORAS</div>
                     </div>
                     
-                    <!-- Sección derecha -->
-                    <div class="right-section">
-                        <div class="qr-title">🔧 SERVICIO TÉCNICO</div>
-                        <div class="qr-description">
-                            Escanea el código QR para solicitar mantenimiento o reportar problemas técnicos
-                        </div>
-                        
-                        <!-- QR Code -->
-                        <div class="qr-container">
-                            <t t-if="doc.qr_code">
-                                <img t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')" 
-                                     class="qr-image" alt="Código QR"/>
+                    <hr/>
+                    
+                    <!-- Información del equipo -->
+                    <div class="card-title">INFORMACIÓN DEL EQUIPO</div>
+                    <div class="equipment-item">
+                        <span class="equipment-label">Modelo:</span>
+                        <span class="equipment-value">
+                            <t t-if="doc.name">
+                                <t t-esc="doc.name.name"/>
                             </t>
-                            <t t-else="">
-                                <t t-set="qr_url" t-value="'https://copiercompanysac.com/ticket/' + str(doc.id)"/>
-                                <img t-att-src="'/report/qr?value=' + qr_url + '&amp;width=200&amp;height=200'" 
-                                     class="qr-image" alt="Código QR"/>
-                            </t>
-                        </div>
-                        
-                        <div class="qr-footer">
-                            Asistencia técnica • Consultas comerciales • Mantenimiento
-                        </div>
+                            <t t-else="">No especificado</t>
+                        </span>
+                    </div>
+                    <div class="equipment-item">
+                        <span class="equipment-label">Serie:</span>
+                        <span class="equipment-value">
+                            <t t-esc="doc.serie_id or 'No especificada'"/>
+                        </span>
+                    </div>
+                    
+                    <hr/>
+                    
+                    <!-- Servicio técnico -->
+                    <div class="qr-title center">🔧 SERVICIO TÉCNICO</div>
+                    <div class="qr-description center">Escanea el código QR para solicitar mantenimiento o reportar problemas técnicos</div>
+                    
+                    <!-- QR Code -->
+                    <div class="center">
+                        <t t-if="doc.qr_code">
+                            <img t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')" 
+                                 class="qr-image" alt="Código QR"/>
+                        </t>
+                        <t t-else="">
+                            <t t-set="qr_url" t-value="'https://copiercompanysac.com/ticket/' + str(doc.id)"/>
+                            <img t-att-src="'/report/qr?value=' + qr_url + '&amp;width=200&amp;height=200'" 
+                                 class="qr-image" alt="Código QR"/>
+                        </t>
+                    </div>
+                    
+                    <hr/>
+                    
+                    <!-- Información de contacto -->
+                    <div class="card-title">SOPORTE Y CONSULTAS</div>
+                    <div class="contact-item">
+                        <span class="contact-icon">📧</span>
+                        <span class="contact-label">Email:</span>
+                        <span class="contact-value">info@copiercompanysac.com</span>
+                    </div>
+                    <div class="contact-item">
+                        <span class="contact-icon">💬</span>
+                        <span class="contact-label">WhatsApp:</span>
+                        <span class="contact-value">+51 975 399 303</span>
+                    </div>
+                    <div class="contact-item">
+                        <span class="contact-icon">🌐</span>
+                        <span class="contact-label">Sitio Web:</span>
+                        <span class="contact-value">copiercompanysac.com</span>
+                    </div>
+                    
+                    <hr/>
+                    
+                    <div class="qr-footer center">
+                        Asistencia técnica • Consultas comerciales • Mantenimiento
                     </div>
                 </div>
             </t>
