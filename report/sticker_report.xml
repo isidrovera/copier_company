@@ -125,27 +125,21 @@
     }
 
     .equipment-item {
-        background: #f0f9ff;
-        padding: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 0;
     }
 
-    .equipment-label {
-        font-size: 32px;
-        font-weight: 700;
-        color: #0369a1;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 4px;
-        display: block;
-    }
-
+    .equipment-label,
     .equipment-value {
-        font-size: 40px;
+        display: inline;
+        font-size: 40px; /* Ajusta al tamaño deseado */
         font-weight: 600;
         color: #1e293b;
-        word-break: break-word;
     }
 
+    
     .contact-grid {
         display: flex;
         flex-direction: column;
