@@ -226,12 +226,13 @@
         font-weight: 500;
     }
     .icon-support {
-    color: #1e3a8a; /* azul fuerte */
-}
+        color: #1e3a8a; /* Azul marino para soporte técnico y asistencia */
+    }
 
-.icon-toner {
-    color: #be123c; /* rojo magenta */
-}
+    .icon-toner {
+        color: #dc2626; /* Rojo/magenta para solicitud de tóner */
+    }
+
 
     @media print {
         * {
@@ -302,13 +303,15 @@
                     
                     <!-- Servicio técnico -->
                     <div class="qr-title center">
-                        <i class="fas fa-tools icon-support"></i> SERVICIO TÉCNICO
+                        <i class="fas fa-tools icon-support"></i> GESTIÓN DE EQUIPO
                     </div>
                     <div class="qr-description center">
-                        <i class="fas fa-tools icon-support"></i>
+                        <i class="fas fa-wrench icon-support"></i>
+                        <i class="fas fa-headset icon-support"></i>
                         <i class="fas fa-tint icon-toner"></i>
-                        Escanee el código QR para <strong>reportar fallas</strong> o <strong>solicitar tóner</strong>
+                        Escanee el código QR para <strong>solicitar soporte técnico</strong>, <strong>asistencia remota</strong> o <strong>tóner</strong>
                     </div>
+
 
 
                     
