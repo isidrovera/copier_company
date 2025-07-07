@@ -3,9 +3,9 @@
     <data>
         <!-- Formato de papel A6 horizontal -->
         <record id="paperformat_sticker_8x8" model="report.paperformat">
-            <field name="name">Sticker A6 Horizontal</field>
+            <field name="name">Sticker A6 Vertical</field> <!-- Renombra si quieres -->
             <field name="format">A6</field>
-            <field name="orientation">Landscape</field>
+            <field name="orientation">Portrait</field> <!-- Cambiado de Landscape a Portrait -->
             <field name="margin_top">8</field>
             <field name="margin_bottom">8</field>
             <field name="margin_left">8</field>
@@ -13,6 +13,7 @@
             <field name="header_line" eval="False"/>
             <field name="dpi">300</field>
         </record>
+
 
         <!-- Reporte básico -->
         <record id="action_report_sticker_8x8" model="ir.actions.report">
@@ -37,9 +38,10 @@
                                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap');
                                 
                                 @page {
-                                    size: A6 landscape;
+                                    size: A6 portrait;
                                     margin: 8mm;
                                 }
+
                                 
                                 body { 
                                     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
