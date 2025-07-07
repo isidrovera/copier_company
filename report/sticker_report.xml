@@ -106,12 +106,14 @@
                                 }
                                 
                                 .company-logo {
-                                    max-height: 250px;
-                                    max-width: 160px;
-                                    margin-bottom: 4px;
+                                    max-height: 500px;
+                                    max-width: 1600px;
+                                    margin: 0 auto 4px auto; /* centra horizontalmente */
+                                    display: block;          /* necesario para centrar con margin auto */
                                     filter: brightness(0) invert(1);
                                 }
-                                
+
+                                                                
                                 .company-name {
                                     font-size: 12px;
                                     font-weight: 800;
