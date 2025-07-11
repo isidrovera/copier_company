@@ -305,162 +305,6 @@
                             color: white;
                             transform: scale(1.1);
                         }
-                        
-                        /* Sección de Servicios con Iconos */
-                        .copier-gallery-wrapper .services-section {
-                            padding: 80px 0;
-                            background: white;
-                        }
-                        
-                        .copier-gallery-wrapper .services-grid {
-                            display: grid;
-                            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                            gap: 40px;
-                            margin-top: 50px;
-                        }
-                        
-                        .copier-gallery-wrapper .service-card {
-                            background: white;
-                            padding: 40px 30px;
-                            border-radius: 20px;
-                            text-align: center;
-                            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-                            transition: all 0.4s ease;
-                            position: relative;
-                            overflow: hidden;
-                        }
-                        
-                        .copier-gallery-wrapper .service-card::before {
-                            content: '';
-                            position: absolute;
-                            top: 0;
-                            left: 0;
-                            right: 0;
-                            height: 4px;
-                            background: linear-gradient(45deg, #667eea, #764ba2);
-                        }
-                        
-                        .copier-gallery-wrapper .service-card:hover {
-                            transform: translateY(-10px);
-                            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-                        }
-                        
-                        .copier-gallery-wrapper .service-icon {
-                            font-size: 3.5rem;
-                            margin-bottom: 25px;
-                            background: linear-gradient(45deg, #667eea, #764ba2);
-                            -webkit-background-clip: text;
-                            -webkit-text-fill-color: transparent;
-                            background-clip: text;
-                            transition: transform 0.3s ease;
-                        }
-                        
-                        .copier-gallery-wrapper .service-card:hover .service-icon {
-                            transform: scale(1.1);
-                        }
-                        
-                        .copier-gallery-wrapper .service-card h3 {
-                            font-size: 1.6rem;
-                            font-weight: 600;
-                            margin-bottom: 15px;
-                            color: #2c3e50;
-                        }
-                        
-                        .copier-gallery-wrapper .service-card p {
-                            color: #666;
-                            font-size: 1rem;
-                            line-height: 1.6;
-                        }
-                        
-                        /* Modal styling */
-                        .copier-gallery-wrapper .modal-content {
-                            border-radius: 20px;
-                            border: none;
-                            overflow: hidden;
-                        }
-                        
-                        .copier-gallery-wrapper .modal-header {
-                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                            color: white;
-                            border: none;
-                            padding: 20px 30px;
-                        }
-                        
-                        .copier-gallery-wrapper .modal-body {
-                            padding: 0;
-                        }
-                        
-                        .copier-gallery-wrapper .modal-body img {
-                            width: 100%;
-                            height: auto;
-                            object-fit: cover;
-                        }
-                        
-                        /* Animaciones */
-                        @keyframes fadeInUp {
-                            from {
-                                opacity: 0;
-                                transform: translateY(30px);
-                            }
-                            to {
-                                opacity: 1;
-                                transform: translateY(0);
-                            }
-                        }
-                        
-                        @keyframes slideInDown {
-                            from {
-                                opacity: 0;
-                                transform: translateY(-30px);
-                            }
-                            to {
-                                opacity: 1;
-                                transform: translateY(0);
-                            }
-                        }
-                        
-                        .copier-gallery-wrapper .animate-on-scroll {
-                            opacity: 0;
-                            transform: translateY(30px);
-                            transition: all 0.8s ease;
-                        }
-                        
-                        .copier-gallery-wrapper .animate-on-scroll.animated {
-                            opacity: 1;
-                            transform: translateY(0);
-                        }
-                        
-                        /* Responsive */
-                        @media (max-width: 768px) {
-                            .copier-gallery-wrapper .hero-title {
-                                font-size: 2.5rem;
-                            }
-                            
-                            .copier-gallery-wrapper .hero-subtitle {
-                                font-size: 1.2rem;
-                            }
-                            
-                            .copier-gallery-wrapper .gallery-grid {
-                                grid-template-columns: 1fr;
-                                gap: 20px;
-                            }
-                            
-                            .copier-gallery-wrapper .gallery-item {
-                                height: 250px;
-                            }
-                            
-                            .copier-gallery-wrapper .services-grid {
-                                grid-template-columns: 1fr;
-                            }
-                            
-                            .copier-gallery-wrapper .carousel-control-prev {
-                                left: 10px;
-                            }
-                            
-                            .copier-gallery-wrapper .carousel-control-next {
-                                right: 10px;
-                            }
-                        }
                     </style>
                     
                     <!-- Hero Carousel -->
@@ -474,12 +318,12 @@
                             
                             <div class="carousel-inner">
                                 <!-- Slide 1 -->
-                                <div class="carousel-item active" style="background-image: url('/copier_company/static/img/diapositiva1.jpg');">
+                                <div class="carousel-item active" style="background-image: url('/web/image/copier_company.diapositiva1_jpg');">
                                     <div class="carousel-overlay">
                                         <div class="hero-content">
                                             <h1 class="hero-title">Alquiler de Fotocopiadoras</h1>
                                             <p class="hero-subtitle">Soluciones profesionales de impresión sin inversión inicial</p>
-                                            <a href="/contactus" class="btn-hero">
+                                            <a href="#" class="btn-hero" data-bs-toggle="modal" data-bs-target="#servicioModal" data-servicio="alquiler">
                                                 <i class="fas fa-file-invoice-dollar me-2"></i>
                                                 Solicita tu Cotización
                                             </a>
@@ -488,12 +332,12 @@
                                 </div>
                                 
                                 <!-- Slide 2 -->
-                                <div class="carousel-item" style="background-image: url('/copier_company/static/img/diapositiva2.jpg');">
+                                <div class="carousel-item" style="background-image: url('/web/image/copier_company.diapositiva2_jpg');">
                                     <div class="carousel-overlay">
                                         <div class="hero-content">
                                             <h1 class="hero-title">Atención Virtual 24/7</h1>
                                             <p class="hero-subtitle">Soporte técnico remoto y consultoría especializada</p>
-                                            <a href="/contactus" class="btn-hero">
+                                            <a href="#" class="btn-hero" data-bs-toggle="modal" data-bs-target="#servicioModal" data-servicio="virtual">
                                                 <i class="fas fa-video me-2"></i>
                                                 Agenda tu Consulta
                                             </a>
@@ -502,12 +346,12 @@
                                 </div>
                                 
                                 <!-- Slide 3 -->
-                                <div class="carousel-item" style="background-image: url('/copier_company/static/img/diapositiva3.jpg');">
+                                <div class="carousel-item" style="background-image: url('/web/image/copier_company.diapositiva3_jpg');">
                                     <div class="carousel-overlay">
                                         <div class="hero-content">
                                             <h1 class="hero-title">Taller Especializado</h1>
                                             <p class="hero-subtitle">Reparación profesional con garantía total</p>
-                                            <a href="/contactus" class="btn-hero">
+                                            <a href="#" class="btn-hero" data-bs-toggle="modal" data-bs-target="#servicioModal" data-servicio="taller">
                                                 <i class="fas fa-tools me-2"></i>
                                                 Programa tu Servicio
                                             </a>
@@ -532,18 +376,17 @@
                             <h2 class="section-title animate-on-scroll">Marcas Líderes</h2>
                             <div class="brands-container">
                                 <div class="brand-item animate-on-scroll" data-bs-toggle="modal" data-bs-target="#brandModal" data-brand="konica">
-                                    <img src="/copier_company/static/img/konica_minolta_logo.png" alt="Konica Minolta" class="img-fluid"/>
+                                    <img src="/web/image/copier_company.konica_minolta_logo_png" alt="Konica Minolta" class="img-fluid"/>
                                 </div>
                                 <div class="brand-item animate-on-scroll" data-bs-toggle="modal" data-bs-target="#brandModal" data-brand="canon">
-                                    <img src="/copier_company/static/img/canon-logo.png" alt="Canon" class="img-fluid"/>
+                                    <img src="/web/image/copier_company.canon_logo_png" alt="Canon" class="img-fluid"/>
                                 </div>
                                 <div class="brand-item animate-on-scroll" data-bs-toggle="modal" data-bs-target="#brandModal" data-brand="ricoh">
-                                    <img src="/copier_company/static/img/ricoh-logo-png.png" alt="Ricoh" class="img-fluid"/>
+                                    <img src="/web/image/copier_company.ricoh_logo_png_png" alt="Ricoh" class="img-fluid"/>
                                 </div>
                             </div>
                         </div>
                     </section>
-
                     <!-- GALERÍA DE FOTOS MODERNA -->
                     <section class="photo-gallery-section">
                         <div class="container">
@@ -693,6 +536,166 @@
                         </div>
                     </section>
 
+                    <!-- CSS adicional para servicios -->
+                    <style>
+                        /* Sección de Servicios con Iconos */
+                        .copier-gallery-wrapper .services-section {
+                            padding: 80px 0;
+                            background: white;
+                        }
+                        
+                        .copier-gallery-wrapper .services-grid {
+                            display: grid;
+                            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                            gap: 40px;
+                            margin-top: 50px;
+                        }
+                        
+                        .copier-gallery-wrapper .service-card {
+                            background: white;
+                            padding: 40px 30px;
+                            border-radius: 20px;
+                            text-align: center;
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                            transition: all 0.4s ease;
+                            position: relative;
+                            overflow: hidden;
+                            cursor: pointer;
+                        }
+                        
+                        .copier-gallery-wrapper .service-card::before {
+                            content: '';
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            right: 0;
+                            height: 4px;
+                            background: linear-gradient(45deg, #667eea, #764ba2);
+                        }
+                        
+                        .copier-gallery-wrapper .service-card:hover {
+                            transform: translateY(-10px);
+                            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+                        }
+                        
+                        .copier-gallery-wrapper .service-icon {
+                            font-size: 3.5rem;
+                            margin-bottom: 25px;
+                            background: linear-gradient(45deg, #667eea, #764ba2);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            background-clip: text;
+                            transition: transform 0.3s ease;
+                        }
+                        
+                        .copier-gallery-wrapper .service-card:hover .service-icon {
+                            transform: scale(1.1);
+                        }
+                        
+                        .copier-gallery-wrapper .service-card h3 {
+                            font-size: 1.6rem;
+                            font-weight: 600;
+                            margin-bottom: 15px;
+                            color: #2c3e50;
+                        }
+                        
+                        .copier-gallery-wrapper .service-card p {
+                            color: #666;
+                            font-size: 1rem;
+                            line-height: 1.6;
+                        }
+                        
+                        /* Modal styling */
+                        .copier-gallery-wrapper .modal-content {
+                            border-radius: 20px;
+                            border: none;
+                            overflow: hidden;
+                        }
+                        
+                        .copier-gallery-wrapper .modal-header {
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            color: white;
+                            border: none;
+                            padding: 20px 30px;
+                        }
+                        
+                        .copier-gallery-wrapper .modal-body {
+                            padding: 30px;
+                        }
+                        
+                        .copier-gallery-wrapper .modal-body img {
+                            width: 100%;
+                            height: auto;
+                            object-fit: cover;
+                        }
+                        
+                        /* Animaciones */
+                        @keyframes fadeInUp {
+                            from {
+                                opacity: 0;
+                                transform: translateY(30px);
+                            }
+                            to {
+                                opacity: 1;
+                                transform: translateY(0);
+                            }
+                        }
+                        
+                        @keyframes slideInDown {
+                            from {
+                                opacity: 0;
+                                transform: translateY(-30px);
+                            }
+                            to {
+                                opacity: 1;
+                                transform: translateY(0);
+                            }
+                        }
+                        
+                        .copier-gallery-wrapper .animate-on-scroll {
+                            opacity: 0;
+                            transform: translateY(30px);
+                            transition: all 0.8s ease;
+                        }
+                        
+                        .copier-gallery-wrapper .animate-on-scroll.animated {
+                            opacity: 1;
+                            transform: translateY(0);
+                        }
+                        
+                        /* Responsive */
+                        @media (max-width: 768px) {
+                            .copier-gallery-wrapper .hero-title {
+                                font-size: 2.5rem;
+                            }
+                            
+                            .copier-gallery-wrapper .hero-subtitle {
+                                font-size: 1.2rem;
+                            }
+                            
+                            .copier-gallery-wrapper .gallery-grid {
+                                grid-template-columns: 1fr;
+                                gap: 20px;
+                            }
+                            
+                            .copier-gallery-wrapper .gallery-item {
+                                height: 250px;
+                            }
+                            
+                            .copier-gallery-wrapper .services-grid {
+                                grid-template-columns: 1fr;
+                            }
+                            
+                            .copier-gallery-wrapper .carousel-control-prev {
+                                left: 10px;
+                            }
+                            
+                            .copier-gallery-wrapper .carousel-control-next {
+                                right: 10px;
+                            }
+                        }
+                    </style>
+
                     <!-- Servicios con Iconos -->
                     <section class="services-section">
                         <div class="container">
@@ -701,7 +704,7 @@
                                 Nuestros Servicios
                             </h2>
                             <div class="services-grid">
-                                <div class="service-card animate-on-scroll">
+                                <div class="service-card animate-on-scroll" data-bs-toggle="modal" data-bs-target="#servicioModal" data-servicio="sin-inversion">
                                     <div class="service-icon">
                                         <i class="fas fa-hand-holding-usd"></i>
                                     </div>
@@ -709,7 +712,7 @@
                                     <p>Solo pagas por el uso mensual. Ideal para empresas que buscan optimizar su flujo de caja y reducir costos operativos.</p>
                                 </div>
                                 
-                                <div class="service-card animate-on-scroll">
+                                <div class="service-card animate-on-scroll" data-bs-toggle="modal" data-bs-target="#servicioModal" data-servicio="virtual">
                                     <div class="service-icon">
                                         <i class="fas fa-video"></i>
                                     </div>
@@ -717,7 +720,7 @@
                                     <p>Soporte técnico remoto y consultoría especializada desde cualquier lugar. Configuración y capacitación en línea.</p>
                                 </div>
                                 
-                                <div class="service-card animate-on-scroll">
+                                <div class="service-card animate-on-scroll" data-bs-toggle="modal" data-bs-target="#servicioModal" data-servicio="taller">
                                     <div class="service-icon">
                                         <i class="fas fa-tools"></i>
                                     </div>
@@ -725,7 +728,7 @@
                                     <p>Reparación y mantenimiento profesional con repuestos originales y garantía total en nuestro centro técnico.</p>
                                 </div>
                                 
-                                <div class="service-card animate-on-scroll">
+                                <div class="service-card animate-on-scroll" data-bs-toggle="modal" data-bs-target="#servicioModal" data-servicio="entrega">
                                     <div class="service-icon">
                                         <i class="fas fa-shipping-fast"></i>
                                     </div>
@@ -733,7 +736,7 @@
                                     <p>Instalación y configuración en menos de 24 horas. Equipos listos para usar desde el primer día.</p>
                                 </div>
                                 
-                                <div class="service-card animate-on-scroll">
+                                <div class="service-card animate-on-scroll" data-bs-toggle="modal" data-bs-target="#servicioModal" data-servicio="garantia">
                                     <div class="service-icon">
                                         <i class="fas fa-shield-alt"></i>
                                     </div>
@@ -741,7 +744,7 @@
                                     <p>Cobertura completa en reparaciones, mantenimiento y repuestos. Tu tranquilidad es nuestra prioridad.</p>
                                 </div>
                                 
-                                <div class="service-card animate-on-scroll">
+                                <div class="service-card animate-on-scroll" data-bs-toggle="modal" data-bs-target="#servicioModal" data-servicio="escalabilidad">
                                     <div class="service-icon">
                                         <i class="fas fa-chart-line"></i>
                                     </div>
@@ -751,6 +754,31 @@
                             </div>
                         </div>
                     </section>
+                    <!-- Modal para Servicios Completos -->
+                    <div class="modal fade" id="servicioModal" tabindex="-1" aria-labelledby="servicioModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-xl modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="servicioModalLabel">
+                                        <i class="fas fa-star me-2"></i>
+                                        Información del Servicio
+                                    </h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body" id="servicioModalBody">
+                                    <!-- Content will be loaded dynamically -->
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                        <i class="fas fa-times me-2"></i>Cerrar
+                                    </button>
+                                    <a href="/contactus" class="btn btn-primary">
+                                        <i class="fas fa-phone me-2"></i>Contactar Ahora
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Modal para Galería -->
                     <div class="modal fade" id="galleryModal" tabindex="-1" aria-labelledby="galleryModalLabel" aria-hidden="true">
@@ -791,6 +819,407 @@
                     <!-- JavaScript -->
                     <script>
                         document.addEventListener('DOMContentLoaded', function() {
+                            // Servicios Modal
+                            const serviceCards = document.querySelectorAll('.copier-gallery-wrapper .service-card, .copier-gallery-wrapper .btn-hero');
+                            const servicioModalBody = document.getElementById('servicioModalBody');
+                            const servicioModalTitle = document.getElementById('servicioModalLabel');
+                            
+                            const servicioInfo = {
+                                'alquiler': {
+                                    title: 'Alquiler de Fotocopiadoras Empresariales',
+                                    content: `
+                                        <div class="container-fluid">
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <img src="https://images.unsplash.com/photo-1586473219010-2ffc57b0d282?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="img-fluid rounded mb-4" alt="Alquiler de Fotocopiadoras"/>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <h4 class="text-primary mb-4"><i class="fas fa-handshake me-2"></i>Planes de Alquiler</h4>
+                                                    <div class="row mb-4">
+                                                        <div class="col-md-6">
+                                                            <div class="card border-primary h-100">
+                                                                <div class="card-body text-center">
+                                                                    <i class="fas fa-building fa-2x text-primary mb-3"></i>
+                                                                    <h5>Plan Básico</h5>
+                                                                    <p class="text-muted">Hasta 1,000 copias/mes</p>
+                                                                    <h4 class="text-primary">S/299</h4>
+                                                                    <small class="text-muted">por mes</small>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="card border-success h-100">
+                                                                <div class="card-body text-center">
+                                                                    <i class="fas fa-industry fa-2x text-success mb-3"></i>
+                                                                    <h5>Plan Empresarial</h5>
+                                                                    <p class="text-muted">Hasta 5,000 copias/mes</p>
+                                                                    <h4 class="text-success">S/699</h4>
+                                                                    <small class="text-muted">por mes</small>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <h5 class="text-primary mb-3"><i class="fas fa-check-circle me-2"></i>Incluye:</h5>
+                                                    <ul class="list-unstyled">
+                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Equipo multifuncional de última generación</li>
+                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Instalación y configuración completa</li>
+                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Mantenimiento preventivo y correctivo</li>
+                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Tóner y consumibles incluidos</li>
+                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Soporte técnico 24/7</li>
+                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Reemplazo inmediato en caso de falla</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `
+                                },
+                                'virtual': {
+                                    title: 'Atención Virtual 24/7',
+                                    content: `
+                                        <div class="container-fluid">
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="img-fluid rounded mb-4" alt="Atención Virtual"/>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <h4 class="text-primary mb-4"><i class="fas fa-video me-2"></i>Servicios Virtuales</h4>
+                                                    <div class="row mb-4">
+                                                        <div class="col-12">
+                                                            <div class="alert alert-info">
+                                                                <i class="fas fa-clock me-2"></i>
+                                                                <strong>Disponible 24/7</strong> - Acceso inmediato a nuestros especialistas
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <h5 class="text-primary mb-3"><i class="fas fa-laptop me-2"></i>Servicios Incluidos:</h5>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <ul class="list-unstyled">
+                                                                <li class="mb-2"><i class="fas fa-video text-primary me-2"></i>Consultoría por videollamada</li>
+                                                                <li class="mb-2"><i class="fas fa-cog text-primary me-2"></i>Configuración remota</li>
+                                                                <li class="mb-2"><i class="fas fa-graduation-cap text-primary me-2"></i>Capacitación en línea</li>
+                                                                <li class="mb-2"><i class="fas fa-headset text-primary me-2"></i>Soporte técnico inmediato</li>
+                                                            </ul>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <ul class="list-unstyled">
+                                                                <li class="mb-2"><i class="fas fa-chart-bar text-success me-2"></i>Análisis de rendimiento</li>
+                                                                <li class="mb-2"><i class="fas fa-shield-alt text-success me-2"></i>Diagnóstico preventivo</li>
+                                                                <li class="mb-2"><i class="fas fa-mobile-alt text-success me-2"></i>App móvil de monitoreo</li>
+                                                                <li class="mb-2"><i class="fas fa-cloud text-success me-2"></i>Backup en la nube</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-4 p-3 bg-light rounded">
+                                                        <h6 class="text-primary"><i class="fas fa-star me-2"></i>Ventajas del Servicio Virtual:</h6>
+                                                        <p class="mb-0 text-muted">Ahorro del 60% en costos de visita técnica • Resolución inmediata • Sin interrupciones operativas</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `
+                                },
+                                'taller': {
+                                    title: 'Taller Técnico Especializado',
+                                    content: `
+                                        <div class="container-fluid">
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="img-fluid rounded mb-4" alt="Taller Técnico"/>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <h4 class="text-primary mb-4"><i class="fas fa-tools me-2"></i>Centro de Reparación</h4>
+                                                    <div class="row mb-4">
+                                                        <div class="col-md-6">
+                                                            <div class="text-center p-3 border rounded">
+                                                                <i class="fas fa-clock fa-2x text-primary mb-2"></i>
+                                                                <h6>Tiempo Promedio</h6>
+                                                                <h5 class="text-primary">24-48 hrs</h5>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="text-center p-3 border rounded">
+                                                                <i class="fas fa-shield-alt fa-2x text-success mb-2"></i>
+                                                                <h6>Garantía</h6>
+                                                                <h5 class="text-success">90 días</h5>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <h5 class="text-primary mb-3"><i class="fas fa-wrench me-2"></i>Servicios del Taller:</h5>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <ul class="list-unstyled">
+                                                                <li class="mb-2"><i class="fas fa-search text-info me-2"></i>Diagnóstico gratuito</li>
+                                                                <li class="mb-2"><i class="fas fa-tools text-info me-2"></i>Reparación especializada</li>
+                                                                <li class="mb-2"><i class="fas fa-puzzle-piece text-info me-2"></i>Repuestos originales</li>
+                                                                <li class="mb-2"><i class="fas fa-certificate text-info me-2"></i>Técnicos certificados</li>
+                                                            </ul>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <ul class="list-unstyled">
+                                                                <li class="mb-2"><i class="fas fa-calendar-check text-warning me-2"></i>Mantenimiento preventivo</li>
+                                                                <li class="mb-2"><i class="fas fa-download text-warning me-2"></i>Actualización firmware</li>
+                                                                <li class="mb-2"><i class="fas fa-truck text-warning me-2"></i>Recojo y entrega</li>
+                                                                <li class="mb-2"><i class="fas fa-phone text-warning me-2"></i>Seguimiento 24/7</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-4">
+                                                        <div class="alert alert-success">
+                                                            <i class="fas fa-award me-2"></i>
+                                                            <strong>Certificaciones:</strong> Konica Minolta, Canon, Ricoh - Técnicos especializados por marca
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `
+                                },
+                                'sin-inversion': {
+                                    title: 'Sin Inversión Inicial',
+                                    content: `
+                                        <div class="container-fluid">
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <img src="https://images.unsplash.com/photo-1559526324-593bc073d938?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="img-fluid rounded mb-4" alt="Sin Inversión"/>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <h4 class="text-primary mb-4"><i class="fas fa-hand-holding-usd me-2"></i>Modelo de Negocio</h4>
+                                                    <div class="row mb-4">
+                                                        <div class="col-12">
+                                                            <div class="card bg-success text-white">
+                                                                <div class="card-body text-center">
+                                                                    <h3><i class="fas fa-dollar-sign me-2"></i>S/0</h3>
+                                                                    <p class="mb-0">Inversión inicial requerida</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <h5 class="text-primary mb-3"><i class="fas fa-chart-line me-2"></i>Beneficios Financieros:</h5>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <ul class="list-unstyled">
+                                                                <li class="mb-2"><i class="fas fa-piggy-bank text-success me-2"></i>Preserve tu capital de trabajo</li>
+                                                                <li class="mb-2"><i class="fas fa-calculator text-success me-2"></i>Costos predecibles mensuales</li>
+                                                                <li class="mb-2"><i class="fas fa-chart-bar text-success me-2"></i>Mejora tu flujo de caja</li>
+                                                            </ul>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <ul class="list-unstyled">
+                                                                <li class="mb-2"><i class="fas fa-receipt text-info me-2"></i>100% deducible de impuestos</li>
+                                                                <li class="mb-2"><i class="fas fa-arrow-up text-info me-2"></i>Upgrade sin costo adicional</li>
+                                                                <li class="mb-2"><i class="fas fa-handshake text-info me-2"></i>Flexibilidad contractual</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-4">
+                                                        <h6 class="text-primary mb-3">Comparación de Modelos:</h6>
+                                                        <div class="table-responsive">
+                                                            <table class="table table-sm">
+                                                                <thead class="table-primary">
+                                                                    <tr>
+                                                                        <th>Concepto</th>
+                                                                        <th>Compra</th>
+                                                                        <th>Alquiler</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td>Inversión Inicial</td>
+                                                                        <td><span class="text-danger">S/15,000+</span></td>
+                                                                        <td><span class="text-success">S/0</span></td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Mantenimiento</td>
+                                                                        <td><span class="text-danger">Costo extra</span></td>
+                                                                        <td><span class="text-success">Incluido</span></td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Actualización</td>
+                                                                        <td><span class="text-danger">Nueva compra</span></td>
+                                                                        <td><span class="text-success">Automática</span></td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `
+                                },
+                                'entrega': {
+                                    title: 'Entrega e Instalación Rápida',
+                                    content: `
+                                        <div class="container-fluid">
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <img src="https://images.unsplash.com/photo-1586473219010-2ffc57b0d282?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="img-fluid rounded mb-4" alt="Entrega Rápida"/>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <h4 class="text-primary mb-4"><i class="fas fa-shipping-fast me-2"></i>Proceso de Entrega</h4>
+                                                    <div class="timeline">
+                                                        <div class="timeline-item">
+                                                            <div class="timeline-marker bg-primary"></div>
+                                                            <div class="timeline-content">
+                                                                <h6 class="timeline-title">Hora 0: Solicitud</h6>
+                                                                <p class="text-muted">Recibimos tu solicitud y confirmamos disponibilidad</p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="timeline-item">
+                                                            <div class="timeline-marker bg-info"></div>
+                                                            <div class="timeline-content">
+                                                                <h6 class="timeline-title">Hora 2: Preparación</h6>
+                                                                <p class="text-muted">Equipo preparado y técnico asignado</p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="timeline-item">
+                                                            <div class="timeline-marker bg-warning"></div>
+                                                            <div class="timeline-content">
+                                                                <h6 class="timeline-title">Hora 4-6: Entrega</h6>
+                                                                <p class="text-muted">Instalación en tus oficinas</p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="timeline-item">
+                                                            <div class="timeline-marker bg-success"></div>
+                                                            <div class="timeline-content">
+                                                                <h6 class="timeline-title">Hora 8: Operativo</h6>
+                                                                <p class="text-muted">Equipo funcionando al 100%</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-4">
+                                                        <div class="alert alert-info">
+                                                            <i class="fas fa-info-circle me-2"></i>
+                                                            <strong>Cobertura:</strong> Lima Metropolitana y principales ciudades del Perú
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `
+                                }
+                                'garantia': {
+                                    title: 'Garantía Total y Cobertura Completa',
+                                    content: `
+                                        <div class="container-fluid">
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="img-fluid rounded mb-4" alt="Garantía"/>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <h4 class="text-primary mb-4"><i class="fas fa-shield-alt me-2"></i>Cobertura de Garantía</h4>
+                                                    <div class="row mb-4">
+                                                        <div class="col-md-4 text-center">
+                                                            <div class="p-3 border rounded">
+                                                                <i class="fas fa-tools fa-2x text-primary mb-2"></i>
+                                                                <h6>Reparaciones</h6>
+                                                                <span class="badge bg-success">100% Cubierto</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 text-center">
+                                                            <div class="p-3 border rounded">
+                                                                <i class="fas fa-puzzle-piece fa-2x text-info mb-2"></i>
+                                                                <h6>Repuestos</h6>
+                                                                <span class="badge bg-success">Originales</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 text-center">
+                                                            <div class="p-3 border rounded">
+                                                                <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                                                                <h6>Respuesta</h6>
+                                                                <span class="badge bg-success">&lt; 4 horas</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <h5 class="text-primary mb-3"><i class="fas fa-umbrella me-2"></i>Qué Cubre:</h5>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <ul class="list-unstyled">
+                                                                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Fallas mecánicas</li>
+                                                                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Problemas eléctricos</li>
+                                                                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Software y firmware</li>
+                                                                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Desgaste normal</li>
+                                                            </ul>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <ul class="list-unstyled">
+                                                                <li class="mb-2"><i class="fas fa-times-circle text-danger me-2"></i>Daños por mal uso</li>
+                                                                <li class="mb-2"><i class="fas fa-times-circle text-danger me-2"></i>Desastres naturales</li>
+                                                                <li class="mb-2"><i class="fas fa-times-circle text-danger me-2"></i>Vandalismo</li>
+                                                                <li class="mb-2"><i class="fas fa-times-circle text-danger me-2"></i>Robos</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `
+                                },
+                                'escalabilidad': {
+                                    title: 'Escalabilidad y Crecimiento',
+                                    content: `
+                                        <div class="container-fluid">
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="img-fluid rounded mb-4" alt="Escalabilidad"/>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <h4 class="text-primary mb-4"><i class="fas fa-chart-line me-2"></i>Crecimiento Inteligente</h4>
+                                                    <div class="mb-4">
+                                                        <h6 class="text-primary">Niveles de Escalabilidad:</h6>
+                                                        <div class="progress mb-2" style="height: 25px;">
+                                                            <div class="progress-bar bg-info" style="width: 25%;">Startup</div>
+                                                            <div class="progress-bar bg-primary" style="width: 25%;">Pequeña</div>
+                                                            <div class="progress-bar bg-warning" style="width: 25%;">Mediana</div>
+                                                            <div class="progress-bar bg-success" style="width: 25%;">Grande</div>
+                                                        </div>
+                                                    </div>
+                                                    <h5 class="text-primary mb-3"><i class="fas fa-arrow-up me-2"></i>Beneficios:</h5>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <ul class="list-unstyled">
+                                                                <li class="mb-2"><i class="fas fa-sync text-primary me-2"></i>Upgrade automático</li>
+                                                                <li class="mb-2"><i class="fas fa-plus text-primary me-2"></i>Equipos adicionales</li>
+                                                                <li class="mb-2"><i class="fas fa-cog text-primary me-2"></i>Configuración flexible</li>
+                                                            </ul>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <ul class="list-unstyled">
+                                                                <li class="mb-2"><i class="fas fa-chart-bar text-success me-2"></i>Análisis de uso</li>
+                                                                <li class="mb-2"><i class="fas fa-lightbulb text-success me-2"></i>Recomendaciones</li>
+                                                                <li class="mb-2"><i class="fas fa-handshake text-success me-2"></i>Contratos flexibles</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-4">
+                                                        <div class="card border-success">
+                                                            <div class="card-body">
+                                                                <h6 class="card-title text-success"><i class="fas fa-rocket me-2"></i>Plan de Crecimiento</h6>
+                                                                <p class="card-text text-muted">Nuestro equipo analiza tu crecimiento mensualmente y te sugiere la mejor configuración para optimizar costos y productividad.</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `
+                                }
+                            };
+                            
+                            serviceCards.forEach(card => {
+                                card.addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    const servicio = this.getAttribute('data-servicio');
+                                    const info = servicioInfo[servicio];
+                                    
+                                    if (info) {
+                                        servicioModalTitle.innerHTML = '<i class="fas fa-star me-2"></i>' + info.title;
+                                        servicioModalBody.innerHTML = info.content;
+                                    }
+                                });
+                            });
+                            
                             // Galería Modal
                             const galleryItems = document.querySelectorAll('.copier-gallery-wrapper .gallery-item');
                             const modalImage = document.getElementById('modalImage');
@@ -807,7 +1236,7 @@
                                 });
                             });
                             
-                            // Marcas Modal
+                            // Marcas Modal con información actualizada
                             const brandItems = document.querySelectorAll('.copier-gallery-wrapper .brand-item');
                             const brandModalBody = document.getElementById('brandModalBody');
                             const brandModalTitle = document.getElementById('brandModalLabel');
@@ -817,7 +1246,7 @@
                                     title: 'Konica Minolta',
                                     content: `
                                         <div class="text-center">
-                                            <img src="/copier_company/static/img/konica_minolta_logo.png" alt="Konica Minolta" class="mb-4" style="max-width: 200px;"/>
+                                            <img src="/web/image/copier_company.konica_minolta_logo_png" alt="Konica Minolta" class="mb-4" style="max-width: 200px;"/>
                                             <h4 class="mb-3">Konica Minolta</h4>
                                             <p class="lead mb-4">Tecnología de vanguardia en impresión y escaneo multifuncional</p>
                                             <div class="row">
@@ -847,7 +1276,7 @@
                                     title: 'Canon',
                                     content: `
                                         <div class="text-center">
-                                            <img src="/copier_company/static/img/canon-logo.png" alt="Canon" class="mb-4" style="max-width: 200px;"/>
+                                            <img src="/web/image/copier_company.canon_logo_png" alt="Canon" class="mb-4" style="max-width: 200px;"/>
                                             <h4 class="mb-3">Canon</h4>
                                             <p class="lead mb-4">Versatilidad superior en impresiones de alta calidad</p>
                                             <div class="row">
@@ -877,7 +1306,7 @@
                                     title: 'Ricoh',
                                     content: `
                                         <div class="text-center">
-                                            <img src="/copier_company/static/img/ricoh-logo-png.png" alt="Ricoh" class="mb-4" style="max-width: 200px;"/>
+                                            <img src="/web/image/copier_company.ricoh_logo_png_png" alt="Ricoh" class="mb-4" style="max-width: 200px;"/>
                                             <h4 class="mb-3">Ricoh</h4>
                                             <p class="lead mb-4">Rendimiento confiable y durabilidad excepcional</p>
                                             <div class="row">
@@ -935,6 +1364,142 @@
                             document.querySelectorAll('.copier-gallery-wrapper .animate-on-scroll').forEach(el => {
                                 observer.observe(el);
                             });
+
+                            // CSS adicional para timeline y efectos especiales
+                            const additionalCSS = `
+                                <style>
+                                .timeline {
+                                    position: relative;
+                                    padding-left: 30px;
+                                }
+                                
+                                .timeline::before {
+                                    content: '';
+                                    position: absolute;
+                                    left: 15px;
+                                    top: 0;
+                                    bottom: 0;
+                                    width: 2px;
+                                    background: linear-gradient(to bottom, #667eea, #764ba2);
+                                }
+                                
+                                .timeline-item {
+                                    position: relative;
+                                    margin-bottom: 30px;
+                                }
+                                
+                                .timeline-marker {
+                                    position: absolute;
+                                    left: -37px;
+                                    top: 5px;
+                                    width: 12px;
+                                    height: 12px;
+                                    border-radius: 50%;
+                                    border: 3px solid white;
+                                    box-shadow: 0 0 0 3px #667eea;
+                                }
+                                
+                                .timeline-content {
+                                    background: #f8f9fa;
+                                    padding: 15px;
+                                    border-radius: 8px;
+                                    border-left: 4px solid #667eea;
+                                }
+                                
+                                .timeline-title {
+                                    color: #667eea;
+                                    font-weight: 600;
+                                    margin-bottom: 5px;
+                                }
+                                
+                                .copier-gallery-wrapper .modal-xl {
+                                    max-width: 1200px;
+                                }
+                                
+                                .copier-gallery-wrapper .card:hover {
+                                    transform: translateY(-2px);
+                                    transition: all 0.3s ease;
+                                }
+                                
+                                .copier-gallery-wrapper .alert {
+                                    border: none;
+                                    border-radius: 10px;
+                                }
+                                
+                                .copier-gallery-wrapper .badge {
+                                    font-size: 0.8rem;
+                                    padding: 5px 10px;
+                                }
+                                
+                                .copier-gallery-wrapper .progress {
+                                    border-radius: 10px;
+                                    background-color: #e9ecef;
+                                }
+                                
+                                .copier-gallery-wrapper .progress-bar {
+                                    border-radius: 10px;
+                                    font-weight: 600;
+                                    font-size: 0.75rem;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                }
+                                
+                                .copier-gallery-wrapper .table th {
+                                    border-top: none;
+                                    font-weight: 600;
+                                }
+                                
+                                .copier-gallery-wrapper .btn {
+                                    border-radius: 25px;
+                                    font-weight: 600;
+                                    transition: all 0.3s ease;
+                                }
+                                
+                                .copier-gallery-wrapper .btn:hover {
+                                    transform: translateY(-2px);
+                                }
+                                
+                                .copier-gallery-wrapper .modal-backdrop.show {
+                                    opacity: 0.7;
+                                }
+                                
+                                .copier-gallery-wrapper .modal.show .modal-dialog {
+                                    animation: modalSlideIn 0.3s ease-out;
+                                }
+                                
+                                @keyframes modalSlideIn {
+                                    from {
+                                        transform: translate(-50%, -60%) scale(0.9);
+                                        opacity: 0;
+                                    }
+                                    to {
+                                        transform: translate(-50%, -50%) scale(1);
+                                        opacity: 1;
+                                    }
+                                }
+                                
+                                /* Efectos adicionales para mejorar la experiencia */
+                                .copier-gallery-wrapper .img-fluid {
+                                    transition: transform 0.3s ease;
+                                }
+                                
+                                .copier-gallery-wrapper .img-fluid:hover {
+                                    transform: scale(1.02);
+                                }
+                                
+                                .copier-gallery-wrapper .list-unstyled li {
+                                    transition: all 0.2s ease;
+                                }
+                                
+                                .copier-gallery-wrapper .list-unstyled li:hover {
+                                    transform: translateX(5px);
+                                }
+                                </style>
+                            `;
+                            
+                            // Agregar CSS adicional al head
+                            document.head.insertAdjacentHTML('beforeend', additionalCSS);
                         });
                     </script>
                 </div>
