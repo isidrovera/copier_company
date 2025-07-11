@@ -1,942 +1,920 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Template heredado para la homepage de Copier Company con Galería Moderna -->
-        <template id="copier_company_homepage_gallery" name="Copier Company Homepage with Gallery" inherit_id="website.homepage">
+        <!-- Template moderno para Copier Company Homepage -->
+        <template id="copier_company_modern_homepage" name="Copier Company Modern Homepage" inherit_id="website.homepage">
             <xpath expr="//div[@id='wrap']" position="replace">
-                <div id="wrap" class="copier-gallery-wrapper">
-                    <!-- CSS específico scoped -->
-                    <style>
-                        /* Scope limitado para evitar conflictos con Odoo */
-                        .copier-gallery-wrapper {
-                            font-family: 'Inter', sans-serif;
-                        }
-                        
-                        /* Hero Carousel */
-                        .copier-gallery-wrapper .hero-section {
-                            height: 85vh;
-                            position: relative;
-                            overflow: hidden;
-                            background: linear-gradient(135deg, rgba(102,126,234,0.9) 0%, rgba(118,75,162,0.9) 100%);
-                        }
-                        
-                        .copier-gallery-wrapper .carousel-item {
-                            height: 85vh;
-                            background-size: cover;
-                            background-position: center;
-                            position: relative;
-                        }
-                        
-                        .copier-gallery-wrapper .carousel-overlay {
-                            position: absolute;
-                            top: 0;
-                            left: 0;
-                            right: 0;
-                            bottom: 0;
-                            background: linear-gradient(135deg, rgba(102,126,234,0.8) 0%, rgba(118,75,162,0.8) 100%);
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                        }
-                        
-                        .copier-gallery-wrapper .hero-content {
-                            text-align: center;
-                            color: white;
-                            max-width: 800px;
-                            padding: 0 20px;
-                            position: relative;
-                            z-index: 3;
-                        }
-                        
-                        .copier-gallery-wrapper .hero-title {
-                            font-size: 3.5rem;
-                            font-weight: 700;
-                            margin-bottom: 20px;
-                            text-shadow: 0 2px 15px rgba(0,0,0,0.5);
-                            animation: fadeInUp 1s ease-out;
-                        }
-                        
-                        .copier-gallery-wrapper .hero-subtitle {
-                            font-size: 1.4rem;
-                            margin-bottom: 40px;
-                            opacity: 0.95;
-                            font-weight: 300;
-                            animation: fadeInUp 1s ease-out 0.3s both;
-                        }
-                        
-                        .copier-gallery-wrapper .btn-hero {
-                            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
-                            border: none;
-                            padding: 18px 40px;
-                            border-radius: 50px;
-                            color: white !important;
-                            font-weight: 600;
-                            text-decoration: none;
-                            display: inline-block;
-                            transition: all 0.4s ease;
-                            box-shadow: 0 10px 30px rgba(255,107,107,0.4);
-                            animation: fadeInUp 1s ease-out 0.6s both;
-                        }
-                        
-                        .copier-gallery-wrapper .btn-hero:hover {
-                            transform: translateY(-3px) scale(1.05);
-                            box-shadow: 0 15px 40px rgba(255,107,107,0.6);
-                            color: white !important;
-                            text-decoration: none;
-                        }
-                        
-                        /* Controles del Carousel */
-                        .copier-gallery-wrapper .carousel-control-prev,
-                        .copier-gallery-wrapper .carousel-control-next {
-                            width: 50px;
-                            height: 50px;
-                            border-radius: 50%;
-                            background: rgba(255,255,255,0.2);
-                            backdrop-filter: blur(10px);
-                            border: 1px solid rgba(255,255,255,0.3);
-                            top: 50%;
-                            transform: translateY(-50%);
-                            transition: all 0.3s ease;
-                        }
-                        
-                        .copier-gallery-wrapper .carousel-control-prev {
-                            left: 20px;
-                        }
-                        
-                        .copier-gallery-wrapper .carousel-control-next {
-                            right: 20px;
-                        }
-                        
-                        .copier-gallery-wrapper .carousel-control-prev:hover,
-                        .copier-gallery-wrapper .carousel-control-next:hover {
-                            background: rgba(255,255,255,0.3);
-                            transform: translateY(-50%) scale(1.1);
-                        }
-                        
-                        /* Sección de Marcas */
-                        .copier-gallery-wrapper .brands-section {
-                            padding: 60px 0;
-                            background: white;
-                        }
-                        
-                        .copier-gallery-wrapper .section-title {
-                            text-align: center;
-                            font-size: 2.5rem;
-                            font-weight: 700;
-                            margin-bottom: 50px;
-                            color: #2c3e50;
-                            position: relative;
-                        }
-                        
-                        .copier-gallery-wrapper .section-title::after {
-                            content: '';
-                            position: absolute;
-                            bottom: -10px;
-                            left: 50%;
-                            transform: translateX(-50%);
-                            width: 80px;
-                            height: 4px;
-                            background: linear-gradient(45deg, #667eea, #764ba2);
-                            border-radius: 2px;
-                        }
-                        
-                        .copier-gallery-wrapper .brands-container {
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                            gap: 40px;
-                            flex-wrap: wrap;
-                        }
-                        
-                        .copier-gallery-wrapper .brand-item {
-                            background: white;
-                            padding: 20px;
-                            border-radius: 15px;
-                            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-                            transition: all 0.3s ease;
-                            cursor: pointer;
-                            width: 140px;
-                            height: 90px;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            position: relative;
-                            overflow: hidden;
-                        }
-                        
-                        .copier-gallery-wrapper .brand-item:hover {
-                            transform: translateY(-5px);
-                            box-shadow: 0 15px 40px rgba(102,126,234,0.2);
-                        }
-                        
-                        .copier-gallery-wrapper .brand-item::before {
-                            content: '';
-                            position: absolute;
-                            top: 0;
-                            left: -100%;
-                            width: 100%;
-                            height: 100%;
-                            background: linear-gradient(90deg, transparent, rgba(102,126,234,0.1), transparent);
-                            transition: left 0.5s ease;
-                        }
-                        
-                        .copier-gallery-wrapper .brand-item:hover::before {
-                            left: 100%;
-                        }
-                        
-                        /* GALERÍA DE FOTOS MODERNA */
-                        .copier-gallery-wrapper .photo-gallery-section {
-                            padding: 80px 0;
-                            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-                        }
-                        
-                        .copier-gallery-wrapper .gallery-grid {
-                            display: grid;
-                            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                            gap: 30px;
-                            margin-top: 50px;
-                        }
-                        
-                        .copier-gallery-wrapper .gallery-item {
-                            position: relative;
-                            height: 280px;
-                            border-radius: 20px;
-                            overflow: hidden;
-                            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-                            transition: all 0.4s ease;
-                            cursor: pointer;
-                            background-size: cover;
-                            background-position: center;
-                        }
-                        
-                        .copier-gallery-wrapper .gallery-item:hover {
-                            transform: translateY(-10px) scale(1.02);
-                            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-                        }
-                        
-                        .copier-gallery-wrapper .gallery-overlay {
-                            position: absolute;
-                            top: 0;
-                            left: 0;
-                            right: 0;
-                            bottom: 0;
-                            background: linear-gradient(135deg, rgba(102,126,234,0.8) 0%, rgba(118,75,162,0.8) 100%);
-                            display: flex;
-                            flex-direction: column;
-                            align-items: center;
-                            justify-content: center;
-                            opacity: 0;
-                            transition: all 0.4s ease;
-                            color: white;
-                            text-align: center;
-                            padding: 20px;
-                        }
-                        
-                        .copier-gallery-wrapper .gallery-item:hover .gallery-overlay {
-                            opacity: 1;
-                        }
-                        
-                        .copier-gallery-wrapper .gallery-icon {
-                            font-size: 3rem;
-                            margin-bottom: 15px;
-                            transform: scale(0.8);
-                            transition: transform 0.3s ease;
-                        }
-                        
-                        .copier-gallery-wrapper .gallery-item:hover .gallery-icon {
-                            transform: scale(1);
-                        }
-                        
-                        .copier-gallery-wrapper .gallery-title {
-                            font-size: 1.5rem;
-                            font-weight: 600;
-                            margin-bottom: 10px;
-                            transform: translateY(20px);
-                            transition: transform 0.3s ease 0.1s;
-                        }
-                        
-                        .copier-gallery-wrapper .gallery-item:hover .gallery-title {
-                            transform: translateY(0);
-                        }
-                        
-                        .copier-gallery-wrapper .gallery-description {
-                            font-size: 1rem;
-                            opacity: 0.9;
-                            line-height: 1.4;
-                            transform: translateY(20px);
-                            transition: transform 0.3s ease 0.2s;
-                        }
-                        
-                        .copier-gallery-wrapper .gallery-item:hover .gallery-description {
-                            transform: translateY(0);
-                        }
-                        
-                        /* Iconos flotantes */
-                        .copier-gallery-wrapper .floating-icons {
-                            position: absolute;
-                            top: 15px;
-                            right: 15px;
-                            display: flex;
-                            gap: 10px;
-                        }
-                        
-                        .copier-gallery-wrapper .floating-icon {
-                            width: 40px;
-                            height: 40px;
-                            background: rgba(255,255,255,0.9);
-                            border-radius: 50%;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            color: #667eea;
-                            font-size: 1.2rem;
-                            transition: all 0.3s ease;
-                            opacity: 0;
-                            transform: scale(0.8);
-                        }
-                        
-                        .copier-gallery-wrapper .gallery-item:hover .floating-icon {
-                            opacity: 1;
-                            transform: scale(1);
-                        }
-                        
-                        .copier-gallery-wrapper .floating-icon:hover {
-                            background: #667eea;
-                            color: white;
-                            transform: scale(1.1);
-                        }
-                        
-                        /* Sección de Servicios con Iconos */
-                        .copier-gallery-wrapper .services-section {
-                            padding: 80px 0;
-                            background: white;
-                        }
-                        
-                        .copier-gallery-wrapper .services-grid {
-                            display: grid;
-                            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                            gap: 40px;
-                            margin-top: 50px;
-                        }
-                        
-                        .copier-gallery-wrapper .service-card {
-                            background: white;
-                            padding: 40px 30px;
-                            border-radius: 20px;
-                            text-align: center;
-                            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-                            transition: all 0.4s ease;
-                            position: relative;
-                            overflow: hidden;
-                        }
-                        
-                        .copier-gallery-wrapper .service-card::before {
-                            content: '';
-                            position: absolute;
-                            top: 0;
-                            left: 0;
-                            right: 0;
-                            height: 4px;
-                            background: linear-gradient(45deg, #667eea, #764ba2);
-                        }
-                        
-                        .copier-gallery-wrapper .service-card:hover {
-                            transform: translateY(-10px);
-                            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-                        }
-                        
-                        .copier-gallery-wrapper .service-icon {
-                            font-size: 3.5rem;
-                            margin-bottom: 25px;
-                            background: linear-gradient(45deg, #667eea, #764ba2);
-                            -webkit-background-clip: text;
-                            -webkit-text-fill-color: transparent;
-                            background-clip: text;
-                            transition: transform 0.3s ease;
-                        }
-                        
-                        .copier-gallery-wrapper .service-card:hover .service-icon {
-                            transform: scale(1.1);
-                        }
-                        
-                        .copier-gallery-wrapper .service-card h3 {
-                            font-size: 1.6rem;
-                            font-weight: 600;
-                            margin-bottom: 15px;
-                            color: #2c3e50;
-                        }
-                        
-                        .copier-gallery-wrapper .service-card p {
-                            color: #666;
-                            font-size: 1rem;
-                            line-height: 1.6;
-                        }
-                        
-                        /* Modal styling */
-                        .copier-gallery-wrapper .modal-content {
-                            border-radius: 20px;
-                            border: none;
-                            overflow: hidden;
-                        }
-                        
-                        .copier-gallery-wrapper .modal-header {
-                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                            color: white;
-                            border: none;
-                            padding: 20px 30px;
-                        }
-                        
-                        .copier-gallery-wrapper .modal-body {
-                            padding: 0;
-                        }
-                        
-                        .copier-gallery-wrapper .modal-body img {
-                            width: 100%;
-                            height: auto;
-                            object-fit: cover;
-                        }
-                        
-                        /* Animaciones */
-                        @keyframes fadeInUp {
-                            from {
-                                opacity: 0;
-                                transform: translateY(30px);
-                            }
-                            to {
-                                opacity: 1;
-                                transform: translateY(0);
-                            }
-                        }
-                        
-                        @keyframes slideInDown {
-                            from {
-                                opacity: 0;
-                                transform: translateY(-30px);
-                            }
-                            to {
-                                opacity: 1;
-                                transform: translateY(0);
-                            }
-                        }
-                        
-                        .copier-gallery-wrapper .animate-on-scroll {
-                            opacity: 0;
-                            transform: translateY(30px);
-                            transition: all 0.8s ease;
-                        }
-                        
-                        .copier-gallery-wrapper .animate-on-scroll.animated {
-                            opacity: 1;
-                            transform: translateY(0);
-                        }
-                        
-                        /* Responsive */
-                        @media (max-width: 768px) {
-                            .copier-gallery-wrapper .hero-title {
-                                font-size: 2.5rem;
-                            }
-                            
-                            .copier-gallery-wrapper .hero-subtitle {
-                                font-size: 1.2rem;
-                            }
-                            
-                            .copier-gallery-wrapper .gallery-grid {
-                                grid-template-columns: 1fr;
-                                gap: 20px;
-                            }
-                            
-                            .copier-gallery-wrapper .gallery-item {
-                                height: 250px;
-                            }
-                            
-                            .copier-gallery-wrapper .services-grid {
-                                grid-template-columns: 1fr;
-                            }
-                            
-                            .copier-gallery-wrapper .carousel-control-prev {
-                                left: 10px;
-                            }
-                            
-                            .copier-gallery-wrapper .carousel-control-next {
-                                right: 10px;
-                            }
-                        }
-                    </style>
+                <div id="wrap" class="copier-modern-homepage">
                     
-                    <!-- Hero Carousel -->
+                    <!-- HERO SECTION PRINCIPAL -->
                     <section class="hero-section">
-                        <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
-                            <div class="carousel-indicators">
-                                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
-                                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
-                                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
-                            </div>
-                            
-                            <div class="carousel-inner">
-                                <!-- Slide 1 -->
-                                <div class="carousel-item active" style="background-image: url('/copier_company/static/img/diapositiva1.jpg');">
-                                    <div class="carousel-overlay">
-                                        <div class="hero-content">
-                                            <h1 class="hero-title">Alquiler de Fotocopiadoras</h1>
-                                            <p class="hero-subtitle">Soluciones profesionales de impresión sin inversión inicial</p>
-                                            <a href="/contactus" class="btn-hero">
-                                                <i class="fas fa-file-invoice-dollar me-2"></i>
-                                                Solicita tu Cotización
+                        <div class="hero-background"></div>
+                        <div class="hero-overlay"></div>
+                        <div class="container-fluid h-100">
+                            <div class="row h-100 align-items-center">
+                                <div class="col-lg-6">
+                                    <div class="hero-content">
+                                        <div class="hero-badge">
+                                            <i class="fas fa-star"></i>
+                                            <span>Líderes en Soluciones de Impresión</span>
+                                        </div>
+                                        <h1 class="hero-title">
+                                            Alquiler de <span class="text-gradient">Fotocopiadoras</span>
+                                            <br/>Sin Inversión Inicial
+                                        </h1>
+                                        <p class="hero-subtitle">
+                                            Soluciones profesionales de impresión para tu empresa. 
+                                            Equipos de última generación con mantenimiento incluido 
+                                            y soporte técnico 24/7.
+                                        </p>
+                                        
+                                        <!-- Servicios principales -->
+                                        <div class="hero-services">
+                                            <a href="/cotizacion/form" class="service-card primary">
+                                                <div class="service-icon">
+                                                    <i class="fas fa-handshake"></i>
+                                                </div>
+                                                <div class="service-info">
+                                                    <h3>Alquiler</h3>
+                                                    <p>Sin inversión inicial</p>
+                                                </div>
+                                                <i class="fas fa-arrow-right service-arrow"></i>
+                                            </a>
+                                            
+                                            <a href="/cotizacion/form" class="service-card">
+                                                <div class="service-icon">
+                                                    <i class="fas fa-shopping-cart"></i>
+                                                </div>
+                                                <div class="service-info">
+                                                    <h3>Venta</h3>
+                                                    <p>Equipos nuevos</p>
+                                                </div>
+                                                <i class="fas fa-arrow-right service-arrow"></i>
+                                            </a>
+                                            
+                                            <a href="/our-services" class="service-card">
+                                                <div class="service-icon">
+                                                    <i class="fas fa-tools"></i>
+                                                </div>
+                                                <div class="service-info">
+                                                    <h3>Reparación</h3>
+                                                    <p>Servicio técnico</p>
+                                                </div>
+                                                <i class="fas fa-arrow-right service-arrow"></i>
+                                            </a>
+                                            
+                                            <a href="/our-services" class="service-card">
+                                                <div class="service-icon">
+                                                    <i class="fas fa-tint"></i>
+                                                </div>
+                                                <div class="service-info">
+                                                    <h3>Repuestos</h3>
+                                                    <p>Toners originales</p>
+                                                </div>
+                                                <i class="fas fa-arrow-right service-arrow"></i>
+                                            </a>
+                                        </div>
+                                        
+                                        <div class="hero-cta">
+                                            <a href="/cotizacion/form" class="btn-primary-modern">
+                                                <i class="fas fa-calculator"></i>
+                                                Solicitar Cotización Gratuita
+                                            </a>
+                                            <a href="/contactus" class="btn-secondary-modern">
+                                                <i class="fas fa-phone"></i>
+                                                Contactar Ahora
                                             </a>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <!-- Slide 2 -->
-                                <div class="carousel-item" style="background-image: url('/copier_company/static/img/diapositiva2.jpg');">
-                                    <div class="carousel-overlay">
-                                        <div class="hero-content">
-                                            <h1 class="hero-title">Atención Virtual 24/7</h1>
-                                            <p class="hero-subtitle">Soporte técnico remoto y consultoría especializada</p>
-                                            <a href="/contactus" class="btn-hero">
-                                                <i class="fas fa-video me-2"></i>
-                                                Agenda tu Consulta
-                                            </a>
+                                <div class="col-lg-6">
+                                    <div class="hero-visual">
+                                        <div class="floating-card card-1">
+                                            <i class="fas fa-shield-alt"></i>
+                                            <span>Garantía Total</span>
+                                        </div>
+                                        <div class="floating-card card-2">
+                                            <i class="fas fa-headset"></i>
+                                            <span>Soporte 24/7</span>
+                                        </div>
+                                        <div class="floating-card card-3">
+                                            <i class="fas fa-shipping-fast"></i>
+                                            <span>Instalación Rápida</span>
+                                        </div>
+                                        <div class="hero-image">
+                                            <img src="https://images.unsplash.com/photo-1586473219010-2ffc57b0d282?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=800&amp;q=80" alt="Fotocopiadora moderna" class="img-fluid"/>
                                         </div>
                                     </div>
                                 </div>
-                                
-                                <!-- Slide 3 -->
-                                <div class="carousel-item" style="background-image: url('/copier_company/static/img/diapositiva3.jpg');">
-                                    <div class="carousel-overlay">
-                                        <div class="hero-content">
-                                            <h1 class="hero-title">Taller Especializado</h1>
-                                            <p class="hero-subtitle">Reparación profesional con garantía total</p>
-                                            <a href="/contactus" class="btn-hero">
-                                                <i class="fas fa-tools me-2"></i>
-                                                Programa tu Servicio
-                                            </a>
-                                        </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Scroll indicator -->
+                        <div class="scroll-indicator">
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </section>
+
+                    <!-- SECCIÓN DE BENEFICIOS -->
+                    <section class="benefits-section">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-12 text-center">
+                                    <div class="section-header">
+                                        <span class="section-badge">Beneficios</span>
+                                        <h2 class="section-title">¿Por Qué Elegir Nuestro Alquiler?</h2>
+                                        <p class="section-subtitle">Ventajas que marcan la diferencia para tu empresa</p>
                                     </div>
                                 </div>
                             </div>
                             
-                            <!-- Controles -->
-                            <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
-                                <i class="fas fa-chevron-left"></i>
-                            </button>
-                            <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
-                                <i class="fas fa-chevron-right"></i>
-                            </button>
-                        </div>
-                    </section>
-
-                    <!-- Marcas -->
-                    <section class="brands-section">
-                        <div class="container">
-                            <h2 class="section-title animate-on-scroll">Marcas Líderes</h2>
-                            <div class="brands-container">
-                                <div class="brand-item animate-on-scroll" data-bs-toggle="modal" data-bs-target="#brandModal" data-brand="konica">
-                                    <img src="/copier_company/static/img/konica_minolta_logo.png" alt="Konica Minolta" class="img-fluid"/>
-                                </div>
-                                <div class="brand-item animate-on-scroll" data-bs-toggle="modal" data-bs-target="#brandModal" data-brand="canon">
-                                    <img src="/copier_company/static/img/canon-logo.png" alt="Canon" class="img-fluid"/>
-                                </div>
-                                <div class="brand-item animate-on-scroll" data-bs-toggle="modal" data-bs-target="#brandModal" data-brand="ricoh">
-                                    <img src="/copier_company/static/img/ricoh-logo-png.png" alt="Ricoh" class="img-fluid"/>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- GALERÍA DE FOTOS MODERNA -->
-                    <section class="photo-gallery-section">
-                        <div class="container">
-                            <h2 class="section-title animate-on-scroll">
-                                <i class="fas fa-images me-3"></i>
-                                Galería de Servicios
-                            </h2>
-                            <div class="gallery-grid">
-                                <!-- Item 1: Oficina Virtual -->
-                                <div class="gallery-item animate-on-scroll" 
-                                     style="background-image: url('https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=800&amp;q=80');"
-                                     data-bs-toggle="modal" data-bs-target="#galleryModal" 
-                                     data-img="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1200&amp;q=80"
-                                     data-title="Consultoría Virtual">
-                                    <div class="floating-icons">
-                                        <div class="floating-icon">
-                                            <i class="fas fa-search-plus"></i>
+                            <div class="row benefits-grid">
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="benefit-card" data-bs-toggle="modal" data-bs-target="#benefitModal" data-benefit="sin-inversion">
+                                        <div class="benefit-icon">
+                                            <i class="fas fa-hand-holding-usd"></i>
                                         </div>
-                                        <div class="floating-icon">
-                                            <i class="fas fa-expand"></i>
+                                        <h3>Sin Inversión Inicial</h3>
+                                        <p>Obtén equipos de última generación sin desembolso inicial. Optimiza tu flujo de caja y mantén tu capital para otras inversiones.</p>
+                                        <div class="benefit-arrow">
+                                            <i class="fas fa-plus"></i>
                                         </div>
-                                    </div>
-                                    <div class="gallery-overlay">
-                                        <div class="gallery-icon">
-                                            <i class="fas fa-video"></i>
-                                        </div>
-                                        <h3 class="gallery-title">Consultoría Virtual</h3>
-                                        <p class="gallery-description">Asesoría personalizada y soporte remoto 24/7 para optimizar tu oficina</p>
                                     </div>
                                 </div>
-
-                                <!-- Item 2: Taller -->
-                                <div class="gallery-item animate-on-scroll" 
-                                     style="background-image: url('https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=800&amp;q=80');"
-                                     data-bs-toggle="modal" data-bs-target="#galleryModal" 
-                                     data-img="https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1200&amp;q=80"
-                                     data-title="Taller Técnico">
-                                    <div class="floating-icons">
-                                        <div class="floating-icon">
-                                            <i class="fas fa-search-plus"></i>
+                                
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="benefit-card" data-bs-toggle="modal" data-bs-target="#benefitModal" data-benefit="soporte-24-7">
+                                        <div class="benefit-icon">
+                                            <i class="fas fa-headset"></i>
                                         </div>
-                                        <div class="floating-icon">
-                                            <i class="fas fa-expand"></i>
+                                        <h3>Soporte Técnico 24/7</h3>
+                                        <p>Atención técnica especializada las 24 horas. Resolución remota y presencial para mantener tu productividad.</p>
+                                        <div class="benefit-arrow">
+                                            <i class="fas fa-plus"></i>
                                         </div>
-                                    </div>
-                                    <div class="gallery-overlay">
-                                        <div class="gallery-icon">
-                                            <i class="fas fa-tools"></i>
-                                        </div>
-                                        <h3 class="gallery-title">Taller Especializado</h3>
-                                        <p class="gallery-description">Reparación y mantenimiento profesional con repuestos originales</p>
                                     </div>
                                 </div>
-
-                                <!-- Item 3: Equipos -->
-                                <div class="gallery-item animate-on-scroll" 
-                                     style="background-image: url('https://images.unsplash.com/photo-1586473219010-2ffc57b0d282?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=800&amp;q=80');"
-                                     data-bs-toggle="modal" data-bs-target="#galleryModal" 
-                                     data-img="https://images.unsplash.com/photo-1586473219010-2ffc57b0d282?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1200&amp;q=80"
-                                     data-title="Equipos Multifuncionales">
-                                    <div class="floating-icons">
-                                        <div class="floating-icon">
-                                            <i class="fas fa-search-plus"></i>
+                                
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="benefit-card" data-bs-toggle="modal" data-bs-target="#benefitModal" data-benefit="instalacion-rapida">
+                                        <div class="benefit-icon">
+                                            <i class="fas fa-rocket"></i>
                                         </div>
-                                        <div class="floating-icon">
-                                            <i class="fas fa-expand"></i>
+                                        <h3>Instalación en 24H</h3>
+                                        <p>Instalación y configuración profesional en menos de 24 horas. Tu equipo estará listo para trabajar de inmediato.</p>
+                                        <div class="benefit-arrow">
+                                            <i class="fas fa-plus"></i>
                                         </div>
-                                    </div>
-                                    <div class="gallery-overlay">
-                                        <div class="gallery-icon">
-                                            <i class="fas fa-print"></i>
-                                        </div>
-                                        <h3 class="gallery-title">Equipos Multifuncionales</h3>
-                                        <p class="gallery-description">Tecnología de vanguardia para empresas modernas</p>
                                     </div>
                                 </div>
-
-                                <!-- Item 4: Instalación -->
-                                <div class="gallery-item animate-on-scroll" 
-                                     style="background-image: url('https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=800&amp;q=80');"
-                                     data-bs-toggle="modal" data-bs-target="#galleryModal" 
-                                     data-img="https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1200&amp;q=80"
-                                     data-title="Instalación Profesional">
-                                    <div class="floating-icons">
-                                        <div class="floating-icon">
-                                            <i class="fas fa-search-plus"></i>
-                                        </div>
-                                        <div class="floating-icon">
-                                            <i class="fas fa-expand"></i>
-                                        </div>
-                                    </div>
-                                    <div class="gallery-overlay">
-                                        <div class="gallery-icon">
+                                
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="benefit-card" data-bs-toggle="modal" data-bs-target="#benefitModal" data-benefit="mantenimiento-incluido">
+                                        <div class="benefit-icon">
                                             <i class="fas fa-cog"></i>
                                         </div>
-                                        <h3 class="gallery-title">Instalación Profesional</h3>
-                                        <p class="gallery-description">Configuración completa y capacitación del personal</p>
+                                        <h3>Mantenimiento Incluido</h3>
+                                        <p>Mantenimiento preventivo y correctivo incluido en el alquiler. Repuestos originales y técnicos especializados.</p>
+                                        <div class="benefit-arrow">
+                                            <i class="fas fa-plus"></i>
+                                        </div>
                                     </div>
                                 </div>
-
-                                <!-- Item 5: Mantenimiento -->
-                                <div class="gallery-item animate-on-scroll" 
-                                     style="background-image: url('https://images.unsplash.com/photo-1562577309-2592ab84b1bc?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=800&amp;q=80');"
-                                     data-bs-toggle="modal" data-bs-target="#galleryModal" 
-                                     data-img="https://images.unsplash.com/photo-1562577309-2592ab84b1bc?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1200&amp;q=80"
-                                     data-title="Mantenimiento Preventivo">
-                                    <div class="floating-icons">
-                                        <div class="floating-icon">
-                                            <i class="fas fa-search-plus"></i>
-                                        </div>
-                                        <div class="floating-icon">
-                                            <i class="fas fa-expand"></i>
-                                        </div>
-                                    </div>
-                                    <div class="gallery-overlay">
-                                        <div class="gallery-icon">
+                                
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="benefit-card" data-bs-toggle="modal" data-bs-target="#benefitModal" data-benefit="garantia-total">
+                                        <div class="benefit-icon">
                                             <i class="fas fa-shield-alt"></i>
                                         </div>
-                                        <h3 class="gallery-title">Mantenimiento Preventivo</h3>
-                                        <p class="gallery-description">Cuidado integral para máximo rendimiento</p>
+                                        <h3>Garantía Total</h3>
+                                        <p>Cobertura completa en reparaciones y reemplazos. Tu tranquilidad es nuestra prioridad empresarial.</p>
+                                        <div class="benefit-arrow">
+                                            <i class="fas fa-plus"></i>
+                                        </div>
                                     </div>
                                 </div>
-
-                                <!-- Item 6: Capacitación -->
-                                <div class="gallery-item animate-on-scroll" 
-                                     style="background-image: url('https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=800&amp;q=80');"
-                                     data-bs-toggle="modal" data-bs-target="#galleryModal" 
-                                     data-img="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1200&amp;q=80"
-                                     data-title="Capacitación Empresarial">
-                                    <div class="floating-icons">
-                                        <div class="floating-icon">
-                                            <i class="fas fa-search-plus"></i>
+                                
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="benefit-card" data-bs-toggle="modal" data-bs-target="#benefitModal" data-benefit="escalabilidad">
+                                        <div class="benefit-icon">
+                                            <i class="fas fa-chart-line"></i>
                                         </div>
-                                        <div class="floating-icon">
-                                            <i class="fas fa-expand"></i>
+                                        <h3>Escalabilidad</h3>
+                                        <p>Crece con tu negocio. Actualiza o cambia equipos según las necesidades cambiantes de tu empresa.</p>
+                                        <div class="benefit-arrow">
+                                            <i class="fas fa-plus"></i>
                                         </div>
-                                    </div>
-                                    <div class="gallery-overlay">
-                                        <div class="gallery-icon">
-                                            <i class="fas fa-graduation-cap"></i>
-                                        </div>
-                                        <h3 class="gallery-title">Capacitación Empresarial</h3>
-                                        <p class="gallery-description">Entrenamiento especializado para tu equipo de trabajo</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </section>
 
-                    <!-- Servicios con Iconos -->
-                    <section class="services-section">
+                    <!-- SECCIÓN DE MARCAS -->
+                    <section class="brands-section">
                         <div class="container">
-                            <h2 class="section-title animate-on-scroll">
-                                <i class="fas fa-star me-3"></i>
-                                Nuestros Servicios
-                            </h2>
-                            <div class="services-grid">
-                                <div class="service-card animate-on-scroll">
-                                    <div class="service-icon">
-                                        <i class="fas fa-hand-holding-usd"></i>
+                            <div class="row">
+                                <div class="col-lg-12 text-center">
+                                    <div class="section-header">
+                                        <span class="section-badge">Calidad Garantizada</span>
+                                        <h2 class="section-title">Marcas Líderes Mundiales</h2>
+                                        <p class="section-subtitle">Trabajamos con las mejores marcas del mercado</p>
                                     </div>
-                                    <h3>Sin Inversión Inicial</h3>
-                                    <p>Solo pagas por el uso mensual. Ideal para empresas que buscan optimizar su flujo de caja y reducir costos operativos.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="row brands-grid">
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="brand-card" data-bs-toggle="modal" data-bs-target="#brandModal" data-brand="konica">
+                                        <div class="brand-logo">
+                                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Konica_Minolta_logo.svg/320px-Konica_Minolta_logo.svg.png" alt="Konica Minolta" class="img-fluid"/>
+                                        </div>
+                                        <div class="brand-info">
+                                            <h3>Konica Minolta</h3>
+                                            <p>Tecnología japonesa de vanguardia</p>
+                                            <ul class="brand-features">
+                                                <li><i class="fas fa-check"></i> Hasta 75 ppm</li>
+                                                <li><i class="fas fa-check"></i> Impresión color/B&amp;N</li>
+                                                <li><i class="fas fa-check"></i> Conectividad avanzada</li>
+                                            </ul>
+                                        </div>
+                                        <div class="brand-overlay">
+                                            <i class="fas fa-info-circle"></i>
+                                            <span>Ver especificaciones</span>
+                                        </div>
+                                    </div>
                                 </div>
                                 
-                                <div class="service-card animate-on-scroll">
-                                    <div class="service-icon">
-                                        <i class="fas fa-video"></i>
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="brand-card" data-bs-toggle="modal" data-bs-target="#brandModal" data-brand="canon">
+                                        <div class="brand-logo">
+                                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Canon_wordmark.svg/320px-Canon_wordmark.svg.png" alt="Canon" class="img-fluid"/>
+                                        </div>
+                                        <div class="brand-info">
+                                            <h3>Canon</h3>
+                                            <p>Excelencia en calidad de imagen</p>
+                                            <ul class="brand-features">
+                                                <li><i class="fas fa-check"></i> Hasta 55 ppm</li>
+                                                <li><i class="fas fa-check"></i> Calidad fotográfica</li>
+                                                <li><i class="fas fa-check"></i> Diseño compacto</li>
+                                            </ul>
+                                        </div>
+                                        <div class="brand-overlay">
+                                            <i class="fas fa-info-circle"></i>
+                                            <span>Ver especificaciones</span>
+                                        </div>
                                     </div>
-                                    <h3>Atención Virtual 24/7</h3>
-                                    <p>Soporte técnico remoto y consultoría especializada desde cualquier lugar. Configuración y capacitación en línea.</p>
                                 </div>
                                 
-                                <div class="service-card animate-on-scroll">
-                                    <div class="service-icon">
-                                        <i class="fas fa-tools"></i>
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="brand-card" data-bs-toggle="modal" data-bs-target="#brandModal" data-brand="ricoh">
+                                        <div class="brand-logo">
+                                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Ricoh_logo.svg/320px-Ricoh_logo.svg.png" alt="Ricoh" class="img-fluid"/>
+                                        </div>
+                                        <div class="brand-info">
+                                            <h3>Ricoh</h3>
+                                            <p>Rendimiento y durabilidad</p>
+                                            <ul class="brand-features">
+                                                <li><i class="fas fa-check"></i> Hasta 60 ppm</li>
+                                                <li><i class="fas fa-check"></i> Máxima seguridad</li>
+                                                <li><i class="fas fa-check"></i> Alta durabilidad</li>
+                                            </ul>
+                                        </div>
+                                        <div class="brand-overlay">
+                                            <i class="fas fa-info-circle"></i>
+                                            <span>Ver especificaciones</span>
+                                        </div>
                                     </div>
-                                    <h3>Taller Especializado</h3>
-                                    <p>Reparación y mantenimiento profesional con repuestos originales y garantía total en nuestro centro técnico.</p>
-                                </div>
-                                
-                                <div class="service-card animate-on-scroll">
-                                    <div class="service-icon">
-                                        <i class="fas fa-shipping-fast"></i>
-                                    </div>
-                                    <h3>Entrega Rápida</h3>
-                                    <p>Instalación y configuración en menos de 24 horas. Equipos listos para usar desde el primer día.</p>
-                                </div>
-                                
-                                <div class="service-card animate-on-scroll">
-                                    <div class="service-icon">
-                                        <i class="fas fa-shield-alt"></i>
-                                    </div>
-                                    <h3>Garantía Total</h3>
-                                    <p>Cobertura completa en reparaciones, mantenimiento y repuestos. Tu tranquilidad es nuestra prioridad.</p>
-                                </div>
-                                
-                                <div class="service-card animate-on-scroll">
-                                    <div class="service-icon">
-                                        <i class="fas fa-chart-line"></i>
-                                    </div>
-                                    <h3>Escalabilidad</h3>
-                                    <p>Crece con tu negocio. Upgrading automático según tus necesidades empresariales cambiantes.</p>
                                 </div>
                             </div>
                         </div>
                     </section>
 
-                    <!-- Modal para Galería -->
-                    <div class="modal fade" id="galleryModal" tabindex="-1" aria-labelledby="galleryModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-xl modal-dialog-centered">
+                    <!-- SECCIÓN DE PRODUCTOS -->
+                    <section class="products-section">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-12 text-center">
+                                    <div class="section-header">
+                                        <span class="section-badge">Catálogo</span>
+                                        <h2 class="section-title">Equipos Multifuncionales</h2>
+                                        <p class="section-subtitle">Encuentra la solución perfecta para tu empresa</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row products-grid">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="product-card" data-bs-toggle="modal" data-bs-target="#productModal" data-product="multifuncional-a3">
+                                        <div class="product-image">
+                                            <img src="https://images.unsplash.com/photo-1586473219010-2ffc57b0d282?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=600&amp;q=80" alt="Multifuncional A3" class="img-fluid"/>
+                                            <div class="product-badge">A3</div>
+                                        </div>
+                                        <div class="product-info">
+                                            <h3>Multifuncionales A3</h3>
+                                            <p>Ideales para oficinas grandes y centros de copiado</p>
+                                            <ul class="product-features">
+                                                <li><i class="fas fa-print"></i> Impresión hasta A3</li>
+                                                <li><i class="fas fa-scan"></i> Escaneo automático</li>
+                                                <li><i class="fas fa-copy"></i> Copiado rápido</li>
+                                                <li><i class="fas fa-fax"></i> Fax opcional</li>
+                                            </ul>
+                                        </div>
+                                        <div class="product-overlay">
+                                            <i class="fas fa-eye"></i>
+                                            <span>Ver detalles técnicos</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="product-card" data-bs-toggle="modal" data-bs-target="#productModal" data-product="multifuncional-a4">
+                                        <div class="product-image">
+                                            <img src="https://images.unsplash.com/photo-1612198188060-c7c2a3b66eae?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=600&amp;q=80" alt="Multifuncional A4" class="img-fluid"/>
+                                            <div class="product-badge popular">A4</div>
+                                        </div>
+                                        <div class="product-info">
+                                            <h3>Multifuncionales A4</h3>
+                                            <p>Perfectos para oficinas medianas y pequeñas</p>
+                                            <ul class="product-features">
+                                                <li><i class="fas fa-print"></i> Impresión A4</li>
+                                                <li><i class="fas fa-scan"></i> Escaneo a color</li>
+                                                <li><i class="fas fa-wifi"></i> Conectividad WiFi</li>
+                                                <li><i class="fas fa-mobile-alt"></i> Impresión móvil</li>
+                                            </ul>
+                                        </div>
+                                        <div class="product-overlay">
+                                            <i class="fas fa-eye"></i>
+                                            <span>Ver detalles técnicos</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="product-card" data-bs-toggle="modal" data-bs-target="#productModal" data-product="impresoras-laser">
+                                        <div class="product-image">
+                                            <img src="https://images.unsplash.com/photo-1562577309-2592ab84b1bc?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=600&amp;q=80" alt="Impresoras Láser" class="img-fluid"/>
+                                            <div class="product-badge">LÁSER</div>
+                                        </div>
+                                        <div class="product-info">
+                                            <h3>Impresoras Láser</h3>
+                                            <p>Alta velocidad y calidad profesional</p>
+                                            <ul class="product-features">
+                                                <li><i class="fas fa-tachometer-alt"></i> Alta velocidad</li>
+                                                <li><i class="fas fa-dollar-sign"></i> Bajo costo por página</li>
+                                                <li><i class="fas fa-shield-alt"></i> Durabilidad superior</li>
+                                                <li><i class="fas fa-network-wired"></i> Conectividad red</li>
+                                            </ul>
+                                        </div>
+                                        <div class="product-overlay">
+                                            <i class="fas fa-eye"></i>
+                                            <span>Ver detalles técnicos</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="product-card" data-bs-toggle="modal" data-bs-target="#productModal" data-product="equipos-especializados">
+                                        <div class="product-image">
+                                            <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=600&amp;q=80" alt="Equipos Especializados" class="img-fluid"/>
+                                            <div class="product-badge special">ESPECIAL</div>
+                                        </div>
+                                        <div class="product-info">
+                                            <h3>Equipos Especializados</h3>
+                                            <p>Soluciones para necesidades específicas</p>
+                                            <ul class="product-features">
+                                                <li><i class="fas fa-industry"></i> Uso industrial</li>
+                                                <li><i class="fas fa-palette"></i> Impresión gran formato</li>
+                                                <li><i class="fas fa-cogs"></i> Configuración especial</li>
+                                                <li><i class="fas fa-headset"></i> Soporte dedicado</li>
+                                            </ul>
+                                        </div>
+                                        <div class="product-overlay">
+                                            <i class="fas fa-eye"></i>
+                                            <span>Ver detalles técnicos</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mt-5">
+                                <div class="col-lg-12 text-center">
+                                    <a href="/cotizacion/form" class="btn-primary-modern">
+                                        <i class="fas fa-calculator"></i>
+                                        Solicitar Cotización Personalizada
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- SECCIÓN DE PROCESO -->
+                    <section class="process-section">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-12 text-center">
+                                    <div class="section-header">
+                                        <span class="section-badge">Proceso</span>
+                                        <h2 class="section-title">¿Cómo Funciona Nuestro Alquiler?</h2>
+                                        <p class="section-subtitle">Un proceso simple y transparente</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row process-steps">
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="process-step">
+                                        <div class="step-number">01</div>
+                                        <div class="step-icon">
+                                            <i class="fas fa-comments"></i>
+                                        </div>
+                                        <h3>Consulta Gratuita</h3>
+                                        <p>Conversamos sobre tus necesidades y evaluamos el mejor equipo para tu empresa</p>
+                                        <a href="/cotizacion/form" class="step-link">Iniciar consulta <i class="fas fa-arrow-right"></i></a>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="process-step">
+                                        <div class="step-number">02</div>
+                                        <div class="step-icon">
+                                            <i class="fas fa-search"></i>
+                                        </div>
+                                        <h3>Evaluación</h3>
+                                        <p>Analizamos tu volumen de impresión y recomendamos la solución más eficiente</p>
+                                        <div class="step-features">
+                                            <span><i class="fas fa-check"></i> Sin compromiso</span>
+                                            <span><i class="fas fa-check"></i> Personalizada</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="process-step">
+                                        <div class="step-number">03</div>
+                                        <div class="step-icon">
+                                            <i class="fas fa-cog"></i>
+                                        </div>
+                                        <h3>Instalación</h3>
+                                        <p>Instalamos y configuramos tu equipo en menos de 24 horas, listo para usar</p>
+                                        <div class="step-features">
+                                            <span><i class="fas fa-clock"></i> 24 horas</span>
+                                            <span><i class="fas fa-check"></i> Configuración incluida</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="process-step">
+                                        <div class="step-number">04</div>
+                                        <div class="step-icon">
+                                            <i class="fas fa-headset"></i>
+                                        </div>
+                                        <h3>Soporte Continuo</h3>
+                                        <p>Mantenimiento, soporte técnico y reposición de consumibles incluidos</p>
+                                        <div class="step-features">
+                                            <span><i class="fas fa-clock"></i> 24/7</span>
+                                            <span><i class="fas fa-tools"></i> Mantenimiento</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- SECCIÓN DE TESTIMONIOS -->
+                    <section class="testimonials-section">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-12 text-center">
+                                    <div class="section-header">
+                                        <span class="section-badge">Testimonios</span>
+                                        <h2 class="section-title">Lo Que Dicen Nuestros Clientes</h2>
+                                        <p class="section-subtitle">Casos de éxito reales</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row testimonials-carousel">
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="testimonial-card">
+                                        <div class="testimonial-rating">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                        <blockquote>
+                                            "El alquiler nos permitió tener equipos de última generación sin inversión inicial. El soporte técnico es excepcional."
+                                        </blockquote>
+                                        <div class="testimonial-author">
+                                            <div class="author-avatar">
+                                                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=100&amp;q=80" alt="Carlos Mendoza" class="img-fluid"/>
+                                            </div>
+                                            <div class="author-info">
+                                                <h4>Carlos Mendoza</h4>
+                                                <span>Gerente General - Estudio Jurídico</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="testimonial-card">
+                                        <div class="testimonial-rating">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                        <blockquote>
+                                            "La instalación fue rápida y el equipo funciona perfecto. El mantenimiento incluido es una gran ventaja."
+                                        </blockquote>
+                                        <div class="testimonial-author">
+                                            <div class="author-avatar">
+                                                <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=100&amp;q=80" alt="Ana Rodriguez" class="img-fluid"/>
+                                            </div>
+                                            <div class="author-info">
+                                                <h4>Ana Rodriguez</h4>
+                                                <span>Administradora - Clínica Médica</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="testimonial-card">
+                                        <div class="testimonial-rating">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                        <blockquote>
+                                            "Excelente servicio y calidad. Los equipos Canon que nos proporcionaron superaron nuestras expectativas."
+                                        </blockquote>
+                                        <div class="testimonial-author">
+                                            <div class="author-avatar">
+                                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=100&amp;q=80" alt="Luis Vargas" class="img-fluid"/>
+                                            </div>
+                                            <div class="author-info">
+                                                <h4>Luis Vargas</h4>
+                                                <span>Director - Centro Educativo</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- SECCIÓN FAQ -->
+                    <section class="faq-section">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-12 text-center">
+                                    <div class="section-header">
+                                        <span class="section-badge">FAQ</span>
+                                        <h2 class="section-title">Preguntas Frecuentes</h2>
+                                        <p class="section-subtitle">Resolvemos tus dudas principales</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-lg-8 mx-auto">
+                                    <div class="accordion" id="faqAccordion">
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="faq1">
+                                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="true" aria-controls="collapse1">
+                                                    <i class="fas fa-question-circle me-3"></i>
+                                                    ¿Cómo funciona el alquiler de fotocopiadoras?
+                                                </button>
+                                            </h2>
+                                            <div id="collapse1" class="accordion-collapse collapse show" aria-labelledby="faq1" data-bs-parent="#faqAccordion">
+                                                <div class="accordion-body">
+                                                    <p>El alquiler funciona de manera muy simple: evaluamos tus necesidades, te recomendamos el equipo ideal, lo instalamos en tu oficina y te brindamos soporte continuo. Solo pagas una renta mensual que incluye mantenimiento, repuestos y soporte técnico.</p>
+                                                    <ul>
+                                                        <li><i class="fas fa-check text-success me-2"></i>Sin inversión inicial</li>
+                                                        <li><i class="fas fa-check text-success me-2"></i>Mantenimiento incluido</li>
+                                                        <li><i class="fas fa-check text-success me-2"></i>Soporte técnico 24/7</li>
+                                                        <li><i class="fas fa-check text-success me-2"></i>Flexibilidad de contrato</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="faq2">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+                                                    <i class="fas fa-tools me-3"></i>
+                                                    ¿Qué incluye el mantenimiento?
+                                                </button>
+                                            </h2>
+                                            <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="faq2" data-bs-parent="#faqAccordion">
+                                                <div class="accordion-body">
+                                                    <p>Nuestro servicio de mantenimiento es integral y está incluido en el alquiler:</p>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <h5><i class="fas fa-cog text-primary me-2"></i>Mantenimiento Preventivo:</h5>
+                                                            <ul>
+                                                                <li>Limpieza interna regular</li>
+                                                                <li>Calibración de componentes</li>
+                                                                <li>Actualización de firmware</li>
+                                                                <li>Revisión de consumibles</li>
+                                                            </ul>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <h5><i class="fas fa-wrench text-primary me-2"></i>Mantenimiento Correctivo:</h5>
+                                                            <ul>
+                                                                <li>Reparación de averías</li>
+                                                                <li>Reemplazo de repuestos</li>
+                                                                <li>Solución de problemas técnicos</li>
+                                                                <li>Reposición de consumibles</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="faq3">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+                                                    <i class="fas fa-clock me-3"></i>
+                                                    ¿Cuáles son los tiempos de respuesta?
+                                                </button>
+                                            </h2>
+                                            <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="faq3" data-bs-parent="#faqAccordion">
+                                                <div class="accordion-body">
+                                                    <p>Nos comprometemos con tiempos de respuesta rápidos para minimizar interrupciones en tu trabajo:</p>
+                                                    <div class="response-times">
+                                                        <div class="time-item">
+                                                            <div class="time-icon">
+                                                                <i class="fas fa-phone"></i>
+                                                            </div>
+                                                            <div class="time-info">
+                                                                <h5>Soporte Telefónico</h5>
+                                                                <span class="time-badge">Inmediato</span>
+                                                                <p>Atención 24/7 para consultas y soporte básico</p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="time-item">
+                                                            <div class="time-icon">
+                                                                <i class="fas fa-laptop"></i>
+                                                            </div>
+                                                            <div class="time-info">
+                                                                <h5>Soporte Remoto</h5>
+                                                                <span class="time-badge">15 min</span>
+                                                                <p>Conexión remota para diagnóstico y soluciones</p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="time-item">
+                                                            <div class="time-icon">
+                                                                <i class="fas fa-user-tie"></i>
+                                                            </div>
+                                                            <div class="time-info">
+                                                                <h5>Visita Técnica</h5>
+                                                                <span class="time-badge">4 horas</span>
+                                                                <p>Técnico especializado en tu oficina</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="faq4">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4" aria-expanded="false" aria-controls="collapse4">
+                                                    <i class="fas fa-graduation-cap me-3"></i>
+                                                    ¿Ofrecen capacitación para el personal?
+                                                </button>
+                                            </h2>
+                                            <div id="collapse4" class="accordion-collapse collapse" aria-labelledby="faq4" data-bs-parent="#faqAccordion">
+                                                <div class="accordion-body">
+                                                    <p>Sí, incluimos capacitación completa para tu equipo sin costo adicional:</p>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <h5><i class="fas fa-chalkboard-teacher text-primary me-2"></i>Capacitación Inicial:</h5>
+                                                            <ul>
+                                                                <li>Operación básica del equipo</li>
+                                                                <li>Funciones principales</li>
+                                                                <li>Configuración de usuario</li>
+                                                                <li>Resolución de problemas menores</li>
+                                                            </ul>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <h5><i class="fas fa-laptop text-primary me-2"></i>Capacitación Avanzada:</h5>
+                                                            <ul>
+                                                                <li>Funciones especializadas</li>
+                                                                <li>Integración con sistemas</li>
+                                                                <li>Optimización de workflow</li>
+                                                                <li>Mejores prácticas</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <div class="training-note">
+                                                        <i class="fas fa-info-circle text-info me-2"></i>
+                                                        <span>También ofrecemos sesiones de actualización cuando sea necesario</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="faq5">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse5" aria-expanded="false" aria-controls="collapse5">
+                                                    <i class="fas fa-exchange-alt me-3"></i>
+                                                    ¿Puedo cambiar o actualizar el equipo?
+                                                </button>
+                                            </h2>
+                                            <div id="collapse5" class="accordion-collapse collapse" aria-labelledby="faq5" data-bs-parent="#faqAccordion">
+                                                <div class="accordion-body">
+                                                    <p>Absolutamente. Una de las principales ventajas del alquiler es la flexibilidad:</p>
+                                                    <div class="flexibility-options">
+                                                        <div class="option-card">
+                                                            <i class="fas fa-arrow-up text-success"></i>
+                                                            <h5>Upgrade</h5>
+                                                            <p>Cambia a un equipo más avanzado cuando crezcan tus necesidades</p>
+                                                        </div>
+                                                        <div class="option-card">
+                                                            <i class="fas fa-arrow-down text-warning"></i>
+                                                            <h5>Downgrade</h5>
+                                                            <p>Reduce a un equipo más básico si disminuye tu volumen</p>
+                                                        </div>
+                                                        <div class="option-card">
+                                                            <i class="fas fa-sync-alt text-primary"></i>
+                                                            <h5>Cambio Lateral</h5>
+                                                            <p>Cambia por características específicas que necesites</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flexibility-note">
+                                                        <i class="fas fa-handshake text-success me-2"></i>
+                                                        <span>Evaluamos cada caso y ajustamos el contrato según tus nuevas necesidades</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- SECCIÓN CTA FINAL -->
+                    <section class="final-cta-section">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="cta-card">
+                                        <div class="cta-background"></div>
+                                        <div class="row align-items-center">
+                                            <div class="col-lg-8">
+                                                <div class="cta-content">
+                                                    <h2>¿Listo para Modernizar tu Oficina?</h2>
+                                                    <p>Obtén equipos de última generación sin inversión inicial. Soporte técnico incluido y la mejor calidad del mercado.</p>
+                                                    <div class="cta-features">
+                                                        <span><i class="fas fa-check"></i> Cotización gratuita en 24 horas</span>
+                                                        <span><i class="fas fa-check"></i> Instalación sin costo</span>
+                                                        <span><i class="fas fa-check"></i> Soporte técnico incluido</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4 text-center">
+                                                <div class="cta-actions">
+                                                    <a href="/cotizacion/form" class="btn-cta-primary">
+                                                        <i class="fas fa-calculator"></i>
+                                                        Cotizar Ahora
+                                                    </a>
+                                                    <a href="/contactus" class="btn-cta-secondary">
+                                                        <i class="fas fa-phone"></i>
+                                                        Llamar Gratis
+                                                    </a>
+                                                    <div class="contact-info">
+                                                        <div class="contact-item">
+                                                            <i class="fas fa-phone text-success"></i>
+                                                            <span>(01) 234-5678</span>
+                                                        </div>
+                                                        <div class="contact-item">
+                                                            <i class="fab fa-whatsapp text-success"></i>
+                                                            <span>WhatsApp 24/7</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- MODALES -->
+                    
+                    <!-- Modal de Beneficios -->
+                    <div class="modal fade" id="benefitModal" tabindex="-1" aria-labelledby="benefitModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="galleryModalLabel">
-                                        <i class="fas fa-image me-2"></i>
-                                        Imagen
+                                    <h5 class="modal-title" id="benefitModalLabel">
+                                        <i class="fas fa-star me-2"></i>
+                                        Beneficio Detallado
                                     </h5>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <div class="modal-body">
-                                    <img id="modalImage" src="" alt="" class="img-fluid rounded"/>
+                                <div class="modal-body" id="benefitModalBody">
+                                    <!-- Contenido dinámico -->
+                                </div>
+                                <div class="modal-footer">
+                                    <a href="/cotizacion/form" class="btn btn-primary">
+                                        <i class="fas fa-calculator me-2"></i>
+                                        Solicitar Cotización
+                                    </a>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Modal para Marcas -->
+                    <!-- Modal de Marcas -->
                     <div class="modal fade" id="brandModal" tabindex="-1" aria-labelledby="brandModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-dialog modal-xl modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="brandModalLabel">
                                         <i class="fas fa-award me-2"></i>
-                                        Información de la Marca
+                                        Especificaciones de Marca
                                     </h5>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body" id="brandModalBody">
-                                    <!-- Content will be loaded dynamically -->
+                                    <!-- Contenido dinámico -->
+                                </div>
+                                <div class="modal-footer">
+                                    <a href="/cotizacion/form" class="btn btn-primary">
+                                        <i class="fas fa-calculator me-2"></i>
+                                        Cotizar Esta Marca
+                                    </a>
+                                    <a href="/our-services" class="btn btn-outline-primary">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Ver Más Servicios
+                                    </a>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- JavaScript -->
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            // Galería Modal
-                            const galleryItems = document.querySelectorAll('.copier-gallery-wrapper .gallery-item');
-                            const modalImage = document.getElementById('modalImage');
-                            const modalTitle = document.getElementById('galleryModalLabel');
-                            
-                            galleryItems.forEach(item => {
-                                item.addEventListener('click', function() {
-                                    const imgSrc = this.getAttribute('data-img');
-                                    const title = this.getAttribute('data-title');
-                                    
-                                    modalImage.src = imgSrc;
-                                    modalImage.alt = title;
-                                    modalTitle.innerHTML = '<i class="fas fa-image me-2"></i>' + title;
-                                });
-                            });
-                            
-                            // Marcas Modal
-                            const brandItems = document.querySelectorAll('.copier-gallery-wrapper .brand-item');
-                            const brandModalBody = document.getElementById('brandModalBody');
-                            const brandModalTitle = document.getElementById('brandModalLabel');
-                            
-                            const brandInfo = {
-                                konica: {
-                                    title: 'Konica Minolta',
-                                    content: `
-                                        <div class="text-center">
-                                            <img src="/copier_company/static/img/konica_minolta_logo.png" alt="Konica Minolta" class="mb-4" style="max-width: 200px;"/>
-                                            <h4 class="mb-3">Konica Minolta</h4>
-                                            <p class="lead mb-4">Tecnología de vanguardia en impresión y escaneo multifuncional</p>
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <h5 class="text-primary mb-3"><i class="fas fa-cogs me-2"></i>Características:</h5>
-                                                    <ul class="list-unstyled text-start">
-                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Hasta 75 páginas por minuto</li>
-                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Impresión a color y B/N</li>
-                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Conectividad avanzada</li>
-                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Interfaz táctil intuitiva</li>
-                                                    </ul>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <h5 class="text-primary mb-3"><i class="fas fa-star me-2"></i>Ventajas:</h5>
-                                                    <ul class="list-unstyled text-start">
-                                                        <li class="mb-2"><i class="fas fa-shield-alt text-success me-2"></i>Seguridad empresarial</li>
-                                                        <li class="mb-2"><i class="fas fa-leaf text-success me-2"></i>Bajo consumo energético</li>
-                                                        <li class="mb-2"><i class="fas fa-cloud text-success me-2"></i>Integración en la nube</li>
-                                                        <li class="mb-2"><i class="fas fa-mobile-alt text-success me-2"></i>Impresión móvil</li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    `
-                                },
-                                canon: {
-                                    title: 'Canon',
-                                    content: `
-                                        <div class="text-center">
-                                            <img src="/copier_company/static/img/canon-logo.png" alt="Canon" class="mb-4" style="max-width: 200px;"/>
-                                            <h4 class="mb-3">Canon</h4>
-                                            <p class="lead mb-4">Versatilidad superior en impresiones de alta calidad</p>
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <h5 class="text-primary mb-3"><i class="fas fa-cogs me-2"></i>Características:</h5>
-                                                    <ul class="list-unstyled text-start">
-                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Hasta 55 páginas por minuto</li>
-                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Calidad fotográfica</li>
-                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Tecnología híbrida</li>
-                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Diseño compacto</li>
-                                                    </ul>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <h5 class="text-primary mb-3"><i class="fas fa-star me-2"></i>Ventajas:</h5>
-                                                    <ul class="list-unstyled text-start">
-                                                        <li class="mb-2"><i class="fas fa-mobile-alt text-success me-2"></i>Impresión móvil</li>
-                                                        <li class="mb-2"><i class="fas fa-leaf text-success me-2"></i>Eficiencia energética</li>
-                                                        <li class="mb-2"><i class="fas fa-tools text-success me-2"></i>Fácil mantenimiento</li>
-                                                        <li class="mb-2"><i class="fas fa-palette text-success me-2"></i>Excelente calidad de color</li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    `
-                                },
-                                ricoh: {
-                                    title: 'Ricoh',
-                                    content: `
-                                        <div class="text-center">
-                                            <img src="/copier_company/static/img/ricoh-logo-png.png" alt="Ricoh" class="mb-4" style="max-width: 200px;"/>
-                                            <h4 class="mb-3">Ricoh</h4>
-                                            <p class="lead mb-4">Rendimiento confiable y durabilidad excepcional</p>
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <h5 class="text-primary mb-3"><i class="fas fa-cogs me-2"></i>Características:</h5>
-                                                    <ul class="list-unstyled text-start">
-                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Hasta 60 páginas por minuto</li>
-                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Máxima seguridad</li>
-                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Facilidad de uso</li>
-                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Diseño robusto</li>
-                                                    </ul>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <h5 class="text-primary mb-3"><i class="fas fa-star me-2"></i>Ventajas:</h5>
-                                                    <ul class="list-unstyled text-start">
-                                                        <li class="mb-2"><i class="fas fa-leaf text-success me-2"></i>Eficiencia energética</li>
-                                                        <li class="mb-2"><i class="fas fa-cloud text-success me-2"></i>Conectividad en la nube</li>
-                                                        <li class="mb-2"><i class="fas fa-shield-alt text-success me-2"></i>Alta durabilidad</li>
-                                                        <li class="mb-2"><i class="fas fa-dollar-sign text-success me-2"></i>Costo-beneficio óptimo</li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    `
-                                }
-                            };
-                            
-                            brandItems.forEach(item =&gt; {
-                                item.addEventListener('click', function() {
-                                    const brand = this.getAttribute('data-brand');
-                                    const info = brandInfo[brand];
-                                    
-                                    if (info) {
-                                        brandModalTitle.innerHTML = '<i class="fas fa-award me-2"></i>' + info.title;
-                                        brandModalBody.innerHTML = info.content;
-                                    }
-                                });
-                            });
-                            
-                            // Animaciones on scroll
-                            const observerOptions = {
-                                threshold: 0.1,
-                                rootMargin: '0px 0px -50px 0px'
-                            };
-                            
-                            const observer = new IntersectionObserver(function(entries) {
-                                entries.forEach(entry =&gt; {
-                                    if (entry.isIntersecting) {
-                                        entry.target.classList.add('animated');
-                                    }
-                                });
-                            }, observerOptions);
-                            
-                            // Observar elementos con animación
-                            document.querySelectorAll('.copier-gallery-wrapper .animate-on-scroll').forEach(el => {
-                                observer.observe(el);
-                            });
-                        });
-                    </script>
+                    <!-- Modal de Productos -->
+                    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-xl modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="productModalLabel">
+                                        <i class="fas fa-print me-2"></i>
+                                        Especificaciones Técnicas
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body" id="productModalBody">
+                                    <!-- Contenido dinámico -->
+                                </div>
+                                <div class="modal-footer">
+                                    <a href="/cotizacion/form" class="btn btn-primary">
+                                        <i class="fas fa-calculator me-2"></i>
+                                        Cotizar Este Equipo
+                                    </a>
+                                    <a href="/our-services" class="btn btn-outline-primary">
+                                        <i class="fas fa-tools me-2"></i>
+                                        Ver Servicios
+                                    </a>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botón flotante de WhatsApp -->
+                    <div class="whatsapp-float">
+                        <a href="https://wa.me/51999999999?text=Hola,%20quiero%20información%20sobre%20alquiler%20de%20fotocopiadoras" target="_blank" class="whatsapp-btn">
+                            <i class="fab fa-whatsapp"></i>
+                            <span class="whatsapp-text">¿Necesitas ayuda?</span>
+                        </a>
+                    </div>
+
+                    <!-- Botón flotante de cotización rápida -->
+                    <div class="quote-float">
+                        <a href="/cotizacion/form" class="quote-btn">
+                            <i class="fas fa-calculator"></i>
+                            <span class="quote-text">Cotización Rápida</span>
+                        </a>
+                    </div>
+
                 </div>
             </xpath>
         </template>
