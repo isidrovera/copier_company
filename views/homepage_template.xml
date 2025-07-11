@@ -1,128 +1,134 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Template heredado para la homepage de Copier Company -->
-        <template id="copier_company_homepage" name="Copier Company Homepage" inherit_id="website.homepage">
+        <!-- Template heredado para la homepage de Copier Company con Galería Moderna -->
+        <template id="copier_company_homepage_gallery" name="Copier Company Homepage with Gallery" inherit_id="website.homepage">
             <xpath expr="//div[@id='wrap']" position="replace">
-                <div id="wrap">
-                    <!-- CSS específico para evitar conflictos -->
+                <div id="wrap" class="copier-gallery-wrapper">
+                    <!-- CSS específico scoped -->
                     <style>
-                        /* Scope limitado solo para esta página */
-                        .copier-homepage {
+                        /* Scope limitado para evitar conflictos con Odoo */
+                        .copier-gallery-wrapper {
                             font-family: 'Inter', sans-serif;
                         }
                         
-                        .copier-homepage .hero-section {
-                            min-height: 80vh;
-                            background: linear-gradient(135deg, rgba(102,126,234,0.9) 0%, rgba(118,75,162,0.9) 100%),
-                                        url('https://images.unsplash.com/photo-1586473219010-2ffc57b0d282?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=2000&amp;q=80');
-                            background-size: cover;
-                            background-position: center;
-                            background-attachment: fixed;
-                            display: flex;
-                            align-items: center;
-                            color: white;
+                        /* Hero Carousel */
+                        .copier-gallery-wrapper .hero-section {
+                            height: 85vh;
                             position: relative;
                             overflow: hidden;
+                            background: linear-gradient(135deg, rgba(102,126,234,0.9) 0%, rgba(118,75,162,0.9) 100%);
                         }
                         
-                        .copier-homepage .hero-section::before {
-                            content: '';
+                        .copier-gallery-wrapper .carousel-item {
+                            height: 85vh;
+                            background-size: cover;
+                            background-position: center;
+                            position: relative;
+                        }
+                        
+                        .copier-gallery-wrapper .carousel-overlay {
                             position: absolute;
                             top: 0;
                             left: 0;
                             right: 0;
                             bottom: 0;
-                            background: url('data:image/svg+xml,&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"&gt;&lt;polygon fill="rgba(255,255,255,0.1)" points="0,1000 1000,0 1000,1000"/&gt;&lt;/svg&gt;');
-                            background-size: cover;
+                            background: linear-gradient(135deg, rgba(102,126,234,0.8) 0%, rgba(118,75,162,0.8) 100%);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
                         }
                         
-                        .copier-homepage .hero-content {
-                            position: relative;
-                            z-index: 2;
+                        .copier-gallery-wrapper .hero-content {
                             text-align: center;
+                            color: white;
                             max-width: 800px;
-                            margin: 0 auto;
                             padding: 0 20px;
+                            position: relative;
+                            z-index: 3;
                         }
                         
-                        .copier-homepage .hero-title {
+                        .copier-gallery-wrapper .hero-title {
                             font-size: 3.5rem;
                             font-weight: 700;
                             margin-bottom: 20px;
-                            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                            text-shadow: 0 2px 15px rgba(0,0,0,0.5);
                             animation: fadeInUp 1s ease-out;
                         }
                         
-                        .copier-homepage .hero-subtitle {
+                        .copier-gallery-wrapper .hero-subtitle {
                             font-size: 1.4rem;
-                            margin-bottom: 30px;
+                            margin-bottom: 40px;
                             opacity: 0.95;
                             font-weight: 300;
                             animation: fadeInUp 1s ease-out 0.3s both;
                         }
                         
-                        .copier-homepage .brands-showcase {
-                            display: flex;
-                            justify-content: center;
-                            gap: 40px;
-                            margin: 40px 0;
-                            flex-wrap: wrap;
-                            animation: fadeInUp 1s ease-out 0.6s both;
-                        }
-                        
-                        .copier-homepage .brand-badge {
-                            background: rgba(255,255,255,0.15);
-                            padding: 15px 25px;
-                            border-radius: 50px;
-                            font-weight: 600;
-                            backdrop-filter: blur(10px);
-                            border: 1px solid rgba(255,255,255,0.2);
-                            transition: all 0.3s ease;
-                        }
-                        
-                        .copier-homepage .brand-badge:hover {
-                            background: rgba(255,255,255,0.25);
-                            transform: translateY(-2px);
-                        }
-                        
-                        .copier-homepage .btn-hero {
+                        .copier-gallery-wrapper .btn-hero {
                             background: linear-gradient(45deg, #ff6b6b, #ee5a52);
-                            color: white;
-                            padding: 18px 40px;
                             border: none;
+                            padding: 18px 40px;
                             border-radius: 50px;
-                            font-size: 1.1rem;
+                            color: white !important;
                             font-weight: 600;
                             text-decoration: none;
                             display: inline-block;
-                            transition: all 0.3s ease;
-                            box-shadow: 0 8px 25px rgba(255,107,107,0.4);
-                            animation: fadeInUp 1s ease-out 0.9s both;
+                            transition: all 0.4s ease;
+                            box-shadow: 0 10px 30px rgba(255,107,107,0.4);
+                            animation: fadeInUp 1s ease-out 0.6s both;
                         }
                         
-                        .copier-homepage .btn-hero:hover {
-                            transform: translateY(-3px);
-                            box-shadow: 0 12px 35px rgba(255,107,107,0.6);
-                            color: white;
+                        .copier-gallery-wrapper .btn-hero:hover {
+                            transform: translateY(-3px) scale(1.05);
+                            box-shadow: 0 15px 40px rgba(255,107,107,0.6);
+                            color: white !important;
                             text-decoration: none;
                         }
                         
-                        .copier-homepage .features-section {
-                            padding: 80px 0;
+                        /* Controles del Carousel */
+                        .copier-gallery-wrapper .carousel-control-prev,
+                        .copier-gallery-wrapper .carousel-control-next {
+                            width: 50px;
+                            height: 50px;
+                            border-radius: 50%;
+                            background: rgba(255,255,255,0.2);
+                            backdrop-filter: blur(10px);
+                            border: 1px solid rgba(255,255,255,0.3);
+                            top: 50%;
+                            transform: translateY(-50%);
+                            transition: all 0.3s ease;
+                        }
+                        
+                        .copier-gallery-wrapper .carousel-control-prev {
+                            left: 20px;
+                        }
+                        
+                        .copier-gallery-wrapper .carousel-control-next {
+                            right: 20px;
+                        }
+                        
+                        .copier-gallery-wrapper .carousel-control-prev:hover,
+                        .copier-gallery-wrapper .carousel-control-next:hover {
+                            background: rgba(255,255,255,0.3);
+                            transform: translateY(-50%) scale(1.1);
+                        }
+                        
+                        /* Sección de Marcas */
+                        .copier-gallery-wrapper .brands-section {
+                            padding: 60px 0;
                             background: white;
                         }
                         
-                        .copier-homepage .section-title {
+                        .copier-gallery-wrapper .section-title {
                             text-align: center;
                             font-size: 2.5rem;
                             font-weight: 700;
-                            margin-bottom: 60px;
+                            margin-bottom: 50px;
                             color: #2c3e50;
                             position: relative;
                         }
                         
-                        .copier-homepage .section-title::after {
+                        .copier-gallery-wrapper .section-title::after {
                             content: '';
                             position: absolute;
                             bottom: -10px;
@@ -134,25 +140,197 @@
                             border-radius: 2px;
                         }
                         
-                        .copier-homepage .features-grid {
-                            display: grid;
-                            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                        .copier-gallery-wrapper .brands-container {
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
                             gap: 40px;
-                            margin-top: 60px;
+                            flex-wrap: wrap;
                         }
                         
-                        .copier-homepage .feature-card {
+                        .copier-gallery-wrapper .brand-item {
+                            background: white;
+                            padding: 20px;
+                            border-radius: 15px;
+                            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+                            transition: all 0.3s ease;
+                            cursor: pointer;
+                            width: 140px;
+                            height: 90px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            position: relative;
+                            overflow: hidden;
+                        }
+                        
+                        .copier-gallery-wrapper .brand-item:hover {
+                            transform: translateY(-5px);
+                            box-shadow: 0 15px 40px rgba(102,126,234,0.2);
+                        }
+                        
+                        .copier-gallery-wrapper .brand-item::before {
+                            content: '';
+                            position: absolute;
+                            top: 0;
+                            left: -100%;
+                            width: 100%;
+                            height: 100%;
+                            background: linear-gradient(90deg, transparent, rgba(102,126,234,0.1), transparent);
+                            transition: left 0.5s ease;
+                        }
+                        
+                        .copier-gallery-wrapper .brand-item:hover::before {
+                            left: 100%;
+                        }
+                        
+                        /* GALERÍA DE FOTOS MODERNA */
+                        .copier-gallery-wrapper .photo-gallery-section {
+                            padding: 80px 0;
+                            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                        }
+                        
+                        .copier-gallery-wrapper .gallery-grid {
+                            display: grid;
+                            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                            gap: 30px;
+                            margin-top: 50px;
+                        }
+                        
+                        .copier-gallery-wrapper .gallery-item {
+                            position: relative;
+                            height: 280px;
+                            border-radius: 20px;
+                            overflow: hidden;
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                            transition: all 0.4s ease;
+                            cursor: pointer;
+                            background-size: cover;
+                            background-position: center;
+                        }
+                        
+                        .copier-gallery-wrapper .gallery-item:hover {
+                            transform: translateY(-10px) scale(1.02);
+                            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+                        }
+                        
+                        .copier-gallery-wrapper .gallery-overlay {
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            right: 0;
+                            bottom: 0;
+                            background: linear-gradient(135deg, rgba(102,126,234,0.8) 0%, rgba(118,75,162,0.8) 100%);
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            opacity: 0;
+                            transition: all 0.4s ease;
+                            color: white;
+                            text-align: center;
+                            padding: 20px;
+                        }
+                        
+                        .copier-gallery-wrapper .gallery-item:hover .gallery-overlay {
+                            opacity: 1;
+                        }
+                        
+                        .copier-gallery-wrapper .gallery-icon {
+                            font-size: 3rem;
+                            margin-bottom: 15px;
+                            transform: scale(0.8);
+                            transition: transform 0.3s ease;
+                        }
+                        
+                        .copier-gallery-wrapper .gallery-item:hover .gallery-icon {
+                            transform: scale(1);
+                        }
+                        
+                        .copier-gallery-wrapper .gallery-title {
+                            font-size: 1.5rem;
+                            font-weight: 600;
+                            margin-bottom: 10px;
+                            transform: translateY(20px);
+                            transition: transform 0.3s ease 0.1s;
+                        }
+                        
+                        .copier-gallery-wrapper .gallery-item:hover .gallery-title {
+                            transform: translateY(0);
+                        }
+                        
+                        .copier-gallery-wrapper .gallery-description {
+                            font-size: 1rem;
+                            opacity: 0.9;
+                            line-height: 1.4;
+                            transform: translateY(20px);
+                            transition: transform 0.3s ease 0.2s;
+                        }
+                        
+                        .copier-gallery-wrapper .gallery-item:hover .gallery-description {
+                            transform: translateY(0);
+                        }
+                        
+                        /* Iconos flotantes */
+                        .copier-gallery-wrapper .floating-icons {
+                            position: absolute;
+                            top: 15px;
+                            right: 15px;
+                            display: flex;
+                            gap: 10px;
+                        }
+                        
+                        .copier-gallery-wrapper .floating-icon {
+                            width: 40px;
+                            height: 40px;
+                            background: rgba(255,255,255,0.9);
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: #667eea;
+                            font-size: 1.2rem;
+                            transition: all 0.3s ease;
+                            opacity: 0;
+                            transform: scale(0.8);
+                        }
+                        
+                        .copier-gallery-wrapper .gallery-item:hover .floating-icon {
+                            opacity: 1;
+                            transform: scale(1);
+                        }
+                        
+                        .copier-gallery-wrapper .floating-icon:hover {
+                            background: #667eea;
+                            color: white;
+                            transform: scale(1.1);
+                        }
+                        
+                        /* Sección de Servicios con Iconos */
+                        .copier-gallery-wrapper .services-section {
+                            padding: 80px 0;
+                            background: white;
+                        }
+                        
+                        .copier-gallery-wrapper .services-grid {
+                            display: grid;
+                            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                            gap: 40px;
+                            margin-top: 50px;
+                        }
+                        
+                        .copier-gallery-wrapper .service-card {
                             background: white;
                             padding: 40px 30px;
                             border-radius: 20px;
                             text-align: center;
                             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-                            transition: all 0.3s ease;
+                            transition: all 0.4s ease;
                             position: relative;
                             overflow: hidden;
                         }
                         
-                        .copier-homepage .feature-card::before {
+                        .copier-gallery-wrapper .service-card::before {
                             content: '';
                             position: absolute;
                             top: 0;
@@ -162,154 +340,60 @@
                             background: linear-gradient(45deg, #667eea, #764ba2);
                         }
                         
-                        .copier-homepage .feature-card:hover {
+                        .copier-gallery-wrapper .service-card:hover {
                             transform: translateY(-10px);
                             box-shadow: 0 20px 50px rgba(0,0,0,0.15);
                         }
                         
-                        .copier-homepage .feature-icon {
-                            font-size: 3rem;
-                            margin-bottom: 20px;
+                        .copier-gallery-wrapper .service-icon {
+                            font-size: 3.5rem;
+                            margin-bottom: 25px;
                             background: linear-gradient(45deg, #667eea, #764ba2);
                             -webkit-background-clip: text;
                             -webkit-text-fill-color: transparent;
                             background-clip: text;
+                            transition: transform 0.3s ease;
                         }
                         
-                        .copier-homepage .feature-card h3 {
-                            font-size: 1.5rem;
+                        .copier-gallery-wrapper .service-card:hover .service-icon {
+                            transform: scale(1.1);
+                        }
+                        
+                        .copier-gallery-wrapper .service-card h3 {
+                            font-size: 1.6rem;
                             font-weight: 600;
                             margin-bottom: 15px;
                             color: #2c3e50;
                         }
                         
-                        .copier-homepage .feature-card p {
+                        .copier-gallery-wrapper .service-card p {
                             color: #666;
                             font-size: 1rem;
                             line-height: 1.6;
                         }
                         
-                        .copier-homepage .services-section {
-                            padding: 80px 0;
-                            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-                        }
-                        
-                        .copier-homepage .services-grid {
-                            display: grid;
-                            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-                            gap: 40px;
-                            margin-top: 60px;
-                        }
-                        
-                        .copier-homepage .service-card {
-                            background: white;
+                        /* Modal styling */
+                        .copier-gallery-wrapper .modal-content {
                             border-radius: 20px;
+                            border: none;
                             overflow: hidden;
-                            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-                            transition: all 0.3s ease;
-                            cursor: pointer;
                         }
                         
-                        .copier-homepage .service-card:hover {
-                            transform: translateY(-5px);
-                            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
-                        }
-                        
-                        .copier-homepage .service-image {
-                            height: 200px;
-                            background: #f8f9fa;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            position: relative;
-                            overflow: hidden;
-                            background-size: cover;
-                            background-position: center;
-                        }
-                        
-                        .copier-homepage .service-overlay {
-                            position: absolute;
-                            top: 0;
-                            left: 0;
-                            right: 0;
-                            bottom: 0;
-                            background: linear-gradient(135deg, rgba(102,126,234,0.8) 0%, rgba(118,75,162,0.8) 100%);
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            opacity: 0;
-                            transition: opacity 0.3s ease;
-                        }
-                        
-                        .copier-homepage .service-card:hover .service-overlay {
-                            opacity: 1;
-                        }
-                        
-                        .copier-homepage .service-overlay-content {
-                            text-align: center;
-                            color: white;
-                        }
-                        
-                        .copier-homepage .service-overlay i {
-                            font-size: 3rem;
-                            margin-bottom: 10px;
-                        }
-                        
-                        .copier-homepage .service-content {
-                            padding: 30px;
-                        }
-                        
-                        .copier-homepage .service-card h3 {
-                            font-size: 1.8rem;
-                            font-weight: 600;
-                            margin-bottom: 15px;
-                            color: #2c3e50;
-                        }
-                        
-                        .copier-homepage .service-card p {
-                            color: #666;
-                            font-size: 1rem;
-                            line-height: 1.6;
-                        }
-                        
-                        .copier-homepage .cta-section {
-                            padding: 80px 0;
+                        .copier-gallery-wrapper .modal-header {
                             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                             color: white;
-                            text-align: center;
-                        }
-                        
-                        .copier-homepage .cta-title {
-                            font-size: 2.5rem;
-                            font-weight: 700;
-                            margin-bottom: 20px;
-                        }
-                        
-                        .copier-homepage .cta-subtitle {
-                            font-size: 1.2rem;
-                            margin-bottom: 40px;
-                            opacity: 0.9;
-                        }
-                        
-                        .copier-homepage .btn-cta {
-                            background: white;
-                            color: #667eea;
-                            padding: 18px 40px;
                             border: none;
-                            border-radius: 50px;
-                            font-size: 1.1rem;
-                            font-weight: 600;
-                            text-decoration: none;
-                            display: inline-block;
-                            transition: all 0.3s ease;
-                            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+                            padding: 20px 30px;
                         }
                         
-                        .copier-homepage .btn-cta:hover {
-                            transform: translateY(-3px);
-                            box-shadow: 0 12px 35px rgba(0,0,0,0.3);
-                            color: #667eea;
-                            text-decoration: none;
+                        .copier-gallery-wrapper .modal-body {
+                            padding: 0;
+                        }
+                        
+                        .copier-gallery-wrapper .modal-body img {
+                            width: 100%;
+                            height: auto;
+                            object-fit: cover;
                         }
                         
                         /* Animaciones */
@@ -324,169 +408,515 @@
                             }
                         }
                         
-                        .copier-homepage .animate-on-scroll {
+                        @keyframes slideInDown {
+                            from {
+                                opacity: 0;
+                                transform: translateY(-30px);
+                            }
+                            to {
+                                opacity: 1;
+                                transform: translateY(0);
+                            }
+                        }
+                        
+                        .copier-gallery-wrapper .animate-on-scroll {
                             opacity: 0;
                             transform: translateY(30px);
                             transition: all 0.8s ease;
                         }
                         
-                        .copier-homepage .animate-on-scroll.animated {
+                        .copier-gallery-wrapper .animate-on-scroll.animated {
                             opacity: 1;
                             transform: translateY(0);
                         }
                         
                         /* Responsive */
                         @media (max-width: 768px) {
-                            .copier-homepage .hero-title {
+                            .copier-gallery-wrapper .hero-title {
                                 font-size: 2.5rem;
                             }
                             
-                            .copier-homepage .hero-subtitle {
+                            .copier-gallery-wrapper .hero-subtitle {
                                 font-size: 1.2rem;
                             }
                             
-                            .copier-homepage .brands-showcase {
-                                flex-direction: column;
+                            .copier-gallery-wrapper .gallery-grid {
+                                grid-template-columns: 1fr;
                                 gap: 20px;
                             }
                             
-                            .copier-homepage .features-grid,
-                            .copier-homepage .services-grid {
+                            .copier-gallery-wrapper .gallery-item {
+                                height: 250px;
+                            }
+                            
+                            .copier-gallery-wrapper .services-grid {
                                 grid-template-columns: 1fr;
                             }
                             
-                            .copier-homepage .section-title {
-                                font-size: 2rem;
+                            .copier-gallery-wrapper .carousel-control-prev {
+                                left: 10px;
                             }
                             
-                            .copier-homepage .cta-title {
-                                font-size: 2rem;
+                            .copier-gallery-wrapper .carousel-control-next {
+                                right: 10px;
                             }
                         }
                     </style>
                     
-                    <!-- Contenido de la página -->
-                    <div class="copier-homepage">
-                        <!-- Hero Section -->
-                        <section class="hero-section">
-                            <div class="hero-content">
-                                <h1 class="hero-title">Alquiler de Fotocopiadoras para Empresas</h1>
-                                <p class="hero-subtitle">Soluciones profesionales de impresión sin inversión inicial</p>
-                                
-                                <div class="brands-showcase">
-                                    <div class="brand-badge">Konica Minolta</div>
-                                    <div class="brand-badge">Canon</div>
-                                    <div class="brand-badge">Ricoh</div>
+                    <!-- Hero Carousel -->
+                    <section class="hero-section">
+                        <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+                            <div class="carousel-indicators">
+                                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
+                                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+                                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
+                            </div>
+                            
+                            <div class="carousel-inner">
+                                <!-- Slide 1 -->
+                                <div class="carousel-item active" style="background-image: url('/copier_company/static/img/diapositiva1.jpg');">
+                                    <div class="carousel-overlay">
+                                        <div class="hero-content">
+                                            <h1 class="hero-title">Alquiler de Fotocopiadoras</h1>
+                                            <p class="hero-subtitle">Soluciones profesionales de impresión sin inversión inicial</p>
+                                            <a href="/contactus" class="btn-hero">
+                                                <i class="fas fa-file-invoice-dollar me-2"></i>
+                                                Solicita tu Cotización
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                                 
-                                <a href="/contactus" class="btn-hero">
-                                    <i class="fas fa-file-invoice-dollar me-2"></i>
-                                    Solicita tu Cotización Gratuita
-                                </a>
-                            </div>
-                        </section>
-                        
-                        <!-- Features Section -->
-                        <section class="features-section">
-                            <div class="container">
-                                <h2 class="section-title animate-on-scroll">¿Por qué elegirnos?</h2>
-                                <div class="features-grid">
-                                    <div class="feature-card animate-on-scroll">
-                                        <div class="feature-icon">
-                                            <i class="fas fa-hand-holding-usd"></i>
+                                <!-- Slide 2 -->
+                                <div class="carousel-item" style="background-image: url('/copier_company/static/img/diapositiva2.jpg');">
+                                    <div class="carousel-overlay">
+                                        <div class="hero-content">
+                                            <h1 class="hero-title">Atención Virtual 24/7</h1>
+                                            <p class="hero-subtitle">Soporte técnico remoto y consultoría especializada</p>
+                                            <a href="/contactus" class="btn-hero">
+                                                <i class="fas fa-video me-2"></i>
+                                                Agenda tu Consulta
+                                            </a>
                                         </div>
-                                        <h3>Sin inversión inicial</h3>
-                                        <p>Solo pagas por el uso mensual. Ideal para empresas que buscan optimizar su flujo de caja y reducir costos operativos.</p>
                                     </div>
-                                    
-                                    <div class="feature-card animate-on-scroll">
-                                        <div class="feature-icon">
+                                </div>
+                                
+                                <!-- Slide 3 -->
+                                <div class="carousel-item" style="background-image: url('/copier_company/static/img/diapositiva3.jpg');">
+                                    <div class="carousel-overlay">
+                                        <div class="hero-content">
+                                            <h1 class="hero-title">Taller Especializado</h1>
+                                            <p class="hero-subtitle">Reparación profesional con garantía total</p>
+                                            <a href="/contactus" class="btn-hero">
+                                                <i class="fas fa-tools me-2"></i>
+                                                Programa tu Servicio
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Controles -->
+                            <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- Marcas -->
+                    <section class="brands-section">
+                        <div class="container">
+                            <h2 class="section-title animate-on-scroll">Marcas Líderes</h2>
+                            <div class="brands-container">
+                                <div class="brand-item animate-on-scroll" data-bs-toggle="modal" data-bs-target="#brandModal" data-brand="konica">
+                                    <img src="/copier_company/static/img/konica_minolta_logo.png" alt="Konica Minolta" class="img-fluid"/>
+                                </div>
+                                <div class="brand-item animate-on-scroll" data-bs-toggle="modal" data-bs-target="#brandModal" data-brand="canon">
+                                    <img src="/copier_company/static/img/canon-logo.png" alt="Canon" class="img-fluid"/>
+                                </div>
+                                <div class="brand-item animate-on-scroll" data-bs-toggle="modal" data-bs-target="#brandModal" data-brand="ricoh">
+                                    <img src="/copier_company/static/img/ricoh-logo-png.png" alt="Ricoh" class="img-fluid"/>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- GALERÍA DE FOTOS MODERNA -->
+                    <section class="photo-gallery-section">
+                        <div class="container">
+                            <h2 class="section-title animate-on-scroll">
+                                <i class="fas fa-images me-3"></i>
+                                Galería de Servicios
+                            </h2>
+                            <div class="gallery-grid">
+                                <!-- Item 1: Oficina Virtual -->
+                                <div class="gallery-item animate-on-scroll" 
+                                     style="background-image: url('https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=800&amp;q=80');"
+                                     data-bs-toggle="modal" data-bs-target="#galleryModal" 
+                                     data-img="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1200&amp;q=80"
+                                     data-title="Consultoría Virtual">
+                                    <div class="floating-icons">
+                                        <div class="floating-icon">
+                                            <i class="fas fa-search-plus"></i>
+                                        </div>
+                                        <div class="floating-icon">
+                                            <i class="fas fa-expand"></i>
+                                        </div>
+                                    </div>
+                                    <div class="gallery-overlay">
+                                        <div class="gallery-icon">
                                             <i class="fas fa-video"></i>
                                         </div>
-                                        <h3>Atención Virtual 24/7</h3>
-                                        <p>Soporte técnico remoto y consultoría especializada desde cualquier lugar. Configuración y capacitación en línea.</p>
+                                        <h3 class="gallery-title">Consultoría Virtual</h3>
+                                        <p class="gallery-description">Asesoría personalizada y soporte remoto 24/7 para optimizar tu oficina</p>
                                     </div>
-                                    
-                                    <div class="feature-card animate-on-scroll">
-                                        <div class="feature-icon">
+                                </div>
+
+                                <!-- Item 2: Taller -->
+                                <div class="gallery-item animate-on-scroll" 
+                                     style="background-image: url('https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=800&amp;q=80');"
+                                     data-bs-toggle="modal" data-bs-target="#galleryModal" 
+                                     data-img="https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1200&amp;q=80"
+                                     data-title="Taller Técnico">
+                                    <div class="floating-icons">
+                                        <div class="floating-icon">
+                                            <i class="fas fa-search-plus"></i>
+                                        </div>
+                                        <div class="floating-icon">
+                                            <i class="fas fa-expand"></i>
+                                        </div>
+                                    </div>
+                                    <div class="gallery-overlay">
+                                        <div class="gallery-icon">
                                             <i class="fas fa-tools"></i>
                                         </div>
-                                        <h3>Taller Especializado</h3>
-                                        <p>Reparación y mantenimiento profesional con repuestos originales y garantía total en nuestro centro técnico.</p>
+                                        <h3 class="gallery-title">Taller Especializado</h3>
+                                        <p class="gallery-description">Reparación y mantenimiento profesional con repuestos originales</p>
+                                    </div>
+                                </div>
+
+                                <!-- Item 3: Equipos -->
+                                <div class="gallery-item animate-on-scroll" 
+                                     style="background-image: url('https://images.unsplash.com/photo-1586473219010-2ffc57b0d282?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=800&amp;q=80');"
+                                     data-bs-toggle="modal" data-bs-target="#galleryModal" 
+                                     data-img="https://images.unsplash.com/photo-1586473219010-2ffc57b0d282?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1200&amp;q=80"
+                                     data-title="Equipos Multifuncionales">
+                                    <div class="floating-icons">
+                                        <div class="floating-icon">
+                                            <i class="fas fa-search-plus"></i>
+                                        </div>
+                                        <div class="floating-icon">
+                                            <i class="fas fa-expand"></i>
+                                        </div>
+                                    </div>
+                                    <div class="gallery-overlay">
+                                        <div class="gallery-icon">
+                                            <i class="fas fa-print"></i>
+                                        </div>
+                                        <h3 class="gallery-title">Equipos Multifuncionales</h3>
+                                        <p class="gallery-description">Tecnología de vanguardia para empresas modernas</p>
+                                    </div>
+                                </div>
+
+                                <!-- Item 4: Instalación -->
+                                <div class="gallery-item animate-on-scroll" 
+                                     style="background-image: url('https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=800&amp;q=80');"
+                                     data-bs-toggle="modal" data-bs-target="#galleryModal" 
+                                     data-img="https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1200&amp;q=80"
+                                     data-title="Instalación Profesional">
+                                    <div class="floating-icons">
+                                        <div class="floating-icon">
+                                            <i class="fas fa-search-plus"></i>
+                                        </div>
+                                        <div class="floating-icon">
+                                            <i class="fas fa-expand"></i>
+                                        </div>
+                                    </div>
+                                    <div class="gallery-overlay">
+                                        <div class="gallery-icon">
+                                            <i class="fas fa-cog"></i>
+                                        </div>
+                                        <h3 class="gallery-title">Instalación Profesional</h3>
+                                        <p class="gallery-description">Configuración completa y capacitación del personal</p>
+                                    </div>
+                                </div>
+
+                                <!-- Item 5: Mantenimiento -->
+                                <div class="gallery-item animate-on-scroll" 
+                                     style="background-image: url('https://images.unsplash.com/photo-1562577309-2592ab84b1bc?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=800&amp;q=80');"
+                                     data-bs-toggle="modal" data-bs-target="#galleryModal" 
+                                     data-img="https://images.unsplash.com/photo-1562577309-2592ab84b1bc?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1200&amp;q=80"
+                                     data-title="Mantenimiento Preventivo">
+                                    <div class="floating-icons">
+                                        <div class="floating-icon">
+                                            <i class="fas fa-search-plus"></i>
+                                        </div>
+                                        <div class="floating-icon">
+                                            <i class="fas fa-expand"></i>
+                                        </div>
+                                    </div>
+                                    <div class="gallery-overlay">
+                                        <div class="gallery-icon">
+                                            <i class="fas fa-shield-alt"></i>
+                                        </div>
+                                        <h3 class="gallery-title">Mantenimiento Preventivo</h3>
+                                        <p class="gallery-description">Cuidado integral para máximo rendimiento</p>
+                                    </div>
+                                </div>
+
+                                <!-- Item 6: Capacitación -->
+                                <div class="gallery-item animate-on-scroll" 
+                                     style="background-image: url('https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=800&amp;q=80');"
+                                     data-bs-toggle="modal" data-bs-target="#galleryModal" 
+                                     data-img="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1200&amp;q=80"
+                                     data-title="Capacitación Empresarial">
+                                    <div class="floating-icons">
+                                        <div class="floating-icon">
+                                            <i class="fas fa-search-plus"></i>
+                                        </div>
+                                        <div class="floating-icon">
+                                            <i class="fas fa-expand"></i>
+                                        </div>
+                                    </div>
+                                    <div class="gallery-overlay">
+                                        <div class="gallery-icon">
+                                            <i class="fas fa-graduation-cap"></i>
+                                        </div>
+                                        <h3 class="gallery-title">Capacitación Empresarial</h3>
+                                        <p class="gallery-description">Entrenamiento especializado para tu equipo de trabajo</p>
                                     </div>
                                 </div>
                             </div>
-                        </section>
-                        
-                        <!-- Services Section -->
-                        <section class="services-section">
-                            <div class="container">
-                                <h2 class="section-title animate-on-scroll">Nuestros Servicios</h2>
-                                <div class="services-grid">
-                                    <div class="service-card animate-on-scroll">
-                                        <div class="service-image" style="background-image: url('https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1000&amp;q=80');">
-                                            <div class="service-overlay">
-                                                <div class="service-overlay-content">
-                                                    <i class="fas fa-handshake"></i>
-                                                    <p>Ver detalles</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="service-content">
-                                            <h3>Alquiler Empresarial</h3>
-                                            <p>Equipos multifuncionales de última generación con mantenimiento incluido, tóner y soporte técnico integral.</p>
-                                        </div>
+                        </div>
+                    </section>
+
+                    <!-- Servicios con Iconos -->
+                    <section class="services-section">
+                        <div class="container">
+                            <h2 class="section-title animate-on-scroll">
+                                <i class="fas fa-star me-3"></i>
+                                Nuestros Servicios
+                            </h2>
+                            <div class="services-grid">
+                                <div class="service-card animate-on-scroll">
+                                    <div class="service-icon">
+                                        <i class="fas fa-hand-holding-usd"></i>
                                     </div>
-                                    
-                                    <div class="service-card animate-on-scroll">
-                                        <div class="service-image" style="background-image: url('https://images.unsplash.com/photo-1586473219010-2ffc57b0d282?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1000&amp;q=80');">
-                                            <div class="service-overlay">
-                                                <div class="service-overlay-content">
-                                                    <i class="fas fa-video"></i>
-                                                    <p>Ver detalles</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="service-content">
-                                            <h3>Consultoría Virtual</h3>
-                                            <p>Asesoría personalizada, configuración remota y capacitación en línea para optimizar el uso de tus equipos.</p>
-                                        </div>
+                                    <h3>Sin Inversión Inicial</h3>
+                                    <p>Solo pagas por el uso mensual. Ideal para empresas que buscan optimizar su flujo de caja y reducir costos operativos.</p>
+                                </div>
+                                
+                                <div class="service-card animate-on-scroll">
+                                    <div class="service-icon">
+                                        <i class="fas fa-video"></i>
                                     </div>
-                                    
-                                    <div class="service-card animate-on-scroll">
-                                        <div class="service-image" style="background-image: url('https://images.unsplash.com/photo-1612198188060-c7c2a3b66eae?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1000&amp;q=80');">
-                                            <div class="service-overlay">
-                                                <div class="service-overlay-content">
-                                                    <i class="fas fa-tools"></i>
-                                                    <p>Ver detalles</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="service-content">
-                                            <h3>Servicio Técnico</h3>
-                                            <p>Reparación especializada, mantenimiento preventivo y repuestos originales con garantía de 90 días.</p>
-                                        </div>
+                                    <h3>Atención Virtual 24/7</h3>
+                                    <p>Soporte técnico remoto y consultoría especializada desde cualquier lugar. Configuración y capacitación en línea.</p>
+                                </div>
+                                
+                                <div class="service-card animate-on-scroll">
+                                    <div class="service-icon">
+                                        <i class="fas fa-tools"></i>
                                     </div>
+                                    <h3>Taller Especializado</h3>
+                                    <p>Reparación y mantenimiento profesional con repuestos originales y garantía total en nuestro centro técnico.</p>
+                                </div>
+                                
+                                <div class="service-card animate-on-scroll">
+                                    <div class="service-icon">
+                                        <i class="fas fa-shipping-fast"></i>
+                                    </div>
+                                    <h3>Entrega Rápida</h3>
+                                    <p>Instalación y configuración en menos de 24 horas. Equipos listos para usar desde el primer día.</p>
+                                </div>
+                                
+                                <div class="service-card animate-on-scroll">
+                                    <div class="service-icon">
+                                        <i class="fas fa-shield-alt"></i>
+                                    </div>
+                                    <h3>Garantía Total</h3>
+                                    <p>Cobertura completa en reparaciones, mantenimiento y repuestos. Tu tranquilidad es nuestra prioridad.</p>
+                                </div>
+                                
+                                <div class="service-card animate-on-scroll">
+                                    <div class="service-icon">
+                                        <i class="fas fa-chart-line"></i>
+                                    </div>
+                                    <h3>Escalabilidad</h3>
+                                    <p>Crece con tu negocio. Upgrading automático según tus necesidades empresariales cambiantes.</p>
                                 </div>
                             </div>
-                        </section>
-                        
-                        <!-- CTA Section -->
-                        <section class="cta-section">
-                            <div class="container">
-                                <h2 class="cta-title animate-on-scroll">¿Listo para optimizar tu oficina?</h2>
-                                <p class="cta-subtitle animate-on-scroll">Obtén una cotización personalizada sin compromiso</p>
-                                <a href="/contactus" class="btn-cta animate-on-scroll">
-                                    <i class="fas fa-phone me-2"></i>
-                                    Contáctanos Ahora
-                                </a>
+                        </div>
+                    </section>
+
+                    <!-- Modal para Galería -->
+                    <div class="modal fade" id="galleryModal" tabindex="-1" aria-labelledby="galleryModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-xl modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="galleryModalLabel">
+                                        <i class="fas fa-image me-2"></i>
+                                        Imagen
+                                    </h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <img id="modalImage" src="" alt="" class="img-fluid rounded"/>
+                                </div>
                             </div>
-                        </section>
+                        </div>
                     </div>
-                    
-                    <!-- JavaScript para animaciones -->
+
+                    <!-- Modal para Marcas -->
+                    <div class="modal fade" id="brandModal" tabindex="-1" aria-labelledby="brandModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="brandModalLabel">
+                                        <i class="fas fa-award me-2"></i>
+                                        Información de la Marca
+                                    </h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body" id="brandModalBody">
+                                    <!-- Content will be loaded dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- JavaScript -->
                     <script>
                         document.addEventListener('DOMContentLoaded', function() {
+                            // Galería Modal
+                            const galleryItems = document.querySelectorAll('.copier-gallery-wrapper .gallery-item');
+                            const modalImage = document.getElementById('modalImage');
+                            const modalTitle = document.getElementById('galleryModalLabel');
+                            
+                            galleryItems.forEach(item => {
+                                item.addEventListener('click', function() {
+                                    const imgSrc = this.getAttribute('data-img');
+                                    const title = this.getAttribute('data-title');
+                                    
+                                    modalImage.src = imgSrc;
+                                    modalImage.alt = title;
+                                    modalTitle.innerHTML = '<i class="fas fa-image me-2"></i>' + title;
+                                });
+                            });
+                            
+                            // Marcas Modal
+                            const brandItems = document.querySelectorAll('.copier-gallery-wrapper .brand-item');
+                            const brandModalBody = document.getElementById('brandModalBody');
+                            const brandModalTitle = document.getElementById('brandModalLabel');
+                            
+                            const brandInfo = {
+                                konica: {
+                                    title: 'Konica Minolta',
+                                    content: `
+                                        <div class="text-center">
+                                            <img src="/copier_company/static/img/konica_minolta_logo.png" alt="Konica Minolta" class="mb-4" style="max-width: 200px;"/>
+                                            <h4 class="mb-3">Konica Minolta</h4>
+                                            <p class="lead mb-4">Tecnología de vanguardia en impresión y escaneo multifuncional</p>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <h5 class="text-primary mb-3"><i class="fas fa-cogs me-2"></i>Características:</h5>
+                                                    <ul class="list-unstyled text-start">
+                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Hasta 75 páginas por minuto</li>
+                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Impresión a color y B/N</li>
+                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Conectividad avanzada</li>
+                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Interfaz táctil intuitiva</li>
+                                                    </ul>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <h5 class="text-primary mb-3"><i class="fas fa-star me-2"></i>Ventajas:</h5>
+                                                    <ul class="list-unstyled text-start">
+                                                        <li class="mb-2"><i class="fas fa-shield-alt text-success me-2"></i>Seguridad empresarial</li>
+                                                        <li class="mb-2"><i class="fas fa-leaf text-success me-2"></i>Bajo consumo energético</li>
+                                                        <li class="mb-2"><i class="fas fa-cloud text-success me-2"></i>Integración en la nube</li>
+                                                        <li class="mb-2"><i class="fas fa-mobile-alt text-success me-2"></i>Impresión móvil</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `
+                                },
+                                canon: {
+                                    title: 'Canon',
+                                    content: `
+                                        <div class="text-center">
+                                            <img src="/copier_company/static/img/canon-logo.png" alt="Canon" class="mb-4" style="max-width: 200px;"/>
+                                            <h4 class="mb-3">Canon</h4>
+                                            <p class="lead mb-4">Versatilidad superior en impresiones de alta calidad</p>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <h5 class="text-primary mb-3"><i class="fas fa-cogs me-2"></i>Características:</h5>
+                                                    <ul class="list-unstyled text-start">
+                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Hasta 55 páginas por minuto</li>
+                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Calidad fotográfica</li>
+                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Tecnología híbrida</li>
+                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Diseño compacto</li>
+                                                    </ul>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <h5 class="text-primary mb-3"><i class="fas fa-star me-2"></i>Ventajas:</h5>
+                                                    <ul class="list-unstyled text-start">
+                                                        <li class="mb-2"><i class="fas fa-mobile-alt text-success me-2"></i>Impresión móvil</li>
+                                                        <li class="mb-2"><i class="fas fa-leaf text-success me-2"></i>Eficiencia energética</li>
+                                                        <li class="mb-2"><i class="fas fa-tools text-success me-2"></i>Fácil mantenimiento</li>
+                                                        <li class="mb-2"><i class="fas fa-palette text-success me-2"></i>Excelente calidad de color</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `
+                                },
+                                ricoh: {
+                                    title: 'Ricoh',
+                                    content: `
+                                        <div class="text-center">
+                                            <img src="/copier_company/static/img/ricoh-logo-png.png" alt="Ricoh" class="mb-4" style="max-width: 200px;"/>
+                                            <h4 class="mb-3">Ricoh</h4>
+                                            <p class="lead mb-4">Rendimiento confiable y durabilidad excepcional</p>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <h5 class="text-primary mb-3"><i class="fas fa-cogs me-2"></i>Características:</h5>
+                                                    <ul class="list-unstyled text-start">
+                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Hasta 60 páginas por minuto</li>
+                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Máxima seguridad</li>
+                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Facilidad de uso</li>
+                                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Diseño robusto</li>
+                                                    </ul>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <h5 class="text-primary mb-3"><i class="fas fa-star me-2"></i>Ventajas:</h5>
+                                                    <ul class="list-unstyled text-start">
+                                                        <li class="mb-2"><i class="fas fa-leaf text-success me-2"></i>Eficiencia energética</li>
+                                                        <li class="mb-2"><i class="fas fa-cloud text-success me-2"></i>Conectividad en la nube</li>
+                                                        <li class="mb-2"><i class="fas fa-shield-alt text-success me-2"></i>Alta durabilidad</li>
+                                                        <li class="mb-2"><i class="fas fa-dollar-sign text-success me-2"></i>Costo-beneficio óptimo</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `
+                                }
+                            };
+                            
+                            brandItems.forEach(item =&gt; {
+                                item.addEventListener('click', function() {
+                                    const brand = this.getAttribute('data-brand');
+                                    const info = brandInfo[brand];
+                                    
+                                    if (info) {
+                                        brandModalTitle.innerHTML = '<i class="fas fa-award me-2"></i>' + info.title;
+                                        brandModalBody.innerHTML = info.content;
+                                    }
+                                });
+                            });
+                            
                             // Animaciones on scroll
                             const observerOptions = {
                                 threshold: 0.1,
@@ -501,8 +931,8 @@
                                 });
                             }, observerOptions);
                             
-                            // Observar elementos con clase animate-on-scroll
-                            document.querySelectorAll('.copier-homepage .animate-on-scroll').forEach(el => {
+                            // Observar elementos con animación
+                            document.querySelectorAll('.copier-gallery-wrapper .animate-on-scroll').forEach(el => {
                                 observer.observe(el);
                             });
                         });
