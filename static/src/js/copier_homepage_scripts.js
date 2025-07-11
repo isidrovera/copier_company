@@ -2070,7 +2070,7 @@ const chatBot = {
         
         if (lowerMessage.includes('contacto') || lowerMessage.includes('teléfono') || lowerMessage.includes('dirección')) {
             return `📞 Puedes contactarnos:
-                    <br>• Teléfono: (01) 234-5678
+                    <br>• Teléfono: (01) 975399303
                     <br>• WhatsApp: <a href="https://wa.me/51975399303" class="chat-link">975 399 303</a>
                     <br>• Email: info@copiercompany.com
                     <br>• Horario: Lun-Vie 8AM-6PM, Sáb 8AM-1PM`;
