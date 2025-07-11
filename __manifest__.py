@@ -99,6 +99,7 @@
             'copier_company/static/src/js/counter_charts.js',
             'copier_company/static/src/js/PcloudDescargas.js',
             'copier_company/static/src/js/custom_script.js',
+            'copier_company/static/src/js/copier_homepage_scripts.js',
             # ❌ Ya no incluimos copier_list.js aquí porque es independiente
             # 'copier_company/static/src/js/copier_list.js',
             # 4) Bibliotecas externas si las necesitas
