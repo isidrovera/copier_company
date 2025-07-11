@@ -1375,7 +1375,12 @@
     font-size: 0.875rem;
 }
 
-
+.copier-modern-homepage .quote-float {
+    position: fixed;
+    bottom: var(--spacing-lg);
+    right: var(--spacing-lg);
+    z-index: var(--z-fixed);
+}
 
 .copier-modern-homepage .quote-btn {
     display: flex;
@@ -1608,22 +1613,10 @@
         right: var(--spacing-sm);
     }
     
-    /* Estilo general (pantallas grandes: desktop y tablets) */
     .copier-modern-homepage .quote-float {
-        position: fixed;
-        bottom: var(--spacing-lg);
-        right: var(--spacing-lg);
-        z-index: var(--z-fixed);
+        bottom: var(--spacing-sm);
+        right: var(--spacing-sm);
     }
-
-    /* Estilo para pantallas pequeñas (móviles) */
-    @media (max-width: 768px) {
-        .copier-modern-homepage .quote-float {
-            bottom: var(--spacing-sm);
-            right: var(--spacing-sm);
-        }
-    }
-
 }
 
 /* Extra small devices (less than 576px) */
