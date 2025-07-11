@@ -297,7 +297,7 @@ const modalContent = {
         },
         'mantenimiento-incluido': {
             title: 'Mantenimiento Incluido',
-            icon: 'fas fa-cog',
+            icon: 'fa-cog',
             content: `
                 <div class="benefit-detail">
                     <div class="row">
