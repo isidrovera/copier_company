@@ -1182,8 +1182,28 @@
    ==================================== */
 .copier-modern-homepage .final-cta-section {
     padding: var(--spacing-xxl) 0;
-    background: var(--gray-900);
+    background: var(--gray-100);
 }
+.copier-modern-homepage .cta-gradient {
+    background: var(--primary-gradient) !important;
+    border: none !important;
+    border-radius: var(--border-radius-xl) !important;
+    box-shadow: var(--shadow-2xl);
+    position: relative;
+    overflow: hidden;
+}
+.copier-modern-homepage .cta-gradient::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80') center/cover;
+    opacity: 0.1;
+    z-index: 1;
+}
+
 
 .copier-modern-homepage .cta-card {
     background: var(--primary-gradient);
@@ -1205,10 +1225,36 @@
     z-index: 1;
 }
 
-.copier-modern-homepage .cta-content {
+.copier-modern-homepage .cta-content,
+.copier-modern-homepage .cta-actions {
     position: relative;
     z-index: 2;
 }
+.copier-modern-homepage .text-white-75 {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+.copier-modern-homepage .cta-features .badge {
+    border-radius: var(--border-radius-full) !important;
+    font-weight: var(--font-weight-medium) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    transition: all var(--transition-normal);
+}
+.copier-modern-homepage .cta-features .badge:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+    transform: translateY(-2px);
+}
+.copier-modern-homepage .cta-btn-primary {
+    background: var(--warning-gradient) !important;
+    border: none !important;
+    color: var(--dark-color) !important;
+    font-weight: var(--font-weight-bold) !important;
+    padding: var(--spacing-md) var(--spacing-xl) !important;
+    border-radius: var(--border-radius-full) !important;
+    box-shadow: var(--shadow-lg);
+    transition: all var(--transition-normal);
+}
+
 
 .copier-modern-homepage .cta-content h2 {
     font-size: clamp(2rem, 4vw, 3rem);
@@ -1216,6 +1262,28 @@
     margin-bottom: var(--spacing-md);
     color: var(--white-color);
 }
+.copier-modern-homepage .cta-btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-xl);
+    color: var(--dark-color) !important;
+}
+
+.copier-modern-homepage .cta-btn-secondary {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 2px solid rgba(255, 255, 255, 0.3) !important;
+    color: var(--white-color) !important;
+    font-weight: var(--font-weight-semibold) !important;
+    padding: var(--spacing-md) var(--spacing-xl) !important;
+    border-radius: var(--border-radius-full) !important;
+    backdrop-filter: blur(10px);
+    transition: all var(--transition-normal);
+}
+.copier-modern-homepage .cta-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    transform: translateY(-3px);
+    color: var(--white-color) !important;
+}
+
 
 .copier-modern-homepage .cta-content p {
     font-size: 1.25rem;
@@ -1290,9 +1358,29 @@
 }
 
 .copier-modern-homepage .contact-info {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-sm);
+    font-size: 0.9rem;
+    opacity: 0.95;
+}
+.copier-modern-homepage .contact-info i {
+    font-size: 1.1rem;
+}
+@media (max-width: 768px) {
+    .copier-modern-homepage .cta-card .card-body {
+        padding: var(--spacing-lg) !important;
+    }
+    
+    .copier-modern-homepage .cta-features {
+        margin-bottom: var(--spacing-lg);
+    }
+    
+    .copier-modern-homepage .cta-features .badge {
+        font-size: 0.75rem !important;
+        padding: 0.5rem 0.75rem !important;
+    }
+    
+    .copier-modern-homepage .cta-actions {
+        margin-top: var(--spacing-lg);
+    }
 }
 
 .copier-modern-homepage .contact-item {
