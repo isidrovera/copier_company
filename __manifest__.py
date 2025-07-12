@@ -93,7 +93,7 @@
             'copier_company/static/src/css/cotizacion_styles.css',
             'copier_company/static/src/css/PcloudDescargas.css',
             'copier_company/static/src/css/copier_list.css',
-            'copier_company/static/src/css/copier_homepage_styles.css',
+            
             # 3) Tus scripts propios
             'copier_company/static/src/js/manuals.js',
             'copier_company/static/src/js/counter_charts.js',
