@@ -5,6 +5,12 @@
    ==================================== */
 
 /* ====================================
+   IMPORTACIONES Y FUENTES
+   ==================================== */
+@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ====================================
    VARIABLES CSS
    ==================================== */
 :root {
@@ -13,6 +19,7 @@
     --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
     --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    --warning-gradient: linear-gradient(135deg, #ffd93d 0%, #ff6b6b 100%);
     
     /* Colores base */
     --primary-color: #667eea;
@@ -37,7 +44,7 @@
     --gray-900: #212529;
     
     /* Tipografía */
-    --font-family: 'Inter', sans-serif;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --font-weight-light: 300;
     --font-weight-normal: 400;
     --font-weight-medium: 500;
@@ -79,6 +86,22 @@
     --z-modal: 1040;
     --z-popover: 1060;
     --z-tooltip: 1070;
+}
+
+/* ====================================
+   BOOTSTRAP ICONS FIXES
+   ==================================== */
+.copier-modern-homepage [class^="bi-"],
+.copier-modern-homepage [class*=" bi-"] {
+    font-family: "bootstrap-icons" !important;
+    speak: never;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 /* ====================================
@@ -125,14 +148,13 @@
    HERO SECTION
    ==================================== */
 .copier-modern-homepage .hero-section {
-    min-height: 500px;
+    min-height: 100vh;
     display: flex;
     align-items: center;
     position: relative;
     background: var(--primary-gradient);
     overflow: hidden;
 }
-
 
 .copier-modern-homepage .hero-background {
     position: absolute;
@@ -178,6 +200,11 @@
     animation: fadeInUp 0.8s ease-out;
 }
 
+.copier-modern-homepage .hero-badge i {
+    color: var(--warning-color);
+    font-size: 1rem;
+}
+
 .copier-modern-homepage .hero-title {
     font-size: clamp(2.5rem, 6vw, 4rem);
     font-weight: var(--font-weight-extrabold);
@@ -186,7 +213,7 @@
 }
 
 .copier-modern-homepage .text-gradient {
-    background: linear-gradient(135deg, #ffd93d 0%, #ff6b6b 100%);
+    background: var(--warning-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -223,12 +250,15 @@
     position: relative;
     overflow: hidden;
     animation: fadeInUp 0.8s ease-out 0.6s both;
+    text-decoration: none;
 }
 
 .copier-modern-homepage .service-card:hover {
     transform: translateY(-5px);
     background: rgba(255, 255, 255, 0.15);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    color: var(--white-color);
+    text-decoration: none;
 }
 
 .copier-modern-homepage .service-card.primary {
@@ -263,6 +293,11 @@
     flex-shrink: 0;
 }
 
+.copier-modern-homepage .service-icon i {
+    font-size: 1.5rem;
+    color: var(--white-color);
+}
+
 .copier-modern-homepage .service-info h3 {
     font-size: 1.125rem;
     font-weight: var(--font-weight-semibold);
@@ -274,18 +309,19 @@
     font-size: 0.875rem;
     opacity: 0.8;
     margin: 0;
+    color: var(--white-color);
 }
 
 .copier-modern-homepage .service-arrow {
     margin-left: auto;
     font-size: 1.25rem;
     transition: transform var(--transition-normal);
+    color: var(--white-color);
 }
 
 .copier-modern-homepage .service-card:hover .service-arrow {
     transform: translateX(5px);
 }
-
 /* Hero CTA */
 .copier-modern-homepage .hero-cta {
     display: flex;
@@ -294,12 +330,14 @@
     animation: fadeInUp 0.8s ease-out 0.8s both;
 }
 
-.copier-modern-homepage .btn-primary-modern {
+/* Botones modernos actualizados para Bootstrap */
+.copier-modern-homepage .btn-primary-modern,
+.copier-modern-homepage .btn.btn-warning {
     display: inline-flex;
     align-items: center;
     gap: var(--spacing-xs);
-    background: var(--secondary-gradient);
-    color: var(--white-color);
+    background: var(--warning-gradient);
+    color: var(--dark-color);
     padding: var(--spacing-md) var(--spacing-lg);
     border-radius: var(--border-radius-full);
     font-weight: var(--font-weight-semibold);
@@ -310,15 +348,19 @@
     box-shadow: var(--shadow-lg);
     position: relative;
     overflow: hidden;
+    text-decoration: none;
 }
 
-.copier-modern-homepage .btn-primary-modern:hover {
+.copier-modern-homepage .btn-primary-modern:hover,
+.copier-modern-homepage .btn.btn-warning:hover {
     transform: translateY(-3px);
     box-shadow: var(--shadow-xl);
-    color: var(--white-color);
+    color: var(--dark-color);
+    text-decoration: none;
 }
 
-.copier-modern-homepage .btn-secondary-modern {
+.copier-modern-homepage .btn-secondary-modern,
+.copier-modern-homepage .btn.btn-outline-light {
     display: inline-flex;
     align-items: center;
     gap: var(--spacing-xs);
@@ -332,12 +374,15 @@
     cursor: pointer;
     transition: all var(--transition-normal);
     backdrop-filter: blur(10px);
+    text-decoration: none;
 }
 
-.copier-modern-homepage .btn-secondary-modern:hover {
+.copier-modern-homepage .btn-secondary-modern:hover,
+.copier-modern-homepage .btn.btn-outline-light:hover {
     background: rgba(255, 255, 255, 0.2);
     transform: translateY(-3px);
     color: var(--white-color);
+    text-decoration: none;
 }
 
 /* Hero Visual */
@@ -377,6 +422,11 @@
     z-index: 3;
 }
 
+.copier-modern-homepage .floating-card i {
+    font-size: 1.25rem;
+    color: var(--primary-color);
+}
+
 .copier-modern-homepage .floating-card.card-1 {
     top: 20%;
     left: -10%;
@@ -409,14 +459,15 @@
 }
 
 /* ====================================
-   SECTION HEADERS
+   SECTION HEADERS MEJORADOS
    ==================================== */
 .copier-modern-homepage .section-header {
     text-align: center;
     margin-bottom: var(--spacing-xxl);
 }
 
-.copier-modern-homepage .section-badge {
+.copier-modern-homepage .section-badge,
+.copier-modern-homepage .badge {
     display: inline-block;
     background: var(--primary-gradient);
     color: var(--white-color);
@@ -427,6 +478,27 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: var(--spacing-md);
+}
+
+.copier-modern-homepage .badge.bg-primary {
+    background: var(--primary-gradient) !important;
+}
+
+.copier-modern-homepage .badge.bg-success {
+    background: var(--success-gradient) !important;
+}
+
+.copier-modern-homepage .badge.bg-info {
+    background: var(--accent-gradient) !important;
+}
+
+.copier-modern-homepage .badge.bg-warning {
+    background: var(--warning-gradient) !important;
+    color: var(--dark-color) !important;
+}
+
+.copier-modern-homepage .badge.bg-secondary {
+    background: var(--secondary-gradient) !important;
 }
 
 .copier-modern-homepage .section-title {
@@ -444,7 +516,7 @@
 }
 
 /* ====================================
-   BENEFITS SECTION
+   BENEFITS SECTION MEJORADO
    ==================================== */
 .copier-modern-homepage .benefits-section {
     padding: var(--spacing-xxl) 0;
@@ -455,7 +527,8 @@
     margin-top: var(--spacing-xl);
 }
 
-.copier-modern-homepage .benefit-card {
+.copier-modern-homepage .benefit-card,
+.copier-modern-homepage .card.benefit-card {
     background: var(--white-color);
     padding: var(--spacing-xl) var(--spacing-lg);
     border-radius: var(--border-radius-xl);
@@ -469,13 +542,15 @@
     border: 1px solid var(--gray-200);
 }
 
-.copier-modern-homepage .benefit-card:hover {
+.copier-modern-homepage .benefit-card:hover,
+.copier-modern-homepage .card.benefit-card:hover {
     transform: translateY(-10px);
     box-shadow: var(--shadow-xl);
     border-color: var(--primary-color);
 }
 
-.copier-modern-homepage .benefit-card::before {
+.copier-modern-homepage .benefit-card::before,
+.copier-modern-homepage .card.benefit-card::before {
     content: '';
     position: absolute;
     top: 0;
@@ -487,7 +562,8 @@
     transition: transform var(--transition-normal);
 }
 
-.copier-modern-homepage .benefit-card:hover::before {
+.copier-modern-homepage .benefit-card:hover::before,
+.copier-modern-homepage .card.benefit-card:hover::before {
     transform: scaleX(1);
 }
 
@@ -505,18 +581,25 @@
     transition: transform var(--transition-normal);
 }
 
+.copier-modern-homepage .benefit-icon i {
+    font-size: 2rem;
+    color: var(--white-color);
+}
+
 .copier-modern-homepage .benefit-card:hover .benefit-icon {
     transform: scale(1.1) rotate(5deg);
 }
 
-.copier-modern-homepage .benefit-card h3 {
+.copier-modern-homepage .benefit-card h3,
+.copier-modern-homepage .card.benefit-card .card-title {
     font-size: 1.375rem;
     font-weight: var(--font-weight-bold);
     margin-bottom: var(--spacing-md);
     color: var(--dark-color);
 }
 
-.copier-modern-homepage .benefit-card p {
+.copier-modern-homepage .benefit-card p,
+.copier-modern-homepage .card.benefit-card .card-text {
     color: var(--gray-600);
     line-height: 1.6;
     margin-bottom: var(--spacing-md);
@@ -539,6 +622,10 @@
     transform: scale(0.8);
 }
 
+.copier-modern-homepage .benefit-arrow i {
+    font-size: 1.25rem;
+}
+
 .copier-modern-homepage .benefit-card:hover .benefit-arrow {
     opacity: 1;
     transform: scale(1);
@@ -547,7 +634,7 @@
 }
 
 /* ====================================
-   BRANDS SECTION
+   BRANDS SECTION MEJORADO
    ==================================== */
 .copier-modern-homepage .brands-section {
     padding: var(--spacing-xxl) 0;
@@ -558,7 +645,8 @@
     margin-top: var(--spacing-xl);
 }
 
-.copier-modern-homepage .brand-card {
+.copier-modern-homepage .brand-card,
+.copier-modern-homepage .card.brand-card {
     background: var(--white-color);
     padding: var(--spacing-xl);
     border-radius: var(--border-radius-xl);
@@ -571,7 +659,8 @@
     border: 1px solid var(--gray-200);
 }
 
-.copier-modern-homepage .brand-card:hover {
+.copier-modern-homepage .brand-card:hover,
+.copier-modern-homepage .card.brand-card:hover {
     transform: translateY(-10px);
     box-shadow: var(--shadow-xl);
 }
@@ -596,7 +685,8 @@
     filter: grayscale(0);
 }
 
-.copier-modern-homepage .brand-info h3 {
+.copier-modern-homepage .brand-info h3,
+.copier-modern-homepage .card.brand-card .card-title {
     font-size: 1.5rem;
     font-weight: var(--font-weight-bold);
     margin-bottom: var(--spacing-sm);
@@ -604,7 +694,8 @@
     text-align: center;
 }
 
-.copier-modern-homepage .brand-info p {
+.copier-modern-homepage .brand-info p,
+.copier-modern-homepage .card.brand-card .card-text {
     color: var(--gray-600);
     text-align: center;
     margin-bottom: var(--spacing-md);
@@ -627,7 +718,8 @@
 
 .copier-modern-homepage .brand-features i {
     color: var(--success-color);
-    font-size: 0.75rem;
+    font-size: 0.875rem;
+    width: 16px;
 }
 
 .copier-modern-homepage .brand-overlay {
@@ -654,7 +746,7 @@
 }
 
 /* ====================================
-   PRODUCTS SECTION
+   PRODUCTS SECTION MEJORADO
    ==================================== */
 .copier-modern-homepage .products-section {
     padding: var(--spacing-xxl) 0;
@@ -665,7 +757,8 @@
     margin-top: var(--spacing-xl);
 }
 
-.copier-modern-homepage .product-card {
+.copier-modern-homepage .product-card,
+.copier-modern-homepage .card.product-card {
     background: var(--white-color);
     border-radius: var(--border-radius-xl);
     box-shadow: var(--shadow-md);
@@ -674,9 +767,11 @@
     cursor: pointer;
     position: relative;
     margin-bottom: var(--spacing-lg);
+    border: 1px solid var(--gray-200);
 }
 
-.copier-modern-homepage .product-card:hover {
+.copier-modern-homepage .product-card:hover,
+.copier-modern-homepage .card.product-card:hover {
     transform: translateY(-10px);
     box-shadow: var(--shadow-xl);
 }
@@ -687,21 +782,23 @@
     overflow: hidden;
 }
 
-.copier-modern-homepage .product-image img {
+.copier-modern-homepage .product-image img,
+.copier-modern-homepage .card-img-top {
     width: 100%;
     height: 100%;
     object-fit: cover;
     transition: transform var(--transition-slow);
 }
 
-.copier-modern-homepage .product-card:hover .product-image img {
+.copier-modern-homepage .product-card:hover .product-image img,
+.copier-modern-homepage .card.product-card:hover .card-img-top {
     transform: scale(1.1);
 }
 
 .copier-modern-homepage .product-badge {
     position: absolute;
     top: var(--spacing-md);
-    left: var(--spacing-md);
+    right: var(--spacing-md);
     background: var(--primary-gradient);
     color: var(--white-color);
     padding: var(--spacing-xs) var(--spacing-md);
@@ -710,28 +807,33 @@
     font-weight: var(--font-weight-semibold);
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    z-index: 2;
 }
 
 .copier-modern-homepage .product-badge.popular {
-    background: var(--secondary-gradient);
+    background: var(--warning-gradient);
+    color: var(--dark-color);
 }
 
 .copier-modern-homepage .product-badge.special {
     background: var(--accent-gradient);
 }
 
-.copier-modern-homepage .product-info {
+.copier-modern-homepage .product-info,
+.copier-modern-homepage .card-body {
     padding: var(--spacing-lg);
 }
 
-.copier-modern-homepage .product-info h3 {
+.copier-modern-homepage .product-info h3,
+.copier-modern-homepage .card.product-card .card-title {
     font-size: 1.375rem;
     font-weight: var(--font-weight-bold);
     margin-bottom: var(--spacing-sm);
     color: var(--dark-color);
 }
 
-.copier-modern-homepage .product-info p {
+.copier-modern-homepage .product-info p,
+.copier-modern-homepage .card.product-card .card-text {
     color: var(--gray-600);
     margin-bottom: var(--spacing-md);
 }
@@ -786,13 +888,12 @@
     font-size: 1.125rem;
     font-weight: var(--font-weight-semibold);
 }
-
 /* ====================================
-   PROCESS SECTION
+   PROCESS SECTION MEJORADO
    ==================================== */
 .copier-modern-homepage .process-section {
     padding: var(--spacing-xxl) 0;
-    background: var(--white-color);
+    background: var(--light-color);
 }
 
 .copier-modern-homepage .process-steps {
@@ -811,36 +912,50 @@
     z-index: 1;
 }
 
-.copier-modern-homepage .process-step {
+.copier-modern-homepage .process-step,
+.copier-modern-homepage .card.process-step {
     text-align: center;
     position: relative;
     z-index: 2;
     margin-bottom: var(--spacing-lg);
+    background: var(--white-color);
+    border-radius: var(--border-radius-xl);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-normal);
+    border: 1px solid var(--gray-200);
+}
+
+.copier-modern-homepage .process-step:hover,
+.copier-modern-homepage .card.process-step:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
 }
 
 .copier-modern-homepage .step-number {
     position: absolute;
-    top: -15px;
+    top: -30px;
     left: 50%;
     transform: translateX(-50%);
     width: 60px;
     height: 60px;
-    background: var(--white-color);
-    border: 3px solid var(--primary-color);
+    background: var(--primary-gradient);
+    border: 3px solid var(--white-color);
     border-radius: var(--border-radius-full);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.25rem;
     font-weight: var(--font-weight-bold);
-    color: var(--primary-color);
+    color: var(--white-color);
     z-index: 3;
+    box-shadow: var(--shadow-md);
 }
 
 .copier-modern-homepage .step-icon {
     width: 100px;
     height: 100px;
-    margin: 0 auto var(--spacing-lg);
+    margin: var(--spacing-lg) auto var(--spacing-lg);
     background: var(--primary-gradient);
     border-radius: var(--border-radius-full);
     display: flex;
@@ -849,21 +964,27 @@
     font-size: 2.5rem;
     color: var(--white-color);
     transition: transform var(--transition-normal);
-    margin-top: var(--spacing-lg);
+}
+
+.copier-modern-homepage .step-icon i {
+    font-size: 2.5rem;
+    color: var(--white-color);
 }
 
 .copier-modern-homepage .process-step:hover .step-icon {
     transform: scale(1.1);
 }
 
-.copier-modern-homepage .process-step h3 {
+.copier-modern-homepage .process-step h3,
+.copier-modern-homepage .card.process-step .card-title {
     font-size: 1.375rem;
     font-weight: var(--font-weight-bold);
     margin-bottom: var(--spacing-md);
     color: var(--dark-color);
 }
 
-.copier-modern-homepage .process-step p {
+.copier-modern-homepage .process-step p,
+.copier-modern-homepage .card.process-step .card-text {
     color: var(--gray-600);
     margin-bottom: var(--spacing-md);
 }
@@ -876,11 +997,13 @@
     font-weight: var(--font-weight-semibold);
     font-size: 0.875rem;
     transition: all var(--transition-normal);
+    text-decoration: none;
 }
 
 .copier-modern-homepage .step-link:hover {
     color: var(--secondary-color);
     gap: var(--spacing-sm);
+    text-decoration: none;
 }
 
 .copier-modern-homepage .step-features {
@@ -888,9 +1011,11 @@
     justify-content: center;
     gap: var(--spacing-md);
     flex-wrap: wrap;
+    margin-top: var(--spacing-md);
 }
 
-.copier-modern-homepage .step-features span {
+.copier-modern-homepage .step-features span,
+.copier-modern-homepage .step-features .badge {
     display: inline-flex;
     align-items: center;
     gap: var(--spacing-xs);
@@ -899,6 +1024,7 @@
     border-radius: var(--border-radius-full);
     font-size: 0.75rem;
     color: var(--gray-600);
+    font-weight: var(--font-weight-medium);
 }
 
 .copier-modern-homepage .step-features i {
@@ -907,18 +1033,19 @@
 }
 
 /* ====================================
-   TESTIMONIALS SECTION
+   TESTIMONIALS SECTION MEJORADO
    ==================================== */
 .copier-modern-homepage .testimonials-section {
     padding: var(--spacing-xxl) 0;
-    background: var(--light-color);
+    background: var(--white-color);
 }
 
 .copier-modern-homepage .testimonials-carousel {
     margin-top: var(--spacing-xl);
 }
 
-.copier-modern-homepage .testimonial-card {
+.copier-modern-homepage .testimonial-card,
+.copier-modern-homepage .card.testimonial-card {
     background: var(--white-color);
     padding: var(--spacing-xl);
     border-radius: var(--border-radius-xl);
@@ -929,12 +1056,14 @@
     border: 1px solid var(--gray-200);
 }
 
-.copier-modern-homepage .testimonial-card:hover {
+.copier-modern-homepage .testimonial-card:hover,
+.copier-modern-homepage .card.testimonial-card:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-lg);
 }
 
-.copier-modern-homepage .testimonial-card::before {
+.copier-modern-homepage .testimonial-card::before,
+.copier-modern-homepage .card.testimonial-card::before {
     content: '"';
     position: absolute;
     top: -10px;
@@ -949,6 +1078,7 @@
     display: flex;
     gap: var(--spacing-xs);
     margin-bottom: var(--spacing-md);
+    justify-content: center;
 }
 
 .copier-modern-homepage .testimonial-rating i {
@@ -956,7 +1086,8 @@
     font-size: 1rem;
 }
 
-.copier-modern-homepage .testimonial-card blockquote {
+.copier-modern-homepage .testimonial-card blockquote,
+.copier-modern-homepage .card.testimonial-card blockquote {
     font-size: 1.125rem;
     font-style: italic;
     color: var(--gray-700);
@@ -965,12 +1096,14 @@
     border: none;
     padding: 0;
     margin-left: 0;
+    text-align: center;
 }
 
 .copier-modern-homepage .testimonial-author {
     display: flex;
     align-items: center;
     gap: var(--spacing-md);
+    justify-content: center;
 }
 
 .copier-modern-homepage .author-avatar {
@@ -987,24 +1120,26 @@
     object-fit: cover;
 }
 
-.copier-modern-homepage .author-info h4 {
+.copier-modern-homepage .author-info h4,
+.copier-modern-homepage .author-info .h6 {
     font-size: 1.125rem;
     font-weight: var(--font-weight-semibold);
     margin-bottom: 0.25rem;
     color: var(--dark-color);
 }
 
-.copier-modern-homepage .author-info span {
+.copier-modern-homepage .author-info span,
+.copier-modern-homepage .author-info small {
     font-size: 0.875rem;
     color: var(--gray-600);
 }
 
 /* ====================================
-   FAQ SECTION
+   FAQ SECTION MEJORADO
    ==================================== */
 .copier-modern-homepage .faq-section {
     padding: var(--spacing-xxl) 0;
-    background: var(--white-color);
+    background: var(--light-color);
 }
 
 .copier-modern-homepage .accordion {
@@ -1042,12 +1177,21 @@
 }
 
 .copier-modern-homepage .accordion-button:not(.collapsed) {
-    background: var(--primary-color);
+    background: var(--primary-gradient);
     color: var(--white-color);
 }
 
 .copier-modern-homepage .accordion-button:focus {
     box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+}
+
+.copier-modern-homepage .accordion-button i {
+    font-size: 1.25rem;
+    color: var(--primary-color);
+}
+
+.copier-modern-homepage .accordion-button:not(.collapsed) i {
+    color: var(--white-color);
 }
 
 .copier-modern-homepage .accordion-button::after {
@@ -1074,6 +1218,12 @@
 
 .copier-modern-homepage .accordion-body li {
     margin-bottom: var(--spacing-xs);
+}
+
+.copier-modern-homepage .accordion-body i {
+    color: var(--success-color);
+    margin-right: var(--spacing-xs);
+    font-size: 0.875rem;
 }
 
 .copier-modern-homepage .response-times {
@@ -1104,6 +1254,11 @@
     flex-shrink: 0;
 }
 
+.copier-modern-homepage .time-icon i {
+    font-size: 1.25rem;
+    color: var(--white-color);
+}
+
 .copier-modern-homepage .time-info h5 {
     font-size: 1rem;
     font-weight: var(--font-weight-semibold);
@@ -1129,14 +1284,35 @@
 }
 
 .copier-modern-homepage .training-note,
-.copier-modern-homepage .flexibility-note {
-    background: var(--info-color);
+.copier-modern-homepage .flexibility-note,
+.copier-modern-homepage .alert {
     background: linear-gradient(135deg, rgba(79, 172, 254, 0.1) 0%, rgba(0, 242, 254, 0.1) 100%);
     border: 1px solid rgba(79, 172, 254, 0.2);
     padding: var(--spacing-md);
     border-radius: var(--border-radius-md);
     margin-top: var(--spacing-md);
     font-size: 0.875rem;
+}
+
+.copier-modern-homepage .alert-info {
+    background: linear-gradient(135deg, rgba(79, 172, 254, 0.1) 0%, rgba(0, 242, 254, 0.1) 100%);
+    border-color: rgba(79, 172, 254, 0.2);
+    color: var(--gray-700);
+}
+
+.copier-modern-homepage .alert-success {
+    background: linear-gradient(135deg, rgba(17, 153, 142, 0.1) 0%, rgba(56, 239, 125, 0.1) 100%);
+    border-color: rgba(17, 153, 142, 0.2);
+    color: var(--gray-700);
+}
+
+.copier-modern-homepage .alert i {
+    color: var(--info-color);
+    margin-right: var(--spacing-xs);
+}
+
+.copier-modern-homepage .alert-success i {
+    color: var(--success-color);
 }
 
 .copier-modern-homepage .flexibility-options {
@@ -1178,20 +1354,22 @@
 }
 
 /* ====================================
-   FINAL CTA SECTION
+   FINAL CTA SECTION MEJORADO
    ==================================== */
 .copier-modern-homepage .final-cta-section {
     padding: var(--spacing-xxl) 0;
     background: var(--gray-900);
 }
 
-.copier-modern-homepage .cta-card {
+.copier-modern-homepage .cta-card,
+.copier-modern-homepage .card.cta-card {
     background: var(--primary-gradient);
     border-radius: var(--border-radius-xl);
     padding: var(--spacing-xxl);
     position: relative;
     overflow: hidden;
     color: var(--white-color);
+    border: none;
 }
 
 .copier-modern-homepage .cta-background {
@@ -1229,15 +1407,22 @@
     gap: var(--spacing-lg);
 }
 
-.copier-modern-homepage .cta-features span {
+.copier-modern-homepage .cta-features span,
+.copier-modern-homepage .cta-features .badge {
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
     font-weight: var(--font-weight-medium);
+    background: var(--success-gradient);
+    color: var(--white-color);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius-full);
+    font-size: 0.875rem;
 }
 
 .copier-modern-homepage .cta-features i {
-    color: var(--success-color);
+    color: var(--white-color);
+    font-size: 0.875rem;
 }
 
 .copier-modern-homepage .cta-actions {
@@ -1246,12 +1431,13 @@
     text-align: center;
 }
 
-.copier-modern-homepage .btn-cta-primary {
+.copier-modern-homepage .btn-cta-primary,
+.copier-modern-homepage .btn.btn-warning.btn-lg {
     display: inline-flex;
     align-items: center;
     gap: var(--spacing-xs);
-    background: var(--white-color);
-    color: var(--primary-color);
+    background: var(--warning-gradient);
+    color: var(--dark-color);
     padding: var(--spacing-md) var(--spacing-xl);
     border-radius: var(--border-radius-full);
     font-weight: var(--font-weight-bold);
@@ -1259,15 +1445,20 @@
     margin-bottom: var(--spacing-md);
     transition: all var(--transition-normal);
     box-shadow: var(--shadow-lg);
+    border: none;
+    text-decoration: none;
 }
 
-.copier-modern-homepage .btn-cta-primary:hover {
+.copier-modern-homepage .btn-cta-primary:hover,
+.copier-modern-homepage .btn.btn-warning.btn-lg:hover {
     transform: translateY(-3px);
     box-shadow: var(--shadow-xl);
-    color: var(--primary-color);
+    color: var(--dark-color);
+    text-decoration: none;
 }
 
-.copier-modern-homepage .btn-cta-secondary {
+.copier-modern-homepage .btn-cta-secondary,
+.copier-modern-homepage .btn.btn-outline-light.btn-lg {
     display: inline-flex;
     align-items: center;
     gap: var(--spacing-xs);
@@ -1281,12 +1472,15 @@
     margin-bottom: var(--spacing-lg);
     transition: all var(--transition-normal);
     backdrop-filter: blur(10px);
+    text-decoration: none;
 }
 
-.copier-modern-homepage .btn-cta-secondary:hover {
+.copier-modern-homepage .btn-cta-secondary:hover,
+.copier-modern-homepage .btn.btn-outline-light.btn-lg:hover {
     background: rgba(255, 255, 255, 0.2);
     transform: translateY(-3px);
     color: var(--white-color);
+    text-decoration: none;
 }
 
 .copier-modern-homepage .contact-info {
@@ -1304,8 +1498,13 @@
     opacity: 0.9;
 }
 
+.copier-modern-homepage .contact-item i {
+    font-size: 1rem;
+    color: var(--success-color);
+}
+
 /* ====================================
-   MODALES
+   MODALES MEJORADOS
    ==================================== */
 .copier-modern-homepage .modal-content {
     border: none;
@@ -1326,6 +1525,11 @@
     font-size: 1.25rem;
 }
 
+.copier-modern-homepage .modal-title i {
+    color: var(--white-color);
+    margin-right: var(--spacing-xs);
+}
+
 .copier-modern-homepage .modal-body {
     padding: var(--spacing-xl);
 }
@@ -1337,8 +1541,18 @@
     border-radius: 0 0 var(--border-radius-xl) var(--border-radius-xl);
 }
 
+.copier-modern-homepage .modal-footer .btn {
+    border-radius: var(--border-radius-full);
+    font-weight: var(--font-weight-semibold);
+    padding: var(--spacing-xs) var(--spacing-lg);
+}
+
+.copier-modern-homepage .modal-footer .btn i {
+    margin-right: var(--spacing-xs);
+}
+
 /* ====================================
-   BOTONES FLOTANTES
+   BOTONES FLOTANTES MEJORADOS
    ==================================== */
 .copier-modern-homepage .whatsapp-float {
     position: fixed;
@@ -1347,7 +1561,8 @@
     z-index: var(--z-fixed);
 }
 
-.copier-modern-homepage .whatsapp-btn {
+.copier-modern-homepage .whatsapp-btn,
+.copier-modern-homepage .btn.btn-success {
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
@@ -1360,16 +1575,22 @@
     box-shadow: var(--shadow-lg);
     transition: all var(--transition-normal);
     animation: pulse 2s infinite;
+    text-decoration: none;
+    border: none;
 }
 
-.copier-modern-homepage .whatsapp-btn:hover {
+.copier-modern-homepage .whatsapp-btn:hover,
+.copier-modern-homepage .btn.btn-success:hover {
     transform: scale(1.05);
     box-shadow: var(--shadow-xl);
     color: var(--white-color);
+    text-decoration: none;
 }
 
-.copier-modern-homepage .whatsapp-btn i {
+.copier-modern-homepage .whatsapp-btn i,
+.copier-modern-homepage .btn.btn-success i {
     font-size: 1.5rem;
+    color: var(--white-color);
 }
 
 .copier-modern-homepage .whatsapp-text {
@@ -1379,38 +1600,65 @@
 .copier-modern-homepage .quote-float {
     position: fixed;
     bottom: var(--spacing-lg);
-    right: var(--spacing-lg);
+    left: var(--spacing-lg);
     z-index: var(--z-fixed);
 }
 
-.copier-modern-homepage .quote-btn {
+.copier-modern-homepage .quote-btn,
+.copier-modern-homepage .btn.btn-warning.rounded-pill {
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
-    background: var(--secondary-gradient);
-    color: var(--white-color);
+    background: var(--warning-gradient);
+    color: var(--dark-color);
     padding: var(--spacing-md) var(--spacing-lg);
     border-radius: var(--border-radius-full);
     font-weight: var(--font-weight-semibold);
     font-size: 1rem;
     box-shadow: var(--shadow-lg);
     transition: all var(--transition-normal);
+    text-decoration: none;
+    border: none;
 }
 
-.copier-modern-homepage .quote-btn:hover {
+.copier-modern-homepage .quote-btn:hover,
+.copier-modern-homepage .btn.btn-warning.rounded-pill:hover {
     transform: scale(1.05);
     box-shadow: var(--shadow-xl);
-    color: var(--white-color);
+    color: var(--dark-color);
+    text-decoration: none;
 }
 
-.copier-modern-homepage .quote-btn i {
+.copier-modern-homepage .quote-btn i,
+.copier-modern-homepage .btn.btn-warning.rounded-pill i {
     font-size: 1.25rem;
+    color: var(--dark-color);
 }
 
 .copier-modern-homepage .quote-text {
     font-size: 0.875rem;
 }
 
+/* Bootstrap fixed positioning classes */
+.copier-modern-homepage .position-fixed {
+    position: fixed !important;
+}
+
+.copier-modern-homepage .bottom-0 {
+    bottom: 0 !important;
+}
+
+.copier-modern-homepage .end-0 {
+    right: 0 !important;
+}
+
+.copier-modern-homepage .start-0 {
+    left: 0 !important;
+}
+
+.copier-modern-homepage .p-3 {
+    padding: var(--spacing-md) !important;
+}
 /* ====================================
    ANIMACIONES
    ==================================== */
@@ -1447,13 +1695,13 @@
 
 @keyframes bounce {
     0%, 20%, 50%, 80%, 100% {
-        transform: translateY(0);
+        transform: translateX(-50%) translateY(0);
     }
     40% {
-        transform: translateY(-10px);
+        transform: translateX(-50%) translateY(-10px);
     }
     60% {
-        transform: translateY(-5px);
+        transform: translateX(-50%) translateY(-5px);
     }
 }
 
@@ -1469,6 +1717,28 @@
     }
 }
 
+@keyframes slideInFromTop {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInFromBottom {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
 .copier-modern-homepage .animate-fade-in {
     opacity: 0;
     transform: translateY(30px);
@@ -1481,13 +1751,142 @@
 }
 
 /* ====================================
-   RESPONSIVE DESIGN
+   BOOTSTRAP UTILITY CLASSES MEJORADAS
+   ==================================== */
+.copier-modern-homepage .text-center {
+    text-align: center !important;
+}
+
+.copier-modern-homepage .text-start {
+    text-align: left !important;
+}
+
+.copier-modern-homepage .text-end {
+    text-align: right !important;
+}
+
+.copier-modern-homepage .d-none {
+    display: none !important;
+}
+
+.copier-modern-homepage .d-block {
+    display: block !important;
+}
+
+.copier-modern-homepage .d-flex {
+    display: flex !important;
+}
+
+.copier-modern-homepage .d-inline-flex {
+    display: inline-flex !important;
+}
+
+.copier-modern-homepage .align-items-center {
+    align-items: center !important;
+}
+
+.copier-modern-homepage .align-items-start {
+    align-items: flex-start !important;
+}
+
+.copier-modern-homepage .align-items-end {
+    align-items: flex-end !important;
+}
+
+.copier-modern-homepage .justify-content-center {
+    justify-content: center !important;
+}
+
+.copier-modern-homepage .justify-content-between {
+    justify-content: space-between !important;
+}
+
+.copier-modern-homepage .justify-content-around {
+    justify-content: space-around !important;
+}
+
+/* Spacing utilities */
+.copier-modern-homepage .mb-0 { margin-bottom: 0 !important; }
+.copier-modern-homepage .mb-1 { margin-bottom: 0.25rem !important; }
+.copier-modern-homepage .mb-2 { margin-bottom: 0.5rem !important; }
+.copier-modern-homepage .mb-3 { margin-bottom: 1rem !important; }
+.copier-modern-homepage .mb-4 { margin-bottom: 1.5rem !important; }
+.copier-modern-homepage .mb-5 { margin-bottom: 3rem !important; }
+
+.copier-modern-homepage .mt-0 { margin-top: 0 !important; }
+.copier-modern-homepage .mt-1 { margin-top: 0.25rem !important; }
+.copier-modern-homepage .mt-2 { margin-top: 0.5rem !important; }
+.copier-modern-homepage .mt-3 { margin-top: 1rem !important; }
+.copier-modern-homepage .mt-4 { margin-top: 1.5rem !important; }
+.copier-modern-homepage .mt-5 { margin-top: 3rem !important; }
+.copier-modern-homepage .mt-auto { margin-top: auto !important; }
+
+.copier-modern-homepage .me-1 { margin-right: 0.25rem !important; }
+.copier-modern-homepage .me-2 { margin-right: 0.5rem !important; }
+.copier-modern-homepage .me-3 { margin-right: 1rem !important; }
+
+.copier-modern-homepage .ms-1 { margin-left: 0.25rem !important; }
+.copier-modern-homepage .ms-2 { margin-left: 0.5rem !important; }
+.copier-modern-homepage .ms-3 { margin-left: 1rem !important; }
+
+.copier-modern-homepage .py-5 { 
+    padding-top: var(--spacing-xxl) !important; 
+    padding-bottom: var(--spacing-xxl) !important; 
+}
+
+/* Typography utilities */
+.copier-modern-homepage .fs-1 { font-size: 2.5rem !important; }
+.copier-modern-homepage .fs-2 { font-size: 2rem !important; }
+.copier-modern-homepage .fs-3 { font-size: 1.75rem !important; }
+.copier-modern-homepage .fs-4 { font-size: 1.5rem !important; }
+.copier-modern-homepage .fs-5 { font-size: 1.25rem !important; }
+.copier-modern-homepage .fs-6 { font-size: 1rem !important; }
+
+.copier-modern-homepage .fw-light { font-weight: var(--font-weight-light) !important; }
+.copier-modern-homepage .fw-normal { font-weight: var(--font-weight-normal) !important; }
+.copier-modern-homepage .fw-medium { font-weight: var(--font-weight-medium) !important; }
+.copier-modern-homepage .fw-semibold { font-weight: var(--font-weight-semibold) !important; }
+.copier-modern-homepage .fw-bold { font-weight: var(--font-weight-bold) !important; }
+
+.copier-modern-homepage .text-muted { color: var(--gray-600) !important; }
+.copier-modern-homepage .text-primary { color: var(--primary-color) !important; }
+.copier-modern-homepage .text-success { color: var(--success-color) !important; }
+.copier-modern-homepage .text-warning { color: var(--warning-color) !important; }
+.copier-modern-homepage .text-info { color: var(--info-color) !important; }
+
+/* Border utilities */
+.copier-modern-homepage .rounded { border-radius: var(--border-radius-md) !important; }
+.copier-modern-homepage .rounded-circle { border-radius: 50% !important; }
+.copier-modern-homepage .rounded-pill { border-radius: var(--border-radius-full) !important; }
+
+/* Shadow utilities */
+.copier-modern-homepage .shadow-sm { box-shadow: var(--shadow-sm) !important; }
+.copier-modern-homepage .shadow { box-shadow: var(--shadow-md) !important; }
+.copier-modern-homepage .shadow-lg { box-shadow: var(--shadow-lg) !important; }
+
+/* Display utilities responsive */
+.copier-modern-homepage .d-md-inline { display: inline !important; }
+.copier-modern-homepage .d-md-block { display: block !important; }
+.copier-modern-homepage .d-md-flex { display: flex !important; }
+
+/* ====================================
+   RESPONSIVE DESIGN MEJORADO
    ==================================== */
 
 /* Extra Large devices (1400px and up) */
 @media (min-width: 1400px) {
-    .copier-modern-homepage .container {
+    .copier-modern-homepage .container,
+    .copier-modern-homepage .container-fluid {
         max-width: 1320px;
+        margin: 0 auto;
+    }
+    
+    .copier-modern-homepage .hero-title {
+        font-size: 4.5rem;
+    }
+    
+    .copier-modern-homepage .section-title {
+        font-size: 3.5rem;
     }
 }
 
@@ -1498,23 +1897,32 @@
     }
     
     .copier-modern-homepage .benefits-grid {
+        display: grid;
         grid-template-columns: repeat(3, 1fr);
     }
     
     .copier-modern-homepage .brands-grid {
+        display: grid;
         grid-template-columns: repeat(3, 1fr);
     }
     
     .copier-modern-homepage .products-grid {
+        display: grid;
         grid-template-columns: repeat(2, 1fr);
     }
     
     .copier-modern-homepage .process-steps {
+        display: grid;
         grid-template-columns: repeat(4, 1fr);
     }
     
     .copier-modern-homepage .testimonials-carousel {
+        display: grid;
         grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .copier-modern-homepage .floating-card {
+        display: flex;
     }
 }
 
@@ -1525,23 +1933,40 @@
     }
     
     .copier-modern-homepage .benefits-grid {
+        display: grid;
         grid-template-columns: repeat(2, 1fr);
     }
     
     .copier-modern-homepage .brands-grid {
+        display: grid;
         grid-template-columns: repeat(2, 1fr);
     }
     
     .copier-modern-homepage .products-grid {
+        display: grid;
         grid-template-columns: repeat(2, 1fr);
     }
     
     .copier-modern-homepage .process-steps {
+        display: grid;
         grid-template-columns: repeat(2, 1fr);
     }
     
     .copier-modern-homepage .testimonials-carousel {
+        display: grid;
         grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .copier-modern-homepage .d-md-inline {
+        display: inline !important;
+    }
+    
+    .copier-modern-homepage .d-md-block {
+        display: block !important;
+    }
+    
+    .copier-modern-homepage .d-md-flex {
+        display: flex !important;
     }
 }
 
@@ -1558,11 +1983,32 @@
     
     .copier-modern-homepage .service-card {
         padding: var(--spacing-sm);
+        flex-direction: column;
+        text-align: center;
+        gap: var(--spacing-sm);
+    }
+    
+    .copier-modern-homepage .service-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.25rem;
+    }
+    
+    .copier-modern-homepage .service-arrow {
+        margin-left: 0;
+        margin-top: var(--spacing-xs);
     }
     
     .copier-modern-homepage .hero-cta {
         flex-direction: column;
         align-items: center;
+        gap: var(--spacing-sm);
+    }
+    
+    .copier-modern-homepage .hero-cta a {
+        width: 100%;
+        justify-content: center;
+        max-width: 300px;
     }
     
     .copier-modern-homepage .floating-card {
@@ -1573,12 +2019,22 @@
         margin-bottom: var(--spacing-lg);
     }
     
+    .copier-modern-homepage .section-title {
+        font-size: 2rem;
+    }
+    
+    .copier-modern-homepage .section-subtitle {
+        font-size: 1rem;
+    }
+    
     .copier-modern-homepage .benefits-grid,
     .copier-modern-homepage .brands-grid,
     .copier-modern-homepage .products-grid,
     .copier-modern-homepage .process-steps,
     .copier-modern-homepage .testimonials-carousel {
+        display: grid;
         grid-template-columns: 1fr;
+        gap: var(--spacing-md);
     }
     
     .copier-modern-homepage .process-steps::before {
@@ -1593,6 +2049,9 @@
     
     .copier-modern-homepage .step-icon {
         margin-top: 0;
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
     }
     
     .copier-modern-homepage .cta-card {
@@ -1602,6 +2061,16 @@
     .copier-modern-homepage .cta-features {
         flex-direction: column;
         gap: var(--spacing-sm);
+    }
+    
+    .copier-modern-homepage .cta-actions {
+        margin-top: var(--spacing-lg);
+    }
+    
+    .copier-modern-homepage .cta-actions a {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: var(--spacing-sm);
     }
     
     .copier-modern-homepage .whatsapp-text,
@@ -1616,7 +2085,29 @@
     
     .copier-modern-homepage .quote-float {
         bottom: var(--spacing-sm);
-        right: var(--spacing-sm);
+        left: var(--spacing-sm);
+    }
+    
+    .copier-modern-homepage .whatsapp-btn,
+    .copier-modern-homepage .quote-btn {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        padding: 0;
+        justify-content: center;
+    }
+    
+    .copier-modern-homepage .accordion-body {
+        padding: 0 var(--spacing-md) var(--spacing-md);
+    }
+    
+    .copier-modern-homepage .modal-body {
+        padding: var(--spacing-md);
+    }
+    
+    .copier-modern-homepage .modal-header,
+    .copier-modern-homepage .modal-footer {
+        padding: var(--spacing-md);
     }
 }
 
@@ -1624,10 +2115,17 @@
 @media (max-width: 575px) {
     .copier-modern-homepage .hero-title {
         font-size: 2rem;
+        margin-bottom: var(--spacing-md);
     }
     
     .copier-modern-homepage .hero-subtitle {
         font-size: 1rem;
+        margin-bottom: var(--spacing-lg);
+    }
+    
+    .copier-modern-homepage .hero-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem var(--spacing-sm);
     }
     
     .copier-modern-homepage .section-title {
@@ -1635,65 +2133,73 @@
     }
     
     .copier-modern-homepage .section-subtitle {
-        font-size: 1rem;
+        font-size: 0.875rem;
     }
     
     .copier-modern-homepage .benefit-card,
     .copier-modern-homepage .brand-card,
     .copier-modern-homepage .testimonial-card {
         padding: var(--spacing-lg);
+        margin-bottom: var(--spacing-md);
     }
     
     .copier-modern-homepage .product-info {
         padding: var(--spacing-md);
     }
     
-    .copier-modern-homepage .modal-body {
-        padding: var(--spacing-lg);
+    .copier-modern-homepage .benefit-icon,
+    .copier-modern-homepage .step-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
     }
-}
-
-/* ====================================
-   UTILIDADES
-   ==================================== */
-.copier-modern-homepage .text-center {
-    text-align: center;
-}
-
-.copier-modern-homepage .text-left {
-    text-align: left;
-}
-
-.copier-modern-homepage .text-right {
-    text-align: right;
-}
-
-.copier-modern-homepage .d-none {
-    display: none;
-}
-
-.copier-modern-homepage .d-block {
-    display: block;
-}
-
-.copier-modern-homepage .d-flex {
-    display: flex;
-}
-
-.copier-modern-homepage .align-items-center {
-    align-items: center;
-}
-
-.copier-modern-homepage .justify-content-center {
-    justify-content: center;
-}
-
-.copier-modern-homepage .mb-0 {
-    margin-bottom: 0;
-}
-
-.copier-modern-homepage .mt-auto {
-    margin-top: auto;
+    
+    .copier-modern-homepage .step-number {
+        width: 50px;
+        height: 50px;
+        font-size: 1rem;
+    }
+    
+    .copier-modern-homepage .service-card {
+        padding: var(--spacing-sm);
+    }
+    
+    .copier-modern-homepage .service-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+    
+    .copier-modern-homepage .testimonial-author {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--spacing-sm);
+    }
+    
+    .copier-modern-homepage .author-avatar {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .copier-modern-homepage .accordion-button {
+        padding: var(--spacing-md);
+        font-size: 1rem;
+    }
+    
+    .copier-modern-homepage .modal-title {
+        font-size: 1.125rem;
+    }
+    
+    .copier-modern-homepage .whatsapp-btn,
+    .copier-modern-homepage .quote-btn {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .copier-modern-homepage .whatsapp-btn i,
+    .copier-modern-homepage .quote-btn i {
+        font-size: 1.25rem;
+    }
 }
 
 /* ====================================
@@ -1705,8 +2211,124 @@
         --white-color: #2d2d2d;
         --gray-100: #2d2d2d;
         --gray-200: #3d3d3d;
+        --gray-300: #4d4d4d;
         --dark-color: #ffffff;
         --gray-700: #cccccc;
         --gray-600: #999999;
+        --gray-500: #777777;
+    }
+    
+    .copier-modern-homepage.dark-mode .accordion-item {
+        background: var(--gray-100);
+        border-color: var(--gray-300);
+    }
+    
+    .copier-modern-homepage.dark-mode .accordion-button {
+        background: var(--gray-100);
+        color: var(--dark-color);
+    }
+    
+    .copier-modern-homepage.dark-mode .modal-content {
+        background: var(--white-color);
+        color: var(--dark-color);
+    }
+    
+    .copier-modern-homepage.dark-mode .modal-footer {
+        background: var(--gray-100);
+    }
+}
+
+/* ====================================
+   PRINT STYLES
+   ==================================== */
+@media print {
+    .copier-modern-homepage .hero-section {
+        min-height: auto;
+        padding: 2rem 0;
+    }
+    
+    .copier-modern-homepage .floating-card,
+    .copier-modern-homepage .whatsapp-float,
+    .copier-modern-homepage .quote-float,
+    .copier-modern-homepage .scroll-indicator {
+        display: none !important;
+    }
+    
+    .copier-modern-homepage .hero-background,
+    .copier-modern-homepage .hero-overlay {
+        display: none;
+    }
+    
+    .copier-modern-homepage .hero-content {
+        color: #000 !important;
+    }
+    
+    .copier-modern-homepage .section-header {
+        margin-bottom: 1rem;
+    }
+    
+    .copier-modern-homepage .benefit-card,
+    .copier-modern-homepage .brand-card,
+    .copier-modern-homepage .product-card,
+    .copier-modern-homepage .testimonial-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+}
+
+/* ====================================
+   ACCESIBILIDAD
+   ==================================== */
+.copier-modern-homepage *:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+.copier-modern-homepage .btn:focus,
+.copier-modern-homepage .accordion-button:focus {
+    box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .copier-modern-homepage *,
+    .copier-modern-homepage *::before,
+    .copier-modern-homepage *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .copier-modern-homepage .floating-card {
+        animation: none;
+    }
+    
+    .copier-modern-homepage .scroll-indicator {
+        animation: none;
+    }
+    
+    .copier-modern-homepage .whatsapp-btn {
+        animation: none;
+    }
+}
+
+/* ====================================
+   HIGH CONTRAST MODE
+   ==================================== */
+@media (prefers-contrast: high) {
+    .copier-modern-homepage {
+        --primary-color: #0000ff;
+        --secondary-color: #800080;
+        --success-color: #008000;
+        --warning-color: #ffff00;
+        --danger-color: #ff0000;
+        --dark-color: #000000;
+        --light-color: #ffffff;
+    }
+    
+    .copier-modern-homepage .btn,
+    .copier-modern-homepage .badge,
+    .copier-modern-homepage .accordion-button {
+        border: 2px solid currentColor;
     }
 }
