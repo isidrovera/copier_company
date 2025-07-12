@@ -522,87 +522,115 @@
 
                     <!-- SECCIÓN DE PROCESO -->
                     <section class="process-section py-5 bg-light">
-                        <div class="container">
-                            <div class="row">
-                                <div class="col-lg-12 text-center">
-                                    <div class="section-header mb-5">
-                                        <span class="badge bg-secondary mb-3 section-badge">Proceso</span>
-                                        <h2 class="display-5 fw-bold section-title">¿Cómo Funciona Nuestro Alquiler?</h2>
-                                        <p class="lead section-subtitle">Un proceso simple y transparente</p>
-                                    </div>
-                                </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <div class="section-header mb-5">
+                    <span class="badge bg-secondary mb-3 fs-6 px-3 py-2 rounded-pill">Proceso</span>
+                    <h2 class="display-5 fw-bold text-dark mb-3">¿Cómo Funciona Nuestro Alquiler?</h2>
+                    <p class="lead text-muted">Un proceso simple y transparente</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row g-4 process-steps">
+            <div class="col-lg-3 col-md-6">
+                <div class="card h-100 border-0 shadow-sm process-step position-relative">
+                    <div class="card-body text-center p-4">
+                        <div class="position-absolute top-0 start-50 translate-middle">
+                            <span class="badge bg-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 50px; height: 50px; font-size: 1.2rem;">01</span>
+                        </div>
+                        <div class="mt-4 pt-2">
+                            <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                <i class="bi bi-chat-dots fs-1 text-white"></i>
                             </div>
-                            
-                            <div class="row g-4 process-steps">
-                                <div class="col-lg-3 col-md-6">
-                                    <div class="card h-100 text-center process-step">
-                                        <div class="card-body">
-                                            <div class="step-number badge bg-primary fs-4 mb-3 rounded-circle" style="width: 60px; height: 60px; line-height: 46px;">01</div>
-                                            <div class="step-icon mb-3">
-                                                <i class="bi bi-chat-dots fs-1 text-white"></i>
-                                            </div>
-                                            <h3 class="card-title h5">Consulta Gratuita</h3>
-                                            <p class="card-text">Conversamos sobre tus necesidades y evaluamos el mejor equipo para tu empresa</p>
-                                            <a href="/cotizacion/form" class="btn btn-outline-primary btn-sm step-link">
-                                                Iniciar consulta <i class="bi bi-arrow-right ms-1"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-lg-3 col-md-6">
-                                    <div class="card h-100 text-center process-step">
-                                        <div class="card-body">
-                                            <div class="step-number badge bg-primary fs-4 mb-3 rounded-circle" style="width: 60px; height: 60px; line-height: 46px;">02</div>
-                                            <div class="step-icon mb-3">
-                                                <i class="bi bi-search fs-1 text-white"></i>
-                                            </div>
-                                            <h3 class="card-title h5">Evaluación</h3>
-                                            <p class="card-text">Analizamos tu volumen de impresión y recomendamos la solución más eficiente</p>
-                                            <div class="step-features mt-3">
-                                                <span class="badge bg-success me-2"><i class="bi bi-check me-1"></i> Sin compromiso</span>
-                                                <span class="badge bg-success"><i class="bi bi-check me-1"></i> Personalizada</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-lg-3 col-md-6">
-                                    <div class="card h-100 text-center process-step">
-                                        <div class="card-body">
-                                            <div class="step-number badge bg-primary fs-4 mb-3 rounded-circle" style="width: 60px; height: 60px; line-height: 46px;">03</div>
-                                            <div class="step-icon mb-3">
-                                                <i class="bi bi-gear-fill fs-1 text-white"></i>
-                                            </div>
-                                            <h3 class="card-title h5">Instalación</h3>
-                                            <p class="card-text">Instalamos y configuramos tu equipo en menos de 24 horas, listo para usar</p>
-                                            <div class="step-features mt-3">
-                                                <span class="badge bg-info me-2"><i class="bi bi-clock me-1"></i> 24 horas</span>
-                                                <span class="badge bg-success"><i class="bi bi-check me-1"></i> Configuración incluida</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-lg-3 col-md-6">
-                                    <div class="card h-100 text-center process-step">
-                                        <div class="card-body">
-                                            <div class="step-number badge bg-primary fs-4 mb-3 rounded-circle" style="width: 60px; height: 60px; line-height: 46px;">04</div>
-                                            <div class="step-icon mb-3">
-                                                <i class="bi bi-headset fs-1 text-white"></i>
-                                            </div>
-                                            <h3 class="card-title h5">Soporte Continuo</h3>
-                                            <p class="card-text">Mantenimiento, soporte técnico y reposición de consumibles incluidos</p>
-                                            <div class="step-features mt-3">
-                                                <span class="badge bg-warning me-2"><i class="bi bi-clock me-1 text-white"></i> 24/7</span>
-                                                <span class="badge bg-info"><i class="bi bi-tools me-1"></i> Mantenimiento</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <h4 class="fw-bold mb-3">Consulta Gratuita</h4>
+                            <p class="text-muted mb-3">Conversamos sobre tus necesidades y evaluamos el mejor equipo para tu empresa</p>
+                            <a href="/cotizacion/form" class="btn btn-outline-primary btn-sm rounded-pill">
+                                Iniciar consulta <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="card h-100 border-0 shadow-sm process-step position-relative">
+                    <div class="card-body text-center p-4">
+                        <div class="position-absolute top-0 start-50 translate-middle">
+                            <span class="badge bg-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 50px; height: 50px; font-size: 1.2rem;">02</span>
+                        </div>
+                        <div class="mt-4 pt-2">
+                            <div class="bg-success bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                <i class="bi bi-search fs-1 text-white"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">Evaluación</h4>
+                            <p class="text-muted mb-3">Analizamos tu volumen de impresión y recomendamos la solución más eficiente</p>
+                            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                <span class="badge bg-success-subtle text-success rounded-pill">
+                                    <i class="bi bi-check me-1"></i> Sin compromiso
+                                </span>
+                                <span class="badge bg-success-subtle text-success rounded-pill">
+                                    <i class="bi bi-check me-1"></i> Personalizada
+                                </span>
                             </div>
                         </div>
-                    </section>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="card h-100 border-0 shadow-sm process-step position-relative">
+                    <div class="card-body text-center p-4">
+                        <div class="position-absolute top-0 start-50 translate-middle">
+                            <span class="badge bg-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 50px; height: 50px; font-size: 1.2rem;">03</span>
+                        </div>
+                        <div class="mt-4 pt-2">
+                            <div class="bg-warning bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                <i class="bi bi-gear-fill fs-1 text-white"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">Instalación</h4>
+                            <p class="text-muted mb-3">Instalamos y configuramos tu equipo en menos de 24 horas, listo para usar</p>
+                            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                <span class="badge bg-info-subtle text-info rounded-pill">
+                                    <i class="bi bi-clock me-1"></i> 24 horas
+                                </span>
+                                <span class="badge bg-success-subtle text-success rounded-pill">
+                                    <i class="bi bi-check me-1"></i> Configuración incluida
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="card h-100 border-0 shadow-sm process-step position-relative">
+                    <div class="card-body text-center p-4">
+                        <div class="position-absolute top-0 start-50 translate-middle">
+                            <span class="badge bg-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 50px; height: 50px; font-size: 1.2rem;">04</span>
+                        </div>
+                        <div class="mt-4 pt-2">
+                            <div class="bg-info bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                <i class="bi bi-headset fs-1 text-white"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">Soporte Continuo</h4>
+                            <p class="text-muted mb-3">Mantenimiento, soporte técnico y reposición de consumibles incluidos</p>
+                            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                <span class="badge bg-warning-subtle text-warning rounded-pill">
+                                    <i class="bi bi-clock me-1"></i> 24/7
+                                </span>
+                                <span class="badge bg-info-subtle text-info rounded-pill">
+                                    <i class="bi bi-tools me-1"></i> Mantenimiento
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
                     <!-- SECCIÓN DE TESTIMONIOS -->
                     <section class="testimonials-section py-5">
                         <div class="container">
@@ -911,59 +939,59 @@
                     </section>
 
                     <!-- SECCIÓN CTA FINAL -->
-<section class="final-cta-section py-5 bg-dark">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="card bg-primary text-white border-0 shadow-lg">
-                    <div class="card-body p-5">
-                        <div class="row align-items-center">
-                            <div class="col-lg-8">
-                                <div class="cta-content">
-                                    <h2 class="display-6 fw-bold mb-3">¿Listo para Modernizar tu Oficina?</h2>
-                                    <p class="fs-5 mb-4 opacity-75">Obtén equipos de última generación sin inversión inicial. Soporte técnico incluido y la mejor calidad del mercado.</p>
-                                    <div class="d-flex flex-wrap gap-3 mb-4">
-                                        <span class="badge bg-success fs-6 py-2 px-3">
-                                            <i class="bi bi-check-circle me-1"></i> Cotización gratuita en 24 horas
-                                        </span>
-                                        <span class="badge bg-success fs-6 py-2 px-3">
-                                            <i class="bi bi-check-circle me-1"></i> Instalación sin costo
-                                        </span>
-                                        <span class="badge bg-success fs-6 py-2 px-3">
-                                            <i class="bi bi-check-circle me-1"></i> Soporte técnico incluido
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-4 text-center">
-                                <div class="cta-actions">
-                                    <a href="/cotizacion/form" class="btn btn-warning btn-lg mb-3 d-block fw-bold">
-                                        <i class="bi bi-calculator me-2"></i>
-                                        Cotizar Ahora
-                                    </a>
-                                    <a href="/contactus" class="btn btn-outline-light btn-lg mb-3 d-block">
-                                        <i class="bi bi-telephone me-2"></i>
-                                        Llamar Gratis
-                                    </a>
-                                    <div class="contact-info mt-4">
-                                        <div class="d-flex align-items-center justify-content-center mb-2">
-                                            <i class="bi bi-telephone-fill text-warning me-2 fs-5"></i>
-                                            <span>(01) 975399303</span>
-                                        </div>
-                                        <div class="d-flex align-items-center justify-content-center">
-                                            <i class="bi bi-whatsapp text-success me-2 fs-5"></i>
-                                            <span>WhatsApp 24/7</span>
+                    <section class="final-cta-section py-5 bg-dark">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="card bg-primary text-white border-0 shadow-lg">
+                                        <div class="card-body p-5">
+                                            <div class="row align-items-center">
+                                                <div class="col-lg-8">
+                                                    <div class="cta-content">
+                                                        <h2 class="display-6 fw-bold mb-3">¿Listo para Modernizar tu Oficina?</h2>
+                                                        <p class="fs-5 mb-4 opacity-75">Obtén equipos de última generación sin inversión inicial. Soporte técnico incluido y la mejor calidad del mercado.</p>
+                                                        <div class="d-flex flex-wrap gap-3 mb-4">
+                                                            <span class="badge bg-success fs-6 py-2 px-3">
+                                                                <i class="bi bi-check-circle me-1"></i> Cotización gratuita en 24 horas
+                                                            </span>
+                                                            <span class="badge bg-success fs-6 py-2 px-3">
+                                                                <i class="bi bi-check-circle me-1"></i> Instalación sin costo
+                                                            </span>
+                                                            <span class="badge bg-success fs-6 py-2 px-3">
+                                                                <i class="bi bi-check-circle me-1"></i> Soporte técnico incluido
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4 text-center">
+                                                    <div class="cta-actions">
+                                                        <a href="/cotizacion/form" class="btn btn-warning btn-lg mb-3 d-block fw-bold">
+                                                            <i class="bi bi-calculator me-2"></i>
+                                                            Cotizar Ahora
+                                                        </a>
+                                                        <a href="/contactus" class="btn btn-outline-light btn-lg mb-3 d-block">
+                                                            <i class="bi bi-telephone me-2"></i>
+                                                            Llamar Gratis
+                                                        </a>
+                                                        <div class="contact-info mt-4">
+                                                            <div class="d-flex align-items-center justify-content-center mb-2">
+                                                                <i class="bi bi-telephone-fill text-warning me-2 fs-5"></i>
+                                                                <span>(01) 975399303</span>
+                                                            </div>
+                                                            <div class="d-flex align-items-center justify-content-center">
+                                                                <i class="bi bi-whatsapp text-success me-2 fs-5"></i>
+                                                                <span>WhatsApp 24/7</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+                    </section>
 
                     <!-- MODALES -->
                     
