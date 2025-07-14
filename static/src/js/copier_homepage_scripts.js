@@ -1,10 +1,18 @@
+(function() {
+'use strict';
+
 /**
  * COPIER COMPANY HOMEPAGE - SISTEMA JAVASCRIPT COMPLETO
  * PARTE 1/10: INICIALIZACIÓN Y EFECTOS DE SCROLL
- * Versión Bootstrap Icons - Compatible con Odoo
+ * Versión Bootstrap Icons - Compatible con Odoo - CORREGIDA
  */
 
-document.addEventListener('DOMContentLoaded', function() {
+function initPart() {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPart);
+        return;
+    }
+    
     console.log('🚀 Iniciando Copier Company JS v2.0 - Parte 1/10');
     
     // =============================================
@@ -12,11 +20,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // =============================================
     
     function checkBootstrapDependencies() {
-        // Verificar si Bootstrap CSS está cargado
+        // Verificar si Bootstrap CSS ya está cargado por Odoo
         const hasBootstrapCSS = Array.from(document.styleSheets).some(sheet => {
             try {
                 return sheet.href && (
                     sheet.href.includes('bootstrap') || 
+                    sheet.href.includes('web.assets') ||
                     sheet.href.includes('cdn.jsdelivr.net')
                 );
             } catch (e) {
@@ -27,37 +36,29 @@ document.addEventListener('DOMContentLoaded', function() {
         // Verificar si Bootstrap Icons está disponible
         const hasBootstrapIcons = document.querySelector('link[href*="bootstrap-icons"]') !== null;
         
-        if (!hasBootstrapCSS || !hasBootstrapIcons) {
-            console.warn('⚠️ Bootstrap o Bootstrap Icons no detectados. Agregando CDN...');
+        if (!hasBootstrapIcons) {
+            console.log('📦 Cargando Bootstrap Icons...');
             addBootstrapDependencies();
+        } else {
+            console.log('✅ Bootstrap Icons ya disponible');
+        }
+        
+        if (hasBootstrapCSS) {
+            console.log('✅ Bootstrap CSS detectado (Odoo)');
         }
         
         console.log('✅ Dependencias Bootstrap verificadas');
     }
     
     function addBootstrapDependencies() {
-        // Agregar Bootstrap Icons si no está presente
+        // Solo Bootstrap Icons, sin Bootstrap CSS
         if (!document.querySelector('link[href*="bootstrap-icons"]')) {
             const iconsLink = document.createElement('link');
             iconsLink.rel = 'stylesheet';
             iconsLink.href = 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css';
+            iconsLink.onload = () => console.log('📦 Bootstrap Icons cargado exitosamente');
+            iconsLink.onerror = () => console.warn('⚠️ Error cargando Bootstrap Icons');
             document.head.appendChild(iconsLink);
-            console.log('📦 Bootstrap Icons CDN agregado');
-        }
-        
-        // Agregar Bootstrap CSS si no está presente
-        const hasBootstrap = Array.from(document.querySelectorAll('link')).some(link => 
-            link.href && link.href.includes('bootstrap')
-        );
-        
-        if (!hasBootstrap) {
-            const bootstrapLink = document.createElement('link');
-            bootstrapLink.rel = 'stylesheet';
-            bootstrapLink.href = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css';
-            bootstrapLink.integrity = 'sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN';
-            bootstrapLink.crossOrigin = 'anonymous';
-            document.head.appendChild(bootstrapLink);
-            console.log('📦 Bootstrap CSS CDN agregado');
         }
     }
     
@@ -491,11 +492,14 @@ document.addEventListener('DOMContentLoaded', function() {
     } catch (error) {
         console.error('❌ Error en la inicialización de Parte 1:', error);
     }
-});
+}
+
+// Llamar la función de inicialización
+initPart();
 
 // Objeto global para almacenar el estado
 window.CopierCompany = window.CopierCompany || {
-    version: '2.0.0',
+    version: '2.0.1',
     partsLoaded: [],
     config: {
         useBootstrapIcons: true,
@@ -505,7 +509,9 @@ window.CopierCompany = window.CopierCompany || {
 };
 
 window.CopierCompany.partsLoaded.push('part1');
-console.log('📦 Copier Company JS - Parte 1/10 cargada');
+console.log('📦 Copier Company JS - Parte 1/10 cargada - VERSIÓN ODOO');
+
+})();
 /**
  * COPIER COMPANY HOMEPAGE - SISTEMA JAVASCRIPT COMPLETO
  * PARTE 2/10: MODALES DINÁMICOS Y CONTENIDO INTERACTIVO
