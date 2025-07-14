@@ -968,7 +968,7 @@ console.log('✅ Parte 2: Sistema de modales dinámicos para beneficios iniciali
 
 const brandsContent = {
     'konica': {
-        title: 'Konica Minolta',
+        title: '',
         logo: 'https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/konica-minolta-vector-logo-seeklogo/konica-minolta-seeklogo.png',
         description: 'Tecnología japonesa de vanguardia para soluciones de impresión empresarial',
         content: `
