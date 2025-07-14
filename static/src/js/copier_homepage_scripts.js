@@ -1957,8 +1957,392 @@ function trackInteraction(action, category, label = '') {
 }
 
 // =============================================
-// SISTEMA AVANZADO DE FILTROS DE PRODUCTOS
+// BASE DE DATOS DE PRODUCTOS (AGREGADA AQUÍ)
 // =============================================
+
+const productsContent = {
+    'multifuncional-a3': {
+        title: 'Multifuncionales A3',
+        category: 'A3',
+        description: 'Equipos de alto rendimiento para oficinas grandes y centros de copiado',
+        content: `
+            <div class="product-detail">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="product-overview">
+                            <h4><i class="bi bi-arrows-fullscreen text-primary me-2"></i>Multifuncionales A3 Profesionales</h4>
+                            <p class="lead">Diseñados para empresas con alto volumen de impresión que requieren versatilidad 
+                            en formatos grandes. Ideales para oficinas corporativas, centros de copiado y 
+                            departamentos de marketing que manejan documentos de gran formato.</p>
+                            
+                            <div class="row mt-4">
+                                <div class="col-md-6">
+                                    <div class="card border-success">
+                                        <div class="card-header bg-success text-white">
+                                            <h5 class="mb-0"><i class="bi bi-list-check me-2"></i>Funciones Principales</h5>
+                                        </div>
+                                        <div class="list-group list-group-flush">
+                                            <div class="list-group-item d-flex align-items-center">
+                                                <i class="bi bi-printer text-success me-3"></i>
+                                                <span>Impresión A3/A4 color y B&N</span>
+                                            </div>
+                                            <div class="list-group-item d-flex align-items-center">
+                                                <i class="bi bi-files text-success me-3"></i>
+                                                <span>Copiado hasta 75 ppm</span>
+                                            </div>
+                                            <div class="list-group-item d-flex align-items-center">
+                                                <i class="bi bi-scanner text-success me-3"></i>
+                                                <span>Escaneo dúplex automático</span>
+                                            </div>
+                                            <div class="list-group-item d-flex align-items-center">
+                                                <i class="bi bi-telephone text-success me-3"></i>
+                                                <span>Fax (opcional)</span>
+                                            </div>
+                                            <div class="list-group-item d-flex align-items-center">
+                                                <i class="bi bi-filetype-pdf text-success me-3"></i>
+                                                <span>Escaneo directo a PDF/email</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card border-warning">
+                                        <div class="card-header bg-warning text-dark">
+                                            <h5 class="mb-0"><i class="bi bi-gear-wide me-2"></i>Características Avanzadas</h5>
+                                        </div>
+                                        <div class="list-group list-group-flush">
+                                            <div class="list-group-item d-flex align-items-center">
+                                                <i class="bi bi-wifi text-warning me-3"></i>
+                                                <span>Conectividad WiFi y Ethernet</span>
+                                            </div>
+                                            <div class="list-group-item d-flex align-items-center">
+                                                <i class="bi bi-phone text-warning me-3"></i>
+                                                <span>Impresión desde móviles</span>
+                                            </div>
+                                            <div class="list-group-item d-flex align-items-center">
+                                                <i class="bi bi-cloud text-warning me-3"></i>
+                                                <span>Integración con servicios cloud</span>
+                                            </div>
+                                            <div class="list-group-item d-flex align-items-center">
+                                                <i class="bi bi-fingerprint text-warning me-3"></i>
+                                                <span>Autenticación biométrica</span>
+                                            </div>
+                                            <div class="list-group-item d-flex align-items-center">
+                                                <i class="bi bi-book text-warning me-3"></i>
+                                                <span>Creación de folletos automática</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-info">
+                            <div class="card-header bg-info text-white text-center">
+                                <h5 class="mb-0"><i class="bi bi-speedometer2 me-2"></i>Especificaciones</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <div class="p-2 border rounded text-center bg-light">
+                                            <div class="fw-bold text-primary">35-75</div>
+                                            <small class="text-muted">ppm</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-2 border rounded text-center bg-light">
+                                            <div class="fw-bold text-primary">1200x1200</div>
+                                            <small class="text-muted">dpi</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-2 border rounded text-center bg-light">
+                                            <div class="fw-bold text-primary">50K-300K</div>
+                                            <small class="text-muted">págs/mes</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-2 border rounded text-center bg-light">
+                                            <div class="fw-bold text-primary">4-8 GB</div>
+                                            <small class="text-muted">RAM</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mt-3 border-success">
+                            <div class="card-header bg-success text-white text-center">
+                                <h5 class="mb-0"><i class="bi bi-currency-dollar me-2"></i>Alquiler Mensual</h5>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="h4 text-success mb-0">$299</span>
+                                    <span class="text-muted">hasta</span>
+                                    <span class="h4 text-success mb-0">$899</span>
+                                </div>
+                                <small class="text-muted d-block mt-2">*Incluye mantenimiento y soporte</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h4><i class="bi bi-layers me-2 text-primary"></i>Modelos Disponibles</h4>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Entrada (35-45 ppm)</h6>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled">
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Ideal para oficinas medianas</li>
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Funciones básicas completas</li>
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Excelente relación precio/calidad</li>
+                                    </ul>
+                                </div>
+                                <div class="card-footer bg-transparent text-center">
+                                    <span class="h5 text-primary">$299-399/mes</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100 border-warning position-relative">
+                                <span class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-warning">
+                                    Más Popular
+                                </span>
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0">Intermedio (50-60 ppm)</h6>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled">
+                                        <li><i class="bi bi-check-circle text-warning me-2"></i>Más popular para empresas</li>
+                                        <li><i class="bi bi-check-circle text-warning me-2"></i>Funciones avanzadas incluidas</li>
+                                        <li><i class="bi bi-check-circle text-warning me-2"></i>Óptimo rendimiento/costo</li>
+                                    </ul>
+                                </div>
+                                <div class="card-footer bg-transparent text-center">
+                                    <span class="h5 text-warning">$499-699/mes</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100 border-danger">
+                                <div class="card-header bg-danger text-white">
+                                    <h6 class="mb-0">Alto Rendimiento (65-75 ppm)</h6>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled">
+                                        <li><i class="bi bi-check-circle text-danger me-2"></i>Para centros de impresión</li>
+                                        <li><i class="bi bi-check-circle text-danger me-2"></i>Máximas funcionalidades</li>
+                                        <li><i class="bi bi-check-circle text-danger me-2"></i>Volúmenes industriales</li>
+                                    </ul>
+                                </div>
+                                <div class="card-footer bg-transparent text-center">
+                                    <span class="h5 text-danger">$699-899/mes</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `
+    },
+    'multifuncional-a4': {
+        title: 'Multifuncionales A4',
+        category: 'A4',
+        description: 'Soluciones compactas perfectas para oficinas medianas y pequeñas',
+        content: `
+            <div class="product-detail">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h4><i class="bi bi-laptop text-primary me-2"></i>Multifuncionales A4 Compactos</h4>
+                        <p class="lead">La solución ideal para oficinas que buscan funcionalidad completa en un espacio reducido.</p>
+                        
+                        <div class="alert alert-info">
+                            <h5><i class="bi bi-info-circle me-2"></i>Características Principales</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <ul class="list-unstyled">
+                                        <li><i class="bi bi-check text-success me-2"></i>Impresión A4 color/B&N hasta 35 ppm</li>
+                                        <li><i class="bi bi-check text-success me-2"></i>Copiado automático</li>
+                                        <li><i class="bi bi-check text-success me-2"></i>Escaneo color alta resolución</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <ul class="list-unstyled">
+                                        <li><i class="bi bi-check text-success me-2"></i>Conectividad WiFi</li>
+                                        <li><i class="bi bi-check text-success me-2"></i>Impresión móvil</li>
+                                        <li><i class="bi bi-check text-success me-2"></i>Diseño compacto</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card bg-success text-white">
+                            <div class="card-body text-center">
+                                <h5><i class="bi bi-currency-dollar me-2"></i>Precio de Alquiler</h5>
+                                <h3>$149 - $299 / mes</h3>
+                                <p class="mb-0">Incluye mantenimiento y soporte completo</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `
+    },
+    'impresoras-laser': {
+        title: 'Impresoras Láser',
+        category: 'LÁSER',
+        description: 'Alta velocidad y calidad profesional para impresión dedicada',
+        content: `
+            <div class="product-detail">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h4><i class="bi bi-lightning text-primary me-2"></i>Impresoras Láser Profesionales</h4>
+                        <p class="lead">Tecnología láser de vanguardia para empresas que requieren velocidad excepcional.</p>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card border-dark">
+                                    <div class="card-header bg-dark text-white">
+                                        <h6><i class="bi bi-circle-fill me-2"></i>Láser Monocromático</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled">
+                                            <li><strong>Velocidad:</strong> 25-75 ppm</li>
+                                            <li><strong>Costo por página:</strong> $0.02-0.04</li>
+                                            <li><strong>Ideal para:</strong> Documentos de texto</li>
+                                            <li><strong>Volumen:</strong> Alto (50K-300K/mes)</li>
+                                        </ul>
+                                        <div class="text-center">
+                                            <span class="h5 text-dark">$199-599/mes</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-danger">
+                                    <div class="card-header bg-danger text-white">
+                                        <h6><i class="bi bi-palette-fill me-2"></i>Láser Color</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled">
+                                            <li><strong>Velocidad:</strong> 20-55 ppm</li>
+                                            <li><strong>Costo por página:</strong> $0.08-0.15</li>
+                                            <li><strong>Ideal para:</strong> Marketing y presentaciones</li>
+                                            <li><strong>Volumen:</strong> Medio-Alto (20K-150K/mes)</li>
+                                        </ul>
+                                        <div class="text-center">
+                                            <span class="h5 text-danger">$399-899/mes</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `
+    },
+    'equipos-especializados': {
+        title: 'Equipos Especializados',
+        category: 'ESPECIAL',
+        description: 'Soluciones personalizadas para necesidades específicas de la industria',
+        content: `
+            <div class="product-detail">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h4><i class="bi bi-gear-wide text-primary me-2"></i>Equipos Especializados</h4>
+                        <p class="lead">Soluciones diseñadas para industrias específicas con requerimientos únicos.</p>
+                        
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <i class="bi bi-map text-primary display-6"></i>
+                                        <h6 class="mt-2">Plotters Gran Formato</h6>
+                                        <p class="small">A2, A1, A0</p>
+                                        <strong>$599-1,299/mes</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <i class="bi bi-upc text-success display-6"></i>
+                                        <h6 class="mt-2">Impresoras de Etiquetas</h6>
+                                        <p class="small">Térmicas, 2"-8"</p>
+                                        <strong>$199-599/mes</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <i class="bi bi-camera text-warning display-6"></i>
+                                        <h6 class="mt-2">Impresoras Fotográficas</h6>
+                                        <p class="small">4x6" hasta 13x19"</p>
+                                        <strong>$399-799/mes</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <i class="bi bi-gear-wide text-danger display-6"></i>
+                                        <h6 class="mt-2">Equipos Industriales</h6>
+                                        <p class="small">IP54/IP65</p>
+                                        <strong>$799-1,899/mes</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-primary mt-3">
+                            <h6><i class="bi bi-info-circle me-2"></i>Proceso de Implementación</h6>
+                            <p class="mb-0">Análisis → Diseño → Implementación → Soporte Continuo</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `
+    }
+};
+
+// =============================================
+// MANEJADOR DE MODALES DE PRODUCTOS (AGREGADO AQUÍ)
+// =============================================
+
+document.addEventListener('click', function(e) {
+    const productCard = e.target.closest('[data-product]');
+    if (productCard) {
+        const productType = productCard.getAttribute('data-product');
+        const productData = productsContent[productType];
+        
+        if (productData) {
+            // Actualizar contenido del modal
+            const modalLabel = document.getElementById('productModalLabel');
+            const modalBody = document.getElementById('productModalBody');
+            
+            if (modalLabel) {
+                modalLabel.innerHTML = `<i class="bi bi-printer me-2"></i>${productData.title}`;
+            }
+            if (modalBody) {
+                modalBody.innerHTML = productData.content;
+            }
+            
+            // Log para debugging
+            console.log('✅ Producto cargado:', productData.title);
+            trackInteraction('view_product', 'products', productType);
+        } else {
+            console.warn('❌ No se encontró datos para el producto:', productType);
+            showBootstrapToast('Error al cargar la información del producto', 'error');
+        }
+    }
+});
 
 const productFilters = {
     init: function() {
