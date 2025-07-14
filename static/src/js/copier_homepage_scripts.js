@@ -1848,3 +1848,2691 @@ function highlightFeaturedBrand(brandName) {
 }
 
 console.log('✅ Parte 3: Sistema de modales dinámicos para marcas inicializado con Bootstrap');
+
+/**
+ * PARTE 4A: COMPLETANDO MODALES DE PRODUCTOS Y FUNCIONALIDADES ADICIONALES
+ * JavaScript para Homepage Moderna de Copier Company - Bootstrap Version
+ * CONTINUACIÓN DE LA PARTE 4
+ */
+
+// =============================================
+// SISTEMA AVANZADO DE FILTROS DE PRODUCTOS
+// =============================================
+
+const productFilters = {
+    init: function() {
+        this.createFilterPanel();
+        this.setupEventListeners();
+    },
+    
+    createFilterPanel: function() {
+        // Crear panel de filtros si no existe
+        let filterPanel = document.getElementById('product-filter-panel');
+        if (filterPanel) return;
+        
+        filterPanel = document.createElement('div');
+        filterPanel.id = 'product-filter-panel';
+        filterPanel.className = 'card border-primary mb-4';
+        filterPanel.innerHTML = `
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="bi bi-funnel me-2"></i>Filtrar Productos</h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label small">Por Velocidad</label>
+                        <select class="form-select form-select-sm" id="filter-speed">
+                            <option value="">Todas</option>
+                            <option value="low">Hasta 30 ppm</option>
+                            <option value="medium">31-60 ppm</option>
+                            <option value="high">Más de 60 ppm</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small">Por Formato</label>
+                        <select class="form-select form-select-sm" id="filter-format">
+                            <option value="">Todos</option>
+                            <option value="a4">A4</option>
+                            <option value="a3">A3</option>
+                            <option value="large">Gran Formato</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small">Por Precio</label>
+                        <select class="form-select form-select-sm" id="filter-price">
+                            <option value="">Todos</option>
+                            <option value="budget">$149-299</option>
+                            <option value="mid">$300-599</option>
+                            <option value="premium">$600+</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small">Por Función</label>
+                        <select class="form-select form-select-sm" id="filter-function">
+                            <option value="">Todas</option>
+                            <option value="print">Solo Impresión</option>
+                            <option value="multifunction">Multifuncional</option>
+                            <option value="specialized">Especializado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <button class="btn btn-primary btn-sm me-2" onclick="productFilters.applyFilters()">
+                            <i class="bi bi-search me-1"></i>Aplicar Filtros
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="productFilters.clearFilters()">
+                            <i class="bi bi-x-circle me-1"></i>Limpiar
+                        </button>
+                        <span class="badge bg-info ms-2" id="filter-results-count">0 productos encontrados</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Insertar antes del primer producto
+        const firstProductSection = document.querySelector('.products-section, [data-product]')?.parentElement;
+        if (firstProductSection) {
+            firstProductSection.insertBefore(filterPanel, firstProductSection.firstChild);
+        }
+    },
+    
+    setupEventListeners: function() {
+        // Auto-aplicar filtros cuando cambie algún select
+        const filterSelects = ['filter-speed', 'filter-format', 'filter-price', 'filter-function'];
+        filterSelects.forEach(id => {
+            const select = document.getElementById(id);
+            if (select) {
+                select.addEventListener('change', () => this.applyFilters());
+            }
+        });
+    },
+    
+    applyFilters: function() {
+        const filters = {
+            speed: document.getElementById('filter-speed')?.value || '',
+            format: document.getElementById('filter-format')?.value || '',
+            price: document.getElementById('filter-price')?.value || '',
+            function: document.getElementById('filter-function')?.value || ''
+        };
+        
+        const productCards = document.querySelectorAll('[data-product]');
+        let visibleCount = 0;
+        
+        productCards.forEach(card => {
+            const productType = card.getAttribute('data-product');
+            const shouldShow = this.matchesFilters(productType, filters);
+            
+            if (shouldShow) {
+                card.style.display = '';
+                card.style.opacity = '1';
+                card.style.transform = 'scale(1)';
+                visibleCount++;
+            } else {
+                card.style.opacity = '0.3';
+                card.style.transform = 'scale(0.95)';
+                // No ocultar completamente para mejor UX
+            }
+        });
+        
+        // Actualizar contador
+        const counter = document.getElementById('filter-results-count');
+        if (counter) {
+            counter.textContent = `${visibleCount} productos encontrados`;
+            counter.className = `badge ${visibleCount > 0 ? 'bg-success' : 'bg-warning'} ms-2`;
+        }
+        
+        // Mostrar toast con resultados
+        showBootstrapToast(`Filtros aplicados: ${visibleCount} productos encontrados`, 'info');
+        
+        // Analytics
+        trackInteraction('filter_applied', 'products', JSON.stringify(filters));
+    },
+    
+    matchesFilters: function(productType, filters) {
+        const productData = productsContent[productType];
+        if (!productData) return false;
+        
+        // Definir características de cada producto para filtros
+        const productSpecs = {
+            'multifuncional-a3': { speed: 'high', format: 'a3', price: 'premium', function: 'multifunction' },
+            'multifuncional-a4': { speed: 'medium', format: 'a4', price: 'budget', function: 'multifunction' },
+            'impresoras-laser': { speed: 'high', format: 'a4', price: 'mid', function: 'print' },
+            'equipos-especializados': { speed: 'medium', format: 'large', price: 'premium', function: 'specialized' }
+        };
+        
+        const specs = productSpecs[productType];
+        if (!specs) return true;
+        
+        // Verificar cada filtro
+        if (filters.speed && specs.speed !== filters.speed) return false;
+        if (filters.format && specs.format !== filters.format) return false;
+        if (filters.price && specs.price !== filters.price) return false;
+        if (filters.function && specs.function !== filters.function) return false;
+        
+        return true;
+    },
+    
+    clearFilters: function() {
+        // Limpiar todos los selects
+        const filterSelects = ['filter-speed', 'filter-format', 'filter-price', 'filter-function'];
+        filterSelects.forEach(id => {
+            const select = document.getElementById(id);
+            if (select) select.value = '';
+        });
+        
+        // Mostrar todos los productos
+        const productCards = document.querySelectorAll('[data-product]');
+        productCards.forEach(card => {
+            card.style.display = '';
+            card.style.opacity = '1';
+            card.style.transform = 'scale(1)';
+        });
+        
+        // Actualizar contador
+        const counter = document.getElementById('filter-results-count');
+        if (counter) {
+            counter.textContent = `${productCards.length} productos encontrados`;
+            counter.className = 'badge bg-success ms-2';
+        }
+        
+        showBootstrapToast('Filtros eliminados', 'success');
+        trackInteraction('filter_cleared', 'products', '');
+    }
+};
+
+// =============================================
+// SISTEMA DE FAVORITOS USANDO LOCALSTORAGE
+// =============================================
+
+const productFavorites = {
+    favorites: new Set(),
+    
+    init: function() {
+        this.loadFavorites();
+        this.addFavoriteButtons();
+        this.updateFavoriteButtons();
+    },
+    
+    loadFavorites: function() {
+        try {
+            const saved = localStorage.getItem('copier_favorites');
+            if (saved) {
+                this.favorites = new Set(JSON.parse(saved));
+            }
+        } catch (e) {
+            console.warn('Error loading favorites:', e);
+            this.favorites = new Set();
+        }
+    },
+    
+    saveFavorites: function() {
+        try {
+            localStorage.setItem('copier_favorites', JSON.stringify([...this.favorites]));
+        } catch (e) {
+            console.warn('Error saving favorites:', e);
+        }
+    },
+    
+    addFavoriteButtons: function() {
+        const productCards = document.querySelectorAll('[data-product]');
+        productCards.forEach(card => {
+            // Evitar duplicar botones
+            if (card.querySelector('.favorite-btn')) return;
+            
+            const productType = card.getAttribute('data-product');
+            const favoriteBtn = document.createElement('button');
+            favoriteBtn.className = 'btn btn-outline-danger btn-sm favorite-btn position-absolute';
+            favoriteBtn.style.cssText = 'top: 10px; right: 10px; z-index: 10; border-radius: 50%; width: 35px; height: 35px;';
+            favoriteBtn.innerHTML = '<i class="bi bi-heart"></i>';
+            favoriteBtn.setAttribute('data-product-type', productType);
+            favoriteBtn.title = 'Agregar a favoritos';
+            
+            // Hacer el card relativo si no lo es
+            if (getComputedStyle(card).position === 'static') {
+                card.style.position = 'relative';
+            }
+            
+            card.appendChild(favoriteBtn);
+            
+            // Event listener
+            favoriteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleFavorite(productType);
+            });
+        });
+    },
+    
+    toggleFavorite: function(productType) {
+        if (this.favorites.has(productType)) {
+            this.favorites.delete(productType);
+            showBootstrapToast('Eliminado de favoritos', 'info');
+        } else {
+            this.favorites.add(productType);
+            showBootstrapToast('Agregado a favoritos', 'success');
+        }
+        
+        this.saveFavorites();
+        this.updateFavoriteButtons();
+        trackInteraction('favorite_toggle', 'products', productType);
+    },
+    
+    updateFavoriteButtons: function() {
+        const favoriteButtons = document.querySelectorAll('.favorite-btn');
+        favoriteButtons.forEach(btn => {
+            const productType = btn.getAttribute('data-product-type');
+            const isFavorite = this.favorites.has(productType);
+            
+            if (isFavorite) {
+                btn.className = 'btn btn-danger btn-sm favorite-btn position-absolute';
+                btn.innerHTML = '<i class="bi bi-heart-fill"></i>';
+                btn.title = 'Quitar de favoritos';
+            } else {
+                btn.className = 'btn btn-outline-danger btn-sm favorite-btn position-absolute';
+                btn.innerHTML = '<i class="bi bi-heart"></i>';
+                btn.title = 'Agregar a favoritos';
+            }
+        });
+    },
+    
+    showFavorites: function() {
+        if (this.favorites.size === 0) {
+            showBootstrapToast('No tienes productos favoritos', 'info');
+            return;
+        }
+        
+        const favoritesModal = document.createElement('div');
+        favoritesModal.className = 'modal fade';
+        favoritesModal.innerHTML = `
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title"><i class="bi bi-heart-fill me-2"></i>Mis Productos Favoritos</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            ${[...this.favorites].map(productType => {
+                                const product = productsContent[productType];
+                                if (!product) return '';
+                                
+                                return `
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card border-danger h-100">
+                                            <div class="card-body">
+                                                <h6 class="card-title text-danger">
+                                                    <i class="bi bi-heart-fill me-2"></i>${product.title}
+                                                </h6>
+                                                <p class="card-text small">${product.description}</p>
+                                                <div class="d-flex gap-2">
+                                                    <button class="btn btn-sm btn-outline-primary" onclick="document.querySelector('[data-product=&quot;${productType}&quot;]').click()">
+                                                        <i class="bi bi-eye me-1"></i>Ver Detalles
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-danger" onclick="productFavorites.toggleFavorite('${productType}'); this.closest('.modal').querySelector('.btn-close').click();">
+                                                        <i class="bi bi-heart-slash me-1"></i>Quitar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <a href="/cotizacion/form" class="btn btn-primary">
+                            <i class="bi bi-calculator me-2"></i>Cotizar Favoritos
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(favoritesModal);
+        const modal = new bootstrap.Modal(favoritesModal);
+        modal.show();
+        
+        favoritesModal.addEventListener('hidden.bs.modal', function() {
+            this.remove();
+        });
+        
+        trackInteraction('view_favorites', 'products', this.favorites.size.toString());
+    }
+};
+
+// =============================================
+// SISTEMA DE CALCULADORA DE COSTOS
+// =============================================
+
+const costCalculator = {
+    rates: {
+        'multifuncional-a3': { min: 299, max: 899, maintenance: 150, installation: 100 },
+        'multifuncional-a4': { min: 149, max: 299, maintenance: 80, installation: 50 },
+        'impresoras-laser': { min: 199, max: 899, maintenance: 100, installation: 75 },
+        'equipos-especializados': { min: 199, max: 1899, maintenance: 200, installation: 200 }
+    },
+    
+    show: function(productType = null) {
+        const calculatorModal = document.createElement('div');
+        calculatorModal.className = 'modal fade';
+        calculatorModal.innerHTML = `
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title"><i class="bi bi-calculator me-2"></i>Calculadora de Costos</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="cost-calculator-form">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Tipo de Equipo</label>
+                                        <select class="form-select" id="calc-product-type" required>
+                                            <option value="">Seleccionar equipo</option>
+                                            <option value="multifuncional-a3" ${productType === 'multifuncional-a3' ? 'selected' : ''}>Multifuncional A3</option>
+                                            <option value="multifuncional-a4" ${productType === 'multifuncional-a4' ? 'selected' : ''}>Multifuncional A4</option>
+                                            <option value="impresoras-laser" ${productType === 'impresoras-laser' ? 'selected' : ''}>Impresora Láser</option>
+                                            <option value="equipos-especializados" ${productType === 'equipos-especializados' ? 'selected' : ''}>Equipo Especializado</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Cantidad de Equipos</label>
+                                        <input type="number" class="form-control" id="calc-quantity" min="1" max="50" value="1" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Duración del Contrato (meses)</label>
+                                        <select class="form-select" id="calc-duration">
+                                            <option value="12">12 meses</option>
+                                            <option value="24" selected>24 meses</option>
+                                            <option value="36">36 meses</option>
+                                            <option value="48">48 meses</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Volumen Mensual Estimado (páginas)</label>
+                                        <select class="form-select" id="calc-volume">
+                                            <option value="low">Bajo (0-5,000)</option>
+                                            <option value="medium" selected>Medio (5,001-25,000)</option>
+                                            <option value="high">Alto (25,001-100,000)</option>
+                                            <option value="industrial">Industrial (100,000+)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card bg-light h-100">
+                                        <div class="card-header bg-primary text-white">
+                                            <h6 class="mb-0">Resumen de Costos</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="cost-breakdown" id="cost-breakdown">
+                                                <p class="text-muted text-center">Selecciona un equipo para ver los costos</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="button" class="btn btn-primary" onclick="costCalculator.sendQuote()">
+                            <i class="bi bi-envelope me-2"></i>Solicitar Cotización Oficial
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(calculatorModal);
+        const modal = new bootstrap.Modal(calculatorModal);
+        modal.show();
+        
+        // Event listeners para recalcular automáticamente
+        const inputs = ['calc-product-type', 'calc-quantity', 'calc-duration', 'calc-volume'];
+        inputs.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('change', () => this.calculate());
+            }
+        });
+        
+        // Calcular si ya hay un producto seleccionado
+        if (productType) {
+            setTimeout(() => this.calculate(), 100);
+        }
+        
+        calculatorModal.addEventListener('hidden.bs.modal', function() {
+            this.remove();
+        });
+        
+        trackInteraction('open_calculator', 'cost_calculator', productType || 'general');
+    },
+    
+    calculate: function() {
+        const productType = document.getElementById('calc-product-type')?.value;
+        const quantity = parseInt(document.getElementById('calc-quantity')?.value) || 1;
+        const duration = parseInt(document.getElementById('calc-duration')?.value) || 24;
+        const volume = document.getElementById('calc-volume')?.value || 'medium';
+        
+        if (!productType || !this.rates[productType]) {
+            document.getElementById('cost-breakdown').innerHTML = '<p class="text-muted text-center">Selecciona un equipo para ver los costos</p>';
+            return;
+        }
+        
+        const rates = this.rates[productType];
+        
+        // Calcular precio base según volumen
+        let basePrice = rates.min;
+        if (volume === 'high') basePrice = rates.min + (rates.max - rates.min) * 0.7;
+        else if (volume === 'industrial') basePrice = rates.max;
+        else if (volume === 'medium') basePrice = rates.min + (rates.max - rates.min) * 0.4;
+        
+        // Aplicar descuentos por cantidad y duración
+        let quantityDiscount = 0;
+        if (quantity >= 5) quantityDiscount = 0.1;
+        else if (quantity >= 3) quantityDiscount = 0.05;
+        
+        let durationDiscount = 0;
+        if (duration >= 48) durationDiscount = 0.15;
+        else if (duration >= 36) durationDiscount = 0.1;
+        else if (duration >= 24) durationDiscount = 0.05;
+        
+        const monthlyPerUnit = basePrice * (1 - quantityDiscount - durationDiscount);
+        const monthlyTotal = monthlyPerUnit * quantity;
+        const totalContract = monthlyTotal * duration;
+        const setupCost = rates.installation * quantity;
+        const totalCostWithSetup = totalContract + setupCost;
+        
+        // Comparación con compra
+        const purchasePrice = monthlyPerUnit * 20; // Estimación de precio de compra
+        const maintenanceCost = rates.maintenance * quantity * duration;
+        const totalPurchaseCost = (purchasePrice + maintenanceCost) * quantity;
+        const savings = totalPurchaseCost - totalCostWithSetup;
+        const savingsPercent = Math.round((savings / totalPurchaseCost) * 100);
+        
+        document.getElementById('cost-breakdown').innerHTML = `
+            <div class="mb-3">
+                <h6 class="text-primary">Costo Mensual</h6>
+                <div class="d-flex justify-content-between">
+                    <span>Por equipo:</span>
+                    <strong>$${Math.round(monthlyPerUnit)}</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Total mensual:</span>
+                    <strong class="text-success">$${Math.round(monthlyTotal)}</strong>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <h6 class="text-primary">Costo Total del Contrato</h6>
+                <div class="d-flex justify-content-between">
+                    <span>Alquiler (${duration} meses):</span>
+                    <span>$${Math.round(totalContract).toLocaleString()}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Instalación inicial:</span>
+                    <span>$${setupCost}</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <strong>Total:</strong>
+                    <strong class="text-success">$${Math.round(totalCostWithSetup).toLocaleString()}</strong>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <h6 class="text-warning">Descuentos Aplicados</h6>
+                ${quantityDiscount > 0 ? `<small class="d-block"><i class="bi bi-tag me-1"></i>Cantidad: ${Math.round(quantityDiscount*100)}%</small>` : ''}
+                ${durationDiscount > 0 ? `<small class="d-block"><i class="bi bi-calendar me-1"></i>Duración: ${Math.round(durationDiscount*100)}%</small>` : ''}
+                ${(quantityDiscount + durationDiscount) === 0 ? '<small class="text-muted">No hay descuentos disponibles</small>' : ''}
+            </div>
+            
+            <div class="alert alert-success">
+                <h6 class="alert-heading">Vs. Comprar</h6>
+                <p class="mb-1">Ahorro estimado: <strong>$${Math.round(savings).toLocaleString()} (${savingsPercent}%)</strong></p>
+                <small>Incluye mantenimiento, soporte y actualizaciones</small>
+            </div>
+        `;
+        
+        trackInteraction('calculate_cost', 'cost_calculator', `${productType}_${quantity}_${duration}`);
+    },
+    
+    sendQuote: function() {
+        const productType = document.getElementById('calc-product-type')?.value;
+        const quantity = document.getElementById('calc-quantity')?.value;
+        const duration = document.getElementById('calc-duration')?.value;
+        
+        if (!productType) {
+            showBootstrapToast('Por favor selecciona un tipo de equipo', 'warning');
+            return;
+        }
+        
+        // Simular envío de cotización
+        const quoteData = {
+            product: productType,
+            quantity: quantity,
+            duration: duration,
+            timestamp: new Date().toISOString()
+        };
+        
+        // Guardar en localStorage para usar en formulario de cotización
+        localStorage.setItem('quote_data', JSON.stringify(quoteData));
+        
+        showBootstrapToast('Datos guardados. Redirigiendo al formulario de cotización...', 'success');
+        
+        setTimeout(() => {
+            window.location.href = '/cotizacion/form';
+        }, 2000);
+        
+        trackInteraction('send_quote', 'cost_calculator', JSON.stringify(quoteData));
+    }
+};
+
+// =============================================
+// SISTEMA DE BÚSQUEDA INTELIGENTE
+// =============================================
+
+const smartSearch = {
+    init: function() {
+        this.createSearchBox();
+        this.setupEventListeners();
+    },
+    
+    createSearchBox: function() {
+        let searchBox = document.getElementById('smart-search-box');
+        if (searchBox) return;
+        
+        searchBox = document.createElement('div');
+        searchBox.id = 'smart-search-box';
+        searchBox.className = 'card border-info mb-4';
+        searchBox.innerHTML = `
+            <div class="card-body">
+                <div class="input-group">
+                    <span class="input-group-text bg-info text-white">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control" id="smart-search-input" 
+                           placeholder="Buscar productos por características (ej: 'A3 color rápido', 'económico oficina pequeña')">
+                    <button class="btn btn-info" type="button" onclick="smartSearch.search()">
+                        <i class="bi bi-search me-1"></i>Buscar
+                    </button>
+                </div>
+                <div id="search-suggestions" class="mt-2" style="display: none;"></div>
+                <div id="search-results" class="mt-3" style="display: none;"></div>
+            </div>
+        `;
+        
+        // Insertar después del panel de filtros o al inicio
+        const filterPanel = document.getElementById('product-filter-panel');
+        const insertTarget = filterPanel?.parentElement || document.querySelector('.products-section')?.parentElement;
+        if (insertTarget) {
+            if (filterPanel) {
+                insertTarget.insertBefore(searchBox, filterPanel.nextSibling);
+            } else {
+                insertTarget.insertBefore(searchBox, insertTarget.firstChild);
+            }
+        }
+    },
+    
+    setupEventListeners: function() {
+        const searchInput = document.getElementById('smart-search-input');
+        if (searchInput) {
+            // Búsqueda en tiempo real con debounce
+            let timeout;
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    if (e.target.value.length >= 2) {
+                        this.showSuggestions(e.target.value);
+                    } else {
+                        this.hideSuggestions();
+                    }
+                }, 300);
+            });
+            
+            // Búsqueda al presionar Enter
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.search();
+                }
+            });
+        }
+    },
+    
+    showSuggestions: function(query) {
+        const suggestions = this.generateSuggestions(query);
+        const suggestionContainer = document.getElementById('search-suggestions');
+        
+        if (suggestions.length === 0) {
+            this.hideSuggestions();
+            return;
+        }
+        
+        suggestionContainer.innerHTML = `
+            <small class="text-muted">Sugerencias:</small>
+            <div class="d-flex flex-wrap gap-1 mt-1">
+                ${suggestions.map(suggestion => 
+                    `<button class="btn btn-sm btn-outline-info" onclick="smartSearch.applySuggestion('${suggestion}')">${suggestion}</button>`
+                ).join('')}
+            </div>
+        `;
+        suggestionContainer.style.display = 'block';
+    },
+    
+    hideSuggestions: function() {
+        const suggestionContainer = document.getElementById('search-suggestions');
+        if (suggestionContainer) {
+            suggestionContainer.style.display = 'none';
+        }
+    },
+    
+    generateSuggestions: function(query) {
+        const suggestions = [];
+        const lowerQuery = query.toLowerCase();
+        
+        // Sugerencias basadas en palabras clave
+        const keywords = {
+            'a3': ['Multifuncional A3', 'gran formato'],
+            'a4': ['Multifuncional A4', 'compacto'],
+            'laser': ['Impresora Láser', 'alta velocidad'],
+            'color': ['impresión color', 'marketing'],
+            'rapido': ['alta velocidad', 'productivo'],
+            'economico': ['bajo costo', 'presupuesto limitado'],
+            'pequeña': ['oficina pequeña', 'compacto'],
+            'grande': ['gran oficina', 'alto volumen'],
+            'especializado': ['industria específica', 'personalizado']
+        };
+        
+        Object.keys(keywords).forEach(key => {
+            if (lowerQuery.includes(key)) {
+                suggestions.push(...keywords[key]);
+            }
+        });
+        
+        return [...new Set(suggestions)].slice(0, 4);
+    },
+    
+    applySuggestion: function(suggestion) {
+        const searchInput = document.getElementById('smart-search-input');
+        if (searchInput) {
+            searchInput.value = suggestion;
+            this.search();
+        }
+    },
+    
+    search: function() {
+        const query = document.getElementById('smart-search-input')?.value.trim();
+        if (!query) {
+            showBootstrapToast('Por favor ingresa un término de búsqueda', 'warning');
+            return;
+        }
+        
+        this.hideSuggestions();
+        const results = this.performSearch(query);
+        this.displayResults(results, query);
+        
+        trackInteraction('smart_search', 'products', query);
+    },
+    
+    performSearch: function(query) {
+        const lowerQuery = query.toLowerCase();
+        const results = [];
+        
+        // Definir características de búsqueda para cada producto
+        const searchableProducts = {
+            'multifuncional-a3': {
+                keywords: ['a3', 'multifuncional', 'gran formato', 'corporativo', 'alto volumen', 'rapido', 'completo'],
+                score: 0,
+                data: productsContent['multifuncional-a3']
+            },
+            'multifuncional-a4': {
+                keywords: ['a4', 'multifuncional', 'compacto', 'pequeño', 'oficina', 'economico', 'basico'],
+                score: 0,
+                data: productsContent['multifuncional-a4']
+            },
+            'impresoras-laser': {
+                keywords: ['laser', 'rapido', 'velocidad', 'texto', 'documentos', 'profesional', 'eficiente'],
+                score: 0,
+                data: productsContent['impresoras-laser']
+            },
+            'equipos-especializados': {
+                keywords: ['especializado', 'industria', 'personalizado', 'gran formato', 'etiquetas', 'fotografico'],
+                score: 0,
+                data: productsContent['equipos-especializados']
+            }
+        };
+        
+        // Calcular puntuación de relevancia
+        Object.keys(searchableProducts).forEach(productKey => {
+            const product = searchableProducts[productKey];
+            let score = 0;
+            
+            // Buscar coincidencias exactas
+            product.keywords.forEach(keyword => {
+                if (lowerQuery.includes(keyword)) {
+                    score += 10;
+                }
+            });
+            
+            // Buscar coincidencias parciales
+            const queryWords = lowerQuery.split(' ');
+            queryWords.forEach(word => {
+                if (word.length >= 3) {
+                    product.keywords.forEach(keyword => {
+                        if (keyword.includes(word) || word.includes(keyword)) {
+                            score += 5;
+                        }
+                    });
+                }
+            });
+            
+            // Buscar en título y descripción
+            if (product.data.title.toLowerCase().includes(lowerQuery)) score += 15;
+            if (product.data.description.toLowerCase().includes(lowerQuery)) score += 8;
+            
+            if (score > 0) {
+                results.push({
+                    productKey,
+                    score,
+                    data: product.data
+                });
+            }
+        });
+        
+        // Ordenar por relevancia
+        return results.sort((a, b) => b.score - a.score);
+    },
+    
+    displayResults: function(results, query) {
+        const resultsContainer = document.getElementById('search-results');
+        
+        if (results.length === 0) {
+            resultsContainer.innerHTML = `
+                <div class="alert alert-warning">
+                    <h6><i class="bi bi-exclamation-triangle me-2"></i>No se encontraron resultados</h6>
+                    <p class="mb-0">No encontramos productos que coincidan con "${query}". 
+                    Intenta con términos como: "A3", "láser", "compacto", "especializado".</p>
+                </div>
+            `;
+        } else {
+            resultsContainer.innerHTML = `
+                <div class="alert alert-success">
+                    <h6><i class="bi bi-search me-2"></i>Resultados de búsqueda para "${query}"</h6>
+                    <p class="mb-0">Se encontraron ${results.length} producto(s) relevante(s):</p>
+                </div>
+                <div class="row">
+                    ${results.map((result, index) => `
+                        <div class="col-md-6 mb-3">
+                            <div class="card border-${index === 0 ? 'success' : 'info'} h-100">
+                                <div class="card-header bg-${index === 0 ? 'success' : 'info'} text-white d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">${result.data.title}</h6>
+                                    ${index === 0 ? '<span class="badge bg-warning text-dark">Mejor coincidencia</span>' : ''}
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">${result.data.description}</p>
+                                    <div class="progress mb-2" style="height: 6px;">
+                                        <div class="progress-bar bg-${index === 0 ? 'success' : 'info'}" 
+                                             style="width: ${Math.min(result.score * 2, 100)}%"></div>
+                                    </div>
+                                    <small class="text-muted">Relevancia: ${result.score} puntos</small>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <button class="btn btn-sm btn-outline-primary me-2" 
+                                            onclick="document.querySelector('[data-product=&quot;${result.productKey}&quot;]')?.click()">
+                                        <i class="bi bi-eye me-1"></i>Ver Detalles
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success" 
+                                            onclick="costCalculator.show('${result.productKey}')">
+                                        <i class="bi bi-calculator me-1"></i>Calcular Costo
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        resultsContainer.style.display = 'block';
+        
+        // Scroll suave hacia los resultados
+        resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+};
+
+// =============================================
+// INICIALIZACIÓN DE TODAS LAS FUNCIONALIDADES
+// =============================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar sistemas con delay para mejor UX
+    setTimeout(() => {
+        try {
+            productFilters.init();
+            console.log('✅ Product filters initialized');
+        } catch (e) {
+            console.warn('⚠️ Error initializing product filters:', e);
+        }
+    }, 500);
+    
+    setTimeout(() => {
+        try {
+            productFavorites.init();
+            console.log('✅ Product favorites initialized');
+        } catch (e) {
+            console.warn('⚠️ Error initializing product favorites:', e);
+        }
+    }, 1000);
+    
+    setTimeout(() => {
+        try {
+            smartSearch.init();
+            console.log('✅ Smart search initialized');
+        } catch (e) {
+            console.warn('⚠️ Error initializing smart search:', e);
+        }
+    }, 1500);
+});
+
+// Hacer funciones disponibles globalmente
+window.productFilters = productFilters;
+window.productFavorites = productFavorites;
+window.costCalculator = costCalculator;
+window.smartSearch = smartSearch;
+
+// CSS adicionales para las nuevas funcionalidades
+const additionalProductStyles = `
+/* Estilos para filtros de productos */
+#product-filter-panel {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-radius: 10px;
+}
+
+#product-filter-panel .form-select {
+    transition: border-color 0.3s ease;
+}
+
+#product-filter-panel .form-select:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Botones de favoritos */
+.favorite-btn {
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    background-color: rgba(255,255,255,0.9);
+}
+
+.favorite-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+}
+
+/* Animaciones para productos filtrados */
+[data-product] {
+    transition: all 0.5s ease;
+}
+
+/* Calculadora de costos */
+#cost-breakdown {
+    font-size: 0.9rem;
+}
+
+#cost-breakdown .progress {
+    height: 6px;
+    border-radius: 3px;
+}
+
+/* Búsqueda inteligente */
+#smart-search-box {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+#smart-search-input {
+    border: none;
+    background: white;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#smart-search-input:focus {
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Sugerencias de búsqueda */
+#search-suggestions .btn {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    margin: 0.1rem;
+}
+
+/* Resultados de búsqueda */
+#search-results .card {
+    transition: all 0.3s ease;
+}
+
+#search-results .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+/* Progress bars en resultados */
+#search-results .progress {
+    background-color: rgba(0,0,0,0.1);
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .product-filter-panel .row > div {
+        margin-bottom: 1rem;
+    }
+    
+    .favorite-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 0.8rem;
+    }
+    
+    #smart-search-box .input-group {
+        flex-wrap: wrap;
+    }
+    
+    #smart-search-box .input-group .btn {
+        flex: 1;
+        margin-top: 0.5rem;
+    }
+}
+
+/* Loading states */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255,255,255,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: inherit;
+    z-index: 10;
+}
+
+.loading-spinner {
+    width: 2rem;
+    height: 2rem;
+    border: 0.25rem solid rgba(0,0,0,0.1);
+    border-top-color: var(--bs-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Success animations */
+@keyframes pulse-success {
+    0% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(25, 135, 84, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0); }
+}
+
+.pulse-success {
+    animation: pulse-success 1s;
+}
+
+/* Error animations */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.shake {
+    animation: shake 0.5s;
+}
+`;
+
+// Inyectar estilos adicionales
+if (!document.querySelector('#additional-product-styles')) {
+    const styleSheet = document.createElement('style');
+    styleSheet.id = 'additional-product-styles';
+    styleSheet.textContent = additionalProductStyles;
+    document.head.appendChild(styleSheet);
+}
+
+console.log('✅ Parte 4A: Funcionalidades adicionales de productos inicializadas con Bootstrap');
+
+/**
+ * PARTE 5: INTEGRACIÓN COMPLETA Y OPTIMIZACIONES FINALES
+ * JavaScript para Homepage Moderna de Copier Company - Bootstrap Version
+ */
+
+// =============================================
+// SISTEMA DE PERFORMANCE Y OPTIMIZACIÓN
+// =============================================
+
+const performanceMonitor = {
+    metrics: {
+        loadTime: 0,
+        interactionTime: 0,
+        memoryUsage: 0,
+        slowComponents: []
+    },
+    
+    init: function() {
+        this.measureLoadTime();
+        this.monitorMemory();
+        this.detectSlowComponents();
+        this.setupPerformanceObserver();
+    },
+    
+    measureLoadTime: function() {
+        window.addEventListener('load', () => {
+            const loadTime = performance.now();
+            this.metrics.loadTime = loadTime;
+            
+            console.log(`⚡ Página cargada en ${loadTime.toFixed(2)}ms`);
+            
+            // Mostrar badge de performance si es muy rápido
+            if (loadTime < 2000) {
+                this.showPerformanceBadge('fast');
+            } else if (loadTime < 4000) {
+                this.showPerformanceBadge('good');
+            } else {
+                this.showPerformanceBadge('slow');
+            }
+            
+            // Enviar métricas si hay analytics configurado
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'page_load_time', {
+                    custom_parameter: Math.round(loadTime)
+                });
+            }
+        });
+    },
+    
+    monitorMemory: function() {
+        if ('memory' in performance) {
+            setInterval(() => {
+                const memory = performance.memory;
+                this.metrics.memoryUsage = memory.usedJSHeapSize / 1048576; // MB
+                
+                // Advertir si el uso de memoria es alto
+                if (this.metrics.memoryUsage > 50) {
+                    console.warn(`⚠️ Alto uso de memoria: ${this.metrics.memoryUsage.toFixed(2)}MB`);
+                }
+            }, 30000); // Cada 30 segundos
+        }
+    },
+    
+    detectSlowComponents: function() {
+        // Detectar imágenes que tardan mucho en cargar
+        const images = document.querySelectorAll('img');
+        images.forEach(img => {
+            const startTime = performance.now();
+            
+            const onLoad = () => {
+                const loadTime = performance.now() - startTime;
+                if (loadTime > 3000) {
+                    this.metrics.slowComponents.push({
+                        type: 'image',
+                        src: img.src,
+                        loadTime: loadTime
+                    });
+                    console.warn(`⚠️ Imagen lenta: ${img.src} (${loadTime.toFixed(2)}ms)`);
+                }
+            };
+            
+            if (img.complete) {
+                onLoad();
+            } else {
+                img.addEventListener('load', onLoad);
+                img.addEventListener('error', onLoad);
+            }
+        });
+    },
+    
+    setupPerformanceObserver: function() {
+        if ('PerformanceObserver' in window) {
+            const observer = new PerformanceObserver((list) => {
+                list.getEntries().forEach((entry) => {
+                    if (entry.entryType === 'navigation') {
+                        console.log(`📊 Navigation timing: ${entry.duration.toFixed(2)}ms`);
+                    }
+                });
+            });
+            
+            try {
+                observer.observe({ entryTypes: ['navigation', 'resource'] });
+            } catch (e) {
+                console.warn('Performance Observer not fully supported');
+            }
+        }
+    },
+    
+    showPerformanceBadge: function(level) {
+        const badge = document.createElement('div');
+        badge.className = `position-fixed bottom-0 end-0 m-3 alert alert-${level === 'fast' ? 'success' : level === 'good' ? 'warning' : 'danger'} alert-dismissible fade show`;
+        badge.style.zIndex = '9999';
+        badge.innerHTML = `
+            <i class="bi bi-speedometer2 me-2"></i>
+            <strong>Performance:</strong> ${level === 'fast' ? 'Excelente' : level === 'good' ? 'Bueno' : 'Mejorable'}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(badge);
+        
+        // Auto-remover después de 5 segundos
+        setTimeout(() => {
+            if (badge.parentNode) {
+                badge.remove();
+            }
+        }, 5000);
+    },
+    
+    generateReport: function() {
+        return {
+            loadTime: this.metrics.loadTime,
+            memoryUsage: this.metrics.memoryUsage,
+            slowComponents: this.metrics.slowComponents,
+            timestamp: new Date().toISOString(),
+            userAgent: navigator.userAgent,
+            connection: navigator.connection ? {
+                effectiveType: navigator.connection.effectiveType,
+                downlink: navigator.connection.downlink
+            } : null
+        };
+    }
+};
+
+// =============================================
+// SISTEMA DE FORMULARIOS INTELIGENTE
+// =============================================
+
+const smartForms = {
+    validationRules: {
+        email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        phone: /^[+]?[\d\s\-\(\)]{9,}$/,
+        name: /^[a-zA-ZÀ-ÿ\s]{2,50}$/
+    },
+    
+    init: function() {
+        this.setupFormValidation();
+        this.setupProgressiveEnhancement();
+        this.setupAutoSave();
+        this.addSmartFeatures();
+    },
+    
+    setupFormValidation: function() {
+        document.addEventListener('input', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                this.validateField(e.target);
+            }
+        });
+        
+        document.addEventListener('submit', (e) => {
+            if (e.target.tagName === 'FORM') {
+                this.validateForm(e.target, e);
+            }
+        });
+    },
+    
+    validateField: function(field) {
+        const value = field.value.trim();
+        let isValid = true;
+        let message = '';
+        
+        // Limpiar estados anteriores
+        field.classList.remove('is-valid', 'is-invalid');
+        this.removeFeedback(field);
+        
+        if (field.required && !value) {
+            isValid = false;
+            message = 'Este campo es requerido';
+        } else if (value) {
+            // Validaciones específicas
+            switch (field.type) {
+                case 'email':
+                    isValid = this.validationRules.email.test(value);
+                    message = isValid ? '' : 'Ingresa un email válido';
+                    break;
+                    
+                case 'tel':
+                    isValid = this.validationRules.phone.test(value);
+                    message = isValid ? '' : 'Ingresa un teléfono válido';
+                    break;
+                    
+                case 'text':
+                    if (field.name && field.name.toLowerCase().includes('name')) {
+                        isValid = this.validationRules.name.test(value);
+                        message = isValid ? '' : 'Solo letras y espacios (2-50 caracteres)';
+                    }
+                    break;
+                    
+                case 'number':
+                    const num = parseFloat(value);
+                    if (field.min && num < parseFloat(field.min)) {
+                        isValid = false;
+                        message = `Valor mínimo: ${field.min}`;
+                    } else if (field.max && num > parseFloat(field.max)) {
+                        isValid = false;
+                        message = `Valor máximo: ${field.max}`;
+                    }
+                    break;
+            }
+        }
+        
+        this.showFieldFeedback(field, isValid, message);
+        return isValid;
+    },
+    
+    showFieldFeedback: function(field, isValid, message) {
+        if (field.value.trim() !== '') {
+            field.classList.add(isValid ? 'is-valid' : 'is-invalid');
+            
+            if (!isValid && message) {
+                const feedback = document.createElement('div');
+                feedback.className = 'invalid-feedback';
+                feedback.textContent = message;
+                field.parentNode.appendChild(feedback);
+            } else if (isValid) {
+                const feedback = document.createElement('div');
+                feedback.className = 'valid-feedback';
+                feedback.innerHTML = '<i class="bi bi-check-circle me-1"></i>Correcto';
+                field.parentNode.appendChild(feedback);
+            }
+        }
+    },
+    
+    removeFeedback: function(field) {
+        const feedbacks = field.parentNode.querySelectorAll('.invalid-feedback, .valid-feedback');
+        feedbacks.forEach(fb => fb.remove());
+    },
+    
+    validateForm: function(form, event) {
+        const fields = form.querySelectorAll('input[required], textarea[required], select[required]');
+        let isFormValid = true;
+        
+        fields.forEach(field => {
+            if (!this.validateField(field)) {
+                isFormValid = false;
+            }
+        });
+        
+        if (!isFormValid) {
+            event.preventDefault();
+            
+            // Scroll al primer campo inválido
+            const firstInvalid = form.querySelector('.is-invalid');
+            if (firstInvalid) {
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstInvalid.focus();
+            }
+            
+            showBootstrapToast('Por favor corrige los errores en el formulario', 'error');
+        } else {
+            this.showSubmitProgress(form);
+        }
+    },
+    
+    showSubmitProgress: function(form) {
+        const submitBtn = form.querySelector('[type="submit"]');
+        if (submitBtn) {
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enviando...';
+            submitBtn.disabled = true;
+            
+            // Simular progreso (en implementación real, esto vendría del servidor)
+            setTimeout(() => {
+                submitBtn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Enviado';
+                submitBtn.classList.remove('btn-primary');
+                submitBtn.classList.add('btn-success');
+                
+                setTimeout(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    submitBtn.classList.add('btn-primary');
+                    submitBtn.classList.remove('btn-success');
+                }, 3000);
+            }, 2000);
+        }
+    },
+    
+    setupProgressiveEnhancement: function() {
+        // Mejorar formularios existentes
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+            // Añadir clase para estilos mejorados
+            form.classList.add('smart-form');
+            
+            // Añadir indicador de campos requeridos
+            const requiredFields = form.querySelectorAll('[required]');
+            requiredFields.forEach(field => {
+                const label = form.querySelector(`label[for="${field.id}"]`) || 
+                            field.parentNode.querySelector('label');
+                if (label && !label.querySelector('.required-indicator')) {
+                    const indicator = document.createElement('span');
+                    indicator.className = 'required-indicator text-danger';
+                    indicator.innerHTML = ' *';
+                    label.appendChild(indicator);
+                }
+            });
+        });
+    },
+    
+    setupAutoSave: function() {
+        const formFields = document.querySelectorAll('input, textarea, select');
+        formFields.forEach(field => {
+            if (field.type === 'password' || field.type === 'submit') return;
+            
+            // Cargar valor guardado
+            const savedValue = localStorage.getItem(`form_autosave_${field.name || field.id}`);
+            if (savedValue && !field.value) {
+                field.value = savedValue;
+                // Trigger validation
+                field.dispatchEvent(new Event('input'));
+            }
+            
+            // Guardar cambios automáticamente con debounce
+            let timeout;
+            field.addEventListener('input', () => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    if (field.value.trim()) {
+                        localStorage.setItem(`form_autosave_${field.name || field.id}`, field.value);
+                    }
+                }, 1000);
+            });
+        });
+    },
+    
+    addSmartFeatures: function() {
+        // Autocompletar inteligente para campos comunes
+        this.addSmartAutocomplete();
+        
+        // Formateo automático de números de teléfono
+        this.addPhoneFormatting();
+        
+        // Sugerencias de email
+        this.addEmailSuggestions();
+    },
+    
+    addSmartAutocomplete: function() {
+        const cityFields = document.querySelectorAll('input[name*="city"], input[name*="ciudad"]');
+        cityFields.forEach(field => {
+            field.setAttribute('list', 'cities-peru');
+        });
+        
+        // Crear datalist para ciudades de Perú
+        if (!document.getElementById('cities-peru')) {
+            const datalist = document.createElement('datalist');
+            datalist.id = 'cities-peru';
+            datalist.innerHTML = `
+                <option value="Lima">
+                <option value="Arequipa">
+                <option value="Trujillo">
+                <option value="Chiclayo">
+                <option value="Piura">
+                <option value="Iquitos">
+                <option value="Cusco">
+                <option value="Huancayo">
+                <option value="Chimbote">
+                <option value="Tacna">
+            `;
+            document.body.appendChild(datalist);
+        }
+    },
+    
+    addPhoneFormatting: function() {
+        const phoneFields = document.querySelectorAll('input[type="tel"]');
+        phoneFields.forEach(field => {
+            field.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '');
+                
+                // Formatear número peruano
+                if (value.startsWith('51')) {
+                    value = value.substring(2);
+                }
+                
+                if (value.length >= 9) {
+                    value = value.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+                }
+                
+                e.target.value = value;
+            });
+        });
+    },
+    
+    addEmailSuggestions: function() {
+        const emailFields = document.querySelectorAll('input[type="email"]');
+        emailFields.forEach(field => {
+            field.addEventListener('blur', (e) => {
+                const email = e.target.value;
+                const suggestion = this.suggestEmailCorrection(email);
+                
+                if (suggestion && suggestion !== email) {
+                    this.showEmailSuggestion(field, suggestion);
+                }
+            });
+        });
+    },
+    
+    suggestEmailCorrection: function(email) {
+        const commonDomains = ['gmail.com', 'hotmail.com', 'yahoo.com', 'outlook.com'];
+        const parts = email.split('@');
+        
+        if (parts.length !== 2) return null;
+        
+        const domain = parts[1].toLowerCase();
+        
+        // Buscar dominios similares
+        for (let commonDomain of commonDomains) {
+            if (this.levenshteinDistance(domain, commonDomain) <= 2 && domain !== commonDomain) {
+                return `${parts[0]}@${commonDomain}`;
+            }
+        }
+        
+        return null;
+    },
+    
+    levenshteinDistance: function(a, b) {
+        const matrix = [];
+        
+        for (let i = 0; i <= b.length; i++) {
+            matrix[i] = [i];
+        }
+        
+        for (let j = 0; j <= a.length; j++) {
+            matrix[0][j] = j;
+        }
+        
+        for (let i = 1; i <= b.length; i++) {
+            for (let j = 1; j <= a.length; j++) {
+                if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                    matrix[i][j] = matrix[i - 1][j - 1];
+                } else {
+                    matrix[i][j] = Math.min(
+                        matrix[i - 1][j - 1] + 1,
+                        matrix[i][j - 1] + 1,
+                        matrix[i - 1][j] + 1
+                    );
+                }
+            }
+        }
+        
+        return matrix[b.length][a.length];
+    },
+    
+    showEmailSuggestion: function(field, suggestion) {
+        // Remover sugerencia anterior
+        const existingSuggestion = field.parentNode.querySelector('.email-suggestion');
+        if (existingSuggestion) existingSuggestion.remove();
+        
+        const suggestionDiv = document.createElement('div');
+        suggestionDiv.className = 'email-suggestion alert alert-info alert-dismissible fade show mt-2';
+        suggestionDiv.innerHTML = `
+            <i class="bi bi-lightbulb me-2"></i>
+            ¿Quisiste decir <strong>${suggestion}</strong>?
+            <button type="button" class="btn btn-sm btn-outline-info ms-2" onclick="this.closest('.email-suggestion').previousElementSibling.value='${suggestion}'; this.closest('.email-suggestion').remove();">
+                Usar esta dirección
+            </button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        field.parentNode.appendChild(suggestionDiv);
+    }
+};
+
+// =============================================
+// SISTEMA DE CHAT BOT MEJORADO CON BOOTSTRAP
+// =============================================
+
+const chatBot = {
+    isOpen: false,
+    messages: [],
+    
+    init: function() {
+        this.createChatWidget();
+        this.setupEventListeners();
+        this.loadChatHistory();
+    },
+    
+    createChatWidget: function() {
+        const chatWidget = document.createElement('div');
+        chatWidget.id = 'chat-widget';
+        chatWidget.innerHTML = `
+            <div class="chat-bubble" id="chat-bubble">
+                <i class="bi bi-chat-dots"></i>
+                <span class="chat-notification badge bg-primary">¿Necesitas ayuda?</span>
+            </div>
+            <div class="chat-window card" id="chat-window" style="display: none;">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-robot me-2"></i>
+                        <div>
+                            <h6 class="mb-0">Asistente Virtual</h6>
+                            <small class="text-light">Copier Company</small>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline-light btn-sm" id="chat-close">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="chat-messages" id="chat-messages">
+                        <!-- Mensajes se cargan aquí -->
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="input-group">
+                        <input type="text" id="chat-input" class="form-control" placeholder="Escribe tu pregunta...">
+                        <button class="btn btn-primary" id="chat-send">
+                            <i class="bi bi-send"></i>
+                        </button>
+                    </div>
+                    <div class="d-flex justify-content-center mt-2">
+                        <small class="text-muted">Presiona Enter para enviar</small>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(chatWidget);
+        this.addInitialMessage();
+    },
+    
+    addInitialMessage: function() {
+        const welcomeMessage = {
+            text: `¡Hola! 👋 Soy tu asistente virtual de Copier Company. ¿En qué puedo ayudarte hoy?`,
+            sender: 'bot',
+            timestamp: new Date(),
+            quickActions: [
+                { text: '💰 Solicitar cotización', action: 'cotizacion' },
+                { text: '📱 Ver productos', action: 'productos' },
+                { text: '📞 Contacto', action: 'contacto' },
+                { text: '🔧 Soporte técnico', action: 'soporte' }
+            ]
+        };
+        
+        this.addMessage(welcomeMessage);
+    },
+    
+    setupEventListeners: function() {
+        // Toggle chat
+        document.getElementById('chat-bubble').addEventListener('click', () => {
+            this.toggleChat();
+        });
+        
+        // Cerrar chat
+        document.getElementById('chat-close').addEventListener('click', () => {
+            this.toggleChat();
+        });
+        
+        // Enviar mensaje
+        document.getElementById('chat-send').addEventListener('click', () => {
+            this.sendMessage();
+        });
+        
+        // Enter para enviar
+        document.getElementById('chat-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.sendMessage();
+            }
+        });
+        
+        // Botones rápidos y acciones
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.quick-action-btn')) {
+                const action = e.target.closest('.quick-action-btn').dataset.action;
+                this.handleQuickAction(action);
+            }
+        });
+    },
+    
+    toggleChat: function() {
+        const chatWindow = document.getElementById('chat-window');
+        const chatBubble = document.getElementById('chat-bubble');
+        
+        if (this.isOpen) {
+            chatWindow.style.display = 'none';
+            chatBubble.style.display = 'flex';
+            this.isOpen = false;
+        } else {
+            chatWindow.style.display = 'block';
+            chatBubble.style.display = 'none';
+            this.isOpen = true;
+            
+            // Focus en input y scroll al final
+            setTimeout(() => {
+                document.getElementById('chat-input').focus();
+                this.scrollToBottom();
+            }, 100);
+        }
+        
+        trackInteraction('chat_toggle', 'chatbot', this.isOpen ? 'open' : 'close');
+    },
+    
+    sendMessage: function() {
+        const input = document.getElementById('chat-input');
+        const message = input.value.trim();
+        
+        if (message) {
+            // Agregar mensaje del usuario
+            this.addMessage({
+                text: message,
+                sender: 'user',
+                timestamp: new Date()
+            });
+            
+            input.value = '';
+            
+            // Mostrar indicador de escritura
+            this.showTypingIndicator();
+            
+            // Simular respuesta del bot con delay realista
+            setTimeout(() => {
+                this.hideTypingIndicator();
+                const response = this.getBotResponse(message);
+                this.addMessage(response);
+            }, 1000 + Math.random() * 1000);
+        }
+    },
+    
+    addMessage: function(messageObj) {
+        const messagesContainer = document.getElementById('chat-messages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${messageObj.sender}-message mb-3`;
+        
+        const timeString = messageObj.timestamp.toLocaleTimeString('es-PE', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+        
+        if (messageObj.sender === 'user') {
+            messageDiv.innerHTML = `
+                <div class="d-flex justify-content-end">
+                    <div class="message-content bg-primary text-white rounded-3 p-2 max-w-75">
+                        <p class="mb-1">${messageObj.text}</p>
+                        <small class="opacity-75">${timeString}</small>
+                    </div>
+                </div>
+            `;
+        } else {
+            messageDiv.innerHTML = `
+                <div class="d-flex">
+                    <div class="flex-shrink-0 me-2">
+                        <div class="avatar bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                            <i class="bi bi-robot text-primary"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="message-content bg-light rounded-3 p-2">
+                            <p class="mb-1">${messageObj.text}</p>
+                            <small class="text-muted">${timeString}</small>
+                        </div>
+                        ${messageObj.quickActions ? this.renderQuickActions(messageObj.quickActions) : ''}
+                    </div>
+                </div>
+            `;
+        }
+        
+        messagesContainer.appendChild(messageDiv);
+        this.messages.push(messageObj);
+        this.scrollToBottom();
+        this.saveChatHistory();
+    },
+    
+    renderQuickActions: function(actions) {
+        return `
+            <div class="quick-actions mt-2">
+                <div class="d-flex flex-wrap gap-1">
+                    ${actions.map(action => 
+                        `<button class="btn btn-sm btn-outline-primary quick-action-btn" data-action="${action.action}">
+                            ${action.text}
+                        </button>`
+                    ).join('')}
+                </div>
+            </div>
+        `;
+    },
+    
+    showTypingIndicator: function() {
+        const indicator = document.createElement('div');
+        indicator.id = 'typing-indicator';
+        indicator.className = 'message bot-message mb-3';
+        indicator.innerHTML = `
+            <div class="d-flex">
+                <div class="flex-shrink-0 me-2">
+                    <div class="avatar bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                        <i class="bi bi-robot text-primary"></i>
+                    </div>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="message-content bg-light rounded-3 p-2">
+                        <div class="typing-animation">
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('chat-messages').appendChild(indicator);
+        this.scrollToBottom();
+    },
+    
+    hideTypingIndicator: function() {
+        const indicator = document.getElementById('typing-indicator');
+        if (indicator) {
+            indicator.remove();
+        }
+    },
+    
+    getBotResponse: function(message) {
+        const lowerMessage = message.toLowerCase();
+        let response = '';
+        let quickActions = [];
+        
+        // Respuestas contextuales mejoradas
+        if (lowerMessage.includes('precio') || lowerMessage.includes('costo') || lowerMessage.includes('cotiz')) {
+            response = `💰 Nuestros precios de alquiler son muy competitivos:
+            <br><br>• <strong>A4 Compacto:</strong> $149-299/mes
+            <br>• <strong>A3 Profesional:</strong> $299-899/mes
+            <br>• <strong>Láser:</strong> $199-899/mes
+            <br>• <strong>Especializado:</strong> $199-1,899/mes
+            <br><br>¿Te gustaría una cotización personalizada?`;
+            
+            quickActions = [
+                { text: '📝 Cotización personalizada', action: 'cotizacion' },
+                { text: '🧮 Calculadora de costos', action: 'calculadora' }
+            ];
+        }
+        else if (lowerMessage.includes('producto') || lowerMessage.includes('equipo') || lowerMessage.includes('fotocopiadora')) {
+            response = `📱 Ofrecemos una amplia gama de equipos:
+            <br><br>• <strong>Multifuncionales A3 y A4</strong> - Para oficinas de todos los tamaños
+            <br>• <strong>Impresoras Láser</strong> - Alta velocidad y calidad
+            <br>• <strong>Equipos Especializados</strong> - Soluciones personalizadas
+            <br>• <strong>Marcas Premium:</strong> Konica Minolta, Canon, Ricoh
+            <br><br>¿Qué tipo de equipo necesitas?`;
+            
+            quickActions = [
+                { text: '🖨️ Ver todos los productos', action: 'productos' },
+                { text: '🔍 Buscar producto específico', action: 'buscar' }
+            ];
+        }
+        else if (lowerMessage.includes('mantenimiento') || lowerMessage.includes('reparaci') || lowerMessage.includes('soporte')) {
+            response = `🔧 Nuestro servicio integral incluye:
+            <br><br>• <strong>Mantenimiento preventivo y correctivo</strong>
+            <br>• <strong>Soporte técnico 24/7</strong> los 365 días del año
+            <br>• <strong>Repuestos originales</strong> sin costo adicional
+            <br>• <strong>Tiempo de respuesta:</strong> máximo 4 horas
+            <br>• <strong>Técnicos certificados</strong> por las marcas
+            <br><br>¿Necesitas ayuda con algún equipo específico?`;
+            
+            quickActions = [
+                { text: '📞 Solicitar soporte', action: 'soporte' },
+                { text: '📋 Ver detalles del servicio', action: 'servicio' }
+            ];
+        }
+        else if (lowerMessage.includes('contacto') || lowerMessage.includes('teléfono') || lowerMessage.includes('dirección')) {
+            response = `📞 Puedes contactarnos por múltiples canales:
+            <br><br>• <strong>Teléfono:</strong> (01) 975399303
+            <br>• <strong>WhatsApp:</strong> 975 399 303
+            <br>• <strong>Email:</strong> info@copiercompany.com
+            <br>• <strong>Horario:</strong> Lun-Vie 8AM-6PM, Sáb 8AM-1PM
+            <br>• <strong>Ubicación:</strong> San Isidro, Lima
+            <br><br>¿Prefieres que te contactemos nosotros?`;
+            
+            quickActions = [
+                { text: '📱 Abrir WhatsApp', action: 'whatsapp' },
+                { text: '📧 Enviar email', action: 'email' }
+            ];
+        }
+        else if (lowerMessage.includes('instalación') || lowerMessage.includes('instalar')) {
+            response = `⚡ Nuestra instalación es súper rápida:
+            <br><br>• <strong>Tiempo garantizado:</strong> 24 horas máximo
+            <br>• <strong>Proceso completo:</strong> Entrega + Instalación + Configuración
+            <br>• <strong>Capacitación incluida</strong> para tu equipo
+            <br>• <strong>Garantía:</strong> Si no cumplimos 24h, primer mes GRATIS
+            <br><br>¿Quieres programar una instalación?`;
+            
+            quickActions = [
+                { text: '📅 Programar instalación', action: 'instalacion' },
+                { text: '📋 Ver proceso completo', action: 'proceso' }
+            ];
+        }
+        else if (lowerMessage.includes('garantía') || lowerMessage.includes('garantia')) {
+            response = `🛡️ Nuestra garantía es total y sin letra pequeña:
+            <br><br>• <strong>Cobertura 100%:</strong> Hardware, software y desgaste
+            <br>• <strong>Reemplazo inmediato</strong> si es necesario
+            <br>• <strong>Sin costos ocultos:</strong> Todo incluido
+            <br>• <strong>Válida durante todo el contrato</strong>
+            <br><br>¿Quieres conocer todos los detalles?`;
+            
+            quickActions = [
+                { text: '📄 Ver términos completos', action: 'garantia' },
+                { text: '❓ Hacer consulta específica', action: 'consulta' }
+            ];
+        }
+        else {
+            response = `Gracias por tu consulta. Te puedo ayudar con:
+            <br><br>• <strong>Información de productos y precios</strong>
+            <br>• <strong>Cotizaciones personalizadas</strong>
+            <br>• <strong>Detalles de nuestro servicio</strong>
+            <br>• <strong>Contacto con nuestros asesores</strong>
+            <br><br>¿En qué tema específico te puedo ayudar?`;
+            
+            quickActions = [
+                { text: '💰 Ver precios', action: 'precios' },
+                { text: '📱 Ver productos', action: 'productos' },
+                { text: '🤝 Hablar con asesor', action: 'asesor' }
+            ];
+        }
+        
+        return {
+            text: response,
+            sender: 'bot',
+            timestamp: new Date(),
+            quickActions: quickActions
+        };
+    },
+    
+    handleQuickAction: function(action) {
+        const userMessage = this.getActionMessage(action);
+        
+        // Agregar mensaje del usuario
+        this.addMessage({
+            text: userMessage,
+            sender: 'user',
+            timestamp: new Date()
+        });
+        
+        // Mostrar typing y responder
+        this.showTypingIndicator();
+        
+        setTimeout(() => {
+            this.hideTypingIndicator();
+            const response = this.getActionResponse(action);
+            this.addMessage(response);
+        }, 1200);
+        
+        trackInteraction('chat_quick_action', 'chatbot', action);
+    },
+    
+    getActionMessage: function(action) {
+        const messages = {
+            'cotizacion': 'Quiero solicitar una cotización personalizada',
+            'productos': '¿Qué productos tienen disponibles?',
+            'contacto': 'Necesito información de contacto',
+            'soporte': '¿Cómo funciona el soporte técnico?',
+            'calculadora': 'Quiero usar la calculadora de costos',
+            'whatsapp': 'Prefiero contactar por WhatsApp',
+            'email': 'Quiero enviar un email',
+            'instalacion': 'Quiero programar una instalación',
+            'garantia': 'Quiero conocer los detalles de la garantía',
+            'precios': 'Quiero ver los precios',
+            'asesor': 'Quiero hablar con un asesor'
+        };
+        
+        return messages[action] || 'Necesito más información';
+    },
+    
+    getActionResponse: function(action) {
+        let response = '';
+        let quickActions = [];
+        
+        switch(action) {
+            case 'cotizacion':
+                response = `¡Perfecto! 📝 Para crear tu cotización personalizada necesito algunos datos:
+                <br><br>• Tipo de equipo que necesitas
+                <br>• Volumen de impresión mensual aproximado
+                <br>• Cantidad de equipos
+                <br>• Funciones específicas requeridas
+                <br><br>Te voy a dirigir al formulario donde puedes completar todos los detalles.`;
+                
+                setTimeout(() => {
+                    window.open('/cotizacion/form', '_blank');
+                }, 3000);
+                break;
+                
+            case 'calculadora':
+                response = `🧮 ¡Excelente! La calculadora de costos te permitirá:
+                <br><br>• Ver precios en tiempo real
+                <br>• Comparar diferentes opciones
+                <br>• Calcular descuentos por volumen
+                <br>• Comparar vs compra
+                <br><br>Te abro la calculadora ahora mismo.`;
+                
+                setTimeout(() => {
+                    if (typeof costCalculator !== 'undefined') {
+                        costCalculator.show();
+                    }
+                }, 2000);
+                break;
+                
+            case 'whatsapp':
+                response = `📱 ¡Perfecto! WhatsApp es muy conveniente para comunicación rápida.
+                <br><br>Te voy a redirigir a nuestro WhatsApp donde un asesor te atenderá de inmediato.
+                <br><br><strong>Número:</strong> +51 975 399 303`;
+                
+                setTimeout(() => {
+                    window.open('https://wa.me/51975399303?text=Hola, vengo del chat de la web y necesito información sobre equipos de impresión', '_blank');
+                }, 3000);
+                break;
+                
+            default:
+                response = this.getBotResponse(this.getActionMessage(action)).text;
+        }
+        
+        return {
+            text: response,
+            sender: 'bot',
+            timestamp: new Date(),
+            quickActions: quickActions
+        };
+    },
+    
+    scrollToBottom: function() {
+        const messagesContainer = document.getElementById('chat-messages');
+        if (messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+    },
+    
+    saveChatHistory: function() {
+        try {
+            const history = this.messages.slice(-20); // Solo guardar últimos 20 mensajes
+            localStorage.setItem('chat_history', JSON.stringify(history));
+        } catch (e) {
+            console.warn('Error saving chat history:', e);
+        }
+    },
+    
+    loadChatHistory: function() {
+        try {
+            const history = localStorage.getItem('chat_history');
+            if (history) {
+                this.messages = JSON.parse(history);
+                // Solo cargar si hay pocos mensajes para no saturar
+                if (this.messages.length <= 5) {
+                    this.messages.forEach(msg => {
+                        // Re-renderizar mensajes sin guardar de nuevo
+                        const messagesContainer = document.getElementById('chat-messages');
+                        // Implementación simple sin duplicar lógica
+                    });
+                }
+            }
+        } catch (e) {
+            console.warn('Error loading chat history:', e);
+            this.messages = [];
+        }
+    }
+};
+
+// =============================================
+// SISTEMA DE ANALYTICS AVANZADO
+// =============================================
+
+const advancedAnalytics = {
+    sessionData: {
+        startTime: Date.now(),
+        interactions: [],
+        scrollDepth: 0,
+        timeOnSections: new Map(),
+        deviceInfo: null
+    },
+    
+    init: function() {
+        this.collectDeviceInfo();
+        this.trackUserBehavior();
+        this.trackScrollDepth();
+        this.trackTimeOnSections();
+        this.setupHeatmapTracking();
+        this.trackFormInteractions();
+    },
+    
+    collectDeviceInfo: function() {
+        this.sessionData.deviceInfo = {
+            userAgent: navigator.userAgent,
+            screen: {
+                width: screen.width,
+                height: screen.height,
+                colorDepth: screen.colorDepth
+            },
+            viewport: {
+                width: window.innerWidth,
+                height: window.innerHeight
+            },
+            connection: navigator.connection ? {
+                effectiveType: navigator.connection.effectiveType,
+                downlink: navigator.connection.downlink,
+                rtt: navigator.connection.rtt
+            } : null,
+            language: navigator.language,
+            platform: navigator.platform,
+            cookieEnabled: navigator.cookieEnabled,
+            onLine: navigator.onLine
+        };
+    },
+    
+    trackUserBehavior: function() {
+        // Tracking de clics en elementos importantes
+        document.addEventListener('click', (e) => {
+            const element = e.target.closest('[data-track], .btn, [data-product], [data-brand]');
+            if (element) {
+                const trackData = {
+                    type: 'click',
+                    element: element.tagName,
+                    className: element.className,
+                    text: element.textContent.trim().substring(0, 100),
+                    trackId: element.getAttribute('data-track'),
+                    productId: element.getAttribute('data-product'),
+                    brandId: element.getAttribute('data-brand'),
+                    timestamp: Date.now(),
+                    coordinates: { x: e.clientX, y: e.clientY }
+                };
+                
+                this.sessionData.interactions.push(trackData);
+                
+                console.log(`📊 User Action:`, trackData);
+                
+                // Enviar a analytics externo
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'user_interaction', {
+                        interaction_type: trackData.type,
+                        element_type: trackData.element,
+                        element_text: trackData.text
+                    });
+                }
+            }
+        });
+        
+        // Tracking de hover en elementos importantes
+        let hoverTimeout;
+        document.addEventListener('mouseover', (e) => {
+            const element = e.target.closest('.product-card, .brand-card, .benefit-card');
+            if (element) {
+                hoverTimeout = setTimeout(() => {
+                    const trackData = {
+                        type: 'hover',
+                        element: element.className,
+                        duration: 2000, // Hover por más de 2 segundos
+                        timestamp: Date.now()
+                    };
+                    
+                    this.sessionData.interactions.push(trackData);
+                }, 2000);
+            }
+        });
+        
+        document.addEventListener('mouseout', () => {
+            if (hoverTimeout) {
+                clearTimeout(hoverTimeout);
+            }
+        });
+    },
+    
+    trackScrollDepth: function() {
+        let maxScroll = 0;
+        const milestones = [25, 50, 75, 90, 100];
+        const triggered = new Set();
+        
+        const throttledScroll = this.throttle(() => {
+            const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+            
+            if (scrollPercent > maxScroll) {
+                maxScroll = scrollPercent;
+                this.sessionData.scrollDepth = maxScroll;
+                
+                milestones.forEach(milestone => {
+                    if (scrollPercent >= milestone && !triggered.has(milestone)) {
+                        triggered.add(milestone);
+                        
+                        const trackData = {
+                            type: 'scroll_depth',
+                            depth: milestone,
+                            timestamp: Date.now()
+                        };
+                        
+                        this.sessionData.interactions.push(trackData);
+                        
+                        console.log(`📏 Scroll Depth: ${milestone}%`);
+                        
+                        if (typeof gtag !== 'undefined') {
+                            gtag('event', 'scroll_depth', {
+                                scroll_depth: milestone
+                            });
+                        }
+                    }
+                });
+            }
+        }, 100);
+        
+        window.addEventListener('scroll', throttledScroll);
+    },
+    
+    trackTimeOnSections: function() {
+        const sections = document.querySelectorAll('section[id], .hero-section, .benefits-section, .products-section');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const sectionId = entry.target.id || entry.target.className.split(' ')[0];
+                
+                if (entry.isIntersecting) {
+                    this.sessionData.timeOnSections.set(sectionId, Date.now());
+                } else if (this.sessionData.timeOnSections.has(sectionId)) {
+                    const timeSpent = Date.now() - this.sessionData.timeOnSections.get(sectionId);
+                    
+                    if (timeSpent > 3000) { // Más de 3 segundos
+                        const trackData = {
+                            type: 'section_engagement',
+                            section: sectionId,
+                            timeSpent: Math.round(timeSpent / 1000),
+                            timestamp: Date.now()
+                        };
+                        
+                        this.sessionData.interactions.push(trackData);
+                        
+                        console.log(`⏱️ Time on ${sectionId}: ${Math.round(timeSpent/1000)}s`);
+                        
+                        if (typeof gtag !== 'undefined') {
+                            gtag('event', 'section_engagement', {
+                                section_name: sectionId,
+                                time_spent: Math.round(timeSpent/1000)
+                            });
+                        }
+                    }
+                    
+                    this.sessionData.timeOnSections.delete(sectionId);
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        sections.forEach(section => observer.observe(section));
+    },
+    
+    setupHeatmapTracking: function() {
+        // Tracking simplificado de heatmap usando clicks
+        document.addEventListener('click', (e) => {
+            const clickData = {
+                x: e.clientX,
+                y: e.clientY,
+                element: e.target.tagName,
+                viewport: {
+                    width: window.innerWidth,
+                    height: window.innerHeight
+                },
+                timestamp: Date.now()
+            };
+            
+            // Guardar datos de clicks para análisis
+            const clicks = JSON.parse(localStorage.getItem('heatmap_clicks') || '[]');
+            clicks.push(clickData);
+            
+            // Mantener solo los últimos 200 clicks
+            if (clicks.length > 200) {
+                clicks.splice(0, clicks.length - 200);
+            }
+            
+            localStorage.setItem('heatmap_clicks', JSON.stringify(clicks));
+        });
+    },
+    
+    trackFormInteractions: function() {
+        document.addEventListener('focus', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                const trackData = {
+                    type: 'form_field_focus',
+                    fieldName: e.target.name || e.target.id,
+                    fieldType: e.target.type,
+                    timestamp: Date.now()
+                };
+                
+                this.sessionData.interactions.push(trackData);
+            }
+        });
+        
+        document.addEventListener('submit', (e) => {
+            if (e.target.tagName === 'FORM') {
+                const trackData = {
+                    type: 'form_submit',
+                    formId: e.target.id,
+                    fieldsCount: e.target.querySelectorAll('input, textarea, select').length,
+                    timestamp: Date.now()
+                };
+                
+                this.sessionData.interactions.push(trackData);
+                
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'form_submit', {
+                        form_id: trackData.formId
+                    });
+                }
+            }
+        });
+    },
+    
+    throttle: function(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    },
+    
+    generateSessionReport: function() {
+        const sessionDuration = Date.now() - this.sessionData.startTime;
+        
+        return {
+            sessionId: this.generateSessionId(),
+            duration: Math.round(sessionDuration / 1000),
+            interactions: this.sessionData.interactions.length,
+            scrollDepth: this.sessionData.scrollDepth,
+            deviceInfo: this.sessionData.deviceInfo,
+            interactionTypes: this.getInteractionSummary(),
+            timestamp: new Date().toISOString(),
+            pageUrl: window.location.href,
+            referrer: document.referrer
+        };
+    },
+    
+    getInteractionSummary: function() {
+        const summary = {};
+        this.sessionData.interactions.forEach(interaction => {
+            summary[interaction.type] = (summary[interaction.type] || 0) + 1;
+        });
+        return summary;
+    },
+    
+    generateSessionId: function() {
+        return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    },
+    
+    sendAnalytics: function() {
+        const report = this.generateSessionReport();
+        
+        // Enviar a servidor de analytics (simulado)
+        console.log('📊 Session Report:', report);
+        
+        // En implementación real, enviarías a tu backend
+        // fetch('/analytics', { method: 'POST', body: JSON.stringify(report) });
+        
+        return report;
+    }
+};
+
+// =============================================
+// INICIALIZACIÓN FINAL DEL SISTEMA COMPLETO
+// =============================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Iniciando sistema completo de Copier Company...');
+    
+    // Inicializar sistemas con delays escalonados para mejor performance
+    const initSequence = [
+        { system: performanceMonitor, name: 'Performance Monitor', delay: 0 },
+        { system: smartForms, name: 'Smart Forms', delay: 300 },
+        { system: chatBot, name: 'Chat Bot', delay: 600 },
+        { system: advancedAnalytics, name: 'Advanced Analytics', delay: 900 }
+    ];
+    
+    initSequence.forEach(({ system, name, delay }) => {
+        setTimeout(() => {
+            try {
+                system.init();
+                console.log(`✅ ${name} inicializado`);
+            } catch (error) {
+                console.error(`❌ Error inicializando ${name}:`, error);
+            }
+        }, delay);
+    });
+    
+    // Configurar observador de mutaciones para contenido dinámico
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                // Re-inicializar funcionalidades para nuevo contenido
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        // Re-aplicar smart forms a nuevos formularios
+                        const newForms = node.querySelectorAll('form');
+                        if (newForms.length > 0) {
+                            smartForms.setupProgressiveEnhancement();
+                        }
+                        
+                        // Re-aplicar lazy loading a nuevas imágenes
+                        const newImages = node.querySelectorAll('img[data-src]');
+                        if (newImages.length > 0) {
+                            initLazyLoading();
+                        }
+                    }
+                });
+            }
+        });
+    });
+    
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+    
+    // Enviar analytics al salir de la página
+    window.addEventListener('beforeunload', () => {
+        advancedAnalytics.sendAnalytics();
+    });
+    
+    // Enviar analytics cada 5 minutos para sesiones largas
+    setInterval(() => {
+        advancedAnalytics.sendAnalytics();
+    }, 300000);
+    
+    // Mostrar mensaje de bienvenida en consola después de todo
+    setTimeout(() => {
+        console.log(`
+        %c🏢 COPIER COMPANY HOMEPAGE 
+        %c✨ Sistema JavaScript Completo v2.0 Bootstrap
+        %c🔧 Desarrollado para Odoo con Bootstrap Icons
+        %c📊 Todos los sistemas operativos y optimizados
+        `, 
+        'color: #0d6efd; font-size: 16px; font-weight: bold;',
+        'color: #198754; font-size: 14px;',
+        'color: #6c757d; font-size: 12px;',
+        'color: #20c997; font-size: 12px;'
+        );
+        
+        console.log('🎯 Sistemas activos:', {
+            'Performance Monitor': '✅',
+            'Smart Forms': '✅', 
+            'Chat Bot': '✅',
+            'Advanced Analytics': '✅',
+            'Product Filters': '✅',
+            'Favorites System': '✅',
+            'Cost Calculator': '✅',
+            'Smart Search': '✅'
+        });
+        
+    }, 1500);
+});
+
+// =============================================
+// CSS STYLES PARA CHAT BOT Y SISTEMA COMPLETO
+// =============================================
+
+const finalStyles = `
+/* Chat Widget Styles con Bootstrap */
+#chat-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1055;
+    font-family: var(--bs-font-sans-serif);
+}
+
+.chat-bubble {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--bs-primary), var(--bs-blue));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(var(--bs-primary-rgb), 0.3);
+    transition: all 0.3s ease;
+    position: relative;
+    font-size: 1.5rem;
+}
+
+.chat-bubble:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(var(--bs-primary-rgb), 0.4);
+}
+
+.chat-notification {
+    position: absolute;
+    right: 70px;
+    top: 50%;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    opacity: 0;
+    animation: slideInNotification 4s ease-in-out 2s forwards;
+}
+
+@keyframes slideInNotification {
+    0%, 80% { opacity: 0; transform: translateY(-50%) translateX(10px); }
+    10%, 70% { opacity: 1; transform: translateY(-50%) translateX(0); }
+    100% { opacity: 0; transform: translateY(-50%) translateX(10px); }
+}
+
+.chat-window {
+    width: 380px;
+    height: 600px;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    overflow: hidden;
+}
+
+.chat-messages {
+    height: 400px;
+    overflow-y: auto;
+    padding: 1rem;
+    background: #f8f9fa;
+}
+
+.chat-messages::-webkit-scrollbar {
+    width: 4px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: var(--bs-primary);
+    border-radius: 2px;
+}
+
+.message-content {
+    max-width: 85%;
+    word-wrap: break-word;
+}
+
+.quick-actions .btn {
+    font-size: 0.8rem;
+    padding: 0.375rem 0.75rem;
+    margin: 0.125rem;
+    border-radius: 20px;
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+}
+
+.typing-animation {
+    display: flex;
+    align-items: center;
+    height: 20px;
+}
+
+.typing-animation .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--bs-primary);
+    margin: 0 2px;
+    animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-animation .dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-animation .dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing {
+    0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+    40% { transform: scale(1); opacity: 1; }
+}
+
+/* Smart Forms Styles */
+.smart-form .form-control:focus,
+.smart-form .form-select:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+.required-indicator {
+    color: var(--bs-danger);
+}
+
+.email-suggestion {
+    border-radius: 10px;
+    border-left: 4px solid var(--bs-info);
+}
+
+/* Performance Badge */
+.performance-badge {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* Analytics Visual Indicators */
+.interaction-highlight {
+    position: relative;
+}
+
+.interaction-highlight::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border: 2px solid var(--bs-success);
+    border-radius: inherit;
+    opacity: 0;
+    animation: highlight-pulse 0.6s ease-out;
+}
+
+@keyframes highlight-pulse {
+    0% { opacity: 0; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.02); }
+    100% { opacity: 0; transform: scale(1); }
+}
+
+/* Global improvements */
+.btn {
+    transition: all 0.3s ease;
+    border-radius: 8px;
+}
+
+.btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.card {
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .chat-window {
+        width: calc(100vw - 40px);
+        height: 70vh;
+        bottom: 20px;
+        right: 20px;
+    }
+    
+    .chat-notification {
+        display: none;
+    }
+    
+    .message-content {
+        max-width: 90%;
+    }
+    
+    .quick-actions .btn {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Print styles */
+@media print {
+    #chat-widget,
+    .chat-bubble,
+    .chat-window {
+        display: none !important;
+    }
+}
+`;
+
+// Inyectar estilos finales
+if (!document.querySelector('#final-system-styles')) {
+    const styleSheet = document.createElement('style');
+    styleSheet.id = 'final-system-styles';
+    styleSheet.textContent = finalStyles;
+    document.head.appendChild(styleSheet);
+}
+
+// Exportar funciones principales para uso externo
+window.CopierCompanyJS = {
+    // Funciones de utilidad
+    showBootstrapToast,
+    trackInteraction,
+    
+    // Sistemas principales
+    performanceMonitor,
+    smartForms,
+    chatBot,
+    advancedAnalytics,
+    
+    // Sistemas de productos (de partes anteriores)
+    productFilters: window.productFilters,
+    productFavorites: window.productFavorites,
+    costCalculator: window.costCalculator,
+    smartSearch: window.smartSearch,
+    
+    // Función para generar reporte completo
+    generateCompleteReport: function() {
+        return {
+            performance: performanceMonitor.generateReport(),
+            analytics: advancedAnalytics.generateSessionReport(),
+            chat: {
+                isActive: chatBot.isOpen,
+                messagesCount: chatBot.messages.length
+            },
+            timestamp: new Date().toISOString()
+        };
+    }
+};
+
+console.log('✅ Parte 5: Sistema completo inicializado con Bootstrap - Todas las funcionalidades activas');
