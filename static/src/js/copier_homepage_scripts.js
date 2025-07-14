@@ -1856,6 +1856,107 @@ console.log('✅ Parte 3: Sistema de modales dinámicos para marcas inicializado
  */
 
 // =============================================
+// FUNCIONES UTILITARIAS NECESARIAS
+// =============================================
+
+// Sistema de notificaciones toast usando Bootstrap (definida aquí para evitar errores)
+function showBootstrapToast(message, type = 'info', duration = 5000) {
+    // Crear container si no existe
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+        toastContainer.style.zIndex = '9999';
+        document.body.appendChild(toastContainer);
+    }
+    
+    // Definir iconos y colores según el tipo
+    const toastConfig = {
+        success: { icon: 'bi-check-circle-fill', bg: 'bg-success', text: 'text-white' },
+        error: { icon: 'bi-exclamation-triangle-fill', bg: 'bg-danger', text: 'text-white' },
+        warning: { icon: 'bi-exclamation-triangle-fill', bg: 'bg-warning', text: 'text-dark' },
+        info: { icon: 'bi-info-circle-fill', bg: 'bg-info', text: 'text-white' }
+    };
+    
+    const config = toastConfig[type] || toastConfig.info;
+    
+    // Crear toast usando Bootstrap
+    const toastElement = document.createElement('div');
+    toastElement.className = 'toast';
+    toastElement.setAttribute('role', 'alert');
+    toastElement.innerHTML = `
+        <div class="toast-header ${config.bg} ${config.text}">
+            <i class="bi ${config.icon} me-2"></i>
+            <strong class="me-auto">Copier Company</strong>
+            <button type="button" class="btn-close ${config.text === 'text-white' ? 'btn-close-white' : ''}" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            ${message}
+        </div>
+    `;
+    
+    toastContainer.appendChild(toastElement);
+    
+    // Inicializar y mostrar el toast usando Bootstrap
+    if (typeof bootstrap !== 'undefined' && bootstrap.Toast) {
+        const bsToast = new bootstrap.Toast(toastElement, { delay: duration });
+        bsToast.show();
+        
+        // Remover el elemento del DOM después de que se oculte
+        toastElement.addEventListener('hidden.bs.toast', function() {
+            this.remove();
+        });
+    } else {
+        // Fallback si Bootstrap no está disponible
+        toastElement.classList.add('show');
+        setTimeout(() => {
+            toastElement.remove();
+        }, duration);
+    }
+}
+
+// Tracking de interacciones para analytics (definida aquí para evitar errores)
+function trackInteraction(action, category, label = '') {
+    // Logging para desarrollo
+    console.log(`📊 Analytics: ${action} - ${category} - ${label}`);
+    
+    // Ejemplo para Google Analytics 4 si está disponible
+    if (typeof gtag !== 'undefined') {
+        try {
+            gtag('event', action, {
+                event_category: category,
+                event_label: label,
+                custom_parameter: 'copier_company'
+            });
+        } catch (e) {
+            console.warn('Error sending analytics:', e);
+        }
+    }
+    
+    // Almacenar en localStorage para análisis interno
+    try {
+        const analytics = JSON.parse(localStorage.getItem('copier_analytics') || '[]');
+        analytics.push({
+            action,
+            category,
+            label,
+            timestamp: new Date().toISOString(),
+            url: window.location.href
+        });
+        
+        // Mantener solo los últimos 100 eventos
+        if (analytics.length > 100) {
+            analytics.splice(0, analytics.length - 100);
+        }
+        
+        localStorage.setItem('copier_analytics', JSON.stringify(analytics));
+    } catch (e) {
+        console.warn('Error storing analytics:', e);
+    }
+}
+
+// =============================================
 // SISTEMA AVANZADO DE FILTROS DE PRODUCTOS
 // =============================================
 
