@@ -439,7 +439,7 @@ const modalContent = {
                         <i class="bi bi-shield-check text-success me-2 fs-4"></i>
                         <div>
                             <h5 class="alert-heading mb-1">Garantía de Instalación</h5>
-                            <p class="mb-0">Si por algún motivo no podemos instalar tu equipo en 24 horas, 
+                            <p class="mb-0">Si por algún motivo no podemos instalar tu equipo en 72 horas, 
                             <strong>el primer mes de alquiler es completamente GRATIS</strong>.</p>
                         </div>
                     </div>
@@ -612,6 +612,7 @@ const modalContent = {
                                             <li class="mb-1"><i class="bi bi-check text-success me-1"></i> Mano de obra técnica</li>
                                             <li class="mb-1"><i class="bi bi-check text-success me-1"></i> Reemplazo total si es necesario</li>
                                             <li class="mb-1"><i class="bi bi-check text-success me-1"></i> Actualizaciones de firmware</li>
+                                            <li class="mb-1"><i class="bi bi-check text-success me-1"></i> Toners</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -626,7 +627,7 @@ const modalContent = {
                                             <li class="mb-1"><i class="bi bi-x text-danger me-1"></i> Daños por mal uso intencional</li>
                                             <li class="mb-1"><i class="bi bi-x text-danger me-1"></i> Modificaciones no autorizadas</li>
                                             <li class="mb-1"><i class="bi bi-x text-danger me-1"></i> Desastres naturales extremos</li>
-                                            <li class="mb-1"><i class="bi bi-x text-danger me-1"></i> Consumibles (toners, papel)</li>
+                                            <li class="mb-1"><i class="bi bi-x text-danger me-1"></i> Papel</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -2078,7 +2079,7 @@ const productsContent = {
                             </div>
                             <div class="card-body text-center">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <span class="h4 text-success mb-0">$299</span>
+                                    <span class="h4 text-success mb-0">$99</span>
                                     <span class="text-muted">hasta</span>
                                     <span class="h4 text-success mb-0">$899</span>
                                 </div>
@@ -2104,7 +2105,7 @@ const productsContent = {
                                     </ul>
                                 </div>
                                 <div class="card-footer bg-transparent text-center">
-                                    <span class="h5 text-primary">$299-399/mes</span>
+                                    <span class="h5 text-primary">$99-1000/mes</span>
                                 </div>
                             </div>
                         </div>
@@ -2124,7 +2125,7 @@ const productsContent = {
                                     </ul>
                                 </div>
                                 <div class="card-footer bg-transparent text-center">
-                                    <span class="h5 text-warning">$499-699/mes</span>
+                                    <span class="h5 text-warning">$399-2000/mes</span>
                                 </div>
                             </div>
                         </div>
@@ -2141,7 +2142,7 @@ const productsContent = {
                                     </ul>
                                 </div>
                                 <div class="card-footer bg-transparent text-center">
-                                    <span class="h5 text-danger">$699-899/mes</span>
+                                    <span class="h5 text-danger">$499-3000/mes</span>
                                 </div>
                             </div>
                         </div>
@@ -2184,7 +2185,7 @@ const productsContent = {
                         <div class="card bg-success text-white">
                             <div class="card-body text-center">
                                 <h5><i class="bi bi-currency-dollar me-2"></i>Precio de Alquiler</h5>
-                                <h3>$149 - $299 / mes</h3>
+                                <h3>$99 - $400 / mes</h3>
                                 <p class="mb-0">Incluye mantenimiento y soporte completo</p>
                             </div>
                         </div>
