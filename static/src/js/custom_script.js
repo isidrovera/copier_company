@@ -103,7 +103,7 @@ function obtenerDatosCliente() {
 function mostrarError(mensaje) {
     const errorElement = document.getElementById('error_message');
     if (errorElement) {
-        errorElement.innerHTML = `<i class="fas fa-exclamation-triangle me-2"></i>${mensaje}`;
+        errorElement.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>' + mensaje;
         errorElement.classList.remove('d-none');
         
         // Scroll suave al error
@@ -120,7 +120,7 @@ function mostrarError(mensaje) {
 function mostrarExito(mensaje) {
     const successElement = document.getElementById('success_message');
     if (successElement) {
-        successElement.innerHTML = `<i class="fas fa-check-circle me-2"></i>${mensaje}`;
+        successElement.innerHTML = '<i class="fas fa-check-circle me-2"></i>' + mensaje;
         successElement.classList.remove('d-none');
         
         // Auto-ocultar después de 3 segundos
@@ -176,9 +176,56 @@ function limpiarCamposCliente() {
     });
 }
 
-// Funciones adicionales para mejorar la UX del formulario
+// Inicialización cuando el DOM está listo
 document.addEventListener('DOMContentLoaded', function() {
     
+    // Inicializar validación del formulario
+    initFormValidation();
+    
+    // Inicializar validaciones en tiempo real
+    initRealTimeValidation();
+    
+    // Inicializar tooltips
+    initTooltips();
+    
+    // Inicializar progreso del formulario
+    initFormProgress();
+});
+
+// Función para inicializar validación del formulario
+function initFormValidation() {
+    const form = document.getElementById('copier_form');
+    if (!form) return;
+    
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            // Mostrar mensaje de error
+            mostrarError('Por favor complete todos los campos obligatorios correctamente.');
+            
+            // Scroll al primer error
+            const firstError = form.querySelector('.is-invalid, :invalid');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
+            }
+        } else {
+            // Mostrar loading en el botón
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
+                submitBtn.disabled = true;
+            }
+        }
+        
+        form.classList.add('was-validated');
+    }, false);
+}
+
+// Función para validaciones en tiempo real
+function initRealTimeValidation() {
     // Validación en tiempo real para email
     const emailInput = document.getElementById('correo');
     if (emailInput) {
@@ -211,8 +258,10 @@ document.addEventListener('DOMContentLoaded', function() {
             this.value = this.value.replace(/[^0-9]/g, '');
         });
     }
+}
 
-    // Mejorar la accesibilidad con tooltips informativos
+// Función para inicializar tooltips
+function initTooltips() {
     const tooltips = [
         {
             element: 'volumen_mensual_color',
@@ -243,19 +292,22 @@ document.addEventListener('DOMContentLoaded', function() {
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
     }
+}
 
-    // Función para actualizar el progreso del formulario
+// Función para inicializar progreso del formulario
+function initFormProgress() {
+    const formInputs = document.querySelectorAll('#copier_form input, #copier_form select, #copier_form textarea');
+    const progressBar = document.getElementById('form_progress');
+    const progressText = document.getElementById('progress_text');
+    
+    if (!progressBar) return;
+
     function actualizarProgreso() {
-        const formInputs = document.querySelectorAll('#copier_form input[required], #copier_form select[required], #copier_form textarea[required]');
-        const progressBar = document.getElementById('form_progress');
-        const progressText = document.getElementById('progress_text');
-        
-        if (!progressBar) return;
-
-        const total = formInputs.length;
+        const requiredInputs = document.querySelectorAll('#copier_form input[required], #copier_form select[required], #copier_form textarea[required]');
+        const total = requiredInputs.length;
         let completed = 0;
 
-        formInputs.forEach(input => {
+        requiredInputs.forEach(input => {
             if (input.type === 'checkbox') {
                 if (input.checked) completed++;
             } else if (input.value.trim() !== '') {
@@ -283,15 +335,30 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Agregar listeners para actualizar progreso
-    const formInputs = document.querySelectorAll('#copier_form input, #copier_form select, #copier_form textarea');
     formInputs.forEach(input => {
         input.addEventListener('change', actualizarProgreso);
         input.addEventListener('input', actualizarProgreso);
+        
+        // Efectos visuales en focus
+        input.addEventListener('focus', function() {
+            const floating = this.closest('.form-floating');
+            if (floating) {
+                floating.style.transform = 'scale(1.02)';
+                floating.style.transition = 'transform 0.2s ease';
+            }
+        });
+        
+        input.addEventListener('blur', function() {
+            const floating = this.closest('.form-floating');
+            if (floating) {
+                floating.style.transform = 'scale(1)';
+            }
+        });
     });
 
     // Inicializar progreso
     actualizarProgreso();
-});
+}
 
 // Función para resetear el formulario con confirmación
 function resetearFormulario() {
@@ -310,8 +377,12 @@ function resetearFormulario() {
             
             // Resetear progreso
             const progressBar = document.getElementById('form_progress');
+            const progressText = document.getElementById('progress_text');
             if (progressBar) {
                 progressBar.style.width = '0%';
+            }
+            if (progressText) {
+                progressText.textContent = '0%';
             }
         }
     }

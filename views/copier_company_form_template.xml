@@ -314,50 +314,6 @@
         
         <!-- Scripts -->
         <script src="/copier_company/static/src/js/custom_script.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // Validación del formulario
-                const form = document.getElementById('copier_form');
-                
-                // Actualizar barra de progreso al completar campos
-                const formInputs = form.querySelectorAll('input, select, textarea');
-                const progressBar = document.getElementById('form_progress');
-                
-                function updateProgress() {
-                    const total = formInputs.length;
-                    let completed = 0;
-                    
-                    formInputs.forEach(input =&gt; {
-                        if (input.value.trim() !== '') {
-                            completed++;
-                        }
-                    });
-                    
-                    const percentage = Math.floor((completed / total) * 100);
-                    progressBar.style.width = percentage + '%';
-                }
-                
-                formInputs.forEach(input =&gt; {
-                    input.addEventListener('change', updateProgress);
-                    input.addEventListener('input', updateProgress);
-                });
-                
-                // Validación de Bootstrap
-                form.addEventListener('submit', function(event) {
-                    if (!form.checkValidity()) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        
-                        // Mostrar mensaje de error
-                        const errorDiv = document.getElementById('error_message');
-                        errorDiv.classList.remove('d-none');
-                        errorDiv.innerHTML = 'Por favor complete todos los campos obligatorios.';
-                    }
-                    
-                    form.classList.add('was-validated');
-                }, false);
-            });
-        </script>
         
         <!-- Estilos adicionales -->
         <style>
