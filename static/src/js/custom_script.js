@@ -47,7 +47,6 @@ function obtenerDatosCliente() {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value // Agregar CSRF token
         },
         body: JSON.stringify({
             jsonrpc: "2.0",
@@ -59,12 +58,7 @@ function obtenerDatosCliente() {
             id: null
         })
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
         console.log("Datos procesados: ", data);
         
@@ -81,9 +75,6 @@ function obtenerDatosCliente() {
             
             // Mostrar mensaje de éxito
             mostrarExito('Cliente encontrado exitosamente.');
-            
-            // Actualizar progreso del formulario
-            setTimeout(actualizarProgreso, 100);
             
         } else {
             console.warn('No se encontraron datos:', data);
@@ -108,48 +99,34 @@ function obtenerDatosCliente() {
     });
 }
 
-// Función para mostrar errores con estilo mejorado
+// Función para mostrar errores con estilo
 function mostrarError(mensaje) {
     const errorElement = document.getElementById('error_message');
-    const errorText = document.getElementById('error_text');
-    
     if (errorElement) {
-        if (errorText) {
-            errorText.textContent = mensaje;
-        } else {
-            errorElement.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>' + mensaje;
-        }
-        
+        errorElement.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>' + mensaje;
         errorElement.classList.remove('d-none');
         
         // Scroll suave al error
         errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
         
-        // Auto-ocultar después de 8 segundos
+        // Auto-ocultar después de 5 segundos
         setTimeout(() => {
             errorElement.classList.add('d-none');
-        }, 8000);
+        }, 5000);
     }
 }
 
-// Función para mostrar mensajes de éxito mejorada
+// Función para mostrar mensajes de éxito
 function mostrarExito(mensaje) {
     const successElement = document.getElementById('success_message');
-    const successText = document.getElementById('success_text');
-    
     if (successElement) {
-        if (successText) {
-            successText.textContent = mensaje;
-        } else {
-            successElement.innerHTML = '<i class="fas fa-check-circle me-2"></i>' + mensaje;
-        }
-        
+        successElement.innerHTML = '<i class="fas fa-check-circle me-2"></i>' + mensaje;
         successElement.classList.remove('d-none');
         
-        // Auto-ocultar después de 4 segundos
+        // Auto-ocultar después de 3 segundos
         setTimeout(() => {
             successElement.classList.add('d-none');
-        }, 4000);
+        }, 3000);
     }
 }
 
@@ -173,15 +150,14 @@ function rellenarCamposConAnimacion(datos) {
                 campo.element.style.backgroundColor = '#d4edda';
                 
                 // Trigger del evento change para actualizar validaciones
-                campo.element.dispatchEvent(new Event('change', { bubbles: true }));
-                campo.element.dispatchEvent(new Event('input', { bubbles: true }));
+                campo.element.dispatchEvent(new Event('change'));
                 
                 // Restaurar color original después de un tiempo
                 setTimeout(() => {
                     campo.element.style.backgroundColor = '';
                 }, 1500);
                 
-            }, index * 150); // Delay progresivo para cada campo
+            }, index * 100); // Delay progresivo para cada campo
         }
     });
 }
@@ -195,15 +171,13 @@ function limpiarCamposCliente() {
         if (campo) {
             campo.value = '';
             // Trigger del evento change para actualizar validaciones
-            campo.dispatchEvent(new Event('change', { bubbles: true }));
-            campo.dispatchEvent(new Event('input', { bubbles: true }));
+            campo.dispatchEvent(new Event('change'));
         }
     });
 }
 
 // Inicialización cuando el DOM está listo
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM cargado - Inicializando formulario...');
     
     // Inicializar validación del formulario
     initFormValidation();
@@ -216,21 +190,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Inicializar progreso del formulario
     initFormProgress();
-    
-    console.log('Formulario inicializado correctamente');
 });
 
 // Función para inicializar validación del formulario
 function initFormValidation() {
     const form = document.getElementById('copier_form');
-    if (!form) {
-        console.warn('Formulario no encontrado');
-        return;
-    }
+    if (!form) return;
     
     form.addEventListener('submit', function(event) {
-        console.log('Enviando formulario...');
-        
         if (!form.checkValidity()) {
             event.preventDefault();
             event.stopPropagation();
@@ -242,26 +209,15 @@ function initFormValidation() {
             const firstError = form.querySelector('.is-invalid, :invalid');
             if (firstError) {
                 firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                setTimeout(() => firstError.focus(), 500);
+                firstError.focus();
             }
         } else {
             // Mostrar loading en el botón
             const submitBtn = form.querySelector('button[type="submit"]');
             if (submitBtn) {
-                const originalHTML = submitBtn.innerHTML;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
                 submitBtn.disabled = true;
-                
-                // Restaurar botón en caso de error (fallback)
-                setTimeout(() => {
-                    if (submitBtn.disabled) {
-                        submitBtn.innerHTML = originalHTML;
-                        submitBtn.disabled = false;
-                    }
-                }, 10000);
             }
-            
-            mostrarExito('Enviando cotización, por favor espere...');
         }
         
         form.classList.add('was-validated');
@@ -274,7 +230,7 @@ function initRealTimeValidation() {
     const emailInput = document.getElementById('correo');
     if (emailInput) {
         emailInput.addEventListener('input', function() {
-            const email = this.value.trim();
+            const email = this.value;
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             
             if (email && !emailRegex.test(email)) {
@@ -290,16 +246,7 @@ function initRealTimeValidation() {
     if (telefonoInput) {
         telefonoInput.addEventListener('input', function() {
             // Permitir solo números, espacios, guiones y paréntesis
-            let value = this.value.replace(/[^0-9\s\-\(\)\+]/g, '');
-            
-            // Validar longitud mínima
-            if (value.length >= 6 && value.length <= 15) {
-                this.setCustomValidity('');
-            } else if (value.length > 0) {
-                this.setCustomValidity('El teléfono debe tener entre 6 y 15 dígitos');
-            }
-            
-            this.value = value;
+            this.value = this.value.replace(/[^0-9\s\-\(\)\+]/g, '');
         });
     }
 
@@ -308,40 +255,9 @@ function initRealTimeValidation() {
     if (identificacionInput) {
         identificacionInput.addEventListener('input', function() {
             // Permitir solo números
-            let value = this.value.replace(/[^0-9]/g, '');
-            
-            // Validar según tipo de identificación
-            const tipoId = document.getElementById('tipo_identificacion').value;
-            if (tipoId === '6' && value.length === 11) { // RUC
-                this.setCustomValidity('');
-            } else if (tipoId === '1' && value.length === 8) { // DNI
-                this.setCustomValidity('');
-            } else if (value.length > 0) {
-                const mensaje = tipoId === '6' ? 'El RUC debe tener 11 dígitos' : 'El DNI debe tener 8 dígitos';
-                this.setCustomValidity(mensaje);
-            }
-            
-            this.value = value;
+            this.value = this.value.replace(/[^0-9]/g, '');
         });
     }
-
-    // Validación para volúmenes (números positivos)
-    const volumenes = ['volumen_mensual_color', 'volumen_mensual_bn'];
-    volumenes.forEach(id => {
-        const input = document.getElementById(id);
-        if (input) {
-            input.addEventListener('input', function() {
-                const value = parseInt(this.value);
-                if (isNaN(value) || value < 0) {
-                    this.setCustomValidity('Ingrese un número válido mayor o igual a 0');
-                } else if (value > 100000) {
-                    this.setCustomValidity('El volumen parece muy alto, verifique el valor');
-                } else {
-                    this.setCustomValidity('');
-                }
-            });
-        }
-    });
 }
 
 // Función para inicializar tooltips
@@ -358,10 +274,6 @@ function initTooltips() {
         {
             element: 'detalles',
             message: 'Especifique requisitos especiales como conectividad, funciones adicionales, ubicación, etc.'
-        },
-        {
-            element: 'identificacion',
-            message: 'Ingrese RUC (11 dígitos) o DNI (8 dígitos) según el tipo seleccionado'
         }
     ];
 
@@ -370,24 +282,17 @@ function initTooltips() {
         if (element) {
             element.setAttribute('title', tooltip.message);
             element.setAttribute('data-bs-toggle', 'tooltip');
-            element.setAttribute('data-bs-placement', 'top');
         }
     });
 
     // Inicializar tooltips de Bootstrap si está disponible
-    setTimeout(() => {
-        if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
-            console.log('Tooltips inicializados:', tooltipList.length);
-        }
-    }, 500);
+    if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
 }
-
-// Variable global para la función de progreso
-let actualizarProgreso;
 
 // Función para inicializar progreso del formulario
 function initFormProgress() {
@@ -395,12 +300,9 @@ function initFormProgress() {
     const progressBar = document.getElementById('form_progress');
     const progressText = document.getElementById('progress_text');
     
-    if (!progressBar) {
-        console.warn('Barra de progreso no encontrada');
-        return;
-    }
+    if (!progressBar) return;
 
-    actualizarProgreso = function() {
+    function actualizarProgreso() {
         const requiredInputs = document.querySelectorAll('#copier_form input[required], #copier_form select[required], #copier_form textarea[required]');
         const total = requiredInputs.length;
         let completed = 0;
@@ -415,7 +317,6 @@ function initFormProgress() {
 
         const percentage = Math.floor((completed / total) * 100);
         progressBar.style.width = percentage + '%';
-        progressBar.setAttribute('aria-valuenow', percentage);
         
         if (progressText) {
             progressText.textContent = percentage + '%';
@@ -430,15 +331,13 @@ function initFormProgress() {
             progressBar.style.background = 'linear-gradient(45deg, #6bcf7f 0%, #4bcf7f 100%)';
         }
 
-        console.log(`Progreso del formulario: ${percentage}% (${completed}/${total} campos completados)`);
         return percentage;
-    };
+    }
 
     // Agregar listeners para actualizar progreso
     formInputs.forEach(input => {
-        ['change', 'input', 'blur'].forEach(event => {
-            input.addEventListener(event, actualizarProgreso);
-        });
+        input.addEventListener('change', actualizarProgreso);
+        input.addEventListener('input', actualizarProgreso);
         
         // Efectos visuales en focus
         input.addEventListener('focus', function() {
@@ -458,7 +357,7 @@ function initFormProgress() {
     });
 
     // Inicializar progreso
-    setTimeout(actualizarProgreso, 100);
+    actualizarProgreso();
 }
 
 // Función para resetear el formulario con confirmación
@@ -477,53 +376,14 @@ function resetearFormulario() {
             if (successElement) successElement.classList.add('d-none');
             
             // Resetear progreso
-            if (typeof actualizarProgreso === 'function') {
-                setTimeout(actualizarProgreso, 100);
+            const progressBar = document.getElementById('form_progress');
+            const progressText = document.getElementById('progress_text');
+            if (progressBar) {
+                progressBar.style.width = '0%';
             }
-            
-            mostrarExito('Formulario reiniciado correctamente.');
+            if (progressText) {
+                progressText.textContent = '0%';
+            }
         }
     }
 }
-
-// Función adicional para mejorar UX
-function mejorarExperienciaUsuario() {
-    // Animación suave para las secciones del formulario
-    const sections = document.querySelectorAll('.form-section');
-    sections.forEach((section, index) => {
-        section.style.opacity = '0';
-        section.style.transform = 'translateY(20px)';
-        section.style.transition = 'all 0.6s ease';
-        
-        setTimeout(() => {
-            section.style.opacity = '1';
-            section.style.transform = 'translateY(0)';
-        }, index * 200);
-    });
-    
-    // Efecto de typing para el título (opcional)
-    const title = document.querySelector('h1');
-    if (title) {
-        const text = title.textContent;
-        title.textContent = '';
-        title.style.borderRight = '2px solid white';
-        
-        let i = 0;
-        const typeWriter = () => {
-            if (i < text.length) {
-                title.textContent += text.charAt(i);
-                i++;
-                setTimeout(typeWriter, 100);
-            } else {
-                title.style.borderRight = 'none';
-            }
-        };
-        
-        setTimeout(typeWriter, 1000);
-    }
-}
-
-// Ejecutar mejoras UX después de la carga
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(mejorarExperienciaUsuario, 500);
-});
