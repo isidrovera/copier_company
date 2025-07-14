@@ -1,6 +1,6 @@
 /**
  * PARTE 1: INICIALIZACIÓN Y EFECTOS DE SCROLL
- * JavaScript para Homepage Moderna de Copier Company
+ * JavaScript para Homepage Moderna de Copier Company - Bootstrap Version
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -85,8 +85,9 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ Parte 1: Efectos de scroll y animaciones inicializados');
 });
 
-// CSS adicional para las animaciones (agregar al CSS)
+// CSS adicional para las animaciones usando Bootstrap classes y custom minimal styles
 const animationStyles = `
+/* Animaciones usando Bootstrap como base */
 .animate-ready {
     opacity: 0;
     transform: translateY(30px);
@@ -109,18 +110,142 @@ const animationStyles = `
 .scroll-indicator {
     transition: all 0.3s ease;
 }
+
+/* Hover effects using Bootstrap shadow utilities as base */
+.benefit-card:hover,
+.brand-card:hover,
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    transition: all 0.3s ease;
+}
+
+/* Custom scroll indicator with Bootstrap styling */
+.scroll-indicator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 2px solid;
+    border-radius: 50%;
+    cursor: pointer;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+/* Floating animation for hero cards */
+.floating-card {
+    animation: float 6s ease-in-out infinite;
+}
+
+.floating-card:nth-child(2) {
+    animation-delay: -2s;
+}
+
+.floating-card:nth-child(3) {
+    animation-delay: -4s;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Pulse effect for important buttons */
+.btn-pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(13, 110, 253, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(13, 110, 253, 0);
+    }
+}
+
+/* Fade in animation for modals */
+.modal-content {
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading spinner using Bootstrap colors */
+.loading-spinner {
+    border: 3px solid var(--bs-gray-300);
+    border-top: 3px solid var(--bs-primary);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Success checkmark animation */
+.success-checkmark {
+    display: inline-block;
+    animation: checkmark 0.5s ease-in-out;
+}
+
+@keyframes checkmark {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
 `;
 
 // Inyectar estilos si no están presentes
-if (!document.querySelector('#animation-styles')) {
+if (!document.querySelector('#animation-styles-bootstrap')) {
     const styleSheet = document.createElement('style');
-    styleSheet.id = 'animation-styles';
+    styleSheet.id = 'animation-styles-bootstrap';
     styleSheet.textContent = animationStyles;
     document.head.appendChild(styleSheet);
 }
 /**
  * PARTE 2: MODALES DINÁMICOS Y CONTENIDO INTERACTIVO
- * JavaScript para Homepage Moderna de Copier Company
+ * JavaScript para Homepage Moderna de Copier Company - Bootstrap Version
  */
 
 // =============================================
@@ -132,110 +257,124 @@ const modalContent = {
     benefits: {
         'sin-inversion': {
             title: 'Sin Inversión Inicial',
-            icon: 'fas fa-hand-holding-usd',
+            icon: 'bi bi-piggy-bank',
             content: `
                 <div class="benefit-detail">
                     <div class="row">
                         <div class="col-md-6">
-                            <h4><i class="fas fa-piggy-bank text-primary me-2"></i>Ventajas Financieras</h4>
-                            <ul class="benefit-list">
-                                <li><i class="fas fa-check text-success me-2"></i>Preserva tu capital de trabajo</li>
-                                <li><i class="fas fa-check text-success me-2"></i>Mejora tu flujo de caja mensual</li>
-                                <li><i class="fas fa-check text-success me-2"></i>No afecta líneas de crédito</li>
-                                <li><i class="fas fa-check text-success me-2"></i>Gastos deducibles fiscalmente</li>
+                            <h4><i class="bi bi-piggy-bank text-primary me-2"></i>Ventajas Financieras</h4>
+                            <ul class="list-unstyled benefit-list">
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Preserva tu capital de trabajo</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Mejora tu flujo de caja mensual</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>No afecta líneas de crédito</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Gastos deducibles fiscalmente</li>
                             </ul>
                         </div>
                         <div class="col-md-6">
-                            <h4><i class="fas fa-chart-line text-primary me-2"></i>Beneficios Empresariales</h4>
-                            <ul class="benefit-list">
-                                <li><i class="fas fa-check text-success me-2"></i>Tecnología de última generación</li>
-                                <li><i class="fas fa-check text-success me-2"></i>Actualización constante</li>
-                                <li><i class="fas fa-check text-success me-2"></i>Sin obsolescencia tecnológica</li>
-                                <li><i class="fas fa-check text-success me-2"></i>Escalabilidad según crecimiento</li>
+                            <h4><i class="bi bi-graph-up text-primary me-2"></i>Beneficios Empresariales</h4>
+                            <ul class="list-unstyled benefit-list">
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Tecnología de última generación</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Actualización constante</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Sin obsolescencia tecnológica</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Escalabilidad según crecimiento</li>
                             </ul>
                         </div>
                     </div>
-                    <div class="highlight-box mt-4">
-                        <i class="fas fa-lightbulb text-warning me-2"></i>
-                        <strong>¿Sabías que?</strong> Las empresas que alquilan equipos tecnológicos aumentan su productividad en un 35% 
-                        al tener siempre acceso a la última tecnología sin comprometer su capital.
+                    <div class="alert alert-info mt-4 d-flex align-items-center">
+                        <i class="bi bi-lightbulb-fill text-warning me-2 fs-4"></i>
+                        <div>
+                            <strong>¿Sabías que?</strong> Las empresas que alquilan equipos tecnológicos aumentan su productividad en un 35% 
+                            al tener siempre acceso a la última tecnología sin comprometer su capital.
+                        </div>
                     </div>
                 </div>
             `
         },
         'soporte-24-7': {
             title: 'Soporte Técnico 24/7',
-            icon: 'fas fa-headset',
+            icon: 'bi bi-headset',
             content: `
                 <div class="benefit-detail">
                     <div class="row">
                         <div class="col-md-4">
-                            <div class="support-level">
-                                <div class="support-icon">
-                                    <i class="fas fa-phone text-success"></i>
+                            <div class="card border-success mb-3">
+                                <div class="card-header bg-success text-white text-center">
+                                    <i class="bi bi-telephone-fill fs-2"></i>
+                                    <h5 class="mt-2 mb-0">Nivel 1: Telefónico</h5>
+                                    <p class="mb-0"><strong>Tiempo:</strong> Inmediato</p>
                                 </div>
-                                <h5>Nivel 1: Telefónico</h5>
-                                <p><strong>Tiempo:</strong> Inmediato</p>
-                                <ul>
-                                    <li>Diagnóstico inicial</li>
-                                    <li>Soluciones básicas</li>
-                                    <li>Orientación de uso</li>
-                                </ul>
+                                <div class="card-body">
+                                    <ul class="list-unstyled">
+                                        <li><i class="bi bi-arrow-right text-success me-1"></i> Diagnóstico inicial</li>
+                                        <li><i class="bi bi-arrow-right text-success me-1"></i> Soluciones básicas</li>
+                                        <li><i class="bi bi-arrow-right text-success me-1"></i> Orientación de uso</li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="support-level">
-                                <div class="support-icon">
-                                    <i class="fas fa-laptop text-primary"></i>
+                            <div class="card border-primary mb-3">
+                                <div class="card-header bg-primary text-white text-center">
+                                    <i class="bi bi-laptop fs-2"></i>
+                                    <h5 class="mt-2 mb-0">Nivel 2: Remoto</h5>
+                                    <p class="mb-0"><strong>Tiempo:</strong> 15 minutos</p>
                                 </div>
-                                <h5>Nivel 2: Remoto</h5>
-                                <p><strong>Tiempo:</strong> 15 minutos</p>
-                                <ul>
-                                    <li>Conexión remota</li>
-                                    <li>Configuraciones avanzadas</li>
-                                    <li>Actualizaciones</li>
-                                </ul>
+                                <div class="card-body">
+                                    <ul class="list-unstyled">
+                                        <li><i class="bi bi-arrow-right text-primary me-1"></i> Conexión remota</li>
+                                        <li><i class="bi bi-arrow-right text-primary me-1"></i> Configuraciones avanzadas</li>
+                                        <li><i class="bi bi-arrow-right text-primary me-1"></i> Actualizaciones</li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="support-level">
-                                <div class="support-icon">
-                                    <i class="fas fa-user-tie text-warning"></i>
+                            <div class="card border-warning mb-3">
+                                <div class="card-header bg-warning text-dark text-center">
+                                    <i class="bi bi-person-badge fs-2"></i>
+                                    <h5 class="mt-2 mb-0">Nivel 3: Presencial</h5>
+                                    <p class="mb-0"><strong>Tiempo:</strong> 4 horas</p>
                                 </div>
-                                <h5>Nivel 3: Presencial</h5>
-                                <p><strong>Tiempo:</strong> 4 horas</p>
-                                <ul>
-                                    <li>Técnico especializado</li>
-                                    <li>Reparaciones complejas</li>
-                                    <li>Reemplazo de equipos</li>
-                                </ul>
+                                <div class="card-body">
+                                    <ul class="list-unstyled">
+                                        <li><i class="bi bi-arrow-right text-warning me-1"></i> Técnico especializado</li>
+                                        <li><i class="bi bi-arrow-right text-warning me-1"></i> Reparaciones complejas</li>
+                                        <li><i class="bi bi-arrow-right text-warning me-1"></i> Reemplazo de equipos</li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="support-stats mt-4">
-                        <div class="row text-center">
-                            <div class="col-md-3">
-                                <div class="stat-item">
-                                    <h3 class="text-primary">98%</h3>
-                                    <p>Resolución remota</p>
+                    <div class="row text-center mt-4">
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h3 class="text-primary mb-0">98%</h3>
+                                    <p class="text-muted">Resolución remota</p>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="stat-item">
-                                    <h3 class="text-success">15min</h3>
-                                    <p>Tiempo promedio</p>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h3 class="text-success mb-0">15min</h3>
+                                    <p class="text-muted">Tiempo promedio</p>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="stat-item">
-                                    <h3 class="text-warning">24/7</h3>
-                                    <p>Disponibilidad</p>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h3 class="text-warning mb-0">24/7</h3>
+                                    <p class="text-muted">Disponibilidad</p>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="stat-item">
-                                    <h3 class="text-info">365</h3>
-                                    <p>Días al año</p>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h3 class="text-info mb-0">365</h3>
+                                    <p class="text-muted">Días al año</p>
                                 </div>
                             </div>
                         </div>
@@ -245,118 +384,163 @@ const modalContent = {
         },
         'instalacion-rapida': {
             title: 'Instalación en 24H',
-            icon: 'fas fa-rocket',
+            icon: 'bi bi-rocket-takeoff',
             content: `
                 <div class="benefit-detail">
-                    <div class="installation-timeline">
-                        <div class="timeline-item">
-                            <div class="timeline-marker">1</div>
-                            <div class="timeline-content">
-                                <h5><i class="fas fa-handshake text-primary me-2"></i>Confirmación del Pedido</h5>
-                                <p><strong>Tiempo:</strong> 2 horas</p>
-                                <ul>
-                                    <li>Verificación de especificaciones</li>
-                                    <li>Programación de instalación</li>
-                                    <li>Preparación del equipo</li>
+                    <div class="timeline-container">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="badge bg-primary rounded-circle p-3 me-3">
+                                <span class="fw-bold">1</span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="mb-1"><i class="bi bi-handshake text-primary me-2"></i>Confirmación del Pedido</h5>
+                                <p class="text-muted mb-1"><strong>Tiempo:</strong> 2 horas</p>
+                                <ul class="list-unstyled small">
+                                    <li><i class="bi bi-check text-success me-1"></i> Verificación de especificaciones</li>
+                                    <li><i class="bi bi-check text-success me-1"></i> Programación de instalación</li>
+                                    <li><i class="bi bi-check text-success me-1"></i> Preparación del equipo</li>
                                 </ul>
                             </div>
                         </div>
-                        <div class="timeline-item">
-                            <div class="timeline-marker">2</div>
-                            <div class="timeline-content">
-                                <h5><i class="fas fa-shipping-fast text-success me-2"></i>Transporte Especializado</h5>
-                                <p><strong>Tiempo:</strong> 4 horas</p>
-                                <ul>
-                                    <li>Embalaje profesional</li>
-                                    <li>Transporte asegurado</li>
-                                    <li>Coordinación de llegada</li>
+                        
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="badge bg-success rounded-circle p-3 me-3">
+                                <span class="fw-bold">2</span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="mb-1"><i class="bi bi-truck text-success me-2"></i>Transporte Especializado</h5>
+                                <p class="text-muted mb-1"><strong>Tiempo:</strong> 4 horas</p>
+                                <ul class="list-unstyled small">
+                                    <li><i class="bi bi-check text-success me-1"></i> Embalaje profesional</li>
+                                    <li><i class="bi bi-check text-success me-1"></i> Transporte asegurado</li>
+                                    <li><i class="bi bi-check text-success me-1"></i> Coordinación de llegada</li>
                                 </ul>
                             </div>
                         </div>
-                        <div class="timeline-item">
-                            <div class="timeline-marker">3</div>
-                            <div class="timeline-content">
-                                <h5><i class="fas fa-cogs text-warning me-2"></i>Instalación y Configuración</h5>
-                                <p><strong>Tiempo:</strong> 2-4 horas</p>
-                                <ul>
-                                    <li>Instalación física</li>
-                                    <li>Configuración de red</li>
-                                    <li>Pruebas de funcionamiento</li>
-                                    <li>Capacitación básica</li>
+                        
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="badge bg-warning rounded-circle p-3 me-3">
+                                <span class="fw-bold">3</span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="mb-1"><i class="bi bi-gear-fill text-warning me-2"></i>Instalación y Configuración</h5>
+                                <p class="text-muted mb-1"><strong>Tiempo:</strong> 2-4 horas</p>
+                                <ul class="list-unstyled small">
+                                    <li><i class="bi bi-check text-success me-1"></i> Instalación física</li>
+                                    <li><i class="bi bi-check text-success me-1"></i> Configuración de red</li>
+                                    <li><i class="bi bi-check text-success me-1"></i> Pruebas de funcionamiento</li>
+                                    <li><i class="bi bi-check text-success me-1"></i> Capacitación básica</li>
                                 </ul>
                             </div>
                         </div>
                     </div>
-                    <div class="installation-guarantee mt-4 p-3 bg-light rounded">
-                        <h5><i class="fas fa-shield-alt text-success me-2"></i>Garantía de Instalación</h5>
-                        <p class="mb-0">Si por algún motivo no podemos instalar tu equipo en 24 horas, 
-                        <strong>el primer mes de alquiler es completamente GRATIS</strong>.</p>
+                    
+                    <div class="alert alert-success d-flex align-items-center mt-4">
+                        <i class="bi bi-shield-check text-success me-2 fs-4"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">Garantía de Instalación</h5>
+                            <p class="mb-0">Si por algún motivo no podemos instalar tu equipo en 24 horas, 
+                            <strong>el primer mes de alquiler es completamente GRATIS</strong>.</p>
+                        </div>
                     </div>
                 </div>
             `
         },
         'mantenimiento-incluido': {
             title: 'Mantenimiento Incluido',
-            icon: 'fas fa-cog',
+            icon: 'bi bi-gear',
             content: `
                 <div class="benefit-detail">
                     <div class="row">
                         <div class="col-md-6">
-                            <h4><i class="fas fa-calendar-check text-primary me-2"></i>Mantenimiento Preventivo</h4>
-                            <div class="maintenance-schedule">
-                                <div class="schedule-item">
-                                    <span class="frequency">Semanal</span>
-                                    <ul>
-                                        <li>Limpieza de sensores</li>
-                                        <li>Verificación de consumibles</li>
-                                    </ul>
+                            <h4><i class="bi bi-calendar-check text-primary me-2"></i>Mantenimiento Preventivo</h4>
+                            <div class="accordion" id="maintenanceSchedule">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#weekly">
+                                            <span class="badge bg-success me-2">Semanal</span>
+                                            Verificaciones Rutinarias
+                                        </button>
+                                    </h2>
+                                    <div id="weekly" class="accordion-collapse collapse show" data-bs-parent="#maintenanceSchedule">
+                                        <div class="accordion-body">
+                                            <ul class="list-unstyled">
+                                                <li><i class="bi bi-check-circle text-success me-2"></i>Limpieza de sensores</li>
+                                                <li><i class="bi bi-check-circle text-success me-2"></i>Verificación de consumibles</li>
+                                            </ul>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="schedule-item">
-                                    <span class="frequency">Mensual</span>
-                                    <ul>
-                                        <li>Calibración de colores</li>
-                                        <li>Actualización de firmware</li>
-                                        <li>Limpieza interna profunda</li>
-                                    </ul>
+                                
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#monthly">
+                                            <span class="badge bg-primary me-2">Mensual</span>
+                                            Mantenimiento Técnico
+                                        </button>
+                                    </h2>
+                                    <div id="monthly" class="accordion-collapse collapse" data-bs-parent="#maintenanceSchedule">
+                                        <div class="accordion-body">
+                                            <ul class="list-unstyled">
+                                                <li><i class="bi bi-check-circle text-success me-2"></i>Calibración de colores</li>
+                                                <li><i class="bi bi-check-circle text-success me-2"></i>Actualización de firmware</li>
+                                                <li><i class="bi bi-check-circle text-success me-2"></i>Limpieza interna profunda</li>
+                                            </ul>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="schedule-item">
-                                    <span class="frequency">Trimestral</span>
-                                    <ul>
-                                        <li>Revisión completa</li>
-                                        <li>Reemplazo de rodillos</li>
-                                        <li>Optimización de rendimiento</li>
-                                    </ul>
+                                
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#quarterly">
+                                            <span class="badge bg-warning me-2">Trimestral</span>
+                                            Revisión Completa
+                                        </button>
+                                    </h2>
+                                    <div id="quarterly" class="accordion-collapse collapse" data-bs-parent="#maintenanceSchedule">
+                                        <div class="accordion-body">
+                                            <ul class="list-unstyled">
+                                                <li><i class="bi bi-check-circle text-success me-2"></i>Revisión completa</li>
+                                                <li><i class="bi bi-check-circle text-success me-2"></i>Reemplazo de rodillos</li>
+                                                <li><i class="bi bi-check-circle text-success me-2"></i>Optimización de rendimiento</li>
+                                            </ul>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        
                         <div class="col-md-6">
-                            <h4><i class="fas fa-tools text-success me-2"></i>Mantenimiento Correctivo</h4>
-                            <div class="repair-coverage">
-                                <div class="coverage-item">
-                                    <i class="fas fa-check-circle text-success"></i>
+                            <h4><i class="bi bi-tools text-success me-2"></i>Mantenimiento Correctivo</h4>
+                            <div class="list-group">
+                                <div class="list-group-item d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill text-success me-3"></i>
                                     <span>Reparación de averías</span>
                                 </div>
-                                <div class="coverage-item">
-                                    <i class="fas fa-check-circle text-success"></i>
+                                <div class="list-group-item d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill text-success me-3"></i>
                                     <span>Reemplazo de repuestos</span>
                                 </div>
-                                <div class="coverage-item">
-                                    <i class="fas fa-check-circle text-success"></i>
+                                <div class="list-group-item d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill text-success me-3"></i>
                                     <span>Mano de obra técnica</span>
                                 </div>
-                                <div class="coverage-item">
-                                    <i class="fas fa-check-circle text-success"></i>
+                                <div class="list-group-item d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill text-success me-3"></i>
                                     <span>Diagnósticos especializados</span>
                                 </div>
-                                <div class="coverage-item">
-                                    <i class="fas fa-check-circle text-success"></i>
+                                <div class="list-group-item d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill text-success me-3"></i>
                                     <span>Actualizaciones de software</span>
                                 </div>
                             </div>
-                            <div class="maintenance-value mt-3 p-3 bg-success text-white rounded">
-                                <h6><i class="fas fa-calculator me-2"></i>Valor del Mantenimiento</h6>
-                                <p class="mb-0">El mantenimiento incluido tiene un valor aproximado de 
-                                <strong>$200-400 USD mensuales</strong> por equipo.</p>
+                            
+                            <div class="card bg-success text-white mt-3">
+                                <div class="card-body">
+                                    <h6 class="card-title"><i class="bi bi-calculator me-2"></i>Valor del Mantenimiento</h6>
+                                    <p class="card-text mb-0">El mantenimiento incluido tiene un valor aproximado de 
+                                    <strong>$200-400 USD mensuales</strong> por equipo.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -365,76 +549,87 @@ const modalContent = {
         },
         'garantia-total': {
             title: 'Garantía Total',
-            icon: 'fas fa-shield-alt',
+            icon: 'bi bi-shield-check',
             content: `
                 <div class="benefit-detail">
-                    <div class="guarantee-coverage">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="coverage-card">
-                                    <div class="coverage-icon">
-                                        <i class="fas fa-cog text-primary"></i>
-                                    </div>
-                                    <h5>Cobertura Técnica</h5>
-                                    <ul>
-                                        <li>Fallas de hardware</li>
-                                        <li>Problemas de software</li>
-                                        <li>Defectos de fabricación</li>
-                                        <li>Desgaste normal</li>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card text-center h-100">
+                                <div class="card-body">
+                                    <i class="bi bi-gear-wide-connected text-primary display-4"></i>
+                                    <h5 class="card-title mt-3">Cobertura Técnica</h5>
+                                    <ul class="list-unstyled text-start">
+                                        <li><i class="bi bi-dot text-primary"></i> Fallas de hardware</li>
+                                        <li><i class="bi bi-dot text-primary"></i> Problemas de software</li>
+                                        <li><i class="bi bi-dot text-primary"></i> Defectos de fabricación</li>
+                                        <li><i class="bi bi-dot text-primary"></i> Desgaste normal</li>
                                     </ul>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="coverage-card">
-                                    <div class="coverage-icon">
-                                        <i class="fas fa-exchange-alt text-success"></i>
-                                    </div>
-                                    <h5>Reemplazo Inmediato</h5>
-                                    <ul>
-                                        <li>Equipo de respaldo</li>
-                                        <li>Transferencia de configuración</li>
-                                        <li>Sin interrupción del trabajo</li>
-                                        <li>Mismo nivel de servicio</li>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card text-center h-100">
+                                <div class="card-body">
+                                    <i class="bi bi-arrow-repeat text-success display-4"></i>
+                                    <h5 class="card-title mt-3">Reemplazo Inmediato</h5>
+                                    <ul class="list-unstyled text-start">
+                                        <li><i class="bi bi-dot text-success"></i> Equipo de respaldo</li>
+                                        <li><i class="bi bi-dot text-success"></i> Transferencia de configuración</li>
+                                        <li><i class="bi bi-dot text-success"></i> Sin interrupción del trabajo</li>
+                                        <li><i class="bi bi-dot text-success"></i> Mismo nivel de servicio</li>
                                     </ul>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="coverage-card">
-                                    <div class="coverage-icon">
-                                        <i class="fas fa-dollar-sign text-warning"></i>
-                                    </div>
-                                    <h5>Sin Costos Ocultos</h5>
-                                    <ul>
-                                        <li>Repuestos incluidos</li>
-                                        <li>Mano de obra gratis</li>
-                                        <li>Transporte sin costo</li>
-                                        <li>Diagnósticos gratuitos</li>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card text-center h-100">
+                                <div class="card-body">
+                                    <i class="bi bi-currency-dollar text-warning display-4"></i>
+                                    <h5 class="card-title mt-3">Sin Costos Ocultos</h5>
+                                    <ul class="list-unstyled text-start">
+                                        <li><i class="bi bi-dot text-warning"></i> Repuestos incluidos</li>
+                                        <li><i class="bi bi-dot text-warning"></i> Mano de obra gratis</li>
+                                        <li><i class="bi bi-dot text-warning"></i> Transporte sin costo</li>
+                                        <li><i class="bi bi-dot text-warning"></i> Diagnósticos gratuitos</li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="guarantee-terms mt-4">
-                        <h5><i class="fas fa-file-contract text-info me-2"></i>Términos de la Garantía</h5>
+                    
+                    <div class="mt-4">
+                        <h5><i class="bi bi-file-earmark-text text-info me-2"></i>Términos de la Garantía</h5>
                         <div class="row">
                             <div class="col-md-6">
-                                <h6>QUÉ ESTÁ CUBIERTO:</h6>
-                                <ul class="covered-list">
-                                    <li><i class="fas fa-check text-success me-1"></i> Todas las reparaciones</li>
-                                    <li><i class="fas fa-check text-success me-1"></i> Repuestos originales</li>
-                                    <li><i class="fas fa-check text-success me-1"></i> Mano de obra técnica</li>
-                                    <li><i class="fas fa-check text-success me-1"></i> Reemplazo total si es necesario</li>
-                                    <li><i class="fas fa-check text-success me-1"></i> Actualizaciones de firmware</li>
-                                </ul>
+                                <div class="card border-success">
+                                    <div class="card-header bg-success text-white">
+                                        <h6 class="mb-0">✅ QUÉ ESTÁ CUBIERTO</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled mb-0">
+                                            <li class="mb-1"><i class="bi bi-check text-success me-1"></i> Todas las reparaciones</li>
+                                            <li class="mb-1"><i class="bi bi-check text-success me-1"></i> Repuestos originales</li>
+                                            <li class="mb-1"><i class="bi bi-check text-success me-1"></i> Mano de obra técnica</li>
+                                            <li class="mb-1"><i class="bi bi-check text-success me-1"></i> Reemplazo total si es necesario</li>
+                                            <li class="mb-1"><i class="bi bi-check text-success me-1"></i> Actualizaciones de firmware</li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-md-6">
-                                <h6>QUÉ NO ESTÁ CUBIERTO:</h6>
-                                <ul class="not-covered-list">
-                                    <li><i class="fas fa-times text-danger me-1"></i> Daños por mal uso intencional</li>
-                                    <li><i class="fas fa-times text-danger me-1"></i> Modificaciones no autorizadas</li>
-                                    <li><i class="fas fa-times text-danger me-1"></i> Desastres naturales extremos</li>
-                                    <li><i class="fas fa-times text-danger me-1"></i> Consumibles (toners, papel)</li>
-                                </ul>
+                                <div class="card border-danger">
+                                    <div class="card-header bg-danger text-white">
+                                        <h6 class="mb-0">❌ QUÉ NO ESTÁ CUBIERTO</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled mb-0">
+                                            <li class="mb-1"><i class="bi bi-x text-danger me-1"></i> Daños por mal uso intencional</li>
+                                            <li class="mb-1"><i class="bi bi-x text-danger me-1"></i> Modificaciones no autorizadas</li>
+                                            <li class="mb-1"><i class="bi bi-x text-danger me-1"></i> Desastres naturales extremos</li>
+                                            <li class="mb-1"><i class="bi bi-x text-danger me-1"></i> Consumibles (toners, papel)</li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -443,71 +638,96 @@ const modalContent = {
         },
         'escalabilidad': {
             title: 'Escalabilidad',
-            icon: 'fas fa-chart-line',
+            icon: 'bi bi-graph-up-arrow',
             content: `
                 <div class="benefit-detail">
-                    <div class="scalability-options">
-                        <h4><i class="fas fa-arrows-alt text-primary me-2"></i>Opciones de Escalabilidad</h4>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="scale-option">
-                                    <div class="scale-icon up">
-                                        <i class="fas fa-arrow-up"></i>
+                    <h4><i class="bi bi-arrows-expand text-primary me-2"></i>Opciones de Escalabilidad</h4>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card border-success h-100">
+                                <div class="card-body text-center">
+                                    <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                        <i class="bi bi-arrow-up fs-3"></i>
                                     </div>
                                     <h5>Escalar Hacia Arriba</h5>
-                                    <p>Cuando tu negocio crece</p>
-                                    <ul>
-                                        <li>Equipos más potentes</li>
-                                        <li>Mayor capacidad</li>
-                                        <li>Funciones adicionales</li>
-                                        <li>Múltiples ubicaciones</li>
+                                    <p class="text-muted">Cuando tu negocio crece</p>
+                                    <ul class="list-unstyled text-start">
+                                        <li><i class="bi bi-plus-circle text-success me-2"></i>Equipos más potentes</li>
+                                        <li><i class="bi bi-plus-circle text-success me-2"></i>Mayor capacidad</li>
+                                        <li><i class="bi bi-plus-circle text-success me-2"></i>Funciones adicionales</li>
+                                        <li><i class="bi bi-plus-circle text-success me-2"></i>Múltiples ubicaciones</li>
                                     </ul>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="scale-option">
-                                    <div class="scale-icon lateral">
-                                        <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-primary h-100">
+                                <div class="card-body text-center">
+                                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                        <i class="bi bi-arrow-left-right fs-3"></i>
                                     </div>
                                     <h5>Cambio Lateral</h5>
-                                    <p>Necesidades específicas</p>
-                                    <ul>
-                                        <li>Cambio de tecnología</li>
-                                        <li>Diferentes funciones</li>
-                                        <li>Especialización</li>
-                                        <li>Optimización</li>
+                                    <p class="text-muted">Necesidades específicas</p>
+                                    <ul class="list-unstyled text-start">
+                                        <li><i class="bi bi-arrow-right text-primary me-2"></i>Cambio de tecnología</li>
+                                        <li><i class="bi bi-arrow-right text-primary me-2"></i>Diferentes funciones</li>
+                                        <li><i class="bi bi-arrow-right text-primary me-2"></i>Especialización</li>
+                                        <li><i class="bi bi-arrow-right text-primary me-2"></i>Optimización</li>
                                     </ul>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="scale-option">
-                                    <div class="scale-icon down">
-                                        <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-warning h-100">
+                                <div class="card-body text-center">
+                                    <div class="bg-warning text-dark rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                        <i class="bi bi-arrow-down fs-3"></i>
                                     </div>
                                     <h5>Escalar Hacia Abajo</h5>
-                                    <p>Optimización de costos</p>
-                                    <ul>
-                                        <li>Equipos más simples</li>
-                                        <li>Menor capacidad</li>
-                                        <li>Reducción de costos</li>
-                                        <li>Funciones básicas</li>
+                                    <p class="text-muted">Optimización de costos</p>
+                                    <ul class="list-unstyled text-start">
+                                        <li><i class="bi bi-dash-circle text-warning me-2"></i>Equipos más simples</li>
+                                        <li><i class="bi bi-dash-circle text-warning me-2"></i>Menor capacidad</li>
+                                        <li><i class="bi bi-dash-circle text-warning me-2"></i>Reducción de costos</li>
+                                        <li><i class="bi bi-dash-circle text-warning me-2"></i>Funciones básicas</li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="scalability-process mt-4 p-3 bg-light rounded">
-                        <h5><i class="fas fa-cogs text-success me-2"></i>Proceso de Escalabilidad</h5>
-                        <div class="process-steps-mini">
-                            <span class="step"><i class="fas fa-comments"></i> Evaluación</span>
-                            <span class="arrow">→</span>
-                            <span class="step"><i class="fas fa-chart-bar"></i> Análisis</span>
-                            <span class="arrow">→</span>
-                            <span class="step"><i class="fas fa-handshake"></i> Propuesta</span>
-                            <span class="arrow">→</span>
-                            <span class="step"><i class="fas fa-rocket"></i> Implementación</span>
+                    
+                    <div class="alert alert-light mt-4">
+                        <h5><i class="bi bi-gear-wide text-success me-2"></i>Proceso de Escalabilidad</h5>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-center">
+                                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 40px; height: 40px;">
+                                    <i class="bi bi-chat-dots"></i>
+                                </div>
+                                <small class="d-block">Evaluación</small>
+                            </div>
+                            <i class="bi bi-arrow-right text-muted"></i>
+                            <div class="text-center">
+                                <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 40px; height: 40px;">
+                                    <i class="bi bi-bar-chart"></i>
+                                </div>
+                                <small class="d-block">Análisis</small>
+                            </div>
+                            <i class="bi bi-arrow-right text-muted"></i>
+                            <div class="text-center">
+                                <div class="bg-warning text-dark rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 40px; height: 40px;">
+                                    <i class="bi bi-handshake"></i>
+                                </div>
+                                <small class="d-block">Propuesta</small>
+                            </div>
+                            <i class="bi bi-arrow-right text-muted"></i>
+                            <div class="text-center">
+                                <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 40px; height: 40px;">
+                                    <i class="bi bi-rocket-takeoff"></i>
+                                </div>
+                                <small class="d-block">Implementación</small>
+                            </div>
                         </div>
-                        <p class="mt-2 mb-0"><strong>Tiempo promedio:</strong> 48-72 horas para cambios completos</p>
+                        <p class="mt-3 mb-0 text-center"><strong>Tiempo promedio:</strong> 48-72 horas para cambios completos</p>
                     </div>
                 </div>
             `
@@ -524,17 +744,222 @@ document.addEventListener('click', function(e) {
         
         if (benefitData) {
             // Actualizar contenido del modal
-            document.getElementById('benefitModalLabel').innerHTML = 
-                `<i class="${benefitData.icon} me-2"></i>${benefitData.title}`;
-            document.getElementById('benefitModalBody').innerHTML = benefitData.content;
+            const modalLabel = document.getElementById('benefitModalLabel');
+            const modalBody = document.getElementById('benefitModalBody');
+            
+            if (modalLabel) {
+                modalLabel.innerHTML = `<i class="${benefitData.icon} me-2"></i>${benefitData.title}`;
+            }
+            if (modalBody) {
+                modalBody.innerHTML = benefitData.content;
+            }
         }
     }
 });
 
-console.log('✅ Parte 2: Sistema de modales dinámicos para beneficios inicializado');
+// Mejorar la experiencia de los modales con Bootstrap
+document.addEventListener('DOMContentLoaded', function() {
+    // Agregar efectos de fade y animaciones a los modales
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        modal.addEventListener('show.bs.modal', function() {
+            // Añadir clase de animación
+            this.querySelector('.modal-content').style.animation = 'modalSlideIn 0.3s ease-out';
+        });
+        
+        modal.addEventListener('hide.bs.modal', function() {
+            // Animación de salida
+            this.querySelector('.modal-content').style.animation = 'modalSlideOut 0.2s ease-in';
+        });
+    });
+    
+    // Auto-focus en el primer elemento interactivo del modal
+    document.addEventListener('shown.bs.modal', function(e) {
+        const firstButton = e.target.querySelector('button:not([data-bs-dismiss])');
+        const firstInput = e.target.querySelector('input, textarea, select');
+        const focusElement = firstInput || firstButton;
+        
+        if (focusElement) {
+            setTimeout(() => focusElement.focus(), 100);
+        }
+    });
+});
+
+// Función utilitaria para crear toasts usando Bootstrap
+function showBootstrapToast(message, type = 'info', duration = 5000) {
+    // Crear container si no existe
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+        toastContainer.style.zIndex = '9999';
+        document.body.appendChild(toastContainer);
+    }
+    
+    // Definir iconos y colores según el tipo
+    const toastConfig = {
+        success: { icon: 'bi-check-circle-fill', bg: 'bg-success' },
+        error: { icon: 'bi-exclamation-triangle-fill', bg: 'bg-danger' },
+        warning: { icon: 'bi-exclamation-triangle-fill', bg: 'bg-warning' },
+        info: { icon: 'bi-info-circle-fill', bg: 'bg-info' }
+    };
+    
+    const config = toastConfig[type] || toastConfig.info;
+    
+    // Crear toast usando Bootstrap
+    const toastElement = document.createElement('div');
+    toastElement.className = 'toast';
+    toastElement.setAttribute('role', 'alert');
+    toastElement.innerHTML = `
+        <div class="toast-header ${config.bg} text-white">
+            <i class="bi ${config.icon} me-2"></i>
+            <strong class="me-auto">Copier Company</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            ${message}
+        </div>
+    `;
+    
+    toastContainer.appendChild(toastElement);
+    
+    // Inicializar y mostrar el toast usando Bootstrap
+    const bsToast = new bootstrap.Toast(toastElement, {
+        delay: duration
+    });
+    bsToast.show();
+    
+    // Remover el elemento del DOM después de que se oculte
+    toastElement.addEventListener('hidden.bs.toast', function() {
+        this.remove();
+    });
+}
+
+// CSS adicional para mejorar la apariencia con Bootstrap
+const modalEnhancementStyles = `
+/* Animaciones para modales usando Bootstrap */
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes modalSlideOut {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.98);
+    }
+}
+
+/* Mejorar hover effects en cards de beneficios */
+.benefit-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.benefit-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15)!important;
+}
+
+/* Timeline connector para instalación */
+.timeline-container .d-flex:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 1.75rem;
+    top: 4rem;
+    width: 2px;
+    height: 2rem;
+    background: linear-gradient(to bottom, #dee2e6, transparent);
+    z-index: 1;
+}
+
+.timeline-container {
+    position: relative;
+}
+
+/* Mejorar apariencia de accordions */
+.accordion-button:not(.collapsed) {
+    color: var(--bs-primary);
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+}
+
+/* Hover effects para list-group items */
+.list-group-item {
+    transition: all 0.2s ease;
+}
+
+.list-group-item:hover {
+    background-color: var(--bs-light);
+    transform: translateX(5px);
+}
+
+/* Mejorar spacing en cards */
+.card .display-4 {
+    line-height: 1.2;
+}
+
+/* Toast container positioning */
+.toast-container {
+    z-index: 1055; /* Por encima de modals pero debajo de dropdowns */
+}
+
+/* Mejorar badges circulares */
+.badge.rounded-circle {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* Efectos hover para iconos grandes */
+.display-4 {
+    transition: all 0.3s ease;
+}
+
+.card:hover .display-4 {
+    transform: scale(1.1);
+}
+
+/* Mejorar apariencia de process flow */
+.bg-primary.rounded-circle,
+.bg-success.rounded-circle,
+.bg-warning.rounded-circle,
+.bg-info.rounded-circle {
+    transition: all 0.3s ease;
+}
+
+.bg-primary.rounded-circle:hover { transform: scale(1.1); }
+.bg-success.rounded-circle:hover { transform: scale(1.1); }
+.bg-warning.rounded-circle:hover { transform: scale(1.1); }
+.bg-info.rounded-circle:hover { transform: scale(1.1); }
+`;
+
+// Inyectar estilos de mejora para modales
+if (!document.querySelector('#modal-enhancement-styles')) {
+    const styleSheet = document.createElement('style');
+    styleSheet.id = 'modal-enhancement-styles';
+    styleSheet.textContent = modalEnhancementStyles;
+    document.head.appendChild(styleSheet);
+}
+
+console.log('✅ Parte 2: Sistema de modales dinámicos para beneficios inicializado con Bootstrap');
 /**
  * PARTE 3: MODALES DE MARCAS Y PRODUCTOS
- * JavaScript para Homepage Moderna de Copier Company
+ * JavaScript para Homepage Moderna de Copier Company - Bootstrap Version
  */
 
 // =============================================
@@ -551,102 +976,143 @@ const brandsContent = {
                 <div class="row">
                     <div class="col-md-8">
                         <div class="brand-overview">
-                            <h4><i class="fas fa-award text-primary me-2"></i>Acerca de Konica Minolta</h4>
-                            <p>Líder mundial en tecnología de impresión con más de 150 años de innovación. 
+                            <h4><i class="bi bi-award text-primary me-2"></i>Acerca de Konica Minolta</h4>
+                            <p class="lead">Líder mundial en tecnología de impresión con más de 150 años de innovación. 
                             Especializada en soluciones multifuncionales de alta gama para empresas que requieren 
                             máxima calidad y productividad.</p>
                             
-                            <div class="brand-highlights mt-4">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h5><i class="fas fa-rocket text-success me-2"></i>Ventajas Clave</h5>
-                                        <ul class="feature-list">
-                                            <li><i class="fas fa-check text-success me-1"></i> Velocidad hasta 75 ppm</li>
-                                            <li><i class="fas fa-check text-success me-1"></i> Calidad de impresión superior</li>
-                                            <li><i class="fas fa-check text-success me-1"></i> Tecnología de seguridad avanzada</li>
-                                            <li><i class="fas fa-check text-success me-1"></i> Conectividad en la nube</li>
-                                            <li><i class="fas fa-check text-success me-1"></i> Bajo consumo energético</li>
-                                        </ul>
+                            <div class="row mt-4">
+                                <div class="col-md-6">
+                                    <div class="card border-success h-100">
+                                        <div class="card-header bg-success text-white">
+                                            <h5 class="mb-0"><i class="bi bi-rocket-takeoff me-2"></i>Ventajas Clave</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <ul class="list-unstyled">
+                                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Velocidad hasta 75 ppm</li>
+                                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Calidad de impresión superior</li>
+                                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Tecnología de seguridad avanzada</li>
+                                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Conectividad en la nube</li>
+                                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Bajo consumo energético</li>
+                                            </ul>
+                                        </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <h5><i class="fas fa-industry text-warning me-2"></i>Ideal Para</h5>
-                                        <ul class="industry-list">
-                                            <li><i class="fas fa-building me-1"></i> Grandes corporaciones</li>
-                                            <li><i class="fas fa-graduation-cap me-1"></i> Instituciones educativas</li>
-                                            <li><i class="fas fa-hospital me-1"></i> Centros médicos</li>
-                                            <li><i class="fas fa-balance-scale me-1"></i> Estudios legales</li>
-                                            <li><i class="fas fa-print me-1"></i> Centros de impresión</li>
-                                        </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card border-warning h-100">
+                                        <div class="card-header bg-warning text-dark">
+                                            <h5 class="mb-0"><i class="bi bi-building me-2"></i>Ideal Para</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <ul class="list-unstyled">
+                                                <li class="mb-2"><i class="bi bi-building me-2 text-warning"></i> Grandes corporaciones</li>
+                                                <li class="mb-2"><i class="bi bi-mortarboard me-2 text-warning"></i> Instituciones educativas</li>
+                                                <li class="mb-2"><i class="bi bi-heart-pulse me-2 text-warning"></i> Centros médicos</li>
+                                                <li class="mb-2"><i class="bi bi-balance-scale me-2 text-warning"></i> Estudios legales</li>
+                                                <li class="mb-2"><i class="bi bi-printer me-2 text-warning"></i> Centros de impresión</li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="brand-stats">
-                            <h5><i class="fas fa-chart-bar text-info me-2"></i>Especificaciones</h5>
-                            <div class="stat-grid">
-                                <div class="stat-item">
-                                    <span class="stat-value">75</span>
-                                    <span class="stat-label">ppm máximo</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-value">1200</span>
-                                    <span class="stat-label">dpi resolución</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-value">7500</span>
-                                    <span class="stat-label">hojas/mes</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-value">4.3"</span>
-                                    <span class="stat-label">pantalla táctil</span>
+                        <div class="card bg-light">
+                            <div class="card-header bg-info text-white text-center">
+                                <h5 class="mb-0"><i class="bi bi-speedometer2 me-2"></i>Especificaciones</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-6 mb-3">
+                                        <div class="border rounded p-2">
+                                            <h4 class="text-primary mb-0">75</h4>
+                                            <small class="text-muted">ppm máximo</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <div class="border rounded p-2">
+                                            <h4 class="text-primary mb-0">1200</h4>
+                                            <small class="text-muted">dpi resolución</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <div class="border rounded p-2">
+                                            <h4 class="text-primary mb-0">7500</h4>
+                                            <small class="text-muted">hojas/mes</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <div class="border rounded p-2">
+                                            <h4 class="text-primary mb-0">4.3"</h4>
+                                            <small class="text-muted">pantalla táctil</small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="brand-models mt-4">
-                            <h5><i class="fas fa-list text-secondary me-2"></i>Modelos Populares</h5>
-                            <div class="model-list">
-                                <div class="model-item">
-                                    <strong>bizhub C558</strong>
-                                    <span>55 ppm color/B&N</span>
-                                </div>
-                                <div class="model-item">
-                                    <strong>bizhub C658</strong>
-                                    <span>65 ppm color/B&N</span>
-                                </div>
-                                <div class="model-item">
-                                    <strong>bizhub C758</strong>
-                                    <span>75 ppm color/B&N</span>
+                        <div class="card mt-3">
+                            <div class="card-header bg-secondary text-white">
+                                <h5 class="mb-0"><i class="bi bi-collection me-2"></i>Modelos Populares</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="list-group list-group-flush">
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>bizhub C558</strong>
+                                            <br><small class="text-muted">55 ppm color/B&N</small>
+                                        </div>
+                                        <span class="badge bg-primary rounded-pill">Popular</span>
+                                    </div>
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>bizhub C658</strong>
+                                            <br><small class="text-muted">65 ppm color/B&N</small>
+                                        </div>
+                                        <span class="badge bg-success rounded-pill">Nuevo</span>
+                                    </div>
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>bizhub C758</strong>
+                                            <br><small class="text-muted">75 ppm color/B&N</small>
+                                        </div>
+                                        <span class="badge bg-warning rounded-pill">Premium</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="brand-features mt-4">
-                    <h4><i class="fas fa-cogs text-primary me-2"></i>Características Técnicas Destacadas</h4>
+                <div class="mt-4">
+                    <h4><i class="bi bi-gear-wide-connected text-primary me-2"></i>Características Técnicas Destacadas</h4>
                     <div class="row">
                         <div class="col-md-4">
-                            <div class="feature-card">
-                                <i class="fas fa-shield-alt text-success"></i>
-                                <h6>Seguridad Avanzada</h6>
-                                <p>Autenticación biométrica, encriptación de datos y auditoría completa</p>
+                            <div class="card text-center h-100 border-success">
+                                <div class="card-body">
+                                    <i class="bi bi-shield-check text-success display-6"></i>
+                                    <h6 class="mt-3">Seguridad Avanzada</h6>
+                                    <p class="card-text small">Autenticación biométrica, encriptación de datos y auditoría completa</p>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="feature-card">
-                                <i class="fas fa-mobile-alt text-primary"></i>
-                                <h6>Impresión Móvil</h6>
-                                <p>Compatible con iOS, Android y servicios en la nube principales</p>
+                            <div class="card text-center h-100 border-primary">
+                                <div class="card-body">
+                                    <i class="bi bi-phone text-primary display-6"></i>
+                                    <h6 class="mt-3">Impresión Móvil</h6>
+                                    <p class="card-text small">Compatible con iOS, Android y servicios en la nube principales</p>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="feature-card">
-                                <i class="fas fa-leaf text-success"></i>
-                                <h6>Eco-Friendly</h6>
-                                <p>Bajo consumo energético y materiales reciclables</p>
+                            <div class="card text-center h-100 border-success">
+                                <div class="card-body">
+                                    <i class="bi bi-leaf text-success display-6"></i>
+                                    <h6 class="mt-3">Eco-Friendly</h6>
+                                    <p class="card-text small">Bajo consumo energético y materiales reciclables</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -663,31 +1129,35 @@ const brandsContent = {
                 <div class="row">
                     <div class="col-md-8">
                         <div class="brand-overview">
-                            <h4><i class="fas fa-camera text-primary me-2"></i>Acerca de Canon</h4>
-                            <p>Reconocida mundialmente por su excelencia en tecnología de imagen. Canon combina 
+                            <h4><i class="bi bi-camera text-primary me-2"></i>Acerca de Canon</h4>
+                            <p class="lead">Reconocida mundialmente por su excelencia en tecnología de imagen. Canon combina 
                             décadas de experiencia en fotografía con innovación en soluciones de oficina, 
                             ofreciendo equipos con calidad de imagen excepcional.</p>
                             
-                            <div class="brand-highlights mt-4">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h5><i class="fas fa-star text-warning me-2"></i>Fortalezas</h5>
-                                        <ul class="feature-list">
-                                            <li><i class="fas fa-check text-success me-1"></i> Calidad de imagen superior</li>
-                                            <li><i class="fas fa-check text-success me-1"></i> Tecnología MEAP avanzada</li>
-                                            <li><i class="fas fa-check text-success me-1"></i> Diseño compacto y elegante</li>
-                                            <li><i class="fas fa-check text-success me-1"></i> Interfaz intuitiva</li>
-                                            <li><i class="fas fa-check text-success me-1"></i> Confiabilidad probada</li>
+                            <div class="row mt-4">
+                                <div class="col-md-6">
+                                    <div class="alert alert-warning" role="alert">
+                                        <h5 class="alert-heading"><i class="bi bi-star-fill me-2"></i>Fortalezas</h5>
+                                        <hr>
+                                        <ul class="list-unstyled mb-0">
+                                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Calidad de imagen superior</li>
+                                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Tecnología MEAP avanzada</li>
+                                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Diseño compacto y elegante</li>
+                                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Interfaz intuitiva</li>
+                                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Confiabilidad probada</li>
                                         </ul>
                                     </div>
-                                    <div class="col-md-6">
-                                        <h5><i class="fas fa-users text-info me-2"></i>Perfecto Para</h5>
-                                        <ul class="industry-list">
-                                            <li><i class="fas fa-palette me-1"></i> Agencias de diseño</li>
-                                            <li><i class="fas fa-camera me-1"></i> Estudios fotográficos</li>
-                                            <li><i class="fas fa-briefcase me-1"></i> Oficinas medianas</li>
-                                            <li><i class="fas fa-store me-1"></i> Retail y comercio</li>
-                                            <li><i class="fas fa-home me-1"></i> Oficinas en casa</li>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="alert alert-info" role="alert">
+                                        <h5 class="alert-heading"><i class="bi bi-people-fill me-2"></i>Perfecto Para</h5>
+                                        <hr>
+                                        <ul class="list-unstyled mb-0">
+                                            <li class="mb-2"><i class="bi bi-palette me-2 text-info"></i> Agencias de diseño</li>
+                                            <li class="mb-2"><i class="bi bi-camera me-2 text-info"></i> Estudios fotográficos</li>
+                                            <li class="mb-2"><i class="bi bi-briefcase me-2 text-info"></i> Oficinas medianas</li>
+                                            <li class="mb-2"><i class="bi bi-shop me-2 text-info"></i> Retail y comercio</li>
+                                            <li class="mb-2"><i class="bi bi-house me-2 text-info"></i> Oficinas en casa</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -695,77 +1165,134 @@ const brandsContent = {
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="brand-stats">
-                            <h5><i class="fas fa-tachometer-alt text-danger me-2"></i>Rendimiento</h5>
-                            <div class="stat-grid">
-                                <div class="stat-item">
-                                    <span class="stat-value">55</span>
-                                    <span class="stat-label">ppm máximo</span>
+                        <div class="card border-danger">
+                            <div class="card-header bg-danger text-white text-center">
+                                <h5 class="mb-0"><i class="bi bi-speedometer me-2"></i>Rendimiento</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="progress mb-3">
+                                    <div class="progress-bar bg-danger" role="progressbar" style="width: 85%">
+                                        <strong>55 ppm máximo</strong>
+                                    </div>
                                 </div>
-                                <div class="stat-item">
-                                    <span class="stat-value">2400</span>
-                                    <span class="stat-label">dpi calidad</span>
+                                <div class="progress mb-3">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 95%">
+                                        <strong>2400 dpi calidad</strong>
+                                    </div>
                                 </div>
-                                <div class="stat-item">
-                                    <span class="stat-value">5000</span>
-                                    <span class="stat-label">hojas/mes</span>
+                                <div class="progress mb-3">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: 75%">
+                                        <strong>5000 hojas/mes</strong>
+                                    </div>
                                 </div>
-                                <div class="stat-item">
-                                    <span class="stat-value">10.1"</span>
-                                    <span class="stat-label">pantalla táctil</span>
+                                <div class="progress">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: 90%">
+                                        <strong>10.1" pantalla táctil</strong>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="brand-series mt-4">
-                            <h5><i class="fas fa-layer-group text-primary me-2"></i>Series Disponibles</h5>
-                            <div class="series-list">
-                                <div class="series-item">
-                                    <strong>imageRUNNER ADVANCE</strong>
-                                    <span>Serie empresarial</span>
-                                </div>
-                                <div class="series-item">
-                                    <strong>imageRUNNER C3500</strong>
-                                    <span>Color multifuncional</span>
-                                </div>
-                                <div class="series-item">
-                                    <strong>imageCLASS</strong>
-                                    <span>Oficina pequeña</span>
+                        <div class="card mt-3 border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="bi bi-layers me-2"></i>Series Disponibles</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="accordion" id="canonSeries">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#imagerunner">
+                                                <strong>imageRUNNER ADVANCE</strong>
+                                            </button>
+                                        </h2>
+                                        <div id="imagerunner" class="accordion-collapse collapse" data-bs-parent="#canonSeries">
+                                            <div class="accordion-body">
+                                                <span class="badge bg-primary">Serie empresarial</span>
+                                                <p class="mt-2 mb-0 small">Equipos multifuncionales para grandes volúmenes</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#imagerunnerc">
+                                                <strong>imageRUNNER C3500</strong>
+                                            </button>
+                                        </h2>
+                                        <div id="imagerunnerc" class="accordion-collapse collapse" data-bs-parent="#canonSeries">
+                                            <div class="accordion-body">
+                                                <span class="badge bg-success">Color multifuncional</span>
+                                                <p class="mt-2 mb-0 small">Impresión color profesional</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#imageclass">
+                                                <strong>imageCLASS</strong>
+                                            </button>
+                                        </h2>
+                                        <div id="imageclass" class="accordion-collapse collapse" data-bs-parent="#canonSeries">
+                                            <div class="accordion-body">
+                                                <span class="badge bg-warning">Oficina pequeña</span>
+                                                <p class="mt-2 mb-0 small">Soluciones compactas y eficientes</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="brand-technology mt-4">
-                    <h4><i class="fas fa-microchip text-primary me-2"></i>Tecnologías Innovadoras</h4>
+                <div class="mt-4">
+                    <h4><i class="bi bi-cpu text-primary me-2"></i>Tecnologías Innovadoras</h4>
                     <div class="row">
                         <div class="col-md-3">
-                            <div class="tech-card">
-                                <i class="fas fa-eye text-primary"></i>
-                                <h6>MEAP Platform</h6>
-                                <p>Plataforma de aplicaciones empresariales multifuncionales</p>
+                            <div class="card text-center border-primary h-100">
+                                <div class="card-body">
+                                    <i class="bi bi-eye text-primary display-6"></i>
+                                    <h6 class="mt-3">MEAP Platform</h6>
+                                    <p class="card-text small">Plataforma de aplicaciones empresariales multifuncionales</p>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <span class="badge bg-primary">Avanzado</span>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="tech-card">
-                                <i class="fas fa-cloud text-info"></i>
-                                <h6>uniFLOW</h6>
-                                <p>Gestión de documentos y flujo de trabajo en la nube</p>
+                            <div class="card text-center border-info h-100">
+                                <div class="card-body">
+                                    <i class="bi bi-cloud text-info display-6"></i>
+                                    <h6 class="mt-3">uniFLOW</h6>
+                                    <p class="card-text small">Gestión de documentos y flujo de trabajo en la nube</p>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <span class="badge bg-info">Cloud</span>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="tech-card">
-                                <i class="fas fa-paint-brush text-warning"></i>
-                                <h6>Calidad de Imagen</h6>
-                                <p>Tecnología de imagen profesional heredada de cámaras</p>
+                            <div class="card text-center border-warning h-100">
+                                <div class="card-body">
+                                    <i class="bi bi-brush text-warning display-6"></i>
+                                    <h6 class="mt-3">Calidad de Imagen</h6>
+                                    <p class="card-text small">Tecnología de imagen profesional heredada de cámaras</p>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <span class="badge bg-warning">Premium</span>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="tech-card">
-                                <i class="fas fa-compact-disc text-success"></i>
-                                <h6>Toners V2</h6>
-                                <p>Tecnología de toner avanzada para mejor calidad</p>
+                            <div class="card text-center border-success h-100">
+                                <div class="card-body">
+                                    <i class="bi bi-disc text-success display-6"></i>
+                                    <h6 class="mt-3">Toners V2</h6>
+                                    <p class="card-text small">Tecnología de toner avanzada para mejor calidad</p>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <span class="badge bg-success">Eco</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -782,122 +1309,189 @@ const brandsContent = {
                 <div class="row">
                     <div class="col-md-8">
                         <div class="brand-overview">
-                            <h4><i class="fas fa-industry text-primary me-2"></i>Acerca de Ricoh</h4>
-                            <p>Pionera en soluciones de oficina digital con enfoque en productividad empresarial. 
+                            <h4><i class="bi bi-factory text-primary me-2"></i>Acerca de Ricoh</h4>
+                            <p class="lead">Pionera en soluciones de oficina digital con enfoque en productividad empresarial. 
                             Ricoh se especializa en equipos robustos diseñados para entornos de alto volumen 
                             con máxima eficiencia operativa.</p>
                             
-                            <div class="brand-highlights mt-4">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h5><i class="fas fa-shield-alt text-success me-2"></i>Ventajas Únicas</h5>
-                                        <ul class="feature-list">
-                                            <li><i class="fas fa-check text-success me-1"></i> Máxima durabilidad</li>
-                                            <li><i class="fas fa-check text-success me-1"></i> Alto volumen mensual</li>
-                                            <li><i class="fas fa-check text-success me-1"></i> Seguridad empresarial</li>
-                                            <li><i class="fas fa-check text-success me-1"></i> Eficiencia energética</li>
-                                            <li><i class="fas fa-check text-success me-1"></i> Facilidad de mantenimiento</li>
-                                        </ul>
+                            <div class="row mt-4">
+                                <div class="col-md-6">
+                                    <div class="card border-success">
+                                        <div class="card-header bg-success text-white">
+                                            <h5 class="mb-0"><i class="bi bi-shield-check me-2"></i>Ventajas Únicas</h5>
+                                        </div>
+                                        <div class="list-group list-group-flush">
+                                            <div class="list-group-item">
+                                                <i class="bi bi-check-circle-fill text-success me-2"></i> Máxima durabilidad
+                                            </div>
+                                            <div class="list-group-item">
+                                                <i class="bi bi-check-circle-fill text-success me-2"></i> Alto volumen mensual
+                                            </div>
+                                            <div class="list-group-item">
+                                                <i class="bi bi-check-circle-fill text-success me-2"></i> Seguridad empresarial
+                                            </div>
+                                            <div class="list-group-item">
+                                                <i class="bi bi-check-circle-fill text-success me-2"></i> Eficiencia energética
+                                            </div>
+                                            <div class="list-group-item">
+                                                <i class="bi bi-check-circle-fill text-success me-2"></i> Facilidad de mantenimiento
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <h5><i class="fas fa-building text-primary me-2"></i>Sectores Principales</h5>
-                                        <ul class="industry-list">
-                                            <li><i class="fas fa-university me-1"></i> Gobierno y público</li>
-                                            <li><i class="fas fa-hospital-alt me-1"></i> Sector salud</li>
-                                            <li><i class="fas fa-industry me-1"></i> Manufactura</li>
-                                            <li><i class="fas fa-landmark me-1"></i> Servicios financieros</li>
-                                            <li><i class="fas fa-shipping-fast me-1"></i> Logística</li>
-                                        </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card border-primary">
+                                        <div class="card-header bg-primary text-white">
+                                            <h5 class="mb-0"><i class="bi bi-building me-2"></i>Sectores Principales</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row text-center">
+                                                <div class="col-6 mb-3">
+                                                    <i class="bi bi-bank2 text-primary fs-2"></i>
+                                                    <p class="small mb-0 mt-1">Gobierno y público</p>
+                                                </div>
+                                                <div class="col-6 mb-3">
+                                                    <i class="bi bi-heart-pulse text-primary fs-2"></i>
+                                                    <p class="small mb-0 mt-1">Sector salud</p>
+                                                </div>
+                                                <div class="col-6 mb-3">
+                                                    <i class="bi bi-gear-wide text-primary fs-2"></i>
+                                                    <p class="small mb-0 mt-1">Manufactura</p>
+                                                </div>
+                                                <div class="col-6 mb-3">
+                                                    <i class="bi bi-currency-exchange text-primary fs-2"></i>
+                                                    <p class="small mb-0 mt-1">Servicios financieros</p>
+                                                </div>
+                                                <div class="col-12">
+                                                    <i class="bi bi-truck text-primary fs-2"></i>
+                                                    <p class="small mb-0 mt-1">Logística</p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="brand-stats">
-                            <h5><i class="fas fa-gauge-high text-warning me-2"></i>Capacidades</h5>
-                            <div class="stat-grid">
-                                <div class="stat-item">
-                                    <span class="stat-value">60</span>
-                                    <span class="stat-label">ppm velocidad</span>
+                        <div class="card border-warning">
+                            <div class="card-header bg-warning text-dark text-center">
+                                <h5 class="mb-0"><i class="bi bi-speedometer2 me-2"></i>Capacidades</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3 text-center">
+                                    <div class="display-4 text-warning">60</div>
+                                    <span class="text-muted">ppm velocidad</span>
                                 </div>
-                                <div class="stat-item">
-                                    <span class="stat-value">300K</span>
-                                    <span class="stat-label">páginas/mes</span>
+                                <hr>
+                                <div class="mb-3 text-center">
+                                    <div class="display-4 text-success">300K</div>
+                                    <span class="text-muted">páginas/mes</span>
                                 </div>
-                                <div class="stat-item">
-                                    <span class="stat-value">1200</span>
-                                    <span class="stat-label">dpi precisión</span>
+                                <hr>
+                                <div class="mb-3 text-center">
+                                    <div class="display-4 text-info">1200</div>
+                                    <span class="text-muted">dpi precisión</span>
                                 </div>
-                                <div class="stat-item">
-                                    <span class="stat-value">99.9%</span>
-                                    <span class="stat-label">confiabilidad</span>
+                                <hr>
+                                <div class="text-center">
+                                    <div class="display-4 text-primary">99.9%</div>
+                                    <span class="text-muted">confiabilidad</span>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="brand-solutions mt-4">
-                            <h5><i class="fas fa-puzzle-piece text-info me-2"></i>Soluciones</h5>
-                            <div class="solution-list">
-                                <div class="solution-item">
-                                    <strong>IM Series</strong>
-                                    <span>Inteligencia avanzada</span>
-                                </div>
-                                <div class="solution-item">
-                                    <strong>MP Series</strong>
-                                    <span>Multifuncional tradicional</span>
-                                </div>
-                                <div class="solution-item">
-                                    <strong>Pro Series</strong>
-                                    <span>Producción profesional</span>
+                        <div class="card mt-3 border-info">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0"><i class="bi bi-puzzle me-2"></i>Soluciones</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="list-group list-group-flush">
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>IM Series</strong>
+                                            <br><small class="text-muted">Inteligencia avanzada</small>
+                                        </div>
+                                        <span class="badge bg-info rounded-pill">IA</span>
+                                    </div>
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>MP Series</strong>
+                                            <br><small class="text-muted">Multifuncional tradicional</small>
+                                        </div>
+                                        <span class="badge bg-primary rounded-pill">Clásico</span>
+                                    </div>
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>Pro Series</strong>
+                                            <br><small class="text-muted">Producción profesional</small>
+                                        </div>
+                                        <span class="badge bg-warning rounded-pill">Pro</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="brand-innovation mt-4">
-                    <h4><i class="fas fa-lightbulb text-warning me-2"></i>Innovaciones Ricoh</h4>
+                <div class="mt-4">
+                    <h4><i class="bi bi-lightbulb text-warning me-2"></i>Innovaciones Ricoh</h4>
                     <div class="row">
                         <div class="col-md-4">
-                            <div class="innovation-card">
-                                <i class="fas fa-brain text-purple"></i>
-                                <h6>Smart Operation Panel</h6>
-                                <p>Interfaz inteligente que se adapta al usuario y optimiza flujos</p>
+                            <div class="card bg-light border-purple h-100">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-brain text-purple display-5"></i>
+                                    <h6 class="mt-3">Smart Operation Panel</h6>
+                                    <p class="card-text small">Interfaz inteligente que se adapta al usuario y optimiza flujos</p>
+                                    <div class="progress" style="height: 5px;">
+                                        <div class="progress-bar bg-purple" style="width: 90%"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="innovation-card">
-                                <i class="fas fa-lock text-danger"></i>
-                                <h6>Security por Diseño</h6>
-                                <p>Seguridad integrada desde el hardware hasta el software</p>
+                            <div class="card bg-light border-danger h-100">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-lock text-danger display-5"></i>
+                                    <h6 class="mt-3">Security por Diseño</h6>
+                                    <p class="card-text small">Seguridad integrada desde el hardware hasta el software</p>
+                                    <div class="progress" style="height: 5px;">
+                                        <div class="progress-bar bg-danger" style="width: 95%"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="innovation-card">
-                                <i class="fas fa-recycle text-success"></i>
-                                <h6>Sostenibilidad</h6>
-                                <p>Compromiso con el medio ambiente y eficiencia energética</p>
+                            <div class="card bg-light border-success h-100">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-recycle text-success display-5"></i>
+                                    <h6 class="mt-3">Sostenibilidad</h6>
+                                    <p class="card-text small">Compromiso con el medio ambiente y eficiencia energética</p>
+                                    <div class="progress" style="height: 5px;">
+                                        <div class="progress-bar bg-success" style="width: 85%"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="brand-support mt-4 p-3 bg-light rounded">
-                    <h5><i class="fas fa-headset text-success me-2"></i>Soporte Ricoh Especializado</h5>
+                <div class="alert alert-success mt-4" role="alert">
+                    <h5 class="alert-heading"><i class="bi bi-headset text-success me-2"></i>Soporte Ricoh Especializado</h5>
+                    <hr>
                     <div class="row">
                         <div class="col-md-6">
-                            <ul class="support-features">
-                                <li><i class="fas fa-tools me-1"></i> Técnicos certificados por fábrica</li>
-                                <li><i class="fas fa-shipping-fast me-1"></i> Repuestos originales garantizados</li>
-                                <li><i class="fas fa-chart-line me-1"></i> Monitoreo proactivo remotamente</li>
+                            <ul class="list-unstyled mb-3">
+                                <li><i class="bi bi-tools me-2 text-success"></i> Técnicos certificados por fábrica</li>
+                                <li><i class="bi bi-truck me-2 text-success"></i> Repuestos originales garantizados</li>
+                                <li><i class="bi bi-graph-up me-2 text-success"></i> Monitoreo proactivo remotamente</li>
                             </ul>
                         </div>
                         <div class="col-md-6">
-                            <ul class="support-features">
-                                <li><i class="fas fa-clock me-1"></i> Respuesta en menos de 4 horas</li>
-                                <li><i class="fas fa-graduation-cap me-1"></i> Capacitación especializada incluida</li>
-                                <li><i class="fas fa-mobile-alt me-1"></i> App móvil para soporte</li>
+                            <ul class="list-unstyled mb-3">
+                                <li><i class="bi bi-clock me-2 text-success"></i> Respuesta en menos de 4 horas</li>
+                                <li><i class="bi bi-mortarboard me-2 text-success"></i> Capacitación especializada incluida</li>
+                                <li><i class="bi bi-phone me-2 text-success"></i> App móvil para soporte</li>
                             </ul>
                         </div>
                     </div>
@@ -919,1638 +1513,338 @@ document.addEventListener('click', function(e) {
         
         if (brandData) {
             // Actualizar contenido del modal
-            document.getElementById('brandModalLabel').innerHTML = 
-                `<img src="${brandData.logo}" alt="${brandData.title}" style="height: 30px; margin-right: 10px;">${brandData.title}`;
-            document.getElementById('brandModalBody').innerHTML = brandData.content;
-        }
-    }
-});
-
-console.log('✅ Parte 3: Sistema de modales dinámicos para marcas inicializado');
-/**
- * PARTE 4: MODALES DE PRODUCTOS Y FUNCIONALIDADES ADICIONALES
- * JavaScript para Homepage Moderna de Copier Company
- */
-
-// =============================================
-// BASE DE DATOS DE PRODUCTOS
-// =============================================
-
-const productsContent = {
-    'multifuncional-a3': {
-        title: 'Multifuncionales A3',
-        category: 'A3',
-        description: 'Equipos de alto rendimiento para oficinas grandes y centros de copiado',
-        content: `
-            <div class="product-detail">
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="product-overview">
-                            <h4><i class="fas fa-expand-arrows-alt text-primary me-2"></i>Multifuncionales A3 Profesionales</h4>
-                            <p>Diseñados para empresas con alto volumen de impresión que requieren versatilidad 
-                            en formatos grandes. Ideales para oficinas corporativas, centros de copiado y 
-                            departamentos de marketing que manejan documentos de gran formato.</p>
-                            
-                            <div class="product-capabilities mt-4">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h5><i class="fas fa-list-check text-success me-2"></i>Funciones Principales</h5>
-                                        <ul class="capability-list">
-                                            <li><i class="fas fa-print me-1"></i> Impresión A3/A4 color y B&N</li>
-                                            <li><i class="fas fa-copy me-1"></i> Copiado hasta 75 ppm</li>
-                                            <li><i class="fas fa-scanner me-1"></i> Escaneo dúplex automático</li>
-                                            <li><i class="fas fa-fax me-1"></i> Fax (opcional)</li>
-                                            <li><i class="fas fa-file-pdf me-1"></i> Escaneo directo a PDF/email</li>
-                                        </ul>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h5><i class="fas fa-cogs text-warning me-2"></i>Características Avanzadas</h5>
-                                        <ul class="feature-list">
-                                            <li><i class="fas fa-wifi me-1"></i> Conectividad WiFi y Ethernet</li>
-                                            <li><i class="fas fa-mobile-alt me-1"></i> Impresión desde móviles</li>
-                                            <li><i class="fas fa-cloud me-1"></i> Integración con servicios cloud</li>
-                                            <li><i class="fas fa-fingerprint me-1"></i> Autenticación biométrica</li>
-                                            <li><i class="fas fa-book me-1"></i> Creación de folletos automática</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="product-specs">
-                            <h5><i class="fas fa-chart-bar text-info me-2"></i>Especificaciones</h5>
-                            <div class="spec-grid">
-                                <div class="spec-item">
-                                    <span class="spec-label">Velocidad</span>
-                                    <span class="spec-value">35-75 ppm</span>
-                                </div>
-                                <div class="spec-item">
-                                    <span class="spec-label">Resolución</span>
-                                    <span class="spec-value">1200x1200 dpi</span>
-                                </div>
-                                <div class="spec-item">
-                                    <span class="spec-label">Volumen mensual</span>
-                                    <span class="spec-value">50,000-300,000</span>
-                                </div>
-                                <div class="spec-item">
-                                    <span class="spec-label">Memoria RAM</span>
-                                    <span class="spec-value">4-8 GB</span>
-                                </div>
-                                <div class="spec-item">
-                                    <span class="spec-label">Pantalla</span>
-                                    <span class="spec-value">10.1" táctil</span>
-                                </div>
-                                <div class="spec-item">
-                                    <span class="spec-label">Formatos</span>
-                                    <span class="spec-value">A6 a A3+</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="rental-info mt-4">
-                            <h5><i class="fas fa-dollar-sign text-success me-2"></i>Alquiler Mensual</h5>
-                            <div class="price-range">
-                                <span class="price-from">Desde $299</span>
-                                <span class="price-to">hasta $899</span>
-                                <small class="price-note">*Incluye mantenimiento y soporte</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="product-models mt-4">
-                    <h4><i class="fas fa-layer-group text-primary me-2"></i>Modelos Disponibles</h4>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="model-card">
-                                <h6>Entrada (35-45 ppm)</h6>
-                                <ul class="model-features">
-                                    <li>Ideal para oficinas medianas</li>
-                                    <li>Funciones básicas completas</li>
-                                    <li>Excelente relación precio/calidad</li>
-                                </ul>
-                                <div class="model-price">$299-399/mes</div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="model-card popular">
-                                <h6>Intermedio (50-60 ppm)</h6>
-                                <ul class="model-features">
-                                    <li>Más popular para empresas</li>
-                                    <li>Funciones avanzadas incluidas</li>
-                                    <li>Óptimo rendimiento/costo</li>
-                                </ul>
-                                <div class="model-price">$499-699/mes</div>
-                                <span class="popular-badge">Más Popular</span>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="model-card">
-                                <h6>Alto Rendimiento (65-75 ppm)</h6>
-                                <ul class="model-features">
-                                    <li>Para centros de impresión</li>
-                                    <li>Máximas funcionalidades</li>
-                                    <li>Volúmenes industriales</li>
-                                </ul>
-                                <div class="model-price">$699-899/mes</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="product-benefits mt-4 p-3 bg-light rounded">
-                    <h5><i class="fas fa-star text-warning me-2"></i>¿Por Qué Elegir A3?</h5>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <ul class="benefit-list">
-                                <li><i class="fas fa-expand me-1"></i> Versatilidad de formatos</li>
-                                <li><i class="fas fa-chart-pie me-1"></i> Reducción de costos operativos</li>
-                                <li><i class="fas fa-users me-1"></i> Mayor productividad del equipo</li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <ul class="benefit-list">
-                                <li><i class="fas fa-rocket me-1"></i> Procesamiento más rápido</li>
-                                <li><i class="fas fa-shield-alt me-1"></i> Funciones de seguridad avanzadas</li>
-                                <li><i class="fas fa-plug me-1"></i> Conectividad empresarial</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `
-    },
-    'multifuncional-a4': {
-        title: 'Multifuncionales A4',
-        category: 'A4',
-        description: 'Soluciones compactas perfectas para oficinas medianas y pequeñas',
-        content: `
-            <div class="product-detail">
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="product-overview">
-                            <h4><i class="fas fa-desktop text-primary me-2"></i>Multifuncionales A4 Compactos</h4>
-                            <p>La solución ideal para oficinas que buscan funcionalidad completa en un espacio 
-                            reducido. Perfectos para pequeñas y medianas empresas que requieren calidad 
-                            profesional sin comprometer el espacio de trabajo.</p>
-                            
-                            <div class="product-advantages mt-4">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h5><i class="fas fa-check-circle text-success me-2"></i>Funciones Incluidas</h5>
-                                        <ul class="function-list">
-                                            <li><i class="fas fa-print me-1"></i> Impresión color/B&N hasta 35 ppm</li>
-                                            <li><i class="fas fa-copy me-1"></i> Copiado automático</li>
-                                            <li><i class="fas fa-scan me-1"></i> Escaneo color de alta resolución</li>
-                                            <li><i class="fas fa-wifi me-1"></i> Conectividad inalámbrica</li>
-                                            <li><i class="fas fa-mobile-alt me-1"></i> Impresión móvil directa</li>
-                                        </ul>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h5><i class="fas fa-gem text-warning me-2"></i>Ventajas Clave</h5>
-                                        <ul class="advantage-list">
-                                            <li><i class="fas fa-home me-1"></i> Diseño compacto para cualquier espacio</li>
-                                            <li><i class="fas fa-volume-down me-1"></i> Operación silenciosa</li>
-                                            <li><i class="fas fa-leaf me-1"></i> Bajo consumo energético</li>
-                                            <li><i class="fas fa-user-friendly me-1"></i> Interfaz intuitiva</li>
-                                            <li><i class="fas fa-tools me-1"></i> Mantenimiento simplificado</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="product-specs">
-                            <h5><i class="fas fa-list text-info me-2"></i>Especificaciones</h5>
-                            <div class="spec-grid">
-                                <div class="spec-item">
-                                    <span class="spec-label">Velocidad</span>
-                                    <span class="spec-value">20-35 ppm</span>
-                                </div>
-                                <div class="spec-item">
-                                    <span class="spec-label">Resolución</span>
-                                    <span class="spec-value">600x600 dpi</span>
-                                </div>
-                                <div class="spec-item">
-                                    <span class="spec-label">Volumen mensual</span>
-                                    <span class="spec-value">5,000-50,000</span>
-                                </div>
-                                <div class="spec-item">
-                                    <span class="spec-label">Memoria</span>
-                                    <span class="spec-value">512MB-2GB</span>
-                                </div>
-                                <div class="spec-item">
-                                    <span class="spec-label">Pantalla</span>
-                                    <span class="spec-value">4.3"-7" táctil</span>
-                                </div>
-                                <div class="spec-item">
-                                    <span class="spec-label">Dimensiones</span>
-                                    <span class="spec-value">Compacto</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="compatibility mt-4">
-                            <h5><i class="fas fa-puzzle-piece text-success me-2"></i>Compatibilidad</h5>
-                            <div class="compatibility-grid">
-                                <div class="compat-item">
-                                    <i class="fab fa-windows"></i>
-                                    <span>Windows</span>
-                                </div>
-                                <div class="compat-item">
-                                    <i class="fab fa-apple"></i>
-                                    <span>macOS</span>
-                                </div>
-                                <div class="compat-item">
-                                    <i class="fab fa-linux"></i>
-                                    <span>Linux</span>
-                                </div>
-                                <div class="compat-item">
-                                    <i class="fab fa-android"></i>
-                                    <span>Android</span>
-                                </div>
-                                <div class="compat-item">
-                                    <i class="fab fa-apple"></i>
-                                    <span>iOS</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="usage-scenarios mt-4">
-                    <h4><i class="fas fa-building text-primary me-2"></i>Escenarios de Uso Ideales</h4>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="scenario-card">
-                                <i class="fas fa-briefcase text-primary"></i>
-                                <h6>Oficinas Pequeñas</h6>
-                                <p>5-15 empleados con necesidades básicas de impresión</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="scenario-card">
-                                <i class="fas fa-home text-success"></i>
-                                <h6>Home Office</h6>
-                                <p>Profesionales independientes y teletrabajo</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="scenario-card">
-                                <i class="fas fa-store text-warning"></i>
-                                <h6>Retail</h6>
-                                <p>Tiendas y puntos de venta con espacio limitado</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="scenario-card">
-                                <i class="fas fa-graduation-cap text-info"></i>
-                                <h6>Educación</h6>
-                                <p>Aulas y oficinas administrativas</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="cost-comparison mt-4 p-3 bg-light rounded">
-                    <h5><i class="fas fa-calculator text-success me-2"></i>Comparación de Costos</h5>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6>Alquiler vs Compra</h6>
-                            <div class="cost-table">
-                                <div class="cost-row">
-                                    <span>Alquiler mensual:</span>
-                                    <strong>$149-299</strong>
-                                </div>
-                                <div class="cost-row">
-                                    <span>Compra equivalente:</span>
-                                    <strong>$3,500-8,000</strong>
-                                </div>
-                                <div class="cost-row highlight">
-                                    <span>Ahorro en primer año:</span>
-                                    <strong>hasta 70%</strong>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <h6>Incluido en el Alquiler</h6>
-                            <ul class="included-list">
-                                <li><i class="fas fa-check text-success me-1"></i> Mantenimiento completo</li>
-                                <li><i class="fas fa-check text-success me-1"></i> Soporte técnico 24/7</li>
-                                <li><i class="fas fa-check text-success me-1"></i> Repuestos originales</li>
-                                <li><i class="fas fa-check text-success me-1"></i> Instalación profesional</li>
-                                <li><i class="fas fa-check text-success me-1"></i> Capacitación del personal</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `
-    },
-    'impresoras-laser': {
-        title: 'Impresoras Láser',
-        category: 'LÁSER',
-        description: 'Alta velocidad y calidad profesional para impresión dedicada',
-        content: `
-            <div class="product-detail">
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="product-overview">
-                            <h4><i class="fas fa-laser text-primary me-2"></i>Impresoras Láser Profesionales</h4>
-                            <p>Tecnología láser de vanguardia para empresas que requieren velocidad excepcional 
-                            y calidad consistente en grandes volúmenes. Ideales para departamentos con alta 
-                            demanda de impresión especializada.</p>
-                            
-                            <div class="laser-benefits mt-4">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h5><i class="fas fa-rocket text-success me-2"></i>Ventajas del Láser</h5>
-                                        <ul class="benefit-list">
-                                            <li><i class="fas fa-tachometer-alt me-1"></i> Velocidad superior (hasta 75 ppm)</li>
-                                            <li><i class="fas fa-dollar-sign me-1"></i> Menor costo por página</li>
-                                            <li><i class="fas fa-droplet me-1"></i> Resistente al agua</li>
-                                            <li><i class="fas fa-clock me-1"></i> Tiempo de calentamiento rápido</li>
-                                            <li><i class="fas fa-shield-alt me-1"></i> Durabilidad excepcional</li>
-                                        </ul>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h5><i class="fas fa-palette text-warning me-2"></i>Tipos Disponibles</h5>
-                                        <ul class="type-list">
-                                            <li><i class="fas fa-circle me-1"></i> Monocromático (B&N)</li>
-                                            <li><i class="fas fa-palette me-1"></i> Color profesional</li>
-                                            <li><i class="fas fa-expand me-1"></i> Gran formato (A3+)</li>
-                                            <li><i class="fas fa-industry me-1"></i> Producción industrial</li>
-                                            <li><i class="fas fa-network-wired me-1"></i> Red empresarial</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="performance-stats">
-                            <h5><i class="fas fa-chart-line text-info me-2"></i>Rendimiento</h5>
-                            <div class="stat-showcase">
-                                <div class="stat-large">
-                                    <span class="stat-number">75</span>
-                                    <span class="stat-unit">ppm</span>
-                                    <span class="stat-desc">Velocidad máxima</span>
-                                </div>
-                                <div class="stat-row">
-                                    <span class="stat-label">Primera página:</span>
-                                    <span class="stat-value">6 segundos</span>
-                                </div>
-                                <div class="stat-row">
-                                    <span class="stat-label">Resolución:</span>
-                                    <span class="stat-value">1200x1200 dpi</span>
-                                </div>
-                                <div class="stat-row">
-                                    <span class="stat-label">Volumen máximo:</span>
-                                    <span class="stat-value">300K páginas/mes</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="connectivity mt-4">
-                            <h5><i class="fas fa-wifi text-primary me-2"></i>Conectividad</h5>
-                            <div class="connection-options">
-                                <div class="connection-item">
-                                    <i class="fas fa-ethernet"></i>
-                                    <span>Ethernet Gigabit</span>
-                                </div>
-                                <div class="connection-item">
-                                    <i class="fas fa-wifi"></i>
-                                    <span>WiFi 802.11ac</span>
-                                </div>
-                                <div class="connection-item">
-                                    <i class="fas fa-usb"></i>
-                                    <span>USB 3.0</span>
-                                </div>
-                                <div class="connection-item">
-                                    <i class="fas fa-mobile-alt"></i>
-                                    <span>NFC/Mobile Print</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="laser-categories mt-4">
-                    <h4><i class="fas fa-layer-group text-primary me-2"></i>Categorías de Impresoras Láser</h4>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="category-card">
-                                <div class="category-header">
-                                    <i class="fas fa-circle text-dark"></i>
-                                    <h5>Láser Monocromático</h5>
-                                </div>
-                                <div class="category-specs">
-                                    <ul>
-                                        <li><strong>Velocidad:</strong> 25-75 ppm</li>
-                                        <li><strong>Costo por página:</strong> $0.02-0.04</li>
-                                        <li><strong>Ideal para:</strong> Documentos de texto</li>
-                                        <li><strong>Volumen:</strong> Alto (50K-300K/mes)</li>
-                                    </ul>
-                                </div>
-                                <div class="category-price">
-                                    <span class="price-range">$199-599/mes</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="category-card">
-                                <div class="category-header">
-                                    <i class="fas fa-palette text-danger"></i>
-                                    <h5>Láser Color</h5>
-                                </div>
-                                <div class="category-specs">
-                                    <ul>
-                                        <li><strong>Velocidad:</strong> 20-55 ppm</li>
-                                        <li><strong>Costo por página:</strong> $0.08-0.15</li>
-                                        <li><strong>Ideal para:</strong> Marketing y presentaciones</li>
-                                        <li><strong>Volumen:</strong> Medio-Alto (20K-150K/mes)</li>
-                                    </ul>
-                                </div>
-                                <div class="category-price">
-                                    <span class="price-range">$399-899/mes</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="laser-technology mt-4 p-3 bg-light rounded">
-                    <h5><i class="fas fa-cog text-primary me-2"></i>Tecnología Láser Avanzada</h5>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="tech-feature">
-                                <i class="fas fa-bolt text-warning"></i>
-                                <h6>Proceso Electrofotográfico</h6>
-                                <p>Precisión microscópica para textos nítidos y gráficos detallados</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="tech-feature">
-                                <i class="fas fa-snowflake text-info"></i>
-                                <h6>Fusión Instantánea</h6>
-                                <p>Sistema de calor controlado para fijación permanente</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="tech-feature">
-                                <i class="fas fa-recycle text-success"></i>
-                                <h6>Tóner Optimizado</h6>
-                                <p>Formulación avanzada para mayor rendimiento y calidad</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `
-    },
-    'equipos-especializados': {
-        title: 'Equipos Especializados',
-        category: 'ESPECIAL',
-        description: 'Soluciones personalizadas para necesidades específicas de la industria',
-        content: `
-            <div class="product-detail">
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="product-overview">
-                            <h4><i class="fas fa-industry text-primary me-2"></i>Equipos Especializados</h4>
-                            <p>Soluciones diseñadas para industrias específicas con requerimientos únicos. 
-                            Desde impresión gran formato hasta equipos industriales de alta resistencia, 
-                            tenemos la tecnología para cubrir cualquier necesidad especializada.</p>
-                            
-                            <div class="specialized-categories mt-4">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h5><i class="fas fa-expand-arrows-alt text-success me-2"></i>Gran Formato</h5>
-                                        <ul class="category-features">
-                                            <li><i class="fas fa-ruler me-1"></i> Plotters hasta A0</li>
-                                            <li><i class="fas fa-palette me-1"></i> Impresión técnica color</li>
-                                            <li><i class="fas fa-drafting-compass me-1"></i> CAD y arquitectura</li>
-                                            <li><i class="fas fa-map me-1"></i> Cartografía profesional</li>
-                                        </ul>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h5><i class="fas fa-hard-hat text-warning me-2"></i>Industrial</h5>
-                                        <ul class="category-features">
-                                            <li><i class="fas fa-shield-alt me-1"></i> Resistentes a ambientes extremos</li>
-                                            <li><i class="fas fa-barcode me-1"></i> Impresión de etiquetas</li>
-                                            <li><i class="fas fa-thermometer-half me-1"></i> Operación en alta temperatura</li>
-                                            <li><i class="fas fa-tools me-1"></i> Mantenimiento especializado</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="specialization-stats">
-                            <h5><i class="fas fa-target text-danger me-2"></i>Especializaciones</h5>
-                            <div class="specialization-list">
-                                <div class="spec-item">
-                                    <i class="fas fa-building"></i>
-                                    <span>Arquitectura</span>
-                                </div>
-                                <div class="spec-item">
-                                    <i class="fas fa-hard-hat"></i>
-                                    <span>Ingeniería</span>
-                                </div>
-                                <div class="spec-item">
-                                    <i class="fas fa-palette"></i>
-                                    <span>Diseño Gráfico</span>
-                                </div>
-                                <div class="spec-item">
-                                    <i class="fas fa-industry"></i>
-                                    <span>Manufactura</span>
-                                </div>
-                                <div class="spec-item">
-                                    <i class="fas fa-shipping-fast"></i>
-                                    <span>Logística</span>
-                                </div>
-                                <div class="spec-item">
-                                    <i class="fas fa-hospital"></i>
-                                    <span>Salud</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="custom-solutions mt-4">
-                            <h5><i class="fas fa-cogs text-info me-2"></i>Personalización</h5>
-                            <div class="custom-options">
-                                <div class="custom-item">
-                                    <i class="fas fa-wrench"></i>
-                                    <span>Configuración específica</span>
-                                </div>
-                                <div class="custom-item">
-                                    <i class="fas fa-code"></i>
-                                    <span>Software personalizado</span>
-                                </div>
-                                <div class="custom-item">
-                                    <i class="fas fa-plug"></i>
-                                    <span>Integración sistemas</span>
-                                </div>
-                                <div class="custom-item">
-                                    <i class="fas fa-headset"></i>
-                                    <span>Soporte dedicado</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="specialized-equipment mt-4">
-                    <h4><i class="fas fa-th-large text-primary me-2"></i>Tipos de Equipos Especializados</h4>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="equipment-card">
-                                <div class="equipment-icon">
-                                    <i class="fas fa-map text-primary"></i>
-                                </div>
-                                <h6>Plotters Gran Formato</h6>
-                                <div class="equipment-specs">
-                                    <ul>
-                                        <li><strong>Formatos:</strong> A2, A1, A0</li>
-                                        <li><strong>Tecnología:</strong> Inyección de tinta</li>
-                                        <li><strong>Aplicaciones:</strong> Planos, mapas, posters</li>
-                                        <li><strong>Velocidad:</strong> 1-4 m²/hora</li>
-                                    </ul>
-                                </div>
-                                <div class="equipment-price">$599-1,299/mes</div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="equipment-card">
-                                <div class="equipment-icon">
-                                    <i class="fas fa-barcode text-success"></i>
-                                </div>
-                                <h6>Impresoras de Etiquetas</h6>
-                                <div class="equipment-specs">
-                                    <ul>
-                                        <li><strong>Tipos:</strong> Térmicas, transferencia</li>
-                                        <li><strong>Anchos:</strong> 2"-8" (50-200mm)</li>
-                                        <li><strong>Aplicaciones:</strong> Inventario, envíos</li>
-                                        <li><strong>Velocidad:</strong> 4-14 ips</li>
-                                    </ul>
-                                </div>
-                                <div class="equipment-price">$199-599/mes</div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="equipment-card">
-                                <div class="equipment-icon">
-                                    <i class="fas fa-photo-video text-warning"></i>
-                                </div>
-                                <h6>Impresoras Fotográficas</h6>
-                                <div class="equipment-specs">
-                                    <ul>
-                                        <li><strong>Tecnología:</strong> Sublimación de tinta</li>
-                                        <li><strong>Formatos:</strong> 4x6" hasta 13x19"</li>
-                                        <li><strong>Aplicaciones:</strong> Fotografía profesional</li>
-                                        <li><strong>Calidad:</strong> Hasta 4800 dpi</li>
-                                    </ul>
-                                </div>
-                                <div class="equipment-price">$399-799/mes</div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="equipment-card">
-                                <div class="equipment-icon">
-                                    <i class="fas fa-industry text-danger"></i>
-                                </div>
-                                <h6>Equipos Industriales</h6>
-                                <div class="equipment-specs">
-                                    <ul>
-                                        <li><strong>Características:</strong> Resistente a polvo/agua</li>
-                                        <li><strong>Temperatura:</strong> -10°C a +40°C</li>
-                                        <li><strong>Aplicaciones:</strong> Manufactura, almacenes</li>
-                                        <li><strong>Certificaciones:</strong> IP54, IP65</li>
-                                    </ul>
-                                </div>
-                                <div class="equipment-price">$799-1,899/mes</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="implementation-process mt-4 p-3 bg-light rounded">
-                    <h5><i class="fas fa-clipboard-check text-primary me-2"></i>Proceso de Implementación Especializada</h5>
-                    <div class="process-timeline">
-                        <div class="timeline-step">
-                            <div class="step-number">1</div>
-                            <div class="step-content">
-                                <h6>Análisis de Necesidades</h6>
-                                <p>Evaluación detallada de requerimientos específicos</p>
-                            </div>
-                        </div>
-                        <div class="timeline-step">
-                            <div class="step-number">2</div>
-                            <div class="step-content">
-                                <h6>Diseño de Solución</h6>
-                                <p>Propuesta técnica personalizada con especificaciones</p>
-                            </div>
-                        </div>
-                        <div class="timeline-step">
-                            <div class="step-number">3</div>
-                            <div class="step-content">
-                                <h6>Implementación</h6>
-                                <p>Instalación, configuración y capacitación especializada</p>
-                            </div>
-                        </div>
-                        <div class="timeline-step">
-                            <div class="step-number">4</div>
-                            <div class="step-content">
-                                <h6>Soporte Continuo</h6>
-                                <p>Mantenimiento especializado y soporte técnico dedicado</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="industry-testimonial mt-4 p-3 bg-primary text-white rounded">
-                    <h5><i class="fas fa-quote-left me-2"></i>Caso de Éxito</h5>
-                    <blockquote class="mb-3">
-                        "La implementación del plotter A0 transformó nuestro flujo de trabajo arquitectónico. 
-                        Ahora podemos imprimir planos de gran formato en la oficina, reduciendo tiempos 
-                        de entrega en un 60% y mejorando la calidad de presentación a clientes."
-                    </blockquote>
-                    <div class="testimonial-author">
-                        <strong>Arq. Maria González</strong>
-                        <span>- Estudio de Arquitectura Premium</span>
-                    </div>
-                </div>
-            </div>
-        `
-    }
-};
-
-// =============================================
-// MANEJADOR DE MODALES DE PRODUCTOS
-// =============================================
-
-document.addEventListener('click', function(e) {
-    const productCard = e.target.closest('[data-product]');
-    if (productCard) {
-        const productType = productCard.getAttribute('data-product');
-        const productData = productsContent[productType];
-        
-        if (productData) {
-            // Actualizar contenido del modal
-            document.getElementById('productModalLabel').innerHTML = 
-                `<i class="fas fa-print me-2"></i>${productData.title}`;
-            document.getElementById('productModalBody').innerHTML = productData.content;
+            const modalLabel = document.getElementById('brandModalLabel');
+            const modalBody = document.getElementById('brandModalBody');
+            
+            if (modalLabel) {
+                modalLabel.innerHTML = `<img src="${brandData.logo}" alt="${brandData.title}" style="height: 30px; margin-right: 10px;">${brandData.title}`;
+            }
+            if (modalBody) {
+                modalBody.innerHTML = brandData.content;
+            }
         }
     }
 });
 
 // =============================================
-// FUNCIONALIDADES ADICIONALES
+// FUNCIONES MEJORADAS PARA MARCAS
 // =============================================
 
-// Sistema de notificaciones toast
-function showToast(message, type = 'info') {
-    const toastContainer = document.getElementById('toast-container') || createToastContainer();
-    
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type} show`;
-    toast.innerHTML = `
-        <div class="toast-header">
-            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
-            <strong class="me-auto">Copier Company</strong>
-            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+// Función para mostrar comparación entre marcas
+function showBrandComparison() {
+    const comparisonModal = document.createElement('div');
+    comparisonModal.className = 'modal fade';
+    comparisonModal.innerHTML = `
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="bi bi-bar-chart me-2"></i>Comparación de Marcas</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Característica</th>
+                                    <th class="text-center">
+                                        <img src="${brandsContent.konica.logo}" alt="Konica" style="height: 30px;">
+                                        <br>Konica Minolta
+                                    </th>
+                                    <th class="text-center">
+                                        <img src="${brandsContent.canon.logo}" alt="Canon" style="height: 30px;">
+                                        <br>Canon
+                                    </th>
+                                    <th class="text-center">
+                                        <img src="${brandsContent.ricoh.logo}" alt="Ricoh" style="height: 30px;">
+                                        <br>Ricoh
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Velocidad Máxima</strong></td>
+                                    <td class="text-center">
+                                        <span class="badge bg-success">75 ppm</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-warning">55 ppm</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-primary">60 ppm</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Fortaleza Principal</strong></td>
+                                    <td class="text-center">Alta productividad</td>
+                                    <td class="text-center">Calidad de imagen</td>
+                                    <td class="text-center">Durabilidad</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Ideal Para</strong></td>
+                                    <td class="text-center">Grandes empresas</td>
+                                    <td class="text-center">Diseño y fotografía</td>
+                                    <td class="text-center">Alto volumen</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Precio Alquiler</strong></td>
+                                    <td class="text-center">$399-899/mes</td>
+                                    <td class="text-center">$299-699/mes</td>
+                                    <td class="text-center">$349-799/mes</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <a href="/cotizacion/form" class="btn btn-primary">
+                        <i class="bi bi-calculator me-2"></i>Solicitar Cotización
+                    </a>
+                </div>
+            </div>
         </div>
-        <div class="toast-body">${message}</div>
     `;
     
-    toastContainer.appendChild(toast);
+    document.body.appendChild(comparisonModal);
+    const modal = new bootstrap.Modal(comparisonModal);
+    modal.show();
     
-    // Auto remove after 5 seconds
-    setTimeout(() => {
-        toast.remove();
-    }, 5000);
+    // Remover modal del DOM cuando se cierre
+    comparisonModal.addEventListener('hidden.bs.modal', function() {
+        this.remove();
+    });
 }
 
-function createToastContainer() {
-    const container = document.createElement('div');
-    container.id = 'toast-container';
-    container.className = 'position-fixed top-0 end-0 p-3';
-    container.style.zIndex = '9999';
-    document.body.appendChild(container);
-    return container;
-}
-
-// Tracking de interacciones para analytics
-function trackInteraction(action, category, label = '') {
-    // Aquí puedes integrar con Google Analytics, Mixpanel, etc.
-    console.log(`Analytics: ${action} - ${category} - ${label}`);
+// Función para filtrar marcas por características
+function filterBrandsByFeature(feature) {
+    const brandCards = document.querySelectorAll('[data-brand]');
     
-    // Ejemplo para Google Analytics 4
-    if (typeof gtag !== 'undefined') {
-        gtag('event', action, {
-            event_category: category,
-            event_label: label
-        });
-    }
+    brandCards.forEach(card => {
+        card.style.transition = 'all 0.3s ease';
+        
+        switch(feature) {
+            case 'speed':
+                // Destacar marcas por velocidad
+                if (card.dataset.brand === 'konica') {
+                    card.style.border = '3px solid #28a745';
+                    card.style.transform = 'scale(1.05)';
+                } else {
+                    card.style.opacity = '0.7';
+                }
+                break;
+                
+            case 'quality':
+                // Destacar marcas por calidad
+                if (card.dataset.brand === 'canon') {
+                    card.style.border = '3px solid #28a745';
+                    card.style.transform = 'scale(1.05)';
+                } else {
+                    card.style.opacity = '0.7';
+                }
+                break;
+                
+            case 'durability':
+                // Destacar marcas por durabilidad
+                if (card.dataset.brand === 'ricoh') {
+                    card.style.border = '3px solid #28a745';
+                    card.style.transform = 'scale(1.05)';
+                } else {
+                    card.style.opacity = '0.7';
+                }
+                break;
+                
+            default:
+                // Resetear todos los estilos
+                card.style.border = '';
+                card.style.transform = '';
+                card.style.opacity = '';
+        }
+    });
+    
+    // Mostrar toast informativo
+    showBootstrapToast(`Marcas filtradas por: ${feature}`, 'info');
 }
 
-// Mejoras en los botones CTA
+// Función para resetear filtros
+function resetBrandFilters() {
+    const brandCards = document.querySelectorAll('[data-brand]');
+    brandCards.forEach(card => {
+        card.style.border = '';
+        card.style.transform = '';
+        card.style.opacity = '';
+    });
+    showBootstrapToast('Filtros eliminados', 'success');
+}
+
+// =============================================
+// ENHANCED FEATURES PARA MARCAS
+// =============================================
+
+// Tracking de interacciones con marcas
 document.addEventListener('click', function(e) {
-    const button = e.target.closest('.btn-primary-modern, .btn-cta-primary, .btn-cta-secondary');
-    if (button) {
-        // Añadir efecto visual
-        button.style.transform = 'scale(0.95)';
-        setTimeout(() => {
-            button.style.transform = 'scale(1)';
-        }, 150);
+    const brandElement = e.target.closest('[data-brand]');
+    if (brandElement) {
+        const brandName = brandElement.dataset.brand;
         
-        // Tracking
-        trackInteraction('click', 'cta_button', button.textContent.trim());
-        
-        // Mostrar feedback
-        if (button.href && button.href.includes('cotizacion')) {
-            showToast('Redirigiendo al formulario de cotización...', 'info');
+        // Analytics tracking
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'brand_interaction', {
+                brand_name: brandName,
+                interaction_type: 'click'
+            });
         }
+        
+        console.log(`📊 Brand interaction: ${brandName}`);
     }
 });
 
-// Lazy loading para imágenes
-function initLazyLoading() {
-    const images = document.querySelectorAll('img[data-src]');
-    const imageObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                img.src = img.dataset.src;
-                img.removeAttribute('data-src');
-                observer.unobserve(img);
-            }
-        });
-    });
-    
-    images.forEach(img => imageObserver.observe(img));
-}
-
-// Smooth scroll para navegación interna
-function initSmoothScroll() {
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
-    });
-}
-
-// Inicializar funcionalidades adicionales
-document.addEventListener('DOMContentLoaded', function() {
-    initLazyLoading();
-    initSmoothScroll();
-});
-
-console.log('✅ Parte 4: Modales de productos y funcionalidades adicionales inicializados');
-/**
- * PARTE 5 FINAL: INTEGRACIÓN COMPLETA Y OPTIMIZACIONES
- * JavaScript para Homepage Moderna de Copier Company
- */
-
-// =============================================
-// SISTEMA DE PERFORMANCE Y OPTIMIZACIÓN
-// =============================================
-
-// Performance monitoring
-const performanceMonitor = {
-    init: function() {
-        // Medir tiempo de carga inicial
-        window.addEventListener('load', () => {
-            const loadTime = performance.now();
-            console.log(`⚡ Página cargada en ${loadTime.toFixed(2)}ms`);
-            
-            // Enviar métricas si hay analytics configurado
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'page_load_time', {
-                    custom_parameter: loadTime
-                });
-            }
-        });
-        
-        // Detectar problemas de rendimiento
-        this.detectPerformanceIssues();
-    },
-    
-    detectPerformanceIssues: function() {
-        // Detectar imágenes que tardan mucho en cargar
-        const images = document.querySelectorAll('img');
-        images.forEach(img => {
-            const startTime = performance.now();
-            img.onload = () => {
-                const loadTime = performance.now() - startTime;
-                if (loadTime > 2000) {
-                    console.warn(`⚠️ Imagen lenta: ${img.src} (${loadTime.toFixed(2)}ms)`);
-                }
-            };
-        });
-    }
-};
-
-// =============================================
-// SISTEMA DE FORMULARIOS INTELIGENTE
-// =============================================
-
-const smartForms = {
-    init: function() {
-        this.setupFormValidation();
-        this.setupProgressiveEnhancement();
-        this.setupAutoSave();
-    },
-    
-    setupFormValidation: function() {
-        // Validación en tiempo real para formularios
-        document.addEventListener('input', function(e) {
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-                smartForms.validateField(e.target);
-            }
-        });
-    },
-    
-    validateField: function(field) {
-        const value = field.value.trim();
-        let isValid = true;
-        let message = '';
-        
-        // Validaciones específicas
-        switch (field.type) {
-            case 'email':
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                isValid = emailRegex.test(value);
-                message = isValid ? '' : 'Ingresa un email válido';
-                break;
-                
-            case 'tel':
-                const phoneRegex = /^[+]?[\d\s\-\(\)]{9,}$/;
-                isValid = phoneRegex.test(value);
-                message = isValid ? '' : 'Ingresa un teléfono válido';
-                break;
-                
-            case 'text':
-                if (field.required && value.length < 2) {
-                    isValid = false;
-                    message = 'Este campo es requerido (mín. 2 caracteres)';
-                }
-                break;
-        }
-        
-        this.showFieldFeedback(field, isValid, message);
-    },
-    
-    showFieldFeedback: function(field, isValid, message) {
-        // Remover feedback anterior
-        const existingFeedback = field.parentNode.querySelector('.field-feedback');
-        if (existingFeedback) existingFeedback.remove();
-        
-        // Añadir clases de estado
-        field.classList.remove('is-valid', 'is-invalid');
-        if (field.value.trim() !== '') {
-            field.classList.add(isValid ? 'is-valid' : 'is-invalid');
-        }
-        
-        // Mostrar mensaje si hay error
-        if (!isValid && message) {
-            const feedback = document.createElement('div');
-            feedback.className = 'field-feedback text-danger small mt-1';
-            feedback.textContent = message;
-            field.parentNode.appendChild(feedback);
-        }
-    },
-    
-    setupProgressiveEnhancement: function() {
-        // Mejorar formularios existentes progresivamente
-        const forms = document.querySelectorAll('form');
-        forms.forEach(form => {
-            // Añadir indicador de envío
-            form.addEventListener('submit', function(e) {
-                const submitBtn = form.querySelector('[type="submit"]');
-                if (submitBtn) {
-                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
-                    submitBtn.disabled = true;
-                }
-            });
-        });
-    },
-    
-    setupAutoSave: function() {
-        // Guardar datos del formulario automáticamente
-        const formFields = document.querySelectorAll('input, textarea, select');
-        formFields.forEach(field => {
-            // Cargar valor guardado
-            const savedValue = localStorage.getItem(`form_${field.name}`);
-            if (savedValue && field.type !== 'password') {
-                field.value = savedValue;
-            }
-            
-            // Guardar cambios automáticamente
-            field.addEventListener('input', () => {
-                if (field.type !== 'password') {
-                    localStorage.setItem(`form_${field.name}`, field.value);
-                }
-            });
-        });
-    }
-};
-
-// =============================================
-// SISTEMA DE CHAT BOT BÁSICO
-// =============================================
-
-const chatBot = {
-    isOpen: false,
-    
-    init: function() {
-        this.createChatWidget();
-        this.setupEventListeners();
-    },
-    
-    createChatWidget: function() {
-        const chatWidget = document.createElement('div');
-        chatWidget.id = 'chat-widget';
-        chatWidget.innerHTML = `
-            <div class="chat-bubble" id="chat-bubble">
-                <i class="fas fa-comments"></i>
-                <span class="chat-notification">¿Necesitas ayuda?</span>
-            </div>
-            <div class="chat-window" id="chat-window" style="display: none;">
-                <div class="chat-header">
-                    <h6><i class="fas fa-robot me-2"></i>Asistente Virtual</h6>
-                    <button class="chat-close" id="chat-close">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="chat-messages" id="chat-messages">
-                    <div class="bot-message">
-                        <div class="message-content">
-                            ¡Hola! 👋 Soy tu asistente virtual. ¿En qué puedo ayudarte?
-                            <div class="quick-options">
-                                <button class="quick-btn" data-action="cotizacion">💰 Solicitar cotización</button>
-                                <button class="quick-btn" data-action="productos">📱 Ver productos</button>
-                                <button class="quick-btn" data-action="contacto">📞 Información de contacto</button>
-                                <button class="quick-btn" data-action="soporte">🔧 Soporte técnico</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="chat-input">
-                    <input type="text" id="chat-input" placeholder="Escribe tu pregunta...">
-                    <button id="chat-send"><i class="fas fa-paper-plane"></i></button>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(chatWidget);
-    },
-    
-    setupEventListeners: function() {
-        // Toggle chat
-        document.getElementById('chat-bubble').addEventListener('click', () => {
-            this.toggleChat();
-        });
-        
-        // Cerrar chat
-        document.getElementById('chat-close').addEventListener('click', () => {
-            this.toggleChat();
-        });
-        
-        // Enviar mensaje
-        document.getElementById('chat-send').addEventListener('click', () => {
-            this.sendMessage();
-        });
-        
-        // Enter para enviar
-        document.getElementById('chat-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                this.sendMessage();
-            }
-        });
-        
-        // Botones rápidos
-        document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('quick-btn')) {
-                this.handleQuickAction(e.target.dataset.action);
-            }
-        });
-    },
-    
-    toggleChat: function() {
-        const chatWindow = document.getElementById('chat-window');
-        const chatBubble = document.getElementById('chat-bubble');
-        
-        if (this.isOpen) {
-            chatWindow.style.display = 'none';
-            chatBubble.style.display = 'flex';
-            this.isOpen = false;
-        } else {
-            chatWindow.style.display = 'block';
-            chatBubble.style.display = 'none';
-            this.isOpen = true;
-            
-            // Focus en input
-            setTimeout(() => {
-                document.getElementById('chat-input').focus();
-            }, 100);
-        }
-    },
-    
-    sendMessage: function() {
-        const input = document.getElementById('chat-input');
-        const message = input.value.trim();
-        
-        if (message) {
-            this.addMessage(message, 'user');
-            input.value = '';
-            
-            // Simular respuesta del bot
-            setTimeout(() => {
-                const response = this.getBotResponse(message);
-                this.addMessage(response, 'bot');
-            }, 1000);
-        }
-    },
-    
-    addMessage: function(text, sender) {
-        const messagesContainer = document.getElementById('chat-messages');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `${sender}-message`;
-        
-        if (sender === 'user') {
-            messageDiv.innerHTML = `<div class="message-content">${text}</div>`;
-        } else {
-            messageDiv.innerHTML = `<div class="message-content">${text}</div>`;
-        }
-        
-        messagesContainer.appendChild(messageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    },
-    
-    getBotResponse: function(message) {
-        const lowerMessage = message.toLowerCase();
-        
-        if (lowerMessage.includes('precio') || lowerMessage.includes('costo') || lowerMessage.includes('cotiz')) {
-            return `💰 Los precios de alquiler varían según el equipo:
-                    <br>• A4: $149-299/mes
-                    <br>• A3: $299-899/mes
-                    <br>• Láser: $199-899/mes
-                    <br><br>¿Te gustaría una cotización personalizada? 
-                    <a href="/cotizacion/form" class="chat-link">Solicitar aquí</a>`;
-        }
-        
-        if (lowerMessage.includes('producto') || lowerMessage.includes('equipo') || lowerMessage.includes('fotocopiadora')) {
-            return `📱 Ofrecemos varios tipos de equipos:
-                    <br>• Multifuncionales A3 y A4
-                    <br>• Impresoras láser color y B&N
-                    <br>• Equipos especializados
-                    <br>• Marcas: Konica Minolta, Canon, Ricoh
-                    <br><br>¿Qué tipo de equipo necesitas?`;
-        }
-        
-        if (lowerMessage.includes('mantenimiento') || lowerMessage.includes('reparaci') || lowerMessage.includes('soporte')) {
-            return `🔧 Nuestro servicio incluye:
-                    <br>• Mantenimiento preventivo y correctivo
-                    <br>• Soporte técnico 24/7
-                    <br>• Repuestos originales
-                    <br>• Tiempo de respuesta: 4 horas máximo
-                    <br><br>¿Necesitas ayuda con algún equipo?`;
-        }
-        
-        if (lowerMessage.includes('contacto') || lowerMessage.includes('teléfono') || lowerMessage.includes('dirección')) {
-            return `📞 Puedes contactarnos:
-                    <br>• Teléfono: (01) 975399303
-                    <br>• WhatsApp: <a href="https://wa.me/51975399303" class="chat-link">975 399 303</a>
-                    <br>• Email: info@copiercompany.com
-                    <br>• Horario: Lun-Vie 8AM-6PM, Sáb 8AM-1PM`;
-        }
-        
-        return `Gracias por tu consulta. Te recomiendo:
-                <br>• <a href="/cotizacion/form" class="chat-link">Solicitar cotización gratuita</a>
-                <br>• <a href="/contactus" class="chat-link">Contactar con un asesor</a>
-                <br>• <a href="https://wa.me/51975399303" class="chat-link">Escribir por WhatsApp</a>
-                <br><br>¿Hay algo específico en lo que pueda ayudarte?`;
-    },
-    
-    handleQuickAction: function(action) {
-        switch (action) {
-            case 'cotizacion':
-                this.addMessage('Quiero solicitar una cotización', 'user');
-                setTimeout(() => {
-                    this.addMessage(`¡Perfecto! 💰 Para una cotización personalizada necesito algunos datos:
-                        <br>• Tipo de equipo que necesitas
-                        <br>• Volumen de impresión mensual aproximado
-                        <br>• Funciones específicas requeridas
-                        <br><br><a href="/cotizacion/form" class="chat-link">Completa el formulario aquí</a> 
-                        o cuéntame más detalles.`, 'bot');
-                }, 1000);
-                break;
-                
-            case 'productos':
-                this.addMessage('¿Qué productos tienen disponibles?', 'user');
-                setTimeout(() => {
-                    this.addMessage(this.getBotResponse('productos'), 'bot');
-                }, 1000);
-                break;
-                
-            case 'contacto':
-                this.addMessage('Necesito información de contacto', 'user');
-                setTimeout(() => {
-                    this.addMessage(this.getBotResponse('contacto'), 'bot');
-                }, 1000);
-                break;
-                
-            case 'soporte':
-                this.addMessage('¿Cómo funciona el soporte técnico?', 'user');
-                setTimeout(() => {
-                    this.addMessage(this.getBotResponse('soporte'), 'bot');
-                }, 1000);
-                break;
-        }
-    }
-};
-
-// =============================================
-// SISTEMA DE ANALYTICS AVANZADO
-// =============================================
-
-const advancedAnalytics = {
-    init: function() {
-        this.trackUserBehavior();
-        this.trackScrollDepth();
-        this.trackTimeOnSections();
-        this.setupHeatmapTracking();
-    },
-    
-    trackUserBehavior: function() {
-        // Tracking de clics en elementos importantes
-        document.addEventListener('click', function(e) {
-            const element = e.target.closest('[data-track]');
-            if (element) {
-                const trackData = element.dataset.track;
-                console.log(`📊 User Action: ${trackData}`);
-                
-                // Enviar a analytics
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'user_interaction', {
-                        interaction_type: trackData,
-                        element_text: element.textContent.trim().substring(0, 100)
-                    });
-                }
-            }
-        });
-    },
-    
-    trackScrollDepth: function() {
-        let maxScroll = 0;
-        const milestones = [25, 50, 75, 90, 100];
-        const triggered = new Set();
-        
-        window.addEventListener('scroll', () => {
-            const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
-            
-            if (scrollPercent > maxScroll) {
-                maxScroll = scrollPercent;
-                
-                milestones.forEach(milestone => {
-                    if (scrollPercent >= milestone && !triggered.has(milestone)) {
-                        triggered.add(milestone);
-                        console.log(`📏 Scroll Depth: ${milestone}%`);
-                        
-                        if (typeof gtag !== 'undefined') {
-                            gtag('event', 'scroll_depth', {
-                                scroll_depth: milestone
-                            });
-                        }
-                    }
-                });
-            }
-        });
-    },
-    
-    trackTimeOnSections: function() {
-        const sections = document.querySelectorAll('section[id]');
-        const sectionTimes = new Map();
-        
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                const sectionId = entry.target.id;
-                
-                if (entry.isIntersecting) {
-                    sectionTimes.set(sectionId, Date.now());
-                } else if (sectionTimes.has(sectionId)) {
-                    const timeSpent = Date.now() - sectionTimes.get(sectionId);
-                    if (timeSpent > 3000) { // Más de 3 segundos
-                        console.log(`⏱️ Time on ${sectionId}: ${Math.round(timeSpent/1000)}s`);
-                        
-                        if (typeof gtag !== 'undefined') {
-                            gtag('event', 'section_engagement', {
-                                section_name: sectionId,
-                                time_spent: Math.round(timeSpent/1000)
-                            });
-                        }
-                    }
-                    sectionTimes.delete(sectionId);
-                }
-            });
-        }, { threshold: 0.5 });
-        
-        sections.forEach(section => observer.observe(section));
-    },
-    
-    setupHeatmapTracking: function() {
-        // Simular tracking de heatmap (clicks)
-        document.addEventListener('click', function(e) {
-            const clickData = {
-                x: e.clientX,
-                y: e.clientY,
-                element: e.target.tagName,
-                timestamp: Date.now()
-            };
-            
-            // Guardar datos de clicks para análisis
-            const clicks = JSON.parse(localStorage.getItem('heatmap_clicks') || '[]');
-            clicks.push(clickData);
-            
-            // Mantener solo los últimos 100 clicks
-            if (clicks.length > 100) {
-                clicks.splice(0, clicks.length - 100);
-            }
-            
-            localStorage.setItem('heatmap_clicks', JSON.stringify(clicks));
-        });
-    }
-};
-
-// =============================================
-// ESTILOS CSS ADICIONALES PARA NUEVAS FUNCIONES
-// =============================================
-
-const additionalStyles = `
-/* Chat Widget Styles */
-#chat-widget {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 9999;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-.chat-bubble {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    cursor: pointer;
-    box-shadow: 0 4px 20px rgba(0,123,255,0.3);
+// CSS adicional para mejorar la presentación de marcas
+const brandEnhancementStyles = `
+/* Estilos mejorados para marcas usando Bootstrap */
+.brand-card {
     transition: all 0.3s ease;
-    position: relative;
-}
-
-.chat-bubble:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 25px rgba(0,123,255,0.4);
-}
-
-.chat-notification {
-    position: absolute;
-    right: 70px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: white;
-    color: #333;
-    padding: 8px 12px;
-    border-radius: 20px;
-    font-size: 14px;
-    white-space: nowrap;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    opacity: 0;
-    animation: slideInNotification 3s ease-in-out 2s forwards;
-}
-
-@keyframes slideInNotification {
-    0%, 80% { opacity: 0; transform: translateY(-50%) translateX(10px); }
-    10%, 70% { opacity: 1; transform: translateY(-50%) translateX(0); }
-    100% { opacity: 0; transform: translateY(-50%) translateX(10px); }
-}
-
-.chat-window {
-    width: 350px;
-    height: 500px;
-    background: white;
+    cursor: pointer;
     border-radius: 15px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-    display: flex;
-    flex-direction: column;
     overflow: hidden;
 }
 
-.chat-header {
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    color: white;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.brand-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 1rem 3rem rgba(0,0,0,0.175)!important;
 }
 
-.chat-close {
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-    font-size: 16px;
+.brand-card img {
+    transition: all 0.3s ease;
 }
 
-.chat-messages {
-    flex: 1;
-    padding: 15px;
-    overflow-y: auto;
-    background: #f8f9fa;
+.brand-card:hover img {
+    transform: scale(1.1);
 }
 
-.bot-message, .user-message {
-    margin-bottom: 15px;
-}
-
-.user-message {
-    text-align: right;
-}
-
-.user-message .message-content {
-    background: #007bff;
-    color: white;
-    display: inline-block;
-    padding: 10px 15px;
-    border-radius: 18px 18px 5px 18px;
-    max-width: 80%;
-}
-
-.bot-message .message-content {
-    background: white;
-    border: 1px solid #e9ecef;
-    display: inline-block;
-    padding: 10px 15px;
-    border-radius: 18px 18px 18px 5px;
-    max-width: 80%;
-    line-height: 1.4;
-}
-
-.quick-options {
-    margin-top: 10px;
-}
-
-.quick-btn {
-    display: block;
-    width: 100%;
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    padding: 8px 12px;
-    margin: 5px 0;
+/* Progress bars mejorados */
+.progress {
     border-radius: 10px;
-    cursor: pointer;
-    font-size: 12px;
-    text-align: left;
-    transition: all 0.2s ease;
+    height: 8px;
 }
 
-.quick-btn:hover {
-    background: #e9ecef;
+.progress-bar {
+    border-radius: 10px;
+    font-size: 0.75rem;
+    line-height: 8px;
+}
+
+/* Cards de características técnicas */
+.card.border-success:hover,
+.card.border-primary:hover,
+.card.border-warning:hover,
+.card.border-info:hover,
+.card.border-danger:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+}
+
+/* Badges personalizados */
+.badge.rounded-pill {
+    font-size: 0.75em;
+    padding: 0.5em 0.75em;
+}
+
+/* Accordion mejorado */
+.accordion-button:not(.collapsed) {
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+    border-color: var(--bs-primary);
+}
+
+/* Display numbers mejorados */
+.display-4 {
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+/* List group hover effects */
+.list-group-item {
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.list-group-item:hover {
+    background-color: var(--bs-light);
+    border-left-color: var(--bs-primary);
     transform: translateX(5px);
 }
 
-.chat-input {
-    display: flex;
-    padding: 15px;
-    background: white;
-    border-top: 1px solid #e9ecef;
-}
-
-#chat-input {
-    flex: 1;
-    border: 1px solid #e9ecef;
-    border-radius: 25px;
-    padding: 10px 15px;
-    outline: none;
-    font-size: 14px;
-}
-
-#chat-send {
-    background: #007bff;
-    color: white;
+/* Alert mejorados */
+.alert {
+    border-radius: 15px;
     border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    margin-left: 10px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
 }
 
-.chat-link {
-    color: #007bff;
-    text-decoration: none;
-    font-weight: 500;
+/* Purple color utility para Ricoh */
+.text-purple { color: #6f42c1; }
+.bg-purple { background-color: #6f42c1; }
+.border-purple { border-color: #6f42c1; }
+
+/* Comparison table styles */
+.table-hover tbody tr:hover {
+    background-color: rgba(var(--bs-primary-rgb), 0.075);
 }
 
-.chat-link:hover {
-    text-decoration: underline;
+/* Brand logo hover effects */
+.modal-header img {
+    transition: all 0.3s ease;
 }
 
-/* Form validation styles */
-.field-feedback {
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
+.modal-header img:hover {
+    transform: scale(1.1);
 }
 
-.is-valid {
-    border-color: #28a745;
+/* Enhanced card animations */
+@keyframes cardPulse {
+    0% { box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075); }
+    50% { box-shadow: 0 0.5rem 1rem rgba(0,123,255,0.25); }
+    100% { box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075); }
 }
 
-.is-invalid {
-    border-color: #dc3545;
+.card.featured {
+    animation: cardPulse 2s infinite;
 }
 
-/* Toast notifications */
-.toast {
-    background: white;
-    border: 1px solid rgba(0,0,0,0.1);
-    border-radius: 10px;
-    margin-bottom: 10px;
-    overflow: hidden;
-}
-
-.toast-success { border-left: 4px solid #28a745; }
-.toast-error { border-left: 4px solid #dc3545; }
-.toast-info { border-left: 4px solid #007bff; }
-
-/* Mobile optimizations */
+/* Responsive improvements */
 @media (max-width: 768px) {
-    .chat-window {
-        width: calc(100vw - 40px);
-        height: 70vh;
-        bottom: 20px;
-        right: 20px;
+    .display-4 {
+        font-size: 2rem;
     }
     
-    .chat-notification {
-        display: none;
+    .brand-card {
+        margin-bottom: 1rem;
     }
 }
 `;
 
-// =============================================
-// INICIALIZACIÓN FINAL DEL SISTEMA
-// =============================================
-
-document.addEventListener('DOMContentLoaded', function() {
-    // Inyectar estilos adicionales
+// Inyectar estilos de mejora para marcas
+if (!document.querySelector('#brand-enhancement-styles')) {
     const styleSheet = document.createElement('style');
-    styleSheet.textContent = additionalStyles;
+    styleSheet.id = 'brand-enhancement-styles';
+    styleSheet.textContent = brandEnhancementStyles;
     document.head.appendChild(styleSheet);
-    
-    // Inicializar todos los sistemas
-    try {
-        performanceMonitor.init();
-        console.log('✅ Performance Monitor inicializado');
-        
-        smartForms.init();
-        console.log('✅ Smart Forms inicializado');
-        
-        chatBot.init();
-        console.log('✅ Chat Bot inicializado');
-        
-        advancedAnalytics.init();
-        console.log('✅ Advanced Analytics inicializado');
-        
-        // Configurar observador de mutaciones para contenido dinámico
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.type === 'childList') {
-                    // Re-inicializar funcionalidades para nuevo contenido
-                    const newElements = mutation.addedNodes;
-                    newElements.forEach(node => {
-                        if (node.nodeType === Node.ELEMENT_NODE) {
-                            // Re-aplicar lazy loading a nuevas imágenes
-                            const newImages = node.querySelectorAll('img[data-src]');
-                            if (newImages.length > 0) {
-                                initLazyLoading();
-                            }
-                        }
-                    });
-                }
-            });
-        });
-        
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
-        
-        console.log('🚀 SISTEMA COMPLETO INICIALIZADO EXITOSAMENTE');
-        console.log('📊 Todas las funcionalidades están activas');
-        console.log('⚡ Performance optimizado');
-        console.log('🤖 Chat bot disponible');
-        console.log('📈 Analytics configurado');
-        
-        // Mostrar mensaje de bienvenida en consola
-        console.log(`
-        %c🏢 COPIER COMPANY HOMEPAGE 
-        %c✨ Sistema JavaScript Completo v1.0
-        %c🔧 Desarrollado para Odoo
-        `, 
-        'color: #007bff; font-size: 16px; font-weight: bold;',
-        'color: #28a745; font-size: 14px;',
-        'color: #6c757d; font-size: 12px;'
-        );
-        
-    } catch (error) {
-        console.error('❌ Error al inicializar el sistema:', error);
-    }
-});
-
-// Exportar funciones principales para uso externo
-window.CopierCompanyJS = {
-    showToast,
-    trackInteraction,
-    performanceMonitor,
-    smartForms,
-    chatBot,
-    advancedAnalytics
-};
-
-// =============================================
-// SERVICE WORKER PARA PWA (OPCIONAL)
-// =============================================
-
-// Registrar service worker si está disponible
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/sw.js')
-            .then(function(registration) {
-                console.log('✅ Service Worker registrado:', registration.scope);
-            })
-            .catch(function(error) {
-                console.log('❌ Error al registrar Service Worker:', error);
-            });
-    });
 }
 
-console.log('✅ Parte 5 FINAL: Sistema completo cargado e inicializado');
+// Función para destacar marca del mes (ejemplo)
+function highlightFeaturedBrand(brandName) {
+    const brandCard = document.querySelector(`[data-brand="${brandName}"]`);
+    if (brandCard) {
+        brandCard.classList.add('featured');
+        
+        // Añadir badge de "Destacado"
+        const badge = document.createElement('div');
+        badge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger';
+        badge.style.zIndex = '10';
+        badge.innerHTML = 'Destacado <span class="visually-hidden">marca destacada</span>';
+        brandCard.style.position = 'relative';
+        brandCard.appendChild(badge);
+    }
+}
+
+console.log('✅ Parte 3: Sistema de modales dinámicos para marcas inicializado con Bootstrap');
