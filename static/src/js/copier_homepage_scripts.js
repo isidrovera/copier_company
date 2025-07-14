@@ -1,4903 +1,2556 @@
-(function() {
-'use strict';
-
 /**
- * COPIER COMPANY HOMEPAGE - SISTEMA JAVASCRIPT COMPLETO
- * PARTE 1/10: INICIALIZACIÓN Y EFECTOS DE SCROLL
- * Versión Bootstrap Icons - Compatible con Odoo - CORREGIDA
+ * PARTE 1: INICIALIZACIÓN Y EFECTOS DE SCROLL
+ * JavaScript para Homepage Moderna de Copier Company
  */
 
-function initPart() {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initPart);
-        return;
-    }
-    
-    console.log('🚀 Iniciando Copier Company JS v2.0 - Parte 1/10');
-    
-    // =============================================
-    // VERIFICACIÓN DE DEPENDENCIAS BOOTSTRAP
-    // =============================================
-    
-    function checkBootstrapDependencies() {
-        // Verificar si Bootstrap CSS ya está cargado por Odoo
-        const hasBootstrapCSS = Array.from(document.styleSheets).some(sheet => {
-            try {
-                return sheet.href && (
-                    sheet.href.includes('bootstrap') || 
-                    sheet.href.includes('web.assets') ||
-                    sheet.href.includes('cdn.jsdelivr.net')
-                );
-            } catch (e) {
-                return false;
-            }
-        });
-        
-        // Verificar si Bootstrap Icons está disponible
-        const hasBootstrapIcons = document.querySelector('link[href*="bootstrap-icons"]') !== null;
-        
-        if (!hasBootstrapIcons) {
-            console.log('📦 Cargando Bootstrap Icons...');
-            addBootstrapDependencies();
-        } else {
-            console.log('✅ Bootstrap Icons ya disponible');
-        }
-        
-        if (hasBootstrapCSS) {
-            console.log('✅ Bootstrap CSS detectado (Odoo)');
-        }
-        
-        console.log('✅ Dependencias Bootstrap verificadas');
-    }
-    
-    function addBootstrapDependencies() {
-        // Solo Bootstrap Icons, sin Bootstrap CSS
-        if (!document.querySelector('link[href*="bootstrap-icons"]')) {
-            const iconsLink = document.createElement('link');
-            iconsLink.rel = 'stylesheet';
-            iconsLink.href = 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css';
-            iconsLink.onload = () => console.log('📦 Bootstrap Icons cargado exitosamente');
-            iconsLink.onerror = () => console.warn('⚠️ Error cargando Bootstrap Icons');
-            document.head.appendChild(iconsLink);
-        }
-    }
+document.addEventListener('DOMContentLoaded', function() {
     
     // =============================================
     // EFECTOS DE SCROLL Y ANIMACIONES BÁSICAS
     // =============================================
     
-    function initScrollEffects() {
-        // Scroll indicator animation con Bootstrap Icons
-        const scrollIndicator = document.querySelector('.scroll-indicator');
-        if (scrollIndicator) {
-            // Reemplazar icono si es necesario
-            const icon = scrollIndicator.querySelector('i');
-            if (icon && (icon.className.includes('fas') || icon.className.includes('fa-'))) {
-                icon.className = 'bi bi-chevron-down';
-            }
-            
-            scrollIndicator.addEventListener('click', function() {
-                const benefitsSection = document.querySelector('.benefits-section');
-                if (benefitsSection) {
-                    benefitsSection.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-            
-            // Hide/show scroll indicator based on scroll position
-            let scrollTimeout;
-            window.addEventListener('scroll', function() {
-                clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(() => {
-                    const scrollY = window.scrollY || window.pageYOffset;
-                    
-                    if (scrollY > 100) {
-                        scrollIndicator.style.opacity = '0';
-                        scrollIndicator.style.transform = 'translateY(20px) scale(0.8)';
-                        scrollIndicator.style.pointerEvents = 'none';
-                    } else {
-                        scrollIndicator.style.opacity = '1';
-                        scrollIndicator.style.transform = 'translateY(0) scale(1)';
-                        scrollIndicator.style.pointerEvents = 'auto';
-                    }
-                }, 10);
-            });
-        }
-        
-        console.log('✅ Efectos de scroll inicializados');
-    }
-    
-    // =============================================
-    // INTERSECTION OBSERVER PARA ANIMACIONES
-    // =============================================
-    
-    function initIntersectionObserver() {
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-        
-        const animationObserver = new IntersectionObserver(function(entries) {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const target = entry.target;
-                    
-                    // Agregar clase de animación
-                    target.classList.add('animate-in');
-                    
-                    // Animar elementos hijo con delay escalonado
-                    const children = target.querySelectorAll('.benefit-item, .feature-item, .stat-item');
-                    children.forEach((child, index) => {
-                        setTimeout(() => {
-                            child.classList.add('animate-in');
-                        }, index * 100);
-                    });
-                    
-                    // Una vez animado, dejar de observar para mejor performance
-                    animationObserver.unobserve(target);
-                }
-            });
-        }, observerOptions);
-        
-        // Elementos que se animan al entrar en viewport
-        const animatedElements = document.querySelectorAll(
-            '.benefit-card, .brand-card, .product-card, .process-step, ' +
-            '.testimonial-card, .service-card, .feature-section, .stats-section'
-        );
-        
-        animatedElements.forEach(el => {
-            el.classList.add('animate-ready');
-            animationObserver.observe(el);
-        });
-        
-        console.log(`✅ Intersection Observer configurado para ${animatedElements.length} elementos`);
-    }
-    
-    // =============================================
-    // EFECTOS HOVER MEJORADOS CON BOOTSTRAP
-    // =============================================
-    
-    function initHoverEffects() {
-        // Service cards hover effect con Bootstrap classes
-        const serviceCards = document.querySelectorAll('.service-card, .benefit-card, .product-card');
-        
-        serviceCards.forEach(card => {
-            // Configurar estado inicial
-            card.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-            
-            card.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-8px) scale(1.02)';
-                this.style.boxShadow = '0 20px 40px rgba(0,0,0,0.15)';
-                this.style.zIndex = '10';
-                
-                // Animar icono si existe
-                const icon = this.querySelector('i.bi');
-                if (icon) {
-                    icon.style.transform = 'scale(1.2) rotate(5deg)';
-                    icon.style.transition = 'transform 0.3s ease';
-                }
-                
-                // Efecto en el texto
-                const title = this.querySelector('h3, h4, h5, h6');
-                if (title) {
-                    title.style.color = '#0066cc';
-                    title.style.transition = 'color 0.3s ease';
-                }
-            });
-            
-            card.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0) scale(1)';
-                this.style.boxShadow = '0 10px 30px rgba(0,0,0,0.1)';
-                this.style.zIndex = 'auto';
-                
-                // Restaurar icono
-                const icon = this.querySelector('i.bi');
-                if (icon) {
-                    icon.style.transform = 'scale(1) rotate(0deg)';
-                }
-                
-                // Restaurar color del texto
-                const title = this.querySelector('h3, h4, h5, h6');
-                if (title) {
-                    title.style.color = '';
-                }
+    // Scroll indicator animation
+    const scrollIndicator = document.querySelector('.scroll-indicator');
+    if (scrollIndicator) {
+        scrollIndicator.addEventListener('click', function() {
+            document.querySelector('.benefits-section').scrollIntoView({
+                behavior: 'smooth'
             });
         });
         
-        console.log(`✅ Efectos hover aplicados a ${serviceCards.length} elementos`);
-    }
-    
-    // =============================================
-    // ANIMACIÓN DE TARJETAS FLOTANTES
-    // =============================================
-    
-    function initFloatingCards() {
-        const floatingCards = document.querySelectorAll('.floating-card, .hero-card');
-        
-        if (floatingCards.length > 0) {
-            let animationFrameId;
-            
-            function animateFloatingCards() {
-                const time = Date.now() * 0.001; // Convertir a segundos
-                
-                floatingCards.forEach((card, index) => {
-                    const offset = index * 1.5; // Desfase entre tarjetas
-                    const yOffset = Math.sin(time + offset) * 8; // Movimiento vertical suave
-                    const rotationOffset = Math.sin(time * 0.5 + offset) * 2; // Rotación sutil
-                    
-                    card.style.transform = `translateY(${yOffset}px) rotate(${rotationOffset}deg)`;
-                });
-                
-                animationFrameId = requestAnimationFrame(animateFloatingCards);
-            }
-            
-            // Iniciar animación
-            animateFloatingCards();
-            
-            // Pausar animación cuando no es visible (performance)
-            const visibilityObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        if (!animationFrameId) {
-                            animateFloatingCards();
-                        }
-                    } else {
-                        if (animationFrameId) {
-                            cancelAnimationFrame(animationFrameId);
-                            animationFrameId = null;
-                        }
-                    }
-                });
-            });
-            
-            floatingCards.forEach(card => visibilityObserver.observe(card));
-            
-            console.log(`✅ Animación flotante aplicada a ${floatingCards.length} tarjetas`);
-        }
-    }
-    
-    // =============================================
-    // ACTUALIZACIÓN DE ICONOS FONT AWESOME A BOOTSTRAP
-    // =============================================
-    
-    function updateIconsToBootstrap() {
-        // Mapeo de iconos Font Awesome a Bootstrap Icons
-        const iconMap = {
-            'fas fa-hand-holding-usd': 'bi bi-cash-coin',
-            'fas fa-headset': 'bi bi-headset',
-            'fas fa-rocket': 'bi bi-rocket-takeoff',
-            'fas fa-cog': 'bi bi-gear',
-            'fas fa-shield-alt': 'bi bi-shield-check',
-            'fas fa-chart-line': 'bi bi-graph-up-arrow',
-            'fas fa-print': 'bi bi-printer',
-            'fas fa-copy': 'bi bi-files',
-            'fas fa-scanner': 'bi bi-scan',
-            'fas fa-fax': 'bi bi-telephone',
-            'fas fa-wifi': 'bi bi-wifi',
-            'fas fa-mobile-alt': 'bi bi-phone',
-            'fas fa-cloud': 'bi bi-cloud',
-            'fas fa-fingerprint': 'bi bi-fingerprint',
-            'fas fa-check': 'bi bi-check-lg',
-            'fas fa-times': 'bi bi-x-lg',
-            'fas fa-arrow-up': 'bi bi-arrow-up',
-            'fas fa-arrow-down': 'bi bi-arrow-down',
-            'fas fa-exchange-alt': 'bi bi-arrow-left-right',
-            'fas fa-star': 'bi bi-star-fill',
-            'fas fa-heart': 'bi bi-heart-fill',
-            'fas fa-thumbs-up': 'bi bi-hand-thumbs-up',
-            'fas fa-comments': 'bi bi-chat-dots',
-            'fas fa-envelope': 'bi bi-envelope',
-            'fas fa-phone': 'bi bi-telephone',
-            'fas fa-map-marker-alt': 'bi bi-geo-alt',
-            'fas fa-calendar': 'bi bi-calendar3',
-            'fas fa-clock': 'bi bi-clock',
-            'fas fa-user': 'bi bi-person',
-            'fas fa-users': 'bi bi-people',
-            'fas fa-building': 'bi bi-building',
-            'fas fa-home': 'bi bi-house',
-            'fas fa-office': 'bi bi-building-fill',
-            'fas fa-industry': 'bi bi-factory',
-            'fas fa-hospital': 'bi bi-hospital',
-            'fas fa-graduation-cap': 'bi bi-mortarboard',
-            'fas fa-balance-scale': 'bi bi-scales',
-            'fas fa-tools': 'bi bi-tools',
-            'fas fa-wrench': 'bi bi-wrench',
-            'fas fa-screwdriver': 'bi bi-screwdriver',
-            'fas fa-hammer': 'bi bi-hammer'
-        };
-        
-        // Buscar y reemplazar todos los iconos
-        Object.keys(iconMap).forEach(oldClass => {
-            const icons = document.querySelectorAll(`i.${oldClass.replace(/\s+/g, '.')}`);
-            icons.forEach(icon => {
-                icon.className = iconMap[oldClass];
-            });
-        });
-        
-        // También actualizar iconos con clases individuales
-        const fasIcons = document.querySelectorAll('i[class*="fas"], i[class*="fa-"]');
-        fasIcons.forEach(icon => {
-            const classes = icon.className.split(' ');
-            let newClass = '';
-            
-            // Mapear iconos comunes individualmente
-            if (classes.includes('fa-chevron-down')) newClass = 'bi bi-chevron-down';
-            else if (classes.includes('fa-chevron-up')) newClass = 'bi bi-chevron-up';
-            else if (classes.includes('fa-chevron-left')) newClass = 'bi bi-chevron-left';
-            else if (classes.includes('fa-chevron-right')) newClass = 'bi bi-chevron-right';
-            else if (classes.includes('fa-bars')) newClass = 'bi bi-list';
-            else if (classes.includes('fa-search')) newClass = 'bi bi-search';
-            else if (classes.includes('fa-shopping-cart')) newClass = 'bi bi-cart';
-            else if (classes.includes('fa-user-circle')) newClass = 'bi bi-person-circle';
-            
-            if (newClass) {
-                icon.className = newClass;
+        // Hide scroll indicator after scrolling
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 100) {
+                scrollIndicator.style.opacity = '0';
+                scrollIndicator.style.transform = 'translateY(10px)';
+            } else {
+                scrollIndicator.style.opacity = '1';
+                scrollIndicator.style.transform = 'translateY(0)';
             }
         });
-        
-        console.log('✅ Iconos actualizados a Bootstrap Icons');
     }
     
     // =============================================
-    // ESTILOS CSS PARA ANIMACIONES
+    // ANIMACIONES DE ENTRADA PARA ELEMENTOS
     // =============================================
     
-    function injectAnimationStyles() {
-        const animationStyles = `
-        <style id="copier-animations">
-        /* Animaciones base */
-        .animate-ready {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .animate-in {
-            opacity: 1 !important;
-            transform: translateY(0) !important;
-        }
-        
-        /* Efectos para tarjetas */
-        .service-card, .benefit-card, .product-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 15px !important;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .service-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(0,102,204,0.05), rgba(0,102,204,0.1));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-        }
-        
-        .service-card:hover::before {
-            opacity: 1;
-        }
-        
-        /* Animación de tarjetas flotantes */
-        .floating-card, .hero-card {
-            transition: transform 0.1s ease-out;
-            will-change: transform;
-        }
-        
-        /* Scroll indicator */
-        .scroll-indicator {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.9);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
-        
-        .scroll-indicator:hover {
-            transform: translateY(-3px) scale(1.1);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-        }
-        
-        .scroll-indicator i {
-            font-size: 1.5rem;
-            color: #0066cc;
-            animation: bounce 2s infinite;
-        }
-        
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateY(0);
-            }
-            40% {
-                transform: translateY(-10px);
-            }
-            60% {
-                transform: translateY(-5px);
-            }
-        }
-        
-        /* Efectos para iconos */
-        .bi {
-            transition: all 0.3s ease;
-        }
-        
-        /* Responsive optimizations */
-        @media (max-width: 768px) {
-            .animate-ready {
-                transform: translateY(20px);
-            }
-            
-            .floating-card {
-                animation: none !important;
-                transform: none !important;
-            }
-        }
-        
-        /* Reducir movimiento para usuarios que prefieren menos animación */
-        @media (prefers-reduced-motion: reduce) {
-            .animate-ready,
-            .service-card,
-            .floating-card,
-            .scroll-indicator,
-            .bi {
-                transition: none !important;
-                animation: none !important;
-                transform: none !important;
-            }
-        }
-        </style>
-        `;
-        
-        // Inyectar estilos si no están presentes
-        if (!document.querySelector('#copier-animations')) {
-            document.head.insertAdjacentHTML('beforeend', animationStyles);
-            console.log('✅ Estilos de animación inyectados');
-        }
-    }
-    
-    // =============================================
-    // INICIALIZACIÓN DE LA PARTE 1
-    // =============================================
-    
-    // Ejecutar todas las funciones de inicialización
-    try {
-        checkBootstrapDependencies();
-        
-        // Esperar un poco para que se carguen las dependencias
-        setTimeout(() => {
-            updateIconsToBootstrap();
-            injectAnimationStyles();
-            initScrollEffects();
-            initIntersectionObserver();
-            initHoverEffects();
-            initFloatingCards();
-            
-            console.log('✅ Parte 1/10 inicializada completamente');
-            
-            // Disparar evento personalizado para notificar que Parte 1 está lista
-            document.dispatchEvent(new CustomEvent('copierJS:part1Ready'));
-            
-        }, 500);
-        
-    } catch (error) {
-        console.error('❌ Error en la inicialización de Parte 1:', error);
-    }
-}
-
-// Llamar la función de inicialización
-initPart();
-
-// Objeto global para almacenar el estado
-window.CopierCompany = window.CopierCompany || {
-    version: '2.0.1',
-    partsLoaded: [],
-    config: {
-        useBootstrapIcons: true,
-        enableAnimations: true,
-        enableFloatingCards: true
-    }
-};
-
-window.CopierCompany.partsLoaded.push('part1');
-console.log('📦 Copier Company JS - Parte 1/10 cargada - VERSIÓN ODOO');
-
-})();
-/**
- * COPIER COMPANY HOMEPAGE - SISTEMA JAVASCRIPT COMPLETO
- * PARTE 2/10: MODALES DINÁMICOS Y CONTENIDO INTERACTIVO
- * Versión Bootstrap Icons - Compatible con Odoo
- * Máximo 300 líneas por parte
- */
-
-// Esperar a que la Parte 1 esté lista
-document.addEventListener('copierJS:part1Ready', function() {
-    console.log('🚀 Iniciando Copier Company JS - Parte 2/10: Modales Dinámicos');
-    
-    // =============================================
-    // BASE DE DATOS DE CONTENIDO PARA MODALES - BENEFICIOS
-    // =============================================
-    
-    const modalContent = {
-        benefits: {
-            'sin-inversion': {
-                title: 'Sin Inversión Inicial',
-                icon: 'bi bi-cash-coin',
-                content: `
-                    <div class="benefit-detail">
-                        <div class="row g-4">
-                            <div class="col-md-6">
-                                <h4 class="d-flex align-items-center mb-3">
-                                    <i class="bi bi-piggy-bank text-primary me-2"></i>Ventajas Financieras
-                                </h4>
-                                <ul class="list-unstyled">
-                                    <li class="d-flex align-items-start mb-2">
-                                        <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
-                                        <span>Preserva tu capital de trabajo</span>
-                                    </li>
-                                    <li class="d-flex align-items-start mb-2">
-                                        <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
-                                        <span>Mejora tu flujo de caja mensual</span>
-                                    </li>
-                                    <li class="d-flex align-items-start mb-2">
-                                        <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
-                                        <span>No afecta líneas de crédito</span>
-                                    </li>
-                                    <li class="d-flex align-items-start mb-2">
-                                        <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
-                                        <span>Gastos 100% deducibles fiscalmente</span>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="col-md-6">
-                                <h4 class="d-flex align-items-center mb-3">
-                                    <i class="bi bi-graph-up-arrow text-primary me-2"></i>Beneficios Empresariales
-                                </h4>
-                                <ul class="list-unstyled">
-                                    <li class="d-flex align-items-start mb-2">
-                                        <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
-                                        <span>Tecnología de última generación</span>
-                                    </li>
-                                    <li class="d-flex align-items-start mb-2">
-                                        <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
-                                        <span>Actualización constante sin costo</span>
-                                    </li>
-                                    <li class="d-flex align-items-start mb-2">
-                                        <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
-                                        <span>Sin obsolescencia tecnológica</span>
-                                    </li>
-                                    <li class="d-flex align-items-start mb-2">
-                                        <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
-                                        <span>Escalabilidad según crecimiento</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="highlight-box mt-4 p-4 bg-light rounded-3 border-start border-warning border-5">
-                            <div class="d-flex align-items-start">
-                                <i class="bi bi-lightbulb-fill text-warning me-3 fs-4"></i>
-                                <div>
-                                    <h6 class="fw-bold mb-2">¿Sabías que?</h6>
-                                    <p class="mb-0">Las empresas que alquilan equipos aumentan su productividad en un 
-                                    <strong>35%</strong> al tener acceso constante a la última tecnología.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `
-            },
-            'soporte-24-7': {
-                title: 'Soporte Técnico 24/7',
-                icon: 'bi bi-headset',
-                content: `
-                    <div class="benefit-detail">
-                        <div class="row g-4">
-                            <div class="col-md-4">
-                                <div class="support-level card h-100 border-success">
-                                    <div class="card-body text-center">
-                                        <i class="bi bi-telephone-fill fs-1 text-success mb-3"></i>
-                                        <h5>Nivel 1: Telefónico</h5>
-                                        <span class="badge bg-success mb-3">Inmediato</span>
-                                        <ul class="list-unstyled text-start">
-                                            <li><i class="bi bi-check2 text-success me-2"></i>Diagnóstico inicial</li>
-                                            <li><i class="bi bi-check2 text-success me-2"></i>Soluciones básicas</li>
-                                            <li><i class="bi bi-check2 text-success me-2"></i>Orientación de uso</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="support-level card h-100 border-primary">
-                                    <div class="card-body text-center">
-                                        <i class="bi bi-laptop fs-1 text-primary mb-3"></i>
-                                        <h5>Nivel 2: Remoto</h5>
-                                        <span class="badge bg-primary mb-3">15 minutos</span>
-                                        <ul class="list-unstyled text-start">
-                                            <li><i class="bi bi-check2 text-primary me-2"></i>Conexión remota</li>
-                                            <li><i class="bi bi-check2 text-primary me-2"></i>Configuraciones avanzadas</li>
-                                            <li><i class="bi bi-check2 text-primary me-2"></i>Actualizaciones</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="support-level card h-100 border-warning">
-                                    <div class="card-body text-center">
-                                        <i class="bi bi-person-gear fs-1 text-warning mb-3"></i>
-                                        <h5>Nivel 3: Presencial</h5>
-                                        <span class="badge bg-warning text-dark mb-3">4 horas máx</span>
-                                        <ul class="list-unstyled text-start">
-                                            <li><i class="bi bi-check2 text-warning me-2"></i>Técnico especializado</li>
-                                            <li><i class="bi bi-check2 text-warning me-2"></i>Reparaciones complejas</li>
-                                            <li><i class="bi bi-check2 text-warning me-2"></i>Reemplazo de equipos</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row g-3 text-center mt-4">
-                            <div class="col-md-3">
-                                <div class="stat-item p-3 bg-primary bg-opacity-10 rounded-3">
-                                    <i class="bi bi-check-circle-fill fs-2 text-primary mb-2"></i>
-                                    <h3 class="fs-1 fw-bold text-primary">98%</h3>
-                                    <p class="small text-muted">Resolución remota</p>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="stat-item p-3 bg-success bg-opacity-10 rounded-3">
-                                    <i class="bi bi-stopwatch-fill fs-2 text-success mb-2"></i>
-                                    <h3 class="fs-1 fw-bold text-success">15min</h3>
-                                    <p class="small text-muted">Tiempo promedio</p>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="stat-item p-3 bg-warning bg-opacity-10 rounded-3">
-                                    <i class="bi bi-clock-fill fs-2 text-warning mb-2"></i>
-                                    <h3 class="fs-1 fw-bold text-warning">24/7</h3>
-                                    <p class="small text-muted">Disponibilidad</p>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="stat-item p-3 bg-info bg-opacity-10 rounded-3">
-                                    <i class="bi bi-calendar-check-fill fs-2 text-info mb-2"></i>
-                                    <h3 class="fs-1 fw-bold text-info">365</h3>
-                                    <p class="small text-muted">Días al año</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `
-            },
-            'instalacion-rapida': {
-                title: 'Instalación en 24H',
-                icon: 'bi bi-rocket-takeoff',
-                content: `
-                    <div class="benefit-detail">
-                        <h4 class="d-flex align-items-center mb-4">
-                            <i class="bi bi-clock-history text-primary me-2"></i>Proceso Express
-                        </h4>
-                        <div class="timeline-item d-flex mb-4">
-                            <div class="timeline-marker bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-4" style="width: 50px; height: 50px;">
-                                <span class="fw-bold">1</span>
-                            </div>
-                            <div class="timeline-content">
-                                <h5><i class="bi bi-handshake text-primary me-2"></i>Confirmación (2h)</h5>
-                                <ul class="list-unstyled">
-                                    <li><i class="bi bi-check-lg text-success me-2"></i>Verificación técnica</li>
-                                    <li><i class="bi bi-check-lg text-success me-2"></i>Programación coordinada</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="timeline-item d-flex mb-4">
-                            <div class="timeline-marker bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-4" style="width: 50px; height: 50px;">
-                                <span class="fw-bold">2</span>
-                            </div>
-                            <div class="timeline-content">
-                                <h5><i class="bi bi-truck text-success me-2"></i>Transporte (4h)</h5>
-                                <ul class="list-unstyled">
-                                    <li><i class="bi bi-check-lg text-success me-2"></i>Embalaje profesional</li>
-                                    <li><i class="bi bi-check-lg text-success me-2"></i>Transporte asegurado</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="timeline-item d-flex mb-4">
-                            <div class="timeline-marker bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center me-4" style="width: 50px; height: 50px;">
-                                <span class="fw-bold">3</span>
-                            </div>
-                            <div class="timeline-content">
-                                <h5><i class="bi bi-gear-fill text-warning me-2"></i>Instalación (2-4h)</h5>
-                                <ul class="list-unstyled">
-                                    <li><i class="bi bi-check-lg text-success me-2"></i>Instalación física</li>
-                                    <li><i class="bi bi-check-lg text-success me-2"></i>Configuración completa</li>
-                                    <li><i class="bi bi-check-lg text-success me-2"></i>Capacitación básica</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="alert alert-success mt-4">
-                            <i class="bi bi-shield-fill-check me-2"></i>
-                            <strong>Garantía:</strong> Si no cumplimos 24h, 
-                            <strong>primer mes GRATIS</strong>
-                        </div>
-                    </div>
-                `
-            }
-        }
+    // Intersection Observer para animaciones al hacer scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
     };
     
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate-in');
+            }
+        });
+    }, observerOptions);
+    
+    // Elementos que se animan al entrar en viewport
+    const animatedElements = document.querySelectorAll('.benefit-card, .brand-card, .product-card, .process-step, .testimonial-card');
+    animatedElements.forEach(el => {
+        el.classList.add('animate-ready');
+        observer.observe(el);
+    });
+    
     // =============================================
-    // SISTEMA DE MODALES SIMPLIFICADO
+    // EFECTOS HOVER MEJORADOS
     // =============================================
     
-    const modalSystem = {
-        init: function() {
-            this.createModal();
-            this.bindEvents();
-            console.log('✅ Sistema de modales inicializado');
-        },
+    // Service cards hover effect
+    const serviceCards = document.querySelectorAll('.service-card');
+    serviceCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-8px) scale(1.02)';
+            this.style.boxShadow = '0 20px 40px rgba(0,0,0,0.15)';
+        });
         
-        createModal: function() {
-            if (document.getElementById('benefitModal')) return;
-            
-            const modalHTML = `
-                <div class="modal fade" id="benefitModal" tabindex="-1">
-                    <div class="modal-dialog modal-xl modal-dialog-centered">
-                        <div class="modal-content border-0 shadow-lg">
-                            <div class="modal-header bg-primary text-white">
-                                <h4 class="modal-title" id="benefitModalLabel">
-                                    <i class="bi bi-info-circle me-2"></i>Información
-                                </h4>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+            this.style.boxShadow = '0 10px 30px rgba(0,0,0,0.1)';
+        });
+    });
+    
+    // Floating cards animation in hero
+    const floatingCards = document.querySelectorAll('.floating-card');
+    floatingCards.forEach((card, index) => {
+        // Animación flotante continua
+        setInterval(() => {
+            card.style.transform = `translateY(${Math.sin(Date.now() * 0.001 + index) * 5}px)`;
+        }, 50);
+    });
+    
+    console.log('✅ Parte 1: Efectos de scroll y animaciones inicializados');
+});
+
+// CSS adicional para las animaciones (agregar al CSS)
+const animationStyles = `
+.animate-ready {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s ease-out;
+}
+
+.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.service-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.floating-card {
+    transition: transform 0.1s ease-out;
+}
+
+.scroll-indicator {
+    transition: all 0.3s ease;
+}
+`;
+
+// Inyectar estilos si no están presentes
+if (!document.querySelector('#animation-styles')) {
+    const styleSheet = document.createElement('style');
+    styleSheet.id = 'animation-styles';
+    styleSheet.textContent = animationStyles;
+    document.head.appendChild(styleSheet);
+}
+/**
+ * PARTE 2: MODALES DINÁMICOS Y CONTENIDO INTERACTIVO
+ * JavaScript para Homepage Moderna de Copier Company
+ */
+
+// =============================================
+// SISTEMA DE MODALES DINÁMICOS
+// =============================================
+
+// Base de datos de contenido para modales
+const modalContent = {
+    benefits: {
+        'sin-inversion': {
+            title: 'Sin Inversión Inicial',
+            icon: 'fas fa-hand-holding-usd',
+            content: `
+                <div class="benefit-detail">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4><i class="fas fa-piggy-bank text-primary me-2"></i>Ventajas Financieras</h4>
+                            <ul class="benefit-list">
+                                <li><i class="fas fa-check text-success me-2"></i>Preserva tu capital de trabajo</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Mejora tu flujo de caja mensual</li>
+                                <li><i class="fas fa-check text-success me-2"></i>No afecta líneas de crédito</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Gastos deducibles fiscalmente</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h4><i class="fas fa-chart-line text-primary me-2"></i>Beneficios Empresariales</h4>
+                            <ul class="benefit-list">
+                                <li><i class="fas fa-check text-success me-2"></i>Tecnología de última generación</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Actualización constante</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Sin obsolescencia tecnológica</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Escalabilidad según crecimiento</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="highlight-box mt-4">
+                        <i class="fas fa-lightbulb text-warning me-2"></i>
+                        <strong>¿Sabías que?</strong> Las empresas que alquilan equipos tecnológicos aumentan su productividad en un 35% 
+                        al tener siempre acceso a la última tecnología sin comprometer su capital.
+                    </div>
+                </div>
+            `
+        },
+        'soporte-24-7': {
+            title: 'Soporte Técnico 24/7',
+            icon: 'fas fa-headset',
+            content: `
+                <div class="benefit-detail">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="support-level">
+                                <div class="support-icon">
+                                    <i class="fas fa-phone text-success"></i>
+                                </div>
+                                <h5>Nivel 1: Telefónico</h5>
+                                <p><strong>Tiempo:</strong> Inmediato</p>
+                                <ul>
+                                    <li>Diagnóstico inicial</li>
+                                    <li>Soluciones básicas</li>
+                                    <li>Orientación de uso</li>
+                                </ul>
                             </div>
-                            <div class="modal-body p-4" id="benefitModalBody">
-                                <div class="text-center py-4">
-                                    <div class="spinner-border text-primary"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="support-level">
+                                <div class="support-icon">
+                                    <i class="fas fa-laptop text-primary"></i>
+                                </div>
+                                <h5>Nivel 2: Remoto</h5>
+                                <p><strong>Tiempo:</strong> 15 minutos</p>
+                                <ul>
+                                    <li>Conexión remota</li>
+                                    <li>Configuraciones avanzadas</li>
+                                    <li>Actualizaciones</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="support-level">
+                                <div class="support-icon">
+                                    <i class="fas fa-user-tie text-warning"></i>
+                                </div>
+                                <h5>Nivel 3: Presencial</h5>
+                                <p><strong>Tiempo:</strong> 4 horas</p>
+                                <ul>
+                                    <li>Técnico especializado</li>
+                                    <li>Reparaciones complejas</li>
+                                    <li>Reemplazo de equipos</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="support-stats mt-4">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <div class="stat-item">
+                                    <h3 class="text-primary">98%</h3>
+                                    <p>Resolución remota</p>
                                 </div>
                             </div>
-                            <div class="modal-footer bg-light">
-                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                    <i class="bi bi-x-lg me-2"></i>Cerrar
-                                </button>
-                                <a href="/cotizacion/form" class="btn btn-primary">
-                                    <i class="bi bi-calculator me-2"></i>Solicitar Cotización
-                                </a>
+                            <div class="col-md-3">
+                                <div class="stat-item">
+                                    <h3 class="text-success">15min</h3>
+                                    <p>Tiempo promedio</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-item">
+                                    <h3 class="text-warning">24/7</h3>
+                                    <p>Disponibilidad</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-item">
+                                    <h3 class="text-info">365</h3>
+                                    <p>Días al año</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            `;
-            
-            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            `
         },
-        
-        bindEvents: function() {
-            document.addEventListener('click', (e) => {
-                const benefitCard = e.target.closest('[data-benefit]');
-                if (benefitCard) {
-                    e.preventDefault();
-                    const benefitType = benefitCard.getAttribute('data-benefit');
-                    this.openModal(benefitType);
-                }
-            });
+        'instalacion-rapida': {
+            title: 'Instalación en 24H',
+            icon: 'fas fa-rocket',
+            content: `
+                <div class="benefit-detail">
+                    <div class="installation-timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker">1</div>
+                            <div class="timeline-content">
+                                <h5><i class="fas fa-handshake text-primary me-2"></i>Confirmación del Pedido</h5>
+                                <p><strong>Tiempo:</strong> 2 horas</p>
+                                <ul>
+                                    <li>Verificación de especificaciones</li>
+                                    <li>Programación de instalación</li>
+                                    <li>Preparación del equipo</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker">2</div>
+                            <div class="timeline-content">
+                                <h5><i class="fas fa-shipping-fast text-success me-2"></i>Transporte Especializado</h5>
+                                <p><strong>Tiempo:</strong> 4 horas</p>
+                                <ul>
+                                    <li>Embalaje profesional</li>
+                                    <li>Transporte asegurado</li>
+                                    <li>Coordinación de llegada</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker">3</div>
+                            <div class="timeline-content">
+                                <h5><i class="fas fa-cogs text-warning me-2"></i>Instalación y Configuración</h5>
+                                <p><strong>Tiempo:</strong> 2-4 horas</p>
+                                <ul>
+                                    <li>Instalación física</li>
+                                    <li>Configuración de red</li>
+                                    <li>Pruebas de funcionamiento</li>
+                                    <li>Capacitación básica</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="installation-guarantee mt-4 p-3 bg-light rounded">
+                        <h5><i class="fas fa-shield-alt text-success me-2"></i>Garantía de Instalación</h5>
+                        <p class="mb-0">Si por algún motivo no podemos instalar tu equipo en 24 horas, 
+                        <strong>el primer mes de alquiler es completamente GRATIS</strong>.</p>
+                    </div>
+                </div>
+            `
         },
-        
-        openModal: function(benefitType) {
-            const data = modalContent.benefits[benefitType];
-            if (!data) return;
-            
-            document.getElementById('benefitModalLabel').innerHTML = 
-                `<i class="${data.icon} me-2"></i>${data.title}`;
-            document.getElementById('benefitModalBody').innerHTML = data.content;
-            
-            const modal = new bootstrap.Modal(document.getElementById('benefitModal'));
-            modal.show();
+        'mantenimiento-incluido': {
+            title: 'Mantenimiento Incluido',
+            icon: 'fas fa-cog',
+            content: `
+                <div class="benefit-detail">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4><i class="fas fa-calendar-check text-primary me-2"></i>Mantenimiento Preventivo</h4>
+                            <div class="maintenance-schedule">
+                                <div class="schedule-item">
+                                    <span class="frequency">Semanal</span>
+                                    <ul>
+                                        <li>Limpieza de sensores</li>
+                                        <li>Verificación de consumibles</li>
+                                    </ul>
+                                </div>
+                                <div class="schedule-item">
+                                    <span class="frequency">Mensual</span>
+                                    <ul>
+                                        <li>Calibración de colores</li>
+                                        <li>Actualización de firmware</li>
+                                        <li>Limpieza interna profunda</li>
+                                    </ul>
+                                </div>
+                                <div class="schedule-item">
+                                    <span class="frequency">Trimestral</span>
+                                    <ul>
+                                        <li>Revisión completa</li>
+                                        <li>Reemplazo de rodillos</li>
+                                        <li>Optimización de rendimiento</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h4><i class="fas fa-tools text-success me-2"></i>Mantenimiento Correctivo</h4>
+                            <div class="repair-coverage">
+                                <div class="coverage-item">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    <span>Reparación de averías</span>
+                                </div>
+                                <div class="coverage-item">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    <span>Reemplazo de repuestos</span>
+                                </div>
+                                <div class="coverage-item">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    <span>Mano de obra técnica</span>
+                                </div>
+                                <div class="coverage-item">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    <span>Diagnósticos especializados</span>
+                                </div>
+                                <div class="coverage-item">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    <span>Actualizaciones de software</span>
+                                </div>
+                            </div>
+                            <div class="maintenance-value mt-3 p-3 bg-success text-white rounded">
+                                <h6><i class="fas fa-calculator me-2"></i>Valor del Mantenimiento</h6>
+                                <p class="mb-0">El mantenimiento incluido tiene un valor aproximado de 
+                                <strong>$200-400 USD mensuales</strong> por equipo.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `
+        },
+        'garantia-total': {
+            title: 'Garantía Total',
+            icon: 'fas fa-shield-alt',
+            content: `
+                <div class="benefit-detail">
+                    <div class="guarantee-coverage">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="coverage-card">
+                                    <div class="coverage-icon">
+                                        <i class="fas fa-cog text-primary"></i>
+                                    </div>
+                                    <h5>Cobertura Técnica</h5>
+                                    <ul>
+                                        <li>Fallas de hardware</li>
+                                        <li>Problemas de software</li>
+                                        <li>Defectos de fabricación</li>
+                                        <li>Desgaste normal</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="coverage-card">
+                                    <div class="coverage-icon">
+                                        <i class="fas fa-exchange-alt text-success"></i>
+                                    </div>
+                                    <h5>Reemplazo Inmediato</h5>
+                                    <ul>
+                                        <li>Equipo de respaldo</li>
+                                        <li>Transferencia de configuración</li>
+                                        <li>Sin interrupción del trabajo</li>
+                                        <li>Mismo nivel de servicio</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="coverage-card">
+                                    <div class="coverage-icon">
+                                        <i class="fas fa-dollar-sign text-warning"></i>
+                                    </div>
+                                    <h5>Sin Costos Ocultos</h5>
+                                    <ul>
+                                        <li>Repuestos incluidos</li>
+                                        <li>Mano de obra gratis</li>
+                                        <li>Transporte sin costo</li>
+                                        <li>Diagnósticos gratuitos</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="guarantee-terms mt-4">
+                        <h5><i class="fas fa-file-contract text-info me-2"></i>Términos de la Garantía</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>QUÉ ESTÁ CUBIERTO:</h6>
+                                <ul class="covered-list">
+                                    <li><i class="fas fa-check text-success me-1"></i> Todas las reparaciones</li>
+                                    <li><i class="fas fa-check text-success me-1"></i> Repuestos originales</li>
+                                    <li><i class="fas fa-check text-success me-1"></i> Mano de obra técnica</li>
+                                    <li><i class="fas fa-check text-success me-1"></i> Reemplazo total si es necesario</li>
+                                    <li><i class="fas fa-check text-success me-1"></i> Actualizaciones de firmware</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>QUÉ NO ESTÁ CUBIERTO:</h6>
+                                <ul class="not-covered-list">
+                                    <li><i class="fas fa-times text-danger me-1"></i> Daños por mal uso intencional</li>
+                                    <li><i class="fas fa-times text-danger me-1"></i> Modificaciones no autorizadas</li>
+                                    <li><i class="fas fa-times text-danger me-1"></i> Desastres naturales extremos</li>
+                                    <li><i class="fas fa-times text-danger me-1"></i> Consumibles (toners, papel)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `
+        },
+        'escalabilidad': {
+            title: 'Escalabilidad',
+            icon: 'fas fa-chart-line',
+            content: `
+                <div class="benefit-detail">
+                    <div class="scalability-options">
+                        <h4><i class="fas fa-arrows-alt text-primary me-2"></i>Opciones de Escalabilidad</h4>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="scale-option">
+                                    <div class="scale-icon up">
+                                        <i class="fas fa-arrow-up"></i>
+                                    </div>
+                                    <h5>Escalar Hacia Arriba</h5>
+                                    <p>Cuando tu negocio crece</p>
+                                    <ul>
+                                        <li>Equipos más potentes</li>
+                                        <li>Mayor capacidad</li>
+                                        <li>Funciones adicionales</li>
+                                        <li>Múltiples ubicaciones</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="scale-option">
+                                    <div class="scale-icon lateral">
+                                        <i class="fas fa-exchange-alt"></i>
+                                    </div>
+                                    <h5>Cambio Lateral</h5>
+                                    <p>Necesidades específicas</p>
+                                    <ul>
+                                        <li>Cambio de tecnología</li>
+                                        <li>Diferentes funciones</li>
+                                        <li>Especialización</li>
+                                        <li>Optimización</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="scale-option">
+                                    <div class="scale-icon down">
+                                        <i class="fas fa-arrow-down"></i>
+                                    </div>
+                                    <h5>Escalar Hacia Abajo</h5>
+                                    <p>Optimización de costos</p>
+                                    <ul>
+                                        <li>Equipos más simples</li>
+                                        <li>Menor capacidad</li>
+                                        <li>Reducción de costos</li>
+                                        <li>Funciones básicas</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="scalability-process mt-4 p-3 bg-light rounded">
+                        <h5><i class="fas fa-cogs text-success me-2"></i>Proceso de Escalabilidad</h5>
+                        <div class="process-steps-mini">
+                            <span class="step"><i class="fas fa-comments"></i> Evaluación</span>
+                            <span class="arrow">→</span>
+                            <span class="step"><i class="fas fa-chart-bar"></i> Análisis</span>
+                            <span class="arrow">→</span>
+                            <span class="step"><i class="fas fa-handshake"></i> Propuesta</span>
+                            <span class="arrow">→</span>
+                            <span class="step"><i class="fas fa-rocket"></i> Implementación</span>
+                        </div>
+                        <p class="mt-2 mb-0"><strong>Tiempo promedio:</strong> 48-72 horas para cambios completos</p>
+                    </div>
+                </div>
+            `
         }
-    };
-    
-    // =============================================
-    // INICIALIZACIÓN DE PARTE 2
-    // =============================================
-    
-    try {
-        modalSystem.init();
+    }
+};
+
+// Manejador de eventos para modales de beneficios
+document.addEventListener('click', function(e) {
+    const benefitCard = e.target.closest('[data-benefit]');
+    if (benefitCard) {
+        const benefitType = benefitCard.getAttribute('data-benefit');
+        const benefitData = modalContent.benefits[benefitType];
         
-        console.log('✅ Parte 2/10 inicializada completamente');
-        document.dispatchEvent(new CustomEvent('copierJS:part2Ready'));
-        
-    } catch (error) {
-        console.error('❌ Error en Parte 2:', error);
+        if (benefitData) {
+            // Actualizar contenido del modal
+            document.getElementById('benefitModalLabel').innerHTML = 
+                `<i class="${benefitData.icon} me-2"></i>${benefitData.title}`;
+            document.getElementById('benefitModalBody').innerHTML = benefitData.content;
+        }
     }
 });
 
-// Actualizar objeto global
-window.CopierCompany = window.CopierCompany || {};
-window.CopierCompany.modalContent = modalContent;
-window.CopierCompany.partsLoaded = window.CopierCompany.partsLoaded || [];
-window.CopierCompany.partsLoaded.push('part2');
-
-console.log('📦 Copier Company JS - Parte 2/10 cargada');
+console.log('✅ Parte 2: Sistema de modales dinámicos para beneficios inicializado');
 /**
- * COPIER COMPANY HOMEPAGE - SISTEMA JAVASCRIPT COMPLETO
- * PARTE 3/10: MODALES DE MARCAS Y PRODUCTOS
- * Versión Bootstrap Icons - Compatible con Odoo
- * Máximo 300 líneas por parte
+ * PARTE 3: MODALES DE MARCAS Y PRODUCTOS
+ * JavaScript para Homepage Moderna de Copier Company
  */
 
-// Esperar a que la Parte 2 esté lista
-document.addEventListener('copierJS:part2Ready', function() {
-    console.log('🚀 Iniciando Copier Company JS - Parte 3/10: Modales de Marcas');
-    
-    // =============================================
-    // BASE DE DATOS DE CONTENIDO PARA MARCAS
-    // =============================================
-    
-    const brandsContent = {
-        'konica': {
-            title: 'Konica Minolta',
-            logo: 'https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/konica-minolta-vector-logo-seeklogo/konica-minolta-seeklogo.png',
-            description: 'Tecnología japonesa de vanguardia para soluciones empresariales',
-            content: `
-                <div class="brand-detail">
-                    <div class="row g-4">
-                        <div class="col-md-8">
-                            <h4 class="d-flex align-items-center mb-3">
-                                <i class="bi bi-award-fill text-primary me-2"></i>Acerca de Konica Minolta
-                            </h4>
-                            <p class="mb-4">Líder mundial en tecnología de impresión con más de 150 años de innovación. 
+// =============================================
+// BASE DE DATOS DE MARCAS
+// =============================================
+
+const brandsContent = {
+    'konica': {
+        title: 'Konica Minolta',
+        logo: 'https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/konica-minolta-vector-logo-seeklogo/konica-minolta-seeklogo.png',
+        description: 'Tecnología japonesa de vanguardia para soluciones de impresión empresarial',
+        content: `
+            <div class="brand-detail">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="brand-overview">
+                            <h4><i class="fas fa-award text-primary me-2"></i>Acerca de Konica Minolta</h4>
+                            <p>Líder mundial en tecnología de impresión con más de 150 años de innovación. 
                             Especializada en soluciones multifuncionales de alta gama para empresas que requieren 
                             máxima calidad y productividad.</p>
                             
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <h5 class="d-flex align-items-center">
-                                        <i class="bi bi-rocket-takeoff text-success me-2"></i>Ventajas Clave
-                                    </h5>
-                                    <ul class="list-unstyled">
-                                        <li><i class="bi bi-check-lg text-success me-2"></i>Velocidad hasta 75 ppm</li>
-                                        <li><i class="bi bi-check-lg text-success me-2"></i>Calidad superior</li>
-                                        <li><i class="bi bi-check-lg text-success me-2"></i>Seguridad avanzada</li>
-                                        <li><i class="bi bi-check-lg text-success me-2"></i>Conectividad cloud</li>
-                                        <li><i class="bi bi-check-lg text-success me-2"></i>Bajo consumo</li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-6">
-                                    <h5 class="d-flex align-items-center">
-                                        <i class="bi bi-building text-warning me-2"></i>Ideal Para
-                                    </h5>
-                                    <ul class="list-unstyled">
-                                        <li><i class="bi bi-building me-2"></i>Grandes corporaciones</li>
-                                        <li><i class="bi bi-mortarboard me-2"></i>Instituciones educativas</li>
-                                        <li><i class="bi bi-hospital me-2"></i>Centros médicos</li>
-                                        <li><i class="bi bi-scales me-2"></i>Estudios legales</li>
-                                        <li><i class="bi bi-printer me-2"></i>Centros de impresión</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card border-primary">
-                                <div class="card-body">
-                                    <h5 class="d-flex align-items-center">
-                                        <i class="bi bi-speedometer2 text-info me-2"></i>Especificaciones
-                                    </h5>
-                                    <div class="row g-2 text-center">
-                                        <div class="col-6">
-                                            <div class="bg-light p-2 rounded">
-                                                <div class="fw-bold text-primary">75</div>
-                                                <small>ppm máximo</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="bg-light p-2 rounded">
-                                                <div class="fw-bold text-primary">1200</div>
-                                                <small>dpi resolución</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="bg-light p-2 rounded">
-                                                <div class="fw-bold text-primary">300K</div>
-                                                <small>hojas/mes</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="bg-light p-2 rounded">
-                                                <div class="fw-bold text-primary">10.1"</div>
-                                                <small>pantalla táctil</small>
-                                            </div>
-                                        </div>
+                            <div class="brand-highlights mt-4">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5><i class="fas fa-rocket text-success me-2"></i>Ventajas Clave</h5>
+                                        <ul class="feature-list">
+                                            <li><i class="fas fa-check text-success me-1"></i> Velocidad hasta 75 ppm</li>
+                                            <li><i class="fas fa-check text-success me-1"></i> Calidad de impresión superior</li>
+                                            <li><i class="fas fa-check text-success me-1"></i> Tecnología de seguridad avanzada</li>
+                                            <li><i class="fas fa-check text-success me-1"></i> Conectividad en la nube</li>
+                                            <li><i class="fas fa-check text-success me-1"></i> Bajo consumo energético</li>
+                                        </ul>
                                     </div>
-                                </div>
-                            </div>
-                            
-                            <div class="mt-3">
-                                <h6><i class="bi bi-list-ul text-secondary me-2"></i>Modelos Populares</h6>
-                                <div class="list-group list-group-flush">
-                                    <div class="list-group-item d-flex justify-content-between">
-                                        <strong>bizhub C558</strong>
-                                        <span class="text-muted">55 ppm</span>
-                                    </div>
-                                    <div class="list-group-item d-flex justify-content-between">
-                                        <strong>bizhub C658</strong>
-                                        <span class="text-muted">65 ppm</span>
-                                    </div>
-                                    <div class="list-group-item d-flex justify-content-between">
-                                        <strong>bizhub C758</strong>
-                                        <span class="text-muted">75 ppm</span>
+                                    <div class="col-md-6">
+                                        <h5><i class="fas fa-industry text-warning me-2"></i>Ideal Para</h5>
+                                        <ul class="industry-list">
+                                            <li><i class="fas fa-building me-1"></i> Grandes corporaciones</li>
+                                            <li><i class="fas fa-graduation-cap me-1"></i> Instituciones educativas</li>
+                                            <li><i class="fas fa-hospital me-1"></i> Centros médicos</li>
+                                            <li><i class="fas fa-balance-scale me-1"></i> Estudios legales</li>
+                                            <li><i class="fas fa-print me-1"></i> Centros de impresión</li>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="row g-3 mt-4">
+                    <div class="col-md-4">
+                        <div class="brand-stats">
+                            <h5><i class="fas fa-chart-bar text-info me-2"></i>Especificaciones</h5>
+                            <div class="stat-grid">
+                                <div class="stat-item">
+                                    <span class="stat-value">75</span>
+                                    <span class="stat-label">ppm máximo</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-value">1200</span>
+                                    <span class="stat-label">dpi resolución</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-value">7500</span>
+                                    <span class="stat-label">hojas/mes</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-value">4.3"</span>
+                                    <span class="stat-label">pantalla táctil</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="brand-models mt-4">
+                            <h5><i class="fas fa-list text-secondary me-2"></i>Modelos Populares</h5>
+                            <div class="model-list">
+                                <div class="model-item">
+                                    <strong>bizhub C558</strong>
+                                    <span>55 ppm color/B&N</span>
+                                </div>
+                                <div class="model-item">
+                                    <strong>bizhub C658</strong>
+                                    <span>65 ppm color/B&N</span>
+                                </div>
+                                <div class="model-item">
+                                    <strong>bizhub C758</strong>
+                                    <span>75 ppm color/B&N</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="brand-features mt-4">
+                    <h4><i class="fas fa-cogs text-primary me-2"></i>Características Técnicas Destacadas</h4>
+                    <div class="row">
                         <div class="col-md-4">
-                            <div class="feature-card text-center p-3 bg-light rounded">
-                                <i class="bi bi-shield-check text-success fs-1 mb-2"></i>
+                            <div class="feature-card">
+                                <i class="fas fa-shield-alt text-success"></i>
                                 <h6>Seguridad Avanzada</h6>
-                                <p class="small">Autenticación biométrica y encriptación</p>
+                                <p>Autenticación biométrica, encriptación de datos y auditoría completa</p>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="feature-card text-center p-3 bg-light rounded">
-                                <i class="bi bi-phone text-primary fs-1 mb-2"></i>
+                            <div class="feature-card">
+                                <i class="fas fa-mobile-alt text-primary"></i>
                                 <h6>Impresión Móvil</h6>
-                                <p class="small">Compatible con iOS, Android y cloud</p>
+                                <p>Compatible con iOS, Android y servicios en la nube principales</p>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="feature-card text-center p-3 bg-light rounded">
-                                <i class="bi bi-tree text-success fs-1 mb-2"></i>
+                            <div class="feature-card">
+                                <i class="fas fa-leaf text-success"></i>
                                 <h6>Eco-Friendly</h6>
-                                <p class="small">Bajo consumo y materiales reciclables</p>
+                                <p>Bajo consumo energético y materiales reciclables</p>
                             </div>
                         </div>
                     </div>
                 </div>
-            `
-        },
-        'canon': {
-            title: 'Canon',
-            logo: 'https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/canon-vector-logo-seeklogo/canon-seeklogo.png',
-            description: 'Excelencia en calidad de imagen y tecnología profesional',
-            content: `
-                <div class="brand-detail">
-                    <div class="row g-4">
-                        <div class="col-md-8">
-                            <h4 class="d-flex align-items-center mb-3">
-                                <i class="bi bi-camera-fill text-primary me-2"></i>Acerca de Canon
-                            </h4>
-                            <p class="mb-4">Reconocida mundialmente por su excelencia en tecnología de imagen. 
-                            Canon combina décadas de experiencia en fotografía con innovación en soluciones 
-                            de oficina, ofreciendo equipos con calidad de imagen excepcional.</p>
+            </div>
+        `
+    },
+    'canon': {
+        title: 'Canon',
+        logo: 'https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/canon-vector-logo-seeklogo/canon-seeklogo.png',
+        description: 'Excelencia en calidad de imagen y tecnología de impresión profesional',
+        content: `
+            <div class="brand-detail">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="brand-overview">
+                            <h4><i class="fas fa-camera text-primary me-2"></i>Acerca de Canon</h4>
+                            <p>Reconocida mundialmente por su excelencia en tecnología de imagen. Canon combina 
+                            décadas de experiencia en fotografía con innovación en soluciones de oficina, 
+                            ofreciendo equipos con calidad de imagen excepcional.</p>
                             
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <h5 class="d-flex align-items-center">
-                                        <i class="bi bi-star-fill text-warning me-2"></i>Fortalezas
-                                    </h5>
-                                    <ul class="list-unstyled">
-                                        <li><i class="bi bi-check-lg text-success me-2"></i>Calidad de imagen superior</li>
-                                        <li><i class="bi bi-check-lg text-success me-2"></i>Tecnología MEAP avanzada</li>
-                                        <li><i class="bi bi-check-lg text-success me-2"></i>Diseño compacto</li>
-                                        <li><i class="bi bi-check-lg text-success me-2"></i>Interfaz intuitiva</li>
-                                        <li><i class="bi bi-check-lg text-success me-2"></i>Confiabilidad probada</li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-6">
-                                    <h5 class="d-flex align-items-center">
-                                        <i class="bi bi-people-fill text-info me-2"></i>Perfecto Para
-                                    </h5>
-                                    <ul class="list-unstyled">
-                                        <li><i class="bi bi-palette me-2"></i>Agencias de diseño</li>
-                                        <li><i class="bi bi-camera me-2"></i>Estudios fotográficos</li>
-                                        <li><i class="bi bi-briefcase me-2"></i>Oficinas medianas</li>
-                                        <li><i class="bi bi-shop me-2"></i>Retail y comercio</li>
-                                        <li><i class="bi bi-house me-2"></i>Oficinas en casa</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card border-danger">
-                                <div class="card-body">
-                                    <h5 class="d-flex align-items-center">
-                                        <i class="bi bi-speedometer text-danger me-2"></i>Rendimiento
-                                    </h5>
-                                    <div class="row g-2 text-center">
-                                        <div class="col-6">
-                                            <div class="bg-light p-2 rounded">
-                                                <div class="fw-bold text-danger">55</div>
-                                                <small>ppm máximo</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="bg-light p-2 rounded">
-                                                <div class="fw-bold text-danger">2400</div>
-                                                <small>dpi calidad</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="bg-light p-2 rounded">
-                                                <div class="fw-bold text-danger">150K</div>
-                                                <small>hojas/mes</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="bg-light p-2 rounded">
-                                                <div class="fw-bold text-danger">10.1"</div>
-                                                <small>pantalla táctil</small>
-                                            </div>
-                                        </div>
+                            <div class="brand-highlights mt-4">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5><i class="fas fa-star text-warning me-2"></i>Fortalezas</h5>
+                                        <ul class="feature-list">
+                                            <li><i class="fas fa-check text-success me-1"></i> Calidad de imagen superior</li>
+                                            <li><i class="fas fa-check text-success me-1"></i> Tecnología MEAP avanzada</li>
+                                            <li><i class="fas fa-check text-success me-1"></i> Diseño compacto y elegante</li>
+                                            <li><i class="fas fa-check text-success me-1"></i> Interfaz intuitiva</li>
+                                            <li><i class="fas fa-check text-success me-1"></i> Confiabilidad probada</li>
+                                        </ul>
                                     </div>
-                                </div>
-                            </div>
-                            
-                            <div class="mt-3">
-                                <h6><i class="bi bi-layers text-primary me-2"></i>Series Disponibles</h6>
-                                <div class="list-group list-group-flush">
-                                    <div class="list-group-item">
-                                        <strong>imageRUNNER ADVANCE</strong>
-                                        <br><small class="text-muted">Serie empresarial</small>
-                                    </div>
-                                    <div class="list-group-item">
-                                        <strong>imageRUNNER C3500</strong>
-                                        <br><small class="text-muted">Color multifuncional</small>
-                                    </div>
-                                    <div class="list-group-item">
-                                        <strong>imageCLASS</strong>
-                                        <br><small class="text-muted">Oficina pequeña</small>
+                                    <div class="col-md-6">
+                                        <h5><i class="fas fa-users text-info me-2"></i>Perfecto Para</h5>
+                                        <ul class="industry-list">
+                                            <li><i class="fas fa-palette me-1"></i> Agencias de diseño</li>
+                                            <li><i class="fas fa-camera me-1"></i> Estudios fotográficos</li>
+                                            <li><i class="fas fa-briefcase me-1"></i> Oficinas medianas</li>
+                                            <li><i class="fas fa-store me-1"></i> Retail y comercio</li>
+                                            <li><i class="fas fa-home me-1"></i> Oficinas en casa</li>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="row g-3 mt-4">
+                    <div class="col-md-4">
+                        <div class="brand-stats">
+                            <h5><i class="fas fa-tachometer-alt text-danger me-2"></i>Rendimiento</h5>
+                            <div class="stat-grid">
+                                <div class="stat-item">
+                                    <span class="stat-value">55</span>
+                                    <span class="stat-label">ppm máximo</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-value">2400</span>
+                                    <span class="stat-label">dpi calidad</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-value">5000</span>
+                                    <span class="stat-label">hojas/mes</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-value">10.1"</span>
+                                    <span class="stat-label">pantalla táctil</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="brand-series mt-4">
+                            <h5><i class="fas fa-layer-group text-primary me-2"></i>Series Disponibles</h5>
+                            <div class="series-list">
+                                <div class="series-item">
+                                    <strong>imageRUNNER ADVANCE</strong>
+                                    <span>Serie empresarial</span>
+                                </div>
+                                <div class="series-item">
+                                    <strong>imageRUNNER C3500</strong>
+                                    <span>Color multifuncional</span>
+                                </div>
+                                <div class="series-item">
+                                    <strong>imageCLASS</strong>
+                                    <span>Oficina pequeña</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="brand-technology mt-4">
+                    <h4><i class="fas fa-microchip text-primary me-2"></i>Tecnologías Innovadoras</h4>
+                    <div class="row">
                         <div class="col-md-3">
-                            <div class="tech-card text-center p-3 bg-light rounded">
-                                <i class="bi bi-eye-fill text-primary fs-1 mb-2"></i>
+                            <div class="tech-card">
+                                <i class="fas fa-eye text-primary"></i>
                                 <h6>MEAP Platform</h6>
-                                <p class="small">Plataforma de aplicaciones empresariales</p>
+                                <p>Plataforma de aplicaciones empresariales multifuncionales</p>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="tech-card text-center p-3 bg-light rounded">
-                                <i class="bi bi-cloud-fill text-info fs-1 mb-2"></i>
+                            <div class="tech-card">
+                                <i class="fas fa-cloud text-info"></i>
                                 <h6>uniFLOW</h6>
-                                <p class="small">Gestión de documentos en la nube</p>
+                                <p>Gestión de documentos y flujo de trabajo en la nube</p>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="tech-card text-center p-3 bg-light rounded">
-                                <i class="bi bi-brush-fill text-warning fs-1 mb-2"></i>
+                            <div class="tech-card">
+                                <i class="fas fa-paint-brush text-warning"></i>
                                 <h6>Calidad de Imagen</h6>
-                                <p class="small">Tecnología heredada de cámaras</p>
+                                <p>Tecnología de imagen profesional heredada de cámaras</p>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="tech-card text-center p-3 bg-light rounded">
-                                <i class="bi bi-disc-fill text-success fs-1 mb-2"></i>
+                            <div class="tech-card">
+                                <i class="fas fa-compact-disc text-success"></i>
                                 <h6>Toners V2</h6>
-                                <p class="small">Tecnología avanzada para mejor calidad</p>
+                                <p>Tecnología de toner avanzada para mejor calidad</p>
                             </div>
                         </div>
                     </div>
                 </div>
-            `
-        },
-        'ricoh': {
-            title: 'Ricoh',
-            logo: 'https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/ricoh-vector-logo-seeklogo/ricoh-seeklogo.png',
-            description: 'Rendimiento superior y durabilidad empresarial',
-            content: `
-                <div class="brand-detail">
-                    <div class="row g-4">
-                        <div class="col-md-8">
-                            <h4 class="d-flex align-items-center mb-3">
-                                <i class="bi bi-factory text-primary me-2"></i>Acerca de Ricoh
-                            </h4>
-                            <p class="mb-4">Pionera en soluciones de oficina digital con enfoque en productividad empresarial. 
+            </div>
+        `
+    },
+    'ricoh': {
+        title: 'Ricoh',
+        logo: 'https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/ricoh-vector-logo-seeklogo/ricoh-seeklogo.png',
+        description: 'Rendimiento superior y durabilidad empresarial',
+        content: `
+            <div class="brand-detail">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="brand-overview">
+                            <h4><i class="fas fa-industry text-primary me-2"></i>Acerca de Ricoh</h4>
+                            <p>Pionera en soluciones de oficina digital con enfoque en productividad empresarial. 
                             Ricoh se especializa en equipos robustos diseñados para entornos de alto volumen 
                             con máxima eficiencia operativa.</p>
                             
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <h5 class="d-flex align-items-center">
-                                        <i class="bi bi-shield-fill text-success me-2"></i>Ventajas Únicas
-                                    </h5>
-                                    <ul class="list-unstyled">
-                                        <li><i class="bi bi-check-lg text-success me-2"></i>Máxima durabilidad</li>
-                                        <li><i class="bi bi-check-lg text-success me-2"></i>Alto volumen mensual</li>
-                                        <li><i class="bi bi-check-lg text-success me-2"></i>Seguridad empresarial</li>
-                                        <li><i class="bi bi-check-lg text-success me-2"></i>Eficiencia energética</li>
-                                        <li><i class="bi bi-check-lg text-success me-2"></i>Mantenimiento fácil</li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-6">
-                                    <h5 class="d-flex align-items-center">
-                                        <i class="bi bi-building-fill text-primary me-2"></i>Sectores Principales
-                                    </h5>
-                                    <ul class="list-unstyled">
-                                        <li><i class="bi bi-bank me-2"></i>Gobierno y público</li>
-                                        <li><i class="bi bi-hospital me-2"></i>Sector salud</li>
-                                        <li><i class="bi bi-gear-fill me-2"></i>Manufactura</li>
-                                        <li><i class="bi bi-credit-card me-2"></i>Servicios financieros</li>
-                                        <li><i class="bi bi-truck me-2"></i>Logística</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card border-warning">
-                                <div class="card-body">
-                                    <h5 class="d-flex align-items-center">
-                                        <i class="bi bi-speedometer text-warning me-2"></i>Capacidades
-                                    </h5>
-                                    <div class="row g-2 text-center">
-                                        <div class="col-6">
-                                            <div class="bg-light p-2 rounded">
-                                                <div class="fw-bold text-warning">60</div>
-                                                <small>ppm velocidad</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="bg-light p-2 rounded">
-                                                <div class="fw-bold text-warning">300K</div>
-                                                <small>páginas/mes</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="bg-light p-2 rounded">
-                                                <div class="fw-bold text-warning">1200</div>
-                                                <small>dpi precisión</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="bg-light p-2 rounded">
-                                                <div class="fw-bold text-warning">99.9%</div>
-                                                <small>confiabilidad</small>
-                                            </div>
-                                        </div>
+                            <div class="brand-highlights mt-4">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5><i class="fas fa-shield-alt text-success me-2"></i>Ventajas Únicas</h5>
+                                        <ul class="feature-list">
+                                            <li><i class="fas fa-check text-success me-1"></i> Máxima durabilidad</li>
+                                            <li><i class="fas fa-check text-success me-1"></i> Alto volumen mensual</li>
+                                            <li><i class="fas fa-check text-success me-1"></i> Seguridad empresarial</li>
+                                            <li><i class="fas fa-check text-success me-1"></i> Eficiencia energética</li>
+                                            <li><i class="fas fa-check text-success me-1"></i> Facilidad de mantenimiento</li>
+                                        </ul>
                                     </div>
-                                </div>
-                            </div>
-                            
-                            <div class="mt-3">
-                                <h6><i class="bi bi-puzzle text-info me-2"></i>Soluciones</h6>
-                                <div class="list-group list-group-flush">
-                                    <div class="list-group-item">
-                                        <strong>IM Series</strong>
-                                        <br><small class="text-muted">Inteligencia avanzada</small>
-                                    </div>
-                                    <div class="list-group-item">
-                                        <strong>MP Series</strong>
-                                        <br><small class="text-muted">Multifuncional tradicional</small>
-                                    </div>
-                                    <div class="list-group-item">
-                                        <strong>Pro Series</strong>
-                                        <br><small class="text-muted">Producción profesional</small>
+                                    <div class="col-md-6">
+                                        <h5><i class="fas fa-building text-primary me-2"></i>Sectores Principales</h5>
+                                        <ul class="industry-list">
+                                            <li><i class="fas fa-university me-1"></i> Gobierno y público</li>
+                                            <li><i class="fas fa-hospital-alt me-1"></i> Sector salud</li>
+                                            <li><i class="fas fa-industry me-1"></i> Manufactura</li>
+                                            <li><i class="fas fa-landmark me-1"></i> Servicios financieros</li>
+                                            <li><i class="fas fa-shipping-fast me-1"></i> Logística</li>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="row g-3 mt-4">
+                    <div class="col-md-4">
+                        <div class="brand-stats">
+                            <h5><i class="fas fa-gauge-high text-warning me-2"></i>Capacidades</h5>
+                            <div class="stat-grid">
+                                <div class="stat-item">
+                                    <span class="stat-value">60</span>
+                                    <span class="stat-label">ppm velocidad</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-value">300K</span>
+                                    <span class="stat-label">páginas/mes</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-value">1200</span>
+                                    <span class="stat-label">dpi precisión</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-value">99.9%</span>
+                                    <span class="stat-label">confiabilidad</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="brand-solutions mt-4">
+                            <h5><i class="fas fa-puzzle-piece text-info me-2"></i>Soluciones</h5>
+                            <div class="solution-list">
+                                <div class="solution-item">
+                                    <strong>IM Series</strong>
+                                    <span>Inteligencia avanzada</span>
+                                </div>
+                                <div class="solution-item">
+                                    <strong>MP Series</strong>
+                                    <span>Multifuncional tradicional</span>
+                                </div>
+                                <div class="solution-item">
+                                    <strong>Pro Series</strong>
+                                    <span>Producción profesional</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="brand-innovation mt-4">
+                    <h4><i class="fas fa-lightbulb text-warning me-2"></i>Innovaciones Ricoh</h4>
+                    <div class="row">
                         <div class="col-md-4">
-                            <div class="innovation-card text-center p-3 bg-light rounded">
-                                <i class="bi bi-cpu-fill text-info fs-1 mb-2"></i>
+                            <div class="innovation-card">
+                                <i class="fas fa-brain text-purple"></i>
                                 <h6>Smart Operation Panel</h6>
-                                <p class="small">Interfaz que se adapta al usuario</p>
+                                <p>Interfaz inteligente que se adapta al usuario y optimiza flujos</p>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="innovation-card text-center p-3 bg-light rounded">
-                                <i class="bi bi-lock-fill text-danger fs-1 mb-2"></i>
+                            <div class="innovation-card">
+                                <i class="fas fa-lock text-danger"></i>
                                 <h6>Security por Diseño</h6>
-                                <p class="small">Seguridad desde hardware hasta software</p>
+                                <p>Seguridad integrada desde el hardware hasta el software</p>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="innovation-card text-center p-3 bg-light rounded">
-                                <i class="bi bi-recycle text-success fs-1 mb-2"></i>
+                            <div class="innovation-card">
+                                <i class="fas fa-recycle text-success"></i>
                                 <h6>Sostenibilidad</h6>
-                                <p class="small">Compromiso con el medio ambiente</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="alert alert-info mt-4">
-                        <h6><i class="bi bi-headset me-2"></i>Soporte Ricoh Especializado</h6>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <small><i class="bi bi-tools me-1"></i> Técnicos certificados</small><br>
-                                <small><i class="bi bi-truck me-1"></i> Repuestos originales</small><br>
-                                <small><i class="bi bi-graph-up me-1"></i> Monitoreo proactivo</small>
-                            </div>
-                            <div class="col-md-6">
-                                <small><i class="bi bi-clock me-1"></i> Respuesta < 4 horas</small><br>
-                                <small><i class="bi bi-mortarboard me-1"></i> Capacitación incluida</small><br>
-                                <small><i class="bi bi-phone me-1"></i> App móvil soporte</small>
+                                <p>Compromiso con el medio ambiente y eficiencia energética</p>
                             </div>
                         </div>
                     </div>
                 </div>
-            `
-        }
-    };
-    
-    // =============================================
-    // SISTEMA DE MODALES PARA MARCAS
-    // =============================================
-    
-    const brandModalSystem = {
-        init: function() {
-            this.createBrandModal();
-            this.bindBrandEvents();
-            console.log('✅ Sistema de modales de marcas inicializado');
-        },
-        
-        createBrandModal: function() {
-            if (document.getElementById('brandModal')) return;
-            
-            const modalHTML = `
-                <div class="modal fade" id="brandModal" tabindex="-1">
-                    <div class="modal-dialog modal-xl modal-dialog-centered">
-                        <div class="modal-content border-0 shadow-lg">
-                            <div class="modal-header bg-dark text-white">
-                                <h4 class="modal-title" id="brandModalLabel">
-                                    <i class="bi bi-award me-2"></i>Información de Marca
-                                </h4>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body p-4" id="brandModalBody">
-                                <div class="text-center py-4">
-                                    <div class="spinner-border text-primary"></div>
-                                </div>
-                            </div>
-                            <div class="modal-footer bg-light">
-                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                    <i class="bi bi-x-lg me-2"></i>Cerrar
-                                </button>
-                                <a href="/productos" class="btn btn-primary">
-                                    <i class="bi bi-eye me-2"></i>Ver Productos
-                                </a>
-                                <a href="/cotizacion/form" class="btn btn-success">
-                                    <i class="bi bi-calculator me-2"></i>Cotización
-                                </a>
-                            </div>
+                
+                <div class="brand-support mt-4 p-3 bg-light rounded">
+                    <h5><i class="fas fa-headset text-success me-2"></i>Soporte Ricoh Especializado</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="support-features">
+                                <li><i class="fas fa-tools me-1"></i> Técnicos certificados por fábrica</li>
+                                <li><i class="fas fa-shipping-fast me-1"></i> Repuestos originales garantizados</li>
+                                <li><i class="fas fa-chart-line me-1"></i> Monitoreo proactivo remotamente</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="support-features">
+                                <li><i class="fas fa-clock me-1"></i> Respuesta en menos de 4 horas</li>
+                                <li><i class="fas fa-graduation-cap me-1"></i> Capacitación especializada incluida</li>
+                                <li><i class="fas fa-mobile-alt me-1"></i> App móvil para soporte</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
-            `;
-            
-            document.body.insertAdjacentHTML('beforeend', modalHTML);
-        },
+            </div>
+        `
+    }
+};
+
+// =============================================
+// MANEJADOR DE MODALES DE MARCAS
+// =============================================
+
+document.addEventListener('click', function(e) {
+    const brandCard = e.target.closest('[data-brand]');
+    if (brandCard) {
+        const brandType = brandCard.getAttribute('data-brand');
+        const brandData = brandsContent[brandType];
         
-        bindBrandEvents: function() {
-            document.addEventListener('click', (e) => {
-                const brandCard = e.target.closest('[data-brand]');
-                if (brandCard) {
-                    e.preventDefault();
-                    const brandType = brandCard.getAttribute('data-brand');
-                    this.openBrandModal(brandType);
-                }
-            });
-        },
-        
-        openBrandModal: function(brandType) {
-            const data = brandsContent[brandType];
-            if (!data) return;
-            
-            const modalTitle = document.getElementById('brandModalLabel');
-            const modalBody = document.getElementById('brandModalBody');
-            
-            modalTitle.innerHTML = `
-                <img src="${data.logo}" alt="${data.title}" style="height: 30px; margin-right: 10px;">
-                ${data.title}
-            `;
-            
-            modalBody.innerHTML = data.content;
-            
-            const modal = new bootstrap.Modal(document.getElementById('brandModal'));
-            modal.show();
+        if (brandData) {
+            // Actualizar contenido del modal
+            document.getElementById('brandModalLabel').innerHTML = 
+                `<img src="${brandData.logo}" alt="${brandData.title}" style="height: 30px; margin-right: 10px;">${brandData.title}`;
+            document.getElementById('brandModalBody').innerHTML = brandData.content;
         }
-    };
-    
-    // =============================================
-    // INICIALIZACIÓN DE PARTE 3
-    // =============================================
-    
-    try {
-        brandModalSystem.init();
-        
-        console.log('✅ Parte 3/10 inicializada completamente');
-        document.dispatchEvent(new CustomEvent('copierJS:part3Ready'));
-        
-    } catch (error) {
-        console.error('❌ Error en Parte 3:', error);
     }
 });
 
-// Actualizar objeto global
-window.CopierCompany = window.CopierCompany || {};
-window.CopierCompany.brandsContent = brandsContent;
-window.CopierCompany.partsLoaded = window.CopierCompany.partsLoaded || [];
-window.CopierCompany.partsLoaded.push('part3');
-
-console.log('📦 Copier Company JS - Parte 3/10 cargada');
+console.log('✅ Parte 3: Sistema de modales dinámicos para marcas inicializado');
 /**
- * COPIER COMPANY HOMEPAGE - SISTEMA JAVASCRIPT COMPLETO
- * PARTE 4/10: MODALES DE PRODUCTOS Y ESPECIFICACIONES
- * Versión Bootstrap Icons - Compatible con Odoo
- * Máximo 300 líneas por parte
+ * PARTE 4: MODALES DE PRODUCTOS Y FUNCIONALIDADES ADICIONALES
+ * JavaScript para Homepage Moderna de Copier Company
  */
 
-// Esperar a que la Parte 3 esté lista
-document.addEventListener('copierJS:part3Ready', function() {
-    console.log('🚀 Iniciando Copier Company JS - Parte 4/10: Modales de Productos');
-    
-    // =============================================
-    // BASE DE DATOS DE CONTENIDO PARA PRODUCTOS
-    // =============================================
-    
-    const productsContent = {
-        'multifuncional-a3': {
-            title: 'Multifuncionales A3',
-            category: 'A3',
-            icon: 'bi bi-printer-fill',
-            description: 'Equipos de alto rendimiento para oficinas grandes y centros de copiado',
-            content: `
-                <div class="product-detail">
-                    <div class="row g-4">
-                        <div class="col-md-8">
-                            <h4 class="d-flex align-items-center mb-3">
-                                <i class="bi bi-aspect-ratio text-primary me-2"></i>Multifuncionales A3 Profesionales
-                            </h4>
-                            <p class="mb-4">Diseñados para empresas con alto volumen de impresión que requieren versatilidad 
+// =============================================
+// BASE DE DATOS DE PRODUCTOS
+// =============================================
+
+const productsContent = {
+    'multifuncional-a3': {
+        title: 'Multifuncionales A3',
+        category: 'A3',
+        description: 'Equipos de alto rendimiento para oficinas grandes y centros de copiado',
+        content: `
+            <div class="product-detail">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="product-overview">
+                            <h4><i class="fas fa-expand-arrows-alt text-primary me-2"></i>Multifuncionales A3 Profesionales</h4>
+                            <p>Diseñados para empresas con alto volumen de impresión que requieren versatilidad 
                             en formatos grandes. Ideales para oficinas corporativas, centros de copiado y 
                             departamentos de marketing que manejan documentos de gran formato.</p>
                             
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <h5 class="d-flex align-items-center">
-                                        <i class="bi bi-list-check text-success me-2"></i>Funciones Principales
-                                    </h5>
-                                    <ul class="list-unstyled">
-                                        <li><i class="bi bi-printer me-2"></i>Impresión A3/A4 color y B&N</li>
-                                        <li><i class="bi bi-files me-2"></i>Copiado hasta 75 ppm</li>
-                                        <li><i class="bi bi-scanner me-2"></i>Escaneo dúplex automático</li>
-                                        <li><i class="bi bi-telephone me-2"></i>Fax (opcional)</li>
-                                        <li><i class="bi bi-filetype-pdf me-2"></i>Escaneo directo a PDF/email</li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-6">
-                                    <h5 class="d-flex align-items-center">
-                                        <i class="bi bi-gear-fill text-warning me-2"></i>Características Avanzadas
-                                    </h5>
-                                    <ul class="list-unstyled">
-                                        <li><i class="bi bi-wifi me-2"></i>Conectividad WiFi y Ethernet</li>
-                                        <li><i class="bi bi-phone me-2"></i>Impresión desde móviles</li>
-                                        <li><i class="bi bi-cloud-fill me-2"></i>Integración con servicios cloud</li>
-                                        <li><i class="bi bi-fingerprint me-2"></i>Autenticación biométrica</li>
-                                        <li><i class="bi bi-book me-2"></i>Creación de folletos automática</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card border-primary">
-                                <div class="card-body">
-                                    <h5 class="d-flex align-items-center">
-                                        <i class="bi bi-speedometer2 text-info me-2"></i>Especificaciones
-                                    </h5>
-                                    <div class="table-responsive">
-                                        <table class="table table-sm">
-                                            <tr><td><i class="bi bi-lightning-fill me-1"></i>Velocidad</td><td><strong>35-75 ppm</strong></td></tr>
-                                            <tr><td><i class="bi bi-eye me-1"></i>Resolución</td><td><strong>1200x1200 dpi</strong></td></tr>
-                                            <tr><td><i class="bi bi-file-earmark me-1"></i>Vol. mensual</td><td><strong>50K-300K</strong></td></tr>
-                                            <tr><td><i class="bi bi-memory me-1"></i>RAM</td><td><strong>4-8 GB</strong></td></tr>
-                                            <tr><td><i class="bi bi-tablet me-1"></i>Pantalla</td><td><strong>10.1" táctil</strong></td></tr>
-                                            <tr><td><i class="bi bi-file-ruled me-1"></i>Formatos</td><td><strong>A6 a A3+</strong></td></tr>
-                                        </table>
+                            <div class="product-capabilities mt-4">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5><i class="fas fa-list-check text-success me-2"></i>Funciones Principales</h5>
+                                        <ul class="capability-list">
+                                            <li><i class="fas fa-print me-1"></i> Impresión A3/A4 color y B&N</li>
+                                            <li><i class="fas fa-copy me-1"></i> Copiado hasta 75 ppm</li>
+                                            <li><i class="fas fa-scanner me-1"></i> Escaneo dúplex automático</li>
+                                            <li><i class="fas fa-fax me-1"></i> Fax (opcional)</li>
+                                            <li><i class="fas fa-file-pdf me-1"></i> Escaneo directo a PDF/email</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h5><i class="fas fa-cogs text-warning me-2"></i>Características Avanzadas</h5>
+                                        <ul class="feature-list">
+                                            <li><i class="fas fa-wifi me-1"></i> Conectividad WiFi y Ethernet</li>
+                                            <li><i class="fas fa-mobile-alt me-1"></i> Impresión desde móviles</li>
+                                            <li><i class="fas fa-cloud me-1"></i> Integración con servicios cloud</li>
+                                            <li><i class="fas fa-fingerprint me-1"></i> Autenticación biométrica</li>
+                                            <li><i class="fas fa-book me-1"></i> Creación de folletos automática</li>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div class="mt-3 text-center">
-                                <h6 class="d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-currency-dollar text-success me-2"></i>Alquiler Mensual
-                                </h6>
-                                <div class="price-display p-3 bg-success bg-opacity-10 rounded">
-                                    <div class="fs-4 fw-bold text-success">$299 - $899</div>
-                                    <small class="text-muted">*Incluye mantenimiento y soporte</small>
-                                </div>
-                            </div>
                         </div>
                     </div>
-                    
-                    <div class="row g-3 mt-4">
-                        <div class="col-md-4">
-                            <div class="model-card card border-light">
-                                <div class="card-body text-center">
-                                    <h6 class="text-primary">Entrada (35-45 ppm)</h6>
-                                    <ul class="list-unstyled small">
-                                        <li>Ideal para oficinas medianas</li>
-                                        <li>Funciones básicas completas</li>
-                                        <li>Excelente relación precio/calidad</li>
-                                    </ul>
-                                    <div class="fw-bold text-success">$299-399/mes</div>
+                    <div class="col-md-4">
+                        <div class="product-specs">
+                            <h5><i class="fas fa-chart-bar text-info me-2"></i>Especificaciones</h5>
+                            <div class="spec-grid">
+                                <div class="spec-item">
+                                    <span class="spec-label">Velocidad</span>
+                                    <span class="spec-value">35-75 ppm</span>
+                                </div>
+                                <div class="spec-item">
+                                    <span class="spec-label">Resolución</span>
+                                    <span class="spec-value">1200x1200 dpi</span>
+                                </div>
+                                <div class="spec-item">
+                                    <span class="spec-label">Volumen mensual</span>
+                                    <span class="spec-value">50,000-300,000</span>
+                                </div>
+                                <div class="spec-item">
+                                    <span class="spec-label">Memoria RAM</span>
+                                    <span class="spec-value">4-8 GB</span>
+                                </div>
+                                <div class="spec-item">
+                                    <span class="spec-label">Pantalla</span>
+                                    <span class="spec-value">10.1" táctil</span>
+                                </div>
+                                <div class="spec-item">
+                                    <span class="spec-label">Formatos</span>
+                                    <span class="spec-value">A6 a A3+</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="model-card card border-primary">
-                                <div class="card-body text-center">
-                                    <h6 class="text-primary">Intermedio (50-60 ppm)</h6>
-                                    <span class="badge bg-primary mb-2">Más Popular</span>
-                                    <ul class="list-unstyled small">
-                                        <li>Más popular para empresas</li>
-                                        <li>Funciones avanzadas incluidas</li>
-                                        <li>Óptimo rendimiento/costo</li>
-                                    </ul>
-                                    <div class="fw-bold text-success">$499-699/mes</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="model-card card border-warning">
-                                <div class="card-body text-center">
-                                    <h6 class="text-primary">Alto Rendimiento (65-75 ppm)</h6>
-                                    <ul class="list-unstyled small">
-                                        <li>Para centros de impresión</li>
-                                        <li>Máximas funcionalidades</li>
-                                        <li>Volúmenes industriales</li>
-                                    </ul>
-                                    <div class="fw-bold text-success">$699-899/mes</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="alert alert-info mt-4">
-                        <h6><i class="bi bi-star-fill text-warning me-2"></i>¿Por Qué Elegir A3?</h6>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <small><i class="bi bi-arrows-expand me-1"></i> Versatilidad de formatos</small><br>
-                                <small><i class="bi bi-graph-down me-1"></i> Reducción de costos operativos</small><br>
-                                <small><i class="bi bi-people me-1"></i> Mayor productividad del equipo</small>
-                            </div>
-                            <div class="col-md-6">
-                                <small><i class="bi bi-rocket me-1"></i> Procesamiento más rápido</small><br>
-                                <small><i class="bi bi-shield-check me-1"></i> Funciones de seguridad avanzadas</small><br>
-                                <small><i class="bi bi-plug me-1"></i> Conectividad empresarial</small>
+                        
+                        <div class="rental-info mt-4">
+                            <h5><i class="fas fa-dollar-sign text-success me-2"></i>Alquiler Mensual</h5>
+                            <div class="price-range">
+                                <span class="price-from">Desde $299</span>
+                                <span class="price-to">hasta $899</span>
+                                <small class="price-note">*Incluye mantenimiento y soporte</small>
                             </div>
                         </div>
                     </div>
                 </div>
-            `
-        },
-        'multifuncional-a4': {
-            title: 'Multifuncionales A4',
-            category: 'A4',
-            icon: 'bi bi-printer',
-            description: 'Soluciones compactas perfectas para oficinas medianas y pequeñas',
-            content: `
-                <div class="product-detail">
-                    <div class="row g-4">
-                        <div class="col-md-8">
-                            <h4 class="d-flex align-items-center mb-3">
-                                <i class="bi bi-laptop text-primary me-2"></i>Multifuncionales A4 Compactos
-                            </h4>
-                            <p class="mb-4">La solución ideal para oficinas que buscan funcionalidad completa en un espacio 
+                
+                <div class="product-models mt-4">
+                    <h4><i class="fas fa-layer-group text-primary me-2"></i>Modelos Disponibles</h4>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="model-card">
+                                <h6>Entrada (35-45 ppm)</h6>
+                                <ul class="model-features">
+                                    <li>Ideal para oficinas medianas</li>
+                                    <li>Funciones básicas completas</li>
+                                    <li>Excelente relación precio/calidad</li>
+                                </ul>
+                                <div class="model-price">$299-399/mes</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="model-card popular">
+                                <h6>Intermedio (50-60 ppm)</h6>
+                                <ul class="model-features">
+                                    <li>Más popular para empresas</li>
+                                    <li>Funciones avanzadas incluidas</li>
+                                    <li>Óptimo rendimiento/costo</li>
+                                </ul>
+                                <div class="model-price">$499-699/mes</div>
+                                <span class="popular-badge">Más Popular</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="model-card">
+                                <h6>Alto Rendimiento (65-75 ppm)</h6>
+                                <ul class="model-features">
+                                    <li>Para centros de impresión</li>
+                                    <li>Máximas funcionalidades</li>
+                                    <li>Volúmenes industriales</li>
+                                </ul>
+                                <div class="model-price">$699-899/mes</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="product-benefits mt-4 p-3 bg-light rounded">
+                    <h5><i class="fas fa-star text-warning me-2"></i>¿Por Qué Elegir A3?</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="benefit-list">
+                                <li><i class="fas fa-expand me-1"></i> Versatilidad de formatos</li>
+                                <li><i class="fas fa-chart-pie me-1"></i> Reducción de costos operativos</li>
+                                <li><i class="fas fa-users me-1"></i> Mayor productividad del equipo</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="benefit-list">
+                                <li><i class="fas fa-rocket me-1"></i> Procesamiento más rápido</li>
+                                <li><i class="fas fa-shield-alt me-1"></i> Funciones de seguridad avanzadas</li>
+                                <li><i class="fas fa-plug me-1"></i> Conectividad empresarial</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `
+    },
+    'multifuncional-a4': {
+        title: 'Multifuncionales A4',
+        category: 'A4',
+        description: 'Soluciones compactas perfectas para oficinas medianas y pequeñas',
+        content: `
+            <div class="product-detail">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="product-overview">
+                            <h4><i class="fas fa-desktop text-primary me-2"></i>Multifuncionales A4 Compactos</h4>
+                            <p>La solución ideal para oficinas que buscan funcionalidad completa en un espacio 
                             reducido. Perfectos para pequeñas y medianas empresas que requieren calidad 
                             profesional sin comprometer el espacio de trabajo.</p>
                             
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <h5 class="d-flex align-items-center">
-                                        <i class="bi bi-check-circle text-success me-2"></i>Funciones Incluidas
-                                    </h5>
-                                    <ul class="list-unstyled">
-                                        <li><i class="bi bi-printer me-2"></i>Impresión color/B&N hasta 35 ppm</li>
-                                        <li><i class="bi bi-files me-2"></i>Copiado automático</li>
-                                        <li><i class="bi bi-upc-scan me-2"></i>Escaneo color alta resolución</li>
-                                        <li><i class="bi bi-wifi me-2"></i>Conectividad inalámbrica</li>
-                                        <li><i class="bi bi-phone me-2"></i>Impresión móvil directa</li>
+                            <div class="product-advantages mt-4">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5><i class="fas fa-check-circle text-success me-2"></i>Funciones Incluidas</h5>
+                                        <ul class="function-list">
+                                            <li><i class="fas fa-print me-1"></i> Impresión color/B&N hasta 35 ppm</li>
+                                            <li><i class="fas fa-copy me-1"></i> Copiado automático</li>
+                                            <li><i class="fas fa-scan me-1"></i> Escaneo color de alta resolución</li>
+                                            <li><i class="fas fa-wifi me-1"></i> Conectividad inalámbrica</li>
+                                            <li><i class="fas fa-mobile-alt me-1"></i> Impresión móvil directa</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h5><i class="fas fa-gem text-warning me-2"></i>Ventajas Clave</h5>
+                                        <ul class="advantage-list">
+                                            <li><i class="fas fa-home me-1"></i> Diseño compacto para cualquier espacio</li>
+                                            <li><i class="fas fa-volume-down me-1"></i> Operación silenciosa</li>
+                                            <li><i class="fas fa-leaf me-1"></i> Bajo consumo energético</li>
+                                            <li><i class="fas fa-user-friendly me-1"></i> Interfaz intuitiva</li>
+                                            <li><i class="fas fa-tools me-1"></i> Mantenimiento simplificado</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="product-specs">
+                            <h5><i class="fas fa-list text-info me-2"></i>Especificaciones</h5>
+                            <div class="spec-grid">
+                                <div class="spec-item">
+                                    <span class="spec-label">Velocidad</span>
+                                    <span class="spec-value">20-35 ppm</span>
+                                </div>
+                                <div class="spec-item">
+                                    <span class="spec-label">Resolución</span>
+                                    <span class="spec-value">600x600 dpi</span>
+                                </div>
+                                <div class="spec-item">
+                                    <span class="spec-label">Volumen mensual</span>
+                                    <span class="spec-value">5,000-50,000</span>
+                                </div>
+                                <div class="spec-item">
+                                    <span class="spec-label">Memoria</span>
+                                    <span class="spec-value">512MB-2GB</span>
+                                </div>
+                                <div class="spec-item">
+                                    <span class="spec-label">Pantalla</span>
+                                    <span class="spec-value">4.3"-7" táctil</span>
+                                </div>
+                                <div class="spec-item">
+                                    <span class="spec-label">Dimensiones</span>
+                                    <span class="spec-value">Compacto</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="compatibility mt-4">
+                            <h5><i class="fas fa-puzzle-piece text-success me-2"></i>Compatibilidad</h5>
+                            <div class="compatibility-grid">
+                                <div class="compat-item">
+                                    <i class="fab fa-windows"></i>
+                                    <span>Windows</span>
+                                </div>
+                                <div class="compat-item">
+                                    <i class="fab fa-apple"></i>
+                                    <span>macOS</span>
+                                </div>
+                                <div class="compat-item">
+                                    <i class="fab fa-linux"></i>
+                                    <span>Linux</span>
+                                </div>
+                                <div class="compat-item">
+                                    <i class="fab fa-android"></i>
+                                    <span>Android</span>
+                                </div>
+                                <div class="compat-item">
+                                    <i class="fab fa-apple"></i>
+                                    <span>iOS</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="usage-scenarios mt-4">
+                    <h4><i class="fas fa-building text-primary me-2"></i>Escenarios de Uso Ideales</h4>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="scenario-card">
+                                <i class="fas fa-briefcase text-primary"></i>
+                                <h6>Oficinas Pequeñas</h6>
+                                <p>5-15 empleados con necesidades básicas de impresión</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="scenario-card">
+                                <i class="fas fa-home text-success"></i>
+                                <h6>Home Office</h6>
+                                <p>Profesionales independientes y teletrabajo</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="scenario-card">
+                                <i class="fas fa-store text-warning"></i>
+                                <h6>Retail</h6>
+                                <p>Tiendas y puntos de venta con espacio limitado</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="scenario-card">
+                                <i class="fas fa-graduation-cap text-info"></i>
+                                <h6>Educación</h6>
+                                <p>Aulas y oficinas administrativas</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="cost-comparison mt-4 p-3 bg-light rounded">
+                    <h5><i class="fas fa-calculator text-success me-2"></i>Comparación de Costos</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Alquiler vs Compra</h6>
+                            <div class="cost-table">
+                                <div class="cost-row">
+                                    <span>Alquiler mensual:</span>
+                                    <strong>$149-299</strong>
+                                </div>
+                                <div class="cost-row">
+                                    <span>Compra equivalente:</span>
+                                    <strong>$3,500-8,000</strong>
+                                </div>
+                                <div class="cost-row highlight">
+                                    <span>Ahorro en primer año:</span>
+                                    <strong>hasta 70%</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Incluido en el Alquiler</h6>
+                            <ul class="included-list">
+                                <li><i class="fas fa-check text-success me-1"></i> Mantenimiento completo</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Soporte técnico 24/7</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Repuestos originales</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Instalación profesional</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Capacitación del personal</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `
+    },
+    'impresoras-laser': {
+        title: 'Impresoras Láser',
+        category: 'LÁSER',
+        description: 'Alta velocidad y calidad profesional para impresión dedicada',
+        content: `
+            <div class="product-detail">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="product-overview">
+                            <h4><i class="fas fa-laser text-primary me-2"></i>Impresoras Láser Profesionales</h4>
+                            <p>Tecnología láser de vanguardia para empresas que requieren velocidad excepcional 
+                            y calidad consistente en grandes volúmenes. Ideales para departamentos con alta 
+                            demanda de impresión especializada.</p>
+                            
+                            <div class="laser-benefits mt-4">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5><i class="fas fa-rocket text-success me-2"></i>Ventajas del Láser</h5>
+                                        <ul class="benefit-list">
+                                            <li><i class="fas fa-tachometer-alt me-1"></i> Velocidad superior (hasta 75 ppm)</li>
+                                            <li><i class="fas fa-dollar-sign me-1"></i> Menor costo por página</li>
+                                            <li><i class="fas fa-droplet me-1"></i> Resistente al agua</li>
+                                            <li><i class="fas fa-clock me-1"></i> Tiempo de calentamiento rápido</li>
+                                            <li><i class="fas fa-shield-alt me-1"></i> Durabilidad excepcional</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h5><i class="fas fa-palette text-warning me-2"></i>Tipos Disponibles</h5>
+                                        <ul class="type-list">
+                                            <li><i class="fas fa-circle me-1"></i> Monocromático (B&N)</li>
+                                            <li><i class="fas fa-palette me-1"></i> Color profesional</li>
+                                            <li><i class="fas fa-expand me-1"></i> Gran formato (A3+)</li>
+                                            <li><i class="fas fa-industry me-1"></i> Producción industrial</li>
+                                            <li><i class="fas fa-network-wired me-1"></i> Red empresarial</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="performance-stats">
+                            <h5><i class="fas fa-chart-line text-info me-2"></i>Rendimiento</h5>
+                            <div class="stat-showcase">
+                                <div class="stat-large">
+                                    <span class="stat-number">75</span>
+                                    <span class="stat-unit">ppm</span>
+                                    <span class="stat-desc">Velocidad máxima</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Primera página:</span>
+                                    <span class="stat-value">6 segundos</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Resolución:</span>
+                                    <span class="stat-value">1200x1200 dpi</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Volumen máximo:</span>
+                                    <span class="stat-value">300K páginas/mes</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="connectivity mt-4">
+                            <h5><i class="fas fa-wifi text-primary me-2"></i>Conectividad</h5>
+                            <div class="connection-options">
+                                <div class="connection-item">
+                                    <i class="fas fa-ethernet"></i>
+                                    <span>Ethernet Gigabit</span>
+                                </div>
+                                <div class="connection-item">
+                                    <i class="fas fa-wifi"></i>
+                                    <span>WiFi 802.11ac</span>
+                                </div>
+                                <div class="connection-item">
+                                    <i class="fas fa-usb"></i>
+                                    <span>USB 3.0</span>
+                                </div>
+                                <div class="connection-item">
+                                    <i class="fas fa-mobile-alt"></i>
+                                    <span>NFC/Mobile Print</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="laser-categories mt-4">
+                    <h4><i class="fas fa-layer-group text-primary me-2"></i>Categorías de Impresoras Láser</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="category-card">
+                                <div class="category-header">
+                                    <i class="fas fa-circle text-dark"></i>
+                                    <h5>Láser Monocromático</h5>
+                                </div>
+                                <div class="category-specs">
+                                    <ul>
+                                        <li><strong>Velocidad:</strong> 25-75 ppm</li>
+                                        <li><strong>Costo por página:</strong> $0.02-0.04</li>
+                                        <li><strong>Ideal para:</strong> Documentos de texto</li>
+                                        <li><strong>Volumen:</strong> Alto (50K-300K/mes)</li>
                                     </ul>
                                 </div>
-                                <div class="col-md-6">
-                                    <h5 class="d-flex align-items-center">
-                                        <i class="bi bi-gem text-warning me-2"></i>Ventajas Clave
-                                    </h5>
-                                    <ul class="list-unstyled">
-                                        <li><i class="bi bi-house me-2"></i>Diseño compacto para cualquier espacio</li>
-                                        <li><i class="bi bi-volume-down me-2"></i>Operación silenciosa</li>
-                                        <li><i class="bi bi-battery me-2"></i>Bajo consumo energético</li>
-                                        <li><i class="bi bi-emoji-smile me-2"></i>Interfaz intuitiva</li>
-                                        <li><i class="bi bi-tools me-2"></i>Mantenimiento simplificado</li>
+                                <div class="category-price">
+                                    <span class="price-range">$199-599/mes</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="category-card">
+                                <div class="category-header">
+                                    <i class="fas fa-palette text-danger"></i>
+                                    <h5>Láser Color</h5>
+                                </div>
+                                <div class="category-specs">
+                                    <ul>
+                                        <li><strong>Velocidad:</strong> 20-55 ppm</li>
+                                        <li><strong>Costo por página:</strong> $0.08-0.15</li>
+                                        <li><strong>Ideal para:</strong> Marketing y presentaciones</li>
+                                        <li><strong>Volumen:</strong> Medio-Alto (20K-150K/mes)</li>
                                     </ul>
                                 </div>
+                                <div class="category-price">
+                                    <span class="price-range">$399-899/mes</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="laser-technology mt-4 p-3 bg-light rounded">
+                    <h5><i class="fas fa-cog text-primary me-2"></i>Tecnología Láser Avanzada</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="tech-feature">
+                                <i class="fas fa-bolt text-warning"></i>
+                                <h6>Proceso Electrofotográfico</h6>
+                                <p>Precisión microscópica para textos nítidos y gráficos detallados</p>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="card border-success">
-                                <div class="card-body">
-                                    <h5 class="d-flex align-items-center">
-                                        <i class="bi bi-list text-info me-2"></i>Especificaciones
-                                    </h5>
-                                    <div class="table-responsive">
-                                        <table class="table table-sm">
-                                            <tr><td><i class="bi bi-lightning me-1"></i>Velocidad</td><td><strong>20-35 ppm</strong></td></tr>
-                                            <tr><td><i class="bi bi-eye me-1"></i>Resolución</td><td><strong>600x600 dpi</strong></td></tr>
-                                            <tr><td><i class="bi bi-file-earmark me-1"></i>Vol. mensual</td><td><strong>5K-50K</strong></td></tr>
-                                            <tr><td><i class="bi bi-memory me-1"></i>Memoria</td><td><strong>512MB-2GB</strong></td></tr>
-                                            <tr><td><i class="bi bi-tablet me-1"></i>Pantalla</td><td><strong>4.3"-7" táctil</strong></td></tr>
-                                            <tr><td><i class="bi bi-rulers me-1"></i>Dimensiones</td><td><strong>Compacto</strong></td></tr>
-                                        </table>
-                                    </div>
-                                </div>
+                            <div class="tech-feature">
+                                <i class="fas fa-snowflake text-info"></i>
+                                <h6>Fusión Instantánea</h6>
+                                <p>Sistema de calor controlado para fijación permanente</p>
                             </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="tech-feature">
+                                <i class="fas fa-recycle text-success"></i>
+                                <h6>Tóner Optimizado</h6>
+                                <p>Formulación avanzada para mayor rendimiento y calidad</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `
+    },
+    'equipos-especializados': {
+        title: 'Equipos Especializados',
+        category: 'ESPECIAL',
+        description: 'Soluciones personalizadas para necesidades específicas de la industria',
+        content: `
+            <div class="product-detail">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="product-overview">
+                            <h4><i class="fas fa-industry text-primary me-2"></i>Equipos Especializados</h4>
+                            <p>Soluciones diseñadas para industrias específicas con requerimientos únicos. 
+                            Desde impresión gran formato hasta equipos industriales de alta resistencia, 
+                            tenemos la tecnología para cubrir cualquier necesidad especializada.</p>
                             
-                            <div class="mt-3">
-                                <h6 class="d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-check-circle text-success me-2"></i>Compatibilidad
-                                </h6>
-                                <div class="row g-2 text-center">
-                                    <div class="col-4">
-                                        <div class="p-2 bg-light rounded">
-                                            <i class="bi bi-windows fs-4 text-primary"></i>
-                                            <div class="small">Windows</div>
-                                        </div>
+                            <div class="specialized-categories mt-4">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5><i class="fas fa-expand-arrows-alt text-success me-2"></i>Gran Formato</h5>
+                                        <ul class="category-features">
+                                            <li><i class="fas fa-ruler me-1"></i> Plotters hasta A0</li>
+                                            <li><i class="fas fa-palette me-1"></i> Impresión técnica color</li>
+                                            <li><i class="fas fa-drafting-compass me-1"></i> CAD y arquitectura</li>
+                                            <li><i class="fas fa-map me-1"></i> Cartografía profesional</li>
+                                        </ul>
                                     </div>
-                                    <div class="col-4">
-                                        <div class="p-2 bg-light rounded">
-                                            <i class="bi bi-apple fs-4 text-dark"></i>
-                                            <div class="small">macOS</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="p-2 bg-light rounded">
-                                            <i class="bi bi-ubuntu fs-4 text-warning"></i>
-                                            <div class="small">Linux</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="p-2 bg-light rounded">
-                                            <i class="bi bi-android2 fs-4 text-success"></i>
-                                            <div class="small">Android</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="p-2 bg-light rounded">
-                                            <i class="bi bi-apple fs-4 text-primary"></i>
-                                            <div class="small">iOS</div>
-                                        </div>
+                                    <div class="col-md-6">
+                                        <h5><i class="fas fa-hard-hat text-warning me-2"></i>Industrial</h5>
+                                        <ul class="category-features">
+                                            <li><i class="fas fa-shield-alt me-1"></i> Resistentes a ambientes extremos</li>
+                                            <li><i class="fas fa-barcode me-1"></i> Impresión de etiquetas</li>
+                                            <li><i class="fas fa-thermometer-half me-1"></i> Operación en alta temperatura</li>
+                                            <li><i class="fas fa-tools me-1"></i> Mantenimiento especializado</li>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <h5 class="d-flex align-items-center mt-4 mb-3">
-                        <i class="bi bi-building text-primary me-2"></i>Escenarios de Uso Ideales
-                    </h5>
-                    <div class="row g-3">
-                        <div class="col-md-3">
-                            <div class="scenario-card text-center p-3 bg-light rounded">
-                                <i class="bi bi-briefcase text-primary fs-1 mb-2"></i>
-                                <h6>Oficinas Pequeñas</h6>
-                                <p class="small">5-15 empleados con necesidades básicas</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="scenario-card text-center p-3 bg-light rounded">
-                                <i class="bi bi-house text-success fs-1 mb-2"></i>
-                                <h6>Home Office</h6>
-                                <p class="small">Profesionales independientes</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="scenario-card text-center p-3 bg-light rounded">
-                                <i class="bi bi-shop text-warning fs-1 mb-2"></i>
-                                <h6>Retail</h6>
-                                <p class="small">Tiendas con espacio limitado</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="scenario-card text-center p-3 bg-light rounded">
-                                <i class="bi bi-mortarboard text-info fs-1 mb-2"></i>
-                                <h6>Educación</h6>
-                                <p class="small">Aulas y oficinas administrativas</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row mt-4">
-                        <div class="col-md-6">
-                            <div class="card border-primary">
-                                <div class="card-body">
-                                    <h6><i class="bi bi-calculator text-success me-2"></i>Comparación de Costos</h6>
-                                    <table class="table table-sm">
-                                        <tr><td>Alquiler mensual:</td><td class="text-success fw-bold">$149-299</td></tr>
-                                        <tr><td>Compra equivalente:</td><td class="text-danger">$3,500-8,000</td></tr>
-                                        <tr><td class="text-primary fw-bold">Ahorro primer año:</td><td class="text-success fw-bold">hasta 70%</td></tr>
-                                    </table>
+                    <div class="col-md-4">
+                        <div class="specialization-stats">
+                            <h5><i class="fas fa-target text-danger me-2"></i>Especializaciones</h5>
+                            <div class="specialization-list">
+                                <div class="spec-item">
+                                    <i class="fas fa-building"></i>
+                                    <span>Arquitectura</span>
+                                </div>
+                                <div class="spec-item">
+                                    <i class="fas fa-hard-hat"></i>
+                                    <span>Ingeniería</span>
+                                </div>
+                                <div class="spec-item">
+                                    <i class="fas fa-palette"></i>
+                                    <span>Diseño Gráfico</span>
+                                </div>
+                                <div class="spec-item">
+                                    <i class="fas fa-industry"></i>
+                                    <span>Manufactura</span>
+                                </div>
+                                <div class="spec-item">
+                                    <i class="fas fa-shipping-fast"></i>
+                                    <span>Logística</span>
+                                </div>
+                                <div class="spec-item">
+                                    <i class="fas fa-hospital"></i>
+                                    <span>Salud</span>
                                 </div>
                             </div>
                         </div>
+                        
+                        <div class="custom-solutions mt-4">
+                            <h5><i class="fas fa-cogs text-info me-2"></i>Personalización</h5>
+                            <div class="custom-options">
+                                <div class="custom-item">
+                                    <i class="fas fa-wrench"></i>
+                                    <span>Configuración específica</span>
+                                </div>
+                                <div class="custom-item">
+                                    <i class="fas fa-code"></i>
+                                    <span>Software personalizado</span>
+                                </div>
+                                <div class="custom-item">
+                                    <i class="fas fa-plug"></i>
+                                    <span>Integración sistemas</span>
+                                </div>
+                                <div class="custom-item">
+                                    <i class="fas fa-headset"></i>
+                                    <span>Soporte dedicado</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="specialized-equipment mt-4">
+                    <h4><i class="fas fa-th-large text-primary me-2"></i>Tipos de Equipos Especializados</h4>
+                    <div class="row">
                         <div class="col-md-6">
-                            <div class="card border-success">
-                                <div class="card-body">
-                                    <h6><i class="bi bi-check-all text-success me-2"></i>Incluido en Alquiler</h6>
-                                    <ul class="list-unstyled small">
-                                        <li><i class="bi bi-check text-success me-1"></i> Mantenimiento completo</li>
-                                        <li><i class="bi bi-check text-success me-1"></i> Soporte técnico 24/7</li>
-                                        <li><i class="bi bi-check text-success me-1"></i> Repuestos originales</li>
-                                        <li><i class="bi bi-check text-success me-1"></i> Instalación profesional</li>
-                                        <li><i class="bi bi-check text-success me-1"></i> Capacitación del personal</li>
+                            <div class="equipment-card">
+                                <div class="equipment-icon">
+                                    <i class="fas fa-map text-primary"></i>
+                                </div>
+                                <h6>Plotters Gran Formato</h6>
+                                <div class="equipment-specs">
+                                    <ul>
+                                        <li><strong>Formatos:</strong> A2, A1, A0</li>
+                                        <li><strong>Tecnología:</strong> Inyección de tinta</li>
+                                        <li><strong>Aplicaciones:</strong> Planos, mapas, posters</li>
+                                        <li><strong>Velocidad:</strong> 1-4 m²/hora</li>
                                     </ul>
                                 </div>
+                                <div class="equipment-price">$599-1,299/mes</div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            `
-        }
-    };
-    
-    // =============================================
-    // SISTEMA DE MODALES PARA PRODUCTOS
-    // =============================================
-    
-    const productModalSystem = {
-        init: function() {
-            this.createProductModal();
-            this.bindProductEvents();
-            console.log('✅ Sistema de modales de productos inicializado');
-        },
-        
-        createProductModal: function() {
-            if (document.getElementById('productModal')) return;
-            
-            const modalHTML = `
-                <div class="modal fade" id="productModal" tabindex="-1">
-                    <div class="modal-dialog modal-xl modal-dialog-centered">
-                        <div class="modal-content border-0 shadow-lg">
-                            <div class="modal-header bg-gradient" style="background: linear-gradient(135deg, #0066cc, #004499);">
-                                <h4 class="modal-title text-white" id="productModalLabel">
-                                    <i class="bi bi-printer me-2"></i>Información de Producto
-                                </h4>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body p-4" id="productModalBody">
-                                <div class="text-center py-4">
-                                    <div class="spinner-border text-primary"></div>
+                        <div class="col-md-6">
+                            <div class="equipment-card">
+                                <div class="equipment-icon">
+                                    <i class="fas fa-barcode text-success"></i>
                                 </div>
-                            </div>
-                            <div class="modal-footer bg-light">
-                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                    <i class="bi bi-x-lg me-2"></i>Cerrar
-                                </button>
-                                <a href="/productos/comparar" class="btn btn-info">
-                                    <i class="bi bi-arrow-left-right me-2"></i>Comparar
-                                </a>
-                                <a href="/cotizacion/form" class="btn btn-primary">
-                                    <i class="bi bi-calculator me-2"></i>Cotización Personalizada
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            document.body.insertAdjacentHTML('beforeend', modalHTML);
-        },
-        
-        bindProductEvents: function() {
-            document.addEventListener('click', (e) => {
-                const productCard = e.target.closest('[data-product]');
-                if (productCard) {
-                    e.preventDefault();
-                    const productType = productCard.getAttribute('data-product');
-                    this.openProductModal(productType);
-                }
-            });
-        },
-        
-        openProductModal: function(productType) {
-            const data = productsContent[productType];
-            if (!data) return;
-            
-            const modalTitle = document.getElementById('productModalLabel');
-            const modalBody = document.getElementById('productModalBody');
-            
-            modalTitle.innerHTML = `
-                <i class="${data.icon} me-2"></i>
-                ${data.title}
-            `;
-            
-            modalBody.innerHTML = data.content;
-            
-            const modal = new bootstrap.Modal(document.getElementById('productModal'));
-            modal.show();
-        }
-    };
-    
-    // =============================================
-    // INICIALIZACIÓN DE PARTE 4
-    // =============================================
-    
-    try {
-        productModalSystem.init();
-        
-        console.log('✅ Parte 4/10 inicializada completamente');
-        document.dispatchEvent(new CustomEvent('copierJS:part4Ready'));
-        
-    } catch (error) {
-        console.error('❌ Error en Parte 4:', error);
-    }
-});
-
-// Actualizar objeto global
-window.CopierCompany = window.CopierCompany || {};
-window.CopierCompany.productsContent = productsContent;
-window.CopierCompany.partsLoaded = window.CopierCompany.partsLoaded || [];
-window.CopierCompany.partsLoaded.push('part4');
-
-console.log('📦 Copier Company JS - Parte 4/10 cargada');
-/**
- * COPIER COMPANY HOMEPAGE - SISTEMA JAVASCRIPT COMPLETO
- * PARTE 5/10: FUNCIONALIDADES ADICIONALES Y SISTEMAS AUXILIARES
- * Versión Bootstrap Icons - Compatible con Odoo
- * Máximo 300 líneas por parte
- */
-
-// Esperar a que la Parte 4 esté lista
-document.addEventListener('copierJS:part4Ready', function() {
-    console.log('🚀 Iniciando Copier Company JS - Parte 5/10: Funcionalidades Adicionales');
-    
-    // =============================================
-    // SISTEMA DE NOTIFICACIONES TOAST
-    // =============================================
-    
-    const toastSystem = {
-        container: null,
-        
-        init: function() {
-            this.createContainer();
-            console.log('✅ Sistema de notificaciones toast inicializado');
-        },
-        
-        createContainer: function() {
-            if (document.getElementById('toast-container')) {
-                this.container = document.getElementById('toast-container');
-                return;
-            }
-            
-            const container = document.createElement('div');
-            container.id = 'toast-container';
-            container.className = 'toast-container position-fixed top-0 end-0 p-3';
-            container.style.zIndex = '9999';
-            document.body.appendChild(container);
-            this.container = container;
-        },
-        
-        show: function(message, type = 'info', duration = 5000) {
-            const toastId = 'toast-' + Date.now();
-            const iconMap = {
-                'success': 'bi-check-circle-fill',
-                'error': 'bi-exclamation-triangle-fill',
-                'warning': 'bi-exclamation-triangle-fill',
-                'info': 'bi-info-circle-fill'
-            };
-            
-            const colorMap = {
-                'success': 'text-success bg-success-subtle',
-                'error': 'text-danger bg-danger-subtle',
-                'warning': 'text-warning bg-warning-subtle',
-                'info': 'text-primary bg-primary-subtle'
-            };
-            
-            const toastHTML = `
-                <div id="${toastId}" class="toast align-items-center border-0 shadow-lg ${colorMap[type]}" role="alert">
-                    <div class="d-flex">
-                        <div class="toast-body d-flex align-items-center">
-                            <i class="bi ${iconMap[type]} me-2 fs-5"></i>
-                            <span>${message}</span>
-                        </div>
-                        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
-                    </div>
-                </div>
-            `;
-            
-            this.container.insertAdjacentHTML('beforeend', toastHTML);
-            
-            const toastElement = document.getElementById(toastId);
-            const toast = new bootstrap.Toast(toastElement, {
-                autohide: true,
-                delay: duration
-            });
-            
-            toast.show();
-            
-            // Remover del DOM después de ocultar
-            toastElement.addEventListener('hidden.bs.toast', () => {
-                toastElement.remove();
-            });
-            
-            return toast;
-        }
-    };
-    
-    // =============================================
-    // SISTEMA DE FORMULARIOS INTELIGENTES
-    // =============================================
-    
-    const smartForms = {
-        init: function() {
-            this.setupFormValidation();
-            this.setupAutoSave();
-            this.setupProgressiveEnhancement();
-            console.log('✅ Sistema de formularios inteligentes inicializado');
-        },
-        
-        setupFormValidation: function() {
-            document.addEventListener('input', (e) => {
-                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-                    this.validateField(e.target);
-                }
-            });
-            
-            document.addEventListener('blur', (e) => {
-                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-                    this.validateField(e.target);
-                }
-            });
-        },
-        
-        validateField: function(field) {
-            const value = field.value.trim();
-            let isValid = true;
-            let message = '';
-            
-            // Validaciones específicas
-            switch (field.type) {
-                case 'email':
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    isValid = emailRegex.test(value);
-                    message = isValid ? '' : 'Ingresa un email válido';
-                    break;
-                    
-                case 'tel':
-                    const phoneRegex = /^[+]?[\d\s\-\(\)]{9,}$/;
-                    isValid = phoneRegex.test(value);
-                    message = isValid ? '' : 'Ingresa un teléfono válido';
-                    break;
-                    
-                case 'text':
-                    if (field.required && value.length < 2) {
-                        isValid = false;
-                        message = 'Este campo es requerido (mín. 2 caracteres)';
-                    }
-                    break;
-            }
-            
-            this.showFieldFeedback(field, isValid, message);
-        },
-        
-        showFieldFeedback: function(field, isValid, message) {
-            // Remover feedback anterior
-            const existingFeedback = field.parentNode.querySelector('.invalid-feedback, .valid-feedback');
-            if (existingFeedback) existingFeedback.remove();
-            
-            // Remover clases anteriores
-            field.classList.remove('is-valid', 'is-invalid');
-            
-            if (field.value.trim() !== '') {
-                field.classList.add(isValid ? 'is-valid' : 'is-invalid');
-                
-                // Mostrar mensaje si hay error
-                if (!isValid && message) {
-                    const feedback = document.createElement('div');
-                    feedback.className = 'invalid-feedback d-block';
-                    feedback.innerHTML = `<i class="bi bi-exclamation-circle me-1"></i>${message}`;
-                    field.parentNode.appendChild(feedback);
-                } else if (isValid) {
-                    const feedback = document.createElement('div');
-                    feedback.className = 'valid-feedback d-block';
-                    feedback.innerHTML = `<i class="bi bi-check-circle me-1"></i>Campo válido`;
-                    field.parentNode.appendChild(feedback);
-                }
-            }
-        },
-        
-        setupAutoSave: function() {
-            const formFields = document.querySelectorAll('input[name], textarea[name], select[name]');
-            formFields.forEach(field => {
-                // Cargar valor guardado
-                const savedValue = localStorage.getItem(`copier_form_${field.name}`);
-                if (savedValue && field.type !== 'password') {
-                    field.value = savedValue;
-                }
-                
-                // Guardar cambios automáticamente
-                field.addEventListener('input', () => {
-                    if (field.type !== 'password') {
-                        localStorage.setItem(`copier_form_${field.name}`, field.value);
-                    }
-                });
-            });
-        },
-        
-        setupProgressiveEnhancement: function() {
-            const forms = document.querySelectorAll('form');
-            forms.forEach(form => {
-                // Añadir indicador de envío
-                form.addEventListener('submit', (e) => {
-                    const submitBtn = form.querySelector('[type="submit"]');
-                    if (submitBtn && !form.checkValidity()) {
-                        e.preventDefault();
-                        toastSystem.show('Por favor completa todos los campos requeridos', 'error');
-                        return;
-                    }
-                    
-                    if (submitBtn) {
-                        submitBtn.innerHTML = '<i class="bi bi-arrow-clockwise spin me-2"></i>Enviando...';
-                        submitBtn.disabled = true;
-                        
-                        // Restaurar después de 3 segundos si no hay redirección
-                        setTimeout(() => {
-                            if (submitBtn) {
-                                submitBtn.innerHTML = 'Enviar';
-                                submitBtn.disabled = false;
-                            }
-                        }, 3000);
-                    }
-                });
-            });
-        }
-    };
-    
-    // =============================================
-    // SISTEMA DE TRACKING DE INTERACCIONES
-    // =============================================
-    
-    const trackingSystem = {
-        init: function() {
-            this.setupClickTracking();
-            this.setupScrollTracking();
-            console.log('✅ Sistema de tracking inicializado');
-        },
-        
-        setupClickTracking: function() {
-            document.addEventListener('click', (e) => {
-                const button = e.target.closest('.btn, .card, [data-track]');
-                if (button) {
-                    this.trackInteraction('click', this.getElementInfo(button));
-                }
-            });
-        },
-        
-        setupScrollTracking: function() {
-            let scrollTimeout;
-            let maxScroll = 0;
-            const milestones = [25, 50, 75, 90];
-            const triggered = new Set();
-            
-            window.addEventListener('scroll', () => {
-                clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(() => {
-                    const scrollPercent = Math.round(
-                        (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100
-                    );
-                    
-                    if (scrollPercent > maxScroll) {
-                        maxScroll = scrollPercent;
-                        
-                        milestones.forEach(milestone => {
-                            if (scrollPercent >= milestone && !triggered.has(milestone)) {
-                                triggered.add(milestone);
-                                this.trackInteraction('scroll', `${milestone}% page depth`);
-                            }
-                        });
-                    }
-                }, 100);
-            });
-        },
-        
-        trackInteraction: function(action, details) {
-            console.log(`📊 Track: ${action} - ${details}`);
-            
-            // Integración con Google Analytics 4
-            if (typeof gtag !== 'undefined') {
-                gtag('event', action, {
-                    event_category: 'user_interaction',
-                    event_label: details,
-                    custom_parameter: details
-                });
-            }
-            
-            // Almacenar localmente para analytics
-            const trackingData = JSON.parse(localStorage.getItem('copier_analytics') || '[]');
-            trackingData.push({
-                action: action,
-                details: details,
-                timestamp: new Date().toISOString(),
-                url: window.location.pathname
-            });
-            
-            // Mantener solo los últimos 100 eventos
-            if (trackingData.length > 100) {
-                trackingData.splice(0, trackingData.length - 100);
-            }
-            
-            localStorage.setItem('copier_analytics', JSON.stringify(trackingData));
-        },
-        
-        getElementInfo: function(element) {
-            const text = element.textContent?.trim().substring(0, 50) || '';
-            const classes = element.className || '';
-            const tag = element.tagName.toLowerCase();
-            return `${tag}${classes ? '.' + classes.split(' ')[0] : ''}: ${text}`;
-        }
-    };
-    
-    // =============================================
-    // SISTEMA DE LAZY LOADING MEJORADO
-    // =============================================
-    
-    const lazyLoadSystem = {
-        observer: null,
-        
-        init: function() {
-            this.setupIntersectionObserver();
-            this.processExistingImages();
-            console.log('✅ Sistema de lazy loading inicializado');
-        },
-        
-        setupIntersectionObserver: function() {
-            const options = {
-                root: null,
-                rootMargin: '50px',
-                threshold: 0.1
-            };
-            
-            this.observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        this.loadImage(entry.target);
-                        this.observer.unobserve(entry.target);
-                    }
-                });
-            }, options);
-        },
-        
-        processExistingImages: function() {
-            const images = document.querySelectorAll('img[data-src]');
-            images.forEach(img => {
-                this.observer.observe(img);
-            });
-        },
-        
-        loadImage: function(img) {
-            // Añadir loading spinner
-            img.style.background = 'url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBzdHJva2U9IiMwMDY2Y2MiPjxnIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCI+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMSAxKSIgc3Ryb2tlLXdpZHRoPSIyIj48Y2lyY2xlIGN4PSIyMiIgY3k9IjIyIiByPSI2Ij48YW5pbWF0ZSBhdHRyaWJ1dGVOYW1lPSJyIiBiZWdpbj0iMS41cyIgZHVyPSIzcyIgdmFsdWVzPSI2OzIyIiBjYWxjTW9kZT0ibGluZWFyIiByZXBlYXRDb3VudD0iaW5kZWZpbml0ZSIvPjxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9InN0cm9rZS1vcGFjaXR5IiBiZWdpbj0iMS41cyIgZHVyPSIzcyIgdmFsdWVzPSIxOzAiIGNhbGNNb2RlPSJsaW5lYXIiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIi8+PC9jaXJjbGU+PC9nPjwvZz48L3N2Zz4=") no-repeat center center';
-            img.style.backgroundSize = '40px 40px';
-            
-            // Cargar imagen
-            const tempImg = new Image();
-            tempImg.onload = () => {
-                img.src = img.dataset.src;
-                img.removeAttribute('data-src');
-                img.style.background = '';
-                img.classList.add('loaded');
-                
-                // Efecto de fade-in
-                img.style.opacity = '0';
-                img.style.transition = 'opacity 0.3s ease';
-                setTimeout(() => {
-                    img.style.opacity = '1';
-                }, 50);
-            };
-            
-            tempImg.onerror = () => {
-                img.style.background = '';
-                img.alt = 'Error al cargar imagen';
-                console.warn('Error cargando imagen:', img.dataset.src);
-            };
-            
-            tempImg.src = img.dataset.src;
-        }
-    };
-    
-    // =============================================
-    // SISTEMA DE SMOOTH SCROLL MEJORADO
-    // =============================================
-    
-    const smoothScrollSystem = {
-        init: function() {
-            this.setupSmoothScroll();
-            console.log('✅ Sistema de smooth scroll inicializado');
-        },
-        
-        setupSmoothScroll: function() {
-            document.addEventListener('click', (e) => {
-                const link = e.target.closest('a[href^="#"]');
-                if (link && link.getAttribute('href') !== '#') {
-                    e.preventDefault();
-                    
-                    const targetId = link.getAttribute('href').substring(1);
-                    const target = document.getElementById(targetId);
-                    
-                    if (target) {
-                        const headerOffset = 80; // Altura del header fijo
-                        const elementPosition = target.offsetTop;
-                        const offsetPosition = elementPosition - headerOffset;
-                        
-                        window.scrollTo({
-                            top: offsetPosition,
-                            behavior: 'smooth'
-                        });
-                        
-                        // Tracking
-                        trackingSystem.trackInteraction('smooth_scroll', `to_${targetId}`);
-                    }
-                }
-            });
-        }
-    };
-    
-    // =============================================
-    // INICIALIZACIÓN DE PARTE 5
-    // =============================================
-    
-    try {
-        toastSystem.init();
-        smartForms.init();
-        trackingSystem.init();
-        lazyLoadSystem.init();
-        smoothScrollSystem.init();
-        
-        console.log('✅ Parte 5/10 inicializada completamente');
-        document.dispatchEvent(new CustomEvent('copierJS:part5Ready'));
-        
-    } catch (error) {
-        console.error('❌ Error en Parte 5:', error);
-    }
-});
-
-// Actualizar objeto global con funciones útiles
-window.CopierCompany = window.CopierCompany || {};
-window.CopierCompany.showToast = (message, type, duration) => toastSystem.show(message, type, duration);
-window.CopierCompany.trackInteraction = (action, details) => trackingSystem.trackInteraction(action, details);
-window.CopierCompany.partsLoaded = window.CopierCompany.partsLoaded || [];
-window.CopierCompany.partsLoaded.push('part5');
-
-console.log('📦 Copier Company JS - Parte 5/10 cargada');
-/**
- * COPIER COMPANY HOMEPAGE - SISTEMA JAVASCRIPT COMPLETO
- * PARTE 6/10: SISTEMA DE CHAT BOT INTELIGENTE
- * Versión Bootstrap Icons - Compatible con Odoo
- * Máximo 300 líneas por parte
- */
-
-// Esperar a que la Parte 5 esté lista
-document.addEventListener('copierJS:part5Ready', function() {
-    console.log('🚀 Iniciando Copier Company JS - Parte 6/10: Sistema Chat Bot');
-    
-    // =============================================
-    // SISTEMA DE CHAT BOT INTELIGENTE
-    // =============================================
-    
-    const chatBot = {
-        isOpen: false,
-        messageCount: 0,
-        
-        init: function() {
-            this.createChatWidget();
-            this.setupEventListeners();
-            this.initializeGreeting();
-            console.log('✅ Sistema de chat bot inicializado');
-        },
-        
-        createChatWidget: function() {
-            if (document.getElementById('chat-widget')) return;
-            
-            const chatWidgetHTML = `
-                <div id="chat-widget" class="position-fixed" style="bottom: 20px; right: 20px; z-index: 9998;">
-                    <div class="chat-bubble d-flex align-items-center justify-content-center rounded-circle bg-primary text-white shadow-lg" 
-                         id="chat-bubble" style="width: 60px; height: 60px; cursor: pointer; transition: all 0.3s ease;">
-                        <i class="bi bi-chat-dots-fill fs-4"></i>
-                        <span class="chat-notification position-absolute bg-white text-primary rounded-pill px-3 py-1 shadow" 
-                              style="right: 70px; top: 50%; transform: translateY(-50%); font-size: 14px; white-space: nowrap; opacity: 0;">
-                            ¿Necesitas ayuda?
-                        </span>
-                    </div>
-                    
-                    <div class="chat-window bg-white rounded-3 shadow-lg border" id="chat-window" 
-                         style="width: 350px; height: 500px; display: none; flex-direction: column; overflow: hidden;">
-                        <div class="chat-header bg-primary text-white p-3 d-flex justify-content-between align-items-center">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-robot fs-5 me-2"></i>
-                                <h6 class="mb-0">Asistente Virtual</h6>
-                            </div>
-                            <button class="btn btn-link text-white p-0" id="chat-close">
-                                <i class="bi bi-x-lg"></i>
-                            </button>
-                        </div>
-                        
-                        <div class="chat-messages flex-grow-1 p-3 overflow-auto" id="chat-messages" 
-                             style="background: #f8f9fa; max-height: 380px;">
-                            <div class="bot-message mb-3">
-                                <div class="d-flex align-items-start">
-                                    <div class="bg-primary rounded-circle p-2 me-2 flex-shrink-0">
-                                        <i class="bi bi-robot text-white"></i>
-                                    </div>
-                                    <div class="message-content bg-white p-3 rounded-3 shadow-sm flex-grow-1">
-                                        ¡Hola! 👋 Soy tu asistente virtual de Copier Company. ¿En qué puedo ayudarte?
-                                        <div class="quick-options mt-3">
-                                            <button class="btn btn-outline-primary btn-sm w-100 mb-2 quick-btn" data-action="cotizacion">
-                                                <i class="bi bi-calculator me-2"></i>Solicitar cotización
-                                            </button>
-                                            <button class="btn btn-outline-primary btn-sm w-100 mb-2 quick-btn" data-action="productos">
-                                                <i class="bi bi-printer me-2"></i>Ver productos
-                                            </button>
-                                            <button class="btn btn-outline-primary btn-sm w-100 mb-2 quick-btn" data-action="contacto">
-                                                <i class="bi bi-telephone me-2"></i>Información de contacto
-                                            </button>
-                                            <button class="btn btn-outline-primary btn-sm w-100 quick-btn" data-action="soporte">
-                                                <i class="bi bi-gear me-2"></i>Soporte técnico
-                                            </button>
-                                        </div>
-                                    </div>
+                                <h6>Impresoras de Etiquetas</h6>
+                                <div class="equipment-specs">
+                                    <ul>
+                                        <li><strong>Tipos:</strong> Térmicas, transferencia</li>
+                                        <li><strong>Anchos:</strong> 2"-8" (50-200mm)</li>
+                                        <li><strong>Aplicaciones:</strong> Inventario, envíos</li>
+                                        <li><strong>Velocidad:</strong> 4-14 ips</li>
+                                    </ul>
                                 </div>
+                                <div class="equipment-price">$199-599/mes</div>
                             </div>
                         </div>
-                        
-                        <div class="chat-input p-3 border-top bg-white">
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="chat-input" 
-                                       placeholder="Escribe tu pregunta..." maxlength="500">
-                                <button class="btn btn-primary" id="chat-send" type="button">
-                                    <i class="bi bi-send-fill"></i>
-                                </button>
+                        <div class="col-md-6">
+                            <div class="equipment-card">
+                                <div class="equipment-icon">
+                                    <i class="fas fa-photo-video text-warning"></i>
+                                </div>
+                                <h6>Impresoras Fotográficas</h6>
+                                <div class="equipment-specs">
+                                    <ul>
+                                        <li><strong>Tecnología:</strong> Sublimación de tinta</li>
+                                        <li><strong>Formatos:</strong> 4x6" hasta 13x19"</li>
+                                        <li><strong>Aplicaciones:</strong> Fotografía profesional</li>
+                                        <li><strong>Calidad:</strong> Hasta 4800 dpi</li>
+                                    </ul>
+                                </div>
+                                <div class="equipment-price">$399-799/mes</div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            `;
-            
-            document.body.insertAdjacentHTML('beforeend', chatWidgetHTML);
-        },
-        
-        setupEventListeners: function() {
-            // Toggle chat
-            document.getElementById('chat-bubble').addEventListener('click', () => {
-                this.toggleChat();
-            });
-            
-            // Cerrar chat
-            document.getElementById('chat-close').addEventListener('click', () => {
-                this.toggleChat();
-            });
-            
-            // Enviar mensaje
-            document.getElementById('chat-send').addEventListener('click', () => {
-                this.sendMessage();
-            });
-            
-            // Enter para enviar
-            document.getElementById('chat-input').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    this.sendMessage();
-                }
-            });
-            
-            // Botones rápidos
-            document.addEventListener('click', (e) => {
-                if (e.target.closest('.quick-btn')) {
-                    const action = e.target.closest('.quick-btn').dataset.action;
-                    this.handleQuickAction(action);
-                }
-            });
-            
-            // Hover effects
-            const chatBubble = document.getElementById('chat-bubble');
-            chatBubble.addEventListener('mouseenter', () => {
-                chatBubble.style.transform = 'scale(1.1)';
-                chatBubble.style.boxShadow = '0 8px 25px rgba(0,123,255,0.4)';
-            });
-            
-            chatBubble.addEventListener('mouseleave', () => {
-                chatBubble.style.transform = 'scale(1)';
-                chatBubble.style.boxShadow = '';
-            });
-        },
-        
-        initializeGreeting: function() {
-            // Mostrar notificación después de 3 segundos
-            setTimeout(() => {
-                const notification = document.querySelector('.chat-notification');
-                if (notification && !this.isOpen) {
-                    notification.style.opacity = '1';
-                    notification.style.animation = 'slideInChat 3s ease-in-out forwards';
-                    
-                    // Ocultar después de 5 segundos
-                    setTimeout(() => {
-                        notification.style.opacity = '0';
-                    }, 5000);
-                }
-            }, 3000);
-        },
-        
-        toggleChat: function() {
-            const chatWindow = document.getElementById('chat-window');
-            const chatBubble = document.getElementById('chat-bubble');
-            
-            if (this.isOpen) {
-                chatWindow.style.display = 'none';
-                chatBubble.style.display = 'flex';
-                this.isOpen = false;
-            } else {
-                chatWindow.style.display = 'flex';
-                chatBubble.style.display = 'none';
-                this.isOpen = true;
-                
-                // Focus en input
-                setTimeout(() => {
-                    document.getElementById('chat-input').focus();
-                }, 100);
-                
-                // Tracking
-                window.CopierCompany.trackInteraction('chat_open', 'chat_widget');
-            }
-        },
-        
-        sendMessage: function() {
-            const input = document.getElementById('chat-input');
-            const message = input.value.trim();
-            
-            if (message) {
-                this.addMessage(message, 'user');
-                input.value = '';
-                this.messageCount++;
-                
-                // Mostrar typing indicator
-                this.showTypingIndicator();
-                
-                // Simular respuesta del bot
-                setTimeout(() => {
-                    this.removeTypingIndicator();
-                    const response = this.getBotResponse(message);
-                    this.addMessage(response, 'bot');
-                }, 1000 + Math.random() * 1000); // 1-2 segundos
-                
-                // Tracking
-                window.CopierCompany.trackInteraction('chat_message', message.substring(0, 50));
-            }
-        },
-        
-        addMessage: function(text, sender) {
-            const messagesContainer = document.getElementById('chat-messages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `${sender}-message mb-3`;
-            
-            if (sender === 'user') {
-                messageDiv.innerHTML = `
-                    <div class="d-flex align-items-start justify-content-end">
-                        <div class="message-content bg-primary text-white p-3 rounded-3 shadow-sm" style="max-width: 80%;">
-                            ${text}
-                        </div>
-                        <div class="bg-secondary rounded-circle p-2 ms-2 flex-shrink-0">
-                            <i class="bi bi-person-fill text-white"></i>
-                        </div>
-                    </div>
-                `;
-            } else {
-                messageDiv.innerHTML = `
-                    <div class="d-flex align-items-start">
-                        <div class="bg-primary rounded-circle p-2 me-2 flex-shrink-0">
-                            <i class="bi bi-robot text-white"></i>
-                        </div>
-                        <div class="message-content bg-white p-3 rounded-3 shadow-sm flex-grow-1">
-                            ${text}
-                        </div>
-                    </div>
-                `;
-            }
-            
-            messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            
-            // Animar entrada del mensaje
-            messageDiv.style.opacity = '0';
-            messageDiv.style.transform = 'translateY(20px)';
-            setTimeout(() => {
-                messageDiv.style.transition = 'all 0.3s ease';
-                messageDiv.style.opacity = '1';
-                messageDiv.style.transform = 'translateY(0)';
-            }, 50);
-        },
-        
-        showTypingIndicator: function() {
-            const messagesContainer = document.getElementById('chat-messages');
-            const typingDiv = document.createElement('div');
-            typingDiv.id = 'typing-indicator';
-            typingDiv.className = 'bot-message mb-3';
-            typingDiv.innerHTML = `
-                <div class="d-flex align-items-start">
-                    <div class="bg-primary rounded-circle p-2 me-2 flex-shrink-0">
-                        <i class="bi bi-robot text-white"></i>
-                    </div>
-                    <div class="message-content bg-white p-3 rounded-3 shadow-sm">
-                        <div class="typing-dots d-flex align-items-center">
-                            <span>Escribiendo</span>
-                            <div class="ms-2">
-                                <span class="dot"></span>
-                                <span class="dot"></span>
-                                <span class="dot"></span>
+                        <div class="col-md-6">
+                            <div class="equipment-card">
+                                <div class="equipment-icon">
+                                    <i class="fas fa-industry text-danger"></i>
+                                </div>
+                                <h6>Equipos Industriales</h6>
+                                <div class="equipment-specs">
+                                    <ul>
+                                        <li><strong>Características:</strong> Resistente a polvo/agua</li>
+                                        <li><strong>Temperatura:</strong> -10°C a +40°C</li>
+                                        <li><strong>Aplicaciones:</strong> Manufactura, almacenes</li>
+                                        <li><strong>Certificaciones:</strong> IP54, IP65</li>
+                                    </ul>
+                                </div>
+                                <div class="equipment-price">$799-1,899/mes</div>
                             </div>
                         </div>
                     </div>
                 </div>
-            `;
-            
-            messagesContainer.appendChild(typingDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        },
-        
-        removeTypingIndicator: function() {
-            const typingIndicator = document.getElementById('typing-indicator');
-            if (typingIndicator) {
-                typingIndicator.remove();
-            }
-        },
-        
-        getBotResponse: function(message) {
-            const lowerMessage = message.toLowerCase();
-            
-            if (lowerMessage.includes('precio') || lowerMessage.includes('costo') || lowerMessage.includes('cotiz')) {
-                return `💰 <strong>Precios de Alquiler:</strong><br>
-                        • A4: $149-299/mes<br>
-                        • A3: $299-899/mes<br>
-                        • Láser: $199-899/mes<br><br>
-                        <small>¿Te gustaría una cotización personalizada?</small><br>
-                        <a href="/cotizacion/form" class="btn btn-primary btn-sm mt-2">
-                            <i class="bi bi-calculator me-1"></i>Solicitar Cotización
-                        </a>`;
-            }
-            
-            if (lowerMessage.includes('producto') || lowerMessage.includes('equipo') || lowerMessage.includes('fotocopiadora')) {
-                return `📱 <strong>Nuestros Productos:</strong><br>
-                        • Multifuncionales A3 y A4<br>
-                        • Impresoras láser color y B&N<br>
-                        • Equipos especializados<br>
-                        • Marcas: Konica Minolta, Canon, Ricoh<br><br>
-                        <small>¿Qué tipo de equipo necesitas específicamente?</small>`;
-            }
-            
-            if (lowerMessage.includes('mantenimiento') || lowerMessage.includes('reparaci') || lowerMessage.includes('soporte')) {
-                return `🔧 <strong>Nuestro Servicio incluye:</strong><br>
-                        • Mantenimiento preventivo y correctivo<br>
-                        • Soporte técnico 24/7<br>
-                        • Repuestos originales garantizados<br>
-                        • Tiempo de respuesta: máximo 4 horas<br><br>
-                        <small>¿Necesitas ayuda con algún equipo en particular?</small>`;
-            }
-            
-            if (lowerMessage.includes('contacto') || lowerMessage.includes('teléfono') || lowerMessage.includes('dirección')) {
-                return `📞 <strong>Información de Contacto:</strong><br>
-                        • Teléfono: (01) 975-399-303<br>
-                        • WhatsApp: <a href="https://wa.me/51975399303" target="_blank" class="text-success">975 399 303</a><br>
-                        • Email: info@copiercompany.com<br>
-                        • Horario: Lun-Vie 8AM-6PM, Sáb 8AM-1PM<br><br>
-                        <small>¿Prefieres que te contactemos?</small>`;
-            }
-            
-            // Respuesta por defecto
-            const responses = [
-                `Gracias por tu consulta. Te recomiendo:<br>
-                 • <a href="/cotizacion/form" class="text-primary">Solicitar cotización gratuita</a><br>
-                 • <a href="/contactus" class="text-primary">Contactar con un asesor</a><br>
-                 • <a href="https://wa.me/51975399303" class="text-success">Escribir por WhatsApp</a><br><br>
-                 <small>¿Hay algo específico en lo que pueda ayudarte?</small>`,
-                 
-                `¡Estoy aquí para ayudarte! 😊<br>
-                 Puedo asistirte con información sobre:<br>
-                 • Precios y cotizaciones<br>
-                 • Características de productos<br>
-                 • Servicios de mantenimiento<br>
-                 • Información de contacto<br><br>
-                 <small>¿Sobre qué te gustaría saber más?</small>`
-            ];
-            
-            return responses[Math.floor(Math.random() * responses.length)];
-        },
-        
-        handleQuickAction: function(action) {
-            let userMessage = '';
-            
-            switch (action) {
-                case 'cotizacion':
-                    userMessage = 'Quiero solicitar una cotización';
-                    break;
-                case 'productos':
-                    userMessage = '¿Qué productos tienen disponibles?';
-                    break;
-                case 'contacto':
-                    userMessage = 'Necesito información de contacto';
-                    break;
-                case 'soporte':
-                    userMessage = '¿Cómo funciona el soporte técnico?';
-                    break;
-            }
-            
-            if (userMessage) {
-                this.addMessage(userMessage, 'user');
-                this.messageCount++;
                 
-                setTimeout(() => {
-                    const response = this.getBotResponse(userMessage);
-                    this.addMessage(response, 'bot');
-                }, 800);
+                <div class="implementation-process mt-4 p-3 bg-light rounded">
+                    <h5><i class="fas fa-clipboard-check text-primary me-2"></i>Proceso de Implementación Especializada</h5>
+                    <div class="process-timeline">
+                        <div class="timeline-step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h6>Análisis de Necesidades</h6>
+                                <p>Evaluación detallada de requerimientos específicos</p>
+                            </div>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h6>Diseño de Solución</h6>
+                                <p>Propuesta técnica personalizada con especificaciones</p>
+                            </div>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h6>Implementación</h6>
+                                <p>Instalación, configuración y capacitación especializada</p>
+                            </div>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="step-number">4</div>
+                            <div class="step-content">
+                                <h6>Soporte Continuo</h6>
+                                <p>Mantenimiento especializado y soporte técnico dedicado</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
-                // Tracking
-                window.CopierCompany.trackInteraction('chat_quick_action', action);
-            }
-        }
-    };
-    
-    // =============================================
-    // ESTILOS CSS PARA EL CHAT
-    // =============================================
-    
-    const chatStyles = `
-        <style id="chat-bot-styles">
-        @keyframes slideInChat {
-            0%, 80% { opacity: 0; transform: translateX(10px); }
-            10%, 70% { opacity: 1; transform: translateX(0); }
-            100% { opacity: 0; transform: translateX(10px); }
-        }
-        
-        .typing-dots .dot {
-            display: inline-block;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: #6c757d;
-            margin: 0 1px;
-            animation: typing 1.4s infinite;
-        }
-        
-        .typing-dots .dot:nth-child(1) { animation-delay: 0s; }
-        .typing-dots .dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dots .dot:nth-child(3) { animation-delay: 0.4s; }
-        
-        @keyframes typing {
-            0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
-            30% { transform: translateY(-10px); opacity: 1; }
-        }
-        
-        #chat-widget .chat-messages::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        #chat-widget .chat-messages::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        
-        #chat-widget .chat-messages::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 10px;
-        }
-        
-        #chat-widget .chat-messages::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
-        }
-        
-        @media (max-width: 768px) {
-            #chat-widget .chat-window {
-                width: calc(100vw - 40px) !important;
-                height: 70vh !important;
-                bottom: 20px;
-                right: 20px;
-            }
-            
-            #chat-widget .chat-notification {
-                display: none !important;
-            }
-        }
-        </style>
-    `;
-    
-    // Inyectar estilos
-    if (!document.querySelector('#chat-bot-styles')) {
-        document.head.insertAdjacentHTML('beforeend', chatStyles);
+                <div class="industry-testimonial mt-4 p-3 bg-primary text-white rounded">
+                    <h5><i class="fas fa-quote-left me-2"></i>Caso de Éxito</h5>
+                    <blockquote class="mb-3">
+                        "La implementación del plotter A0 transformó nuestro flujo de trabajo arquitectónico. 
+                        Ahora podemos imprimir planos de gran formato en la oficina, reduciendo tiempos 
+                        de entrega en un 60% y mejorando la calidad de presentación a clientes."
+                    </blockquote>
+                    <div class="testimonial-author">
+                        <strong>Arq. Maria González</strong>
+                        <span>- Estudio de Arquitectura Premium</span>
+                    </div>
+                </div>
+            </div>
+        `
     }
-    
-    // =============================================
-    // INICIALIZACIÓN DE PARTE 6
-    // =============================================
-    
-    try {
-        chatBot.init();
-        
-        console.log('✅ Parte 6/10 inicializada completamente');
-        document.dispatchEvent(new CustomEvent('copierJS:part6Ready'));
-        
-    } catch (error) {
-        console.error('❌ Error en Parte 6:', error);
-    }
-});
-
-// Actualizar objeto global
-window.CopierCompany = window.CopierCompany || {};
-window.CopierCompany.chatBot = chatBot;
-window.CopierCompany.partsLoaded = window.CopierCompany.partsLoaded || [];
-window.CopierCompany.partsLoaded.push('part6');
-
-console.log('📦 Copier Company JS - Parte 6/10 cargada');
-/**
- * COPIER COMPANY HOMEPAGE - SISTEMA JAVASCRIPT COMPLETO
- * PARTE 7/10: PERFORMANCE MONITORING Y ANALYTICS AVANZADOS
- * Versión Bootstrap Icons - Compatible con Odoo
- * Máximo 300 líneas por parte
- */
-
-// Esperar a que la Parte 6 esté lista
-document.addEventListener('copierJS:part6Ready', function() {
-    console.log('🚀 Iniciando Copier Company JS - Parte 7/10: Performance y Analytics');
-    
-    // =============================================
-    // SISTEMA DE PERFORMANCE MONITORING
-    // =============================================
-    
-    const performanceMonitor = {
-        metrics: {},
-        
-        init: function() {
-            this.measurePageLoad();
-            this.detectPerformanceIssues();
-            this.setupPerformanceObserver();
-            this.monitorResourceLoading();
-            console.log('✅ Sistema de performance monitoring inicializado');
-        },
-        
-        measurePageLoad: function() {
-            window.addEventListener('load', () => {
-                const navigation = performance.getEntriesByType('navigation')[0];
-                const paint = performance.getEntriesByType('paint');
-                
-                this.metrics = {
-                    loadTime: navigation.loadEventEnd - navigation.fetchStart,
-                    domContentLoaded: navigation.domContentLoadedEventEnd - navigation.fetchStart,
-                    firstPaint: paint.find(p => p.name === 'first-paint')?.startTime || 0,
-                    firstContentfulPaint: paint.find(p => p.name === 'first-contentful-paint')?.startTime || 0,
-                    dns: navigation.domainLookupEnd - navigation.domainLookupStart,
-                    connection: navigation.connectEnd - navigation.connectStart,
-                    serverResponse: navigation.responseEnd - navigation.requestStart
-                };
-                
-                this.logPerformanceMetrics();
-                this.sendPerformanceData();
-            });
-        },
-        
-        detectPerformanceIssues: function() {
-            // Detectar imágenes lentas
-            const images = document.querySelectorAll('img');
-            images.forEach(img => {
-                const startTime = performance.now();
-                
-                const checkLoad = () => {
-                    const loadTime = performance.now() - startTime;
-                    if (loadTime > 3000) {
-                        console.warn(`⚠️ Imagen lenta detectada: ${img.src.substring(0, 50)}... (${loadTime.toFixed(2)}ms)`);
-                        this.reportSlowResource('image', img.src, loadTime);
-                    }
-                };
-                
-                if (img.complete) {
-                    checkLoad();
-                } else {
-                    img.onload = checkLoad;
-                    img.onerror = () => {
-                        console.error(`❌ Error cargando imagen: ${img.src.substring(0, 50)}...`);
-                        this.reportSlowResource('image_error', img.src, 0);
-                    };
-                }
-            });
-            
-            // Detectar scripts lentos
-            this.detectSlowScripts();
-        },
-        
-        detectSlowScripts: function() {
-            const scripts = document.querySelectorAll('script[src]');
-            scripts.forEach(script => {
-                const observer = new PerformanceObserver((list) => {
-                    list.getEntries().forEach(entry => {
-                        if (entry.name === script.src && entry.duration > 1000) {
-                            console.warn(`⚠️ Script lento: ${script.src.substring(0, 50)}... (${entry.duration.toFixed(2)}ms)`);
-                            this.reportSlowResource('script', script.src, entry.duration);
-                        }
-                    });
-                });
-                
-                try {
-                    observer.observe({ entryTypes: ['resource'] });
-                } catch (e) {
-                    // PerformanceObserver no soportado en algunos navegadores
-                }
-            });
-        },
-        
-        setupPerformanceObserver: function() {
-            if ('PerformanceObserver' in window) {
-                // Observar Largest Contentful Paint
-                const lcpObserver = new PerformanceObserver((list) => {
-                    list.getEntries().forEach(entry => {
-                        if (entry.entryType === 'largest-contentful-paint') {
-                            this.metrics.lcp = entry.startTime;
-                            if (entry.startTime > 4000) {
-                                console.warn(`⚠️ LCP lento: ${entry.startTime.toFixed(2)}ms`);
-                            }
-                        }
-                    });
-                });
-                
-                try {
-                    lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
-                } catch (e) {
-                    console.log('LCP observer no soportado');
-                }
-                
-                // Observar First Input Delay
-                const fidObserver = new PerformanceObserver((list) => {
-                    list.getEntries().forEach(entry => {
-                        if (entry.entryType === 'first-input') {
-                            this.metrics.fid = entry.processingStart - entry.startTime;
-                            if (this.metrics.fid > 100) {
-                                console.warn(`⚠️ FID alto: ${this.metrics.fid.toFixed(2)}ms`);
-                            }
-                        }
-                    });
-                });
-                
-                try {
-                    fidObserver.observe({ entryTypes: ['first-input'] });
-                } catch (e) {
-                    console.log('FID observer no soportado');
-                }
-            }
-        },
-        
-        monitorResourceLoading: function() {
-            // Monitorear recursos críticos
-            const criticalResources = ['bootstrap', 'main.css', 'jquery'];
-            
-            window.addEventListener('load', () => {
-                const resources = performance.getEntriesByType('resource');
-                
-                resources.forEach(resource => {
-                    const isCritical = criticalResources.some(cr => resource.name.includes(cr));
-                    
-                    if (isCritical && resource.duration > 2000) {
-                        console.warn(`⚠️ Recurso crítico lento: ${resource.name.substring(0, 50)}... (${resource.duration.toFixed(2)}ms)`);
-                        this.reportSlowResource('critical_resource', resource.name, resource.duration);
-                    }
-                });
-            });
-        },
-        
-        logPerformanceMetrics: function() {
-            console.group('📊 Métricas de Performance');
-            console.log(`⏱️ Tiempo total de carga: ${this.metrics.loadTime.toFixed(2)}ms`);
-            console.log(`🎯 DOMContentLoaded: ${this.metrics.domContentLoaded.toFixed(2)}ms`);
-            console.log(`🎨 First Paint: ${this.metrics.firstPaint.toFixed(2)}ms`);
-            console.log(`📄 First Contentful Paint: ${this.metrics.firstContentfulPaint.toFixed(2)}ms`);
-            console.log(`🌐 DNS Lookup: ${this.metrics.dns.toFixed(2)}ms`);
-            console.log(`🔗 Connection: ${this.metrics.connection.toFixed(2)}ms`);
-            console.log(`🖥️ Server Response: ${this.metrics.serverResponse.toFixed(2)}ms`);
-            
-            if (this.metrics.lcp) {
-                console.log(`🖼️ Largest Contentful Paint: ${this.metrics.lcp.toFixed(2)}ms`);
-            }
-            if (this.metrics.fid) {
-                console.log(`👆 First Input Delay: ${this.metrics.fid.toFixed(2)}ms`);
-            }
-            console.groupEnd();
-        },
-        
-        sendPerformanceData: function() {
-            // Enviar a Google Analytics si está disponible
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'performance_metrics', {
-                    load_time: Math.round(this.metrics.loadTime),
-                    dom_content_loaded: Math.round(this.metrics.domContentLoaded),
-                    first_paint: Math.round(this.metrics.firstPaint),
-                    first_contentful_paint: Math.round(this.metrics.firstContentfulPaint)
-                });
-            }
-            
-            // Almacenar localmente para análisis
-            const performanceData = {
-                timestamp: new Date().toISOString(),
-                url: window.location.pathname,
-                userAgent: navigator.userAgent.substring(0, 100),
-                metrics: this.metrics,
-                viewport: {
-                    width: window.innerWidth,
-                    height: window.innerHeight
-                }
-            };
-            
-            localStorage.setItem('copier_performance_last', JSON.stringify(performanceData));
-        },
-        
-        reportSlowResource: function(type, url, duration) {
-            const report = {
-                type: type,
-                url: url.substring(0, 100),
-                duration: duration,
-                timestamp: new Date().toISOString(),
-                page: window.location.pathname
-            };
-            
-            // Almacenar reportes de recursos lentos
-            const slowResources = JSON.parse(localStorage.getItem('copier_slow_resources') || '[]');
-            slowResources.push(report);
-            
-            // Mantener solo los últimos 50 reportes
-            if (slowResources.length > 50) {
-                slowResources.splice(0, slowResources.length - 50);
-            }
-            
-            localStorage.setItem('copier_slow_resources', JSON.stringify(slowResources));
-        },
-        
-        getPerformanceReport: function() {
-            return {
-                metrics: this.metrics,
-                slowResources: JSON.parse(localStorage.getItem('copier_slow_resources') || '[]'),
-                lastMeasurement: JSON.parse(localStorage.getItem('copier_performance_last') || '{}')
-            };
-        }
-    };
-    
-    // =============================================
-    // SISTEMA DE ANALYTICS AVANZADOS
-    // =============================================
-    
-    const advancedAnalytics = {
-        sessionData: {},
-        
-        init: function() {
-            this.initializeSession();
-            this.trackUserBehavior();
-            this.trackScrollDepth();
-            this.trackTimeOnSections();
-            this.trackDeviceInfo();
-            console.log('✅ Sistema de analytics avanzados inicializado');
-        },
-        
-        initializeSession: function() {
-            this.sessionData = {
-                sessionId: this.generateSessionId(),
-                startTime: Date.now(),
-                pageViews: 0,
-                interactions: 0,
-                scrollDepth: 0,
-                timeOnPage: 0,
-                device: this.getDeviceInfo(),
-                referrer: document.referrer || 'direct',
-                userAgent: navigator.userAgent.substring(0, 200)
-            };
-            
-            // Incrementar vistas de página
-            this.sessionData.pageViews++;
-            this.saveSessionData();
-        },
-        
-        generateSessionId: function() {
-            return 'copier_' + Date.now() + '_' + Math.random().toString(36).substring(2, 15);
-        },
-        
-        getDeviceInfo: function() {
-            const width = window.innerWidth;
-            let deviceType = 'desktop';
-            
-            if (width <= 576) deviceType = 'mobile';
-            else if (width <= 992) deviceType = 'tablet';
-            
-            return {
-                type: deviceType,
-                width: width,
-                height: window.innerHeight,
-                pixelRatio: window.devicePixelRatio || 1,
-                language: navigator.language,
-                platform: navigator.platform,
-                cookieEnabled: navigator.cookieEnabled,
-                onLine: navigator.onLine
-            };
-        },
-        
-        trackUserBehavior: function() {
-            // Tracking de clics específicos
-            document.addEventListener('click', (e) => {
-                const element = e.target.closest('.btn, .card, a, [data-track]');
-                if (element) {
-                    this.sessionData.interactions++;
-                    
-                    const eventData = {
-                        type: 'click',
-                        element: element.tagName.toLowerCase(),
-                        text: element.textContent?.trim().substring(0, 50) || '',
-                        href: element.href || '',
-                        className: element.className || '',
-                        timestamp: Date.now()
-                    };
-                    
-                    this.recordEvent(eventData);
-                    
-                    // Tracking especial para botones CTA
-                    if (element.classList.contains('btn-primary') || 
-                        element.classList.contains('btn-cta')) {
-                        this.trackConversion('cta_click', eventData.text);
-                    }
-                }
-            });
-            
-            // Tracking de formularios
-            document.addEventListener('submit', (e) => {
-                const form = e.target;
-                if (form.tagName === 'FORM') {
-                    this.trackConversion('form_submit', form.action || 'unknown');
-                }
-            });
-        },
-        
-        trackScrollDepth: function() {
-            let maxScroll = 0;
-            const milestones = [10, 25, 50, 75, 90, 100];
-            const triggered = new Set();
-            
-            const updateScrollDepth = () => {
-                const scrollPercent = Math.round(
-                    (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100
-                );
-                
-                if (scrollPercent > maxScroll) {
-                    maxScroll = scrollPercent;
-                    this.sessionData.scrollDepth = maxScroll;
-                    
-                    milestones.forEach(milestone => {
-                        if (scrollPercent >= milestone && !triggered.has(milestone)) {
-                            triggered.add(milestone);
-                            
-                            this.recordEvent({
-                                type: 'scroll_depth',
-                                depth: milestone,
-                                timestamp: Date.now()
-                            });
-                            
-                            // Tracking especial para scroll profundo
-                            if (milestone >= 75) {
-                                this.trackConversion('deep_scroll', `${milestone}%`);
-                            }
-                        }
-                    });
-                }
-            };
-            
-            let scrollTimeout;
-            window.addEventListener('scroll', () => {
-                clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(updateScrollDepth, 100);
-            });
-        },
-        
-        trackTimeOnSections: function() {
-            const sections = document.querySelectorAll('section[id], .section');
-            const sectionTimes = new Map();
-            
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    const sectionId = entry.target.id || entry.target.className.split(' ')[0];
-                    
-                    if (entry.isIntersecting) {
-                        sectionTimes.set(sectionId, Date.now());
-                    } else if (sectionTimes.has(sectionId)) {
-                        const timeSpent = Date.now() - sectionTimes.get(sectionId);
-                        
-                        if (timeSpent > 2000) { // Más de 2 segundos
-                            this.recordEvent({
-                                type: 'section_time',
-                                section: sectionId,
-                                duration: timeSpent,
-                                timestamp: Date.now()
-                            });
-                            
-                            // Engagement especial
-                            if (timeSpent > 10000) { // Más de 10 segundos
-                                this.trackConversion('high_engagement', `${sectionId}_${Math.round(timeSpent/1000)}s`);
-                            }
-                        }
-                        
-                        sectionTimes.delete(sectionId);
-                    }
-                });
-            }, { threshold: 0.5 });
-            
-            sections.forEach(section => observer.observe(section));
-        },
-        
-        trackDeviceInfo: function() {
-            // Tracking de información técnica útil
-            this.recordEvent({
-                type: 'device_info',
-                connection: navigator.connection?.effectiveType || 'unknown',
-                memory: navigator.deviceMemory || 'unknown',
-                cores: navigator.hardwareConcurrency || 'unknown',
-                battery: navigator.getBattery ? 'available' : 'not_available',
-                timestamp: Date.now()
-            });
-        },
-        
-        recordEvent: function(eventData) {
-            // Almacenar eventos localmente
-            const events = JSON.parse(localStorage.getItem('copier_analytics_events') || '[]');
-            events.push({
-                sessionId: this.sessionData.sessionId,
-                ...eventData
-            });
-            
-            // Mantener solo los últimos 200 eventos
-            if (events.length > 200) {
-                events.splice(0, events.length - 200);
-            }
-            
-            localStorage.setItem('copier_analytics_events', JSON.stringify(events));
-        },
-        
-        trackConversion: function(type, details) {
-            console.log(`🎯 Conversión: ${type} - ${details}`);
-            
-            // Tracking especial para conversiones
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'conversion', {
-                    conversion_type: type,
-                    conversion_details: details,
-                    session_id: this.sessionData.sessionId
-                });
-            }
-            
-            this.recordEvent({
-                type: 'conversion',
-                conversionType: type,
-                details: details,
-                timestamp: Date.now()
-            });
-        },
-        
-        saveSessionData: function() {
-            this.sessionData.timeOnPage = Date.now() - this.sessionData.startTime;
-            localStorage.setItem('copier_session_data', JSON.stringify(this.sessionData));
-        },
-        
-        getAnalyticsReport: function() {
-            return {
-                session: this.sessionData,
-                events: JSON.parse(localStorage.getItem('copier_analytics_events') || '[]'),
-                performance: performanceMonitor.getPerformanceReport()
-            };
-        }
-    };
-    
-    // =============================================
-    // SISTEMA DE OPTIMIZACIÓN AUTOMÁTICA
-    // =============================================
-    
-    const autoOptimizer = {
-        init: function() {
-            this.optimizeImages();
-            this.optimizeAnimations();
-            this.optimizeConnections();
-            console.log('✅ Sistema de optimización automática inicializado');
-        },
-        
-        optimizeImages: function() {
-            // Diferir imágenes no críticas
-            const images = document.querySelectorAll('img:not([data-critical])');
-            images.forEach(img => {
-                if (!img.loading) {
-                    img.loading = 'lazy';
-                }
-            });
-        },
-        
-        optimizeAnimations: function() {
-            // Reducir animaciones en dispositivos de baja potencia
-            if (navigator.deviceMemory && navigator.deviceMemory < 4) {
-                document.documentElement.style.setProperty('--animation-duration', '0.1s');
-                console.log('🔧 Animaciones optimizadas para dispositivo de baja potencia');
-            }
-            
-            // Respetar preferencias de usuario
-            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                document.documentElement.style.setProperty('--animation-duration', '0s');
-                console.log('🔧 Animaciones deshabilitadas por preferencia del usuario');
-            }
-        },
-        
-        optimizeConnections: function() {
-            // Preconnect a dominios importantes
-            const importantDomains = [
-                'https://fonts.googleapis.com',
-                'https://cdn.jsdelivr.net',
-                'https://wa.me'
-            ];
-            
-            importantDomains.forEach(domain => {
-                const link = document.createElement('link');
-                link.rel = 'preconnect';
-                link.href = domain;
-                document.head.appendChild(link);
-            });
-        }
-    };
-    
-    // =============================================
-    // INICIALIZACIÓN DE PARTE 7
-    // =============================================
-    
-    try {
-        performanceMonitor.init();
-        advancedAnalytics.init();
-        autoOptimizer.init();
-        
-        // Guardar datos de sesión periódicamente
-        setInterval(() => {
-            advancedAnalytics.saveSessionData();
-        }, 30000); // Cada 30 segundos
-        
-        // Enviar datos antes de salir de la página
-        window.addEventListener('beforeunload', () => {
-            advancedAnalytics.saveSessionData();
-        });
-        
-        console.log('✅ Parte 7/10 inicializada completamente');
-        document.dispatchEvent(new CustomEvent('copierJS:part7Ready'));
-        
-    } catch (error) {
-        console.error('❌ Error en Parte 7:', error);
-    }
-});
-
-// Actualizar objeto global
-window.CopierCompany = window.CopierCompany || {};
-window.CopierCompany.performanceMonitor = performanceMonitor;
-window.CopierCompany.advancedAnalytics = advancedAnalytics;
-window.CopierCompany.getAnalyticsReport = () => advancedAnalytics.getAnalyticsReport();
-window.CopierCompany.partsLoaded = window.CopierCompany.partsLoaded || [];
-window.CopierCompany.partsLoaded.push('part7');
-
-console.log('📦 Copier Company JS - Parte 7/10 cargada');
-/**
- * COPIER COMPANY HOMEPAGE - SISTEMA JAVASCRIPT COMPLETO
- * PARTE 8/10: SISTEMAS COMPLEMENTARIOS Y GESTIÓN AVANZADA
- * Versión Bootstrap Icons - Compatible con Odoo
- * Máximo 300 líneas por parte
- */
-
-// Esperar a que la Parte 7 esté lista
-document.addEventListener('copierJS:part7Ready', function() {
-    console.log('🚀 Iniciando Copier Company JS - Parte 8/10: Sistemas Complementarios');
-    
-    // =============================================
-    // SISTEMA DE GESTIÓN DE ERRORES
-    // =============================================
-    
-    const errorManager = {
-        errorCount: 0,
-        maxErrors: 50,
-        
-        init: function() {
-            this.setupGlobalErrorHandling();
-            this.setupPromiseRejectionHandling();
-            this.setupConsoleErrorCapture();
-            console.log('✅ Sistema de gestión de errores inicializado');
-        },
-        
-        setupGlobalErrorHandling: function() {
-            window.addEventListener('error', (event) => {
-                this.logError({
-                    type: 'javascript_error',
-                    message: event.message,
-                    filename: event.filename,
-                    lineno: event.lineno,
-                    colno: event.colno,
-                    stack: event.error?.stack || 'No stack available',
-                    timestamp: new Date().toISOString(),
-                    url: window.location.href,
-                    userAgent: navigator.userAgent.substring(0, 100)
-                });
-            });
-        },
-        
-        setupPromiseRejectionHandling: function() {
-            window.addEventListener('unhandledrejection', (event) => {
-                this.logError({
-                    type: 'promise_rejection',
-                    message: event.reason?.message || 'Unhandled promise rejection',
-                    reason: event.reason?.toString() || 'Unknown reason',
-                    stack: event.reason?.stack || 'No stack available',
-                    timestamp: new Date().toISOString(),
-                    url: window.location.href
-                });
-            });
-        },
-        
-        setupConsoleErrorCapture: function() {
-            const originalConsoleError = console.error;
-            console.error = (...args) => {
-                this.logError({
-                    type: 'console_error',
-                    message: args.join(' '),
-                    timestamp: new Date().toISOString(),
-                    url: window.location.href
-                });
-                originalConsoleError.apply(console, args);
-            };
-        },
-        
-        logError: function(errorData) {
-            this.errorCount++;
-            
-            // Limitar número de errores almacenados
-            if (this.errorCount > this.maxErrors) {
-                console.warn('⚠️ Demasiados errores detectados, limitando almacenamiento');
-                return;
-            }
-            
-            // Almacenar localmente
-            const errors = JSON.parse(localStorage.getItem('copier_errors') || '[]');
-            errors.push(errorData);
-            
-            // Mantener solo los últimos 30 errores
-            if (errors.length > 30) {
-                errors.splice(0, errors.length - 30);
-            }
-            
-            localStorage.setItem('copier_errors', JSON.stringify(errors));
-            
-            // Log para debugging
-            console.group('🚨 Error Capturado');
-            console.error('Tipo:', errorData.type);
-            console.error('Mensaje:', errorData.message);
-            console.error('Detalles:', errorData);
-            console.groupEnd();
-            
-            // Mostrar notificación amigable al usuario solo para errores críticos
-            if (this.isCriticalError(errorData)) {
-                this.showUserFriendlyError();
-            }
-        },
-        
-        isCriticalError: function(errorData) {
-            const criticalPatterns = [
-                'TypeError',
-                'ReferenceError',
-                'Cannot read property',
-                'undefined is not a function'
-            ];
-            
-            return criticalPatterns.some(pattern => 
-                errorData.message.includes(pattern)
-            );
-        },
-        
-        showUserFriendlyError: function() {
-            if (window.CopierCompany && window.CopierCompany.showToast) {
-                window.CopierCompany.showToast(
-                    'Se ha detectado un problema técnico. Nuestro equipo ha sido notificado.',
-                    'warning',
-                    8000
-                );
-            }
-        },
-        
-        getErrorReport: function() {
-            return {
-                errorCount: this.errorCount,
-                errors: JSON.parse(localStorage.getItem('copier_errors') || '[]'),
-                browserInfo: {
-                    userAgent: navigator.userAgent,
-                    language: navigator.language,
-                    platform: navigator.platform,
-                    cookieEnabled: navigator.cookieEnabled
-                }
-            };
-        }
-    };
-    
-    // =============================================
-    // SISTEMA DE CONECTIVIDAD Y ESTADOS
-    // =============================================
-    
-    const connectivityManager = {
-        isOnline: navigator.onLine,
-        
-        init: function() {
-            this.setupConnectivityListeners();
-            this.checkConnectionQuality();
-            this.setupOfflineSupport();
-            console.log('✅ Sistema de conectividad inicializado');
-        },
-        
-        setupConnectivityListeners: function() {
-            window.addEventListener('online', () => {
-                this.isOnline = true;
-                this.handleOnline();
-            });
-            
-            window.addEventListener('offline', () => {
-                this.isOnline = false;
-                this.handleOffline();
-            });
-        },
-        
-        handleOnline: function() {
-            console.log('🌐 Conexión restaurada');
-            
-            if (window.CopierCompany && window.CopierCompany.showToast) {
-                window.CopierCompany.showToast(
-                    'Conexión a internet restaurada',
-                    'success',
-                    3000
-                );
-            }
-            
-            // Reintentar operaciones pendientes
-            this.retryPendingOperations();
-            
-            // Actualizar UI
-            this.updateConnectivityUI(true);
-        },
-        
-        handleOffline: function() {
-            console.log('📴 Conexión perdida');
-            
-            if (window.CopierCompany && window.CopierCompany.showToast) {
-                window.CopierCompany.showToast(
-                    'Sin conexión a internet. Algunas funciones pueden estar limitadas.',
-                    'warning',
-                    5000
-                );
-            }
-            
-            // Actualizar UI
-            this.updateConnectivityUI(false);
-        },
-        
-        updateConnectivityUI: function(isOnline) {
-            const offlineIndicator = document.getElementById('offline-indicator');
-            
-            if (!offlineIndicator && !isOnline) {
-                const indicator = document.createElement('div');
-                indicator.id = 'offline-indicator';
-                indicator.className = 'alert alert-warning position-fixed top-0 start-50 translate-middle-x m-3';
-                indicator.style.zIndex = '9999';
-                indicator.innerHTML = `
-                    <i class="bi bi-wifi-off me-2"></i>
-                    Sin conexión a internet
-                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
-                `;
-                document.body.appendChild(indicator);
-            } else if (offlineIndicator && isOnline) {
-                offlineIndicator.remove();
-            }
-        },
-        
-        checkConnectionQuality: function() {
-            if ('connection' in navigator) {
-                const connection = navigator.connection;
-                console.log(`📶 Tipo de conexión: ${connection.effectiveType}`);
-                
-                // Optimizar según el tipo de conexión
-                if (connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g') {
-                    this.enableLowDataMode();
-                }
-            }
-        },
-        
-        enableLowDataMode: function() {
-            console.log('📱 Modo de datos limitados activado');
-            
-            // Deshabilitar animaciones pesadas
-            document.documentElement.style.setProperty('--animation-duration', '0.1s');
-            
-            // Reducir calidad de imágenes
-            const images = document.querySelectorAll('img');
-            images.forEach(img => {
-                if (img.src && !img.dataset.optimized) {
-                    // Agregar parámetros de optimización si es posible
-                    const url = new URL(img.src);
-                    url.searchParams.set('q', '70'); // Calidad 70%
-                    url.searchParams.set('w', '800'); // Ancho máximo 800px
-                    img.src = url.toString();
-                    img.dataset.optimized = 'true';
-                }
-            });
-        },
-        
-        retryPendingOperations: function() {
-            // Aquí se pueden reintentar operaciones que fallaron por falta de conexión
-            const pendingOperations = JSON.parse(localStorage.getItem('copier_pending_operations') || '[]');
-            
-            pendingOperations.forEach(operation => {
-                console.log('🔄 Reintentando operación:', operation.type);
-                // Implementar lógica de reintento según el tipo de operación
-            });
-            
-            // Limpiar operaciones pendientes
-            localStorage.removeItem('copier_pending_operations');
-        },
-        
-        setupOfflineSupport: function() {
-            // Cachear recursos críticos para funcionamiento offline
-            if ('serviceWorker' in navigator) {
-                this.registerServiceWorker();
-            }
-        },
-        
-        registerServiceWorker: function() {
-            navigator.serviceWorker.register('/sw.js')
-                .then(registration => {
-                    console.log('✅ Service Worker registrado para soporte offline');
-                })
-                .catch(error => {
-                    console.log('⚠️ Service Worker no pudo registrarse:', error);
-                });
-        }
-    };
-    
-    // =============================================
-    // SISTEMA DE ACCESIBILIDAD
-    // =============================================
-    
-    const accessibilityEnhancer = {
-        init: function() {
-            this.enhanceKeyboardNavigation();
-            this.improveScreenReaderSupport();
-            this.addFocusManagement();
-            this.setupAccessibilityShortcuts();
-            console.log('✅ Sistema de accesibilidad inicializado');
-        },
-        
-        enhanceKeyboardNavigation: function() {
-            // Asegurar que todos los elementos interactivos sean accesibles por teclado
-            const interactiveElements = document.querySelectorAll('.btn, .card[data-benefit], .card[data-brand], .card[data-product]');
-            
-            interactiveElements.forEach(element => {
-                if (!element.tabIndex && element.tabIndex !== 0) {
-                    element.tabIndex = 0;
-                }
-                
-                if (!element.getAttribute('role')) {
-                    element.setAttribute('role', 'button');
-                }
-                
-                // Agregar soporte para Enter y Space
-                element.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        element.click();
-                    }
-                });
-            });
-        },
-        
-        improveScreenReaderSupport: function() {
-            // Agregar etiquetas ARIA donde falten
-            const cards = document.querySelectorAll('.card');
-            cards.forEach((card, index) => {
-                if (!card.getAttribute('aria-label')) {
-                    const title = card.querySelector('h1, h2, h3, h4, h5, h6');
-                    if (title) {
-                        card.setAttribute('aria-label', title.textContent.trim());
-                    }
-                }
-            });
-            
-            // Mejorar modales
-            const modals = document.querySelectorAll('.modal');
-            modals.forEach(modal => {
-                if (!modal.getAttribute('aria-labelledby')) {
-                    const title = modal.querySelector('.modal-title');
-                    if (title && title.id) {
-                        modal.setAttribute('aria-labelledby', title.id);
-                    }
-                }
-            });
-        },
-        
-        addFocusManagement: function() {
-            // Gestión de foco para modales
-            document.addEventListener('shown.bs.modal', (e) => {
-                const modal = e.target;
-                const firstFocusable = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-                if (firstFocusable) {
-                    firstFocusable.focus();
-                }
-            });
-            
-            // Indicadores de foco visibles
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Tab') {
-                    document.body.classList.add('keyboard-navigation');
-                }
-            });
-            
-            document.addEventListener('mousedown', () => {
-                document.body.classList.remove('keyboard-navigation');
-            });
-        },
-        
-        setupAccessibilityShortcuts: function() {
-            document.addEventListener('keydown', (e) => {
-                // Alt + C = Abrir chat
-                if (e.altKey && e.key === 'c') {
-                    e.preventDefault();
-                    if (window.CopierCompany && window.CopierCompany.chatBot) {
-                        const chatBubble = document.getElementById('chat-bubble');
-                        if (chatBubble) chatBubble.click();
-                    }
-                }
-                
-                // Alt + H = Ir al inicio
-                if (e.altKey && e.key === 'h') {
-                    e.preventDefault();
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-                
-                // Alt + M = Ir al menú principal
-                if (e.altKey && e.key === 'm') {
-                    e.preventDefault();
-                    const mainNav = document.querySelector('nav, .navbar');
-                    if (mainNav) {
-                        const firstLink = mainNav.querySelector('a');
-                        if (firstLink) firstLink.focus();
-                    }
-                }
-            });
-        }
-    };
-    
-    // =============================================
-    // SISTEMA DE UTILIDADES GLOBALES
-    // =============================================
-    
-    const globalUtilities = {
-        init: function() {
-            this.setupGlobalHelpers();
-            this.setupDataFormatters();
-            this.setupUrlHelpers();
-            console.log('✅ Utilidades globales inicializadas');
-        },
-        
-        setupGlobalHelpers: function() {
-            window.CopierCompany = window.CopierCompany || {};
-            
-            // Helper para formatear números
-            window.CopierCompany.formatNumber = (num) => {
-                return new Intl.NumberFormat('es-PE').format(num);
-            };
-            
-            // Helper para formatear moneda
-            window.CopierCompany.formatCurrency = (amount) => {
-                return new Intl.NumberFormat('es-PE', {
-                    style: 'currency',
-                    currency: 'USD'
-                }).format(amount);
-            };
-            
-            // Helper para formatear fechas
-            window.CopierCompany.formatDate = (date) => {
-                return new Intl.DateTimeFormat('es-PE', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                }).format(new Date(date));
-            };
-            
-            // Helper para debounce
-            window.CopierCompany.debounce = (func, wait) => {
-                let timeout;
-                return function executedFunction(...args) {
-                    const later = () => {
-                        clearTimeout(timeout);
-                        func(...args);
-                    };
-                    clearTimeout(timeout);
-                    timeout = setTimeout(later, wait);
-                };
-            };
-            
-            // Helper para throttle
-            window.CopierCompany.throttle = (func, limit) => {
-                let inThrottle;
-                return function() {
-                    const args = arguments;
-                    const context = this;
-                    if (!inThrottle) {
-                        func.apply(context, args);
-                        inThrottle = true;
-                        setTimeout(() => inThrottle = false, limit);
-                    }
-                };
-            };
-        },
-        
-        setupDataFormatters: function() {
-            // Formatear números en elementos con data-format
-            const numberElements = document.querySelectorAll('[data-format="number"]');
-            numberElements.forEach(element => {
-                const value = parseFloat(element.textContent);
-                if (!isNaN(value)) {
-                    element.textContent = window.CopierCompany.formatNumber(value);
-                }
-            });
-            
-            // Formatear fechas
-            const dateElements = document.querySelectorAll('[data-format="date"]');
-            dateElements.forEach(element => {
-                const date = element.textContent.trim();
-                if (date) {
-                    element.textContent = window.CopierCompany.formatDate(date);
-                }
-            });
-        },
-        
-        setupUrlHelpers: function() {
-            // Helper para abrir URLs externas
-            window.CopierCompany.openExternal = (url) => {
-                window.open(url, '_blank', 'noopener,noreferrer');
-            };
-            
-            // Helper para WhatsApp
-            window.CopierCompany.openWhatsApp = (message = '') => {
-                const encodedMessage = encodeURIComponent(message || 'Hola, necesito información sobre alquiler de equipos');
-                window.CopierCompany.openExternal(`https://wa.me/51975399303?text=${encodedMessage}`);
-            };
-            
-            // Helper para cotización
-            window.CopierCompany.openCotizacion = () => {
-                window.location.href = '/cotizacion/form';
-            };
-            
-            // Helper para contacto
-            window.CopierCompany.openContacto = () => {
-                window.location.href = '/contactus';
-            };
-        }
-    };
-    
-    // =============================================
-    // SISTEMA DE LIMPIEZA Y MANTENIMIENTO
-    // =============================================
-    
-    const maintenanceSystem = {
-        init: function() {
-            this.setupPeriodicCleanup();
-            this.setupDataMaintenance();
-            console.log('✅ Sistema de mantenimiento inicializado');
-        },
-        
-        setupPeriodicCleanup: function() {
-            // Limpiar datos antiguos cada 24 horas
-            const lastCleanup = localStorage.getItem('copier_last_cleanup');
-            const now = Date.now();
-            const dayMs = 24 * 60 * 60 * 1000;
-            
-            if (!lastCleanup || (now - parseInt(lastCleanup)) > dayMs) {
-                this.performCleanup();
-                localStorage.setItem('copier_last_cleanup', now.toString());
-            }
-        },
-        
-        performCleanup: function() {
-            console.log('🧹 Realizando limpieza de datos...');
-            
-            // Limpiar eventos antiguos
-            const events = JSON.parse(localStorage.getItem('copier_analytics_events') || '[]');
-            const weekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-            const recentEvents = events.filter(event => 
-                new Date(event.timestamp).getTime() > weekAgo
-            );
-            localStorage.setItem('copier_analytics_events', JSON.stringify(recentEvents));
-            
-            // Limpiar errores antiguos
-            const errors = JSON.parse(localStorage.getItem('copier_errors') || '[]');
-            const recentErrors = errors.filter(error => 
-                new Date(error.timestamp).getTime() > weekAgo
-            );
-            localStorage.setItem('copier_errors', JSON.stringify(recentErrors));
-            
-            console.log('✅ Limpieza completada');
-        },
-        
-        setupDataMaintenance: function() {
-            // Verificar integridad de datos críticos
-            const criticalKeys = [
-                'copier_session_data',
-                'copier_performance_last',
-                'copier_analytics_events'
-            ];
-            
-            criticalKeys.forEach(key => {
-                try {
-                    const data = localStorage.getItem(key);
-                    if (data) {
-                        JSON.parse(data); // Verificar que sea JSON válido
-                    }
-                } catch (e) {
-                    console.warn(`⚠️ Datos corruptos detectados en ${key}, eliminando...`);
-                    localStorage.removeItem(key);
-                }
-            });
-        }
-    };
-    
-    // =============================================
-    // INICIALIZACIÓN DE PARTE 8
-    // =============================================
-    
-    try {
-        errorManager.init();
-        connectivityManager.init();
-        accessibilityEnhancer.init();
-        globalUtilities.init();
-        maintenanceSystem.init();
-        
-        console.log('✅ Parte 8/10 inicializada completamente');
-        document.dispatchEvent(new CustomEvent('copierJS:part8Ready'));
-        
-    } catch (error) {
-        console.error('❌ Error en Parte 8:', error);
-    }
-});
-
-// Actualizar objeto global
-window.CopierCompany = window.CopierCompany || {};
-window.CopierCompany.errorManager = errorManager;
-window.CopierCompany.connectivityManager = connectivityManager;
-window.CopierCompany.partsLoaded = window.CopierCompany.partsLoaded || [];
-window.CopierCompany.partsLoaded.push('part8');
-
-console.log('📦 Copier Company JS - Parte 8/10 cargada');
-/**
- * COPIER COMPANY HOMEPAGE - SISTEMA JAVASCRIPT COMPLETO
- * PARTE 9/10: INTEGRACIÓN FINAL Y SISTEMAS DE INICIALIZACIÓN
- * Versión Bootstrap Icons - Compatible con Odoo
- * Máximo 300 líneas por parte
- */
-
-// Esperar a que la Parte 8 esté lista
-document.addEventListener('copierJS:part8Ready', function() {
-    console.log('🚀 Iniciando Copier Company JS - Parte 9/10: Integración Final');
-    
-    // =============================================
-    // SISTEMA DE INTEGRACIÓN FINAL
-    // =============================================
-    
-    const systemIntegrator = {
-        initializationOrder: [
-            'part1', 'part2', 'part3', 'part4', 'part5', 
-            'part6', 'part7', 'part8', 'part9'
-        ],
-        
-        init: function() {
-            this.verifyAllParts();
-            this.integrateAllSystems();
-            this.setupGlobalEventSystem();
-            this.performFinalOptimizations();
-            console.log('✅ Sistema de integración final inicializado');
-        },
-        
-        verifyAllParts: function() {
-            console.group('🔍 Verificando Integridad del Sistema');
-            
-            const loadedParts = window.CopierCompany?.partsLoaded || [];
-            const missingParts = this.initializationOrder.filter(part => !loadedParts.includes(part));
-            
-            if (missingParts.length > 0) {
-                console.warn('⚠️ Partes faltantes:', missingParts);
-            } else {
-                console.log('✅ Todas las partes del sistema están cargadas');
-            }
-            
-            // Verificar funcionalidades críticas
-            this.verifyCriticalFunctions();
-            
-            console.groupEnd();
-        },
-        
-        verifyCriticalFunctions: function() {
-            const criticalFunctions = [
-                'showToast',
-                'trackInteraction',
-                'openWhatsApp',
-                'openCotizacion',
-                'formatCurrency'
-            ];
-            
-            criticalFunctions.forEach(funcName => {
-                if (typeof window.CopierCompany[funcName] === 'function') {
-                    console.log(`✅ ${funcName} disponible`);
-                } else {
-                    console.warn(`⚠️ ${funcName} no disponible`);
-                }
-            });
-        },
-        
-        integrateAllSystems: function() {
-            // Integrar sistemas de tracking
-            this.integrateTrackingSystems();
-            
-            // Integrar sistemas de UI
-            this.integrateUISystems();
-            
-            // Integrar sistemas de datos
-            this.integrateDataSystems();
-            
-            console.log('🔗 Todos los sistemas integrados correctamente');
-        },
-        
-        integrateTrackingSystems: function() {
-            // Conectar analytics con performance
-            if (window.CopierCompany.advancedAnalytics && window.CopierCompany.performanceMonitor) {
-                const originalTrackInteraction = window.CopierCompany.trackInteraction;
-                
-                window.CopierCompany.trackInteraction = function(action, details) {
-                    // Agregar métricas de performance al tracking
-                    const performanceData = {
-                        timestamp: performance.now(),
-                        memory: performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1024 / 1024) : null
-                    };
-                    
-                    return originalTrackInteraction.call(this, action, details + ` [perf:${performanceData.timestamp.toFixed(2)}ms]`);
-                };
-            }
-        },
-        
-        integrateUISystems: function() {
-            // Integrar modales con analytics
-            document.addEventListener('shown.bs.modal', (e) => {
-                const modalId = e.target.id;
-                window.CopierCompany.trackInteraction('modal_view', modalId);
-            });
-            
-            // Integrar toast con analytics
-            if (window.CopierCompany.showToast) {
-                const originalShowToast = window.CopierCompany.showToast;
-                
-                window.CopierCompany.showToast = function(message, type, duration) {
-                    window.CopierCompany.trackInteraction('toast_shown', `${type}:${message.substring(0, 30)}`);
-                    return originalShowToast.call(this, message, type, duration);
-                };
-            }
-        },
-        
-        integrateDataSystems: function() {
-            // Sincronizar datos entre sistemas
-            setInterval(() => {
-                this.syncDataBetweenSystems();
-            }, 60000); // Cada minuto
-        },
-        
-        syncDataBetweenSystems: function() {
-            // Consolidar datos de sesión
-            const consolidatedData = {
-                timestamp: new Date().toISOString(),
-                session: window.CopierCompany.advancedAnalytics?.sessionData || {},
-                performance: window.CopierCompany.performanceMonitor?.metrics || {},
-                errors: window.CopierCompany.errorManager?.getErrorReport() || {},
-                connectivity: {
-                    isOnline: window.CopierCompany.connectivityManager?.isOnline || navigator.onLine
-                }
-            };
-            
-            localStorage.setItem('copier_consolidated_data', JSON.stringify(consolidatedData));
-        },
-        
-        setupGlobalEventSystem: function() {
-            // Sistema de eventos personalizado para comunicación entre módulos
-            window.CopierCompany.eventBus = {
-                events: {},
-                
-                on: function(event, callback) {
-                    if (!this.events[event]) {
-                        this.events[event] = [];
-                    }
-                    this.events[event].push(callback);
-                },
-                
-                emit: function(event, data) {
-                    if (this.events[event]) {
-                        this.events[event].forEach(callback => {
-                            try {
-                                callback(data);
-                            } catch (error) {
-                                console.error(`Error en event listener para ${event}:`, error);
-                            }
-                        });
-                    }
-                },
-                
-                off: function(event, callback) {
-                    if (this.events[event]) {
-                        this.events[event] = this.events[event].filter(cb => cb !== callback);
-                    }
-                }
-            };
-            
-            // Eventos del sistema
-            this.setupSystemEvents();
-        },
-        
-        setupSystemEvents: function() {
-            // Evento cuando se abre el chat
-            window.CopierCompany.eventBus.on('chat:opened', (data) => {
-                window.CopierCompany.trackInteraction('chat_opened', 'event_bus');
-            });
-            
-            // Evento cuando se solicita cotización
-            window.CopierCompany.eventBus.on('quote:requested', (data) => {
-                window.CopierCompany.trackInteraction('quote_requested', JSON.stringify(data));
-            });
-            
-            // Evento cuando hay error crítico
-            window.CopierCompany.eventBus.on('error:critical', (data) => {
-                window.CopierCompany.showToast(
-                    'Se ha detectado un problema. Recargando la página...',
-                    'error',
-                    3000
-                );
-                
-                setTimeout(() => {
-                    window.location.reload();
-                }, 3000);
-            });
-        },
-        
-        performFinalOptimizations: function() {
-            // Optimizaciones finales después de que todo esté cargado
-            
-            // Limpiar event listeners no utilizados
-            this.cleanupEventListeners();
-            
-            // Optimizar rendimiento
-            this.optimizePerformance();
-            
-            // Configurar lazy loading final
-            this.setupFinalLazyLoading();
-            
-            console.log('⚡ Optimizaciones finales completadas');
-        },
-        
-        cleanupEventListeners: function() {
-            // Remover listeners duplicados o innecesarios
-            const elements = document.querySelectorAll('[data-cleanup-listeners]');
-            elements.forEach(element => {
-                const newElement = element.cloneNode(true);
-                element.parentNode.replaceChild(newElement, element);
-            });
-        },
-        
-        optimizePerformance: function() {
-            // Optimizar imágenes que no se han cargado aún
-            const lazyImages = document.querySelectorAll('img[data-src]');
-            if (lazyImages.length === 0) {
-                console.log('✅ Todas las imágenes han sido procesadas');
-            }
-            
-            // Optimizar animaciones según el dispositivo
-            if (window.DeviceMotionEvent) {
-                // Dispositivo móvil - reducir animaciones
-                document.documentElement.style.setProperty('--animation-scale', '0.8');
-            }
-            
-            // Garbage collection hint
-            if (window.gc && typeof window.gc === 'function') {
-                window.gc();
-            }
-        },
-        
-        setupFinalLazyLoading: function() {
-            // Lazy loading para elementos no críticos adicionales
-            const nonCriticalElements = document.querySelectorAll('.lazy-load-final');
-            
-            if (nonCriticalElements.length > 0) {
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            entry.target.classList.add('loaded');
-                            observer.unobserve(entry.target);
-                        }
-                    });
-                });
-                
-                nonCriticalElements.forEach(element => observer.observe(element));
-            }
-        }
-    };
-    
-    // =============================================
-    // SISTEMA DE MONITOREO DE SALUD
-    // =============================================
-    
-    const healthMonitor = {
-        checks: {},
-        interval: null,
-        
-        init: function() {
-            this.setupHealthChecks();
-            this.startMonitoring();
-            console.log('✅ Monitor de salud del sistema inicializado');
-        },
-        
-        setupHealthChecks: function() {
-            this.checks = {
-                memory: () => this.checkMemoryUsage(),
-                performance: () => this.checkPerformance(),
-                errors: () => this.checkErrorRate(),
-                connectivity: () => this.checkConnectivity(),
-                localStorage: () => this.checkLocalStorage()
-            };
-        },
-        
-        startMonitoring: function() {
-            // Verificar salud cada 2 minutos
-            this.interval = setInterval(() => {
-                this.runHealthChecks();
-            }, 120000);
-            
-            // Verificación inicial después de 30 segundos
-            setTimeout(() => {
-                this.runHealthChecks();
-            }, 30000);
-        },
-        
-        runHealthChecks: function() {
-            const results = {};
-            let overallHealth = 'healthy';
-            
-            Object.keys(this.checks).forEach(checkName => {
-                try {
-                    results[checkName] = this.checks[checkName]();
-                    
-                    if (results[checkName].status === 'warning') {
-                        overallHealth = 'warning';
-                    } else if (results[checkName].status === 'critical') {
-                        overallHealth = 'critical';
-                    }
-                } catch (error) {
-                    results[checkName] = {
-                        status: 'error',
-                        message: error.message
-                    };
-                    overallHealth = 'critical';
-                }
-            });
-            
-            this.handleHealthResults(overallHealth, results);
-        },
-        
-        checkMemoryUsage: function() {
-            if (performance.memory) {
-                const used = performance.memory.usedJSHeapSize;
-                const limit = performance.memory.jsHeapSizeLimit;
-                const percentage = (used / limit) * 100;
-                
-                if (percentage > 90) {
-                    return { status: 'critical', value: percentage, message: 'Uso de memoria crítico' };
-                } else if (percentage > 75) {
-                    return { status: 'warning', value: percentage, message: 'Uso de memoria alto' };
-                } else {
-                    return { status: 'healthy', value: percentage, message: 'Uso de memoria normal' };
-                }
-            }
-            
-            return { status: 'unknown', message: 'Información de memoria no disponible' };
-        },
-        
-        checkPerformance: function() {
-            const loadTime = window.CopierCompany.performanceMonitor?.metrics?.loadTime || 0;
-            
-            if (loadTime > 5000) {
-                return { status: 'critical', value: loadTime, message: 'Tiempo de carga muy lento' };
-            } else if (loadTime > 3000) {
-                return { status: 'warning', value: loadTime, message: 'Tiempo de carga lento' };
-            } else {
-                return { status: 'healthy', value: loadTime, message: 'Rendimiento bueno' };
-            }
-        },
-        
-        checkErrorRate: function() {
-            const errorCount = window.CopierCompany.errorManager?.errorCount || 0;
-            
-            if (errorCount > 10) {
-                return { status: 'critical', value: errorCount, message: 'Muchos errores detectados' };
-            } else if (errorCount > 5) {
-                return { status: 'warning', value: errorCount, message: 'Algunos errores detectados' };
-            } else {
-                return { status: 'healthy', value: errorCount, message: 'Pocos o ningún error' };
-            }
-        },
-        
-        checkConnectivity: function() {
-            const isOnline = navigator.onLine;
-            
-            if (!isOnline) {
-                return { status: 'critical', value: false, message: 'Sin conexión a internet' };
-            } else {
-                return { status: 'healthy', value: true, message: 'Conectado a internet' };
-            }
-        },
-        
-        checkLocalStorage: function() {
-            try {
-                const testKey = 'copier_health_test';
-                localStorage.setItem(testKey, 'test');
-                localStorage.removeItem(testKey);
-                
-                // Verificar espacio disponible
-                const used = JSON.stringify(localStorage).length;
-                const maxSize = 5 * 1024 * 1024; // 5MB aproximado
-                const percentage = (used / maxSize) * 100;
-                
-                if (percentage > 90) {
-                    return { status: 'warning', value: percentage, message: 'LocalStorage casi lleno' };
-                } else {
-                    return { status: 'healthy', value: percentage, message: 'LocalStorage funcionando' };
-                }
-            } catch (error) {
-                return { status: 'critical', value: 0, message: 'LocalStorage no disponible' };
-            }
-        },
-        
-        handleHealthResults: function(overallHealth, results) {
-            console.group(`💊 Health Check - Estado: ${overallHealth.toUpperCase()}`);
-            
-            Object.keys(results).forEach(checkName => {
-                const result = results[checkName];
-                const icon = result.status === 'healthy' ? '✅' : 
-                           result.status === 'warning' ? '⚠️' : '❌';
-                console.log(`${icon} ${checkName}: ${result.message} (${result.value || 'N/A'})`);
-            });
-            
-            console.groupEnd();
-            
-            // Acciones según el estado de salud
-            if (overallHealth === 'critical') {
-                this.handleCriticalHealth(results);
-            } else if (overallHealth === 'warning') {
-                this.handleWarningHealth(results);
-            }
-            
-            // Almacenar resultado
-            localStorage.setItem('copier_last_health_check', JSON.stringify({
-                timestamp: new Date().toISOString(),
-                status: overallHealth,
-                results: results
-            }));
-        },
-        
-        handleCriticalHealth: function(results) {
-            console.warn('🚨 Estado crítico del sistema detectado');
-            
-            // Notificar al usuario si es apropiado
-            if (results.memory?.status === 'critical') {
-                window.CopierCompany.showToast(
-                    'El sistema está experimentando problemas de memoria. Considera recargar la página.',
-                    'warning',
-                    8000
-                );
-            }
-            
-            // Emitir evento crítico
-            if (window.CopierCompany.eventBus) {
-                window.CopierCompany.eventBus.emit('error:critical', results);
-            }
-        },
-        
-        handleWarningHealth: function(results) {
-            console.warn('⚠️ Advertencias detectadas en el sistema');
-            
-            // Optimizaciones automáticas para warnings
-            if (results.memory?.status === 'warning') {
-                // Limpiar caches no esenciales
-                this.clearNonEssentialCaches();
-            }
-        },
-        
-        clearNonEssentialCaches: function() {
-            // Limpiar datos antiguos de analytics
-            const events = JSON.parse(localStorage.getItem('copier_analytics_events') || '[]');
-            const recentEvents = events.slice(-50); // Mantener solo los últimos 50
-            localStorage.setItem('copier_analytics_events', JSON.stringify(recentEvents));
-            
-            console.log('🧹 Caches no esenciales limpiados');
-        },
-        
-        getHealthReport: function() {
-            return JSON.parse(localStorage.getItem('copier_last_health_check') || '{}');
-        }
-    };
-    
-    // =============================================
-    // INICIALIZACIÓN DE PARTE 9
-    // =============================================
-    
-    try {
-        systemIntegrator.init();
-        healthMonitor.init();
-        
-        // Configurar cierre limpio
-        window.addEventListener('beforeunload', () => {
-            console.log('👋 Cerrando sistema Copier Company JS');
-            
-            // Guardar estado final
-            if (window.CopierCompany.advancedAnalytics) {
-                window.CopierCompany.advancedAnalytics.saveSessionData();
-            }
-            
-            // Limpiar intervalos
-            if (healthMonitor.interval) {
-                clearInterval(healthMonitor.interval);
-            }
-        });
-        
-        console.log('✅ Parte 9/10 inicializada completamente');
-        document.dispatchEvent(new CustomEvent('copierJS:part9Ready'));
-        
-    } catch (error) {
-        console.error('❌ Error en Parte 9:', error);
-    }
-});
-
-// Actualizar objeto global
-window.CopierCompany = window.CopierCompany || {};
-window.CopierCompany.systemIntegrator = systemIntegrator;
-window.CopierCompany.healthMonitor = healthMonitor;
-window.CopierCompany.getSystemHealth = () => healthMonitor.getHealthReport();
-window.CopierCompany.partsLoaded = window.CopierCompany.partsLoaded || [];
-window.CopierCompany.partsLoaded.push('part9');
-
-console.log('📦 Copier Company JS - Parte 9/10 cargada');
-/**
- * COPIER COMPANY HOMEPAGE - SISTEMA JAVASCRIPT COMPLETO
- * PARTE 10/10 FINAL: INICIALIZACIÓN MASTER Y SISTEMA COMPLETO
- * Versión Bootstrap Icons - Compatible con Odoo
- * SISTEMA COMPLETO LISTO PARA PRODUCCIÓN
- */
-
-// Esperar a que la Parte 9 esté lista
-document.addEventListener('copierJS:part9Ready', function() {
-    console.log('🚀 Iniciando Copier Company JS - Parte 10/10 FINAL: Sistema Completo');
-    
-    // =============================================
-    // INICIALIZADOR MASTER DEL SISTEMA
-    // =============================================
-    
-    const masterInitializer = {
-        version: '2.0.0',
-        buildDate: '2024-12-19',
-        environment: 'production',
-        
-        init: function() {
-            this.displayWelcomeBanner();
-            this.validateSystemIntegrity();
-            this.initializeAPIConnections();
-            this.setupProductionOptimizations();
-            this.createDebugInterface();
-            this.enableAdvancedFeatures();
-            this.startSystemMonitoring();
-            console.log('✅ Master Initializer completado');
-        },
-        
-        displayWelcomeBanner: function() {
-            console.log(`
-%c🏢 COPIER COMPANY HOMEPAGE SYSTEM v${this.version}
-%c✨ Sistema JavaScript Completo Inicializado
-%c🔧 Build: ${this.buildDate} | Entorno: ${this.environment}
-%c📊 10 Módulos Cargados | Bootstrap Icons Integrado
-%c🚀 Sistema Listo Para Producción
-            `, 
-            'color: #0066cc; font-size: 18px; font-weight: bold;',
-            'color: #28a745; font-size: 14px; font-weight: bold;',
-            'color: #6c757d; font-size: 12px;',
-            'color: #17a2b8; font-size: 12px;',
-            'color: #28a745; font-size: 14px; font-weight: bold;'
-            );
-        },
-        
-        validateSystemIntegrity: function() {
-            const requiredParts = ['part1', 'part2', 'part3', 'part4', 'part5', 'part6', 'part7', 'part8', 'part9'];
-            const loadedParts = window.CopierCompany?.partsLoaded || [];
-            const missingParts = requiredParts.filter(part => !loadedParts.includes(part));
-            
-            if (missingParts.length === 0) {
-                console.log('✅ Integridad del sistema verificada - Todos los módulos cargados');
-                this.systemStatus = 'operational';
-            } else {
-                console.error('❌ Módulos faltantes:', missingParts);
-                this.systemStatus = 'degraded';
-                this.handleDegradedMode(missingParts);
-            }
-            
-            // Verificar funciones críticas
-            this.verifyCriticalAPIs();
-        },
-        
-        verifyCriticalAPIs: function() {
-            const criticalAPIs = [
-                'showToast', 'trackInteraction', 'openWhatsApp', 'openCotizacion', 
-                'formatCurrency', 'chatBot', 'performanceMonitor', 'advancedAnalytics',
-                'eventBus', 'healthMonitor', 'errorManager'
-            ];
-            
-            const missingAPIs = criticalAPIs.filter(api => 
-                !window.CopierCompany || typeof window.CopierCompany[api] === 'undefined'
-            );
-            
-            if (missingAPIs.length > 0) {
-                console.warn('⚠️ APIs críticas faltantes:', missingAPIs);
-                this.implementFallbackAPIs(missingAPIs);
-            } else {
-                console.log('✅ Todas las APIs críticas están disponibles');
-            }
-        },
-        
-        implementFallbackAPIs: function(missingAPIs) {
-            window.CopierCompany = window.CopierCompany || {};
-            
-            missingAPIs.forEach(api => {
-                switch (api) {
-                    case 'showToast':
-                        window.CopierCompany.showToast = (msg, type) => alert(msg);
-                        break;
-                    case 'trackInteraction':
-                        window.CopierCompany.trackInteraction = (action, details) => 
-                            console.log(`Track: ${action} - ${details}`);
-                        break;
-                    case 'openWhatsApp':
-                        window.CopierCompany.openWhatsApp = () => 
-                            window.open('https://wa.me/51975399303', '_blank');
-                        break;
-                    case 'openCotizacion':
-                        window.CopierCompany.openCotizacion = () => 
-                            window.location.href = '/cotizacion/form';
-                        break;
-                    default:
-                        window.CopierCompany[api] = () => console.warn(`Fallback para ${api}`);
-                }
-            });
-            
-            console.log('🔧 APIs de fallback implementadas');
-        },
-        
-        handleDegradedMode: function(missingParts) {
-            console.warn('⚠️ Sistema ejecutándose en modo degradado');
-            
-            // Mostrar notificación al usuario
-            const degradedNotice = document.createElement('div');
-            degradedNotice.className = 'alert alert-warning position-fixed top-0 start-50 translate-middle-x';
-            degradedNotice.style.zIndex = '10000';
-            degradedNotice.innerHTML = `
-                <i class="bi bi-exclamation-triangle me-2"></i>
-                Algunas funciones pueden estar limitadas. 
-                <button type="button" class="btn btn-sm btn-outline-warning ms-2" onclick="location.reload()">
-                    <i class="bi bi-arrow-clockwise me-1"></i>Recargar
-                </button>
-            `;
-            document.body.appendChild(degradedNotice);
-            
-            // Auto-remove después de 10 segundos
-            setTimeout(() => degradedNotice.remove(), 10000);
-        },
-        
-        initializeAPIConnections: function() {
-            // Configurar conexiones con APIs externas
-            this.setupGoogleAnalytics();
-            this.setupFacebookPixel();
-            this.setupOdooIntegration();
-            console.log('🔗 Conexiones API inicializadas');
-        },
-        
-        setupGoogleAnalytics: function() {
-            if (typeof gtag !== 'undefined') {
-                // Configurar eventos personalizados
-                gtag('config', 'GA_MEASUREMENT_ID', {
-                    custom_map: {
-                        'dimension1': 'page_category',
-                        'dimension2': 'user_type'
-                    }
-                });
-                
-                // Enviar evento de sistema inicializado
-                gtag('event', 'system_initialized', {
-                    system_version: this.version,
-                    load_time: performance.now()
-                });
-                
-                console.log('📈 Google Analytics configurado');
-            }
-        },
-        
-        setupFacebookPixel: function() {
-            if (typeof fbq !== 'undefined') {
-                fbq('track', 'ViewContent', {
-                    content_type: 'website',
-                    content_category: 'homepage'
-                });
-                console.log('📘 Facebook Pixel configurado');
-            }
-        },
-        
-        setupOdooIntegration: function() {
-            // Configurar comunicación con Odoo backend si está disponible
-            if (window.odoo && window.odoo.define) {
-                window.odoo.define('copier_company_js', function(require) {
-                    const ajax = require('web.ajax');
-                    
-                    // Enviar métricas a Odoo
-                    ajax.jsonRpc('/web/dataset/call_kw', 'call', {
-                        model: 'website.visitor',
-                        method: 'track_custom_event',
-                        args: ['copier_js_loaded', { version: this.version }]
-                    });
-                });
-                
-                console.log('🔧 Integración Odoo configurada');
-            }
-        },
-        
-        setupProductionOptimizations: function() {
-            // Optimizaciones específicas para producción
-            
-            // Deshabilitar console.log en producción
-            if (this.environment === 'production') {
-                // Mantener solo errores y warnings
-                console.log = () => {};
-                console.info = () => {};
-            }
-            
-            // Configurar Service Worker para caché
-            this.setupServiceWorker();
-            
-            // Preload recursos críticos
-            this.preloadCriticalResources();
-            
-            console.log('⚡ Optimizaciones de producción aplicadas');
-        },
-        
-        setupServiceWorker: function() {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/copier-sw.js')
-                    .then(registration => {
-                        console.log('SW registrado:', registration.scope);
-                        
-                        // Actualizar SW si hay nueva versión
-                        registration.addEventListener('updatefound', () => {
-                            const newWorker = registration.installing;
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    // Nueva versión disponible
-                                    this.notifyNewVersionAvailable();
-                                }
-                            });
-                        });
-                    })
-                    .catch(error => console.log('SW error:', error));
-            }
-        },
-        
-        notifyNewVersionAvailable: function() {
-            window.CopierCompany.showToast(
-                'Nueva versión disponible. <button class="btn btn-sm btn-light ms-2" onclick="location.reload()">Actualizar</button>',
-                'info',
-                10000
-            );
-        },
-        
-        preloadCriticalResources: function() {
-            const criticalResources = [
-                'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css',
-                '/static/css/copier-main.css',
-                '/static/img/logo-copier.webp'
-            ];
-            
-            criticalResources.forEach(resource => {
-                const link = document.createElement('link');
-                link.rel = 'preload';
-                link.href = resource;
-                link.as = resource.includes('.css') ? 'style' : 'image';
-                document.head.appendChild(link);
-            });
-        },
-        
-        createDebugInterface: function() {
-            // Interfaz de debug para desarrollo y soporte
-            window.CopierCompany.debug = {
-                version: this.version,
-                
-                getSystemInfo: function() {
-                    return {
-                        version: masterInitializer.version,
-                        partsLoaded: window.CopierCompany.partsLoaded,
-                        systemStatus: masterInitializer.systemStatus,
-                        performance: window.CopierCompany.performanceMonitor?.metrics,
-                        health: window.CopierCompany.healthMonitor?.getHealthReport(),
-                        errors: window.CopierCompany.errorManager?.getErrorReport(),
-                        analytics: window.CopierCompany.advancedAnalytics?.getAnalyticsReport()
-                    };
-                },
-                
-                runDiagnostics: function() {
-                    console.group('🔍 DIAGNÓSTICOS DEL SISTEMA');
-                    const info = this.getSystemInfo();
-                    
-                    console.log('📋 Información del Sistema:', info);
-                    console.log('🧮 Storage Usage:', this.getStorageUsage());
-                    console.log('🔗 Network Info:', this.getNetworkInfo());
-                    console.log('🖥️ Device Info:', this.getDeviceInfo());
-                    
-                    console.groupEnd();
-                    return info;
-                },
-                
-                getStorageUsage: function() {
-                    const usage = {};
-                    Object.keys(localStorage).forEach(key => {
-                        if (key.startsWith('copier_')) {
-                            usage[key] = localStorage.getItem(key).length;
-                        }
-                    });
-                    return usage;
-                },
-                
-                getNetworkInfo: function() {
-                    return {
-                        online: navigator.onLine,
-                        connection: navigator.connection ? {
-                            effectiveType: navigator.connection.effectiveType,
-                            downlink: navigator.connection.downlink,
-                            rtt: navigator.connection.rtt
-                        } : 'No disponible'
-                    };
-                },
-                
-                getDeviceInfo: function() {
-                    return {
-                        userAgent: navigator.userAgent,
-                        platform: navigator.platform,
-                        language: navigator.language,
-                        cookieEnabled: navigator.cookieEnabled,
-                        viewport: {
-                            width: window.innerWidth,
-                            height: window.innerHeight
-                        },
-                        screen: {
-                            width: screen.width,
-                            height: screen.height,
-                            pixelRatio: window.devicePixelRatio
-                        }
-                    };
-                },
-                
-                clearAllData: function() {
-                    Object.keys(localStorage).forEach(key => {
-                        if (key.startsWith('copier_')) {
-                            localStorage.removeItem(key);
-                        }
-                    });
-                    console.log('🧹 Todos los datos de Copier Company eliminados');
-                },
-                
-                simulateError: function() {
-                    throw new Error('Error simulado para pruebas');
-                },
-                
-                testToast: function() {
-                    window.CopierCompany.showToast('Toast de prueba', 'info', 3000);
-                },
-                
-                exportData: function() {
-                    const data = this.getSystemInfo();
-                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `copier-debug-${new Date().toISOString()}.json`;
-                    a.click();
-                    URL.revokeObjectURL(url);
-                }
-            };
-            
-            console.log('🐛 Interfaz de debug creada - Usa window.CopierCompany.debug');
-        },
-        
-        enableAdvancedFeatures: function() {
-            // Características avanzadas disponibles solo cuando el sistema está completo
-            
-            // Shortcuts avanzados
-            this.setupAdvancedShortcuts();
-            
-            // Gestos táctiles
-            this.setupTouchGestures();
-            
-            // PWA features
-            this.setupPWAFeatures();
-            
-            console.log('🚀 Características avanzadas habilitadas');
-        },
-        
-        setupAdvancedShortcuts: function() {
-            document.addEventListener('keydown', (e) => {
-                // Ctrl+Shift+D = Debug info
-                if (e.ctrlKey && e.shiftKey && e.key === 'D') {
-                    e.preventDefault();
-                    window.CopierCompany.debug.runDiagnostics();
-                }
-                
-                // Ctrl+Shift+E = Export data
-                if (e.ctrlKey && e.shiftKey && e.key === 'E') {
-                    e.preventDefault();
-                    window.CopierCompany.debug.exportData();
-                }
-                
-                // Ctrl+Shift+R = Reset system
-                if (e.ctrlKey && e.shiftKey && e.key === 'R') {
-                    e.preventDefault();
-                    if (confirm('¿Reiniciar el sistema completo?')) {
-                        window.CopierCompany.debug.clearAllData();
-                        location.reload();
-                    }
-                }
-            });
-        },
-        
-        setupTouchGestures: function() {
-            if ('ontouchstart' in window) {
-                let touchStartY = 0;
-                let touchStartX = 0;
-                
-                document.addEventListener('touchstart', (e) => {
-                    touchStartY = e.touches[0].clientY;
-                    touchStartX = e.touches[0].clientX;
-                });
-                
-                document.addEventListener('touchend', (e) => {
-                    const touchEndY = e.changedTouches[0].clientY;
-                    const touchEndX = e.changedTouches[0].clientX;
-                    const deltaY = touchStartY - touchEndY;
-                    const deltaX = touchStartX - touchEndX;
-                    
-                    // Swipe hacia arriba para scroll to top
-                    if (deltaY > 100 && Math.abs(deltaX) < 50) {
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                        window.CopierCompany.trackInteraction('touch_gesture', 'swipe_up_to_top');
-                    }
-                });
-            }
-        },
-        
-        setupPWAFeatures: function() {
-            // Detectar si es PWA
-            if (window.matchMedia('(display-mode: standalone)').matches) {
-                document.body.classList.add('pwa-mode');
-                console.log('📱 Ejecutándose como PWA');
-            }
-            
-            // Manejar instalación de PWA
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                window.CopierCompany.pwaInstallPrompt = e;
-                
-                // Mostrar botón de instalación personalizado
-                this.showPWAInstallButton();
-            });
-        },
-        
-        showPWAInstallButton: function() {
-            const installButton = document.createElement('button');
-            installButton.className = 'btn btn-primary position-fixed';
-            installButton.style.cssText = 'bottom: 80px; right: 20px; z-index: 9997; border-radius: 50px;';
-            installButton.innerHTML = '<i class="bi bi-download me-2"></i>Instalar App';
-            
-            installButton.addEventListener('click', () => {
-                if (window.CopierCompany.pwaInstallPrompt) {
-                    window.CopierCompany.pwaInstallPrompt.prompt();
-                    window.CopierCompany.pwaInstallPrompt.userChoice.then((result) => {
-                        window.CopierCompany.trackInteraction('pwa_install', result.outcome);
-                        window.CopierCompany.pwaInstallPrompt = null;
-                        installButton.remove();
-                    });
-                }
-            });
-            
-            document.body.appendChild(installButton);
-        },
-        
-        startSystemMonitoring: function() {
-            // Monitoreo continuo del sistema
-            setInterval(() => {
-                this.performSystemCheck();
-            }, 300000); // Cada 5 minutos
-            
-            // Enviar ping de salud cada 10 minutos
-            setInterval(() => {
-                this.sendHealthPing();
-            }, 600000);
-        },
-        
-        performSystemCheck: function() {
-            const memoryUsage = performance.memory ? 
-                Math.round(performance.memory.usedJSHeapSize / 1024 / 1024) : 0;
-            
-            if (memoryUsage > 100) { // Más de 100MB
-                console.warn(`⚠️ Alto uso de memoria: ${memoryUsage}MB`);
-                
-                // Limpiar automáticamente si es necesario
-                if (memoryUsage > 150) {
-                    this.performEmergencyCleanup();
-                }
-            }
-        },
-        
-        performEmergencyCleanup: function() {
-            console.log('🧹 Realizando limpieza de emergencia...');
-            
-            // Limpiar datos no esenciales
-            localStorage.removeItem('copier_analytics_events');
-            localStorage.removeItem('copier_slow_resources');
-            
-            // Forzar garbage collection si está disponible
-            if (window.gc) {
-                window.gc();
-            }
-            
-            window.CopierCompany.showToast(
-                'Sistema optimizado automáticamente',
-                'info',
-                3000
-            );
-        },
-        
-        sendHealthPing: function() {
-            const healthData = {
-                timestamp: new Date().toISOString(),
-                version: this.version,
-                status: this.systemStatus,
-                uptime: performance.now(),
-                url: window.location.pathname
-            };
-            
-            // Enviar a analytics si está disponible
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'system_health_ping', healthData);
-            }
-        }
-    };
-    
-    // =============================================
-    // INICIALIZACIÓN FINAL DEL SISTEMA COMPLETO
-    // =============================================
-    
-    try {
-        // Inicializar el sistema master
-        masterInitializer.init();
-        
-        // Marcar sistema como completamente inicializado
-        window.CopierCompany.systemReady = true;
-        window.CopierCompany.version = masterInitializer.version;
-        window.CopierCompany.partsLoaded.push('part10');
-        
-        // Emitir evento global de sistema listo
-        window.CopierCompany.eventBus?.emit('system:ready', {
-            version: masterInitializer.version,
-            timestamp: new Date().toISOString(),
-            loadTime: performance.now()
-        });
-        
-        // Notificación de éxito
-        setTimeout(() => {
-            window.CopierCompany.showToast(
-                'Sistema Copier Company completamente cargado y optimizado',
-                'success',
-                4000
-            );
-        }, 1000);
-        
-        // Tracking final
-        window.CopierCompany.trackInteraction('system_fully_loaded', `v${masterInitializer.version}`);
-        
-        console.log('🎉 SISTEMA COPIER COMPANY JS COMPLETAMENTE INICIALIZADO');
-        console.log('✅ Todas las 10 partes cargadas exitosamente');
-        console.log('🚀 Sistema listo para producción');
-        
-        // Disparar evento final
-        document.dispatchEvent(new CustomEvent('copierJS:systemReady', {
-            detail: {
-                version: masterInitializer.version,
-                parts: window.CopierCompany.partsLoaded,
-                loadTime: performance.now()
-            }
-        }));
-        
-    } catch (error) {
-        console.error('❌ ERROR CRÍTICO en inicialización final:', error);
-        
-        // Fallback de emergencia
-        window.CopierCompany = window.CopierCompany || {};
-        window.CopierCompany.systemReady = false;
-        window.CopierCompany.error = error.message;
-        
-        // Notificar error crítico
-        alert('Error crítico en el sistema. La página se recargará automáticamente.');
-        setTimeout(() => location.reload(), 3000);
-    }
-});
-
-// =============================================
-// FUNCIONES GLOBALES DE CONVENIENCIA
-// =============================================
-
-// Función global para acceso rápido al sistema
-window.Copier = window.CopierCompany;
-
-// Función de ayuda para desarrolladores
-window.CopierHelp = function() {
-    console.log(`
-🏢 COPIER COMPANY JS SYSTEM v${window.CopierCompany?.version || '2.0.0'}
-
-📋 FUNCIONES PRINCIPALES:
-   • CopierCompany.showToast(mensaje, tipo, duración)
-   • CopierCompany.openWhatsApp(mensaje)
-   • CopierCompany.openCotizacion()
-   • CopierCompany.trackInteraction(acción, detalles)
-   • CopierCompany.formatCurrency(cantidad)
-
-🐛 DEBUG:
-   • CopierCompany.debug.runDiagnostics()
-   • CopierCompany.debug.getSystemInfo()
-   • CopierCompany.debug.exportData()
-
-⌨️ ATAJOS:
-   • Alt+C: Abrir chat
-   • Alt+H: Ir al inicio
-   • Alt+M: Ir al menú
-   • Ctrl+Shift+D: Información de debug
-   • Ctrl+Shift+E: Exportar datos
-   • Ctrl+Shift+R: Reiniciar sistema
-
-📊 ESTADO:
-   • Sistema: ${window.CopierCompany?.systemReady ? 'Listo' : 'Cargando'}
-   • Partes: ${window.CopierCompany?.partsLoaded?.length || 0}/10
-    `);
 };
 
-console.log('📦 Copier Company JS - Parte 10/10 FINAL cargada');
-console.log('🎯 SISTEMA COMPLETO - Escribe CopierHelp() para ayuda');
+// =============================================
+// MANEJADOR DE MODALES DE PRODUCTOS
+// =============================================
+
+document.addEventListener('click', function(e) {
+    const productCard = e.target.closest('[data-product]');
+    if (productCard) {
+        const productType = productCard.getAttribute('data-product');
+        const productData = productsContent[productType];
+        
+        if (productData) {
+            // Actualizar contenido del modal
+            document.getElementById('productModalLabel').innerHTML = 
+                `<i class="fas fa-print me-2"></i>${productData.title}`;
+            document.getElementById('productModalBody').innerHTML = productData.content;
+        }
+    }
+});
+
+// =============================================
+// FUNCIONALIDADES ADICIONALES
+// =============================================
+
+// Sistema de notificaciones toast
+function showToast(message, type = 'info') {
+    const toastContainer = document.getElementById('toast-container') || createToastContainer();
+    
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type} show`;
+    toast.innerHTML = `
+        <div class="toast-header">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
+            <strong class="me-auto">Copier Company</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body">${message}</div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        toast.remove();
+    }, 5000);
+}
+
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'position-fixed top-0 end-0 p-3';
+    container.style.zIndex = '9999';
+    document.body.appendChild(container);
+    return container;
+}
+
+// Tracking de interacciones para analytics
+function trackInteraction(action, category, label = '') {
+    // Aquí puedes integrar con Google Analytics, Mixpanel, etc.
+    console.log(`Analytics: ${action} - ${category} - ${label}`);
+    
+    // Ejemplo para Google Analytics 4
+    if (typeof gtag !== 'undefined') {
+        gtag('event', action, {
+            event_category: category,
+            event_label: label
+        });
+    }
+}
+
+// Mejoras en los botones CTA
+document.addEventListener('click', function(e) {
+    const button = e.target.closest('.btn-primary-modern, .btn-cta-primary, .btn-cta-secondary');
+    if (button) {
+        // Añadir efecto visual
+        button.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            button.style.transform = 'scale(1)';
+        }, 150);
+        
+        // Tracking
+        trackInteraction('click', 'cta_button', button.textContent.trim());
+        
+        // Mostrar feedback
+        if (button.href && button.href.includes('cotizacion')) {
+            showToast('Redirigiendo al formulario de cotización...', 'info');
+        }
+    }
+});
+
+// Lazy loading para imágenes
+function initLazyLoading() {
+    const images = document.querySelectorAll('img[data-src]');
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+                observer.unobserve(img);
+            }
+        });
+    });
+    
+    images.forEach(img => imageObserver.observe(img));
+}
+
+// Smooth scroll para navegación interna
+function initSmoothScroll() {
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+}
+
+// Inicializar funcionalidades adicionales
+document.addEventListener('DOMContentLoaded', function() {
+    initLazyLoading();
+    initSmoothScroll();
+});
+
+console.log('✅ Parte 4: Modales de productos y funcionalidades adicionales inicializados');
+/**
+ * PARTE 5 FINAL: INTEGRACIÓN COMPLETA Y OPTIMIZACIONES
+ * JavaScript para Homepage Moderna de Copier Company
+ */
+
+// =============================================
+// SISTEMA DE PERFORMANCE Y OPTIMIZACIÓN
+// =============================================
+
+// Performance monitoring
+const performanceMonitor = {
+    init: function() {
+        // Medir tiempo de carga inicial
+        window.addEventListener('load', () => {
+            const loadTime = performance.now();
+            console.log(`⚡ Página cargada en ${loadTime.toFixed(2)}ms`);
+            
+            // Enviar métricas si hay analytics configurado
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'page_load_time', {
+                    custom_parameter: loadTime
+                });
+            }
+        });
+        
+        // Detectar problemas de rendimiento
+        this.detectPerformanceIssues();
+    },
+    
+    detectPerformanceIssues: function() {
+        // Detectar imágenes que tardan mucho en cargar
+        const images = document.querySelectorAll('img');
+        images.forEach(img => {
+            const startTime = performance.now();
+            img.onload = () => {
+                const loadTime = performance.now() - startTime;
+                if (loadTime > 2000) {
+                    console.warn(`⚠️ Imagen lenta: ${img.src} (${loadTime.toFixed(2)}ms)`);
+                }
+            };
+        });
+    }
+};
+
+// =============================================
+// SISTEMA DE FORMULARIOS INTELIGENTE
+// =============================================
+
+const smartForms = {
+    init: function() {
+        this.setupFormValidation();
+        this.setupProgressiveEnhancement();
+        this.setupAutoSave();
+    },
+    
+    setupFormValidation: function() {
+        // Validación en tiempo real para formularios
+        document.addEventListener('input', function(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                smartForms.validateField(e.target);
+            }
+        });
+    },
+    
+    validateField: function(field) {
+        const value = field.value.trim();
+        let isValid = true;
+        let message = '';
+        
+        // Validaciones específicas
+        switch (field.type) {
+            case 'email':
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                isValid = emailRegex.test(value);
+                message = isValid ? '' : 'Ingresa un email válido';
+                break;
+                
+            case 'tel':
+                const phoneRegex = /^[+]?[\d\s\-\(\)]{9,}$/;
+                isValid = phoneRegex.test(value);
+                message = isValid ? '' : 'Ingresa un teléfono válido';
+                break;
+                
+            case 'text':
+                if (field.required && value.length < 2) {
+                    isValid = false;
+                    message = 'Este campo es requerido (mín. 2 caracteres)';
+                }
+                break;
+        }
+        
+        this.showFieldFeedback(field, isValid, message);
+    },
+    
+    showFieldFeedback: function(field, isValid, message) {
+        // Remover feedback anterior
+        const existingFeedback = field.parentNode.querySelector('.field-feedback');
+        if (existingFeedback) existingFeedback.remove();
+        
+        // Añadir clases de estado
+        field.classList.remove('is-valid', 'is-invalid');
+        if (field.value.trim() !== '') {
+            field.classList.add(isValid ? 'is-valid' : 'is-invalid');
+        }
+        
+        // Mostrar mensaje si hay error
+        if (!isValid && message) {
+            const feedback = document.createElement('div');
+            feedback.className = 'field-feedback text-danger small mt-1';
+            feedback.textContent = message;
+            field.parentNode.appendChild(feedback);
+        }
+    },
+    
+    setupProgressiveEnhancement: function() {
+        // Mejorar formularios existentes progresivamente
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+            // Añadir indicador de envío
+            form.addEventListener('submit', function(e) {
+                const submitBtn = form.querySelector('[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
+                    submitBtn.disabled = true;
+                }
+            });
+        });
+    },
+    
+    setupAutoSave: function() {
+        // Guardar datos del formulario automáticamente
+        const formFields = document.querySelectorAll('input, textarea, select');
+        formFields.forEach(field => {
+            // Cargar valor guardado
+            const savedValue = localStorage.getItem(`form_${field.name}`);
+            if (savedValue && field.type !== 'password') {
+                field.value = savedValue;
+            }
+            
+            // Guardar cambios automáticamente
+            field.addEventListener('input', () => {
+                if (field.type !== 'password') {
+                    localStorage.setItem(`form_${field.name}`, field.value);
+                }
+            });
+        });
+    }
+};
+
+// =============================================
+// SISTEMA DE CHAT BOT BÁSICO
+// =============================================
+
+const chatBot = {
+    isOpen: false,
+    
+    init: function() {
+        this.createChatWidget();
+        this.setupEventListeners();
+    },
+    
+    createChatWidget: function() {
+        const chatWidget = document.createElement('div');
+        chatWidget.id = 'chat-widget';
+        chatWidget.innerHTML = `
+            <div class="chat-bubble" id="chat-bubble">
+                <i class="fas fa-comments"></i>
+                <span class="chat-notification">¿Necesitas ayuda?</span>
+            </div>
+            <div class="chat-window" id="chat-window" style="display: none;">
+                <div class="chat-header">
+                    <h6><i class="fas fa-robot me-2"></i>Asistente Virtual</h6>
+                    <button class="chat-close" id="chat-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="chat-messages" id="chat-messages">
+                    <div class="bot-message">
+                        <div class="message-content">
+                            ¡Hola! 👋 Soy tu asistente virtual. ¿En qué puedo ayudarte?
+                            <div class="quick-options">
+                                <button class="quick-btn" data-action="cotizacion">💰 Solicitar cotización</button>
+                                <button class="quick-btn" data-action="productos">📱 Ver productos</button>
+                                <button class="quick-btn" data-action="contacto">📞 Información de contacto</button>
+                                <button class="quick-btn" data-action="soporte">🔧 Soporte técnico</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="chat-input" placeholder="Escribe tu pregunta...">
+                    <button id="chat-send"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(chatWidget);
+    },
+    
+    setupEventListeners: function() {
+        // Toggle chat
+        document.getElementById('chat-bubble').addEventListener('click', () => {
+            this.toggleChat();
+        });
+        
+        // Cerrar chat
+        document.getElementById('chat-close').addEventListener('click', () => {
+            this.toggleChat();
+        });
+        
+        // Enviar mensaje
+        document.getElementById('chat-send').addEventListener('click', () => {
+            this.sendMessage();
+        });
+        
+        // Enter para enviar
+        document.getElementById('chat-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.sendMessage();
+            }
+        });
+        
+        // Botones rápidos
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('quick-btn')) {
+                this.handleQuickAction(e.target.dataset.action);
+            }
+        });
+    },
+    
+    toggleChat: function() {
+        const chatWindow = document.getElementById('chat-window');
+        const chatBubble = document.getElementById('chat-bubble');
+        
+        if (this.isOpen) {
+            chatWindow.style.display = 'none';
+            chatBubble.style.display = 'flex';
+            this.isOpen = false;
+        } else {
+            chatWindow.style.display = 'block';
+            chatBubble.style.display = 'none';
+            this.isOpen = true;
+            
+            // Focus en input
+            setTimeout(() => {
+                document.getElementById('chat-input').focus();
+            }, 100);
+        }
+    },
+    
+    sendMessage: function() {
+        const input = document.getElementById('chat-input');
+        const message = input.value.trim();
+        
+        if (message) {
+            this.addMessage(message, 'user');
+            input.value = '';
+            
+            // Simular respuesta del bot
+            setTimeout(() => {
+                const response = this.getBotResponse(message);
+                this.addMessage(response, 'bot');
+            }, 1000);
+        }
+    },
+    
+    addMessage: function(text, sender) {
+        const messagesContainer = document.getElementById('chat-messages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `${sender}-message`;
+        
+        if (sender === 'user') {
+            messageDiv.innerHTML = `<div class="message-content">${text}</div>`;
+        } else {
+            messageDiv.innerHTML = `<div class="message-content">${text}</div>`;
+        }
+        
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    },
+    
+    getBotResponse: function(message) {
+        const lowerMessage = message.toLowerCase();
+        
+        if (lowerMessage.includes('precio') || lowerMessage.includes('costo') || lowerMessage.includes('cotiz')) {
+            return `💰 Los precios de alquiler varían según el equipo:
+                    <br>• A4: $149-299/mes
+                    <br>• A3: $299-899/mes
+                    <br>• Láser: $199-899/mes
+                    <br><br>¿Te gustaría una cotización personalizada? 
+                    <a href="/cotizacion/form" class="chat-link">Solicitar aquí</a>`;
+        }
+        
+        if (lowerMessage.includes('producto') || lowerMessage.includes('equipo') || lowerMessage.includes('fotocopiadora')) {
+            return `📱 Ofrecemos varios tipos de equipos:
+                    <br>• Multifuncionales A3 y A4
+                    <br>• Impresoras láser color y B&N
+                    <br>• Equipos especializados
+                    <br>• Marcas: Konica Minolta, Canon, Ricoh
+                    <br><br>¿Qué tipo de equipo necesitas?`;
+        }
+        
+        if (lowerMessage.includes('mantenimiento') || lowerMessage.includes('reparaci') || lowerMessage.includes('soporte')) {
+            return `🔧 Nuestro servicio incluye:
+                    <br>• Mantenimiento preventivo y correctivo
+                    <br>• Soporte técnico 24/7
+                    <br>• Repuestos originales
+                    <br>• Tiempo de respuesta: 4 horas máximo
+                    <br><br>¿Necesitas ayuda con algún equipo?`;
+        }
+        
+        if (lowerMessage.includes('contacto') || lowerMessage.includes('teléfono') || lowerMessage.includes('dirección')) {
+            return `📞 Puedes contactarnos:
+                    <br>• Teléfono: (01) 975399303
+                    <br>• WhatsApp: <a href="https://wa.me/51975399303" class="chat-link">975 399 303</a>
+                    <br>• Email: info@copiercompany.com
+                    <br>• Horario: Lun-Vie 8AM-6PM, Sáb 8AM-1PM`;
+        }
+        
+        return `Gracias por tu consulta. Te recomiendo:
+                <br>• <a href="/cotizacion/form" class="chat-link">Solicitar cotización gratuita</a>
+                <br>• <a href="/contactus" class="chat-link">Contactar con un asesor</a>
+                <br>• <a href="https://wa.me/51975399303" class="chat-link">Escribir por WhatsApp</a>
+                <br><br>¿Hay algo específico en lo que pueda ayudarte?`;
+    },
+    
+    handleQuickAction: function(action) {
+        switch (action) {
+            case 'cotizacion':
+                this.addMessage('Quiero solicitar una cotización', 'user');
+                setTimeout(() => {
+                    this.addMessage(`¡Perfecto! 💰 Para una cotización personalizada necesito algunos datos:
+                        <br>• Tipo de equipo que necesitas
+                        <br>• Volumen de impresión mensual aproximado
+                        <br>• Funciones específicas requeridas
+                        <br><br><a href="/cotizacion/form" class="chat-link">Completa el formulario aquí</a> 
+                        o cuéntame más detalles.`, 'bot');
+                }, 1000);
+                break;
+                
+            case 'productos':
+                this.addMessage('¿Qué productos tienen disponibles?', 'user');
+                setTimeout(() => {
+                    this.addMessage(this.getBotResponse('productos'), 'bot');
+                }, 1000);
+                break;
+                
+            case 'contacto':
+                this.addMessage('Necesito información de contacto', 'user');
+                setTimeout(() => {
+                    this.addMessage(this.getBotResponse('contacto'), 'bot');
+                }, 1000);
+                break;
+                
+            case 'soporte':
+                this.addMessage('¿Cómo funciona el soporte técnico?', 'user');
+                setTimeout(() => {
+                    this.addMessage(this.getBotResponse('soporte'), 'bot');
+                }, 1000);
+                break;
+        }
+    }
+};
+
+// =============================================
+// SISTEMA DE ANALYTICS AVANZADO
+// =============================================
+
+const advancedAnalytics = {
+    init: function() {
+        this.trackUserBehavior();
+        this.trackScrollDepth();
+        this.trackTimeOnSections();
+        this.setupHeatmapTracking();
+    },
+    
+    trackUserBehavior: function() {
+        // Tracking de clics en elementos importantes
+        document.addEventListener('click', function(e) {
+            const element = e.target.closest('[data-track]');
+            if (element) {
+                const trackData = element.dataset.track;
+                console.log(`📊 User Action: ${trackData}`);
+                
+                // Enviar a analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'user_interaction', {
+                        interaction_type: trackData,
+                        element_text: element.textContent.trim().substring(0, 100)
+                    });
+                }
+            }
+        });
+    },
+    
+    trackScrollDepth: function() {
+        let maxScroll = 0;
+        const milestones = [25, 50, 75, 90, 100];
+        const triggered = new Set();
+        
+        window.addEventListener('scroll', () => {
+            const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+            
+            if (scrollPercent > maxScroll) {
+                maxScroll = scrollPercent;
+                
+                milestones.forEach(milestone => {
+                    if (scrollPercent >= milestone && !triggered.has(milestone)) {
+                        triggered.add(milestone);
+                        console.log(`📏 Scroll Depth: ${milestone}%`);
+                        
+                        if (typeof gtag !== 'undefined') {
+                            gtag('event', 'scroll_depth', {
+                                scroll_depth: milestone
+                            });
+                        }
+                    }
+                });
+            }
+        });
+    },
+    
+    trackTimeOnSections: function() {
+        const sections = document.querySelectorAll('section[id]');
+        const sectionTimes = new Map();
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const sectionId = entry.target.id;
+                
+                if (entry.isIntersecting) {
+                    sectionTimes.set(sectionId, Date.now());
+                } else if (sectionTimes.has(sectionId)) {
+                    const timeSpent = Date.now() - sectionTimes.get(sectionId);
+                    if (timeSpent > 3000) { // Más de 3 segundos
+                        console.log(`⏱️ Time on ${sectionId}: ${Math.round(timeSpent/1000)}s`);
+                        
+                        if (typeof gtag !== 'undefined') {
+                            gtag('event', 'section_engagement', {
+                                section_name: sectionId,
+                                time_spent: Math.round(timeSpent/1000)
+                            });
+                        }
+                    }
+                    sectionTimes.delete(sectionId);
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        sections.forEach(section => observer.observe(section));
+    },
+    
+    setupHeatmapTracking: function() {
+        // Simular tracking de heatmap (clicks)
+        document.addEventListener('click', function(e) {
+            const clickData = {
+                x: e.clientX,
+                y: e.clientY,
+                element: e.target.tagName,
+                timestamp: Date.now()
+            };
+            
+            // Guardar datos de clicks para análisis
+            const clicks = JSON.parse(localStorage.getItem('heatmap_clicks') || '[]');
+            clicks.push(clickData);
+            
+            // Mantener solo los últimos 100 clicks
+            if (clicks.length > 100) {
+                clicks.splice(0, clicks.length - 100);
+            }
+            
+            localStorage.setItem('heatmap_clicks', JSON.stringify(clicks));
+        });
+    }
+};
+
+// =============================================
+// ESTILOS CSS ADICIONALES PARA NUEVAS FUNCIONES
+// =============================================
+
+const additionalStyles = `
+/* Chat Widget Styles */
+#chat-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.chat-bubble {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,123,255,0.3);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.chat-bubble:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(0,123,255,0.4);
+}
+
+.chat-notification {
+    position: absolute;
+    right: 70px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: white;
+    color: #333;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    white-space: nowrap;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    opacity: 0;
+    animation: slideInNotification 3s ease-in-out 2s forwards;
+}
+
+@keyframes slideInNotification {
+    0%, 80% { opacity: 0; transform: translateY(-50%) translateX(10px); }
+    10%, 70% { opacity: 1; transform: translateY(-50%) translateX(0); }
+    100% { opacity: 0; transform: translateY(-50%) translateX(10px); }
+}
+
+.chat-window {
+    width: 350px;
+    height: 500px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chat-header {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-close {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background: #f8f9fa;
+}
+
+.bot-message, .user-message {
+    margin-bottom: 15px;
+}
+
+.user-message {
+    text-align: right;
+}
+
+.user-message .message-content {
+    background: #007bff;
+    color: white;
+    display: inline-block;
+    padding: 10px 15px;
+    border-radius: 18px 18px 5px 18px;
+    max-width: 80%;
+}
+
+.bot-message .message-content {
+    background: white;
+    border: 1px solid #e9ecef;
+    display: inline-block;
+    padding: 10px 15px;
+    border-radius: 18px 18px 18px 5px;
+    max-width: 80%;
+    line-height: 1.4;
+}
+
+.quick-options {
+    margin-top: 10px;
+}
+
+.quick-btn {
+    display: block;
+    width: 100%;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    padding: 8px 12px;
+    margin: 5px 0;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 12px;
+    text-align: left;
+    transition: all 0.2s ease;
+}
+
+.quick-btn:hover {
+    background: #e9ecef;
+    transform: translateX(5px);
+}
+
+.chat-input {
+    display: flex;
+    padding: 15px;
+    background: white;
+    border-top: 1px solid #e9ecef;
+}
+
+#chat-input {
+    flex: 1;
+    border: 1px solid #e9ecef;
+    border-radius: 25px;
+    padding: 10px 15px;
+    outline: none;
+    font-size: 14px;
+}
+
+#chat-send {
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    margin-left: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-link {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.chat-link:hover {
+    text-decoration: underline;
+}
+
+/* Form validation styles */
+.field-feedback {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.is-valid {
+    border-color: #28a745;
+}
+
+.is-invalid {
+    border-color: #dc3545;
+}
+
+/* Toast notifications */
+.toast {
+    background: white;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+
+.toast-success { border-left: 4px solid #28a745; }
+.toast-error { border-left: 4px solid #dc3545; }
+.toast-info { border-left: 4px solid #007bff; }
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .chat-window {
+        width: calc(100vw - 40px);
+        height: 70vh;
+        bottom: 20px;
+        right: 20px;
+    }
+    
+    .chat-notification {
+        display: none;
+    }
+}
+`;
+
+// =============================================
+// INICIALIZACIÓN FINAL DEL SISTEMA
+// =============================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Inyectar estilos adicionales
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = additionalStyles;
+    document.head.appendChild(styleSheet);
+    
+    // Inicializar todos los sistemas
+    try {
+        performanceMonitor.init();
+        console.log('✅ Performance Monitor inicializado');
+        
+        smartForms.init();
+        console.log('✅ Smart Forms inicializado');
+        
+        chatBot.init();
+        console.log('✅ Chat Bot inicializado');
+        
+        advancedAnalytics.init();
+        console.log('✅ Advanced Analytics inicializado');
+        
+        // Configurar observador de mutaciones para contenido dinámico
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList') {
+                    // Re-inicializar funcionalidades para nuevo contenido
+                    const newElements = mutation.addedNodes;
+                    newElements.forEach(node => {
+                        if (node.nodeType === Node.ELEMENT_NODE) {
+                            // Re-aplicar lazy loading a nuevas imágenes
+                            const newImages = node.querySelectorAll('img[data-src]');
+                            if (newImages.length > 0) {
+                                initLazyLoading();
+                            }
+                        }
+                    });
+                }
+            });
+        });
+        
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+        
+        console.log('🚀 SISTEMA COMPLETO INICIALIZADO EXITOSAMENTE');
+        console.log('📊 Todas las funcionalidades están activas');
+        console.log('⚡ Performance optimizado');
+        console.log('🤖 Chat bot disponible');
+        console.log('📈 Analytics configurado');
+        
+        // Mostrar mensaje de bienvenida en consola
+        console.log(`
+        %c🏢 COPIER COMPANY HOMEPAGE 
+        %c✨ Sistema JavaScript Completo v1.0
+        %c🔧 Desarrollado para Odoo
+        `, 
+        'color: #007bff; font-size: 16px; font-weight: bold;',
+        'color: #28a745; font-size: 14px;',
+        'color: #6c757d; font-size: 12px;'
+        );
+        
+    } catch (error) {
+        console.error('❌ Error al inicializar el sistema:', error);
+    }
+});
+
+// Exportar funciones principales para uso externo
+window.CopierCompanyJS = {
+    showToast,
+    trackInteraction,
+    performanceMonitor,
+    smartForms,
+    chatBot,
+    advancedAnalytics
+};
+
+// =============================================
+// SERVICE WORKER PARA PWA (OPCIONAL)
+// =============================================
+
+// Registrar service worker si está disponible
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js')
+            .then(function(registration) {
+                console.log('✅ Service Worker registrado:', registration.scope);
+            })
+            .catch(function(error) {
+                console.log('❌ Error al registrar Service Worker:', error);
+            });
+    });
+}
+
+console.log('✅ Parte 5 FINAL: Sistema completo cargado e inicializado');
