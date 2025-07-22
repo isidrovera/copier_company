@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <template id="website.servicios" name="Página Servicios Base">
+      <div id="wrap">
+        <!-- Contenido vacío o genérico -->
+      </div>
+    </template>
         <!-- Template moderno para Servicios - Hereda de website.servicios -->
         <template id="copier_services_modern" name="Copier Services Modern" inherit_id="website.servicios">
             <xpath expr="//div[@id='wrap']" position="replace">
