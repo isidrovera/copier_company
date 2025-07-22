@@ -38,56 +38,69 @@
                     </style>
 
                     <!-- HERO SECTION SERVICIOS -->
-                    <section class="services-hero-bg text-white position-relative overflow-hidden">
-                        <div class="position-absolute top-0 start-0 w-100 h-100 bg-white bg-opacity-10" style="opacity: 0.1;"></div>
+                    <section class="position-relative overflow-hidden text-white" style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.4)), url('/static/img/office-hero.jpg'); background-size: cover; background-position: center; min-height: 70vh;">
                         
                         <div class="container position-relative" style="z-index: 2;">
-                            <div class="row min-vh-60 align-items-center py-5">
-                                <div class="col-lg-8">
-                                    <!-- Breadcrumb -->
-                                    <nav aria-label="breadcrumb" class="mb-4">
-                                        <ol class="breadcrumb">
-                                            <li class="breadcrumb-item"><a href="/" class="text-white text-decoration-none opacity-75">Inicio</a></li>
-                                            <li class="breadcrumb-item active text-white" aria-current="page">Servicios</li>
-                                        </ol>
-                                    </nav>
-                                    
+                            <div class="row min-vh-70 align-items-center py-5">
+                                <div class="col-lg-7">
                                     <!-- Hero Title -->
-                                    <h1 class="display-4 fw-bold mb-4">
-                                        Nuestros <span class="text-warning">Servicios</span>
-                                        <br/>Profesionales
+                                    <h1 class="display-3 fw-bold mb-4">
+                                        Soluciones <span class="text-warning">Completas</span>
+                                        <br/>de Impresión Empresarial
                                     </h1>
                                     
                                     <!-- Hero Subtitle -->
-                                    <p class="fs-5 mb-4 opacity-90 pe-lg-5">
-                                        Soluciones integrales de impresión para tu empresa. Desde alquiler hasta 
-                                        soporte técnico especializado, cubrimos todas tus necesidades tecnológicas.
+                                    <p class="fs-4 mb-4 opacity-90">
+                                        <strong>Desde alquiler sin inversión inicial hasta soporte técnico 24/7.</strong>
+                                        <br/>Transformamos la productividad de tu oficina con las mejores marcas del mercado.
                                     </p>
                                     
-                                    <!-- Stats Cards -->
+                                    <!-- Beneficios Destacados -->
                                     <div class="row g-3 mb-4">
-                                        <div class="col-md-3 col-6">
-                                            <div class="bg-white bg-opacity-20 rounded-3 p-3 text-center">
-                                                <h3 class="h4 mb-1">500+</h3>
-                                                <small>Clientes Activos</small>
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-center bg-white bg-opacity-15 rounded-3 p-3">
+                                                <i class="bi bi-shield-check text-success fs-1 me-3"></i>
+                                                <div>
+                                                    <h5 class="mb-1">Garantía Total</h5>
+                                                    <small class="opacity-75">Mantenimiento incluido</small>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-3 col-6">
-                                            <div class="bg-white bg-opacity-20 rounded-3 p-3 text-center">
-                                                <h3 class="h4 mb-1">24/7</h3>
-                                                <small>Soporte Técnico</small>
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-center bg-white bg-opacity-15 rounded-3 p-3">
+                                                <i class="bi bi-clock text-warning fs-1 me-3"></i>
+                                                <div>
+                                                    <h5 class="mb-1">Instalación 24H</h5>
+                                                    <small class="opacity-75">Listo para trabajar</small>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-3 col-6">
-                                            <div class="bg-white bg-opacity-20 rounded-3 p-3 text-center">
-                                                <h3 class="h4 mb-1">5</h3>
-                                                <small>Servicios Principales</small>
+                                    </div>
+                                    
+                                    <!-- Stats Impactantes -->
+                                    <div class="row g-2 mb-5">
+                                        <div class="col-3">
+                                            <div class="text-center">
+                                                <h2 class="display-6 fw-bold text-warning mb-0">500+</h2>
+                                                <small class="opacity-75">Empresas confían en nosotros</small>
                                             </div>
                                         </div>
-                                        <div class="col-md-3 col-6">
-                                            <div class="bg-white bg-opacity-20 rounded-3 p-3 text-center">
-                                                <h3 class="h4 mb-1">15+</h3>
-                                                <small>Años Experiencia</small>
+                                        <div class="col-3">
+                                            <div class="text-center">
+                                                <h2 class="display-6 fw-bold text-success mb-0">15</h2>
+                                                <small class="opacity-75">Años de experiencia</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="text-center">
+                                                <h2 class="display-6 fw-bold text-info mb-0">4H</h2>
+                                                <small class="opacity-75">Tiempo de respuesta</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="text-center">
+                                                <h2 class="display-6 fw-bold text-primary mb-0">24/7</h2>
+                                                <small class="opacity-75">Soporte disponible</small>
                                             </div>
                                         </div>
                                     </div>
@@ -106,9 +119,23 @@
                                 </div>
                                 
                                 <!-- Hero Visual -->
-                                <div class="col-lg-4 text-center">
-                                    <div class="floating-animation">
-                                        <i class="bi bi-gear-wide-connected text-white opacity-75" style="font-size: 8rem;"></i>
+                                <div class="col-lg-5 text-center">
+                                    <div class="position-relative">
+                                        <!-- Imagen principal -->
+                                        <img src="/static/img/printers/modern-office.jpg" 
+                                             alt="Oficina moderna con equipos de impresión" 
+                                             class="img-fluid rounded-4 shadow-lg floating-animation" 
+                                             style="max-height: 400px; object-fit: cover;"/>
+                                        
+                                        <!-- Cards flotantes -->
+                                        <div class="position-absolute top-0 start-0 bg-success text-white rounded-3 p-2 shadow floating-animation" style="animation-delay: 0.5s;">
+                                            <i class="bi bi-check-circle me-1"></i>
+                                            <small class="fw-bold">Sin Inversión</small>
+                                        </div>
+                                        <div class="position-absolute bottom-0 end-0 bg-warning text-dark rounded-3 p-2 shadow floating-animation" style="animation-delay: 1s;">
+                                            <i class="bi bi-rocket me-1"></i>
+                                            <small class="fw-bold">Instalación 24H</small>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -129,18 +156,32 @@
                             <div class="row g-4">
                                 <!-- Alquiler -->
                                 <div class="col-lg-6">
-                                    <div class="card h-100 border-0 shadow-sm service-card-hover position-relative">
-                                        <span class="position-absolute top-0 end-0 m-3 badge bg-primary">Más Popular</span>
+                                    <div class="card h-100 border-0 shadow-lg service-card-hover position-relative">
+                                        <span class="position-absolute top-0 end-0 m-3 badge bg-primary fs-6">Más Popular</span>
+                                        
+                                        <!-- Imagen del servicio -->
+                                        <div class="position-relative">
+                                            <img src="/static/img/services/rental-office.jpg" 
+                                                 alt="Alquiler de fotocopiadoras" 
+                                                 class="card-img-top" 
+                                                 style="height: 200px; object-fit: cover;"/>
+                                            <div class="position-absolute bottom-0 start-0 m-3">
+                                                <span class="badge bg-dark bg-opacity-75 text-white">
+                                                    <i class="bi bi-handshake me-1"></i>Alquiler
+                                                </span>
+                                            </div>
+                                        </div>
+                                        
                                         <div class="card-body p-4">
                                             <div class="d-flex align-items-start">
-                                                <div class="service-icon rounded-circle d-flex align-items-center justify-content-center me-4 flex-shrink-0">
-                                                    <i class="bi bi-handshake text-white fs-1"></i>
+                                                <div class="service-icon rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0">
+                                                    <i class="bi bi-handshake text-white fs-3"></i>
                                                 </div>
                                                 <div class="flex-grow-1">
-                                                    <h3 class="h4 fw-bold mb-3">Alquiler de Fotocopiadoras</h3>
+                                                    <h3 class="h4 fw-bold mb-3 text-primary">Alquiler de Fotocopiadoras</h3>
                                                     <p class="text-muted mb-4">
-                                                        Soluciones flexibles sin inversión inicial. Equipos de última generación 
-                                                        de Konica Minolta, Canon y Ricoh con mantenimiento incluido.
+                                                        <strong>¡Sin inversión inicial!</strong> Equipos de última generación 
+                                                        de Konica Minolta, Canon y Ricoh. Mantenimiento, toner y soporte incluido.
                                                     </p>
                                                     
                                                     <!-- Features -->
@@ -191,17 +232,30 @@
                                 
                                 <!-- Venta -->
                                 <div class="col-lg-6">
-                                    <div class="card h-100 border-0 shadow-sm service-card-hover">
+                                    <div class="card h-100 border-0 shadow-lg service-card-hover">
+                                        <!-- Imagen del servicio -->
+                                        <div class="position-relative">
+                                            <img src="/static/img/services/equipment-showroom.jpg" 
+                                                 alt="Venta de equipos de impresión" 
+                                                 class="card-img-top" 
+                                                 style="height: 200px; object-fit: cover;"/>
+                                            <div class="position-absolute bottom-0 start-0 m-3">
+                                                <span class="badge bg-success">
+                                                    <i class="bi bi-cart3 me-1"></i>Venta
+                                                </span>
+                                            </div>
+                                        </div>
+                                        
                                         <div class="card-body p-4">
                                             <div class="d-flex align-items-start">
-                                                <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-4 flex-shrink-0" style="width: 80px; height: 80px;">
-                                                    <i class="bi bi-cart3 text-white fs-1"></i>
+                                                <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 60px; height: 60px;">
+                                                    <i class="bi bi-cart3 text-white fs-3"></i>
                                                 </div>
                                                 <div class="flex-grow-1">
-                                                    <h3 class="h4 fw-bold mb-3">Venta de Equipos</h3>
+                                                    <h3 class="h4 fw-bold mb-3 text-success">Venta de Equipos Nuevos</h3>
                                                     <p class="text-muted mb-4">
-                                                        Equipos nuevos y seminuevos de las mejores marcas. Asesoría personalizada 
-                                                        para encontrar la solución perfecta para tu empresa.
+                                                        <strong>Equipos nuevos y seminuevos</strong> de las mejores marcas. 
+                                                        Asesoría especializada y planes de financiamiento disponibles.
                                                     </p>
                                                     
                                                     <!-- Features -->
