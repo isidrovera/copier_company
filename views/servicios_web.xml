@@ -539,5 +539,446 @@
                 </div>
             </t>
         </template>
+        <template id="copier_about_us_modern" name="Copier About Us Modern">
+            <t t-call="website.layout">
+                <div id="wrap">
+                    <style>
+                        @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css');
+                        
+                        .about-hero-bg {
+                            background: linear-gradient(135deg, #6f42c1 0%, #0d6efd 100%);
+                            min-height: 60vh;
+                        }
+                        .team-card:hover {
+                            transform: translateY(-10px);
+                            transition: all 0.3s ease;
+                        }
+                        .stats-counter {
+                            font-size: 3rem;
+                            font-weight: 700;
+                            background: linear-gradient(45deg, #0d6efd, #6610f2);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            background-clip: text;
+                        }
+                        .timeline-item {
+                            position: relative;
+                            padding-left: 2rem;
+                        }
+                        .timeline-item::before {
+                            content: '';
+                            position: absolute;
+                            left: 0;
+                            top: 0.5rem;
+                            width: 1rem;
+                            height: 1rem;
+                            background: var(--bs-primary);
+                            border-radius: 50%;
+                        }
+                        .floating-animation {
+                            animation: float 3s ease-in-out infinite;
+                        }
+                        @keyframes float {
+                            0%, 100% { transform: translateY(0px); }
+                            50% { transform: translateY(-10px); }
+                        }
+                    </style>
+
+                    <!-- HERO SECTION -->
+                    <section class="about-hero-bg text-white position-relative overflow-hidden">
+                        <div class="container position-relative" style="z-index: 2;">
+                            <div class="row min-vh-60 align-items-center py-5">
+                                <div class="col-lg-7">
+                                    <h1 class="display-3 fw-bold mb-4">
+                                        Conoce <span class="text-warning">Nuestra Historia</span>
+                                        <br/>y Compromiso
+                                    </h1>
+                                    
+                                    <p class="fs-4 mb-4 opacity-90">
+                                        <strong>15 años transformando oficinas</strong> con las mejores soluciones 
+                                        de impresión. Somos el partner tecnológico que tu empresa necesita.
+                                    </p>
+                                    
+                                    <!-- Stats rápidas -->
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-6 col-md-3">
+                                            <div class="text-center">
+                                                <div class="stats-counter" t-esc="company_stats['years_experience']">15</div>
+                                                <small class="opacity-75">Años Experiencia</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <div class="text-center">
+                                                <div class="stats-counter" t-esc="company_stats['clients_served']">500+</div>
+                                                <small class="opacity-75">Clientes Satisfechos</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <div class="text-center">
+                                                <div class="stats-counter">1200+</div>
+                                                <small class="opacity-75">Equipos Instalados</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <div class="text-center">
+                                                <div class="stats-counter">98%</div>
+                                                <small class="opacity-75">Satisfacción</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-flex flex-column flex-sm-row gap-3">
+                                        <a href="/contactus" class="btn btn-warning btn-lg px-4 py-3 fw-bold">
+                                            <i class="bi bi-people me-2"></i>
+                                            Conocer al Equipo
+                                        </a>
+                                        <a href="#historia" class="btn btn-outline-light btn-lg px-4 py-3">
+                                            <i class="bi bi-arrow-down me-2"></i>
+                                            Nuestra Historia
+                                        </a>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-5 text-center">
+                                    <div class="floating-animation">
+                                        <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=600&amp;q=80" 
+                                             alt="Equipo Copier Company" 
+                                             class="img-fluid rounded-4 shadow-lg" 
+                                             style="max-height: 400px; object-fit: cover;"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- NUESTRA HISTORIA -->
+                    <section id="historia" class="py-5">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-6 mb-4 mb-lg-0">
+                                    <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill mb-3">Nuestra Historia</span>
+                                    <h2 class="display-5 fw-bold mb-4">15 Años de Excelencia Tecnológica</h2>
+                                    
+                                    <p class="lead text-muted mb-4">
+                                        En Copier Company, nos especializamos en brindar <strong>soluciones integrales</strong> 
+                                        de impresión y gestión documental. Con años de experiencia en el mercado, somos 
+                                        el partner confiable que las empresas necesitan.
+                                    </p>
+                                    
+                                    <!-- Timeline -->
+                                    <div class="timeline mt-4">
+                                        <div class="timeline-item mb-4">
+                                            <h5 class="fw-bold text-primary">2010 - Los Inicios</h5>
+                                            <p class="text-muted">Fundación de la empresa con enfoque en servicio técnico especializado</p>
+                                        </div>
+                                        <div class="timeline-item mb-4">
+                                            <h5 class="fw-bold text-success">2015 - Expansión</h5>
+                                            <p class="text-muted">Partnerships con Konica Minolta, Canon y Ricoh</p>
+                                        </div>
+                                        <div class="timeline-item mb-4">
+                                            <h5 class="fw-bold text-warning">2020 - Innovación</h5>
+                                            <p class="text-muted">Implementación de sistema MPS y monitoreo remoto</p>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <h5 class="fw-bold text-info">2025 - Futuro</h5>
+                                            <p class="text-muted">Líderes en transformación digital de oficinas</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-6">
+                                    <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=800&amp;q=80" 
+                                         alt="Historia Copier Company" 
+                                         class="img-fluid rounded-4 shadow-lg"/>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- VALORES CORPORATIVOS -->
+                    <section class="py-5 bg-light">
+                        <div class="container">
+                            <div class="text-center mb-5">
+                                <span class="badge bg-success fs-6 px-3 py-2 rounded-pill mb-3">Valores</span>
+                                <h2 class="display-5 fw-bold mb-3">Nuestros Valores Corporativos</h2>
+                                <p class="lead text-muted">Los principios que guían cada decisión y acción</p>
+                            </div>
+                            
+                            <div class="row g-4">
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="card h-100 border-0 shadow-sm text-center">
+                                        <div class="card-body p-4">
+                                            <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                                                <i class="bi bi-award text-white fs-1"></i>
+                                            </div>
+                                            <h4 class="fw-bold mb-3">Excelencia</h4>
+                                            <p class="text-muted">Buscamos la perfección en cada servicio, producto y experiencia que ofrecemos a nuestros clientes.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="card h-100 border-0 shadow-sm text-center">
+                                        <div class="card-body p-4">
+                                            <div class="bg-success bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                                                <i class="bi bi-lightbulb text-white fs-1"></i>
+                                            </div>
+                                            <h4 class="fw-bold mb-3">Innovación</h4>
+                                            <p class="text-muted">Adoptamos las últimas tecnologías para ofrecer soluciones avanzadas y eficientes.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="card h-100 border-0 shadow-sm text-center">
+                                        <div class="card-body p-4">
+                                            <div class="bg-warning bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                                                <i class="bi bi-heart text-dark fs-1"></i>
+                                            </div>
+                                            <h4 class="fw-bold mb-3">Compromiso</h4>
+                                            <p class="text-muted">Nos dedicamos completamente al éxito y satisfacción de nuestros clientes.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="card h-100 border-0 shadow-sm text-center">
+                                        <div class="card-body p-4">
+                                            <div class="bg-info bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                                                <i class="bi bi-shield-check text-white fs-1"></i>
+                                            </div>
+                                            <h4 class="fw-bold mb-3">Integridad</h4>
+                                            <p class="text-muted">Actuamos con honestidad y transparencia en todas nuestras relaciones comerciales.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="card h-100 border-0 shadow-sm text-center">
+                                        <div class="card-body p-4">
+                                            <div class="bg-danger bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                                                <i class="bi bi-people text-white fs-1"></i>
+                                            </div>
+                                            <h4 class="fw-bold mb-3">Trabajo en Equipo</h4>
+                                            <p class="text-muted">Colaboramos unidos para lograr resultados excepcionales para nuestros clientes.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="card h-100 border-0 shadow-sm text-center">
+                                        <div class="card-body p-4">
+                                            <div class="bg-secondary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                                                <i class="bi bi-gear-wide text-white fs-1"></i>
+                                            </div>
+                                            <h4 class="fw-bold mb-3">Responsabilidad</h4>
+                                            <p class="text-muted">Asumimos la responsabilidad total por la calidad y resultados de nuestro trabajo.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- MISIÓN Y VISIÓN -->
+                    <section class="py-5">
+                        <div class="container">
+                            <div class="row g-4">
+                                <div class="col-lg-6">
+                                    <div class="card h-100 border-0 shadow-lg border-start border-primary border-5">
+                                        <div class="card-body p-5">
+                                            <div class="d-flex align-items-center mb-4">
+                                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                                                    <i class="bi bi-bullseye text-white fs-3"></i>
+                                                </div>
+                                                <h3 class="fw-bold text-primary mb-0">Nuestra Misión</h3>
+                                            </div>
+                                            <p class="lead text-muted">
+                                                Proporcionar a empresas de todos los tamaños las <strong>mejores soluciones</strong> 
+                                                de impresión y gestión documental. Nos esforzamos por ofrecer productos de alta 
+                                                calidad y un servicio excepcional.
+                                            </p>
+                                            <p class="text-muted">
+                                                Ayudamos a nuestros clientes a mejorar su eficiencia y productividad, 
+                                                manteniéndonos al día con las últimas tecnologías para asegurar que 
+                                                siempre tengan lo mejor.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-6">
+                                    <div class="card h-100 border-0 shadow-lg border-start border-success border-5">
+                                        <div class="card-body p-5">
+                                            <div class="d-flex align-items-center mb-4">
+                                                <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                                                    <i class="bi bi-eye text-white fs-3"></i>
+                                                </div>
+                                                <h3 class="fw-bold text-success mb-0">Nuestra Visión</h3>
+                                            </div>
+                                            <p class="lead text-muted">
+                                                Aspiramos a ser <strong>líderes en el mercado</strong> de soluciones de impresión 
+                                                y gestión documental, reconocidos por nuestra calidad, innovación y 
+                                                servicio al cliente.
+                                            </p>
+                                            <p class="text-muted">
+                                                Buscamos evolucionar continuamente y adaptarnos a las necesidades del mercado 
+                                                para ofrecer soluciones que superen las expectativas de nuestros clientes.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- NUESTRO EQUIPO -->
+                    <section class="py-5 bg-light">
+                        <div class="container">
+                            <div class="text-center mb-5">
+                                <span class="badge bg-warning fs-6 px-3 py-2 rounded-pill mb-3">Nuestro Equipo</span>
+                                <h2 class="display-5 fw-bold mb-3">Conoce a Nuestros Expertos</h2>
+                                <p class="lead text-muted">Profesionales apasionados por la tecnología y el servicio al cliente</p>
+                            </div>
+                            
+                            <div class="row g-4">
+                                <t t-foreach="team_members" t-as="member">
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="card border-0 shadow-sm team-card h-100">
+                                            <div class="position-relative">
+                                                <img t-att-src="member['image']" 
+                                                     t-att-alt="member['name']" 
+                                                     class="card-img-top" 
+                                                     style="height: 300px; object-fit: cover;"/>
+                                                <div class="position-absolute bottom-0 start-0 m-3">
+                                                    <span class="badge bg-primary bg-opacity-90">
+                                                        <t t-esc="member['experience']"/>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="card-body text-center p-4">
+                                                <h4 class="fw-bold mb-2" t-esc="member['name']">Carlos Mendoza</h4>
+                                                <p class="text-primary fw-semibold mb-3" t-esc="member['position']">CEO &amp; Fundador</p>
+                                                <p class="text-muted small">
+                                                    Especialista en soluciones empresariales con amplia experiencia 
+                                                    en el sector tecnológico y gestión de equipos.
+                                                </p>
+                                                <div class="d-flex justify-content-center gap-2 mt-3">
+                                                    <a href="#" class="btn btn-outline-primary btn-sm rounded-circle">
+                                                        <i class="bi bi-linkedin"></i>
+                                                    </a>
+                                                    <a href="#" class="btn btn-outline-primary btn-sm rounded-circle">
+                                                        <i class="bi bi-envelope"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- CERTIFICACIONES -->
+                    <section class="py-5">
+                        <div class="container">
+                            <div class="text-center mb-5">
+                                <span class="badge bg-info fs-6 px-3 py-2 rounded-pill mb-3">Certificaciones</span>
+                                <h2 class="display-5 fw-bold mb-3">Partners Oficiales</h2>
+                                <p class="lead text-muted">Respaldados por las mejores marcas del mercado</p>
+                            </div>
+                            
+                            <div class="row g-4">
+                                <div class="col-lg-4">
+                                    <div class="card border-0 shadow-sm text-center h-100">
+                                        <div class="card-body p-4">
+                                            <img src="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/konica-minolta-vector-logo-seeklogo/konica-minolta-seeklogo.png" 
+                                                 alt="Konica Minolta Partner" 
+                                                 class="img-fluid mb-3" 
+                                                 style="max-height: 80px;"/>
+                                            <h5 class="fw-bold">Konica Minolta Partner</h5>
+                                            <p class="text-muted">Dealer autorizado desde 2010</p>
+                                            <span class="badge bg-primary">Authorized Dealer</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4">
+                                    <div class="card border-0 shadow-sm text-center h-100">
+                                        <div class="card-body p-4">
+                                            <img src="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/canon-vector-logo-seeklogo/canon-seeklogo.png" 
+                                                 alt="Canon Business Partner" 
+                                                 class="img-fluid mb-3" 
+                                                 style="max-height: 80px;"/>
+                                            <h5 class="fw-bold">Canon Business Partner</h5>
+                                            <p class="text-muted">Reseller certificado desde 2012</p>
+                                            <span class="badge bg-danger">Certified Reseller</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4">
+                                    <div class="card border-0 shadow-sm text-center h-100">
+                                        <div class="card-body p-4">
+                                            <img src="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/ricoh-vector-logo-seeklogo/ricoh-seeklogo.png" 
+                                                 alt="Ricoh Elite Partner" 
+                                                 class="img-fluid mb-3" 
+                                                 style="max-height: 80px;"/>
+                                            <h5 class="fw-bold">Ricoh Elite Partner</h5>
+                                            <p class="text-muted">Partner Gold desde 2015</p>
+                                            <span class="badge bg-warning text-dark">Gold Level</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- CTA FINAL -->
+                    <section class="py-5 bg-primary">
+                        <div class="container">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h2 class="text-white fw-bold mb-3">¿Listo para Conocernos Mejor?</h2>
+                                    <p class="text-white opacity-75 mb-4 mb-lg-0">
+                                        Agenda una reunión con nuestro equipo y descubre cómo podemos 
+                                        transformar la productividad de tu empresa.
+                                    </p>
+                                </div>
+                                <div class="col-lg-4 text-lg-end">
+                                    <a href="/contactus" class="btn btn-warning btn-lg me-3">
+                                        <i class="bi bi-calendar-check me-2"></i>
+                                        Agendar Reunión
+                                    </a>
+                                    <a href="/our-services" class="btn btn-outline-light btn-lg">
+                                        <i class="bi bi-gear me-2"></i>
+                                        Ver Servicios
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- BOTONES FLOTANTES -->
+                    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
+                        <a href="https://wa.me/51975399303?text=Hola,%20quiero%20conocer%20más%20sobre%20Copier%20Company" 
+                           target="_blank" 
+                           class="btn btn-success rounded-pill shadow-lg d-flex align-items-center">
+                            <i class="bi bi-whatsapp fs-4 me-2"></i>
+                            <span class="d-none d-md-inline fw-semibold">Conversemos</span>
+                        </a>
+                    </div>
+
+                    <div class="position-fixed bottom-0 start-0 p-3" style="z-index: 1050;">
+                        <a href="/cotizacion/form" 
+                           class="btn btn-warning rounded-pill shadow-lg d-flex align-items-center">
+                            <i class="bi bi-calculator fs-4 me-2"></i>
+                            <span class="d-none d-md-inline fw-semibold text-dark">Cotización</span>
+                        </a>
+                    </div>
+
+                </div>
+            </t>
+        </template>
     </data>
 </odoo>
