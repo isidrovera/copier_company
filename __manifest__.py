@@ -77,6 +77,7 @@
         'views/view_client_counter_submission.xml',
         'views/view_toner_request.xml',
         'views/homepage_template.xml',
+        'views/servicios_web.xml',
         
         
         
