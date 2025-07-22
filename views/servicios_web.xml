@@ -556,10 +556,8 @@
                         .stats-counter {
                             font-size: 3rem;
                             font-weight: 700;
-                            background: linear-gradient(45deg, #0d6efd, #6610f2);
-                            -webkit-background-clip: text;
-                            -webkit-text-fill-color: transparent;
-                            background-clip: text;
+                            color: #ffffff;
+                            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
                         }
                         .timeline-item {
                             position: relative;
@@ -832,60 +830,74 @@
                         </div>
                     </section>
 
-                    <!-- NUESTRO EQUIPO -->
+                    <!-- NUESTRO ENFOQUE -->
                     <section class="py-5 bg-light">
                         <div class="container">
                             <div class="text-center mb-5">
-                                <span class="badge bg-warning fs-6 px-3 py-2 rounded-pill mb-3">Nuestro Equipo</span>
-                                <h2 class="display-5 fw-bold mb-3">Conoce a Nuestros Expertos</h2>
-                                <p class="lead text-muted">Profesionales apasionados por la tecnología y el servicio al cliente</p>
+                                <span class="badge bg-warning fs-6 px-3 py-2 rounded-pill mb-3">Nuestro Enfoque</span>
+                                <h2 class="display-5 fw-bold mb-3">Cómo Trabajamos</h2>
+                                <p class="lead text-muted">Metodología enfocada en resultados y satisfacción del cliente</p>
                             </div>
                             
                             <div class="row g-4">
-                                <t t-foreach="team_members" t-as="member">
-                                    <div class="col-lg-4 col-md-6">
-                                        <div class="card border-0 shadow-sm team-card h-100">
-                                            <div class="position-relative">
-                                                <img t-att-src="member['image']" 
-                                                     t-att-alt="member['name']" 
-                                                     class="card-img-top" 
-                                                     style="height: 300px; object-fit: cover;"/>
-                                                <div class="position-absolute bottom-0 start-0 m-3">
-                                                    <span class="badge bg-primary bg-opacity-90">
-                                                        <t t-esc="member['experience']"/>
-                                                    </span>
-                                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="card border-0 shadow-sm text-center h-100">
+                                        <div class="card-body p-4">
+                                            <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                                                <i class="bi bi-search text-white fs-1"></i>
                                             </div>
-                                            <div class="card-body text-center p-4">
-                                                <h4 class="fw-bold mb-2" t-esc="member['name']">Carlos Mendoza</h4>
-                                                <p class="text-primary fw-semibold mb-3" t-esc="member['position']">CEO &amp; Fundador</p>
-                                                <p class="text-muted small">
-                                                    Especialista en soluciones empresariales con amplia experiencia 
-                                                    en el sector tecnológico y gestión de equipos.
-                                                </p>
-                                                <div class="d-flex justify-content-center gap-2 mt-3">
-                                                    <a href="#" class="btn btn-outline-primary btn-sm rounded-circle">
-                                                        <i class="bi bi-linkedin"></i>
-                                                    </a>
-                                                    <a href="#" class="btn btn-outline-primary btn-sm rounded-circle">
-                                                        <i class="bi bi-envelope"></i>
-                                                    </a>
-                                                </div>
-                                            </div>
+                                            <h5 class="fw-bold mb-3">Análisis Detallado</h5>
+                                            <p class="text-muted">Evaluamos tus necesidades específicas para encontrar la mejor solución.</p>
                                         </div>
                                     </div>
-                                </t>
+                                </div>
+                                
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="card border-0 shadow-sm text-center h-100">
+                                        <div class="card-body p-4">
+                                            <div class="bg-success bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                                                <i class="bi bi-gear-wide text-white fs-1"></i>
+                                            </div>
+                                            <h5 class="fw-bold mb-3">Solución Personalizada</h5>
+                                            <p class="text-muted">Diseñamos una propuesta adaptada a tu presupuesto y requerimientos.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="card border-0 shadow-sm text-center h-100">
+                                        <div class="card-body p-4">
+                                            <div class="bg-warning bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                                                <i class="bi bi-rocket-takeoff text-dark fs-1"></i>
+                                            </div>
+                                            <h5 class="fw-bold mb-3">Implementación Rápida</h5>
+                                            <p class="text-muted">Instalación profesional y capacitación para uso inmediato.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="card border-0 shadow-sm text-center h-100">
+                                        <div class="card-body p-4">
+                                            <div class="bg-info bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                                                <i class="bi bi-headset text-white fs-1"></i>
+                                            </div>
+                                            <h5 class="fw-bold mb-3">Soporte Continuo</h5>
+                                            <p class="text-muted">Acompañamiento permanente para garantizar el máximo rendimiento.</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </section>
 
-                    <!-- CERTIFICACIONES -->
+                    <!-- PROVEEDORES AUTORIZADOS -->
                     <section class="py-5">
                         <div class="container">
                             <div class="text-center mb-5">
-                                <span class="badge bg-info fs-6 px-3 py-2 rounded-pill mb-3">Certificaciones</span>
-                                <h2 class="display-5 fw-bold mb-3">Partners Oficiales</h2>
-                                <p class="lead text-muted">Respaldados por las mejores marcas del mercado</p>
+                                <span class="badge bg-info fs-6 px-3 py-2 rounded-pill mb-3">Proveedores</span>
+                                <h2 class="display-5 fw-bold mb-3">Trabajamos con las Mejores Marcas</h2>
+                                <p class="lead text-muted">Distribuimos equipos de las marcas líderes del mercado</p>
                             </div>
                             
                             <div class="row g-4">
@@ -893,12 +905,12 @@
                                     <div class="card border-0 shadow-sm text-center h-100">
                                         <div class="card-body p-4">
                                             <img src="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/konica-minolta-vector-logo-seeklogo/konica-minolta-seeklogo.png" 
-                                                 alt="Konica Minolta Partner" 
+                                                 alt="Konica Minolta" 
                                                  class="img-fluid mb-3" 
                                                  style="max-height: 80px;"/>
-                                            <h5 class="fw-bold">Konica Minolta Partner</h5>
-                                            <p class="text-muted">Dealer autorizado desde 2010</p>
-                                            <span class="badge bg-primary">Authorized Dealer</span>
+                                            <h5 class="fw-bold">Konica Minolta</h5>
+                                            <p class="text-muted">Equipos multifuncionales de alta gama</p>
+                                            <span class="badge bg-primary">Distribuidor Autorizado</span>
                                         </div>
                                     </div>
                                 </div>
@@ -907,12 +919,12 @@
                                     <div class="card border-0 shadow-sm text-center h-100">
                                         <div class="card-body p-4">
                                             <img src="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/canon-vector-logo-seeklogo/canon-seeklogo.png" 
-                                                 alt="Canon Business Partner" 
+                                                 alt="Canon" 
                                                  class="img-fluid mb-3" 
                                                  style="max-height: 80px;"/>
-                                            <h5 class="fw-bold">Canon Business Partner</h5>
-                                            <p class="text-muted">Reseller certificado desde 2012</p>
-                                            <span class="badge bg-danger">Certified Reseller</span>
+                                            <h5 class="fw-bold">Canon</h5>
+                                            <p class="text-muted">Tecnología de impresión profesional</p>
+                                            <span class="badge bg-danger">Proveedor Oficial</span>
                                         </div>
                                     </div>
                                 </div>
@@ -921,12 +933,12 @@
                                     <div class="card border-0 shadow-sm text-center h-100">
                                         <div class="card-body p-4">
                                             <img src="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/ricoh-vector-logo-seeklogo/ricoh-seeklogo.png" 
-                                                 alt="Ricoh Elite Partner" 
+                                                 alt="Ricoh" 
                                                  class="img-fluid mb-3" 
                                                  style="max-height: 80px;"/>
-                                            <h5 class="fw-bold">Ricoh Elite Partner</h5>
-                                            <p class="text-muted">Partner Gold desde 2015</p>
-                                            <span class="badge bg-warning text-dark">Gold Level</span>
+                                            <h5 class="fw-bold">Ricoh</h5>
+                                            <p class="text-muted">Soluciones empresariales robustas</p>
+                                            <span class="badge bg-warning text-dark">Distribuidor Especializado</span>
                                         </div>
                                     </div>
                                 </div>
