@@ -169,6 +169,9 @@
                             <field name="fecha" readonly="state != 'draft'" />
                             <field name="fecha_facturacion" readonly="state != 'draft'" />
                             <field name="mes_facturacion" />
+                            <field name="fecha_emision_factura" 
+       help="Deja vacío para usar la fecha de hoy al facturar"
+       readonly="state == 'invoiced'"/>
                         </group>
                     </div>
                     <div class="col-lg-6">

@@ -55,6 +55,11 @@ class CopierCounter(models.Model):
         store=True
     )
 
+    fecha_emision_factura = fields.Date(
+        'Fecha de Emisión',
+        help="Fecha que aparecerá en la factura. Si está vacío, usa la fecha de hoy"
+    )
+
     # Contadores B/N
     contador_anterior_bn = fields.Integer(
         'Contador Anterior B/N',
@@ -199,7 +204,7 @@ class CopierCounter(models.Model):
             vals['name'] = self.env['ir.sequence'].next_by_code('copier.counter') or 'New'
             
         return super(CopierCounter, self).create(vals)
-    @api.depends('fecha_facturacion')
+    @api.depends('fecha_facturacion', 'fecha_emision_factura')
     def _compute_mes_facturacion(self):
         meses = {
             1: 'Enero', 2: 'Febrero', 3: 'Marzo', 4: 'Abril',
@@ -207,9 +212,23 @@ class CopierCounter(models.Model):
             9: 'Septiembre', 10: 'Octubre', 11: 'Noviembre', 12: 'Diciembre'
         }
         for record in self:
-            if record.fecha_facturacion:
-                record.mes_facturacion = f"{meses[record.fecha_facturacion.month]} {record.fecha_facturacion.year}"
+            # Usar fecha_emision_factura si existe, sino fecha_facturacion
+            fecha_ref = record.fecha_emision_factura or record.fecha_facturacion
+            if fecha_ref:
+                record.mes_facturacion = f"{meses[fecha_ref.month]} {fecha_ref.year}"
+    @api.constrains('fecha_emision_factura', 'fecha')
+    def _check_fecha_emision(self):
+        for record in self:
+            if record.fecha_emision_factura and record.fecha:
+                if record.fecha_emision_factura < record.fecha:
+                    raise ValidationError(
+                        "La fecha de emisión no puede ser anterior a la fecha de lectura."
+                    )
 
+    def get_fecha_factura_efectiva(self):
+        """Devuelve la fecha efectiva que se usará en la factura"""
+        self.ensure_one()
+        return self.fecha_emision_factura or fields.Date.today()
     @api.onchange('maquina_id')
     def _onchange_maquina(self):
         if self.maquina_id:
@@ -742,10 +761,10 @@ class CopierCounter(models.Model):
 
                 # Crear nueva lectura si corresponde
                 if crear_hoy:
-                    # Obtener última lectura confirmada O facturada ← CAMBIO AQUÍ
+                    # Obtener última lectura confirmada O facturada
                     ultima_lectura = self.env['copier.counter'].search([
                         ('maquina_id', '=', machine.id),
-                        ('state', 'in', ['confirmed', 'invoiced'])  # ← CAMBIO PRINCIPAL
+                        ('state', 'in', ['confirmed', 'invoiced'])
                     ], limit=1, order='fecha desc, id desc')
 
                     # Valores por defecto para los contadores
@@ -757,6 +776,7 @@ class CopierCounter(models.Model):
                         'maquina_id': machine.id,
                         'fecha': today,
                         'fecha_facturacion': fecha_facturacion,
+                        'fecha_emision_factura': False,  # Inicialmente vacío para facturación manual
                         'contador_anterior_bn': contador_anterior_bn,
                         'contador_anterior_color': contador_anterior_color,
                         'contador_actual_bn': contador_anterior_bn,
@@ -957,11 +977,19 @@ class CopierCounter(models.Model):
         modelo_maquina = self.maquina_id.name.name if self.maquina_id.name else 'N/A'
         info_maquina = f"Modelo: {modelo_maquina} - Serie: {self.serie}"
         
+        # Determinar fecha según si es automática o manual
+        if self.maquina_id.facturacion_automatica:
+            # Futura lógica automática: usar fecha_facturacion calculada
+            fecha_para_factura = self.fecha_facturacion
+        else:
+            # Lógica manual actual: usar fecha_emision_factura o hoy
+            fecha_para_factura = self.fecha_emision_factura or fields.Date.today()
+        
         # Crear factura
         invoice_vals = {
             'partner_id': self.cliente_id.id,
             'move_type': 'out_invoice',
-            'invoice_date': self.fecha_facturacion,
+            'invoice_date': fecha_para_factura,
             'invoice_payment_term_id': self.payment_term_id.id,
             'invoice_origin': self.name,
             'narration': f'Facturación por uso de máquina {self.serie} - {self.mes_facturacion}\n{info_maquina}',
@@ -1022,7 +1050,8 @@ class CopierCounter(models.Model):
             body=f'Factura creada: {invoice.name}\n'
                 f'- B/N: {self.copias_facturables_bn} copias = S/ {self.total_bn:.2f}\n'
                 f'- Color: {self.copias_facturables_color} copias = S/ {self.total_color:.2f}\n'
-                f'- Total: S/ {self.total:.2f}',
+                f'- Total: S/ {self.total:.2f}\n'
+                f'- Fecha factura: {fecha_para_factura}',
             message_type='notification'
         )
         
@@ -1034,7 +1063,6 @@ class CopierCounter(models.Model):
             'view_mode': 'form',
             'target': 'current',
         }
-
     def action_create_multiple_invoices(self):
         """Crea facturas para múltiples lecturas seleccionadas"""
         facturas_creadas = []
