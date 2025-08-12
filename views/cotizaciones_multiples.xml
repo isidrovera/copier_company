@@ -54,7 +54,8 @@
             <button name="action_convertir_contratos" string="Convertir a Contratos" type="object" 
                     class="btn-warning" invisible="estado != 'aprobado'"/>
             
-           
+           <button name="action_test_whatsapp" string="Test WA" type="object" 
+            class="btn-secondary" groups="base.group_system"/>
             <field name="estado" widget="statusbar" statusbar_visible="borrador,enviado,aprobado,convertido"/>
           </header>
           
