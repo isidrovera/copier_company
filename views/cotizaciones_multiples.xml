@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+    
+    <!-- ========== COPIER QUOTATION VIEWS ========== -->
+    
+    <!-- List View - Cotizaciones -->
+    <record model="ir.ui.view" id="copier_quotation_list">
+      <field name="name">copier.quotation.list</field>
+      <field name="model">copier.quotation</field>
+      <field name="arch" type="xml">
+        <list>
+          <field name="name"/>
+          <field name="fecha_cotizacion"/>
+          <field name="cliente_id"/>
+          <field name="modalidad_pago_id"/>
+          <field name="total_mensual"/>
+          <field name="total_por_modalidad"/>
+          <field name="fecha_vencimiento"/>
+          <field name="estado" decoration-success="estado == 'aprobado'" 
+                              decoration-info="estado == 'enviado'"
+                              decoration-warning="estado == 'borrador'"
+                              decoration-danger="estado == 'rechazado'"
+                              decoration-muted="estado == 'convertido'"/>
+          <button name="action_enviar_cotizacion" string="Enviar" type="object" 
+                  icon="fa-paper-plane" class="btn-primary"
+                  invisible="estado != 'borrador'"/>
+          <button name="action_aprobar_cotizacion" string="Aprobar" type="object" 
+                  icon="fa-check" class="btn-success"
+                  invisible="estado not in ['enviado', 'borrador']"/>
+          <button name="action_convertir_contratos" string="Convertir" type="object" 
+                  icon="fa-exchange" class="btn-warning"
+                  invisible="estado != 'aprobado'"/>
+        </list>
+      </field>
+    </record>
+
+    <!-- Form View - Cotizaciones -->
+    <record id="copier_quotation_form" model="ir.ui.view">
+      <field name="name">copier.quotation.form</field>
+      <field name="model">copier.quotation</field>
+      <field name="arch" type="xml">
+        <form>
+          <header>
+            <button name="action_enviar_cotizacion" string="Enviar Cotización" type="object" 
+                    class="oe_highlight" invisible="estado != 'borrador'"/>
+            <button name="action_aprobar_cotizacion" string="Aprobar" type="object" 
+                    class="btn-success" invisible="estado not in ['enviado', 'borrador']"/>
+            <button name="action_convertir_contratos" string="Convertir a Contratos" type="object" 
+                    class="btn-warning" invisible="estado != 'aprobado'"/>
+            <field name="estado" widget="statusbar" statusbar_visible="borrador,enviado,aprobado,convertido"/>
+          </header>
+          
+          <sheet>
+            <div class="oe_title">
+              <h1>
+                <field name="name" readonly="True"/>
+              </h1>
+            </div>
+
+            <div class="alert alert-info">
+              <strong>Cotización Múltiple:</strong>
+              <ul>
+                <li>Agregue todos los equipos que necesita el cliente</li>
+                <li>Configure la modalidad de pago para aplicar descuentos automáticos</li>
+                <li>Los totales se calculan automáticamente por modalidad</li>
+                <li>Una vez aprobada, cada equipo se convertirá en un contrato individual</li>
+              </ul>
+            </div>
+
+            <group>
+              <group string="Información General">
+                <field name="fecha_cotizacion"/>
+                <field name="modalidad_pago_id" required="1"/>
+                <field name="validez_dias"/>
+                <field name="fecha_vencimiento" readonly="1"/>
+              </group>
+              <group string="Cliente">
+                <field name="cliente_id" required="1"/>
+                <field name="tipo_identificacion"/>
+                <field name="identificacion"/>
+                <field name="contacto"/>
+                <field name="telefono"/>
+                <field name="email"/>
+              </group>
+            </group>
+
+            <group>
+              <group string="Ubicación de Instalación">
+                <field name="direccion"/>
+                <field name="sede"/>
+              </group>
+              <group string="Configuración del Contrato">
+                <field name="fecha_inicio_propuesta"/>
+                <field name="duracion_contrato_id"/>
+                <field name="fecha_fin_propuesta" readonly="1"/>
+              </group>
+            </group>
+
+            <notebook>
+              <page name="equipos" string="Equipos Cotizados">
+                <field name="linea_equipos_ids">
+                  <list editable="bottom">
+                    <field name="sequence" widget="handle"/>
+                    <field name="equipo_id" required="1"/>
+                    <field name="marca_id" readonly="1"/>
+                    <field name="tipo_equipo" required="1"/>
+                    <field name="formato"/>
+                    <field name="cantidad"/>
+                    <field name="volumen_mensual_bn"/>
+                    <field name="volumen_mensual_color" invisible="tipo_equipo == 'monocroma'"/>
+                    <field name="precio_bn"/>
+                    <field name="precio_color" invisible="tipo_equipo == 'monocroma'"/>
+                    <field name="subtotal_bn" readonly="1"/>
+                    <field name="subtotal_color" readonly="1" invisible="tipo_equipo == 'monocroma'"/>
+                    <field name="subtotal_linea" readonly="1" class="oe_subtotal_footer_separator"/>
+                    <field name="observaciones" optional="hide"/>
+                  </list>
+                  <form>
+                    <group>
+                      <group string="Equipo">
+                        <field name="equipo_id" required="1"/>
+                        <field name="marca_id" readonly="1"/>
+                        <field name="tipo_equipo" required="1"/>
+                        <field name="formato"/>
+                        <field name="cantidad"/>
+                      </group>
+                      <group string="Configuración">
+                        <field name="volumen_mensual_bn"/>
+                        <field name="volumen_mensual_color" invisible="tipo_equipo == 'monocroma'"/>
+                        <field name="precio_bn"/>
+                        <field name="precio_color" invisible="tipo_equipo == 'monocroma'"/>
+                      </group>
+                    </group>
+                    
+                    <group string="Totales" class="oe_subtotal_footer_separator">
+                      <field name="subtotal_bn" readonly="1"/>
+                      <field name="subtotal_color" readonly="1" invisible="tipo_equipo == 'monocroma'"/>
+                      <field name="subtotal_linea" readonly="1"/>
+                    </group>
+                    
+                    <field name="especificaciones" readonly="1"/>
+                    <field name="observaciones" placeholder="Observaciones específicas para este equipo..."/>
+                  </form>
+                </field>
+              </page>
+
+              <page name="totales" string="Totales y Descuentos">
+                <group>
+                  <group string="Configuración Financiera">
+                    <field name="currency_id"/>
+                    <field name="descuento_general"/>
+                    <field name="igv"/>
+                  </group>
+                  <group string="Modalidad de Pago">
+                    <field name="modalidad_pago_id" readonly="1"/>
+                    <label for="modalidad_pago_id" invisible="not modalidad_pago_id"/>
+                    <div invisible="not modalidad_pago_id">
+                      <span>Frecuencia: </span>
+                      <field name="modalidad_pago_id" readonly="1" options="{'no_open': True}"/>
+                      <br/>
+                      <span class="text-success">Descuento por modalidad: </span>
+                      <span class="text-success" invisible="not modalidad_pago_id">
+                        <field name="modalidad_pago_id" readonly="1" options="{'no_open': True}"/>%
+                      </span>
+                    </div>
+                  </group>
+                </group>
+
+                <separator string="Resumen de Totales"/>
+                
+                <group class="oe_subtotal_footer_separator">
+                  <group string="Totales Mensuales Base">
+                    <field name="subtotal_mensual" readonly="1"/>
+                    <field name="descuento_mensual" readonly="1"/>
+                    <field name="subtotal_con_descuento_mensual" readonly="1"/>
+                    <field name="igv_mensual" readonly="1"/>
+                    <field name="total_mensual" readonly="1" class="oe_subtotal_footer_separator"/>
+                  </group>
+                  
+                  <group string="Totales por Modalidad de Pago" class="oe_subtotal_footer_separator">
+                    <field name="subtotal_modalidad" readonly="1"/>
+                    <field name="descuento_modalidad" readonly="1"/>
+                    <field name="descuento_total" readonly="1"/>
+                    <field name="subtotal_final" readonly="1"/>
+                    <field name="igv_final" readonly="1"/>
+                    <field name="total_por_modalidad" readonly="1" class="oe_subtotal_footer_separator"/>
+                  </group>
+                </group>
+
+                <group>
+                  <group>
+                    <field name="total_anual" readonly="1" string="Total Anual (Referencia)"/>
+                  </group>
+                </group>
+              </page>
+
+              <page name="condiciones" string="Condiciones y Observaciones">
+                <field name="observaciones" placeholder="Condiciones comerciales, términos y condiciones, garantías, etc."/>
+              </page>
+            </notebook>
+          </sheet>
+          <chatter/>
+        </form>
+      </field>
+    </record>
+
+    <!-- Kanban View - Cotizaciones -->
+    <record model="ir.ui.view" id="copier_quotation_kanban">
+      <field name="name">copier.quotation.kanban</field>
+      <field name="model">copier.quotation</field>
+      <field name="arch" type="xml">
+        <kanban default_group_by="estado" class="o_kanban_mobile" records_draggable="1">
+          <field name="name"/>
+          <field name="cliente_id"/>
+          <field name="fecha_cotizacion"/>
+          <field name="total_por_modalidad"/>
+          <field name="modalidad_pago_id"/>
+          <field name="estado"/>
+          <field name="fecha_vencimiento"/>
+          
+          <templates>
+            <t t-name="kanban-box">
+              <div t-attf-class="oe_kanban_card oe_kanban_global_click w-100 position-relative rounded-3 shadow-sm" 
+                   t-attf-style="background-color: #{
+                      record.estado.raw_value === 'aprobado' ? 'rgba(40, 167, 69, 0.1)' :
+                      record.estado.raw_value === 'enviado' ? 'rgba(0, 123, 255, 0.1)' :
+                      record.estado.raw_value === 'borrador' ? 'rgba(255, 193, 7, 0.1)' :
+                      record.estado.raw_value === 'rechazado' ? 'rgba(220, 53, 69, 0.1)' : 'rgba(108, 117, 125, 0.1)'
+                   }">
+                
+                <div class="p-3">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                      <h3 class="mb-0 fw-bold">
+                        <field name="name"/>
+                      </h3>
+                      <small class="text-muted">
+                        <field name="fecha_cotizacion"/>
+                      </small>
+                    </div>
+                    <span t-attf-class="badge rounded-pill #{
+                        record.estado.raw_value === 'aprobado' ? 'bg-success' :
+                        record.estado.raw_value === 'enviado' ? 'bg-primary' :
+                        record.estado.raw_value === 'borrador' ? 'bg-warning' :
+                        record.estado.raw_value === 'rechazado' ? 'bg-danger' : 'bg-secondary'
+                    }">
+                      <field name="estado"/>
+                    </span>
+                  </div>
+
+                  <div class="mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                      <i class="fa fa-user me-2 text-primary"/>
+                      <field name="cliente_id"/>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                      <i class="fa fa-credit-card me-2 text-success"/>
+                      <field name="modalidad_pago_id"/>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                      <i class="fa fa-money me-2 text-warning"/>
+                      <field name="total_por_modalidad" widget="monetary"/>
+                    </div>
+                    <div class="d-flex align-items-center">
+                      <i class="fa fa-calendar me-2 text-danger"/>
+                      Vence: <field name="fecha_vencimiento"/>
+                    </div>
+                  </div>
+
+                  <div class="d-flex gap-2">
+                    <button name="action_enviar_cotizacion" type="object" 
+                            class="btn btn-primary btn-sm"
+                            invisible="estado != 'borrador'">
+                      <i class="fa fa-paper-plane me-1"/> Enviar
+                    </button>
+                    <button name="action_aprobar_cotizacion" type="object" 
+                            class="btn btn-success btn-sm"
+                            invisible="estado not in ['enviado', 'borrador']">
+                      <i class="fa fa-check me-1"/> Aprobar
+                    </button>
+                    <button name="action_convertir_contratos" type="object" 
+                            class="btn btn-warning btn-sm"
+                            invisible="estado != 'aprobado'">
+                      <i class="fa fa-exchange me-1"/> Convertir
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </t>
+          </templates>
+        </kanban>
+      </field>
+    </record>
+
+    <!-- Search View - Cotizaciones -->
+    <record id="copier_quotation_search" model="ir.ui.view">
+      <field name="name">copier.quotation.search</field>
+      <field name="model">copier.quotation</field>
+      <field name="arch" type="xml">
+        <search>
+          <field name="name"/>
+          <field name="cliente_id"/>
+          <field name="contacto"/>
+          <separator/>
+          <filter string="Borradores" name="borrador" domain="[('estado','=','borrador')]"/>
+          <filter string="Enviadas" name="enviado" domain="[('estado','=','enviado')]"/>
+          <filter string="Aprobadas" name="aprobado" domain="[('estado','=','aprobado')]"/>
+          <filter string="Por Vencer" name="por_vencer" domain="[('fecha_vencimiento','&lt;=', (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+          <separator/>
+          <filter string="Mis Cotizaciones" name="mis_cotizaciones" domain="[('create_uid','=',uid)]"/>
+          <separator/>
+          <filter string="Fecha" name="fecha" date="fecha_cotizacion"/>
+          <group expand="0" string="Agrupar Por">
+            <filter string="Estado" name="estado" context="{'group_by':'estado'}"/>
+            <filter string="Cliente" name="cliente" context="{'group_by':'cliente_id'}"/>
+            <filter string="Modalidad de Pago" name="modalidad" context="{'group_by':'modalidad_pago_id'}"/>
+            <filter string="Fecha" name="fecha_group" context="{'group_by':'fecha_cotizacion'}"/>
+          </group>
+        </search>
+      </field>
+    </record>
+
+    <!-- ========== COPIER PAYMENT MODE VIEWS ========== -->
+
+    <!-- List View - Modalidades de Pago -->
+    <record model="ir.ui.view" id="copier_payment_mode_list">
+      <field name="name">copier.payment.mode.list</field>
+      <field name="model">copier.payment.mode</field>
+      <field name="arch" type="xml">
+        <list>
+          <field name="name"/>
+          <field name="frecuencia_meses"/>
+          <field name="descuento_porcentaje"/>
+          <field name="descripcion"/>
+          <field name="activo"/>
+        </list>
+      </field>
+    </record>
+
+    <!-- Form View - Modalidades de Pago -->
+    <record id="copier_payment_mode_form" model="ir.ui.view">
+      <field name="name">copier.payment.mode.form</field>
+      <field name="model">copier.payment.mode</field>
+      <field name="arch" type="xml">
+        <form>
+          <sheet>
+            <div class="oe_button_box" name="button_box">
+              <button class="oe_stat_button" type="object" name="toggle_active" icon="fa-archive">
+                <field name="activo" widget="boolean_button" options="{'terminology': 'active'}"/>
+              </button>
+            </div>
+
+            <group>
+              <group string="Información Básica">
+                <field name="name" required="1"/>
+                <field name="frecuencia_meses" required="1"/>
+                <field name="descuento_porcentaje"/>
+              </group>
+              <group string="Configuración">
+                <field name="activo"/>
+              </group>
+            </group>
+
+            <group string="Descripción">
+              <field name="descripcion" nolabel="1" placeholder="Descripción detallada de la modalidad de pago..."/>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <!-- ========== ACTIONS ========== -->
+
+    <!-- Action Window - Cotizaciones -->
+    <record model="ir.actions.act_window" id="copier_quotation_action">
+      <field name="name">Cotizaciones de Alquiler</field>
+      <field name="res_model">copier.quotation</field>
+      <field name="view_mode">list,kanban,form</field>
+      <field name="context">{'search_default_borrador': 1}</field>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+          ¡Cree su primera cotización múltiple!
+        </p>
+        <p>
+          Una cotización puede incluir múltiples equipos con diferentes modalidades de pago.<br/>
+          Cada cotización aprobada se convertirá automáticamente en contratos individuales.
+        </p>
+      </field>
+    </record>
+
+    <!-- Action Window - Modalidades de Pago -->
+    <record model="ir.actions.act_window" id="copier_payment_mode_action">
+      <field name="name">Modalidades de Pago</field>
+      <field name="res_model">copier.payment.mode</field>
+      <field name="view_mode">list,form</field>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+          Configure las modalidades de pago disponibles
+        </p>
+        <p>
+          Defina diferentes frecuencias de pago y los descuentos asociados.<br/>
+          Ejemplo: Pago anual con 15% de descuento.
+        </p>
+      </field>
+    </record>
+
+    <!-- ========== MENUS ========== -->
+
+    <!-- Actualizar el menú principal para incluir cotizaciones -->
+    <menuitem name="Cotizaciones" 
+              id="copier_quotation_menu" 
+              parent="copier_company.menu_root" 
+              action="copier_quotation_action" 
+              sequence="5"/>
+
+    <!-- Submenús de cotizaciones -->
+    <menuitem name="Todas las Cotizaciones" 
+              id="copier_quotation_all_menu" 
+              parent="copier_quotation_menu" 
+              action="copier_quotation_action" 
+              sequence="10"/>
+
+    <!-- Menú de configuración -->
+    <menuitem name="Configuración" 
+              id="copier_config_menu" 
+              parent="copier_company.menu_root" 
+              sequence="90"/>
+
+    <menuitem name="Modalidades de Pago" 
+              id="copier_payment_mode_menu" 
+              parent="copier_config_menu" 
+              action="copier_payment_mode_action" 
+              sequence="10"/>
+
+  </data>
+</odoo>
