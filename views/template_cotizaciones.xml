@@ -1,0 +1,1044 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Layout Base para Cotizaciones Web -->
+        <template id="quotation_web_layout" name="Layout Base Cotizaciones">
+            <t t-call="website.layout">
+                <t t-set="head">
+                    <!-- Bootstrap 5.3 CSS -->
+                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+                    <!-- Font Awesome 6 -->
+                    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+                    <!-- Google Fonts -->
+                    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+                    
+                    <style>
+                        body {
+                            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            min-height: 100vh;
+                        }
+                        .main-card {
+                            background: rgba(255, 255, 255, 0.95);
+                            backdrop-filter: blur(10px);
+                            border: 1px solid rgba(255, 255, 255, 0.2);
+                            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+                        }
+                        .company-header {
+                            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+                            color: white;
+                        }
+                        .btn-primary {
+                            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+                            border: none;
+                            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+                        }
+                        .btn-success {
+                            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+                            border: none;
+                            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+                        }
+                        .btn-danger {
+                            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+                            border: none;
+                            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+                        }
+                        .btn-warning {
+                            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+                            border: none;
+                            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+                        }
+                        .form-control:focus {
+                            border-color: #3498db;
+                            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+                        }
+                        .icon-circle {
+                            width: 80px;
+                            height: 80px;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 2rem;
+                            margin: 0 auto 1rem;
+                        }
+                        .equipment-card {
+                            background: rgba(255, 255, 255, 0.8);
+                            border: 1px solid rgba(52, 152, 219, 0.2);
+                            transition: all 0.3s ease;
+                        }
+                        .equipment-card:hover {
+                            transform: translateY(-2px);
+                            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+                        }
+                        .status-badge {
+                            font-size: 0.875rem;
+                            padding: 0.5rem 1rem;
+                            border-radius: 50px;
+                        }
+                        .fade-in {
+                            animation: fadeIn 0.6s ease-in;
+                        }
+                        @keyframes fadeIn {
+                            from { opacity: 0; transform: translateY(20px); }
+                            to { opacity: 1; transform: translateY(0); }
+                        }
+                    </style>
+                </t>
+                
+                <div class="container-fluid py-5">
+                    <div class="row justify-content-center">
+                        <div class="col-xl-8 col-lg-10">
+                            <div class="main-card rounded-4 overflow-hidden fade-in">
+                                
+                                <!-- Header Corporativo -->
+                                <div class="company-header p-4 text-center">
+                                    <div class="d-flex align-items-center justify-content-center mb-3">
+                                        <div class="me-3">
+                                            <i class="fas fa-building fa-2x"></i>
+                                        </div>
+                                        <div>
+                                            <h2 class="mb-0 fw-bold">COPIER COMPANY SAC</h2>
+                                            <p class="mb-0 opacity-75">Soluciones de Impresión Profesional</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Contenido Principal -->
+                                <div class="p-4 p-md-5">
+                                    <t t-raw="0"/>
+                                </div>
+
+                                <!-- Footer -->
+                                <div class="bg-light p-4 border-top">
+                                    <div class="row text-center">
+                                        <div class="col-md-4 mb-3 mb-md-0">
+                                            <i class="fas fa-phone text-primary me-2"></i>
+                                            <small>+51 999 999 999</small>
+                                        </div>
+                                        <div class="col-md-4 mb-3 mb-md-0">
+                                            <i class="fas fa-envelope text-primary me-2"></i>
+                                            <small>info@copiercompanysac.com</small>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <i class="fas fa-globe text-primary me-2"></i>
+                                            <small>www.copiercompanysac.com</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bootstrap 5.3 JS -->
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+            </t>
+        </template>
+
+        <!-- Página de Cotización Aprobada -->
+        <template id="quotation_approved_template" name="Cotización Aprobada">
+            <t t-call="copier_company.quotation_web_layout">
+                <div class="text-center">
+                    <div class="icon-circle bg-success text-white">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    
+                    <h1 class="display-5 fw-bold text-success mb-4">
+                        ¡Cotización Aprobada!
+                    </h1>
+                    
+                    <div class="alert alert-success border-0 rounded-3 mb-4">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-party-horn me-2"></i>
+                            ¡Excelente decisión!
+                        </h5>
+                        <p class="mb-0">
+                            Su cotización <strong><t t-esc="quotation.name"/></strong> ha sido aprobada exitosamente.
+                            Nuestro equipo se contactará con usted en las próximas horas para coordinar la entrega.
+                        </p>
+                    </div>
+
+                    <!-- Resumen de la Cotización -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary">
+                                        <i class="fas fa-file-invoice me-2"></i>
+                                        Detalles de la Cotización
+                                    </h6>
+                                    <p class="mb-1"><strong>Número:</strong> <t t-esc="quotation.name"/></p>
+                                    <p class="mb-1"><strong>Cliente:</strong> <t t-esc="quotation.cliente_id.name"/></p>
+                                    <p class="mb-1"><strong>Modalidad:</strong> <t t-esc="quotation.modalidad_pago_id.name"/></p>
+                                    <p class="mb-0"><strong>Total:</strong> S/. <t t-esc="'{:,.2f}'.format(quotation.total_por_modalidad)"/></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-success">
+                                        <i class="fas fa-clock me-2"></i>
+                                        Próximos Pasos
+                                    </h6>
+                                    <ul class="list-unstyled mb-0">
+                                        <li><i class="fas fa-check-circle text-success me-2"></i>Procesamiento de orden</li>
+                                        <li><i class="fas fa-phone text-warning me-2"></i>Contacto en 24 horas</li>
+                                        <li><i class="fas fa-truck text-primary me-2"></i>Entrega en 5 días hábiles</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Equipos Aprobados -->
+                    <div class="mb-4">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-print me-2"></i>
+                            Equipos Aprobados
+                        </h5>
+                        <div class="row">
+                            <t t-foreach="quotation.linea_equipos_ids" t-as="linea">
+                                <div class="col-md-6 mb-3">
+                                    <div class="equipment-card card border-0 rounded-3">
+                                        <div class="card-body">
+                                            <h6 class="card-title">
+                                                <i class="fas fa-printer me-2 text-primary"></i>
+                                                <t t-esc="linea.equipo_id.name"/>
+                                            </h6>
+                                            <p class="mb-1 text-muted">
+                                                <t t-esc="linea.marca_id.name"/> | 
+                                                <t t-if="linea.tipo_equipo == 'color'">Color</t>
+                                                <t t-if="linea.tipo_equipo == 'monocroma'">B/N</t>
+                                            </p>
+                                            <t t-if="linea.cantidad > 1">
+                                                <span class="badge bg-warning text-dark">
+                                                    Cantidad: <t t-esc="linea.cantidad"/>
+                                                </span>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                        <a href="tel:+51999999999" class="btn btn-success btn-lg px-4">
+                            <i class="fas fa-phone me-2"></i>
+                            Llamar Ahora
+                        </a>
+                        <a href="https://wa.me/51999999999" class="btn btn-primary btn-lg px-4" target="_blank">
+                            <i class="fab fa-whatsapp me-2"></i>
+                            WhatsApp
+                        </a>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <!-- Página de Rechazo Confirmado -->
+        <template id="quotation_rejected_template" name="Cotización Rechazada">
+            <t t-call="copier_company.quotation_web_layout">
+                <div class="text-center">
+                    <div class="icon-circle bg-info text-white">
+                        <i class="fas fa-comment-dots"></i>
+                    </div>
+                    
+                    <h1 class="display-5 fw-bold text-dark mb-4">
+                        Respuesta Registrada
+                    </h1>
+                    
+                    <div class="alert alert-info border-0 rounded-3 mb-4">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-check-circle me-2"></i>
+                            Gracias por su retroalimentación
+                        </h5>
+                        <p class="mb-0">
+                            Hemos registrado su respuesta sobre la cotización <strong><t t-esc="quotation.name"/></strong>.
+                            Nuestro equipo comercial analizará sus comentarios y se contactará pronto con una propuesta mejorada.
+                        </p>
+                    </div>
+
+                    <div class="card border-0 bg-light mb-4">
+                        <div class="card-body">
+                            <h6 class="card-title text-primary">
+                                <i class="fas fa-clock me-2"></i>
+                                ¿Qué sigue ahora?
+                            </h6>
+                            <ul class="list-unstyled mb-0 text-start">
+                                <li class="mb-2">
+                                    <i class="fas fa-search text-primary me-3"></i>
+                                    Nuestro equipo analizará detalladamente sus comentarios
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-lightbulb text-warning me-3"></i>
+                                    Desarrollaremos una propuesta mejorada que se ajuste a sus necesidades
+                                </li>
+                                <li class="mb-0">
+                                    <i class="fas fa-phone text-success me-3"></i>
+                                    Nos contactaremos en un plazo máximo de 48 horas
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                        <a href="tel:+51999999999" class="btn btn-success btn-lg px-4">
+                            <i class="fas fa-phone me-2"></i>
+                            Llamar Ahora
+                        </a>
+                        <a href="https://wa.me/51999999999" class="btn btn-primary btn-lg px-4" target="_blank">
+                            <i class="fab fa-whatsapp me-2"></i>
+                            WhatsApp
+                        </a>
+                    </div>
+                </div>
+            </t>
+        </template>
+        <template id="quotation_reject_form_template" name="Formulario de Rechazo">
+            <t t-call="copier_company.quotation_web_layout">
+                <div class="text-center mb-4">
+                    <div class="icon-circle bg-warning text-white">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                    
+                    <h1 class="display-6 fw-bold text-dark mb-3">
+                        Rechazar Cotización
+                    </h1>
+                    
+                    <p class="lead text-muted">
+                        Ayúdenos a entender mejor sus necesidades proporcionando el motivo del rechazo
+                    </p>
+                </div>
+
+                <!-- Información de la Cotización -->
+                <div class="card border-0 bg-light mb-4">
+                    <div class="card-body">
+                        <h6 class="card-title text-primary">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Cotización: <t t-esc="quotation.name"/>
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Cliente:</strong> <t t-esc="quotation.cliente_id.name"/></p>
+                                <p class="mb-1"><strong>Modalidad:</strong> <t t-esc="quotation.modalidad_pago_id.name"/></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Total:</strong> S/. <t t-esc="'{:,.2f}'.format(quotation.total_por_modalidad)"/></p>
+                                <p class="mb-0"><strong>Equipos:</strong> <t t-esc="len(quotation.linea_equipos_ids)"/> equipo(s)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario -->
+                <form method="post" class="needs-validation" novalidate="">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    
+                    <div class="mb-4">
+                        <label for="motivo" class="form-label fw-semibold">
+                            <i class="fas fa-comment-dots me-2 text-danger"></i>
+                            Motivo del Rechazo <span class="text-danger">*</span>
+                        </label>
+                        <textarea 
+                            class="form-control form-control-lg" 
+                            id="motivo" 
+                            name="motivo" 
+                            rows="5" 
+                            placeholder="Por favor, explique detalladamente el motivo del rechazo. Esto nos ayudará a mejorar nuestra propuesta..." 
+                            required=""
+                            minlength="10"></textarea>
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Mínimo 10 caracteres. Sea específico para poder atender mejor sus necesidades.
+                        </div>
+                        <div class="invalid-feedback">
+                            Por favor, proporcione un motivo detallado del rechazo.
+                        </div>
+                    </div>
+
+                    <!-- Opciones Comunes -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-list me-2 text-info"></i>
+                            Motivos Comunes (opcional)
+                        </label>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="precio" onclick="addToTextarea('Precio muy elevado')"/>
+                                    <label class="form-check-label" for="precio">Precio muy elevado</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="equipos" onclick="addToTextarea('Equipos no adecuados')"/>
+                                    <label class="form-check-label" for="equipos">Equipos no adecuados</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="modalidad" onclick="addToTextarea('Modalidad de pago no conveniente')"/>
+                                    <label class="form-check-label" for="modalidad">Modalidad de pago</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="tiempos" onclick="addToTextarea('Tiempos de entrega')"/>
+                                    <label class="form-check-label" for="tiempos">Tiempos de entrega</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="competencia" onclick="addToTextarea('Mejor oferta de competencia')"/>
+                                    <label class="form-check-label" for="competencia">Mejor oferta competencia</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="presupuesto" onclick="addToTextarea('Fuera de presupuesto')"/>
+                                    <label class="form-check-label" for="presupuesto">Fuera de presupuesto</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                        <button type="submit" class="btn btn-danger btn-lg px-5">
+                            <i class="fas fa-times me-2"></i>
+                            Confirmar Rechazo
+                        </button>
+                        <a href="/quotation/status/{{quotation.id}}" class="btn btn-outline-secondary btn-lg px-5">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+
+                <script>
+                    function addToTextarea(text) {
+                        const textarea = document.getElementById('motivo');
+                        const currentValue = textarea.value.trim();
+                        
+                        if (currentValue === '') {
+                            textarea.value = text;
+                        } else {
+                            textarea.value = currentValue + ', ' + text;
+                        }
+                        
+                        textarea.focus();
+                        textarea.blur();
+                    }
+
+                    // Bootstrap validation
+                    (function() {
+                        'use strict';
+                        window.addEventListener('load', function() {
+                            var forms = document.getElementsByClassName('needs-validation');
+                            var validation = Array.prototype.filter.call(forms, function(form) {
+                                form.addEventListener('submit', function(event) {
+                                    if (form.checkValidity() === false) {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                    }
+                                    form.classList.add('was-validated');
+                                }, false);
+                            });
+                        }, false);
+                    })();
+                </script>
+            </t>
+        </template>
+        <!-- Formulario de Revisión -->
+        <template id="quotation_review_form_template" name="Formulario de Revisión">
+            <t t-call="copier_company.quotation_web_layout">
+                <div class="text-center mb-4">
+                    <div class="icon-circle bg-primary text-white">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    
+                    <h1 class="display-6 fw-bold text-dark mb-3">
+                        Solicitar Revisión
+                    </h1>
+                    
+                    <p class="lead text-muted">
+                        Indíquenos qué aspectos desea revisar o modificar en su cotización
+                    </p>
+                </div>
+
+                <!-- Información de la Cotización -->
+                <div class="card border-0 bg-light mb-4">
+                    <div class="card-body">
+                        <h6 class="card-title text-primary">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Cotización: <t t-esc="quotation.name"/>
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Cliente:</strong> <t t-esc="quotation.cliente_id.name"/></p>
+                                <p class="mb-1"><strong>Modalidad:</strong> <t t-esc="quotation.modalidad_pago_id.name"/></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Total:</strong> S/. <t t-esc="'{:,.2f}'.format(quotation.total_por_modalidad)"/></p>
+                                <p class="mb-0"><strong>Equipos:</strong> <t t-esc="len(quotation.linea_equipos_ids)"/> equipo(s)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario -->
+                <form method="post" class="needs-validation" novalidate="">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label for="comentarios" class="form-label fw-semibold">
+                                <i class="fas fa-comments me-2 text-primary"></i>
+                                Comentarios Generales
+                            </label>
+                            <textarea 
+                                class="form-control" 
+                                id="comentarios" 
+                                name="comentarios" 
+                                rows="4" 
+                                placeholder="Comentarios sobre la cotización en general..."></textarea>
+                        </div>
+                        
+                        <div class="col-md-6 mb-4">
+                            <label for="cambios_solicitados" class="form-label fw-semibold">
+                                <i class="fas fa-edit me-2 text-warning"></i>
+                                Cambios Específicos Solicitados
+                            </label>
+                            <textarea 
+                                class="form-control" 
+                                id="cambios_solicitados" 
+                                name="cambios_solicitados" 
+                                rows="4" 
+                                placeholder="Especifique qué cambios desea: precios, equipos, modalidad de pago, etc."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="telefono_contacto" class="form-label fw-semibold">
+                            <i class="fas fa-phone me-2 text-success"></i>
+                            Teléfono de Contacto Preferido
+                        </label>
+                        <input 
+                            type="tel" 
+                            class="form-control" 
+                            id="telefono_contacto" 
+                            name="telefono_contacto" 
+                            placeholder="+51 999 999 999"
+                            t-att-value="quotation.telefono or quotation.cliente_id.phone or ''"/>
+                    </div>
+
+                    <!-- Opciones de Revisión -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-list-check me-2 text-info"></i>
+                            Aspectos a Revisar (marque los que apliquen)
+                        </label>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="rev_precios" onclick="addToReviewTextarea('Revisar precios y descuentos')"/>
+                                    <label class="form-check-label" for="rev_precios">Precios y descuentos</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="rev_equipos" onclick="addToReviewTextarea('Revisar selección de equipos')"/>
+                                    <label class="form-check-label" for="rev_equipos">Selección de equipos</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="rev_modalidad" onclick="addToReviewTextarea('Revisar modalidad de pago')"/>
+                                    <label class="form-check-label" for="rev_modalidad">Modalidad de pago</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="rev_volumenes" onclick="addToReviewTextarea('Revisar volúmenes de impresión')"/>
+                                    <label class="form-check-label" for="rev_volumenes">Volúmenes de impresión</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="rev_condiciones" onclick="addToReviewTextarea('Revisar condiciones del contrato')"/>
+                                    <label class="form-check-label" for="rev_condiciones">Condiciones del contrato</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="rev_reunion" onclick="addToReviewTextarea('Solicitar reunión presencial')"/>
+                                    <label class="form-check-label" for="rev_reunion">Solicitar reunión presencial</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                        <button type="submit" class="btn btn-primary btn-lg px-5">
+                            <i class="fas fa-paper-plane me-2"></i>
+                            Enviar Solicitud de Revisión
+                        </button>
+                        <a href="/quotation/status/{{quotation.id}}" class="btn btn-outline-secondary btn-lg px-5">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+
+                <script>
+                    function addToReviewTextarea(text) {
+                        const textarea = document.getElementById('cambios_solicitados');
+                        const currentValue = textarea.value.trim();
+                        
+                        if (currentValue === '') {
+                            textarea.value = text;
+                        } else {
+                            textarea.value = currentValue + '\n- ' + text;
+                        }
+                        
+                        textarea.focus();
+                    }
+
+                    // Validación del formulario
+                    (function() {
+                        'use strict';
+                        window.addEventListener('load', function() {
+                            var form = document.querySelector('.needs-validation');
+                            form.addEventListener('submit', function(event) {
+                                const comentarios = document.getElementById('comentarios').value.trim();
+                                const cambios = document.getElementById('cambios_solicitados').value.trim();
+                                
+                                if (!comentarios &amp;&amp; !cambios) {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                    
+                                    // Mostrar alerta
+                                    const alertDiv = document.createElement('div');
+                                    alertDiv.className = 'alert alert-warning alert-dismissible fade show';
+                                    alertDiv.innerHTML = `
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        Por favor, complete al menos uno de los campos: Comentarios o Cambios Solicitados.
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    `;
+                                    form.insertBefore(alertDiv, form.firstChild);
+                                    
+                                    // Scroll to top
+                                    window.scrollTo({top: 0, behavior: 'smooth'});
+                                }
+                            }, false);
+                        }, false);
+                    })();
+                </script>
+            </t>
+        </template>
+        <template id="quotation_review_received_template" name="Revisión Recibida">
+            <t t-call="copier_company.quotation_web_layout">
+                <div class="text-center">
+                    <div class="icon-circle bg-primary text-white">
+                        <i class="fas fa-thumbs-up"></i>
+                    </div>
+                    
+                    <h1 class="display-5 fw-bold text-dark mb-4">
+                        Solicitud Recibida
+                    </h1>
+                    
+                    <div class="alert alert-primary border-0 rounded-3 mb-4">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-rocket me-2"></i>
+                            ¡Trabajaremos en su solicitud!
+                        </h5>
+                        <p class="mb-0">
+                            Hemos recibido su solicitud de revisión para la cotización <strong><t t-esc="quotation.name"/></strong>.
+                            Nuestro equipo técnico y comercial trabajará en los ajustes solicitados.
+                        </p>
+                    </div>
+
+                    <!-- Timeline de proceso -->
+                    <div class="card border-0 bg-light mb-4">
+                        <div class="card-body">
+                            <h6 class="card-title text-primary mb-4">
+                                <i class="fas fa-route me-2"></i>
+                                Proceso de Revisión
+                            </h6>
+                            
+                            <div class="row text-start">
+                                <div class="col-md-4 mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-1">Solicitud Recibida</h6>
+                                            <small class="text-muted">Completado</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                            <i class="fas fa-cogs"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-1">Análisis y Ajustes</h6>
+                                            <small class="text-muted">En proceso</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                            <i class="fas fa-paper-plane"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-1">Nueva Propuesta</h6>
+                                            <small class="text-muted">24-48 horas</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información de contacto directo -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-headset fa-2x text-primary mb-3"></i>
+                                    <h6 class="card-title">¿Necesita atención inmediata?</h6>
+                                    <p class="text-muted mb-3">Nuestro equipo está disponible para atenderle</p>
+                                    <a href="tel:+51999999999" class="btn btn-success btn-sm">
+                                        <i class="fas fa-phone me-1"></i> Llamar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body text-center">
+                                    <i class="fab fa-whatsapp fa-2x text-success mb-3"></i>
+                                    <h6 class="card-title">WhatsApp Empresarial</h6>
+                                    <p class="text-muted mb-3">Respuesta rápida por chat</p>
+                                    <a href="https://wa.me/51999999999" class="btn btn-success btn-sm" target="_blank">
+                                        <i class="fab fa-whatsapp me-1"></i> Chatear
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info border-0 rounded-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Nota:</strong> Recibirá una notificación cuando la cotización revisada esté lista.
+                        Mantenga este correo para futuras consultas.
+                    </div>
+                </div>
+            </t>
+        </template>
+        <!-- Página de Estado de Cotización -->
+        <template id="quotation_status_template" name="Estado de Cotización">
+            <t t-call="copier_company.quotation_web_layout">
+                <div class="text-center mb-4">
+                    <div t-attf-class="icon-circle #{
+                        'bg-success' if quotation.estado == 'aprobado' else
+                        'bg-danger' if quotation.estado == 'rechazado' else
+                        'bg-primary' if quotation.estado == 'enviado' else
+                        'bg-secondary'
+                    } text-white">
+                        <i t-attf-class="fas #{
+                            'fa-check' if quotation.estado == 'aprobado' else
+                            'fa-times' if quotation.estado == 'rechazado' else
+                            'fa-paper-plane' if quotation.estado == 'enviado' else
+                            'fa-file-alt'
+                        }"></i>
+                    </div>
+                    
+                    <h1 class="display-6 fw-bold text-dark mb-3">
+                        Estado de Cotización
+                    </h1>
+                    
+                    <h3 class="text-primary mb-4">
+                        <t t-esc="quotation.name"/>
+                    </h3>
+                </div>
+
+                <!-- Estado Actual -->
+                <div class="row justify-content-center mb-4">
+                    <div class="col-md-8">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">
+                                    <i class="fas fa-info-circle me-2 text-primary"></i>
+                                    Estado Actual
+                                </h5>
+                                
+                                <span t-attf-class="status-badge #{
+                                    'bg-success' if quotation.estado == 'aprobado' else
+                                    'bg-danger' if quotation.estado == 'rechazado' else
+                                    'bg-primary' if quotation.estado == 'enviado' else
+                                    'bg-warning' if quotation.estado == 'borrador' else
+                                    'bg-secondary'
+                                } text-white">
+                                    <t t-if="quotation.estado == 'borrador'">📝 Borrador</t>
+                                    <t t-elif="quotation.estado == 'enviado'">📤 Enviado</t>
+                                    <t t-elif="quotation.estado == 'aprobado'">✅ Aprobado</t>
+                                    <t t-elif="quotation.estado == 'rechazado'">❌ Rechazado</t>
+                                    <t t-elif="quotation.estado == 'convertido'">🔄 Convertido a Contratos</t>
+                                    <t t-else=""><t t-esc="quotation.estado.title()"/></t>
+                                </span>
+
+                                <div class="mt-3">
+                                    <t t-if="quotation.estado == 'aprobado'">
+                                        <p class="text-success mb-0">
+                                            <i class="fas fa-check-circle me-2"></i>
+                                            Su cotización ha sido aprobada. Nos contactaremos pronto.
+                                        </p>
+                                    </t>
+                                    <t t-elif="quotation.estado == 'rechazado'">
+                                        <p class="text-info mb-0">
+                                            <i class="fas fa-comment-dots me-2"></i>
+                                            Gracias por su retroalimentación. Trabajamos en una nueva propuesta.
+                                        </p>
+                                    </t>
+                                    <t t-elif="quotation.estado == 'enviado'">
+                                        <p class="text-primary mb-0">
+                                            <i class="fas fa-clock me-2"></i>
+                                            Cotización pendiente de respuesta.
+                                        </p>
+                                    </t>
+                                    <t t-elif="quotation.estado == 'convertido'">
+                                        <p class="text-success mb-0">
+                                            <i class="fas fa-handshake me-2"></i>
+                                            ¡Proceso completado! Sus contratos están en preparación.
+                                        </p>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detalles de la Cotización -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card border-0 bg-light h-100">
+                            <div class="card-body">
+                                <h6 class="card-title text-primary">
+                                    <i class="fas fa-user me-2"></i>
+                                    Información del Cliente
+                                </h6>
+                                <p class="mb-1"><strong>Cliente:</strong> <t t-esc="quotation.cliente_id.name"/></p>
+                                <p class="mb-1"><strong>Contacto:</strong> <t t-esc="quotation.contacto or 'No especificado'"/></p>
+                                <p class="mb-0"><strong>Teléfono:</strong> <t t-esc="quotation.telefono or 'No especificado'"/></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-0 bg-light h-100">
+                            <div class="card-body">
+                                <h6 class="card-title text-success">
+                                    <i class="fas fa-calculator me-2"></i>
+                                    Información Financiera
+                                </h6>
+                                <p class="mb-1"><strong>Modalidad:</strong> <t t-esc="quotation.modalidad_pago_id.name"/></p>
+                                <p class="mb-1"><strong>Total:</strong> S/. <t t-esc="'{:,.2f}'.format(quotation.total_por_modalidad)"/></p>
+                                <p class="mb-0">
+                                    <strong>Válida hasta:</strong> 
+                                    <t t-esc="quotation.fecha_vencimiento.strftime('%d/%m/%Y')" t-if="quotation.fecha_vencimiento"/>
+                                    <span t-if="not quotation.fecha_vencimiento">No especificada</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Equipos Cotizados -->
+                <div class="mb-4">
+                    <h5 class="text-primary mb-3">
+                        <i class="fas fa-print me-2"></i>
+                        Equipos Cotizados (<t t-esc="len(quotation.linea_equipos_ids)"/>)
+                    </h5>
+                    <div class="row">
+                        <t t-foreach="quotation.linea_equipos_ids" t-as="linea">
+                            <div class="col-md-6 mb-3">
+                                <div class="equipment-card card border-0 rounded-3">
+                                    <div class="card-body">
+                                        <h6 class="card-title">
+                                            <i class="fas fa-printer me-2 text-primary"></i>
+                                            <t t-esc="linea.equipo_id.name"/>
+                                        </h6>
+                                        <p class="mb-1 text-muted">
+                                            <t t-esc="linea.marca_id.name"/> | 
+                                            <t t-if="linea.tipo_equipo == 'color'">🎨 Color</t>
+                                            <t t-if="linea.tipo_equipo == 'monocroma'">⚫ B/N</t> |
+                                            <t t-esc="linea.formato.upper()"/>
+                                        </p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">
+                                                <t t-if="linea.cantidad > 1">
+                                                    Cantidad: <t t-esc="linea.cantidad"/>
+                                                </t>
+                                                <t t-else="">Unidad</t>
+                                            </small>
+                                            <span class="badge bg-primary">
+                                                S/. <t t-esc="'{:,.2f}'.format(linea.subtotal_linea)"/>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+
+                <!-- Acciones Disponibles (solo si está pendiente) -->
+                <t t-if="quotation.estado == 'enviado'">
+                    <div class="alert alert-warning border-0 rounded-3 mb-4">
+                        <h6 class="alert-heading">
+                            <i class="fas fa-clock me-2"></i>
+                            Acciones Pendientes
+                        </h6>
+                        <p class="mb-3">Su cotización está esperando respuesta. ¿Qué desea hacer?</p>
+                        
+                        <div class="d-flex flex-column flex-sm-row gap-2 justify-content-center">
+                            <a href="/quotation/approve/{{quotation.id}}/{{quotation.create_uid.id}}" 
+                               class="btn btn-success">
+                                <i class="fas fa-check me-2"></i>
+                                Aprobar Cotización
+                            </a>
+                            <a href="/quotation/reject/{{quotation.id}}/{{quotation.create_uid.id}}" 
+                               class="btn btn-danger">
+                                <i class="fas fa-times me-2"></i>
+                                Rechazar
+                            </a>
+                            <a href="/quotation/review/{{quotation.id}}/{{quotation.create_uid.id}}" 
+                               class="btn btn-warning">
+                                <i class="fas fa-edit me-2"></i>
+                                Solicitar Revisión
+                            </a>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- Contacto -->
+                <div class="text-center">
+                    <h6 class="text-dark mb-3">¿Necesita más información?</h6>
+                    <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                        <a href="tel:+51999999999" class="btn btn-success">
+                            <i class="fas fa-phone me-2"></i>
+                            Llamar Ahora
+                        </a>
+                        <a href="https://wa.me/51999999999" class="btn btn-primary" target="_blank">
+                            <i class="fab fa-whatsapp me-2"></i>
+                            WhatsApp
+                        </a>
+                        <a href="mailto:info@copiercompanysac.com" class="btn btn-outline-primary">
+                            <i class="fas fa-envelope me-2"></i>
+                            Email
+                        </a>
+                    </div>
+                </div>
+            </t>
+        </template>
+         <template id="quotation_error_template" name="Error en Cotización">
+            <t t-call="copier_company.quotation_web_layout">
+                <div class="text-center">
+                    <div class="icon-circle bg-danger text-white">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    
+                    <h1 class="display-6 fw-bold text-dark mb-4">
+                        Oops... Algo salió mal
+                    </h1>
+                    
+                    <div class="alert alert-danger border-0 rounded-3 mb-4">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-bug me-2"></i>
+                            Error Procesando Solicitud
+                        </h5>
+                        <p class="mb-0">
+                            <t t-esc="error"/>
+                        </p>
+                    </div>
+
+                    <div class="card border-0 bg-light mb-4">
+                        <div class="card-body">
+                            <h6 class="card-title text-primary">
+                                <i class="fas fa-lightbulb me-2"></i>
+                                Posibles Soluciones
+                            </h6>
+                            <ul class="list-unstyled mb-0 text-start">
+                                <li class="mb-2">
+                                    <i class="fas fa-refresh text-primary me-3"></i>
+                                    La cotización ya fue procesada anteriormente
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-calendar-times text-warning me-3"></i>
+                                    La cotización puede haber vencido
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-lock text-danger me-3"></i>
+                                    No tiene permisos para acceder a esta cotización
+                                </li>
+                                <li class="mb-0">
+                                    <i class="fas fa-wifi text-info me-3"></i>
+                                    Verifique su conexión a internet y vuelva a intentar
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Información adicional -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-question-circle fa-2x text-primary mb-3"></i>
+                                    <h6 class="card-title">¿Qué puedo hacer?</h6>
+                                    <p class="text-muted mb-3 small">
+                                        Si el problema persiste, nuestro equipo técnico puede ayudarle inmediatamente
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-clock fa-2x text-success mb-3"></i>
+                                    <h6 class="card-title">Horarios de Atención</h6>
+                                    <p class="text-muted mb-3 small">
+                                        Lunes a Viernes: 8:00 AM - 6:00 PM<br/>
+                                        Sábados: 9:00 AM - 1:00 PM
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                        <t t-if="quotation_id">
+                            <a href="/quotation/status/{{quotation_id}}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-search me-2"></i>
+                                Ver Estado de Cotización
+                            </a>
+                        </t>
+                        <a href="tel:+51999999999" class="btn btn-success btn-lg">
+                            <i class="fas fa-phone me-2"></i>
+                            Contactar Soporte
+                        </a>
+                        <a href="https://wa.me/51999999999" class="btn btn-outline-primary btn-lg" target="_blank">
+                            <i class="fab fa-whatsapp me-2"></i>
+                            WhatsApp
+                        </a>
+                    </div>
+
+                    <!-- Mensaje de tranquilidad -->
+                    <div class="alert alert-info border-0 rounded-3 mt-4">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        <strong>No se preocupe:</strong> Sus datos están seguros. Este error no afecta su cotización ni su información personal.
+                    </div>
+                </div>
+            </t>
+        </template>
+
+
+
+    </data>
+</odoo>

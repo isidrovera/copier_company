@@ -9,3 +9,4 @@ from . import manuals
 from . import website_stock
 from . import sticker_controller
 from . import controladores_web
+from . import cotizaciones_multiples

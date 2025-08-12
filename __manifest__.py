@@ -80,6 +80,7 @@
         'views/homepage_template.xml',
         'views/servicios_web.xml',
         'views/cotizaciones_multiples.xml',
+        'views/template_cotizaciones.xml',
         
         
         
