@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Acción del Reporte para Cotizaciones -->
+        <record id="action_report_copier_quotation" model="ir.actions.report">
+            <field name="name">Cotización Múltiple de Alquiler</field>
+            <field name="model">copier.quotation</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">copier_company.quotation_multiple_view</field>
+            <field name="report_file">copier_company.quotation_multiple_view</field>
+            <field name="print_report_name">'Cotización Múltiple - %s' % object.name</field>
+            <field name="binding_model_id" ref="model_copier_quotation" />
+            <field name="binding_type">report</field>
+        </record>
+
+        <!-- Template del Reporte de Cotización Múltiple -->
+        <template id="quotation_multiple_view">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.external_layout">
+                        <!-- Enlazamos el archivo CSS -->
+                        <link rel="stylesheet" href="/copier_company/static/src/css/cotizacion_styles.css"/>
+                        
+                        <!-- Header Principal -->
+                        <div class="main-header">
+                            <div class="flex-between">
+                                <h1 style="font-size: 1.75rem; margin: 0;">
+                                    Cotización Múltiple N° <t t-esc="doc.name" />
+                                </h1>                                
+                            </div>
+                            <p style="margin-top: 1rem;">
+                                <t t-esc="doc.fecha_cotizacion.strftime('%d de %B %Y')" />
+                            </p>
+                            <p style="margin: 0; font-weight: bold; color: #2E86AB;">
+                                Modalidad de Pago: <t t-esc="doc.modalidad_pago_id.name" />
+                                <t t-if="doc.modalidad_pago_id.descuento_porcentaje > 0">
+                                    - Descuento: <t t-esc="doc.modalidad_pago_id.descuento_porcentaje"/>%
+                                </t>
+                            </p>
+                        </div>
+
+                        <!-- Información del Cliente -->
+                        <div class="section">
+                            <div class="section-header">
+                                <i class="fa fa-user-circle"></i>
+                                <span>Información del Cliente</span>
+                            </div>
+                            <div class="data-grid">
+                                <div class="data-row">
+                                    <span class="label">Atención:</span>
+                                    <span class="value">
+                                        <t t-esc="doc.cliente_id.name" />
+                                    </span>
+                                </div>
+                                <div class="data-row">
+                                    <span class="label">RUC/DNI:</span>
+                                    <span class="value">
+                                        <t t-esc="doc.identificacion or 'No especificado'" />
+                                    </span>
+                                </div>
+                                <div class="data-row">
+                                    <span class="label">Contacto:</span>
+                                    <span class="value">
+                                        <t t-esc="doc.contacto or 'No especificado'" />
+                                    </span>
+                                </div>
+                                <div class="data-row">
+                                    <span class="label">Teléfono:</span>
+                                    <span class="value">
+                                        <t t-esc="doc.telefono or 'No especificado'" />
+                                    </span>
+                                </div>
+                                <div class="data-row">
+                                    <span class="label">Dirección:</span>
+                                    <span class="value">
+                                        <t t-esc="doc.direccion or doc.cliente_id.street or 'No especificada'" />
+                                    </span>
+                                </div>
+                                <t t-if="doc.sede">
+                                    <div class="data-row">
+                                        <span class="label">Sede:</span>
+                                        <span class="value">
+                                            <t t-esc="doc.sede" />
+                                        </span>
+                                    </div>
+                                </t>
+                            </div>
+                            <p style="margin-top: 1rem;" class="intro-text">
+                                Nos complace presentar nuestra <strong>COTIZACIÓN MÚLTIPLE</strong> detallando las especificaciones y condiciones para el arrendamiento de los siguientes equipos multifuncionales de última generación:
+                            </p>
+                        </div>
+
+                        <!-- Equipos Cotizados -->
+                        <div class="section">
+                            <div class="section-header">
+                                <i class="fa fa-print"></i>
+                                <span>Equipos Multifuncionales Cotizados</span>
+                            </div>
+                            
+                            <!-- Iteramos por cada línea de equipo -->
+                            <t t-foreach="doc.linea_equipos_ids" t-as="linea">
+                                <div class="equipment-item" style="margin-bottom: 2rem; border: 1px solid #ddd; padding: 1rem; border-radius: 8px;">
+                                    <div style="text-align: center;">
+                                        <h3 style="color: var(--primary-blue); margin-bottom: 1rem;">
+                                            <t t-esc="linea.equipo_id.name" />
+                                            <t t-if="linea.cantidad > 1">
+                                                (Cantidad: <t t-esc="linea.cantidad"/>)
+                                            </t>
+                                        </h3>
+                                        <p style="margin: 0.5rem 0;">
+                                            <strong>Marca:</strong> <t t-esc="linea.marca_id.name" /> | 
+                                            <strong>Tipo:</strong> <t t-esc="dict(linea._fields['tipo_equipo'].selection)[linea.tipo_equipo]" /> | 
+                                            <strong>Formato:</strong> <t t-esc="linea.formato.upper()" />
+                                        </p>
+                                        
+                                        <t t-if="linea.imagen_equipo">
+                                            <img
+                                                t-att-src="'data:image/png;base64,%s' % linea.imagen_equipo.decode('utf-8')"
+                                                class="machine-image" style="max-height: 200px; margin: 1rem 0;" />
+                                        </t>
+                                    </div>
+                                    
+                                    <!-- Especificaciones del equipo -->
+                                    <t t-if="linea.especificaciones">
+                                        <div class="specs-section" style="margin-top: 1rem;">
+                                            <h4>Especificaciones Técnicas:</h4>
+                                            <t t-raw="linea.especificaciones" />
+                                        </div>
+                                    </t>
+
+                                    <!-- Detalles de tarifa por equipo -->
+                                    <div class="pricing-details" style="margin-top: 1.5rem;">
+                                        <div class="tariff-section">
+                                            <h4><i class="fa fa-print"></i> TARIFA BLANCO Y NEGRO</h4>
+                                            <ul class="benefits-list">
+                                                <li>Volumen mensual: <strong><t t-esc="'{:,}'.format(linea.volumen_mensual_bn)"/> impresiones</strong></li>
+                                                <li>Costo por impresión: <strong>S/. <t t-esc="'%.4f' % linea.precio_bn"/> + IGV</strong></li>
+                                                <li>Subtotal mensual B/N: <strong>S/. <t t-esc="'%.2f' % linea.subtotal_bn"/> Sin IGV</strong></li>
+                                            </ul>
+
+                                            <t t-if="linea.tipo_equipo == 'color' and linea.volumen_mensual_color > 0">
+                                                <h4 class="mt-4"><i class="fa fa-paint-brush"></i> TARIFA COLOR</h4>
+                                                <ul class="benefits-list">
+                                                    <li>Volumen mensual: <strong><t t-esc="'{:,}'.format(linea.volumen_mensual_color)"/> impresiones</strong></li>
+                                                    <li>Costo por impresión: <strong>S/. <t t-esc="'%.4f' % linea.precio_color"/> + IGV</strong></li>
+                                                    <li>Subtotal mensual Color: <strong>S/. <t t-esc="'%.2f' % linea.subtotal_color"/> Sin IGV</strong></li>
+                                                </ul>
+                                            </t>
+
+                                            <div style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; margin-top: 1rem;">
+                                                <strong>Subtotal por Equipo: S/. <t t-esc="'%.2f' % linea.subtotal_linea"/> Sin IGV</strong>
+                                            </div>
+
+                                            <t t-if="linea.observaciones">
+                                                <div style="margin-top: 1rem; font-style: italic; color: #666;">
+                                                    <strong>Observaciones:</strong> <t t-esc="linea.observaciones"/>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+
+                        <!-- Resumen de Totales -->
+                        <div class="section">
+                            <div class="section-header">
+                                <i class="fa fa-calculator"></i>
+                                <span>Resumen de Totales</span>
+                            </div>
+                            
+                            <div class="pricing-details">
+                                <!-- Totales Mensuales -->
+                                <div class="tariff-section">
+                                    <h4><i class="fa fa-calendar"></i> TOTALES MENSUALES BASE</h4>
+                                    <ul class="benefits-list">
+                                        <li>Subtotal mensual: <strong>S/. <t t-esc="'%.2f' % doc.subtotal_mensual"/></strong></li>
+                                        <t t-if="doc.descuento_general > 0">
+                                            <li>Descuento general (<t t-esc="doc.descuento_general"/>%): <strong>-S/. <t t-esc="'%.2f' % doc.descuento_mensual"/></strong></li>
+                                        </t>
+                                        <li>Subtotal con descuento: <strong>S/. <t t-esc="'%.2f' % doc.subtotal_con_descuento_mensual"/></strong></li>
+                                        <li>IGV (<t t-esc="doc.igv"/>%): <strong>S/. <t t-esc="'%.2f' % doc.igv_mensual"/></strong></li>
+                                        <li class="highlight"><strong>Total mensual: S/. <t t-esc="'%.2f' % doc.total_mensual"/></strong></li>
+                                    </ul>
+                                </div>
+
+                                <!-- Totales por Modalidad de Pago -->
+                                <div class="tariff-section" style="background: #e8f4fd; padding: 1rem; border-radius: 8px;">
+                                    <h4><i class="fa fa-credit-card"></i> TOTALES POR MODALIDAD: <t t-esc="doc.modalidad_pago_id.name.upper()"/></h4>
+                                    <ul class="benefits-list">
+                                        <li>Subtotal por <t t-esc="doc.modalidad_pago_id.frecuencia_meses"/> mes(es): <strong>S/. <t t-esc="'%.2f' % doc.subtotal_modalidad"/></strong></li>
+                                        <t t-if="doc.modalidad_pago_id.descuento_porcentaje > 0">
+                                            <li>Descuento por modalidad (<t t-esc="doc.modalidad_pago_id.descuento_porcentaje"/>%): <strong>-S/. <t t-esc="'%.2f' % doc.descuento_modalidad"/></strong></li>
+                                        </t>
+                                        <li>Subtotal final: <strong>S/. <t t-esc="'%.2f' % doc.subtotal_final"/></strong></li>
+                                        <li>IGV (<t t-esc="doc.igv"/>%): <strong>S/. <t t-esc="'%.2f' % doc.igv_final"/></strong></li>
+                                    </ul>
+
+                                    <div class="total-section">
+                                        <div class="total-header">TOTAL A PAGAR POR MODALIDAD</div>
+                                        <div class="total-amount">
+                                            <span class="currency">S/.</span>
+                                            <span class="amount"><t t-esc="'%.2f' % doc.total_por_modalidad"/></span>
+                                            <span class="tax-note">Inc. IGV</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Información de referencia -->
+                                <div class="additional-features mt-4">
+                                    <ul class="benefits-list">
+                                        <li class="highlight"><strong class="text-success">Scanner ilimitado sin costo adicional en todos los equipos</strong></li>
+                                        <li>Total anual estimado: <strong>S/. <t t-esc="'%.2f' % doc.total_anual"/></strong></li>
+                                        <li>Disponibilidad: <strong>5 días presentada la orden de compra</strong></li>
+                                        <li>Validez de la cotización: <strong><t t-esc="doc.validez_dias"/> días</strong> (hasta <t t-esc="doc.fecha_vencimiento.strftime('%d/%m/%Y')"/>)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Condiciones Generales -->
+                        <div class="section">
+                            <div class="section-header">
+                                <i class="fa fa-info-circle"></i>
+                                <span>Condiciones Generales</span>
+                            </div>
+                            
+                            <div class="additional-info">
+                                <h4>INFORMACIÓN ADICIONAL</h4>
+                                <ul class="benefits-list">
+                                    <li>Tarifas en nuevos soles incluyen IGV (18%)</li>
+                                    <li>Facturación según modalidad seleccionada: <strong><t t-esc="doc.modalidad_pago_id.name"/></strong></li>
+                                    <li>Incluye instalación y capacitación para todos los equipos</li>
+                                    <li>Incluye renovación de maquinaria, insumos, repuestos y servicio técnico</li>
+                                    <li>Todos los equipos se entregan calibrados y funcionando</li>
+                                </ul>
+                            </div>
+
+                            <div class="conditions">
+                                <h4>CONDICIONES DE ALQUILER</h4>
+                                <ul class="benefits-list">
+                                    <li>Los equipos se alquilan sin papel</li>
+                                    <li>Periodo de alquiler: desde entrega hasta recepción de los equipos</li>
+                                    <li>Mantenimiento preventivo cada 2 meses para todos los equipos</li>
+                                    <li>Contrato marco mínimo de <t t-esc="doc.duracion_contrato_id.name"/></li>
+                                    <li>Ubicación de instalación: <t t-esc="doc.direccion or 'Por definir'"/></li>
+                                    <t t-if="doc.sede">
+                                        <li>Sede: <t t-esc="doc.sede"/></li>
+                                    </t>
+                                </ul>
+                            </div>
+
+                            <!-- Observaciones adicionales si existen -->
+                            <t t-if="doc.observaciones">
+                                <div class="conditions">
+                                    <h4>OBSERVACIONES ADICIONALES</h4>
+                                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 4px;">
+                                        <t t-raw="doc.observaciones"/>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+
+                        <!-- Información de Pago -->
+                        <div class="section payment-section">
+                            <div class="section-header">
+                                <i class="fa fa-credit-card"></i>
+                                <span>Información de Pago</span>
+                            </div>
+                            
+                            <div class="bank-accounts">
+                                <!-- BCP -->
+                                <div class="bank-account">
+                                    <div class="bank-logo">
+                                        <i class="fa fa-university"></i>
+                                        <span class="bank-name">BCP</span>
+                                    </div>
+                                    <div class="account-details">
+                                        <div class="account-type">Cuenta Corriente - Soles</div>
+                                        <div class="account-number">191-2334609-0-07</div>
+                                        <div class="cci-number">CCI: 002-19100233460900751</div>
+                                    </div>
+                                </div>
+
+                                <!-- Banco de la Nación -->
+                                <div class="bank-account">
+                                    <div class="bank-logo">
+                                        <i class="fa fa-university"></i>
+                                        <span class="bank-name">Banco de la Nación</span>
+                                    </div>
+                                    <div class="account-details">
+                                        <div class="account-type">Cuenta de Detracción</div>
+                                        <div class="account-number">00802007582</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="company-info">
+                                <i class="fa fa-building"></i>
+                                <span>A nombre de: COPIER COMPANY SAC</span>
+                            </div>
+                        </div>
+
+                        <!-- Firma -->
+                        <div style="margin-top: 3rem;">
+                            <p>Sin otro particular, quedamos a su disposición para cualquier consulta.</p>
+                            <div style="margin-top: 2rem;">
+                                <p>Atentamente,</p>
+                                <div style="margin-top: 4rem;">
+                                    <div style="width: 200px; border-top: 1px solid #000;"></div>
+                                    <p>Ejecutivo Comercial</p>
+                                    <p>COPIER COMPANY SAC</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>
