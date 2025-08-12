@@ -105,14 +105,14 @@
           </field>
       </record>
       <record id="email_template_cotizacion_multiple" model="mail.template">
-            <field name="name">💼 Cotización Múltiple de Alquiler</field>
-            <field name="model_id" ref="model_copier_quotation"/>
-            <field name="email_from">info@copiercompanysac.com</field>
-            <field name="email_to">{{object.cliente_id.email}}</field>
-            <field name="subject">💼 Cotización {{object.name}} - {{object.modalidad_pago_id.name}}</field>
-            <field name="report_template_ids" eval="[(4, ref('copier_company.action_report_copier_quotation'))]"/>
-            <field name="auto_delete" eval="False"/>
-            <field name="body_html"><![CDATA[
+    <field name="name">💼 Cotización Múltiple de Alquiler</field>
+    <field name="model_id" ref="model_copier_quotation"/>
+    <field name="email_from">info@copiercompanysac.com</field>
+    <field name="email_to">{{object.cliente_id.email}}</field>
+    <field name="subject">💼 Cotización {{object.name}} - {{object.modalidad_pago_id.name}}</field>
+    <field name="report_template_ids" eval="[(4, ref('copier_company.action_report_copier_quotation'))]"/>
+    <field name="auto_delete" eval="False"/>
+    <field name="body_html"><![CDATA[
 
 <!DOCTYPE html>
 <html>
@@ -146,17 +146,21 @@
                 📋 Responda a esta cotización:
             </div>
             
-            <!-- Botones de Acción -->
+            <!-- Botones de Acción con URLs dinámicas -->
             <table style="width: 100%; max-width: 500px; margin: 0 auto;">
                 <tr>
                     <td style="padding: 5px;">
-                        <a href="{{ctx.get('base_url', '')}}/quotation/approve/{{object.id}}/{{object.create_uid.id}}" 
+                        <!-- URL de aprobar con token -->
+                        <t t-set="approve_url" t-value="ctx.get('action_urls', {}).get('approve', '#')"/>
+                        <a t-att-href="approve_url" 
                            style="display: inline-block; width: 100%; padding: 12px 20px; background-color: #27ae60; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px; text-align: center;">
                             ✅ APROBAR COTIZACIÓN
                         </a>
                     </td>
                     <td style="padding: 5px;">
-                        <a href="{{ctx.get('base_url', '')}}/quotation/reject/{{object.id}}/{{object.create_uid.id}}" 
+                        <!-- URL de rechazar con token -->
+                        <t t-set="reject_url" t-value="ctx.get('action_urls', {}).get('reject', '#')"/>
+                        <a t-att-href="reject_url" 
                            style="display: inline-block; width: 100%; padding: 12px 20px; background-color: #e74c3c; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px; text-align: center;">
                             ❌ RECHAZAR
                         </a>
@@ -164,7 +168,9 @@
                 </tr>
                 <tr>
                     <td colspan="2" style="padding: 5px;">
-                        <a href="{{ctx.get('base_url', '')}}/quotation/review/{{object.id}}/{{object.create_uid.id}}" 
+                        <!-- URL de revisar con token -->
+                        <t t-set="review_url" t-value="ctx.get('action_urls', {}).get('review', '#')"/>
+                        <a t-att-href="review_url" 
                            style="display: inline-block; width: 100%; padding: 12px 20px; background-color: #f39c12; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px; text-align: center;">
                             👁️ NECESITO REVISAR / MODIFICAR
                         </a>
@@ -251,16 +257,24 @@
                 </div>
             </div>
 
-            <!-- Llamada a la Acción -->
+            <!-- Llamada a la Acción Secundaria -->
             <div style="text-align: center; margin-bottom: 25px;">
                 <div style="font-size: 16px; color: #2c3e50; margin-bottom: 15px;">
                     📞 ¿Necesita más información o desea programar una reunión?
                 </div>
-                <a href="tel:+51975399303" style="display: inline-block; padding: 10px 20px; background-color: #25d366; color: #ffffff; text-decoration: none; border-radius: 25px; font-size: 14px; margin-right: 10px;">
+                <a href="tel:+51999999999" style="display: inline-block; padding: 10px 20px; background-color: #25d366; color: #ffffff; text-decoration: none; border-radius: 25px; font-size: 14px; margin-right: 10px;">
                     📞 Llamar Ahora
                 </a>
-                <a href="https://wa.me/51975399303" style="display: inline-block; padding: 10px 20px; background-color: #25d366; color: #ffffff; text-decoration: none; border-radius: 25px; font-size: 14px;">
+                <a href="https://wa.me/51999999999" style="display: inline-block; padding: 10px 20px; background-color: #25d366; color: #ffffff; text-decoration: none; border-radius: 25px; font-size: 14px;">
                     💬 WhatsApp
+                </a>
+            </div>
+
+            <!-- Link de Estado (fallback) -->
+            <div style="text-align: center; margin-bottom: 25px;">
+                <t t-set="status_url" t-value="ctx.get('action_urls', {}).get('status', '#')"/>
+                <a t-att-href="status_url" style="color: #3498db; text-decoration: none; font-size: 14px;">
+                    📊 Ver estado de mi cotización
                 </a>
             </div>
 
@@ -271,7 +285,41 @@
             </div>
         </div>
 
-       
+        <!-- Firma Profesional -->
+        <div style="background-color: #34495e; padding: 25px;">
+            <table style="width: 100%;">
+                <tr>
+                    <td style="vertical-align: top; width: 80px; padding-right: 20px;">
+                        <!-- Logo embebido -->
+                        <div style="width: 70px; height: 70px; background-color: #3498db; border-radius: 35px; display: flex; align-items: center; justify-content: center; color: #ffffff; font-size: 24px; font-weight: bold;">
+                            CC
+                        </div>
+                    </td>
+                    <td style="vertical-align: top;">
+                        <div style="color: #ffffff; font-size: 16px; font-weight: bold; margin-bottom: 5px;">
+                            Equipo Comercial
+                        </div>
+                        <div style="color: #3498db; font-weight: bold; font-size: 18px; margin-bottom: 10px;">
+                            COPIER COMPANY SAC
+                        </div>
+                        <div style="color: #bdc3c7; font-size: 13px; line-height: 1.4;">
+                            📞 +51 999 999 999<br/>
+                            ✉️ info@copiercompanysac.com<br/>
+                            🌐 www.copiercompanysac.com<br/>
+                            📍 Lima, Perú
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Redes Sociales -->
+            <div style="text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #5d6d7e;">
+                <a href="https://facebook.com/copiercompany" style="color: #4267B2; text-decoration: none; margin: 0 10px; font-size: 14px;">📘 Facebook</a>
+                <a href="https://instagram.com/copiercompany" style="color: #E4405F; text-decoration: none; margin: 0 10px; font-size: 14px;">📷 Instagram</a>
+                <a href="https://linkedin.com/company/copiercompany" style="color: #0077B5; text-decoration: none; margin: 0 10px; font-size: 14px;">💼 LinkedIn</a>
+            </div>
+        </div>
+
         <!-- Footer Legal -->
         <div style="background-color: #2c3e50; padding: 15px; text-align: center;">
             <div style="font-size: 11px; color: #95a5a6; line-height: 1.4; margin-bottom: 10px;">
@@ -291,7 +339,7 @@
 </body>
 </html>
 
-            ]]></field>
-        </record>
+    ]]></field>
+</record>
   </data>
 </odoo>
