@@ -54,17 +54,7 @@
             <button name="action_convertir_contratos" string="Convertir a Contratos" type="object" 
                     class="btn-warning" invisible="estado != 'aprobado'"/>
             
-            <!-- Botones de utilidad -->
-                        
-            <button name="action_send_pdf_whatsapp" string="📱 WhatsApp" type="object" 
-                    class="btn-success" invisible="estado == 'borrador'"/>
-            
-            <!-- Botones de administrador -->
-            <button name="action_generar_urls_debug" string="🔗 Debug URLs" type="object" 
-                    class="btn-secondary" groups="base.group_system"/>
-            
-            <button name="action_test_whatsapp" string="Test WA" type="object" 
-                    class="btn-secondary" groups="base.group_system"/>
+           
             <field name="estado" widget="statusbar" statusbar_visible="borrador,enviado,aprobado,convertido"/>
           </header>
           
