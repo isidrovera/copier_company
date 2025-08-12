@@ -142,75 +142,135 @@ class CopierQuotation(models.Model):
             raise UserError(f"Error al enviar la cotización: {str(e)}")
 
     def _send_whatsapp_notification(self):
-        """Envía notificación por WhatsApp sobre la cotización enviada"""
+        """Envía notificación por WhatsApp con PDF adjunto (basado en send_whatsapp_report que funciona)"""
         try:
-            if not self.cliente_id.mobile:
-                _logger.info(f"Cliente {self.cliente_id.name} no tiene WhatsApp configurado")
+            if not self.cliente_id or not self.cliente_id.mobile:
+                self.message_post(
+                    body=f"⚠️ <strong>WhatsApp no enviado:</strong><br/>El cliente <strong>{self.cliente_id.name if self.cliente_id else 'Sin cliente'}</strong> no tiene número de teléfono móvil configurado.",
+                    message_type='notification'
+                )
+                _logger.info(f"Cliente {self.cliente_id.name if self.cliente_id else 'Sin cliente'} no tiene WhatsApp configurado")
                 return
-            
-            # Obtener y formatear números de teléfono
+
+            # Obtener números formateados
             formatted_phones = self._get_formatted_phones()
             if not formatted_phones:
                 _logger.warning(f"No se pudieron formatear los números de WhatsApp para {self.cliente_id.name}")
                 return
-            
-            # URL de la API de WhatsApp
-            whatsapp_api_url = self.env['ir.config_parameter'].sudo().get_param(
-                'copier_company.whatsapp_api_url',
-                'https://whatsappapi.copiercompanysac.com/api/message'
-            )
-            
-            # Crear mensaje
-            message = f"""🎯 *Nueva Cotización Disponible*
 
-¡Hola! Le hemos enviado la cotización *{self.name}* a su correo electrónico.
+            # Generar el PDF de la cotización
+            try:
+                report_action = self.env.ref('copier_company.action_report_copier_quotation')
+                pdf_content, _ = self.env['ir.actions.report']._render_qweb_pdf(
+                    report_action.id, self.ids
+                )
+            except Exception as e:
+                _logger.error(f"Error generando PDF: {str(e)}")
+                # Fallback: enviar solo texto si no se puede generar PDF
+                self._send_whatsapp_text_only()
+                return
 
-📋 *Resumen:*
-• {len(self.linea_equipos_ids)} equipo(s) cotizado(s)
-• Modalidad: {self.modalidad_pago_id.name}
-• Total: S/. {self.total_por_modalidad:,.2f}
+            # Guardar PDF temporalmente
+            filename = f"Cotizacion_Multiple_{self.name.replace('/', '_')}.pdf"
+            temp_pdf_path = os.path.join('/tmp', filename)
 
-📧 *Por favor revise su email* para ver los detalles completos y responder con un solo clic.
+            try:
+                with open(temp_pdf_path, 'wb') as temp_pdf:
+                    temp_pdf.write(pdf_content)
 
-¿Alguna consulta? ¡Estamos aquí para ayudarle!
+                _logger.info(f"PDF generado: {temp_pdf_path}, tamaño: {os.path.getsize(temp_pdf_path)} bytes")
 
-*Copier Company SAC*"""
+                # URL de la API (misma que funciona)
+                WHATSAPP_API_URL = 'https://whatsappapi.copiercompanysac.com/api/message'
+                success_count = 0
 
-            success_count = 0
-            
-            for phone in formatted_phones:
-                try:
-                    data = {
-                        'phone': phone,
-                        'type': 'text',
-                        'message': message
-                    }
-                    
-                    response = requests.post(whatsapp_api_url, data=data, timeout=30)
-                    
-                    if response.status_code == 200:
-                        response_data = response.json()
-                        if response_data.get('success'):
-                            success_count += 1
-                            _logger.info(f"WhatsApp enviado exitosamente a {phone}")
-                        else:
-                            _logger.error(f"Error en API WhatsApp para {phone}: {response_data}")
-                    else:
-                        _logger.error(f"Error HTTP {response.status_code} enviando WhatsApp a {phone}")
-                        
-                except requests.RequestException as e:
-                    _logger.error(f"Error de conexión enviando WhatsApp a {phone}: {str(e)}")
-                except Exception as e:
-                    _logger.error(f"Error inesperado enviando WhatsApp a {phone}: {str(e)}")
-            
+                for phone in formatted_phones:
+                    try:
+                        # Crear mensaje corporativo similar al que funciona
+                        message = f"""🎯 *Nueva Cotización Múltiple Disponible*
+
+    ¡Hola! Le hemos enviado la cotización *{self.name}* con múltiples equipos.
+
+    📋 *Resumen:*
+    • {len(self.linea_equipos_ids)} equipo(s) cotizado(s)
+    • Modalidad: {self.modalidad_pago_id.name}
+    • Total: S/. {self.total_por_modalidad:,.2f}
+
+    📧 *También enviamos por email* para que pueda responder con un solo clic.
+
+    *¿Alguna consulta? ¡Estamos aquí para ayudarle!*
+
+    *Copier Company SAC*
+    📧 info@copiercompanysac.com
+    🌐 https://copiercompanysac.com"""
+
+                        with open(temp_pdf_path, 'rb') as pdf_file:
+                            files = {
+                                'file': (filename, pdf_file, 'application/pdf')
+                            }
+                            
+                            # Usar mismo formato que funciona
+                            data = {
+                                'phone': phone,
+                                'type': 'media',  # Cambio clave: usar 'media' no 'text'
+                                'message': message
+                            }
+
+                            _logger.info("Enviando a WhatsApp API - Datos: %s", {**data, 'file': f'PDF_{filename}'})
+
+                            response = requests.post(
+                                WHATSAPP_API_URL,
+                                data=data,
+                                files=files,
+                                timeout=30
+                            )
+
+                            _logger.info("Respuesta API: Status=%s, Contenido=%s", 
+                                    response.status_code, response.text)
+
+                            if response.status_code == 200:
+                                try:
+                                    response_data = response.json()
+                                    if response_data.get('success'):
+                                        success_count += 1
+                                        _logger.info(f"WhatsApp enviado exitosamente a {phone}")
+                                    else:
+                                        _logger.error(f"Error en API WhatsApp para {phone}: {response_data}")
+                                except Exception as json_error:
+                                    _logger.error(f"Error parseando JSON: {json_error}, Response: {response.text}")
+                            else:
+                                _logger.error(f"Error HTTP {response.status_code} enviando WhatsApp a {phone}: {response.text}")
+
+                    except Exception as e:
+                        _logger.error(f"Error al enviar WhatsApp a {phone}: {str(e)}")
+                        self.message_post(
+                            body=f"❌ Error al enviar WhatsApp al número {phone}: {str(e)}",
+                            message_type='notification'
+                        )
+
+            finally:
+                # Limpiar archivo temporal
+                if os.path.exists(temp_pdf_path):
+                    os.remove(temp_pdf_path)
+                    _logger.info(f"Archivo temporal eliminado: {temp_pdf_path}")
+
             if success_count > 0:
                 self.message_post(
-                    body=f"📱 Notificación WhatsApp enviada a {success_count} número(s)",
+                    body=f"📱 Cotización múltiple enviada por WhatsApp a {success_count} número(s) con PDF adjunto",
                     message_type='notification'
                 )
-            
+            else:
+                self.message_post(
+                    body="❌ No se pudo enviar WhatsApp. Revise los logs para más detalles.",
+                    message_type='notification'
+                )
+
         except Exception as e:
             _logger.error(f"Error general en envío WhatsApp: {str(e)}")
+            self.message_post(
+                body=f"❌ <strong>Error enviando WhatsApp:</strong> {str(e)}",
+                message_type='notification'
+            )
 
     def _get_formatted_phones(self):
         """Obtiene y formatea los números de teléfono del cliente"""
@@ -246,7 +306,76 @@ class CopierQuotation(models.Model):
             return phone
         
         return False
+    def _send_whatsapp_text_only(self):
+        """Fallback: enviar solo texto si falla el PDF"""
+        try:
+            formatted_phones = self._get_formatted_phones()
+            WHATSAPP_API_URL = 'https://whatsappapi.copiercompanysac.com/api/message'
+            
+            message = f"""🎯 *Cotización Múltiple {self.name}*
 
+    📧 Hemos enviado su cotización por email con todos los detalles.
+
+    📋 *Resumen:*
+    • {len(self.linea_equipos_ids)} equipo(s)
+    • Total: S/. {self.total_por_modalidad:,.2f}
+
+    *Por favor revise su correo electrónico*
+
+    *Copier Company SAC*"""
+
+            success_count = 0
+            for phone in formatted_phones:
+                try:
+                    data = {
+                        'phone': phone,
+                        'type': 'text',
+                        'message': message
+                    }
+                    
+                    response = requests.post(WHATSAPP_API_URL, data=data, timeout=30)
+                    
+                    if response.status_code == 200:
+                        response_data = response.json()
+                        if response_data.get('success'):
+                            success_count += 1
+                            
+                except Exception as e:
+                    _logger.error(f"Error fallback WhatsApp a {phone}: {str(e)}")
+
+            if success_count > 0:
+                self.message_post(
+                    body=f"📱 Notificación WhatsApp enviada a {success_count} número(s) (solo texto)",
+                    message_type='notification'
+                )
+                
+        except Exception as e:
+            _logger.error(f"Error en fallback WhatsApp: {str(e)}")
+
+    def action_send_pdf_whatsapp(self):
+        """Botón para enviar solo PDF por WhatsApp (sin email)"""
+        self.ensure_one()
+        
+        if self.estado == 'borrador':
+            raise UserError("No se puede enviar una cotización que aún está en borrador.")
+        
+        try:
+            # Usar la misma función que funciona
+            self._send_whatsapp_notification()
+            
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': '📱 WhatsApp Enviado',
+                    'message': f'PDF de cotización {self.name} enviado por WhatsApp',
+                    'type': 'success',
+                    'sticky': False,
+                }
+            }
+            
+        except Exception as e:
+            raise UserError(f"Error enviando WhatsApp: {str(e)}")
     def _create_followup_activity(self):
         """Crea una actividad de seguimiento para el vendedor"""
         try:

@@ -53,6 +53,8 @@
             
             <button name="action_convertir_contratos" string="Convertir a Contratos" type="object" 
                     class="btn-warning" invisible="estado != 'aprobado'"/>
+            <button name="action_send_pdf_whatsapp" string="📱 WhatsApp" type="object" 
+            class="btn-success" invisible="estado == 'borrador'"/>
             
            <button name="action_test_whatsapp" string="Test WA" type="object" 
             class="btn-secondary" groups="base.group_system"/>
