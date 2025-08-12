@@ -412,26 +412,26 @@
               id="copier_quotation_menu" 
               parent="copier_company.menu_root" 
               action="copier_quotation_action" 
-              sequence="5"/>
+              sequence="80"/>
 
     <!-- Submenús de cotizaciones -->
     <menuitem name="Todas las Cotizaciones" 
               id="copier_quotation_all_menu" 
               parent="copier_quotation_menu" 
               action="copier_quotation_action" 
-              sequence="10"/>
+              sequence="90"/>
 
     <!-- Menú de configuración -->
     <menuitem name="Configuración" 
               id="copier_config_menu" 
               parent="copier_company.menu_root" 
-              sequence="90"/>
+              sequence="100"/>
 
     <menuitem name="Modalidades de Pago" 
               id="copier_payment_mode_menu" 
               parent="copier_config_menu" 
               action="copier_payment_mode_action" 
-              sequence="10"/>
+              sequence="110"/>
 
   </data>
 </odoo>
