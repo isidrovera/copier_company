@@ -76,8 +76,7 @@
             <field name="company_id" eval="False"/>
             <field name="implementation">standard</field>
         </record>
-        <!-- Secuencia para Cotizaciones -->
-        <record id="seq_copier_quotation" model="ir.sequence">
+         <record id="seq_copier_quotation" model="ir.sequence">
             <field name="name">Cotización de Alquiler</field>
             <field name="code">copier.quotation</field>
             <field name="prefix">COT/%(year)s/</field>
@@ -133,12 +132,12 @@
         <!-- Estados adicionales si no existen -->
         <record id="estado_cotizado" model="copier.estados">
             <field name="name">Cotizado</field>
-            <field name="descripcion">Equipo en proceso de cotización</field>
         </record>
 
         <record id="estado_reservado" model="copier.estados">
             <field name="name">Reservado</field>
-            <field name="descripcion">Equipo reservado para cliente aprobado</field>
         </record>
+
+    </data>
     </data>
 </odoo>
