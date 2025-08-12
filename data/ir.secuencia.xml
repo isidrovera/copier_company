@@ -76,5 +76,69 @@
             <field name="company_id" eval="False"/>
             <field name="implementation">standard</field>
         </record>
+        <!-- Secuencia para Cotizaciones -->
+        <record id="seq_copier_quotation" model="ir.sequence">
+            <field name="name">Cotización de Alquiler</field>
+            <field name="code">copier.quotation</field>
+            <field name="prefix">COT/%(year)s/</field>
+            <field name="suffix"></field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Datos por defecto: Modalidades de Pago -->
+        <record id="payment_mode_mensual" model="copier.payment.mode">
+            <field name="name">Pago Mensual</field>
+            <field name="descripcion">Pago mensual estándar sin descuentos</field>
+            <field name="frecuencia_meses">1</field>
+            <field name="descuento_porcentaje">0.0</field>
+            <field name="activo">True</field>
+        </record>
+
+        <record id="payment_mode_trimestral" model="copier.payment.mode">
+            <field name="name">Pago Trimestral</field>
+            <field name="descripcion">Pago cada 3 meses con descuento por adelanto</field>
+            <field name="frecuencia_meses">3</field>
+            <field name="descuento_porcentaje">5.0</field>
+            <field name="activo">True</field>
+        </record>
+
+        <record id="payment_mode_semestral" model="copier.payment.mode">
+            <field name="name">Pago Semestral</field>
+            <field name="descripcion">Pago cada 6 meses con descuento por adelanto</field>
+            <field name="frecuencia_meses">6</field>
+            <field name="descuento_porcentaje">8.0</field>
+            <field name="activo">True</field>
+        </record>
+
+        <record id="payment_mode_anual" model="copier.payment.mode">
+            <field name="name">Pago Anual</field>
+            <field name="descripcion">Pago anual anticipado con máximo descuento</field>
+            <field name="frecuencia_meses">12</field>
+            <field name="descuento_porcentaje">15.0</field>
+            <field name="activo">True</field>
+        </record>
+
+        <!-- Configuración de modalidad por defecto para cotizaciones -->
+        <record id="ir_config_parameter_default_payment_mode" model="ir.config_parameter">
+            <field name="key">copier_company.default_payment_mode_id</field>
+            <field name="value" ref="payment_mode_mensual"/>
+        </record>
+
+    </data>
+
+    <data>
+        <!-- Estados adicionales si no existen -->
+        <record id="estado_cotizado" model="copier.estados">
+            <field name="name">Cotizado</field>
+            <field name="descripcion">Equipo en proceso de cotización</field>
+        </record>
+
+        <record id="estado_reservado" model="copier.estados">
+            <field name="name">Reservado</field>
+            <field name="descripcion">Equipo reservado para cliente aprobado</field>
+        </record>
     </data>
 </odoo>
