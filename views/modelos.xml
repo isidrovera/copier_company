@@ -13,23 +13,123 @@
     </record>
 
     <!-- Vista formulario -->
-    <record id="vista_formulario_modelos_maquinas" model="ir.ui.view">
-      <field name="name">modelos.maquinas.form</field>
-      <field name="model">modelos.maquinas</field>
-      <field name="arch" type="xml">
-        <form>
-          <sheet>
+<record id="vista_formulario_modelos_maquinas" model="ir.ui.view">
+  <field name="name">modelos.maquinas.form</field>
+  <field name="model">modelos.maquinas</field>
+  <field name="arch" type="xml">
+    <form>
+      <header>
+        <!-- Botón para crear producto -->
+        <button name="action_create_product" 
+                type="object" 
+                string="Crear Producto"
+                class="btn-primary"
+                invisible="has_product"
+                help="Crea el producto de inventario para este modelo"/>
+        
+        <!-- Botón para ver producto existente -->
+        <button name="action_view_product"
+                type="object"
+                string="Ver Producto"
+                class="btn-secondary"
+                invisible="not has_product"
+                help="Ver el producto de inventario asociado"/>
+      </header>
+      
+      <sheet>
+        <!-- Banner informativo si ya tiene producto -->
+        <div class="alert alert-success" 
+             role="alert" 
+             invisible="not has_product">
+          <i class="fa fa-check-circle"/> 
+          <strong>Producto creado:</strong> 
+          <field name="producto_name" readonly="1" nolabel="1"/>
+        </div>
+        
+        <group>
+          <group>
+            <field name="name" placeholder="ej: iR-ADV C256iF II"/>
+            <field name="marca_id" options="{'no_create': False, 'no_open': True}"/>
+            <field name="tipo_maquina"/>
+            <field name="active"/>
+          </group>
+          
+          <group>
+            <!-- Campo calculado del nombre del producto -->
+            <field name="producto_name" 
+                   readonly="1"
+                   string="Nombre del Producto"
+                   help="Este será el nombre en inventario"/>
+            
+            <!-- Relación al producto creado -->
+            <field name="product_id" 
+                   readonly="1"
+                   invisible="not has_product"
+                   options="{'no_create': True}"/>
+            
+            <!-- Campo invisible para lógica de botones -->
+            <field name="has_product" invisible="1"/>
+          </group>
+        </group>
+        
+        <notebook>
+          <page string="Especificaciones" name="especificaciones">
+            <field name="especificaciones" 
+                   widget="html"
+                   placeholder="Ingrese las especificaciones técnicas del modelo..."/>
+          </page>
+          
+          <page string="Imagen" name="imagen">
             <group>
-              <field name="name"/>
-              <field name="marca_id"/>
-              <field name="active"/>
-              <field name="especificaciones"/>              
-              <field name="imagen" widget="image"/>
+              <field name="imagen" 
+                     widget="image" 
+                     options="{'size': [300, 300]}"
+                     nolabel="1"/>
             </group>
-          </sheet>
-        </form>
-      </field>
-    </record>
+          </page>
+          
+          <!-- Página adicional para información del producto -->
+          <page string="Información del Producto" 
+                name="producto_info"
+                invisible="not has_product">
+            <group>
+              <group>
+                <label for="product_id" string="Producto Asociado:"/>
+                <div>
+                  <field name="product_id" 
+                         nolabel="1" 
+                         readonly="1"
+                         class="oe_inline"/>
+                  <button name="action_view_product"
+                          type="object"
+                          string="Abrir"
+                          class="btn btn-sm btn-secondary oe_inline ml8"
+                          icon="fa-external-link"/>
+                </div>
+              </group>
+              
+              <group>
+                <field name="producto_name" 
+                       string="Nombre Completo"
+                       readonly="1"/>
+              </group>
+            </group>
+            
+            <div class="alert alert-info mt16" role="alert">
+              <i class="fa fa-info-circle"/> 
+              <strong>Nota:</strong> 
+              Este modelo ya tiene un producto de inventario asociado. 
+              Las máquinas recibidas con este modelo se crearán automáticamente en el stock de distribuidores.
+            </div>
+          </page>
+        </notebook>
+      </sheet>
+      
+      <!-- Chatter para seguimiento -->
+      <Chatter/>
+    </form>
+  </field>
+</record>
 
     <!-- Vista kanban -->
     <record id="vista_kanban_modelos_maquinas" model="ir.ui.view">
