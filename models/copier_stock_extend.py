@@ -157,25 +157,9 @@ class CopierStock(models.Model):
         # Descripción base del producto
         description = product.name
         
-        # Agregar detalles específicos de la máquina
-        details = []
-        
-        if self.marca_id and self.modelo_id:
-            details.append(f"{self.marca_id.name} {self.modelo_id.name}")
-        
+        # Solo agregar la serie si existe
         if self.serie:
-            details.append(f"Serie: {self.serie}")
-        
-        if self.tipo:
-            tipo_name = dict(self._fields['tipo'].selection).get(self.tipo, self.tipo)
-            details.append(f"Tipo: {tipo_name}")
-        
-        if self.contometro:
-            details.append(f"Contómetro: {self.contometro:,}")
-        
-        # Combinar descripción
-        if details:
-            description += f"\n{' - '.join(details)}"
+            description += f"\nSerie: {self.serie}"
         
         return description
 
