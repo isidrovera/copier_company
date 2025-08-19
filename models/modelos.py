@@ -1,7 +1,9 @@
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 import requests
 import logging
 import base64
+from odoo.exceptions import UserError, ValidationError
+
 
 _logger = logging.getLogger(__name__)
 
@@ -266,7 +268,7 @@ class ModelosMaquinas(models.Model):
                 )
         
         return super().unlink()
-        
+
 class MarcasMaquinas(models.Model):
     _name = 'marcas.maquinas'
     name = fields.Char(string='Marca')
