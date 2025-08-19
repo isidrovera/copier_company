@@ -153,15 +153,9 @@ class CopierStock(models.Model):
         return self._get_or_create_sale_product()
 
     def _get_sale_line_description(self, product):
-        """Generar descripción detallada para la línea de venta"""
-        # Descripción base del producto
-        description = product.name
-        
-        # Solo agregar la serie si existe
-        if self.serie:
-            description += f"\nSerie: {self.serie}"
-        
-        return description
+        """Devolver solo la serie (sin el nombre del producto)."""
+        return f"Serie: {self.serie.strip()}" if self.serie else ""
+
 
     def _get_or_create_sale_product(self):
         """Obtener o crear producto genérico para ventas"""
