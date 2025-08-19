@@ -30,14 +30,14 @@ class StockMove(models.Model):
                     continue
                 
                 # Verificar que tenga números de serie asignados
-                move_lines_with_lots = move.move_line_ids.filtered(lambda ml: ml.lot_id and ml.quantity_done > 0)
+                move_lines_with_lots = move.move_line_ids.filtered(lambda ml: ml.lot_name and ml.product_qty > 0)
                 if not move_lines_with_lots:
                     _logger.warning(f"Fotocopiadora {move.product_id.name} recibida sin número de serie")
                     continue
                 
                 # Procesar cada línea de movimiento con número de serie
                 for move_line in move_lines_with_lots:
-                    self._create_copier_stock_record(move, move_line.lot_id)
+                    self._create_copier_stock_record(move, move_line)
                     
             except Exception as e:
                 _logger.error(f"Error procesando move {move.id}: {str(e)}")
@@ -60,16 +60,18 @@ class StockMove(models.Model):
         # Verificar por categoría "Fotocopiadora"
         return product.categ_id.name.lower() in ['fotocopiadora', 'fotocopiadoras']
 
-    def _create_copier_stock_record(self, move, lot):
+    def _create_copier_stock_record(self, move, move_line):
         """Crea un registro individual en copier.stock"""
         try:
+            lot_name = move_line.lot_name
+            
             # Verificar si ya existe un registro con esta serie
             existing_stock = self.env['copier.stock'].search([
-                ('serie', '=', lot.name)
+                ('serie', '=', lot_name)
             ], limit=1)
             
             if existing_stock:
-                _logger.warning(f"Ya existe copier.stock con serie {lot.name}: {existing_stock.name}")
+                _logger.warning(f"Ya existe copier.stock con serie {lot_name}: {existing_stock.name}")
                 return
             
             # Buscar el modelo de máquina correspondiente
@@ -81,7 +83,7 @@ class StockMove(models.Model):
             # Preparar valores para copier.stock
             stock_vals = {
                 'modelo_id': modelo.id,
-                'serie': lot.name,
+                'serie': lot_name,
                 'tipo': self._detect_machine_type(modelo),
                 'state': 'importing',  # Estado inicial
                 'import_date': fields.Date.today(),
@@ -95,7 +97,7 @@ class StockMove(models.Model):
             # Crear el registro
             new_copier = self.env['copier.stock'].create(stock_vals)
             
-            _logger.info(f"✅ Copier.stock creado: {new_copier.name} - Serie: {lot.name} - Modelo: {modelo.name}")
+            _logger.info(f"✅ Copier.stock creado: {new_copier.name} - Serie: {lot_name} - Modelo: {modelo.name}")
             
             # Agregar nota en el chatter del picking
             if move.picking_id:
@@ -103,13 +105,13 @@ class StockMove(models.Model):
                     body=f"✅ <b>Máquina agregada al stock de distribuidores:</b><br/>"
                          f"• Referencia: {new_copier.name}<br/>"
                          f"• Modelo: {modelo.name}<br/>"
-                         f"• Serie: {lot.name}<br/>"
+                         f"• Serie: {lot_name}<br/>"
                          f"• Estado inicial: Importando",
                     message_type='notification'
                 )
             
         except Exception as e:
-            _logger.error(f"Error creando copier.stock para serie {lot.name}: {str(e)}")
+            _logger.error(f"Error creando copier.stock para serie {move_line.lot_name}: {str(e)}")
             raise
 
     def _find_modelo_maquina(self, product):
@@ -191,11 +193,12 @@ class StockPicking(models.Model):
         for move in self.move_ids:
             # Verificar si es fotocopiadora
             if self._is_copier_product_picking(move.product_id):
-                # Verificar las líneas de movimiento (move.line_ids)
-                for move_line in move.move_line_ids:
-                    if move_line.quantity_done > 0:
-                        # Verificar que tenga número de serie
-                        if not move_line.lot_id and move.product_id.tracking == 'serial':
+                # Verificar si el producto requiere seguimiento por serie
+                if move.product_id.tracking == 'serial':
+                    # Verificar si hay líneas de movimiento sin número de serie
+                    for move_line in move.move_line_ids:
+                        # Verificar si tiene cantidad procesada (product_qty > 0)
+                        if move_line.product_qty > 0 and not move_line.lot_name:
                             raise exceptions.UserError(
                                 f"La fotocopiadora '{move.product_id.name}' requiere número de serie.\n\n"
                                 f"Por favor, asigne un número de serie único a cada unidad antes de validar la recepción."
