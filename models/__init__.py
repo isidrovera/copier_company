@@ -15,3 +15,4 @@ from . import remote_printer
 from . import cotizaciones_multiples
 from . import cotizacion_hinerid
 from . import stock_move_inherit
+from . import copier_stock_extend

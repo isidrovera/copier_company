@@ -40,7 +40,7 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <!-- Botones para el flujo de estados nuevo -->
+                    <!-- Botones para el flujo de estados -->
                     <button name="action_move_to_unloading" string="Mover a Descarga" type="object" 
                             class="oe_highlight" invisible="state != 'importing'"/>
                     <button name="action_move_to_available" string="Marcar Disponible" type="object" 
@@ -53,6 +53,13 @@
                             class="oe_highlight" invisible="state not in ('pending_payment', 'reserved')"/>
                     <button name="action_cancel_reservation" string="Cancelar Reserva" type="object"
                             invisible="state not in ('reserved', 'pending_payment')"/>
+                    
+                    <!-- Nuevos botones para órdenes de venta -->
+                    <button name="action_create_sale_order" string="Crear Orden de Venta" type="object" 
+                            class="btn-primary" invisible="state != 'available'"/>
+                    <button name="action_add_to_existing_order" string="Agregar a Orden" type="object" 
+                            class="btn-secondary" invisible="state != 'available'"/>
+                    
                     <field name="state" widget="statusbar"/>
                 </header>
                 <sheet>
@@ -60,10 +67,26 @@
                         <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">
                             <field name="active" widget="boolean_button" options="{'terminology':'archive'}"/>
                         </button>
+                        <!-- Botón para ver orden si existe -->
+                        <button name="action_view_sale_order" type="object" class="oe_stat_button" icon="fa-shopping-cart"
+                                invisible="not sale_order_id">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">Orden de</span>
+                                <span class="o_stat_text">Venta</span>
+                            </div>
+                        </button>
                     </div>
                     <div class="oe_title">
                         <h1><field name="name" readonly="1"/></h1>
                     </div>
+                    
+                    <!-- Alerta si está en una orden -->
+                    <div class="alert alert-info" role="alert" invisible="not sale_order_id">
+                        <i class="fa fa-info-circle me-2"></i>
+                        <strong>Esta máquina está en la orden:</strong> 
+                        <field name="sale_order_id" readonly="1" nolabel="1"/>
+                    </div>
+                    
                     <group>
                         <group>
                             <field name="modelo_id"/>
@@ -118,7 +141,7 @@
                                     <field name="name"/>
                                     <field name="image"/>
                                     <templates>
-                                        <t t-name="kanban-box">
+                                        <t t-name="card">
                                             <div class="oe_kanban_global_click">
                                                 <div class="o_kanban_image">
                                                     <img t-att-src="kanban_image('copier.stock.image','image',record.id.raw_value)" alt="Imagen"/>
@@ -145,10 +168,12 @@
                                 <group>
                                     <field name="reserved_by"/>
                                     <field name="reserved_date" readonly="1"/>
+                                    <field name="sale_order_id" readonly="1" invisible="not sale_order_id"/>
                                 </group>
                                 <group>
                                     <field name="sold_date" readonly="1"/>
                                     <field name="payment_verified"/>
+                                    <field name="sale_order_line_id" readonly="1" invisible="1"/>
                                 </group>
                             </group>
                             <group string="Comprobante de Pago">
@@ -161,6 +186,97 @@
                 </sheet>
                 <chatter/>
             </form>
+        </field>
+    </record>
+
+
+
+    <!-- Vista del asistente para crear orden -->
+    <record id="view_copier_sale_order_wizard_form" model="ir.ui.view">
+        <field name="name">copier.sale.order.wizard.form</field>
+        <field name="model">copier.sale.order.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="partner_id" placeholder="Seleccionar cliente..."/>
+                            <field name="single_machine" invisible="1"/>
+                            <field name="reservation_days"/>
+                        </group>
+                        <group>
+                            <field name="total_amount" readonly="1" widget="monetary"/>
+                            <field name="notes" placeholder="Notas adicionales..."/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Máquinas Seleccionadas" name="machines">
+                            <field name="machine_ids" nolabel="1" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="marca_id"/>
+                                    <field name="modelo_id"/>
+                                    <field name="serie"/>
+                                    <field name="tipo"/>
+                                    <field name="sale_price" widget="monetary"/>
+                                    <field name="state"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                
+                <footer>
+                    <button name="action_create_order" 
+                            type="object" 
+                            string="Crear Orden" 
+                            class="btn-primary"/>
+                    <button string="Cancelar" 
+                            class="btn-secondary" 
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista del asistente para agregar a orden existente -->
+    <record id="view_copier_add_to_order_wizard_form" model="ir.ui.view">
+        <field name="name">copier.add.to.order.wizard.form</field>
+        <field name="model">copier.add.to.order.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="machine_id" readonly="1"/>
+                        <field name="sale_order_id" 
+                               placeholder="Seleccionar orden existente..."
+                               domain="[('state', 'in', ['draft', 'sent'])]"/>
+                    </group>
+                </sheet>
+                
+                <footer>
+                    <button name="action_add_to_order" 
+                            type="object" 
+                            string="Agregar a Orden" 
+                            class="btn-primary"/>
+                    <button string="Cancelar" 
+                            class="btn-secondary" 
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción para crear órdenes múltiples -->
+    <record id="action_create_multiple_sale_order" model="ir.actions.server">
+        <field name="name">Crear Orden de Venta Múltiple</field>
+        <field name="model_id" ref="model_copier_stock"/>
+        <field name="binding_model_id" ref="model_copier_stock"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+action = records.action_create_multiple_sale_order()
         </field>
     </record>
 
