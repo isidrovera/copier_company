@@ -30,13 +30,14 @@ class StockMove(models.Model):
                     continue
                 
                 # Verificar que tenga números de serie asignados
-                if not move.lot_ids:
+                move_lines_with_lots = move.move_line_ids.filtered(lambda ml: ml.lot_id and ml.quantity_done > 0)
+                if not move_lines_with_lots:
                     _logger.warning(f"Fotocopiadora {move.product_id.name} recibida sin número de serie")
                     continue
                 
-                # Procesar cada número de serie
-                for lot in move.lot_ids:
-                    self._create_copier_stock_record(move, lot)
+                # Procesar cada línea de movimiento con número de serie
+                for move_line in move_lines_with_lots:
+                    self._create_copier_stock_record(move, move_line.lot_id)
                     
             except Exception as e:
                 _logger.error(f"Error procesando move {move.id}: {str(e)}")
@@ -190,14 +191,15 @@ class StockPicking(models.Model):
         for move in self.move_ids:
             # Verificar si es fotocopiadora
             if self._is_copier_product_picking(move.product_id):
-                # Verificar que tenga cantidad a recibir
-                if move.quantity_done > 0:
-                    # Verificar que tenga número de serie
-                    if not move.lot_ids and move.product_id.tracking == 'serial':
-                        raise exceptions.UserError(
-                            f"La fotocopiadora '{move.product_id.name}' requiere número de serie.\n\n"
-                            f"Por favor, asigne un número de serie único a cada unidad antes de validar la recepción."
-                        )
+                # Verificar las líneas de movimiento (move.line_ids)
+                for move_line in move.move_line_ids:
+                    if move_line.quantity_done > 0:
+                        # Verificar que tenga número de serie
+                        if not move_line.lot_id and move.product_id.tracking == 'serial':
+                            raise exceptions.UserError(
+                                f"La fotocopiadora '{move.product_id.name}' requiere número de serie.\n\n"
+                                f"Por favor, asigne un número de serie único a cada unidad antes de validar la recepción."
+                            )
 
     def _is_copier_product_picking(self, product):
         """Verifica si el producto es una fotocopiadora (desde picking)"""
