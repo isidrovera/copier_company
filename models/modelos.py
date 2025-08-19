@@ -106,24 +106,27 @@ class ModelosMaquinas(models.Model):
             # Crear el producto
             product_vals = {
                 'name': self.producto_name,
-                'type': 'product',  # Producto almacenable
+                'type': 'consu',  # Consumible (como se ve en la imagen)
                 'categ_id': category.id,
-                'tracking': 'serial',  # Seguimiento por número de serie
-                'sale_ok': True,
-                'purchase_ok': True,
-                'detailed_type': 'product',
-                'invoice_policy': 'order',
-                'default_code': self._generate_internal_reference(),
+                'is_storable': True,  # Rastear inventario
+                'sale_ok': True,  # Puede ser vendido
+                'purchase_ok': True,  # Se puede comprar
+                'invoice_policy': 'order',  # Política de facturación
+                'default_code': self._generate_internal_reference(),  # Referencia
                 'description': f"Modelo: {self.name}\nMarca: {self.marca_id.name}\nTipo: {dict(self._fields['tipo_maquina'].selection).get(self.tipo_maquina)}",
-                
-                # Cuentas contables
-                'property_account_income_id': income_account.id if income_account else False,
-                'property_account_expense_id': expense_account.id if expense_account else False,
-                
-                # Metadatos
                 'company_id': self.env.company.id,
                 'active': True,
             }
+            
+            # Agregar seguimiento por número de serie único
+            product_vals['tracking'] = 'serial'  # Por número de serie único
+            
+            # Agregar cuentas contables solo si existen
+            income_account, expense_account = self._get_default_accounts()
+            if income_account:
+                product_vals['property_account_income_id'] = income_account.id
+            if expense_account:
+                product_vals['property_account_expense_id'] = expense_account.id
             
             # Crear el producto
             new_product = self.env['product.product'].create(product_vals)
@@ -182,45 +185,32 @@ class ModelosMaquinas(models.Model):
     def _get_default_accounts(self):
         """Obtiene las cuentas contables por defecto para productos"""
         try:
-            # Buscar cuentas por defecto de la compañía
             company = self.env.company
+            income_account = expense_account = False
             
-            # Cuenta de ingresos (701 - Ventas)
-            income_account = self.env['account.account'].search([
-                ('code', '=like', '701%'),
-                ('company_id', '=', company.id),
-                ('deprecated', '=', False)
-            ], limit=1)
-            
-            if not income_account:
-                # Buscar cuenta de ingresos genérica
+            # Intentar obtener cuentas por defecto de la categoría o compañía
+            try:
+                # Buscar cuenta de ingresos
                 income_account = self.env['account.account'].search([
-                    ('internal_type', '=', 'other'),
                     ('code', '=like', '7%'),
                     ('company_id', '=', company.id),
                     ('deprecated', '=', False)
                 ], limit=1)
-            
-            # Cuenta de gastos (601 - Compras)
-            expense_account = self.env['account.account'].search([
-                ('code', '=like', '601%'),
-                ('company_id', '=', company.id),
-                ('deprecated', '=', False)
-            ], limit=1)
-            
-            if not expense_account:
-                # Buscar cuenta de gastos genérica
+                
+                # Buscar cuenta de gastos  
                 expense_account = self.env['account.account'].search([
-                    ('internal_type', '=', 'other'),
                     ('code', '=like', '6%'),
                     ('company_id', '=', company.id),
                     ('deprecated', '=', False)
                 ], limit=1)
+                
+            except Exception as e:
+                _logger.warning(f"Error buscando cuentas específicas: {str(e)}")
             
             return income_account, expense_account
             
         except Exception as e:
-            _logger.warning(f"No se pudieron obtener cuentas por defecto: {str(e)}")
+            _logger.warning(f"Error obteniendo cuentas por defecto: {str(e)}")
             return False, False
 
     def _generate_internal_reference(self):
@@ -268,7 +258,6 @@ class ModelosMaquinas(models.Model):
                 )
         
         return super().unlink()
-
 class MarcasMaquinas(models.Model):
     _name = 'marcas.maquinas'
     name = fields.Char(string='Marca')
