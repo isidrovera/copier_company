@@ -9,6 +9,7 @@ _logger = logging.getLogger(__name__)
 
 class ModelosMaquinas(models.Model):
     _name = 'modelos.maquinas'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _sql_constraints = [
         ('name_uniq', 'unique(name)', 'El modelo de la máquina debe ser único!')
     ]
