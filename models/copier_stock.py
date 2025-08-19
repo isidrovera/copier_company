@@ -1,6 +1,6 @@
 # models/copier_stock.py
 from odoo import api, fields, models, _, exceptions
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class CopierChecklistItem(models.Model):
     _name = 'copier.checklist.item'
