@@ -30,7 +30,15 @@ class StockMove(models.Model):
                     continue
                 
                 # Verificar que tenga números de serie asignados
-                move_lines_with_lots = move.move_line_ids.filtered(lambda ml: ml.lot_name and ml.product_qty > 0)
+                move_lines_with_lots = []
+                for ml in move.move_line_ids:
+                    # Usar el campo quantity para cantidad recibida
+                    qty = getattr(ml, 'quantity', 0)
+                    
+                    # Si tiene cantidad > 0 y número de serie, agregarlo
+                    if qty > 0 and getattr(ml, 'lot_name', None):
+                        move_lines_with_lots.append(ml)
+                
                 if not move_lines_with_lots:
                     _logger.warning(f"Fotocopiadora {move.product_id.name} recibida sin número de serie")
                     continue
@@ -197,8 +205,11 @@ class StockPicking(models.Model):
                 if move.product_id.tracking == 'serial':
                     # Verificar si hay líneas de movimiento sin número de serie
                     for move_line in move.move_line_ids:
-                        # Verificar si tiene cantidad procesada (product_qty > 0)
-                        if move_line.product_qty > 0 and not move_line.lot_name:
+                        # Usar el campo quantity para cantidad recibida
+                        qty = getattr(move_line, 'quantity', 0)
+                        
+                        # Verificar si tiene cantidad > 0 y no tiene serie
+                        if qty > 0 and not getattr(move_line, 'lot_name', None):
                             raise exceptions.UserError(
                                 f"La fotocopiadora '{move.product_id.name}' requiere número de serie.\n\n"
                                 f"Por favor, asigne un número de serie único a cada unidad antes de validar la recepción."
