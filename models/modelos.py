@@ -21,6 +21,7 @@ class ModelosMaquinas(models.Model):
     )
     
     
+    # Campo nuevo para tipo de máquina
     tipo_maquina = fields.Selection([
         ('fotocopiadora', 'Fotocopiadora'),
         ('impresora', 'Impresora'),
@@ -185,22 +186,19 @@ class ModelosMaquinas(models.Model):
     def _get_default_accounts(self):
         """Obtiene las cuentas contables por defecto para productos"""
         try:
-            company = self.env.company
             income_account = expense_account = False
             
-            # Intentar obtener cuentas por defecto de la categoría o compañía
+            # Intentar obtener cuentas por defecto sin filtrar por company_id
             try:
                 # Buscar cuenta de ingresos
                 income_account = self.env['account.account'].search([
                     ('code', '=like', '7%'),
-                    ('company_id', '=', company.id),
                     ('deprecated', '=', False)
                 ], limit=1)
                 
                 # Buscar cuenta de gastos  
                 expense_account = self.env['account.account'].search([
                     ('code', '=like', '6%'),
-                    ('company_id', '=', company.id),
                     ('deprecated', '=', False)
                 ], limit=1)
                 
