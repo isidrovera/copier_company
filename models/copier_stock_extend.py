@@ -116,6 +116,39 @@ class CopierStock(models.Model):
         
         return order_line
 
+    def _get_or_create_sale_product(self):
+        """Obtener o crear producto genérico para ventas"""
+        # Buscar producto existente
+        product = self.env['product.product'].search([
+            ('name', '=', 'Venta de Máquina Usada'),
+            ('type', '=', 'consu')
+        ], limit=1)
+        
+        if not product:
+            # Crear producto genérico
+            category = self.env['product.category'].search([
+                ('name', '=', 'Máquinas Usadas')
+            ], limit=1)
+            
+            if not category:
+                category = self.env['product.category'].create({
+                    'name': 'Máquinas Usadas'
+                })
+            
+            product = self.env['product.product'].create({
+                'name': 'Venta de Máquina Usada',
+                'type': 'consu',
+                'categ_id': category.id,
+                'sale_ok': True,
+                'purchase_ok': False,
+                'list_price': 0,  # El precio se define por máquina
+                'description': 'Producto genérico para venta de máquinas usadas',
+            })
+            
+            _logger.info(f"Producto genérico creado: {product.name}")
+        
+        return product
+
     def action_view_sale_order(self):
         """Ver la orden de venta asociada"""
         self.ensure_one()
