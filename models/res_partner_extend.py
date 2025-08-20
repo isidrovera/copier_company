@@ -7,6 +7,12 @@ _logger = logging.getLogger(__name__)
 class ResPartner(models.Model):
     _inherit = 'res.partner'
     
+    # Campo para identificar distribuidores
+    is_distributor = fields.Boolean(
+        string='Es Distribuidor',
+        default=False,
+        help='Marcar si este contacto es un distribuidor de máquinas'
+    )
     
     # Campos para notificaciones WhatsApp
     whatsapp_phone = fields.Char(
