@@ -102,24 +102,7 @@
                 </kanban>
             </field>
         </record>
-     <record id="view_partner_form_distributor_extend" model="ir.ui.view">
-            <field name="name">res.partner.form.distributor.extend</field>
-            <field name="model">res.partner</field>
-            <field name="inherit_id" ref="base.view_partner_form"/>
-            <field name="arch" type="xml">
-                
-                <!-- Agregar campo is_distributor en la pestaña de ventas -->
-                <xpath expr="//page[@name='sales_purchases']" position="inside">
-                    <group string="Configuración de Distribuidor" name="distributor_config">
-                        <field name="is_distributor"/>
-                        <field name="whatsapp_phone" invisible="not is_distributor"/>
-                        <field name="notify_new_stock" invisible="not is_distributor"/>
-                        <field name="notify_orders" invisible="not is_distributor"/>
-                    </group>
-                </xpath>
-                
-            </field>
-        </record>
+    
         <!-- Acción de ventana para copier.estados -->
         <record id="action_copier_estados" model="ir.actions.act_window">
             <field name="name">Estados de Copiadoras</field>
