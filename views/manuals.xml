@@ -51,31 +51,6 @@
         </field>
     </record>
 
-    <!-- Acción para el Menú -->
-    <record id="action_manual" model="ir.actions.act_window">
-        <field name="name">Manuales PDF</field>
-        <field name="res_model">secure_pdf_viewer.manual</field>
-        <field name="view_mode">list,form</field>
-        <field name="search_view_id" ref="view_manual_search"/>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                Crea tu primer manual PDF
-            </p>
-            <p>
-                Sube manuales PDF que podrán ser visualizados pero no descargados ni impresos.
-            </p>
-        </field>
-    </record>
 
-    <!-- Menú Principal -->
-    <menuitem id="menu_secure_pdf_viewer_root" 
-              name="Visor de Manuales" 
-              sequence="10"/>
-
-    <!-- Submenú para Manuales -->
-    <menuitem id="menu_manual"
-              name="Manuales PDF"
-              parent="copier_company.menu_root"
-              action="action_manual"
-              sequence="30"/>
+    
 </odoo>

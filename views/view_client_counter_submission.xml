@@ -462,32 +462,5 @@
         </field>
     </record>
 
-    <!-- Acción de ventana principal -->
-    <record id="action_client_counter_submission" model="ir.actions.act_window">
-        <field name="name">Contadores de Clientes</field>
-        <field name="res_model">client.counter.submission</field>
-        <field name="view_mode">kanban,list,form,calendar,pivot,graph</field>
-        <field name="search_view_id" ref="view_client_counter_submission_search"/>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                ¡Aquí aparecerán los contadores reportados por los clientes!
-            </p>
-            <p>
-                Los contadores de clientes te permiten revisar, aprobar y procesar 
-                las lecturas mensuales enviadas por tus clientes para la facturación.
-            </p>
-        </field>
-        <field name="context">{
-            'search_default_pending': 1,
-            'search_default_last_30_days': 1
-        }</field>
-    </record>
-
-    <!-- Menú: Contadores de Clientes -->
-    <menuitem id="menu_client_counter_submissions" 
-              name="Contadores de Clientes" 
-              parent="copier_company.menu_root" 
-              action="action_client_counter_submission" 
-              sequence="90"/>
-
+   
 </odoo>

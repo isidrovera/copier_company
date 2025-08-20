@@ -361,36 +361,7 @@ action = records.action_create_multiple_sale_order()
         </field>
     </record>
 
-    <!-- Acción para la vista de administración -->
-    <record id="action_copier_stock" model="ir.actions.act_window">
-        <field name="name">Stock de Máquinas</field>
-        <field name="res_model">copier.stock</field>
-        <field name="view_mode">list,form,kanban</field>
-        <field name="context">{'search_default_available':1}</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                Agregue una máquina al stock
-            </p>
-            <p>
-                Registre aquí todas las fotocopiadoras de segunda mano disponibles para venta.
-            </p>
-        </field>
-    </record>
+ 
 
-    <!-- Acción para configuración de Checklist -->
-    <record id="action_copier_checklist_item" model="ir.actions.act_window">
-        <field name="name">Items de Checklist</field>
-        <field name="res_model">copier.checklist.item</field>
-        <field name="view_mode">list,form,kanban</field>
-    </record>
 
-    <!-- Menús -->
-    
-    <menuitem id="menu_copier_stock"  name="Stock" parent="copier_company.menu_root" action="action_copier_stock"  sequence="10"/>
-    
-    <menuitem id="menu_copier_checklist_item"
-              name="Items de Checklist"
-              parent="menu_ajustes"
-              action="action_copier_checklist_item"
-              sequence="30"/>
 </odoo>

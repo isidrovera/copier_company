@@ -18,3 +18,4 @@ from . import cotizacion_hinerid
 from . import stock_move_inherit
 from . import copier_stock_extend
 from . import copier_whatsapp_alerts
+from . import copier_stock_whatsapp_extend

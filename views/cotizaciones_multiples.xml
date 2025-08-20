@@ -382,66 +382,9 @@
 
     <!-- ========== ACTIONS ========== -->
 
-    <!-- Action Window - Cotizaciones -->
-    <record model="ir.actions.act_window" id="copier_quotation_action">
-      <field name="name">Cotizaciones de Alquiler</field>
-      <field name="res_model">copier.quotation</field>
-      <field name="view_mode">list,kanban,form</field>
-      <field name="context">{'search_default_borrador': 1}</field>
-      <field name="help" type="html">
-        <p class="o_view_nocontent_smiling_face">
-          ¡Cree su primera cotización múltiple!
-        </p>
-        <p>
-          Una cotización puede incluir múltiples equipos con diferentes modalidades de pago.<br/>
-          Cada cotización aprobada se convertirá automáticamente en contratos individuales.
-        </p>
-      </field>
-    </record>
 
-    <!-- Action Window - Modalidades de Pago -->
-    <record model="ir.actions.act_window" id="copier_payment_mode_action">
-      <field name="name">Modalidades de Pago</field>
-      <field name="res_model">copier.payment.mode</field>
-      <field name="view_mode">list,form</field>
-      <field name="help" type="html">
-        <p class="o_view_nocontent_smiling_face">
-          Configure las modalidades de pago disponibles
-        </p>
-        <p>
-          Defina diferentes frecuencias de pago y los descuentos asociados.<br/>
-          Ejemplo: Pago anual con 15% de descuento.
-        </p>
-      </field>
-    </record>
-
-    <!-- ========== MENUS ========== -->
-
-    <!-- Actualizar el menú principal para incluir cotizaciones -->
-    <menuitem name="Cotizaciones" 
-              id="copier_quotation_menu" 
-              parent="copier_company.menu_root" 
-              action="copier_quotation_action" 
-              sequence="80"/>
-
-    <!-- Submenús de cotizaciones -->
-    <menuitem name="Todas las Cotizaciones" 
-              id="copier_quotation_all_menu" 
-              parent="copier_quotation_menu" 
-              action="copier_quotation_action" 
-              sequence="90"/>
-
-    <!-- Menú de configuración -->
-    <menuitem name="Configuración" 
-              id="copier_config_menu" 
-              parent="copier_company.menu_root" 
-              sequence="100"/>
-
-    <menuitem name="Modalidades de Pago" 
-              id="copier_payment_mode_menu" 
-              parent="copier_config_menu" 
-              action="copier_payment_mode_action" 
-              sequence="110"/>
+ 
+  
 
   </data>
 </odoo>

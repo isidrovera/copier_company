@@ -91,25 +91,6 @@
             </field>
         </record>
 
-        <!-- Action -->
-        <record id="action_security_control" model="ir.actions.act_window">
-            <field name="name">Control de Seguridad</field>
-            <field name="res_model">security.control</field>
-            <field name="view_mode">list,form</field>
-            <field name="context">{'search_default_active': 1}</field>
-            <field name="help" type="html">
-                <p class="o_view_nocontent_smiling_face">
-                    Cree su primera configuración de seguridad
-                </p>
-            </field>
-        </record>
-
-        <!-- Menu -->
-        <menuitem id="menu_security_control"
-                  name="Control de Seguridad"
-                  action="action_security_control"
-                  parent="menu_ajustes"
-                  
-                  groups="base.group_system"/>
+       
     </data>
 </odoo>

@@ -457,32 +457,6 @@
         </field>
     </record>
 
-    <!-- Acción de ventana principal -->
-    <record id="action_toner_request" model="ir.actions.act_window">
-        <field name="name">Solicitudes de Toner</field>
-        <field name="res_model">toner.request</field>
-        <field name="view_mode">kanban,list,form,calendar,pivot,graph</field>
-        <field name="search_view_id" ref="view_toner_request_search"/>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                ¡Crea tu primera solicitud de toner!
-            </p>
-            <p>
-                Las solicitudes de toner te permiten gestionar y dar seguimiento 
-                a todas las solicitudes de consumibles para tus equipos.
-            </p>
-        </field>
-        <field name="context">{
-            'search_default_pending': 1,
-            'search_default_my_requests': 1
-        }</field>
-    </record>
-
-    <!-- Menú: Solicitudes de Toner -->
-    <menuitem id="menu_toner_requests" 
-              name="Solicitudes de Toner" 
-              parent="copier_company.menu_root" 
-              action="action_toner_request" 
-              sequence="80"/>
+  
 
 </odoo>

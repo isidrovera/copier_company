@@ -48,16 +48,7 @@
             </field>
         </record>
 
-        <!-- Acción de ventana para accesorios.maquinas -->
-        <record id="action_accesorios_maquinas" model="ir.actions.act_window">
-            <field name="name">Accesorios de Máquinas</field>
-            <field name="res_model">accesorios.maquinas</field>
-            <field name="view_mode">list,form,kanban</field>
-        </record>
-
-        <!-- Menú para accesorios.maquinas -->
-        <menuitem id="menu_accesorios_maquinas" name="Accesorios de Máquinas" parent="menu_ajustes" action="action_accesorios_maquinas" sequence="30"/>
-
+       
         <!-- Vista Tree para copier.estados -->
         <record id="view_copier_estados_tree" model="ir.ui.view">
             <field name="name">copier.estados.tree</field>
@@ -103,16 +94,7 @@
             </field>
         </record>
    
-        <!-- Acción de ventana para copier.estados -->
-        <record id="action_copier_estados" model="ir.actions.act_window">
-            <field name="name">Estados de Copiadoras</field>
-            <field name="res_model">copier.estados</field>
-            <field name="view_mode">list,form,kanban</field>
-        </record>
-
-        <!-- Menú para copier.estados -->
-        <menuitem id="menu_copier_estados" name="Estados de Copiadoras" parent="menu_ajustes" action="action_copier_estados" sequence="40"/>
-
+       
         <!-- Vista Tree para copier.duracion -->
         <record id="view_copier_duracion_tree" model="ir.ui.view">
             <field name="name">copier.duracion.tree</field>
@@ -158,15 +140,6 @@
             </field>
         </record>
 
-        <!-- Acción de ventana para copier.duracion -->
-        <record id="action_copier_duracion" model="ir.actions.act_window">
-            <field name="name">Duraciones de Alquiler</field>
-            <field name="res_model">copier.duracion</field>
-            <field name="view_mode">list,form,kanban</field>
-        </record>
-
-        <!-- Menú para copier.duracion -->
-        <menuitem id="menu_copier_duracion" name="Duraciones de Alquiler" parent="copier_company.menu_root" action="action_copier_duracion" sequence="40  "/>
         
     
     </data>

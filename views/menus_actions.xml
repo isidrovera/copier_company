@@ -1,0 +1,517 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ========================================= -->
+    <!-- ACCIONES DE VENTANA -->
+    <!-- ========================================= -->
+    
+    <!-- Acción principal - Gestión de Máquinas -->
+    <record model="ir.actions.act_window" id="copier_company.action_window">
+        <field name="name">Gestión de Máquinas</field>
+        <field name="res_model">copier.company</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                ¡Registre su primera máquina!
+            </p>
+        </field>
+    </record>
+
+    <!-- Acción para Stock -->
+    <record id="action_copier_stock" model="ir.actions.act_window">
+        <field name="name">Stock de Máquinas</field>
+        <field name="res_model">copier.stock</field>
+        <field name="view_mode">list,form,kanban</field>
+        <field name="context">{'search_default_available':1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Agregue una máquina al stock
+            </p>
+            <p>
+                Registre aquí todas las fotocopiadoras de segunda mano disponibles para venta.
+            </p>
+        </field>
+    </record>
+
+    <!-- Acción para Contadores -->
+    <record id="action_copier_counter" model="ir.actions.act_window">
+        <field name="name">Contadores</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">copier.counter</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="context">{'search_default_current_month': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Registra el primer contador!
+            </p>
+            <p>
+                Crea un nuevo registro de contador para comenzar a gestionar las lecturas de las
+                máquinas.
+            </p>
+        </field>
+    </record>
+
+    <!-- Acción para Solicitudes de Asistencia Remota -->
+    <record id="action_remote_assistance_request" model="ir.actions.act_window">
+        <field name="name">Solicitudes de Asistencia Remota</field>
+        <field name="res_model">remote.assistance.request</field>
+        <field name="view_mode">kanban,list,form,calendar,pivot,graph</field>
+        <field name="search_view_id" ref="view_remote_assistance_request_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                ¡Crea tu primera solicitud de asistencia remota!
+            </p>
+            <p>
+                Las solicitudes de asistencia remota te permiten gestionar y dar seguimiento 
+                a todas las sesiones de soporte técnico remoto para tus equipos.
+            </p>
+        </field>
+        <field name="context">{
+            'search_default_pending': 1,
+            'search_default_my_requests': 1
+        }</field>
+    </record>
+
+    <!-- Acción para Solicitudes de Toner -->
+    <record id="action_toner_request" model="ir.actions.act_window">
+        <field name="name">Solicitudes de Toner</field>
+        <field name="res_model">toner.request</field>
+        <field name="view_mode">kanban,list,form,calendar,pivot,graph</field>
+        <field name="search_view_id" ref="view_toner_request_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                ¡Crea tu primera solicitud de toner!
+            </p>
+            <p>
+                Las solicitudes de toner te permiten gestionar y dar seguimiento 
+                a todas las solicitudes de consumibles para tus equipos.
+            </p>
+        </field>
+        <field name="context">{
+            'search_default_pending': 1,
+            'search_default_my_requests': 1
+        }</field>
+    </record>
+
+    <!-- Acción para Cotizaciones -->
+    <record model="ir.actions.act_window" id="copier_quotation_action">
+        <field name="name">Cotizaciones de Alquiler</field>
+        <field name="res_model">copier.quotation</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="context">{'search_default_borrador': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                ¡Cree su primera cotización múltiple!
+            </p>
+            <p>
+                Una cotización puede incluir múltiples equipos con diferentes modalidades de pago.<br/>
+                Cada cotización aprobada se convertirá automáticamente en contratos individuales.
+            </p>
+        </field>
+    </record>
+
+    <!-- Acción para Contadores de Clientes -->
+    <record id="action_client_counter_submission" model="ir.actions.act_window">
+        <field name="name">Contadores de Clientes</field>
+        <field name="res_model">client.counter.submission</field>
+        <field name="view_mode">kanban,list,form,calendar,pivot,graph</field>
+        <field name="search_view_id" ref="view_client_counter_submission_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                ¡Aquí aparecerán los contadores reportados por los clientes!
+            </p>
+            <p>
+                Los contadores de clientes te permiten revisar, aprobar y procesar 
+                las lecturas mensuales enviadas por tus clientes para la facturación.
+            </p>
+        </field>
+        <field name="context">{
+            'search_default_pending': 1,
+            'search_default_last_30_days': 1
+        }</field>
+    </record>
+
+    <!-- Acción para Duraciones de Alquiler -->
+    <record id="action_copier_duracion" model="ir.actions.act_window">
+        <field name="name">Duraciones de Alquiler</field>
+        <field name="res_model">copier.duracion</field>
+        <field name="view_mode">list,form,kanban</field>
+    </record>
+
+    <!-- Acciones WhatsApp -->
+    <record id="action_copier_whatsapp_alert" model="ir.actions.act_window">
+        <field name="name">Alertas WhatsApp</field>
+        <field name="res_model">copier.whatsapp.alert</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="context">{
+            'search_default_pending': 1,
+            'search_default_today': 1
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                ¡No hay alertas WhatsApp!
+            </p>
+            <p>
+                Las alertas se crean automáticamente cuando:
+                <ul>
+                    <li>Llegan nuevas máquinas al stock</li>
+                    <li>Las reservas están por expirar</li>
+                    <li>Se confirman compras</li>
+                    <li>Se envía el catálogo semanal</li>
+                </ul>
+            </p>
+        </field>
+    </record>
+
+    <record id="action_copier_whatsapp_alert_pending" model="ir.actions.act_window">
+        <field name="name">Alertas Pendientes</field>
+        <field name="res_model">copier.whatsapp.alert</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('status', '=', 'pending')]</field>
+        <field name="context">{}</field>
+    </record>
+
+    <record id="action_copier_whatsapp_alert_failed" model="ir.actions.act_window">
+        <field name="name">Alertas Fallidas</field>
+        <field name="res_model">copier.whatsapp.alert</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('status', '=', 'failed')]</field>
+        <field name="context">{}</field>
+    </record>
+
+    <!-- Acciones pCloud -->
+    <record id="action_pcloud_folder_file" model="ir.actions.act_window">
+        <field name="name">pCloud Folders and Files</field>
+        <field name="res_model">pcloud.folder.file</field>
+        <field name="view_mode">list,form</field>
+        <field name="target">current</field>
+    </record>
+
+    <!-- Acción para Manuales PDF -->
+    <record id="action_manual" model="ir.actions.act_window">
+        <field name="name">Manuales PDF</field>
+        <field name="res_model">secure_pdf_viewer.manual</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_manual_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crea tu primer manual PDF
+            </p>
+            <p>
+                Sube manuales PDF que podrán ser visualizados pero no descargados ni impresos.
+            </p>
+        </field>
+    </record>
+
+    <!-- Acciones de Ajustes -->
+    <record id="accion_ajustes" model="ir.actions.act_window">
+        <field name="name">Ajustes</field>
+        <field name="res_model">marcas.maquinas</field>                     
+    </record>
+
+    <record id="accion_marcas_maquinas" model="ir.actions.act_window">
+        <field name="name">Marcas de Maquinas</field>
+        <field name="res_model">marcas.maquinas</field>
+        <field name="view_mode">list,form,kanban</field>            
+    </record>
+
+    <record id="accion_modelos_maquinas" model="ir.actions.act_window">
+        <field name="name">Modelos de Máquinas</field>
+        <field name="res_model">modelos.maquinas</field>
+        <field name="view_mode">list,form,kanban</field>
+    </record>
+
+    <record id="action_copier_estados" model="ir.actions.act_window">
+        <field name="name">Estados de Copiadoras</field>
+        <field name="res_model">copier.estados</field>
+        <field name="view_mode">list,form,kanban</field>
+    </record>
+
+    <record id="action_accesorios_maquinas" model="ir.actions.act_window">
+        <field name="name">Accesorios de Máquinas</field>
+        <field name="res_model">accesorios.maquinas</field>
+        <field name="view_mode">list,form,kanban</field>
+    </record>
+
+    <record id="action_copier_checklist_item" model="ir.actions.act_window">
+        <field name="name">Items de Checklist</field>
+        <field name="res_model">copier.checklist.item</field>
+        <field name="view_mode">list,form,kanban</field>
+    </record>
+
+    <record id="action_copier_volumen_compartido" model="ir.actions.act_window">
+        <field name="name">Planes de Volumen Compartido</field>
+        <field name="res_model">copier.volumen.compartido</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="copier_volumen_compartido_search_view"/>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear un nuevo plan de volumen compartido
+            </p>
+            <p>
+                Los planes de volumen compartido permiten que múltiples máquinas
+                de un mismo cliente compartan un volumen mensual de copias.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_copier_machine_user" model="ir.actions.act_window">
+        <field name="name">Usuarios Internos</field>
+        <field name="res_model">copier.machine.user</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_copier_machine_user_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear usuarios internos asociados a cada máquina.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_copier_counter_user_detail" model="ir.actions.act_window">
+        <field name="name">Detalles de Copias por Usuario</field>
+        <field name="res_model">copier.counter.user.detail</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_copier_counter_user_detail_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Registra detalles mensuales de copias por usuario.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_security_control" model="ir.actions.act_window">
+        <field name="name">Control de Seguridad</field>
+        <field name="res_model">security.control</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Cree su primera configuración de seguridad
+            </p>
+        </field>
+    </record>
+
+    <record id="view_pcloud_config_form_action" model="ir.actions.act_window">
+        <field name="name">pCloud Configuration</field>
+        <field name="res_model">pcloud.config</field>
+        <field name="view_mode">list,form</field>            
+    </record>
+
+    <record id="copier_payment_mode_action" model="ir.actions.act_window">
+        <field name="name">Modalidades de Pago</field>
+        <field name="res_model">copier.payment.mode</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configure las modalidades de pago disponibles
+            </p>
+            <p>
+                Defina diferentes frecuencias de pago y los descuentos asociados.<br/>
+                Ejemplo: Pago anual con 15% de descuento.
+            </p>
+        </field>
+    </record>
+
+    <!-- Acción del Servidor -->
+    <record id="action_counter_report_server" model="ir.actions.server">
+        <field name="name">Generar Reporte de Lecturas</field>
+        <field name="model_id" ref="model_copier_counter"/>
+        <field name="binding_model_id" ref="model_copier_counter"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = env['copier.counter'].browse(records.ids).action_generate_report()</field>
+    </record>
+
+    <!-- ========================================= -->
+    <!-- MENÚS -->
+    <!-- ========================================= -->
+
+    <!-- Menú Principal -->
+    <menuitem name="Gestión de Fotocopiadoras" 
+              id="copier_company.menu_root" 
+              web_icon="copier_company,static/description/icon.png"/>
+
+    <!-- 1. Máquinas -->
+    <menuitem name="Máquinas" 
+              id="copier_company.menu_1" 
+              parent="copier_company.menu_root" 
+              action="copier_company.action_window" 
+              sequence="10"/>
+
+    <!-- 2. Stock -->
+    <menuitem id="menu_copier_stock"  
+              name="Stock" 
+              parent="copier_company.menu_root" 
+              action="action_copier_stock"  
+              sequence="20"/>
+
+    <!-- 3. Contadores -->
+    <menuitem id="menu_copier_counter"
+              name="Contadores"
+              parent="copier_company.menu_root"
+              action="action_copier_counter"
+              sequence="30"/>
+
+    <!-- 4. Solicitudes (Menú Padre) -->
+    <menuitem name="Solicitudes" 
+              id="menu_solicitudes" 
+              parent="copier_company.menu_root" 
+              sequence="40"/>
+
+    <menuitem id="menu_remote_assistance_requests" 
+              name="Asistencia Remota" 
+              parent="menu_solicitudes" 
+              action="action_remote_assistance_request" 
+              sequence="10"/>
+
+    <menuitem id="menu_toner_requests" 
+              name="Toner" 
+              parent="menu_solicitudes" 
+              action="action_toner_request" 
+              sequence="20"/>
+
+    <!-- 5. Cotizaciones -->
+    <menuitem name="Cotizaciones" 
+              id="copier_quotation_menu" 
+              parent="copier_company.menu_root" 
+              action="copier_quotation_action" 
+              sequence="50"/>
+
+    <menuitem name="Todas las Cotizaciones" 
+              id="copier_quotation_all_menu" 
+              parent="copier_quotation_menu" 
+              action="copier_quotation_action" 
+              sequence="10"/>
+
+    <menuitem name="Modalidades de Pago" 
+              id="copier_payment_mode_menu" 
+              parent="copier_quotation_menu" 
+              action="copier_payment_mode_action" 
+              sequence="20"/>
+
+    <!-- 6. Contadores de Clientes -->
+    <menuitem id="menu_client_counter_submissions" 
+              name="Contadores de Clientes" 
+              parent="copier_company.menu_root" 
+              action="action_client_counter_submission" 
+              sequence="60"/>
+
+    <!-- 7. Duraciones de Alquiler -->
+    <menuitem id="menu_copier_duracion" 
+              name="Duraciones de Alquiler" 
+              parent="copier_company.menu_root" 
+              action="action_copier_duracion" 
+              sequence="70"/>
+
+    <!-- 8. WhatsApp (Menú Padre) -->
+    <menuitem id="menu_whatsapp_root" 
+              name="WhatsApp" 
+              parent="copier_company.menu_root"  
+              sequence="80"/>
+
+    <menuitem id="menu_whatsapp_alerts" 
+              name="Alertas" 
+              parent="menu_whatsapp_root" 
+              action="action_copier_whatsapp_alert" 
+              sequence="10"/>
+
+    <menuitem id="menu_whatsapp_pending" 
+              name="Pendientes" 
+              parent="menu_whatsapp_root" 
+              action="action_copier_whatsapp_alert_pending" 
+              sequence="20"/>
+
+    <menuitem id="menu_whatsapp_failed" 
+              name="Fallidas" 
+              parent="menu_whatsapp_root" 
+              action="action_copier_whatsapp_alert_failed" 
+              sequence="30"/>
+
+    <!-- 9. pCloud (Menú Padre) -->
+    <menuitem id="menu_pcloud_root" 
+              name="pCloud" 
+              parent="copier_company.menu_root" 
+              sequence="90"/>
+
+    <menuitem id="menu_pcloud_folder_file" 
+              name="Folders and Files" 
+              parent="menu_pcloud_root" 
+              action="action_pcloud_folder_file" 
+              sequence="10"/>
+
+    <!-- 10. Manuales PDF -->
+    <menuitem id="menu_manual"
+              name="Manuales PDF"
+              parent="copier_company.menu_root"
+              action="action_manual"
+              sequence="100"/>
+
+    <!-- 11. Ajustes (Menú Padre) -->
+    <menuitem id="menu_ajustes" 
+              name="Ajustes" 
+              parent="copier_company.menu_root" 
+              action="accion_ajustes" 
+              sequence="110"/>
+
+    <menuitem id="menu_marcas_maquinas" 
+              name="Marcas de Maquinas" 
+              parent="menu_ajustes" 
+              action="accion_marcas_maquinas" 
+              sequence="10"/>
+
+    <menuitem id="menu_modelos_maquinas" 
+              name="Modelos de Máquinas" 
+              parent="menu_ajustes" 
+              action="accion_modelos_maquinas" 
+              sequence="20"/>
+
+    <menuitem id="menu_copier_estados" 
+              name="Estados de Copiadoras" 
+              parent="menu_ajustes" 
+              action="action_copier_estados" 
+              sequence="30"/>
+
+    <menuitem id="menu_accesorios_maquinas" 
+              name="Accesorios de Máquinas" 
+              parent="menu_ajustes" 
+              action="action_accesorios_maquinas" 
+              sequence="40"/>
+
+    <menuitem id="menu_copier_checklist_item"
+              name="Items de Checklist"
+              parent="menu_ajustes"
+              action="action_copier_checklist_item"
+              sequence="50"/>
+
+    <menuitem id="menu_copier_volumen_compartido"
+              name="Planes Compartidos"
+              action="action_copier_volumen_compartido"
+              parent="menu_ajustes"
+              sequence="60"/>
+
+    <menuitem id="menu_copier_machine_user"
+              name="Usuarios Internos"
+              action="action_copier_machine_user"
+              parent="menu_ajustes"
+              sequence="70"/>
+
+    <menuitem id="menu_copier_counter_user_detail"
+              name="Detalle Copias Usuarios"
+              action="action_copier_counter_user_detail"
+              parent="menu_ajustes"
+              sequence="80"/>
+
+    <menuitem id="menu_security_control"
+              name="Control de Seguridad"
+              action="action_security_control"
+              parent="menu_ajustes"
+              groups="base.group_system"
+              sequence="90"/>
+
+    <menuitem id="menu_pcloud_config" 
+              name="pCloud Configuration" 
+              parent="menu_ajustes" 
+              action="view_pcloud_config_form_action"
+              sequence="100"/>
+
+</odoo>

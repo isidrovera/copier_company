@@ -434,32 +434,5 @@
         </field>
     </record>
 
-    <!-- Acción de ventana principal -->
-    <record id="action_remote_assistance_request" model="ir.actions.act_window">
-        <field name="name">Solicitudes de Asistencia Remota</field>
-        <field name="res_model">remote.assistance.request</field>
-        <field name="view_mode">kanban,list,form,calendar,pivot,graph</field>
-        <field name="search_view_id" ref="view_remote_assistance_request_search"/>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                ¡Crea tu primera solicitud de asistencia remota!
-            </p>
-            <p>
-                Las solicitudes de asistencia remota te permiten gestionar y dar seguimiento 
-                a todas las sesiones de soporte técnico remoto para tus equipos.
-            </p>
-        </field>
-        <field name="context">{
-            'search_default_pending': 1,
-            'search_default_my_requests': 1
-        }</field>
-    </record>
-
-    <!-- Menú único: Solicitudes de Asistencia Remota -->
-    <menuitem id="menu_remote_assistance_requests" 
-              name="Solicitudes de Asistencia Remota" 
-              parent="copier_company.menu_root" 
-              action="action_remote_assistance_request" 
-              sequence="70"/>
-
+   
 </odoo>

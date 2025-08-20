@@ -29,16 +29,6 @@
             </field>
         </record>
 
-        <!-- Acción para abrir la vista de pCloudFolderFile -->
-        <record id="action_pcloud_folder_file" model="ir.actions.act_window">
-            <field name="name">pCloud Folders and Files</field>
-            <field name="res_model">pcloud.folder.file</field>
-            <field name="view_mode">list,form</field>
-            <field name="target">current</field>
-        </record>
-
-        <!-- Menú para abrir la vista de pCloudFolderFile -->
-        <menuitem id="menu_pcloud_root" name="pCloud" parent="copier_company.menu_root" sequence="40"/>
-        <menuitem id="menu_pcloud_folder_file" name="Folders and Files" parent="menu_pcloud_root" action="action_pcloud_folder_file" sequence="20"/>
+      
     </data>
 </odoo>

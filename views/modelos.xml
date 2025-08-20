@@ -163,15 +163,7 @@
       </field>
     </record>
 
-    <!-- Acciones -->
-    <record id="accion_modelos_maquinas" model="ir.actions.act_window">
-      <field name="name">Modelos de Máquinas</field>
-      <field name="res_model">modelos.maquinas</field>
-      <field name="view_mode">list,form,kanban</field>
-    </record>
-
-    <!-- Menú -->
-    <menuitem id="menu_modelos_maquinas" name="Modelos de Máquinas" parent="menu_ajustes" action="accion_modelos_maquinas" sequence="20"/>
+ 
     
   </data>
 </odoo>

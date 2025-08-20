@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ========================================= -->
+    <!-- VISTAS PARA ALERTAS WHATSAPP -->
+    <!-- ========================================= -->
+    
+    <!-- Vista Lista de Alertas WhatsApp -->
+    <record id="view_copier_whatsapp_alert_list" model="ir.ui.view">
+        <field name="name">copier.whatsapp.alert.list</field>
+        <field name="model">copier.whatsapp.alert</field>
+        <field name="arch" type="xml">
+            <list string="Alertas WhatsApp" 
+                  decoration-success="status=='sent'" 
+                  decoration-danger="status=='failed'"
+                  decoration-warning="status=='pending'"
+                  decoration-muted="status=='cancelled'">
+                <field name="create_date" string="Fecha"/>
+                <field name="partner_id" string="Distribuidor"/>
+                <field name="alert_type" string="Tipo"/>
+                <field name="machine_id" string="Máquina" optional="hide"/>
+                <field name="priority" string="Prioridad" widget="priority"/>
+                <field name="status" string="Estado" widget="badge" 
+                       decoration-success="status=='sent'" 
+                       decoration-danger="status=='failed'"
+                       decoration-warning="status=='pending'"/>
+                <field name="phone_number" string="Teléfono" optional="hide"/>
+                <field name="sent_date" string="Enviado" optional="hide"/>
+                <field name="attempts" string="Intentos"/>
+                <field name="error_message" string="Error" optional="hide"/>
+                <button name="send_alert" 
+                        string="Reenviar" 
+                        type="object" 
+                        class="btn-primary"
+                        invisible="status == 'sent'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Formulario de Alerta WhatsApp -->
+    <record id="view_copier_whatsapp_alert_form" model="ir.ui.view">
+        <field name="name">copier.whatsapp.alert.form</field>
+        <field name="model">copier.whatsapp.alert</field>
+        <field name="arch" type="xml">
+            <form string="Alerta WhatsApp">
+                <header>
+                    <button name="send_alert" 
+                            string="Enviar Ahora" 
+                            type="object" 
+                            class="btn-primary"
+                            invisible="status == 'sent'"/>
+                    <field name="status" widget="statusbar" 
+                           statusbar_visible="pending,sent,failed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="alert_type" readonly="1"/>
+                        </h1>
+                        <div class="o_row" invisible="machine_id == False">
+                            <span class="text-muted">Máquina:</span>
+                            <field name="machine_id" readonly="1"/>
+                        </div>
+                    </div>
+                    
+                    <group>
+                        <group string="Información del Destinatario">
+                            <field name="partner_id"/>
+                            <field name="phone_number" readonly="1"/>
+                        </group>
+                        <group string="Configuración de Envío">
+                            <field name="priority" widget="priority"/>
+                            <field name="scheduled_date"/>
+                            <field name="attempts" readonly="1"/>
+                            <field name="max_attempts"/>
+                        </group>
+                    </group>
+
+                    <group string="Detalles del Envío">
+                        <field name="sent_date" readonly="1"/>
+                        <field name="error_message" readonly="1" invisible="status != 'failed'"/>
+                    </group>
+
+                    <notebook>
+                        <page string="Mensaje" name="message">
+                            <field name="message" readonly="1" widget="text"/>
+                        </page>
+                        <page string="Historial" name="history" invisible="attempts == 0">
+                            <group>
+                                <field name="create_date" string="Creado" readonly="1"/>
+                                <field name="create_uid" string="Creado por" readonly="1"/>
+                                <field name="write_date" string="Última modificación" readonly="1"/>
+                                <field name="write_uid" string="Modificado por" readonly="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista Search de Alertas WhatsApp -->
+    <record id="view_copier_whatsapp_alert_search" model="ir.ui.view">
+        <field name="name">copier.whatsapp.alert.search</field>
+        <field name="model">copier.whatsapp.alert</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Alertas">
+                <field name="partner_id" string="Distribuidor"/>
+                <field name="machine_id" string="Máquina"/>
+                <field name="phone_number" string="Teléfono"/>
+                
+                <filter string="Pendientes" name="pending" 
+                        domain="[('status', '=', 'pending')]"/>
+                <filter string="Enviadas" name="sent" 
+                        domain="[('status', '=', 'sent')]"/>
+                <filter string="Fallidas" name="failed" 
+                        domain="[('status', '=', 'failed')]"/>
+                
+                <separator/>
+                <filter string="Nuevo Stock" name="new_stock" 
+                        domain="[('alert_type', '=', 'new_stock')]"/>
+                <filter string="Por Expirar" name="expiry" 
+                        domain="[('alert_type', '=', 'reservation_expiry')]"/>
+                <filter string="Catálogo Semanal" name="weekly" 
+                        domain="[('alert_type', '=', 'weekly_catalog')]"/>
+                
+                <separator/>
+                <filter string="Alta Prioridad" name="high_priority" 
+                        domain="[('priority', 'in', ['high', 'urgent'])]"/>
+                <filter string="Hoy" name="today" 
+                        domain="[('create_date', '&gt;=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter string="Esta Semana" name="this_week" 
+                        domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+                
+                <group expand="1" string="Agrupar por">
+                    <filter string="Estado" name="group_status" 
+                            context="{'group_by': 'status'}"/>
+                    <filter string="Tipo de Alerta" name="group_type" 
+                            context="{'group_by': 'alert_type'}"/>
+                    <filter string="Distribuidor" name="group_partner" 
+                            context="{'group_by': 'partner_id'}"/>
+                    <filter string="Fecha de Creación" name="group_date" 
+                            context="{'group_by': 'create_date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Vista Kanban de Alertas WhatsApp -->
+    <record id="view_copier_whatsapp_alert_kanban" model="ir.ui.view">
+        <field name="name">copier.whatsapp.alert.kanban</field>
+        <field name="model">copier.whatsapp.alert</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="status" class="o_kanban_small_column">
+                <field name="partner_id"/>
+                <field name="alert_type"/>
+                <field name="priority"/>
+                <field name="status"/>
+                <field name="machine_id"/>
+                <field name="sent_date"/>
+                <field name="attempts"/>
+                
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="partner_id"/>
+                                    </strong>
+                                    <span class="o_kanban_record_subtitle text-muted">
+                                        <field name="alert_type"/>
+                                    </span>
+                                </div>
+                                <div class="o_kanban_manage_button_section">
+                                    <span t-if="record.priority.raw_value == 'urgent'" 
+                                          class="badge bg-danger">Urgente</span>
+                                    <span t-elif="record.priority.raw_value == 'high'" 
+                                          class="badge bg-warning">Alta</span>
+                                </div>
+                            </div>
+                            
+                            <div class="o_kanban_record_body">
+                                <div t-if="record.machine_id.raw_value" class="text-muted">
+                                    <i class="fa fa-cogs"/> <field name="machine_id"/>
+                                </div>
+                                <div t-if="record.sent_date.raw_value" class="text-muted">
+                                    <i class="fa fa-calendar"/> <field name="sent_date"/>
+                                </div>
+                                <div t-if="record.attempts.raw_value > 1" class="text-warning">
+                                    <i class="fa fa-retry"/> <field name="attempts"/> intentos
+                                </div>
+                            </div>
+                            
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                    <field name="create_date" widget="date"/>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <button name="send_alert" 
+                                            type="object" 
+                                            class="btn btn-sm btn-primary"
+                                            t-if="record.status.raw_value != 'sent'">
+                                        <i class="fa fa-paper-plane"/> Enviar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+   
+
+    <!-- ========================================= -->
+    <!-- VISTAS PARA EXTENDER RES.PARTNER -->
+    <!-- ========================================= -->
+    
+    <!-- Extender vista form de res.partner para mostrar alertas -->
+    <record id="view_partner_form_whatsapp" model="ir.ui.view">
+        <field name="name">res.partner.form.whatsapp</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <!-- Agregar página de WhatsApp si es distribuidor -->
+            <xpath expr="//notebook" position="inside">
+                <page string="WhatsApp" name="whatsapp" invisible="is_distributor == False">
+                    <group>
+                        <group string="Configuración de Notificaciones">
+                            <field name="whatsapp_phone" 
+                                   placeholder="+51 999 888 777"/>
+                            <field name="notify_new_stock"/>
+                            <field name="notify_orders"/>
+                            <field name="preferred_types"/>
+                        </group>
+                        <group string="Estadísticas">
+                            <field name="whatsapp_alert_count" readonly="1"/>
+                            <button name="action_view_whatsapp_alerts" 
+                                    type="object" 
+                                    string="Ver Alertas"
+                                    class="btn-link"
+                                    invisible="whatsapp_alert_count == 0"/>
+                        </group>
+                    </group>
+                    
+                    <separator string="Alertas Recientes"/>
+                    <field name="whatsapp_alert_ids" 
+                           readonly="1"
+                           domain="[('partner_id', '=', active_id)]"
+                           context="{'default_partner_id': active_id}">
+                        <list string="Alertas WhatsApp" limit="5">
+                            <field name="create_date" string="Fecha"/>
+                            <field name="alert_type" string="Tipo"/>
+                            <field name="status" string="Estado" widget="badge"/>
+                            <field name="sent_date" string="Enviado"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ========================================= -->
+    <!-- VISTAS PARA EXTENDER COPIER.STOCK -->
+    <!-- ========================================= -->
+    
+    <!-- Extender vista form de copier.stock para mostrar alertas relacionadas -->
+    <record id="view_copier_stock_form_whatsapp" model="ir.ui.view">
+        <field name="name">copier.stock.form.whatsapp</field>
+        <field name="model">copier.stock</field>
+        <field name="inherit_id" ref="copier_company.view_copier_stock_form"/>
+        <field name="arch" type="xml">
+            <!-- Agregar página de WhatsApp -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Alertas WhatsApp" name="whatsapp_alerts">
+                    <field name="whatsapp_alert_ids" 
+                           readonly="1"
+                           context="{'default_machine_id': active_id}">
+                        <list string="Alertas Enviadas">
+                            <field name="create_date" string="Fecha"/>
+                            <field name="partner_id" string="Distribuidor"/>
+                            <field name="alert_type" string="Tipo"/>
+                            <field name="status" string="Estado" widget="badge"/>
+                            <field name="sent_date" string="Enviado"/>
+                            <field name="attempts" string="Intentos"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ========================================= -->
+    <!-- BOTONES DE ACCIÓN RÁPIDA -->
+    <!-- ========================================= -->
+    
+    <!-- Acción para enviar alerta manual desde máquina -->
+    <record id="action_send_manual_alert" model="ir.actions.server">
+        <field name="name">Enviar Alerta Manual</field>
+        <field name="model_id" ref="model_copier_stock"/>
+        <field name="binding_model_id" ref="model_copier_stock"/>
+        <field name="binding_view_types">form,list</field>
+        <field name="code">
+for record in records:
+    if record.state == 'available':
+        env['copier.whatsapp.alert'].create_new_stock_alerts(record.id)
+        </field>
+    </record>
+
+    <!-- Acción para reenviar alertas fallidas -->
+    <record id="action_retry_failed_alerts" model="ir.actions.server">
+        <field name="name">Reintentar Alertas Fallidas</field>
+        <field name="model_id" ref="model_copier_whatsapp_alert"/>
+        <field name="binding_model_id" ref="model_copier_whatsapp_alert"/>
+        <field name="binding_view_types">form,list</field>
+        <field name="code">
+for record in records:
+    if record.status == 'failed' and record.attempts < record.max_attempts:
+        record.send_alert()
+        </field>
+    </record>
+
+</odoo>

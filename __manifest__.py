@@ -37,6 +37,7 @@
     ],
 
     'data': [
+        'views/menus_actions.xml',
         'views/views.xml',        
         'views/ticket_copier.xml',         
         'views/marcas.xml',             
