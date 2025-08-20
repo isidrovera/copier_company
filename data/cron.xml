@@ -23,5 +23,97 @@
             <field name="key">recaptcha.secret_key</field>
             <field name="value">TU_CLAVE_SECRETA</field>
         </record>
+
+
+
+        <record id="cron_process_pending_alerts" model="ir.cron">
+        <field name="name">Procesar Alertas WhatsApp Pendientes</field>
+        <field name="model_id" ref="model_copier_whatsapp_alert"/>
+        <field name="state">code</field>
+        <field name="code">model.process_pending_alerts()</field>
+        <field name="interval_number">15</field>
+        <field name="interval_type">minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="doall">False</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- Cron para alertas de expiración (diario a las 9 AM) -->
+    <record id="cron_expiry_alerts" model="ir.cron">
+        <field name="name">Alertas de Reservas por Expirar</field>
+        <field name="model_id" ref="model_copier_whatsapp_alert"/>
+        <field name="state">code</field>
+        <field name="code">model.create_expiry_alerts()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="doall">False</field>
+        <field name="active">True</field>
+        <field name="nextcall">2025-08-21 09:00:00</field>
+    </record>
+
+    <!-- Cron para catálogo semanal (lunes a las 8 AM) -->
+    <record id="cron_weekly_catalog" model="ir.cron">
+        <field name="name">Catálogo Semanal WhatsApp</field>
+        <field name="model_id" ref="model_copier_whatsapp_alert"/>
+        <field name="state">code</field>
+        <field name="code">
+import datetime
+if datetime.datetime.now().weekday() == 0:  # Lunes
+    model.create_weekly_catalog_alerts()
+        </field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="doall">False</field>
+        <field name="active">True</field>
+        <field name="nextcall">2025-08-25 08:00:00</field>
+    </record>
+
+    <!-- ========================================= -->
+    <!-- SECUENCIA PARA ALERTAS -->
+    <!-- ========================================= -->
+    
+    <record id="seq_copier_whatsapp_alert" model="ir.sequence">
+        <field name="name">Alertas WhatsApp</field>
+        <field name="code">copier.whatsapp.alert</field>
+        <field name="prefix">ALERT</field>
+        <field name="padding">5</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+    </record>
+
+    <!-- ========================================= -->
+    <!-- CONFIGURACIONES INICIALES -->
+    <!-- ========================================= -->
+    
+    <!-- Configuración para URL de API WhatsApp -->
+    <record id="config_whatsapp_api_url" model="ir.config_parameter">
+        <field name="key">copier.whatsapp.api.url</field>
+        <field name="value">https://whatsappapi.copiercompanysac.com/api/message</field>
+    </record>
+    
+    <!-- Configuración para timeout de API -->
+    <record id="config_whatsapp_timeout" model="ir.config_parameter">
+        <field name="key">copier.whatsapp.timeout</field>
+        <field name="value">30</field>
+    </record>
+    
+    <!-- Configuración para máximo de alertas por lote -->
+    <record id="config_whatsapp_batch_size" model="ir.config_parameter">
+        <field name="key">copier.whatsapp.batch.size</field>
+        <field name="value">50</field>
+    </record>
+
+    <!-- ========================================= -->
+    <!-- CATEGORÍAS PARA MENÚ -->
+    <!-- ========================================= -->
+    
+    <!-- Categoría principal para WhatsApp -->
+    <record id="category_whatsapp" model="ir.module.category">
+        <field name="name">WhatsApp Notifications</field>
+        <field name="description">Gestión de notificaciones WhatsApp</field>
+        <field name="sequence">10</field>
+    </record>
     </data>
 </odoo>
