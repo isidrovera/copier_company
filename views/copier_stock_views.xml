@@ -60,7 +60,7 @@
                     <button name="action_add_to_existing_order" string="Agregar a Orden" type="object" 
                             class="btn-secondary" invisible="state != 'available'"/>
                     
-                    <field name="state" widget="statusbar"/>
+                    <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
