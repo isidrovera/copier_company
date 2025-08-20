@@ -32,12 +32,12 @@ class ResPartner(models.Model):
         help='Recibir notificaciones sobre el estado de las órdenes'
     )
     
-    # Preferencias de máquinas
-    preferred_brands = fields.Many2many(
-        'marcas.maquinas',
-        string='Marcas Preferidas',
-        help='Marcas de máquinas de interés para notificaciones'
-    )
+    # Preferencias de máquinas - CORREGIDO: comentado hasta que exista el modelo
+    # preferred_brands = fields.Many2many(
+    #     'marcas.maquinas',
+    #     string='Marcas Preferidas',
+    #     help='Marcas de máquinas de interés para notificaciones'
+    # )
     
     preferred_types = fields.Selection([
         ('monocroma', 'Monocroma'),
@@ -57,31 +57,40 @@ class ResPartner(models.Model):
         compute='_compute_copier_machine_count'
     )
 
-    @api.depends('sale_order_ids')
     def _compute_copier_order_count(self):
         """Contar órdenes que contienen máquinas usadas"""
         for partner in self:
-            # Contar órdenes que tienen productos "Venta de Máquina Usada"
-            orders = partner.sale_order_ids.filtered(
-                lambda o: any(line.product_id.name == 'Venta de Máquina Usada' 
-                             for line in o.order_line)
-            )
-            partner.copier_order_count = len(orders)
+            # CORREGIDO: Verificar si existe sale_order_ids
+            if hasattr(partner, 'sale_order_ids'):
+                orders = partner.sale_order_ids.filtered(
+                    lambda o: any(line.product_id.name == 'Venta de Máquina Usada' 
+                                 for line in o.order_line)
+                )
+                partner.copier_order_count = len(orders)
+            else:
+                partner.copier_order_count = 0
 
     def _compute_copier_machine_count(self):
         """Contar máquinas compradas por este distribuidor"""
         for partner in self:
-            machines = self.env['copier.stock'].search([
-                ('reserved_by', '=', partner.id),
-                ('state', '=', 'sold')
-            ])
-            partner.copier_machine_count = len(machines)
+            # CORREGIDO: Verificar si existe el modelo copier.stock
+            try:
+                machines = self.env['copier.stock'].search([
+                    ('reserved_by', '=', partner.id),
+                    ('state', '=', 'sold')
+                ])
+                partner.copier_machine_count = len(machines)
+            except:
+                partner.copier_machine_count = 0
 
     def action_view_copier_orders(self):
         """Ver órdenes de máquinas de este distribuidor"""
         self.ensure_one()
         
-        # Buscar órdenes que contengan máquinas usadas
+        # CORREGIDO: Verificar si existe sale_order_ids
+        if not hasattr(self, 'sale_order_ids'):
+            return False
+            
         orders = self.sale_order_ids.filtered(
             lambda o: any(line.product_id.name == 'Venta de Máquina Usada' 
                          for line in o.order_line)
@@ -100,45 +109,57 @@ class ResPartner(models.Model):
         """Ver máquinas compradas por este distribuidor"""
         self.ensure_one()
         
-        return {
-            'name': f'Máquinas de {self.name}',
-            'type': 'ir.actions.act_window',
-            'res_model': 'copier.stock',
-            'view_mode': 'list,form',
-            'domain': [('reserved_by', '=', self.id), ('state', '=', 'sold')],
-        }
+        # CORREGIDO: Verificar si existe el modelo
+        try:
+            return {
+                'name': f'Máquinas de {self.name}',
+                'type': 'ir.actions.act_window',
+                'res_model': 'copier.stock',
+                'view_mode': 'list,form',
+                'domain': [('reserved_by', '=', self.id), ('state', '=', 'sold')],
+            }
+        except:
+            return False
 
 
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
     
-    # Campo relacionado para mostrar máquinas
-    copier_machine_ids = fields.One2many(
-        'copier.stock',
-        'sale_order_id',
-        string='Máquinas Relacionadas',
-        readonly=True
-    )
+    # CORREGIDO: Verificar si existe el modelo copier.stock
+    # copier_machine_ids = fields.One2many(
+    #     'copier.stock',
+    #     'sale_order_id',
+    #     string='Máquinas Relacionadas',
+    #     readonly=True
+    # )
     
     copier_machine_count = fields.Integer(
         string='Cantidad de Máquinas',
         compute='_compute_copier_machine_count'
     )
 
-    @api.depends('copier_machine_ids')
     def _compute_copier_machine_count(self):
         """Contar máquinas en esta orden"""
         for order in self:
-            order.copier_machine_count = len(order.copier_machine_ids)
+            try:
+                machines = self.env['copier.stock'].search([
+                    ('sale_order_id', '=', order.id)
+                ])
+                order.copier_machine_count = len(machines)
+            except:
+                order.copier_machine_count = 0
 
     def action_view_copier_machines(self):
         """Ver máquinas de esta orden"""
         self.ensure_one()
         
-        return {
-            'name': f'Máquinas - {self.name}',
-            'type': 'ir.actions.act_window',
-            'res_model': 'copier.stock',
-            'view_mode': 'list,form',
-            'domain': [('sale_order_id', '=', self.id)],
-        }
+        try:
+            return {
+                'name': f'Máquinas - {self.name}',
+                'type': 'ir.actions.act_window',
+                'res_model': 'copier.stock',
+                'view_mode': 'list,form',
+                'domain': [('sale_order_id', '=', self.id)],
+            }
+        except:
+            return False
