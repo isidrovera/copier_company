@@ -36,8 +36,7 @@
         
     ],
 
-    'data': [
-        'views/menus_actions.xml',
+    'data': [        
         'views/views.xml',        
         'views/ticket_copier.xml',         
         'views/marcas.xml',             
@@ -82,7 +81,7 @@
         'views/servicios_web.xml',
         'views/cotizaciones_multiples.xml',
         'views/template_cotizaciones.xml',
-        
+        'views/menus_actions.xml',   
         
         
         
