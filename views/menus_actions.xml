@@ -238,21 +238,7 @@
         <field name="view_mode">list,form,kanban</field>
     </record>
 
-    <record id="action_copier_volumen_compartido" model="ir.actions.act_window">
-        <field name="name">Planes de Volumen Compartido</field>
-        <field name="res_model">copier.volumen.compartido</field>
-        <field name="view_mode">list,form</field>
-        <field name="context">{'search_default_active': 1}</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                Crear un nuevo plan de volumen compartido
-            </p>
-            <p>
-                Los planes de volumen compartido permiten que múltiples máquinas
-                de un mismo cliente compartan un volumen mensual de copias.
-            </p>
-        </field>
-    </record>
+  
 
     <record id="action_copier_machine_user" model="ir.actions.act_window">
         <field name="name">Usuarios Internos</field>
