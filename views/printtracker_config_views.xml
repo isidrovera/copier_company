@@ -1,169 +1,176 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_printtracker_config_form" model="ir.ui.view">
-        <field name="name">copier.printtracker.config.form</field>
-        <field name="model">copier.printtracker.config</field>
-        <field name="arch" type="xml">
-            <form>
-                <header>
-                    <button name="test_connection" 
-                            string="Probar Conexión" 
-                            type="object" 
-                            class="btn-primary"/>
-                    <field name="connection_status" widget="statusbar" 
-                           statusbar_colors='{"connected":"success","error":"danger"}'/>
-                </header>
-                <sheet>
-                    <div class="oe_title">
-                        <h1>
-                            <field name="name" placeholder="Nombre de la configuración"/>
-                        </h1>
-                    </div>
-                    
-                    <group>
-                        <group string="Configuración de API">
-                            <field name="api_url"/>
-                            <field name="api_key" password="True"/>
-                            <field name="entity_bbbb_id"/>
-                        </group>
-                        <group string="Configuración Avanzada">
-                            <field name="timeout_seconds"/>
-                            <field name="max_retries"/>
-                            <field name="retry_delay"/>
-                        </group>
-                    </group>
-                    
-                    <group string="Estado de Conexión" column_invisible="connection_status == 'not_tested'">
-                        <field name="last_error" readonly="1" column_invisible="connection_status == 'connected'"/>
-                    </group>
-                    
-                    <div class="alert alert-info" role="alert">
-                        <h4 class="alert-heading">Instrucciones:</h4>
-                        <ol>
-                            <li>Ingrese la URL base de la API de PrintTracker Pro</li>
-                            <li>Configure su API Key proporcionada por PrintTracker</li>
-                            <li>Especifique el ID de su entidad principal (BBBB)</li>
-                            <li>Presione "Probar Conexión" para verificar la configuración</li>
-                        </ol>
-                    </div>
-                </sheet>
-            </form>
-        </field>
-    </record>
 
-    <!-- List View para Configuración PrintTracker -->
-    <record id="view_printtracker_config_list" model="ir.ui.view">
-        <field name="name">copier.printtracker.config.list</field>
-        <field name="model">copier.printtracker.config</field>
-        <field name="arch" type="xml">
-            <list>
-                <field name="name"/>
-                <field name="api_url"/>
-                <field name="entity_bbbb_id"/>
-                <field name="connection_status" 
-                       decoration-success="connection_status == 'connected'"
-                       decoration-danger="connection_status == 'error'"
-                       widget="badge"/>
-                <button name="test_connection" 
-                        string="Probar" 
-                        type="object" 
-                        icon="fa-check" 
-                        class="btn-primary"/>
-            </list>
-        </field>
-    </record>
+  <!-- ===================== FORM: Configuración PrintTracker ===================== -->
+  <record id="view_printtracker_config_form" model="ir.ui.view">
+    <field name="name">copier.printtracker.config.form</field>
+    <field name="model">copier.printtracker.config</field>
+    <field name="arch" type="xml">
+      <form>
+        <header>
+          <button name="test_connection"
+                  string="Probar Conexión"
+                  type="object"
+                  class="btn-primary"/>
+          <field name="connection_status"
+                 widget="statusbar"
+                 statusbar_colors='{"connected":"success","error":"danger"}'/>
+        </header>
+        <sheet>
+          <div class="oe_title">
+            <h1>
+              <field name="name" placeholder="Nombre de la configuración"/>
+            </h1>
+          </div>
 
-    <record id="view_copier_company_form_printtracker" model="ir.ui.view">
-        <field name="name">copier.company.form.printtracker</field>
-        <field name="model">copier.company</field>
-        <field name="inherit_id" ref="copier_company.view_maquinas_form"/>
-        <field name="arch" type="xml">
-            
-            <!-- Agregar botón en header -->
-            <button name="generar_sticker_corporativo" position="after">
-                <button name="action_map_printtracker" 
-                        string="Mapear con PrintTracker" 
-                        type="object" 
-                        class="btn-info"
-                        icon="fa-link"
-                        column_invisible="pt_mapped"
-                        help="Conectar esta máquina con PrintTracker usando la serie"/>
-            </button>
-            
-            <!-- Agregar grupo PrintTracker después del grupo "Datos del Cliente" -->
-            <group string="Datos del Cliente" position="after">
-                <group string="PrintTracker Integration" column_invisible="not pt_mapped">
-                    <field name="pt_device_id" readonly="1"/>
-                    <field name="pt_last_sync" readonly="1"/>
-                    <field name="pt_mapped" column_invisible="1"/>
-                </group>
+          <group>
+            <group string="Configuración de API">
+              <field name="api_url"/>
+              <field name="api_key" password="True"/>
+              <field name="entity_bbbb_id"/>
             </group>
-            
-        </field>
-    </record>
+            <group string="Configuración Avanzada">
+              <field name="timeout_seconds"/>
+              <field name="max_retries"/>
+              <field name="retry_delay"/>
+            </group>
+          </group>
 
-    <!-- Extensión de la vista lista de copier.company -->
-    <record id="view_copier_company_list_printtracker" model="ir.ui.view">
-        <field name="name">copier.company.list.printtracker</field>
-        <field name="model">copier.company</field>
-        <field name="inherit_id" ref="copier_company.list"/>
-        <field name="arch" type="xml">
-            
-            <!-- Agregar campo PrintTracker en la lista -->
-            <field name="estado_maquina_id" position="after">
-                <field name="pt_mapped" optional="hide" 
-                       decoration-success="pt_mapped == True" 
-                       decoration-muted="pt_mapped == False"
-                       widget="boolean_toggle"/>
-            </field>
-            
-        </field>
-    </record>
-    <record id="view_copier_counter_form_printtracker" model="ir.ui.view">
-        <field name="name">copier.counter.form.printtracker</field>
-        <field name="model">copier.counter</field>
-        <field name="inherit_id" ref="copier_company.view_copier_counter_form"/>
-        <field name="arch" type="xml">
-            
-            <!-- Agregar botón en header -->
-            <button name="debug_urgente_counter" position="after">
-                <button name="action_update_from_printtracker" 
-                        string="Actualizar desde PrintTracker" 
-                        type="object" 
-                        class="btn btn-info"
-                        icon="fa-refresh"
-                        column_invisible="context.get('form_view_initial_mode') == 'readonly' or state != 'draft' or not maquina_id or not maquina_id.pt_mapped"
-                        help="Obtener contadores actuales desde PrintTracker Pro"/>
-            </button>
-            
-            <!-- Agregar campos PrintTracker en el grupo "Información General" -->
-            <field name="fecha_emision_factura" position="after">
-                <separator string="PrintTracker Info" column_invisible="not pt_updated"/>
-                <field name="pt_updated" column_invisible="1"/>
-                <field name="pt_last_reading_date" readonly="1" 
-                       column_invisible="not pt_updated" 
-                       string="Fecha Lectura PT"
-                       widget="datetime"/>
-            </field>
-            
-        </field>
-    </record>
+          <!-- En Odoo 18: usa invisible="..." (no attrs / column_invisible) -->
+          <group string="Estado de Conexión" invisible="connection_status == 'not_tested'">
+            <field name="last_error" readonly="1" invisible="connection_status == 'connected'"/>
+          </group>
 
-    <!-- Extensión de la vista lista de copier.counter -->
-    <record id="view_copier_counter_list_printtracker" model="ir.ui.view">
-        <field name="name">copier.counter.list.printtracker</field>
-        <field name="model">copier.counter</field>
-        <field name="inherit_id" ref="copier_company.view_copier_counter_tree"/>
-        <field name="arch" type="xml">
-            
-            <!-- Agregar campo que indique si fue actualizado desde PrintTracker -->
-            <field name="state" position="before">
-                <field name="pt_updated" optional="hide" 
-                       decoration-info="pt_updated == True"
-                       widget="boolean_toggle" 
-                       string="PT"/>
-            </field>
-            
-        </field>
-    </record>
+          <div class="alert alert-info" role="alert">
+            <h4 class="alert-heading">Instrucciones:</h4>
+            <ol>
+              <li>Ingrese la URL base de la API de PrintTracker Pro</li>
+              <li>Configure su API Key proporcionada por PrintTracker</li>
+              <li>Especifique el ID de su entidad principal (BBBB)</li>
+              <li>Presione "Probar Conexión" para verificar la configuración</li>
+            </ol>
+          </div>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <!-- ===================== LIST: Configuración PrintTracker ===================== -->
+  <record id="view_printtracker_config_list" model="ir.ui.view">
+    <field name="name">copier.printtracker.config.list</field>
+    <field name="model">copier.printtracker.config</field>
+    <field name="arch" type="xml">
+      <list>
+        <field name="name"/>
+        <field name="api_url"/>
+        <field name="entity_bbbb_id"/>
+        <field name="connection_status"
+               widget="badge"
+               decoration-success="connection_status == 'connected'"
+               decoration-danger="connection_status == 'error'"/>
+        <button name="test_connection"
+                string="Probar"
+                type="object"
+                icon="fa-check"
+                class="btn-primary"/>
+      </list>
+    </field>
+  </record>
+
+  <!-- ===================== INHERIT FORM: copier.company ===================== -->
+  <record id="view_copier_company_form_printtracker" model="ir.ui.view">
+    <field name="name">copier.company.form.printtracker</field>
+    <field name="model">copier.company</field>
+    <field name="inherit_id" ref="copier_company.view_maquinas_form"/>
+    <field name="arch" type="xml">
+
+      <!-- Botón nuevo DESPUÉS de un botón existente del header -->
+      <xpath expr="//header/button[@name='generar_sticker_corporativo']" position="after">
+        <button name="action_map_printtracker"
+                string="Mapear con PrintTracker"
+                type="object"
+                class="btn-info"
+                icon="fa-link"
+                invisible="pt_mapped"
+                help="Conectar esta máquina con PrintTracker usando la serie"/>
+      </xpath>
+
+      <!-- Grupo nuevo dentro del sheet (evita selector por string) -->
+      <xpath expr="//sheet" position="inside">
+        <group name="grp_printtracker_integration" string="PrintTracker Integration" invisible="not pt_mapped">
+          <field name="pt_device_id" readonly="1"/>
+          <field name="pt_last_sync" readonly="1"/>
+          <!-- Mantener el campo en el form, pero oculto mediante invisible -->
+          <field name="pt_mapped" invisible="1"/>
+        </group>
+      </xpath>
+    </field>
+  </record>
+
+  <!-- ===================== INHERIT LIST: copier.company ===================== -->
+  <record id="view_copier_company_list_printtracker" model="ir.ui.view">
+    <field name="name">copier.company.list.printtracker</field>
+    <field name="model">copier.company</field>
+    <field name="inherit_id" ref="copier_company.list"/>
+    <field name="arch" type="xml">
+      <!-- Insertar indicador PT justo después de estado_maquina_id -->
+      <xpath expr="//list/field[@name='estado_maquina_id']" position="after">
+        <field name="pt_mapped"
+               optional="hide"
+               widget="boolean_toggle"
+               string="PT"
+               decoration-success="pt_mapped == True"
+               decoration-muted="pt_mapped == False"/>
+      </xpath>
+    </field>
+  </record>
+
+  <!-- ===================== INHERIT FORM: copier.counter ===================== -->
+  <record id="view_copier_counter_form_printtracker" model="ir.ui.view">
+    <field name="name">copier.counter.form.printtracker</field>
+    <field name="model">copier.counter</field>
+    <field name="inherit_id" ref="copier_company.view_copier_counter_form"/>
+    <field name="arch" type="xml">
+
+      <!-- Botón en header, después de otro botón identificable -->
+      <xpath expr="//header//button[@name='debug_urgente_counter']" position="after">
+        <button name="action_update_from_printtracker"
+                string="Actualizar desde PrintTracker"
+                type="object"
+                class="btn btn-info"
+                icon="fa-refresh"
+                invisible="state != 'draft' or not maquina_id or not maquina_id.pt_mapped"
+                help="Obtener contadores actuales desde PrintTracker Pro"/>
+      </xpath>
+
+      <!-- Bloque de info PT: insertado tras un campo ancla fiable -->
+      <xpath expr="//sheet//field[@name='fecha_emision_factura']" position="after">
+        <separator string="PrintTracker Info" invisible="not pt_updated"/>
+        <field name="pt_updated" invisible="1"/>
+        <field name="pt_last_reading_date"
+               string="Fecha Lectura PT"
+               widget="datetime"
+               readonly="1"
+               invisible="not pt_updated"/>
+      </xpath>
+    </field>
+  </record>
+
+  <!-- ===================== INHERIT LIST: copier.counter ===================== -->
+  <record id="view_copier_counter_list_printtracker" model="ir.ui.view">
+    <field name="name">copier.counter.list.printtracker</field>
+    <field name="model">copier.counter</field>
+    <field name="inherit_id" ref="copier_company.view_copier_counter_tree"/>
+    <field name="arch" type="xml">
+      <!-- Añadir flag PT antes de state -->
+      <xpath expr="//list/field[@name='state']" position="before">
+        <field name="pt_updated"
+               optional="hide"
+               widget="boolean_toggle"
+               string="PT"
+               decoration-info="pt_updated == True"/>
+      </xpath>
+    </field>
+  </record>
+
 </odoo>
