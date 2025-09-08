@@ -494,5 +494,76 @@
               parent="menu_ajustes" 
               action="view_pcloud_config_form_action"
               sequence="100"/>
+    <!-- ========================================= -->
+<!-- AGREGAR ESTAS LÍNEAS EN TU ARCHIVO DE MENÚS EXISTENTE -->
+<!-- ========================================= -->
 
+<!-- NUEVAS ACCIONES PARA PRINTTRACKER -->
+<record id="action_printtracker_config" model="ir.actions.act_window">
+    <field name="name">Configuración PrintTracker</field>
+    <field name="res_model">copier.printtracker.config</field>
+    <field name="view_mode">form,list</field>
+    <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+            Configure la conexión con PrintTracker Pro
+        </p>
+        <p>
+            Ingrese la URL de la API, API Key y ID de entidad para conectar 
+            con PrintTracker Pro y obtener lecturas automáticas de contadores.
+        </p>
+    </field>
+</record>
+
+<!-- AGREGAR ESTE MENÚ DENTRO DE "menu_ajustes" (en la sección 11. Ajustes) -->
+<!-- Insertar después de la línea del menú "pCloud Configuration" -->
+
+<menuitem id="menu_printtracker_config"
+          name="PrintTracker Config"
+          action="action_printtracker_config"
+          parent="menu_ajustes"
+          groups="base.group_system"
+          sequence="105"/>
+
+<!-- ========================================= -->
+<!-- TAMBIÉN NECESITAS ESTAS ACCIONES DE SERVIDOR PARA LOS BOTONES -->
+<!-- ========================================= -->
+
+<!-- Acción del servidor para actualizar un contador desde PrintTracker -->
+<record id="action_update_counter_printtracker_server" model="ir.actions.server">
+    <field name="name">Actualizar desde PrintTracker</field>
+    <field name="model_id" ref="model_copier_counter"/>
+    <field name="binding_model_id" ref="model_copier_counter"/>
+    <field name="binding_view_types">form</field>
+    <field name="state">code</field>
+    <field name="code">
+        if record.exists():
+            action = record.action_update_from_printtracker()
+    </field>
+</record>
+
+<!-- Acción del servidor para actualizar múltiples contadores -->
+<record id="action_update_multiple_counters_printtracker_server" model="ir.actions.server">
+    <field name="name">Actualizar Múltiples desde PrintTracker</field>
+    <field name="model_id" ref="model_copier_counter"/>
+    <field name="binding_model_id" ref="model_copier_counter"/>
+    <field name="binding_view_types">list</field>
+    <field name="state">code</field>
+    <field name="code">
+        if records.exists():
+            action = records.action_update_multiple_from_printtracker()
+    </field>
+</record>
+
+<!-- Acción del servidor para mapear máquina con PrintTracker -->
+<record id="action_map_printtracker_server" model="ir.actions.server">
+    <field name="name">Mapear con PrintTracker</field>
+    <field name="model_id" ref="model_copier_company"/>
+    <field name="binding_model_id" ref="model_copier_company"/>
+    <field name="binding_view_types">form</field>
+    <field name="state">code</field>
+    <field name="code">
+        if record.exists():
+            action = record.action_map_printtracker()
+    </field>
+</record>
 </odoo>
