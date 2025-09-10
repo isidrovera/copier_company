@@ -154,7 +154,7 @@ class CopierCompany(models.Model):
             record.pt_mapped = bool(record.pt_device_id)
 
     def action_map_printtracker(self):
-        """Acción para mapear manualmente con PrintTracker por serie"""
+        """Acción para mapear con PrintTracker por serie usando paginación del ejemplo"""
         self.ensure_one()
         
         if not self.serie_id:
@@ -163,49 +163,32 @@ class CopierCompany(models.Model):
         try:
             config = self.env['copier.printtracker.config'].get_active_config()
             
-            # Buscar dispositivo por serie en PrintTracker
-            response = requests.get(
-                f'{config.api_url.rstrip("/")}/entity/{config.entity_bbbb_id}/device',
-                headers=config.get_api_headers(),
-                params={'includeChildren': True},
-                timeout=config.timeout_seconds
-            )
+            # Buscar dispositivo con paginación siguiendo el patrón del ejemplo
+            device_found = self._search_device_with_pagination(config)
             
-            if response.status_code == 200:
-                devices = response.json()
+            if device_found:
+                self.write({
+                    'pt_device_id': device_found.get('id'),
+                    'pt_last_sync': fields.Datetime.now()
+                })
                 
-                # Buscar por serie
-                device_found = None
-                for device in devices:
-                    if device.get('serialNumber') == self.serie_id:
-                        device_found = device
-                        break
-                
-                if device_found:
-                    self.write({
-                        'pt_device_id': device_found.get('id'),
-                        'pt_last_sync': fields.Datetime.now()
-                    })
-                    
-                    return {
-                        'type': 'ir.actions.client',
-                        'tag': 'display_notification',
-                        'params': {
-                            'message': f'Máquina mapeada exitosamente con PrintTracker\nDispositivo: {device_found.get("id")}',
-                            'type': 'success'
-                        }
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'message': f'Máquina mapeada exitosamente con PrintTracker\nSerie: {self.serie_id}\nDispositivo ID: {device_found.get("id")}\nUbicación: {device_found.get("customLocation", "N/A")}',
+                        'type': 'success'
                     }
-                else:
-                    return {
-                        'type': 'ir.actions.client',
-                        'tag': 'display_notification',
-                        'params': {
-                            'message': f'No se encontró dispositivo con serie {self.serie_id} en PrintTracker',
-                            'type': 'warning'
-                        }
-                    }
+                }
             else:
-                raise Exception(f'Error HTTP {response.status_code}: {response.text}')
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'message': f'No se encontró dispositivo con serie "{self.serie_id}" en PrintTracker.\n\nVerifica que la serie coincida exactamente.',
+                        'type': 'warning'
+                    }
+                }
                 
         except Exception as e:
             _logger.error(f"Error mapeando con PrintTracker: {e}")
@@ -214,6 +197,150 @@ class CopierCompany(models.Model):
                 'tag': 'display_notification',
                 'params': {
                     'message': f'Error: {str(e)}',
+                    'type': 'danger'
+                }
+            }
+
+    def _search_device_with_pagination(self, config):
+        """
+        Búsqueda con paginación siguiendo exactamente el patrón del código de ejemplo
+        Basado en sync_all_devices del archivo printtracker_config.py
+        """
+        serie_buscar = self.serie_id.strip()
+        _logger.info(f"Iniciando búsqueda paginada para serie: {serie_buscar}")
+        
+        all_devices = []
+        page = 1
+        total_pages_processed = 0
+        
+        # PAGINACIÓN COMPLETA siguiendo el patrón del ejemplo
+        while True:
+            _logger.info(f"=== PROCESANDO PÁGINA {page} ===")
+            
+            params = {
+                'includeChildren': True,
+                'excludeDisabled': False,  # Incluir dispositivos deshabilitados por si acaso
+                'limit': 100,             # Mismo límite que el ejemplo
+                'page': page              # Parámetro clave que faltaba
+            }
+            
+            def _devices_call():
+                return requests.get(
+                    f'{config.api_url.rstrip("/")}/entity/{config.entity_bbbb_id}/device',
+                    headers=config.get_api_headers(),
+                    params=params,
+                    timeout=config.timeout_seconds
+                )
+            
+            response = config._retry_api_call(_devices_call)
+            
+            _logger.info(f"Respuesta API página {page}: Status {response.status_code}")
+            
+            if response.status_code == 200:
+                devices_page = response.json()
+                
+                _logger.info(f"Página {page}: {len(devices_page)} dispositivos recibidos")
+                
+                if not devices_page:
+                    _logger.info(f"Página {page} vacía - Fin de datos")
+                    break
+                
+                # BUSCAR EN ESTA PÁGINA INMEDIATAMENTE
+                for device in devices_page:
+                    device_serial = device.get('serialNumber', '').strip()
+                    
+                    if device_serial == serie_buscar:
+                        _logger.info(f"DISPOSITIVO ENCONTRADO: {device_serial} -> ID: {device.get('id')}")
+                        _logger.info(f"Ubicación: {device.get('customLocation', 'N/A')}")
+                        _logger.info(f"Entidad: {device.get('entityKey', 'N/A')}")
+                        return device
+                
+                all_devices.extend(devices_page)
+                total_pages_processed += 1
+                
+                # Si la página está incompleta, es la última (patrón del ejemplo)
+                if len(devices_page) < 100:
+                    _logger.info(f"Página {page} incompleta - Última página")
+                    break
+                
+                page += 1
+                
+                # Límite de seguridad (del ejemplo)
+                if page > 50:
+                    _logger.warning(f"Límite de seguridad alcanzado: {page-1} páginas")
+                    break
+                    
+            else:
+                error_msg = f'Error HTTP {response.status_code} en página {page}: {response.text}'
+                _logger.error(f"Error de API: {error_msg}")
+                
+                if page == 1:
+                    raise Exception(error_msg)
+                else:
+                    _logger.warning(f"Error en página {page}, continuando con datos obtenidos")
+                    break
+        
+        # Log final de debug
+        _logger.info(f"=== RESUMEN BÚSQUEDA ===")
+        _logger.info(f"Páginas procesadas: {total_pages_processed}")
+        _logger.info(f"Total dispositivos revisados: {len(all_devices)}")
+        _logger.info(f"Serie buscada: '{serie_buscar}'")
+        
+        # Log de algunas series encontradas para debug
+        series_encontradas = [d.get('serialNumber', 'N/A') for d in all_devices[:10]]
+        _logger.info(f"Primeras 10 series encontradas: {series_encontradas}")
+        
+        return None
+    def debug_list_printtracker_devices(self):
+        """Método de debug para listar los primeros dispositivos"""
+        try:
+            config = self.env['copier.printtracker.config'].get_active_config()
+            
+            response = requests.get(
+                f'{config.api_url.rstrip("/")}/entity/{config.entity_bbbb_id}/device',
+                headers=config.get_api_headers(),
+                params={
+                    'includeChildren': True,
+                    'limit': 20,
+                    'page': 1
+                },
+                timeout=config.timeout_seconds
+            )
+            
+            if response.status_code == 200:
+                devices = response.json()
+                
+                message_lines = [
+                    f"DEBUG DISPOSITIVOS PRINTTRACKER",
+                    f"Total en primera página: {len(devices)}",
+                    "",
+                    "Primeros 10 dispositivos:"
+                ]
+                
+                for i, device in enumerate(devices[:10]):
+                    message_lines.append(
+                        f"{i+1}. Serie: '{device.get('serialNumber')}' | ID: {device.get('id')} | Ubicación: {device.get('customLocation', 'N/A')}"
+                    )
+                
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': 'Debug PrintTracker',
+                        'message': '\n'.join(message_lines),
+                        'type': 'info',
+                        'sticky': True
+                    }
+                }
+            else:
+                raise Exception(f'Error HTTP {response.status_code}: {response.text}')
+                
+        except Exception as e:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'message': f'Error en debug: {str(e)}',
                     'type': 'danger'
                 }
             }
