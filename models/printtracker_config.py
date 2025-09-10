@@ -431,20 +431,41 @@ class CopierCounter(models.Model):
                 }
             }
 
+    # REEMPLAZAR el método _obtener_ultima_lectura_printtracker en CopierCounter
+
     def _obtener_ultima_lectura_printtracker(self, config):
-        """Obtiene la lectura más reciente de PrintTracker"""
+        """
+        Obtiene la lectura más reciente de PrintTracker usando el endpoint correcto
+        Basado en el código de ejemplo sync_current_meters
+        """
         try:
-            # Obtener medidores actuales del dispositivo
+            # USAR EL ENDPOINT CORRECTO: /currentMeter en la entidad, no en el device específico
+            _logger.info(f"Obteniendo medidores para device_id: {self.maquina_id.pt_device_id}")
+            
+            # Buscar medidores usando el endpoint de entidad con filtros
             response = requests.get(
-                f'{config.api_url.rstrip("/")}/device/{self.maquina_id.pt_device_id}/currentMeter',
+                f'{config.api_url.rstrip("/")}/entity/{config.entity_bbbb_id}/currentMeter',
                 headers=config.get_api_headers(),
+                params={
+                    'includeChildren': True,
+                    'excludeDisabled': False
+                },
                 timeout=config.timeout_seconds
             )
             
             if response.status_code == 200:
-                meter_data = response.json()
-                _logger.info(f"Datos recibidos de PrintTracker: {meter_data}")
-                return meter_data
+                all_meters = response.json()
+                _logger.info(f"Total medidores recibidos: {len(all_meters)}")
+                
+                # Buscar el medidor del dispositivo específico
+                for meter_data in all_meters:
+                    device_key = meter_data.get('deviceKey')
+                    if device_key == self.maquina_id.pt_device_id:
+                        _logger.info(f"Medidor encontrado para dispositivo: {device_key}")
+                        return meter_data
+                
+                _logger.warning(f"No se encontró medidor para device_id: {self.maquina_id.pt_device_id}")
+                return None
             else:
                 _logger.error(f"Error HTTP {response.status_code}: {response.text}")
                 return None
@@ -452,6 +473,78 @@ class CopierCounter(models.Model):
         except Exception as e:
             _logger.error(f"Error obteniendo lecturas de PrintTracker: {e}")
             return None
+
+    # TAMBIÉN AGREGAR este método de debug para verificar medidores disponibles
+
+    def debug_printtracker_meters(self):
+        """Método de debug para listar medidores disponibles"""
+        try:
+            config = self.env['copier.printtracker.config'].get_active_config()
+            
+            response = requests.get(
+                f'{config.api_url.rstrip("/")}/entity/{config.entity_bbbb_id}/currentMeter',
+                headers=config.get_api_headers(),
+                params={
+                    'includeChildren': True,
+                    'limit': 20
+                },
+                timeout=config.timeout_seconds
+            )
+            
+            if response.status_code == 200:
+                meters = response.json()
+                
+                message_lines = [
+                    f"DEBUG MEDIDORES PRINTTRACKER",
+                    f"Total medidores: {len(meters)}",
+                    "",
+                    "Primeros 10 medidores:"
+                ]
+                
+                for i, meter in enumerate(meters[:10]):
+                    device_key = meter.get('deviceKey', 'N/A')
+                    timestamp = meter.get('timestamp', 'N/A')
+                    page_counts = meter.get('pageCounts', {})
+                    default_counts = page_counts.get('default', {}) or page_counts.get('life', {})
+                    
+                    total_pages = default_counts.get('total', {}).get('value', 0) if default_counts else 0
+                    
+                    message_lines.append(
+                        f"{i+1}. Device: {device_key} | Total: {total_pages} | Timestamp: {timestamp}"
+                    )
+                
+                # Verificar si existe medidor para nuestra máquina
+                our_device_id = self.maquina_id.pt_device_id if self.maquina_id else "N/A"
+                found_our_meter = any(m.get('deviceKey') == our_device_id for m in meters)
+                
+                message_lines.extend([
+                    "",
+                    f"Buscando device_id: {our_device_id}",
+                    f"Encontrado: {'SÍ' if found_our_meter else 'NO'}"
+                ])
+                
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': 'Debug Medidores PrintTracker',
+                        'message': '\n'.join(message_lines),
+                        'type': 'info',
+                        'sticky': True
+                    }
+                }
+            else:
+                raise Exception(f'Error HTTP {response.status_code}: {response.text}')
+                
+        except Exception as e:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'message': f'Error en debug medidores: {str(e)}',
+                    'type': 'danger'
+                }
+            }
 
     def _validar_nuevos_contadores_pt(self, lectura_pt):
         """Valida que los nuevos contadores de PrintTracker sean coherentes"""
