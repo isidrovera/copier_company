@@ -820,61 +820,108 @@ class CopierCounter(models.Model):
         """Acción para el botón de debug de medidores"""
         return self.debug_printtracker_meters()
     def _validar_nuevos_contadores_pt(self, lectura_pt):
-        """Valida que los nuevos contadores de PrintTracker sean coherentes"""
+        """Validación mejorada que permite primeras lecturas con logging detallado"""
+        _logger.info("--- Iniciando validación de contadores ---")
+        
         try:
-            # Extraer contadores de la estructura de PrintTracker
+            # Extraer contadores de PrintTracker
             page_counts = lectura_pt.get('pageCounts', {})
             default_counts = page_counts.get('default', {}) or page_counts.get('life', {})
             
             if not default_counts:
+                _logger.error("No se encontró estructura de contadores válida")
                 return {
                     'valido': False,
                     'mensaje': 'No se encontró estructura de contadores válida en PrintTracker'
                 }
             
-            # Extraer valores de contadores
+            # Extraer valores
             contador_bn_nuevo = self._safe_int(default_counts.get('totalBlack', {}).get('value', 0))
             contador_color_nuevo = self._safe_int(default_counts.get('totalColor', {}).get('value', 0))
             
-            _logger.info(f"Contadores PT - B/N: {contador_bn_nuevo}, Color: {contador_color_nuevo}")
-            _logger.info(f"Contadores actuales - B/N anterior: {self.contador_anterior_bn}, Color anterior: {self.contador_anterior_color}")
+            _logger.info(f"Contadores actuales en Odoo:")
+            _logger.info(f"  B/N anterior: {self.contador_anterior_bn}")
+            _logger.info(f"  Color anterior: {self.contador_anterior_color}")
+            _logger.info(f"Contadores nuevos de PrintTracker:")
+            _logger.info(f"  B/N nuevo: {contador_bn_nuevo}")
+            _logger.info(f"  Color nuevo: {contador_color_nuevo}")
+            
+            # DETECTAR SI ES PRIMERA LECTURA
+            es_primera_lectura = (self.contador_anterior_bn == 0 and self.contador_anterior_color == 0)
+            
+            if es_primera_lectura:
+                _logger.info("🆕 DETECTADA PRIMERA LECTURA - Saltando validaciones de incremento")
+                
+                # Para primera lectura, solo validar que los valores sean razonables
+                if contador_bn_nuevo < 0:
+                    error_msg = f'Contador B/N inválido: {contador_bn_nuevo} (no puede ser negativo)'
+                    _logger.error(f"VALIDACIÓN FALLIDA: {error_msg}")
+                    return {'valido': False, 'mensaje': error_msg}
+                
+                if contador_color_nuevo < 0:
+                    error_msg = f'Contador Color inválido: {contador_color_nuevo} (no puede ser negativo)'
+                    _logger.error(f"VALIDACIÓN FALLIDA: {error_msg}")
+                    return {'valido': False, 'mensaje': error_msg}
+                
+                # Validación de valores extremos para primera lectura
+                if contador_bn_nuevo > 10000000:  # 10 millones como límite absoluto
+                    error_msg = f'Contador B/N extremadamente alto: {contador_bn_nuevo:,}. Verificar si es correcto.'
+                    _logger.warning(f"ADVERTENCIA: {error_msg}")
+                    return {'valido': False, 'mensaje': error_msg}
+                
+                if contador_color_nuevo > 5000000:  # 5 millones como límite absoluto
+                    error_msg = f'Contador Color extremadamente alto: {contador_color_nuevo:,}. Verificar si es correcto.'
+                    _logger.warning(f"ADVERTENCIA: {error_msg}")
+                    return {'valido': False, 'mensaje': error_msg}
+                
+                _logger.info("✅ PRIMERA LECTURA VALIDADA: Valores dentro de rangos aceptables")
+                return {'valido': True}
+            
+            # VALIDACIONES PARA LECTURAS SUBSECUENTES
+            _logger.info("📊 Validando lectura subsecuente...")
             
             # Validar que no sean menores a los anteriores
             if contador_bn_nuevo < self.contador_anterior_bn:
-                return {
-                    'valido': False,
-                    'mensaje': f'El contador B/N de PrintTracker ({contador_bn_nuevo:,}) es menor al anterior registrado ({self.contador_anterior_bn:,})'
-                }
+                error_msg = f'El contador B/N de PrintTracker ({contador_bn_nuevo:,}) es menor al anterior registrado ({self.contador_anterior_bn:,})'
+                _logger.error(f"VALIDACIÓN FALLIDA: {error_msg}")
+                return {'valido': False, 'mensaje': error_msg}
             
             if contador_color_nuevo < self.contador_anterior_color:
-                return {
-                    'valido': False,
-                    'mensaje': f'El contador Color de PrintTracker ({contador_color_nuevo:,}) es menor al anterior registrado ({self.contador_anterior_color:,})'
-                }
+                error_msg = f'El contador Color de PrintTracker ({contador_color_nuevo:,}) es menor al anterior registrado ({self.contador_anterior_color:,})'
+                _logger.error(f"VALIDACIÓN FALLIDA: {error_msg}")
+                return {'valido': False, 'mensaje': error_msg}
             
-            # Validar incrementos razonables
+            # Calcular incrementos
             incremento_bn = contador_bn_nuevo - self.contador_anterior_bn
             incremento_color = contador_color_nuevo - self.contador_anterior_color
             
-            if incremento_bn > 100000:
-                return {
-                    'valido': False,
-                    'mensaje': f'Incremento B/N muy alto: {incremento_bn:,} páginas. Verificar datos.'
-                }
+            _logger.info(f"Incrementos calculados:")
+            _logger.info(f"  B/N: +{incremento_bn:,}")
+            _logger.info(f"  Color: +{incremento_color:,}")
             
-            if incremento_color > 50000:
-                return {
-                    'valido': False,
-                    'mensaje': f'Incremento Color muy alto: {incremento_color:,} páginas. Verificar datos.'
-                }
+            # Validar incrementos razonables para lecturas mensuales
+            limite_bn_mensual = 100000      # 100k páginas B/N por mes
+            limite_color_mensual = 50000    # 50k páginas Color por mes
             
+            if incremento_bn > limite_bn_mensual:
+                error_msg = f'Incremento B/N muy alto: {incremento_bn:,} páginas. ¿Confirma que es correcto?'
+                _logger.warning(f"ADVERTENCIA: {error_msg}")
+                # CAMBIO: En lugar de rechazar, convertir en advertencia permisiva
+                _logger.info("ℹ️ Permitiendo incremento alto por ser posible en equipos de alto volumen")
+            
+            if incremento_color > limite_color_mensual:
+                error_msg = f'Incremento Color muy alto: {incremento_color:,} páginas. ¿Confirma que es correcto?'
+                _logger.warning(f"ADVERTENCIA: {error_msg}")
+                # CAMBIO: En lugar de rechazar, convertir en advertencia permisiva
+                _logger.info("ℹ️ Permitiendo incremento alto por ser posible en equipos de alto volumen")
+            
+            _logger.info("✅ VALIDACIÓN EXITOSA: Todos los controles pasaron")
             return {'valido': True}
             
         except Exception as e:
-            return {
-                'valido': False,
-                'mensaje': f'Error validando contadores: {str(e)}'
-            }
+            error_msg = f'Error validando contadores: {str(e)}'
+            _logger.error(f"EXCEPCIÓN EN VALIDACIÓN: {error_msg}")
+            return {'valido': False, 'mensaje': error_msg}
 
     def _safe_int(self, value, default=0):
         """Convierte un valor a entero de forma segura"""
