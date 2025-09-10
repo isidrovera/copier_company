@@ -614,6 +614,69 @@ class CopierCounter(models.Model):
             _logger.error(f"Traceback: {traceback.format_exc()}")
             return None
 
+    def debug_printtracker_api_raw(self):
+        """Debug directo de la API con diferentes combinaciones de parámetros"""
+        try:
+            config = self.env['copier.printtracker.config'].get_active_config()
+            url = f'{config.api_url.rstrip("/")}/entity/{config.entity_bbbb_id}/currentMeter'
+            headers = config.get_api_headers()
+            
+            # Probar diferentes combinaciones
+            test_cases = [
+                {'page': 1},
+                {'page': 1, 'includeChildren': True},
+                {'page': 1, 'includeChildren': True, 'limit': 10},
+                {'page': 1, 'limit': 10},
+            ]
+            
+            results = []
+            
+            for i, params in enumerate(test_cases):
+                try:
+                    _logger.info(f"Probando caso {i+1}: {params}")
+                    response = requests.get(url, headers=headers, params=params, timeout=30)
+                    
+                    if response.status_code == 200:
+                        data = response.json()
+                        results.append(f"✅ Caso {i+1}: {len(data)} medidores")
+                        _logger.info(f"Éxito caso {i+1}: {len(data)} medidores")
+                        
+                        # Si encontramos nuestro dispositivo, reportarlo
+                        target_id = self.maquina_id.pt_device_id if self.maquina_id else None
+                        if target_id:
+                            found = any(m.get('deviceKey') == target_id for m in data)
+                            if found:
+                                results.append(f"   🎯 Dispositivo {target_id[:8]}... ENCONTRADO")
+                                _logger.info(f"Dispositivo encontrado en caso {i+1}")
+                    else:
+                        results.append(f"❌ Caso {i+1}: HTTP {response.status_code}")
+                        _logger.error(f"Error caso {i+1}: {response.status_code} - {response.text}")
+                        
+                except Exception as e:
+                    results.append(f"💥 Caso {i+1}: {str(e)}")
+                    _logger.error(f"Excepción caso {i+1}: {e}")
+            
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Debug API PrintTracker',
+                    'message': '\n'.join(results),
+                    'type': 'info',
+                    'sticky': True
+                }
+            }
+            
+        except Exception as e:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'message': f'Error en debug: {str(e)}',
+                    'type': 'danger'
+                }
+            }
+
 
     def _validar_nuevos_contadores_pt(self, lectura_pt):
         """Validación con logging detallado"""
