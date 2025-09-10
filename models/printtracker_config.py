@@ -467,7 +467,9 @@ class CopierCounter(models.Model):
             }
 
     def _obtener_ultima_lectura_printtracker_v2(self, config):
-        """Versión mejorada para obtener lecturas con logging detallado"""
+        """
+        CORREGIDO: La API SIEMPRE requiere page=1 mínimo
+        """
         _logger.info("--- Iniciando obtención de medidores ---")
         _logger.info(f"Device ID buscado: {self.maquina_id.pt_device_id}")
         
@@ -479,12 +481,19 @@ class CopierCounter(models.Model):
             _logger.info(f"URL petición: {url}")
             _logger.info(f"Headers: {headers}")
             
-            # Petición SIN parámetros para evitar error 400
-            _logger.info("Haciendo petición HTTP sin parámetros...")
+            # CORREGIDO: Agregar page=1 obligatorio
+            params = {
+                'includeChildren': True,
+                'page': 1  # OBLIGATORIO para evitar error 400
+            }
+            
+            _logger.info(f"Parámetros: {params}")
+            _logger.info("Haciendo petición HTTP con page=1...")
             
             response = requests.get(
                 url,
                 headers=headers,
+                params=params,
                 timeout=config.timeout_seconds
             )
             
@@ -535,15 +544,65 @@ class CopierCounter(models.Model):
                         
                         return meter_data
                 
-                # Si llegamos aquí, no se encontró
-                _logger.warning(f"Dispositivo NO encontrado: {target_device_id}")
-                _logger.info("Device IDs disponibles:")
+                # Si llegamos aquí, no se encontró - tal vez está en página 2
+                _logger.warning(f"Dispositivo NO encontrado en página 1: {target_device_id}")
+                _logger.info("Intentando página 2...")
+                
+                # Intentar página 2
+                response_page2 = requests.get(
+                    url,
+                    headers=headers,
+                    params={'includeChildren': True, 'page': 2},
+                    timeout=config.timeout_seconds
+                )
+                
+                if response_page2.status_code == 200:
+                    all_meters_page2 = response_page2.json()
+                    _logger.info(f"Página 2: {len(all_meters_page2)} medidores")
+                    
+                    for i, meter_data in enumerate(all_meters_page2):
+                        device_key = meter_data.get('deviceKey')
+                        if device_key == target_device_id:
+                            _logger.info(f"MEDIDOR ENCONTRADO en página 2, posición {i+1}")
+                            return meter_data
+                
+                # Log de dispositivos disponibles para debug
+                _logger.info("Device IDs disponibles en página 1:")
                 available_devices = [m.get('deviceKey', 'N/A') for m in all_meters[:10]]
                 for idx, dev_id in enumerate(available_devices):
                     _logger.info(f"  {idx+1}. {dev_id}")
                 
                 return None
                 
+            elif response.status_code == 400:
+                _logger.error(f"Error HTTP 400 - La API sigue requiriendo parámetros específicos")
+                _logger.error(f"Response body: {response.text}")
+                
+                # Intentar con parámetros mínimos diferentes
+                _logger.info("Intentando con parámetros alternativos...")
+                
+                response_alt = requests.get(
+                    url,
+                    headers=headers,
+                    params={'page': 1},  # Solo page, sin includeChildren
+                    timeout=config.timeout_seconds
+                )
+                
+                if response_alt.status_code == 200:
+                    _logger.info("Éxito con parámetros alternativos")
+                    all_meters = response_alt.json()
+                    target_device_id = self.maquina_id.pt_device_id
+                    
+                    for meter_data in all_meters:
+                        if meter_data.get('deviceKey') == target_device_id:
+                            _logger.info(f"MEDIDOR ENCONTRADO con parámetros alternativos")
+                            return meter_data
+                    
+                    _logger.warning(f"Dispositivo no encontrado con parámetros alternativos")
+                    return None
+                else:
+                    _logger.error(f"Falló también con parámetros alternativos: {response_alt.status_code}")
+                    return None
             else:
                 _logger.error(f"Error HTTP {response.status_code}")
                 _logger.error(f"Response body: {response.text}")
@@ -554,6 +613,7 @@ class CopierCounter(models.Model):
             import traceback
             _logger.error(f"Traceback: {traceback.format_exc()}")
             return None
+
 
     def _validar_nuevos_contadores_pt(self, lectura_pt):
         """Validación con logging detallado"""
