@@ -468,7 +468,7 @@ class CopierCounter(models.Model):
 
     def _obtener_ultima_lectura_printtracker_v2(self, config):
         """
-        CORREGIDO: La API SIEMPRE requiere page=1 mínimo
+        SOLUCIÓN FINAL: La API requiere AMBOS parámetros page Y limit > 0
         """
         _logger.info("--- Iniciando obtención de medidores ---")
         _logger.info(f"Device ID buscado: {self.maquina_id.pt_device_id}")
@@ -481,14 +481,15 @@ class CopierCounter(models.Model):
             _logger.info(f"URL petición: {url}")
             _logger.info(f"Headers: {headers}")
             
-            # CORREGIDO: Agregar page=1 obligatorio
+            # PARÁMETROS OBLIGATORIOS FINALES: page Y limit
             params = {
                 'includeChildren': True,
-                'page': 1  # OBLIGATORIO para evitar error 400
+                'page': 1,      # OBLIGATORIO
+                'limit': 100    # OBLIGATORIO 
             }
             
-            _logger.info(f"Parámetros: {params}")
-            _logger.info("Haciendo petición HTTP con page=1...")
+            _logger.info(f"Parámetros finales: {params}")
+            _logger.info("Haciendo petición HTTP con page=1 y limit=100...")
             
             response = requests.get(
                 url,
@@ -502,116 +503,100 @@ class CopierCounter(models.Model):
             
             if response.status_code == 200:
                 all_meters = response.json()
-                _logger.info(f"Total medidores recibidos: {len(all_meters)}")
+                _logger.info(f"✅ ÉXITO: {len(all_meters)} medidores recibidos")
                 
                 # Buscar nuestro dispositivo
-                _logger.info("Buscando dispositivo específico...")
                 target_device_id = self.maquina_id.pt_device_id
+                _logger.info(f"Buscando dispositivo: {target_device_id}")
                 
                 for i, meter_data in enumerate(all_meters):
                     device_key = meter_data.get('deviceKey')
-                    _logger.debug(f"Medidor {i+1}: deviceKey={device_key}")
                     
                     if device_key == target_device_id:
-                        _logger.info(f"MEDIDOR ENCONTRADO en posición {i+1}")
+                        _logger.info(f"🎯 MEDIDOR ENCONTRADO en posición {i+1}")
                         _logger.info(f"Device Key: {device_key}")
                         _logger.info(f"Timestamp: {meter_data.get('timestamp', 'N/A')}")
                         
-                        # Log de estructura del medidor
+                        # Analizar estructura del medidor
                         page_counts = meter_data.get('pageCounts', {})
                         _logger.info(f"Estructura pageCounts: {list(page_counts.keys())}")
                         
+                        default_counts = None
                         if 'default' in page_counts:
                             default_counts = page_counts['default']
-                            _logger.info(f"Contadores 'default': {list(default_counts.keys())}")
+                            _logger.info(f"✅ Usando estructura 'default'")
+                            _logger.info(f"Campos disponibles: {list(default_counts.keys())}")
                         elif 'life' in page_counts:
                             default_counts = page_counts['life']
-                            _logger.info(f"Contadores 'life': {list(default_counts.keys())}")
+                            _logger.info(f"✅ Usando estructura 'life'")
+                            _logger.info(f"Campos disponibles: {list(default_counts.keys())}")
                         else:
-                            _logger.warning("No se encontró estructura 'default' ni 'life'")
-                            default_counts = {}
+                            _logger.error("❌ No se encontró estructura 'default' ni 'life'")
+                            _logger.info(f"Estructuras disponibles: {list(page_counts.keys())}")
+                            return None
                         
-                        # Log de valores específicos
+                        # Extraer y logar valores específicos
                         if default_counts:
-                            total_black = default_counts.get('totalBlack', {}).get('value', 0)
-                            total_color = default_counts.get('totalColor', {}).get('value', 0)
-                            total_pages = default_counts.get('total', {}).get('value', 0)
+                            total_black = self._safe_int(default_counts.get('totalBlack', {}).get('value', 0))
+                            total_color = self._safe_int(default_counts.get('totalColor', {}).get('value', 0))
+                            total_pages = self._safe_int(default_counts.get('total', {}).get('value', 0))
                             
-                            _logger.info(f"Valores encontrados:")
-                            _logger.info(f"  Total páginas: {total_pages}")
-                            _logger.info(f"  Total B/N: {total_black}")
-                            _logger.info(f"  Total Color: {total_color}")
+                            _logger.info(f"📊 VALORES EXTRAÍDOS:")
+                            _logger.info(f"  Total páginas: {total_pages:,}")
+                            _logger.info(f"  Total B/N: {total_black:,}")
+                            _logger.info(f"  Total Color: {total_color:,}")
+                            
+                            # Verificar que los valores sean válidos
+                            if total_black == 0 and total_color == 0 and total_pages == 0:
+                                _logger.warning("⚠️ Todos los contadores son 0 - verificar estructura")
+                            else:
+                                _logger.info("✅ Valores válidos encontrados")
                         
                         return meter_data
                 
-                # Si llegamos aquí, no se encontró - tal vez está en página 2
-                _logger.warning(f"Dispositivo NO encontrado en página 1: {target_device_id}")
-                _logger.info("Intentando página 2...")
+                # Si no se encontró en página 1, intentar página 2
+                _logger.warning(f"❌ Dispositivo NO encontrado en página 1")
+                _logger.info("🔄 Intentando página 2...")
                 
-                # Intentar página 2
                 response_page2 = requests.get(
                     url,
                     headers=headers,
-                    params={'includeChildren': True, 'page': 2},
+                    params={'includeChildren': True, 'page': 2, 'limit': 100},
                     timeout=config.timeout_seconds
                 )
                 
                 if response_page2.status_code == 200:
                     all_meters_page2 = response_page2.json()
-                    _logger.info(f"Página 2: {len(all_meters_page2)} medidores")
+                    _logger.info(f"📄 Página 2: {len(all_meters_page2)} medidores")
                     
                     for i, meter_data in enumerate(all_meters_page2):
                         device_key = meter_data.get('deviceKey')
                         if device_key == target_device_id:
-                            _logger.info(f"MEDIDOR ENCONTRADO en página 2, posición {i+1}")
+                            _logger.info(f"🎯 MEDIDOR ENCONTRADO en página 2, posición {i+1}")
                             return meter_data
                 
-                # Log de dispositivos disponibles para debug
-                _logger.info("Device IDs disponibles en página 1:")
-                available_devices = [m.get('deviceKey', 'N/A') for m in all_meters[:10]]
-                for idx, dev_id in enumerate(available_devices):
-                    _logger.info(f"  {idx+1}. {dev_id}")
+                # Log de debug: mostrar dispositivos disponibles
+                _logger.warning(f"❌ Dispositivo {target_device_id} NO encontrado en ninguna página")
+                _logger.info("📋 Device IDs disponibles (primeros 10):")
+                
+                available_devices = []
+                for i, meter in enumerate(all_meters[:10]):
+                    device_key = meter.get('deviceKey', 'N/A')
+                    timestamp = meter.get('timestamp', 'N/A')
+                    available_devices.append(device_key)
+                    _logger.info(f"  {i+1}. {device_key} | {timestamp}")
                 
                 return None
                 
-            elif response.status_code == 400:
-                _logger.error(f"Error HTTP 400 - La API sigue requiriendo parámetros específicos")
-                _logger.error(f"Response body: {response.text}")
-                
-                # Intentar con parámetros mínimos diferentes
-                _logger.info("Intentando con parámetros alternativos...")
-                
-                response_alt = requests.get(
-                    url,
-                    headers=headers,
-                    params={'page': 1},  # Solo page, sin includeChildren
-                    timeout=config.timeout_seconds
-                )
-                
-                if response_alt.status_code == 200:
-                    _logger.info("Éxito con parámetros alternativos")
-                    all_meters = response_alt.json()
-                    target_device_id = self.maquina_id.pt_device_id
-                    
-                    for meter_data in all_meters:
-                        if meter_data.get('deviceKey') == target_device_id:
-                            _logger.info(f"MEDIDOR ENCONTRADO con parámetros alternativos")
-                            return meter_data
-                    
-                    _logger.warning(f"Dispositivo no encontrado con parámetros alternativos")
-                    return None
-                else:
-                    _logger.error(f"Falló también con parámetros alternativos: {response_alt.status_code}")
-                    return None
             else:
-                _logger.error(f"Error HTTP {response.status_code}")
-                _logger.error(f"Response body: {response.text}")
+                _logger.error(f"❌ Error HTTP {response.status_code}")
+                _logger.error(f"Response: {response.text}")
                 return None
                 
         except Exception as e:
-            _logger.error(f"Excepción en obtención de medidores: {e}")
+            _logger.error(f"💥 Excepción en obtención de medidores: {e}")
             import traceback
-            _logger.error(f"Traceback: {traceback.format_exc()}")
+            _logger.error(f"Traceback completo: {traceback.format_exc()}")
             return None
 
     def debug_printtracker_api_raw(self):
