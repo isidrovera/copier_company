@@ -237,15 +237,7 @@
                         domain="[('request_date', '>=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d')),
                                 ('request_date', '&lt;', (context_today() + datetime.timedelta(days=7-context_today().weekday())).strftime('%Y-%m-%d'))]"/>
 
-                <!-- Agrupaciones -->
-                <group expand="0" string="Agrupar Por">
-                    <filter name="group_by_state" string="Estado" context="{'group_by': 'state'}"/>
-                    <filter name="group_by_technician" string="Técnico" context="{'group_by': 'technician_id'}"/>
-                    <filter name="group_by_assistance_type" string="Tipo de Asistencia" context="{'group_by': 'assistance_type'}"/>
-                    <filter name="group_by_priority" string="Prioridad" context="{'group_by': 'priority'}"/>
-                    <filter name="group_by_client" string="Cliente" context="{'group_by': 'partner_id'}"/>
-                    <filter name="group_by_request_date" string="Fecha de Solicitud" context="{'group_by': 'request_date:day'}"/>
-                </group>
+              
             </search>
         </field>
     </record>

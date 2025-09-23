@@ -44,9 +44,7 @@
                 <field name="name"/>
                 <field name="category_id"/>
                 <filter string="Activos" name="active" domain="[('active','=',True)]"/>
-                <group expand="0" string="Agrupar por">
-                    <filter string="Categoría" name="category" context="{'group_by':'category_id'}"/>
-                </group>
+                
             </search>
         </field>
     </record>

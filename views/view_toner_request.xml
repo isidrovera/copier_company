@@ -244,15 +244,7 @@
                         domain="[('request_date', '>=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d')),
                                 ('request_date', '&lt;', (context_today() + datetime.timedelta(days=7-context_today().weekday())).strftime('%Y-%m-%d'))]"/>
 
-                <!-- Agrupaciones -->
-                <group expand="0" string="Agrupar Por">
-                    <filter name="group_by_state" string="Estado" context="{'group_by': 'state'}"/>
-                    <filter name="group_by_responsible" string="Responsable" context="{'group_by': 'responsible_id'}"/>
-                    <filter name="group_by_toner_type" string="Tipo de Toner" context="{'group_by': 'toner_type'}"/>
-                    <filter name="group_by_urgency" string="Urgencia" context="{'group_by': 'urgency'}"/>
-                    <filter name="group_by_client" string="Cliente" context="{'group_by': 'partner_id'}"/>
-                    <filter name="group_by_request_date" string="Fecha de Solicitud" context="{'group_by': 'request_date:day'}"/>
-                </group>
+               
             </search>
         </field>
     </record>

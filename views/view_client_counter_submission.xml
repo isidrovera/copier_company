@@ -253,15 +253,7 @@
                 <filter name="last_30_days" string="Últimos 30 días" 
                         domain="[('submission_date', '>=', (context_today() - datetime.timedelta(days=30)).strftime('%%Y-%%m-%%d'))]"/>
 
-                <!-- Agrupaciones -->
-                <group expand="0" string="Agrupar Por">
-                    <filter name="group_by_state" string="Estado" context="{'group_by': 'state'}"/>
-                    <filter name="group_by_reviewer" string="Revisor" context="{'group_by': 'reviewer_id'}"/>
-                    <filter name="group_by_client" string="Cliente" context="{'group_by': 'partner_id'}"/>
-                    <filter name="group_by_equipment" string="Equipo" context="{'group_by': 'equipment_id'}"/>
-                    <filter name="group_by_submission_date" string="Fecha de Reporte" context="{'group_by': 'submission_date:day'}"/>
-                    <filter name="group_by_submission_month" string="Mes de Reporte" context="{'group_by': 'submission_date:month'}"/>
-                </group>
+                
             </search>
         </field>
     </record>

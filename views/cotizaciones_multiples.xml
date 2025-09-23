@@ -321,12 +321,7 @@
           <filter string="Mis Cotizaciones" name="mis_cotizaciones" domain="[('create_uid','=',uid)]"/>
           <separator/>
           <filter string="Fecha" name="fecha" date="fecha_cotizacion"/>
-          <group expand="0" string="Agrupar Por">
-            <filter string="Estado" name="estado" context="{'group_by':'estado'}"/>
-            <filter string="Cliente" name="cliente" context="{'group_by':'cliente_id'}"/>
-            <filter string="Modalidad de Pago" name="modalidad" context="{'group_by':'modalidad_pago_id'}"/>
-            <filter string="Fecha" name="fecha_group" context="{'group_by':'fecha_cotizacion'}"/>
-          </group>
+          
         </search>
       </field>
     </record>
