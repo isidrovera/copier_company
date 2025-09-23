@@ -271,27 +271,25 @@
     </field>
 </record>
     <!-- Search View -->
-    <record id="copier_company_search" model="ir.ui.view">
-      <field name="name">copier.company.search</field>
-      <field name="model">copier.company</field>
-      <field name="arch" type="xml">
-        <search>
-          <field name="name"/>
-          <field name="serie_id"/>
-          <field name="cliente_id"/>
-          <field name="sede"/>
-          <separator/>
-          <filter string="Disponibles" name="disponible" domain="[('estado_maquina_id.name','=','Disponible')]"/>
-          <filter string="En Mantenimiento" name="mantenimiento" domain="[('estado_maquina_id.name','=','En Mantenimiento')]"/>
-          <filter string="Fuera de Servicio" name="fuera_servicio" domain="[('estado_maquina_id.name','=','Fuera de Servicio')]"/>
-          <group expand="0" string="Agrupar Por">
-            <filter string="Estado" name="estado" context="{'group_by':'estado_maquina_id'}"/>
-            <filter string="Cliente" name="cliente" context="{'group_by':'cliente_id'}"/>
-            <filter string="Marca" name="marca" context="{'group_by':'marca_id'}"/>
-          </group>
-        </search>
-      </field>
-    </record>
+    <!-- Reemplazar temporalmente la vista problemática por esta versión mínima -->
+<record id="copier_company_search" model="ir.ui.view">
+  <field name="name">copier.company.search</field>
+  <field name="model">copier.company</field>
+  <field name="arch" type="xml">
+    <search string="Buscar Copiadoras">
+      <field name="name"/>
+      <!-- Mantén aquí sólo campos básicos que estés seguro existen -->
+      <!-- <field name="serie_id"/> -->
+      <!-- <field name="cliente_id"/> -->
+      <!-- <field name="sede"/> -->
+      <separator/>
+      <!-- filtros simples de ejemplo que no utilizan dot-notation -->
+      <filter string="Con QR" name="has_qr" domain="[('qr_code','!=', False)]"/>
+      <filter string="Sin QR" name="no_qr" domain="[('qr_code','=', False)]"/>
+    </search>
+  </field>
+</record>
+
 
     
   </data>
