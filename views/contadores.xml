@@ -300,31 +300,28 @@
     </field>
 </record>
     <!-- Search View -->
-    <record id="view_copier_counter_search" model="ir.ui.view">
-        <field name="name">copier.counter.search</field>
-        <field name="model">copier.counter</field>
-        <field name="arch" type="xml">
-            <search>
-                <field name="name" />
-                <field name="cliente_id" />
-                <field name="serie" />
-                <field name="mes_facturacion" />
-                <filter string="Borradores" name="draft" domain="[('state','=','draft')]" />
-                <filter string="Confirmados" name="confirmed" domain="[('state','=','confirmed')]" />
-                <filter string="Facturados" name="invoiced" domain="[('state','=','invoiced')]" />
-                <filter string="Cancelados" name="cancelled" domain="[('state','=','cancelled')]" />
-                <separator />
-                <filter string="Mes Actual" name="current_month"
-                    domain="[('fecha_facturacion','&gt;=', context_today().strftime('%Y-%m-01')),
-                                ('fecha_facturacion','&lt;=', (context_today() + relativedelta(months=1, days=-1)).strftime('%Y-%m-%d'))]" />
-                <group expand="0" string="Agrupar Por">
-                    <filter string="Cliente" name="cliente" context="{'group_by':'cliente_id'}" />
-                    <filter string="Estado" name="state" context="{'group_by':'state'}" />
-                    <filter string="Mes" name="mes" context="{'group_by':'mes_facturacion'}" />
-                </group>
-            </search>
-        </field>
-    </record>
+<record id="view_copier_counter_search" model="ir.ui.view">
+    <field name="name">copier.counter.search</field>
+    <field name="model">copier.counter</field>
+    <field name="arch" type="xml">
+        <search>
+            <field name="name" />
+            <field name="cliente_id" />
+            <field name="serie" />
+            <field name="mes_facturacion" />
+            <filter string="Borradores" name="draft" domain="[('state','=','draft')]" />
+            <filter string="Confirmados" name="confirmed" domain="[('state','=','confirmed')]" />
+            <filter string="Facturados" name="invoiced" domain="[('state','=','invoiced')]" />
+            <filter string="Cancelados" name="cancelled" domain="[('state','=','cancelled')]" />
+            <separator />
+            <group expand="0" string="Agrupar Por">
+                <filter string="Cliente" name="cliente" context="{'group_by':'cliente_id'}" />
+                <filter string="Estado" name="state" context="{'group_by':'state'}" />
+                <filter string="Mes" name="mes" context="{'group_by':'mes_facturacion'}" />
+            </group>
+        </search>
+    </field>
+</record>
 
 
 </odoo>
