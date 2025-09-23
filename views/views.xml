@@ -270,30 +270,6 @@
         </kanban>
     </field>
 </record>
-    <record id="copier_company_search" model="ir.ui.view">
-  <field name="name">copier.company.search</field>
-  <field name="model">copier.company</field>
-  <field name="arch" type="xml">
-    <search string="Buscar Copiadoras">
-      <field name="name"/>
-      <field name="serie_id"/>
-      <field name="cliente_id"/>
-      <field name="sede"/>
-      <field name="estado_maquina_id"/>
-      <separator/>
-      <filter string="Disponibles" name="disponible" domain="[('estado_maquina_id', '!=', False)]"/>
-      <filter string="En Mantenimiento" name="mantenimiento" domain="[('estado_maquina_id', '!=', False)]"/>
-      <filter string="Fuera de Servicio" name="fuera_servicio" domain="[('estado_maquina_id', '!=', False)]"/>
-      <separator/>
-      <filter string="Fecha Creación" name="filter_create_date" date="create_date"/>
-      <group expand="0" string="Agrupar Por">
-        <filter string="Estado" name="estado" context="{'group_by':'estado_maquina_id'}"/>
-        <filter string="Cliente" name="cliente" context="{'group_by':'cliente_id'}"/>
-        <filter string="Marca" name="marca" context="{'group_by':'marca_id'}"/>
-      </group>
-    </search>
-  </field>
-</record>
-    
+       
   </data>
 </odoo>
