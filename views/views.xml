@@ -270,7 +270,7 @@
         </kanban>
     </field>
 </record>
-    <record id="copier_company_search" model="ir.ui.view">
+   <record id="copier_company_search" model="ir.ui.view">
   <field name="name">copier.company.search</field>
   <field name="model">copier.company</field>
   <field name="arch" type="xml">
@@ -280,10 +280,10 @@
       <field name="cliente_id"/>
       <field name="sede"/>
       <separator/>
-      <!-- filtros comparando por id gracias a ref() (más robusto en instalación) -->
-      <filter string="Disponibles" name="disponible" domain="[('estado_maquina_id','=', ref('copier_company.estado_disponible'))]"/>
-      <filter string="En Mantenimiento" name="mantenimiento" domain="[('estado_maquina_id','=', ref('copier_company.estado_mantenimiento'))]"/>
-      <filter string="Fuera de Servicio" name="fuera_servicio" domain="[('estado_maquina_id','=', ref('copier_company.estado_fuera_servicio'))]"/>
+      <!-- filtros comparando por nombre del estado (más compatible) -->
+      <filter string="Disponibles" name="disponible" domain="[('estado_maquina_id.name','=','Disponible')]"/>
+      <filter string="En Mantenimiento" name="mantenimiento" domain="[('estado_maquina_id.name','=','En Mantenimiento')]"/>
+      <filter string="Fuera de Servicio" name="fuera_servicio" domain="[('estado_maquina_id.name','=','Fuera de Servicio')]"/>
       <group expand="0" string="Agrupar Por">
         <filter string="Estado" name="estado" context="{'group_by':'estado_maquina_id'}"/>
         <filter string="Cliente" name="cliente" context="{'group_by':'cliente_id'}"/>
