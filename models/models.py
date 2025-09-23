@@ -1,7 +1,6 @@
 from odoo import models, fields, api
 from dateutil.relativedelta import relativedelta
 from odoo.exceptions import UserError, ValidationError
-from odoo.modules.module import get_module_resource
 import qrcode
 import base64
 import io
@@ -635,21 +634,86 @@ class CopierCompany(models.Model):
             
             
     def generar_qr_code(self):
-        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
-        logo_path = get_module_resource('copier_company', 'static', 'src', 'img', 'logo.png')
-        
-        if not os.path.isfile(logo_path):
-            raise FileNotFoundError(f"Logo no encontrado: {logo_path}")
-            
-        logo = Image.open(logo_path)
-        logo_size = (100, int((float(logo.size[1]) * float(100/float(logo.size[0])))))
-        # Primer cambio aquí
+        """
+        Genera y asigna un QR con el logo. Orden de búsqueda del logo:
+        1) logo de la compañía (self.env.company.logo o image_1920)
+        2) ir.attachment con 'logo' en el nombre (busca globalmente)
+        3) archivo en disk: ../static/src/img/logo.png (ruta relativa al módulo)
+        Si no se encuentra logo, lanza UserError.
+        """
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url') or ''
+
+        # ---------------------------------
+        # 1) Intentar obtener logo desde la compañía
+        # ---------------------------------
+        logo = None
+        try:
+            company = self.env.company
+            logo_b64 = company.logo or getattr(company, 'image_1920', None)
+            if logo_b64:
+                # logo_b64 puede ser str o bytes
+                logo_bytes = base64.b64decode(logo_b64 if isinstance(logo_b64, str) else logo_b64.decode('utf-8'))
+                logo = Image.open(io.BytesIO(logo_bytes))
+        except Exception:
+            logo = None
+
+        # ---------------------------------
+        # 2) Si no hay logo, intentar ir.attachment (opcional)
+        # ---------------------------------
+        if logo is None:
+            try:
+                att = self.env['ir.attachment'].sudo().search([
+                    ('res_model', '=', False),
+                    ('name', 'ilike', 'logo')
+                ], limit=1)
+                if att and att.datas:
+                    att_bytes = base64.b64decode(att.datas if isinstance(att.datas, str) else att.datas.decode('utf-8'))
+                    logo = Image.open(io.BytesIO(att_bytes))
+            except Exception:
+                logo = None
+
+        # ---------------------------------
+        # 3) Fallback a archivo en disco (ruta relativa sin get_module_resource)
+        # ---------------------------------
+        if logo is None:
+            module_dir = os.path.dirname(__file__)              # .../copier_company/models
+            module_root = os.path.normpath(os.path.join(module_dir, '..'))  # .../copier_company
+            logo_path = os.path.join(module_root, 'static', 'src', 'img', 'logo.png')
+            if os.path.isfile(logo_path):
+                try:
+                    logo = Image.open(logo_path)
+                except Exception:
+                    logo = None
+
+        # Si aún no hay logo -> avisar en UI
+        if logo is None:
+            raise ValidationError("No se encontró el logo. Coloca el logo en la configuración de la compañía o como ir.attachment o en static/src/img/logo.png del módulo.")
+
+        # ---------------------------------
+        # Preparar logo (resample compatible con distintas versiones de Pillow)
+        # ---------------------------------
+        # Determinar filtro de remuestreo (compatibilidad Pillow)
         try:
             resampling_filter = Image.Resampling.LANCZOS
         except AttributeError:
-            resampling_filter = Image.ANTIALIAS
+            resampling_filter = getattr(Image, 'LANCZOS', Image.ANTIALIAS)
+
+        # Redimensionar logo a un ancho objetivo (ajusta si quieres otro tamaño)
+        target_logo_width = 100
+        # proteger contra logos inválidos
+        if logo.size[0] == 0:
+            raise ValidationError("El logo tiene ancho 0. Reemplázalo por una imagen válida.")
+        logo_height = int((float(logo.size[1]) * float(target_logo_width / float(logo.size[0]))))
+        logo_size = (target_logo_width, logo_height)
         logo = logo.resize(logo_size, resampling_filter)
-        
+
+        # Asegurar canal alfa para usar como máscara al pegar
+        if logo.mode != 'RGBA':
+            logo = logo.convert('RGBA')
+
+        # ---------------------------------
+        # Generar QR para cada registro del recordset
+        # ---------------------------------
         for record in self:
             qr = qrcode.QRCode(
                 version=1,
@@ -657,20 +721,26 @@ class CopierCompany(models.Model):
                 box_size=10,
                 border=4,
             )
-            
             qr.add_data(f"{base_url}/public/equipment_menu?copier_company_id={record.id}")
             qr.make(fit=True)
-            
+
             qr_img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
+            qr_img = qr_img.convert('RGBA')
+
+            # Centrar logo sobre el QR
             pos = ((qr_img.size[0] - logo.size[0]) // 2, (qr_img.size[1] - logo.size[1]) // 2)
             qr_img.paste(logo, pos, logo)
-            
-            # Segundo cambio aquí (mismo filtro de remuestreo)
-            qr_img = qr_img.resize((qr_img.size[0] // 2, qr_img.size[1] // 2), resampling_filter)
-            
+
+            # Reducir tamaño final (opcional). Ajusta el //2 si quieres otro tamaño
+            new_size = (qr_img.size[0] // 2, qr_img.size[1] // 2)
+            qr_img = qr_img.resize(new_size, resampling_filter)
+
+            # Guardar en buffer y asignar al campo Binary (base64 string)
             buffer = io.BytesIO()
             qr_img.save(buffer, format='PNG')
-            record.qr_code = base64.b64encode(buffer.getvalue())
+            buffer.seek(0)
+            img_bytes = buffer.getvalue()
+            record.qr_code = base64.b64encode(img_bytes).decode('utf-8')
 
     def action_print_report(self):
         return self.env.ref('copier_company.action_report_report_cotizacion_alquiler').report_action(self)
