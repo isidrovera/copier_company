@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <!-- Kanban View -->
+    <!-- Kanban View Mejorada -->
     <record id="view_copier_counter_kanban" model="ir.ui.view">
         <field name="name">copier.counter.kanban</field>
         <field name="model">copier.counter</field>
@@ -8,7 +8,8 @@
             <kanban
                 class="o_kanban_mobile"
                 sample="1"
-                default_group_by="state">
+                default_group_by="state"
+                quick_create="false">
                 <field name="name" />
                 <field name="cliente_id" />
                 <field name="serie" />
@@ -17,56 +18,81 @@
                 <field name="state" />
                 <field name="total" />
                 <field name="currency_id" />
+                <field name="total_copias_bn" />
+                <field name="total_copias_color" />
                 <progressbar
                     field="state"
                     colors='{
-                        "draft": "success",
-                        "confirmed": "info",
+                        "draft": "info",
+                        "confirmed": "success",
                         "invoiced": "warning",
                         "cancelled": "danger"}' />
                 <templates>
                     <t t-name="kanban-box">
-                        <div class="oe_kanban_global_click p-0">
-                            <div class="oe_kanban_details p-3">
-                                <div class="o_kanban_record_top mb-2">
-                                    <div class="o_kanban_record_headings">
-                                        <strong class="o_kanban_record_title">
-                                            <span class="text-primary">
-                                                <field name="name" />
+                        <div class="oe_kanban_global_click">
+                            <div class="o_kanban_card d-flex flex-column">
+                                <!-- Header -->
+                                <div class="o_kanban_card_header">
+                                    <div class="o_kanban_card_header_title">
+                                        <div class="o_primary">
+                                            <strong><field name="name" /></strong>
+                                        </div>
+                                        <div class="text-muted">
+                                            <field name="serie" />
+                                        </div>
+                                    </div>
+                                    <div class="o_kanban_manage_button_section">
+                                        <a class="o_kanban_manage_toggle_button" href="#" tabindex="-1">
+                                            <i class="fa fa-ellipsis-v" role="img" aria-label="Manage" title="Manage"/>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- Content -->
+                                <div class="o_kanban_card_content">
+                                    <div class="o_kanban_primary_left">
+                                        <div class="o_primary">
+                                            <field name="cliente_id" />
+                                        </div>
+                                        <div class="text-muted">
+                                            <field name="mes_facturacion" />
+                                        </div>
+                                        <div class="mt-2">
+                                            <span class="badge badge-pill badge-info me-1">
+                                                B/N: <field name="total_copias_bn" />
                                             </span>
-                                        </strong>
+                                            <span class="badge badge-pill badge-warning">
+                                                Color: <field name="total_copias_color" />
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="row mb-2">
-                                    <div class="col-6">
-                                        <strong>Cliente:</strong>
-                                        <field name="cliente_id" />
+
+                                <!-- Footer -->
+                                <div class="o_kanban_card_manage_pane dropdown-menu" role="menu">
+                                    <div class="o_kanban_card_manage_section o_kanban_manage_reports">
+                                        <div role="menuitem" aria-haspopup="true">
+                                            <a name="action_print_report" type="object">Imprimir Reporte</a>
+                                        </div>
                                     </div>
-                                    <div class="col-6">
-                                        <strong>Serie:</strong>
-                                        <field name="serie" />
+                                    <div class="o_kanban_card_manage_section o_kanban_manage_new">
+                                        <div role="menuitem" aria-haspopup="true" invisible="state != 'confirmed'">
+                                            <a name="action_create_invoice" type="object">Crear Factura</a>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="row mb-2">
-                                    <div class="col-6">
-                                        <field name="mes_facturacion" />
+
+                                <div class="o_kanban_card_footer">
+                                    <div class="o_kanban_primary_bottom_left">
+                                        <field name="state" widget="label_selection"
+                                            options="{'classes': {
+                                                'draft': 'info',
+                                                'confirmed': 'success',
+                                                'invoiced': 'warning',
+                                                'cancelled': 'danger'}}" />
                                     </div>
-                                    <div class="col-6 text-end">
+                                    <div class="o_kanban_primary_bottom_right">
                                         <field name="total" widget="monetary" />
-                                    </div>
-                                </div>
-                                <div class="o_kanban_record_bottom">
-                                    <div class="oe_kanban_bottom_left">
-                                        <span
-                                            t-attf-class="badge rounded-pill bg-#{
-                                            record.state.raw_value == 'confirmed' ? 'success' : 
-                                            record.state.raw_value == 'draft' ? 'info' : 
-                                            record.state.raw_value == 'invoiced' ? 'warning' : 'danger'}">
-                                            <field name="state" />
-                                        </span>
-                                    </div>
-                                    <div class="oe_kanban_bottom_right">
-                                        <field name="fecha_facturacion" widget="date" />
                                     </div>
                                 </div>
                             </div>
@@ -77,247 +103,505 @@
         </field>
     </record>
 
-    <!-- Tree/List View -->
+    <!-- Tree/List View Mejorada -->
     <record id="view_copier_counter_tree" model="ir.ui.view">
         <field name="name">copier.counter.tree</field>
         <field name="model">copier.counter</field>
         <field name="arch" type="xml">
             <list decoration-info="state == 'draft'"
-                decoration-success="state == 'confirmed'"
-                decoration-warning="state == 'invoiced'"
-                decoration-danger="state == 'cancelled'"
-                sample="1">
+                  decoration-success="state == 'confirmed'"
+                  decoration-warning="state == 'invoiced'"
+                  decoration-danger="state == 'cancelled'"
+                  sample="1"
+                  multi_edit="1"
+                  export_xlsx="1">
 
-                <!--<field name="name" widget="many2one_avatar_user" />-->
+                <field name="name" />
                 <field name="cliente_id" optional="hide" />
                 <field name="maquina_id" />
                 <field name="serie" />
+                <field name="fecha_facturacion" />
                 <field name="mes_facturacion" optional="hide" />
-                <field name="contador_actual_bn" sum="Total B/N" optional="hide"/>
+                
+                <!-- Contadores B/N -->
+                <field name="contador_anterior_bn" optional="hide" />
+                <field name="contador_actual_bn" sum="Total B/N" optional="hide" />
                 <field name="total_copias_bn" sum="Total Copias B/N" />
-                <field name="copias_facturables_bn" sum="Total Facturable B/N" optional="hide"/>
-                <field name="contador_actual_color" sum="Total Color" optional="hide"/>
+                <field name="copias_facturables_bn" sum="Total Facturable B/N" optional="hide" />
+                
+                <!-- Contadores Color -->
+                <field name="contador_anterior_color" optional="hide" />
+                <field name="contador_actual_color" sum="Total Color" optional="hide" />
                 <field name="total_copias_color" sum="Total Copias Color" />
                 <field name="copias_facturables_color" sum="Total Facturable Color" />
                 
-                <field name="subtotal" sum="Subtotal" widget="monetary" optional="hide"/>
+                <!-- Financiero -->
+                <field name="subtotal_antes_descuento" sum="Subtotal Antes" widget="monetary" optional="hide" />
+                <field name="monto_descuento" sum="Descuento" widget="monetary" optional="hide" />
+                <field name="descuento_porcentaje" optional="hide" string="Desc. %" />
+                <field name="subtotal" sum="Subtotal" widget="monetary" optional="hide" />
+                <field name="igv" sum="IGV" widget="monetary" optional="hide" />
                 <field name="total" sum="Total" widget="monetary" />
-                <field name="currency_id" optional="hide"/>
+                
+                <field name="currency_id" column_invisible="True" />
                 <field name="state" widget="badge"
                     decoration-info="state == 'draft'"
                     decoration-success="state == 'confirmed'"
                     decoration-warning="state == 'invoiced'"
                     decoration-danger="state == 'cancelled'" />
+
+                <!-- Botones de acción por registro -->
+                <button name="action_confirm"
+                    string="Confirmar"
+                    type="object"
+                    class="btn-primary"
+                    invisible="state != 'draft'"
+                    icon="fa-check" />
+                
+                <button name="action_create_invoice"
+                    string="Facturar"
+                    type="object"
+                    class="btn-success"
+                    invisible="state != 'confirmed'"
+                    icon="fa-file-invoice-dollar" />
+
+                <button name="action_print_report"
+                    string="Reporte"
+                    type="object"
+                    class="btn-info"
+                    icon="fa-print" />
             </list>
         </field>
     </record>
 
-    <!-- Form View -->
+    <!-- Form View Completamente Mejorada -->
     <record id="view_copier_counter_form" model="ir.ui.view">
-    <field name="name">copier.counter.form</field>
-    <field name="model">copier.counter</field>
-    <field name="arch" type="xml">
-        <form>
-            <header>
-                <button name="action_confirm"
-                    string="Confirmar"
-                    type="object"
-                    class="btn btn-primary"
-                    column_invisible="state != 'draft'" />
-                <button name="action_draft"
-                    string="Volver a Borrador"
-                    type="object"
-                    class="btn btn-secondary"
-                    column_invisible="state != 'confirmed'" />
-                <button name="action_cancel"
-                    string="Cancelar"
-                    type="object"
-                    class="btn btn-outline-danger"
-                    column_invisible="state not in ('draft', 'confirmed')" />
-                <button string="📄 Reporte" 
-                    name="action_print_report" 
-                    type="object"
-                    class="btn btn-info" />
-                <button name="action_create_invoice" 
-                    type="object" 
-                    string="💰 Crear Factura"
-                    class="btn btn-success"
-                    column_invisible="state != 'confirmed'"/>
-                <button name="debug_urgente_counter" 
-                    string="🔍 Debug Counter" 
-                    type="object" 
-                    class="btn btn-warning"
-                    help="Debug urgente para identificar discrepancia en totales"/>
+        <field name="name">copier.counter.form</field>
+        <field name="model">copier.counter</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <!-- Botones de Estado -->
+                    <button name="action_confirm"
+                        string="✅ Confirmar"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'draft'"
+                        help="Confirma la lectura de contadores" />
+                    
+                    <button name="action_draft"
+                        string="📝 Volver a Borrador"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="state not in ('confirmed', 'cancelled')"
+                        help="Regresa la lectura a estado borrador" />
+                    
+                    <button name="action_cancel"
+                        string="❌ Cancelar"
+                        type="object"
+                        class="btn-outline-danger"
+                        invisible="state in ('invoiced', 'cancelled')"
+                        confirm="¿Está seguro que desea cancelar esta lectura?"
+                        help="Cancela la lectura del contador" />
 
-                <field name="state" widget="statusbar"
-                    statusbar_visible="draft,confirmed,invoiced" />
-            </header>
-            <sheet>
-                <div class="oe_title">
-                    <h1>
-                        <field name="name" readonly="1" class="text-primary fw-bold" />
-                    </h1>
-                </div>
-                
-                <!-- Información Principal -->
-                <div class="row">
-                    <div class="col-lg-6">
-                        <group string="📋 Información General" class="bg-light p-3 rounded">
-                            <field name="maquina_id" readonly="state != 'draft'" />
-                            <field name="cliente_id" />
-                            <field name="serie" />
-                            <field name="fecha" readonly="state != 'draft'" />
-                            <field name="fecha_facturacion" readonly="state != 'draft'" />
-                            <field name="mes_facturacion" />
-                            <field name="fecha_emision_factura" 
-       help="Deja vacío para usar la fecha de hoy al facturar"
-       readonly="state == 'invoiced'"/>
-                        </group>
+                    <!-- Botones de Acción -->
+                    <button name="action_create_invoice"
+                        string="💰 Crear Factura"
+                        type="object"
+                        class="btn-success"
+                        invisible="state != 'confirmed'"
+                        help="Genera factura basada en esta lectura" />
+
+                    <button name="action_print_report"
+                        string="📄 Imprimir Reporte"
+                        type="object"
+                        class="btn-info"
+                        help="Genera reporte de lectura" />
+
+                    <!-- Botones de Debug (solo en modo desarrollador) -->
+                    <button name="debug_counter_totales"
+                        string="🔍 Debug Totales"
+                        type="object"
+                        class="btn-warning"
+                        invisible="not context.get('debug', False)"
+                        help="Debug de cálculos financieros" />
+
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="draft,confirmed,invoiced" />
+                </header>
+
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <!-- Widget de información rápida -->
+                        <div class="oe_stat_button" icon="fa-calculator">
+                            <field name="total" widget="statinfo" string="Total a Facturar" />
+                        </div>
+                        <div class="oe_stat_button" icon="fa-copy">
+                            <field name="total_copias_bn" widget="statinfo" string="Copias B/N" />
+                        </div>
+                        <div class="oe_stat_button" icon="fa-palette">
+                            <field name="total_copias_color" widget="statinfo" string="Copias Color" />
+                        </div>
                     </div>
-                    <div class="col-lg-6">
-                        <group string="👥 Gestión de Usuarios" class="bg-info bg-opacity-10 p-3 rounded">
-                            <field name="informe_por_usuario" widget="boolean_toggle"/>
-                            <button name="cargar_usuarios_asociados" 
-                                    string="Cargar Usuarios Asociados"
-                                    type="object" 
-                                    class="btn btn-primary"
-                                    invisible="not informe_por_usuario or state != 'draft'"/>
-                        </group>
+
+                    <!-- Título -->
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1" class="text-primary" />
+                        </h1>
+                        <h3 class="text-muted">
+                            <field name="mes_facturacion" readonly="1" />
+                        </h3>
                     </div>
-                </div>
 
-                <field name="currency_id" invisible="1" />
+                    <!-- Información Principal -->
+                    <group>
+                        <group string="📋 Información General">
+                            <field name="maquina_id"
+                                readonly="state != 'draft'"
+                                required="True"
+                                options="{'no_create': True, 'no_edit': True}" />
+                            <field name="cliente_id" readonly="1" />
+                            <field name="serie" readonly="1" />
+                            <field name="payment_term_id" readonly="1" />
+                            <field name="currency_id" readonly="1" />
+                        </group>
+                        
+                        <group string="📅 Fechas">
+                            <field name="fecha"
+                                readonly="state != 'draft'"
+                                required="True" />
+                            <field name="fecha_facturacion"
+                                readonly="state not in ('draft', 'confirmed')"
+                                required="True" />
+                            <field name="fecha_emision_factura"
+                                readonly="state == 'invoiced'"
+                                help="Fecha que aparecerá en la factura. Si está vacío, usa la fecha actual" />
+                        </group>
+                    </group>
 
-                <!-- Detalle de Usuarios - Solo visible cuando informe_por_usuario está activado -->
-                <div class="mt-3">
-                    <field name="usuario_detalle_ids" invisible="not informe_por_usuario">
-                        <list editable="bottom" decoration-info="True" class="table-striped">
-                            <field name="usuario_id" readonly="1"/>
-                            <field name="cantidad_copias" sum="Total de Copias" class="text-end"/>
-                        </list>
+                    <!-- Gestión de Usuarios -->
+                    <group string="👥 Detalle por Usuario" invisible="state == 'invoiced'">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <field name="informe_por_usuario" widget="boolean_toggle" />
+                            </div>
+                            <div class="col-md-6">
+                                <button name="cargar_usuarios_asociados"
+                                    string="🔄 Cargar Usuarios"
+                                    type="object"
+                                    class="btn-primary"
+                                    invisible="not informe_por_usuario or state != 'draft'"
+                                    help="Carga usuarios asociados a la máquina" />
+                            </div>
+                        </div>
+                    </group>
+
+                    <!-- Detalle de Usuarios -->
+                    <field name="usuario_detalle_ids"
+                        invisible="not informe_por_usuario"
+                        readonly="state != 'draft'">
+                        <tree editable="bottom" decoration-info="True">
+                            <field name="usuario_id" readonly="1" />
+                            <field name="cantidad_copias" sum="Total de Copias" />
+                            <field name="notas" optional="hide" />
+                        </tree>
                     </field>
-                </div>
 
-                <notebook class="mt-4">
-                    <page string="🖤 Contadores B/N" name="contadores_bn">
-                        <div class="card border-dark">
-                            <div class="card-header bg-dark text-white">
-                                <h5 class="mb-0">Contadores Blanco y Negro</h5>
+                    <!-- Notebook con pestañas mejoradas -->
+                    <notebook>
+                        <!-- Pestaña Contadores B/N -->
+                        <page string="⚫ Contadores B/N" name="contadores_bn">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <group string="📊 Contadores" class="o_setting_box">
+                                        <div class="o_setting_left_pane">
+                                            <field name="contador_anterior_bn" class="o_light_label" />
+                                        </div>
+                                        <div class="o_setting_right_pane">
+                                            <field name="contador_actual_bn"
+                                                readonly="state != 'draft'"
+                                                required="True"
+                                                class="o_input_9ch" />
+                                        </div>
+                                    </group>
+                                    
+                                    <separator string="📈 Resultado" />
+                                    <group>
+                                        <field name="total_copias_bn"
+                                            readonly="1"
+                                            class="text-primary fw-bold" />
+                                        <field name="exceso_bn"
+                                            readonly="1"
+                                            class="text-warning"
+                                            invisible="exceso_bn == 0" />
+                                        <field name="copias_facturables_bn"
+                                            readonly="1"
+                                            class="text-success fw-bold" />
+                                    </group>
+                                </div>
+
+                                <div class="col-lg-6">
+                                    <group string="💰 Facturación B/N">
+                                        <field name="precio_bn_sin_igv"
+                                            readonly="1"
+                                            widget="monetary" />
+                                        <field name="producto_facturable_bn_id"
+                                            readonly="1"
+                                            invisible="not producto_facturable_bn_id" />
+                                        <separator string="💵 Totales B/N" />
+                                        <field name="subtotal_bn"
+                                            readonly="1"
+                                            widget="monetary"
+                                            class="text-info" />
+                                        <field name="igv_bn"
+                                            readonly="1"
+                                            widget="monetary"
+                                            class="text-warning" />
+                                        <field name="total_bn"
+                                            readonly="1"
+                                            widget="monetary"
+                                            class="text-success fw-bold" />
+                                    </group>
+                                </div>
                             </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <group string="Contadores">
-                                            <field name="contador_anterior_bn" class="form-control-lg"/>
-                                            <field name="contador_actual_bn" 
-                                                   readonly="state != 'draft'" 
-                                                   class="form-control-lg"/>
-                                            <field name="total_copias_bn" 
-                                                   class="fw-bold text-primary form-control-lg"/>
-                                        </group>
+                        </page>
+
+                        <!-- Pestaña Contadores Color -->
+                        <page string="🌈 Contadores Color" name="contadores_color">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <group string="📊 Contadores" class="o_setting_box">
+                                        <div class="o_setting_left_pane">
+                                            <field name="contador_anterior_color" class="o_light_label" />
+                                        </div>
+                                        <div class="o_setting_right_pane">
+                                            <field name="contador_actual_color"
+                                                readonly="state != 'draft'"
+                                                class="o_input_9ch" />
+                                        </div>
+                                    </group>
+                                    
+                                    <separator string="📈 Resultado" />
+                                    <group>
+                                        <field name="total_copias_color"
+                                            readonly="1"
+                                            class="text-primary fw-bold" />
+                                        <field name="exceso_color"
+                                            readonly="1"
+                                            class="text-warning"
+                                            invisible="exceso_color == 0" />
+                                        <field name="copias_facturables_color"
+                                            readonly="1"
+                                            class="text-success fw-bold" />
+                                    </group>
+                                </div>
+
+                                <div class="col-lg-6">
+                                    <group string="💰 Facturación Color">
+                                        <field name="precio_color_sin_igv"
+                                            readonly="1"
+                                            widget="monetary" />
+                                        <field name="producto_facturable_color_id"
+                                            readonly="1"
+                                            invisible="not producto_facturable_color_id" />
+                                        <separator string="💵 Totales Color" />
+                                        <field name="subtotal_color"
+                                            readonly="1"
+                                            widget="monetary"
+                                            class="text-info" />
+                                        <field name="igv_color"
+                                            readonly="1"
+                                            widget="monetary"
+                                            class="text-warning" />
+                                        <field name="total_color"
+                                            readonly="1"
+                                            widget="monetary"
+                                            class="text-success fw-bold" />
+                                    </group>
+                                </div>
+                            </div>
+                        </page>
+
+                        <!-- Pestaña Totales Financieros -->
+                        <page string="💰 Totales" name="totales">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <group string="📊 Desglose Financiero" class="oe_subtotal_footer oe_right">
+                                        <field name="subtotal_antes_descuento"
+                                            readonly="1"
+                                            widget="monetary"
+                                            invisible="subtotal_antes_descuento == 0" />
+                                        <field name="descuento_porcentaje"
+                                            readonly="1"
+                                            string="Descuento"
+                                            widget="percentage"
+                                            invisible="descuento_porcentaje == 0" />
+                                        <field name="monto_descuento"
+                                            readonly="1"
+                                            widget="monetary"
+                                            invisible="monto_descuento == 0"
+                                            class="text-danger" />
+                                        <field name="subtotal"
+                                            readonly="1"
+                                            widget="monetary"
+                                            class="text-primary" />
+                                        <field name="igv"
+                                            readonly="1"
+                                            widget="monetary"
+                                            string="IGV (18%)"
+                                            class="text-info" />
+                                        <field name="total"
+                                            readonly="1"
+                                            widget="monetary"
+                                            class="oe_subtotal_footer_separator text-success fw-bold fs-4" />
+                                    </group>
+                                </div>
+
+                                <div class="col-lg-4">
+                                    <group string="📋 Productos para Facturación">
+                                        <field name="producto_facturable_id"
+                                            readonly="1"
+                                            invisible="not producto_facturable_id" />
+                                        <field name="precio_producto"
+                                            readonly="1"
+                                            widget="monetary"
+                                            invisible="not precio_producto" />
+                                    </group>
+
+                                    <!-- Información adicional -->
+                                    <div class="alert alert-info" invisible="state != 'confirmed'">
+                                        <strong>💡 Información:</strong><br/>
+                                        Esta lectura está confirmada y lista para facturar.
+                                        Use el botón "Crear Factura" para generar la factura.
                                     </div>
-                                    <div class="col-md-6">
-                                        <group string="Facturación">
-                                            <field name="exceso_bn" class="text-warning"/>
-                                            <field name="copias_facturables_bn" class="text-success"/>
-                                            <field name="precio_bn_sin_igv" widget="monetary" class="text-info"/>
-                                        </group>
+
+                                    <div class="alert alert-success" invisible="state != 'invoiced'">
+                                        <strong>✅ Facturado:</strong><br/>
+                                        Esta lectura ya ha sido facturada.
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </page>
-                    
-                    <page string="🌈 Contadores Color" name="contadores_color">
-                        <div class="card border-primary">
-                            <div class="card-header bg-primary text-white">
-                                <h5 class="mb-0">Contadores a Color</h5>
-                            </div>
-                            <div class="card-body">
+                        </page>
+
+                        <!-- Pestaña de Configuración Avanzada -->
+                        <page string="⚙️ Configuración" name="config" invisible="not context.get('debug', False)">
+                            <group string="🔧 Configuración Técnica">
+                                <field name="maquina_id" readonly="1" />
+                                <separator string="🔍 Debug Info" />
                                 <div class="row">
-                                    <div class="col-md-6">
-                                        <group string="Contadores">
-                                            <field name="contador_anterior_color" class="form-control-lg"/>
-                                            <field name="contador_actual_color" 
-                                                   readonly="state != 'draft'" 
-                                                   class="form-control-lg"/>
-                                            <field name="total_copias_color" 
-                                                   class="fw-bold text-primary form-control-lg"/>
-                                        </group>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <group string="Facturación">
-                                            <field name="exceso_color" class="text-warning"/>
-                                            <field name="copias_facturables_color" class="text-success"/>
-                                            <field name="precio_color_sin_igv" widget="monetary" class="text-info"/>
-                                        </group>
+                                    <div class="col-6">
+                                        <button name="debug_counter_totales"
+                                            string="Debug Totales"
+                                            type="object"
+                                            class="btn-warning" />
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </page>
-                    
-                    <page string="💰 Totales" name="totales">
-                        <div class="card border-success">
-                            <div class="card-header bg-success text-white">
-                                <h5 class="mb-0">Resumen Financiero</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <group class="oe_subtotal_footer bg-light p-3 rounded">
-                                            <field name="subtotal" 
-                                                   widget="monetary" 
-                                                   class="fs-5 text-primary"/>
-                                            <field name="igv" 
-                                                   widget="monetary" 
-                                                   class="fs-5 text-info"/>
-                                            <field name="total" 
-                                                   class="oe_subtotal_footer_separator fw-bold fs-4 text-success"
-                                                   widget="monetary" />
-                                        </group>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <separator string="📊 Información de Facturación" class="text-muted"/>
-                                        <group col="1" class="mt-3">
-                                            <field name="producto_facturable_id" 
-                                                   readonly="1" 
-                                                   class="fw-semibold"/>
-                                            <field name="precio_producto" 
-                                                   readonly="1" 
-                                                   widget="monetary"
-                                                   class="text-success"/>
-                                        </group>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </page>
-                </notebook>
-            </sheet>
-            <chatter />
-        </form>
-    </field>
-</record>
-    <!-- Search View -->
-<record id="view_copier_counter_search" model="ir.ui.view">
-    <field name="name">copier.counter.search</field>
-    <field name="model">copier.counter</field>
-    <field name="arch" type="xml">
-        <search>
-            <field name="name" />
-            <field name="cliente_id" />
-            <field name="serie" />
-            <field name="mes_facturacion" />
-            <filter string="Borradores" name="draft" domain="[('state','=','draft')]" />
-            <filter string="Confirmados" name="confirmed" domain="[('state','=','confirmed')]" />
-            <filter string="Facturados" name="invoiced" domain="[('state','=','invoiced')]" />
-            <filter string="Cancelados" name="cancelled" domain="[('state','=','cancelled')]" />
-            <separator />
-            
-        </search>
-    </field>
-</record>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
 
+                <!-- Chatter para comunicación -->
+                <chatter/>
+            </form>
+        </field>
+    </record>
 
+    <!-- Search View Mejorada -->
+    <record id="view_copier_counter_search" model="ir.ui.view">
+        <field name="name">copier.counter.search</field>
+        <field name="model">copier.counter</field>
+        <field name="arch" type="xml">
+            <search>
+                <!-- Campos de búsqueda -->
+                <field name="name" string="Referencia" />
+                <field name="cliente_id" string="Cliente" />
+                <field name="serie" string="Serie" />
+                <field name="mes_facturacion" string="Mes" />
+                <field name="maquina_id" string="Máquina" />
+
+                <!-- Filtros principales -->
+                <filter string="📝 Borradores"
+                    name="draft"
+                    domain="[('state','=','draft')]" />
+                <filter string="✅ Confirmados"
+                    name="confirmed"
+                    domain="[('state','=','confirmed')]" />
+                <filter string="💰 Facturados"
+                    name="invoiced"
+                    domain="[('state','=','invoiced')]" />
+                <filter string="❌ Cancelados"
+                    name="cancelled"
+                    domain="[('state','=','cancelled')]" />
+
+                <separator />
+
+                <!-- Filtros por fecha -->
+                <filter string="Este mes"
+                    name="this_month"
+                    domain="[('fecha_facturacion', '&gt;=', (context_today() - datetime.timedelta(days=30)).strftime('%Y-%m-01')),
+                            ('fecha_facturacion', '&lt;=', (context_today().replace(day=1) + datetime.timedelta(days=32)).replace(day=1) - datetime.timedelta(days=1))]" />
+                <filter string="Mes pasado"
+                    name="last_month"
+                    domain="[('fecha_facturacion', '&gt;=', (context_today().replace(day=1) - datetime.timedelta(days=1)).replace(day=1)),
+                            ('fecha_facturacion', '&lt;=', context_today().replace(day=1) - datetime.timedelta(days=1))]" />
+
+                <separator />
+
+                <!-- Filtros por volumen -->
+                <filter string="Con exceso B/N"
+                    name="exceso_bn"
+                    domain="[('exceso_bn', '&gt;', 0)]" />
+                <filter string="Con exceso Color"
+                    name="exceso_color"
+                    domain="[('exceso_color', '&gt;', 0)]" />
+
+                <separator />
+
+                <!-- Filtros por montos -->
+                <filter string="Montos altos (&gt; 1000)"
+                    name="high_amounts"
+                    domain="[('total', '&gt;', 1000)]" />
+
+                <!-- Agrupar por -->
+                <group expand="0" string="Agrupar por">
+                    <filter string="Estado" name="group_state" context="{'group_by': 'state'}" />
+                    <filter string="Cliente" name="group_client" context="{'group_by': 'cliente_id'}" />
+                    <filter string="Máquina" name="group_machine" context="{'group_by': 'maquina_id'}" />
+                    <filter string="Mes de Facturación" name="group_month" context="{'group_by': 'mes_facturacion'}" />
+                    <filter string="Fecha de Facturación" name="group_date" context="{'group_by': 'fecha_facturacion'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Pivot View para análisis -->
+    <record id="view_copier_counter_pivot" model="ir.ui.view">
+        <field name="name">copier.counter.pivot</field>
+        <field name="model">copier.counter</field>
+        <field name="arch" type="xml">
+            <pivot string="Análisis de Contadores">
+                <field name="cliente_id" type="row" />
+                <field name="mes_facturacion" type="col" />
+                <field name="total_copias_bn" type="measure" />
+                <field name="total_copias_color" type="measure" />
+                <field name="total" type="measure" />
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph View para reportes visuales -->
+    <record id="view_copier_counter_graph" model="ir.ui.view">
+        <field name="name">copier.counter.graph</field>
+        <field name="model">copier.counter</field>
+        <field name="arch" type="xml">
+            <graph string="Evolución de Contadores">
+                <field name="fecha_facturacion" type="row" />
+                <field name="total_copias_bn" type="measure" />
+                <field name="total_copias_color" type="measure" />
+                <field name="total" type="measure" />
+            </graph>
+        </field>
+    </record>
 </odoo>
