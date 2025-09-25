@@ -123,17 +123,17 @@
                     string="Confirmar"
                     type="object"
                     class="btn btn-primary"
-                    invisible="state != 'draft'" />
+                    column_invisible="state != 'draft'" />
                 <button name="action_draft"
                     string="Volver a Borrador"
                     type="object"
                     class="btn btn-secondary"
-                    invisible="state != 'confirmed'" />
+                    column_invisible="state != 'confirmed'" />
                 <button name="action_cancel"
                     string="Cancelar"
                     type="object"
                     class="btn btn-outline-danger"
-                invisible="state not in ('draft', 'confirmed')" />
+                    column_invisible="state not in ('draft', 'confirmed')" />
                 <button string="📄 Reporte" 
                     name="action_print_report" 
                     type="object"
@@ -142,10 +142,11 @@
                     type="object" 
                     string="💰 Crear Factura"
                     class="btn btn-success"
-                    invisible="state != 'confirmed'"/>                
+                    column_invisible="state != 'confirmed'"/>
+                
 
                 <field name="state" widget="statusbar"
-                    />
+                    statusbar_visible="draft,confirmed,invoiced" />
             </header>
             <sheet>
                 <div class="oe_title">
