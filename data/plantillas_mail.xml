@@ -1,119 +1,118 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-  <data>
-      <record id="email_template_propuesta_alquiler" model="mail.template">
-          <field name="name">Propuesta de Alquiler</field>
-          <field name="model_id" ref="model_copier_company"/>
-          <field name="email_from">info@copiercompanysac.com</field>
-          <field name="email_to">{{ object.cliente_id.email }}</field>
-          <field name="subject">Propuesta de Solución de Impresión - {{ object.secuencia }}</field>
-          <field name="report_template_ids" eval="[(4, ref('copier_company.action_report_report_cotizacion_alquiler'))]"/>
-          
-          <field name="body_html" type="html">
-              <div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif;">
-                  <div style="padding: 25px; background-color: #ffffff;">
-                      <h2 style="color: #2C3E50; margin-bottom: 20px;">
-                          Estimado/a <t t-out="object.cliente_id.name"/>
-                      </h2>
-                      
-                      <p style="color: #34495E; font-size: 15px; margin-bottom: 15px; line-height: 1.6;">
-                          Es un placer saludarle. Adjunto encontrará nuestra propuesta detallada 
-                          para el servicio de alquiler de la máquina <t t-out="object.name.name"/>, 
-                          que hemos preparado especialmente para su empresa.
-                      </p>
+    <data>
+        <record id="email_template_propuesta_alquiler" model="mail.template">
+            <field name="name">Propuesta de Alquiler</field>
+            <field name="model_id" ref="model_copier_company"/>
+            <field name="email_from">info@copiercompanysac.com</field>
+            <field name="email_to">${object.cliente_id.email}</field>
+            <field name="subject">Propuesta de Solución de Impresión - ${object.secuencia}</field>
+            <field name="report_template_ids" eval="[(4, ref('copier_company.action_report_report_cotizacion_alquiler'))]"/>
+            
+            <field name="body_html"><![CDATA[
+<div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif;">
+    <div style="padding: 25px; background-color: #ffffff;">
+        <h2 style="color: #2C3E50; margin-bottom: 20px;">
+            Estimado/a ${object.cliente_id.name or ''}
+        </h2>
+        
+        <p style="color: #34495E; font-size: 15px; margin-bottom: 15px; line-height: 1.6;">
+            Es un placer saludarle. Adjunto encontrará nuestra propuesta detallada 
+            para el servicio de alquiler de la máquina ${object.name.name or ''}, 
+            que hemos preparado especialmente para su empresa.
+        </p>
 
-                      <p style="color: #34495E; font-size: 15px; margin-bottom: 25px; line-height: 1.6;">
-                          Si tiene alguna consulta o requiere información adicional, 
-                          estaremos encantados de atenderle.
-                      </p>
+        <p style="color: #34495E; font-size: 15px; margin-bottom: 25px; line-height: 1.6;">
+            Si tiene alguna consulta o requiere información adicional, 
+            estaremos encantados de atenderle.
+        </p>
 
-                      <p style="color: #34495E;">Saludos cordiales,</p>
+        <p style="color: #34495E;">Saludos cordiales,</p>
 
-                      <!-- Firma Profesional -->
-                      <table style="width: 100%; max-width: 600px; margin-top: 20px; border-top: 3px solid #3498DB; padding-top: 20px;">
-                          <tr>
-                              <td style="vertical-align: top; padding-right: 20px;">
-                                  <!-- Logo de la empresa -->
-                                  <img src="/web/image/res.company/${user.company_id.id}/logo/100x100" alt="Company Logo" style="width: 100px; height: auto;"/>
-                              </td>
-                              <td style="vertical-align: top;">
-                                  <!-- Información de contacto -->
-                                  <p style="margin: 0; color: #2C3E50; font-size: 18px; font-weight: bold;">
-                                      <t t-out="user.name"/>
-                                  </p>
-                                  <p style="margin: 3px 0; color: #7F8C8D; font-size: 14px;">
-                                      <t t-out="user.job_title or ''"/>
-                                  </p>
-                                  <p style="margin: 3px 0; color: #2980B9; font-weight: bold; font-size: 16px;">
-                                      <t t-out="user.company_id.name"/>
-                                  </p>
-                                  <p style="margin: 3px 0; color: #7F8C8D; font-size: 14px;">
-                                      <i class="fa fa-phone" style="color: #3498DB;"></i> <t t-out="user.phone or ''"/>
-                                  </p>
-                                  <p style="margin: 3px 0; color: #7F8C8D; font-size: 14px;">
-                                      <i class="fa fa-envelope" style="color: #3498DB;"></i> <t t-out="user.email"/>
-                                  </p>
-                                  <p style="margin: 3px 0; color: #7F8C8D; font-size: 14px;">
-                                      <i class="fa fa-globe" style="color: #3498DB;"></i> <t t-out="user.company_id.website"/>
-                                  </p>
-                              </td>
-                          </tr>
-                          <tr>
-                              <td colspan="2" style="padding-top: 15px;">
-                                  <!-- Redes Sociales -->
-                                  <div style="margin-top: 15px;">
-                                    <!-- Facebook -->
-                                    <a href="https://facebook.com/company" style="text-decoration:none; margin-right:15px; font-size: 24px;">
-                                        <i class="fa fa-facebook-official" style="color: #1877F2;"></i>
-                                    </a>
-                                    
-                                   
-                                    <!-- Instagram -->
-                                    <a href="https://instagram.com/company" style="text-decoration:none; font-size: 24px;">
-                                        <i class="fa fa-instagram" style="color: #E4405F;"></i>
-                                    </a>
+        <!-- Firma Profesional -->
+        <table style="width: 100%; max-width: 600px; margin-top: 20px; border-top: 3px solid #3498DB; padding-top: 20px;">
+            <tr>
+                <td style="vertical-align: top; padding-right: 20px;">
+                    <!-- Logo de la empresa -->
+                    <img src="/web/image/res.company/${user.company_id.id}/logo/100x100" alt="Company Logo" style="width: 100px; height: auto;"/>
+                </td>
+                <td style="vertical-align: top;">
+                    <!-- Información de contacto -->
+                    <p style="margin: 0; color: #2C3E50; font-size: 18px; font-weight: bold;">
+                        ${user.name or ''}
+                    </p>
+                    <p style="margin: 3px 0; color: #7F8C8D; font-size: 14px;">
+                        ${user.job_title or ''}
+                    </p>
+                    <p style="margin: 3px 0; color: #2980B9; font-weight: bold; font-size: 16px;">
+                        ${user.company_id.name or ''}
+                    </p>
+                    <p style="margin: 3px 0; color: #7F8C8D; font-size: 14px;">
+                        📞 ${user.phone or ''}
+                    </p>
+                    <p style="margin: 3px 0; color: #7F8C8D; font-size: 14px;">
+                        ✉️ ${user.email or ''}
+                    </p>
+                    <p style="margin: 3px 0; color: #7F8C8D; font-size: 14px;">
+                        🌐 ${user.company_id.website or ''}
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="padding-top: 15px;">
+                    <!-- Redes Sociales -->
+                    <div style="margin-top: 15px;">
+                        <!-- Facebook -->
+                        <a href="https://facebook.com/company" style="text-decoration:none; margin-right:15px; font-size: 24px; color: #1877F2;">
+                            📘 Facebook
+                        </a>
+                        
+                        <!-- Instagram -->
+                        <a href="https://instagram.com/company" style="text-decoration:none; margin-right:15px; font-size: 24px; color: #E4405F;">
+                            📷 Instagram
+                        </a>
 
-                                    <!-- WhatsApp -->
-                                    <a href="https://wa.me/51999999999" style="text-decoration:none; margin-right:15px; font-size: 24px;">
-                                        <i class="fa fa-whatsapp" style="color: #25D366;"></i>
-                                    </a>
+                        <!-- WhatsApp -->
+                        <a href="https://wa.me/51999999999" style="text-decoration:none; margin-right:15px; font-size: 24px; color: #25D366;">
+                            📱 WhatsApp
+                        </a>
 
-                                   <!-- YouTube -->
-                                    <a href="https://youtube.com/company" style="text-decoration:none; font-size: 24px;">
-                                    <i class="fa fa-youtube" style="color: #FF0000;"></i>
-                                    </a>
-                                    </div>
-                              </td>
-                          </tr>
-                      </table>
-                      
-                      <!-- Disclaimer -->
-                      <p style="margin-top: 20px; font-size: 11px; color: #95A5A6; text-align: justify;">
-                          Este mensaje puede contener información confidencial y privilegiada. Si usted no es el destinatario, 
-                          le informamos que cualquier uso, difusión o copia está prohibida. Si ha recibido este mensaje por error, 
-                          por favor notifique al remitente y elimine el mensaje.
-                      </p>
-                      
-                      <!-- Banner Verde -->
-                      <div style="margin-top: 20px; padding: 10px; background-color: #27AE60; border-radius: 5px; text-align: center;">
-                          <p style="margin: 0; color: white; font-size: 12px;">
-                              ♻️ Antes de imprimir este correo, piense en su compromiso con el Medio Ambiente.
-                          </p>
-                      </div>
-                  </div>
-              </div>
-          </field>
-      </record>
-      <record id="email_template_cotizacion_multiple" model="mail.template">
-    <field name="name">💼 Cotización Múltiple de Alquiler</field>
-    <field name="model_id" ref="model_copier_quotation"/>
-    <field name="email_from">info@copiercompanysac.com</field>
-    <field name="email_to">{{object.cliente_id.email}}</field>
-    <field name="subject">💼 Cotización {{object.name}} - {{object.modalidad_pago_id.name}}</field>
-    <field name="report_template_ids" eval="[(4, ref('copier_company.action_report_copier_quotation'))]"/>
-    <field name="auto_delete" eval="False"/>
-    <field name="body_html"><![CDATA[
+                        <!-- YouTube -->
+                        <a href="https://youtube.com/company" style="text-decoration:none; font-size: 24px; color: #FF0000;">
+                            📺 YouTube
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        
+        <!-- Disclaimer -->
+        <p style="margin-top: 20px; font-size: 11px; color: #95A5A6; text-align: justify;">
+            Este mensaje puede contener información confidencial y privilegiada. Si usted no es el destinatario, 
+            le informamos que cualquier uso, difusión o copia está prohibida. Si ha recibido este mensaje por error, 
+            por favor notifique al remitente y elimine el mensaje.
+        </p>
+        
+        <!-- Banner Verde -->
+        <div style="margin-top: 20px; padding: 10px; background-color: #27AE60; border-radius: 5px; text-align: center;">
+            <p style="margin: 0; color: white; font-size: 12px;">
+                ♻️ Antes de imprimir este correo, piense en su compromiso con el Medio Ambiente.
+            </p>
+        </div>
+    </div>
+</div>
+            ]]></field>
+        </record>
 
+        <record id="email_template_cotizacion_multiple" model="mail.template">
+            <field name="name">💼 Cotización Múltiple de Alquiler</field>
+            <field name="model_id" ref="model_copier_quotation"/>
+            <field name="email_from">info@copiercompanysac.com</field>
+            <field name="email_to">${object.cliente_id.email}</field>
+            <field name="subject">💼 Cotización ${object.name} - ${object.modalidad_pago_id.name}</field>
+            <field name="report_template_ids" eval="[(4, ref('copier_company.action_report_copier_quotation'))]"/>
+            <field name="auto_delete" eval="False"/>
+            <field name="body_html"><![CDATA[
 <!DOCTYPE html>
 <html>
 <head>
@@ -127,16 +126,16 @@
         <!-- Encabezado -->
         <div style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); padding: 25px; text-align: center;">
             <div style="color: #ffffff; font-size: 26px; font-weight: bold; margin-bottom: 5px;">
-                💼 Cotización Múltiple N° <t t-out="object.name"/>
+                💼 Cotización Múltiple N° ${object.name}
             </div>
             <div style="color: #ecf0f1; font-size: 14px;">
-                📅 <t t-out="object.fecha_cotizacion.strftime('%d de %B de %Y')"/>
+                📅 ${object.fecha_cotizacion.strftime('%d de %B de %Y') if object.fecha_cotizacion else ''}
             </div>
             <div style="color: #f1c40f; font-size: 16px; font-weight: bold; margin-top: 10px;">
-                🎯 Modalidad: <t t-out="object.modalidad_pago_id.name"/>
-                <t t-if="object.modalidad_pago_id.descuento_porcentaje > 0">
-                    - 🎉 Descuento: <t t-out="object.modalidad_pago_id.descuento_porcentaje"/>%
-                </t>
+                🎯 Modalidad: ${object.modalidad_pago_id.name or ''}
+                % if object.modalidad_pago_id and object.modalidad_pago_id.descuento_porcentaje > 0:
+                    - 🎉 Descuento: ${object.modalidad_pago_id.descuento_porcentaje}%
+                % endif
             </div>
         </div>
 
@@ -150,28 +149,19 @@
             <table style="width: 100%; max-width: 500px; margin: 0 auto;">
                 <tr>
                     <td style="padding: 5px;">
-                        <!-- URL de aprobar con token -->
-                        <t t-set="approve_url" t-value="ctx.get('action_urls', {}).get('approve', '#')"/>
-                        <a t-att-href="approve_url" 
-                           style="display: inline-block; width: 100%; padding: 12px 20px; background-color: #27ae60; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px; text-align: center;">
+                        <a href="#" style="display: inline-block; width: 100%; padding: 12px 20px; background-color: #27ae60; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px; text-align: center;">
                             ✅ APROBAR COTIZACIÓN
                         </a>
                     </td>
                     <td style="padding: 5px;">
-                        <!-- URL de rechazar con token -->
-                        <t t-set="reject_url" t-value="ctx.get('action_urls', {}).get('reject', '#')"/>
-                        <a t-att-href="reject_url" 
-                           style="display: inline-block; width: 100%; padding: 12px 20px; background-color: #e74c3c; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px; text-align: center;">
+                        <a href="#" style="display: inline-block; width: 100%; padding: 12px 20px; background-color: #e74c3c; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px; text-align: center;">
                             ❌ RECHAZAR
                         </a>
                     </td>
                 </tr>
                 <tr>
                     <td colspan="2" style="padding: 5px;">
-                        <!-- URL de revisar con token -->
-                        <t t-set="review_url" t-value="ctx.get('action_urls', {}).get('review', '#')"/>
-                        <a t-att-href="review_url" 
-                           style="display: inline-block; width: 100%; padding: 12px 20px; background-color: #f39c12; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px; text-align: center;">
+                        <a href="#" style="display: inline-block; width: 100%; padding: 12px 20px; background-color: #f39c12; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px; text-align: center;">
                             👁️ NECESITO REVISAR / MODIFICAR
                         </a>
                     </td>
@@ -188,7 +178,7 @@
             
             <!-- Saludo -->
             <div style="font-size: 18px; margin-bottom: 20px; color: #2c3e50;">
-                Estimado/a <strong><t t-out="object.cliente_id.name"/></strong>,
+                Estimado/a <strong>${object.cliente_id.name or ''}</strong>,
             </div>
             
             <!-- Mensaje Principal -->
@@ -203,36 +193,40 @@
                     📋 Resumen de Equipos Cotizados:
                 </div>
                 
-                <t t-foreach="object.linea_equipos_ids" t-as="linea">
+                % for linea in object.linea_equipos_ids:
                     <div style="margin-bottom: 10px; padding: 10px; background-color: #ffffff; border-radius: 4px; border: 1px solid #e9ecef;">
-                        <strong style="color: #2980b9;">🖨️ <t t-out="linea.equipo_id.name"/></strong>
-                        <t t-if="linea.cantidad > 1">
-                            <span style="color: #e67e22;">(Cantidad: <t t-out="linea.cantidad"/>)</span>
-                        </t>
+                        <strong style="color: #2980b9;">🖨️ ${linea.equipo_id.name or ''}</strong>
+                        % if linea.cantidad > 1:
+                            <span style="color: #e67e22;">(Cantidad: ${linea.cantidad})</span>
+                        % endif
                         <br/>
                         <span style="font-size: 13px; color: #7f8c8d;">
-                            <t t-out="linea.marca_id.name"/> | 
-                            <t t-if="linea.tipo_equipo == 'color'">🎨 Color</t>
-                            <t t-if="linea.tipo_equipo == 'monocroma'">⚫ Blanco y Negro</t> | 
-                            Formato: <t t-out="linea.formato.upper()"/>
+                            ${linea.marca_id.name or ''} | 
+                            % if linea.tipo_equipo == 'color':
+                                🎨 Color
+                            % endif
+                            % if linea.tipo_equipo == 'monocroma':
+                                ⚫ Blanco y Negro
+                            % endif
+                             | Formato: ${linea.formato.upper() if linea.formato else ''}
                         </span>
                     </div>
-                </t>
+                % endfor
             </div>
 
             <!-- Totales Destacados -->
             <div style="background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); padding: 20px; border-radius: 10px; margin-bottom: 25px; text-align: center; color: #ffffff;">
-                <div style="font-size: 14px; margin-bottom: 5px;">💰 Total por <t t-out="object.modalidad_pago_id.name"/>:</div>
+                <div style="font-size: 14px; margin-bottom: 5px;">💰 Total por ${object.modalidad_pago_id.name or ''}:</div>
                 <div style="font-size: 28px; font-weight: bold; margin-bottom: 5px;">
-                    S/. <t t-out="'{:,.2f}'.format(object.total_por_modalidad)"/>
+                    S/. ${'{:,.2f}'.format(object.total_por_modalidad) if object.total_por_modalidad else '0.00'}
                 </div>
                 <div style="font-size: 12px; opacity: 0.9;">Incluye IGV</div>
                 
-                <t t-if="object.modalidad_pago_id.descuento_porcentaje > 0">
+                % if object.modalidad_pago_id and object.modalidad_pago_id.descuento_porcentaje > 0:
                     <div style="margin-top: 10px; font-size: 13px; background-color: rgba(255,255,255,0.2); padding: 8px; border-radius: 4px;">
-                        🎉 ¡Ahorro por modalidad de pago: S/. <t t-out="'{:,.2f}'.format(object.descuento_modalidad)"/>!
+                        🎉 ¡Ahorro por modalidad de pago: S/. ${'{:,.2f}'.format(object.descuento_modalidad) if object.descuento_modalidad else '0.00'}!
                     </div>
-                </t>
+                % endif
             </div>
 
             <!-- Información Adicional -->
@@ -252,8 +246,8 @@
             <!-- Validez -->
             <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 6px; margin-bottom: 25px;">
                 <div style="color: #856404; font-size: 14px;">
-                    ⏰ <strong>Validez de la cotización:</strong> <t t-out="object.validez_dias"/> días 
-                    (hasta el <t t-out="object.fecha_vencimiento.strftime('%d/%m/%Y')"/>)
+                    ⏰ <strong>Validez de la cotización:</strong> ${object.validez_dias or 0} días 
+                    (hasta el ${object.fecha_vencimiento.strftime('%d/%m/%Y') if object.fecha_vencimiento else ''})
                 </div>
             </div>
 
@@ -272,8 +266,7 @@
 
             <!-- Link de Estado (fallback) -->
             <div style="text-align: center; margin-bottom: 25px;">
-                <t t-set="status_url" t-value="ctx.get('action_urls', {}).get('status', '#')"/>
-                <a t-att-href="status_url" style="color: #3498db; text-decoration: none; font-size: 14px;">
+                <a href="#" style="color: #3498db; text-decoration: none; font-size: 14px;">
                     📊 Ver estado de mi cotización
                 </a>
             </div>
@@ -284,8 +277,6 @@
                 Nuestro equipo está disponible para brindarle el mejor servicio.
             </div>
         </div>
-
-        
 
         <!-- Footer Legal -->
         <div style="background-color: #2c3e50; padding: 15px; text-align: center;">
@@ -305,8 +296,7 @@
     </div>
 </body>
 </html>
-
-    ]]></field>
-</record>
-  </data>
+            ]]></field>
+        </record>
+    </data>
 </odoo>
