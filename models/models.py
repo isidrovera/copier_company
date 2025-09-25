@@ -25,10 +25,21 @@ class CopierCompany(models.Model):
     secuencia = fields.Char('Cotización N°', default='New', copy=False, required=True, readonly=True)
     
     @api.model
-    def create(self, vals):
-        vals['secuencia'] = self.env['ir.sequence'].next_by_code('copier.company') or '/'
-        return super(CopierCompany, self).create(vals)
-    
+    def create(self, vals_list):
+        """
+        Override create method to handle sequence generation
+        Compatible with both single dict and list of dicts
+        """
+        # Ensure we're working with a list
+        if isinstance(vals_list, dict):
+            vals_list = [vals_list]
+        
+        # Process each record
+        for vals in vals_list:
+            if not vals.get('secuencia') or vals.get('secuencia') in ('New', '/'):
+                vals['secuencia'] = self.env['ir.sequence'].next_by_code('copier.company') or '/'
+        
+        return super(CopierCompany, self).create(vals_list)
     imagen_id = fields.Binary(related='name.imagen',string="Imagen de la Máquina", attachment=True)
 
 
