@@ -123,17 +123,17 @@
                     string="Confirmar"
                     type="object"
                     class="btn btn-primary"
-                    column_invisible="state != 'draft'" />
+                    invisible="state != 'draft'" />
                 <button name="action_draft"
                     string="Volver a Borrador"
                     type="object"
                     class="btn btn-secondary"
-                    column_invisible="state != 'confirmed'" />
+                    invisible="state != 'confirmed'" />
                 <button name="action_cancel"
                     string="Cancelar"
                     type="object"
                     class="btn btn-outline-danger"
-                    column_invisible="state not in ('draft', 'confirmed')" />
+                    invisible="state not in ('draft', 'confirmed')" />
                 <button string="📄 Reporte" 
                     name="action_print_report" 
                     type="object"
@@ -142,11 +142,15 @@
                     type="object" 
                     string="💰 Crear Factura"
                     class="btn btn-success"
-                    column_invisible="state != 'confirmed'"/>
-                
+                    invisible="state != 'confirmed'"/>
+                <button name="debug_urgente_counter" 
+                    string="🔍 Debug Counter" 
+                    type="object" 
+                    class="btn btn-warning"
+                    help="Debug urgente para identificar discrepancia en totales"/>
 
                 <field name="state" widget="statusbar"
-                    statusbar_visible="draft,confirmed,invoiced" />
+                     />
             </header>
             <sheet>
                 <div class="oe_title">
