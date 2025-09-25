@@ -189,21 +189,32 @@ class CopierCounter(models.Model):
                 record.precio_bn_sin_igv = 0.0
                 record.precio_color_sin_igv = 0.0
     @api.model
-    def create(self, vals):
-        if not vals.get('contador_anterior_bn'):
-            # Buscar última lectura confirmada
-            ultima_lectura = self.search([
-                ('maquina_id', '=', vals.get('maquina_id')),
-                ('state', '=', 'confirmed')
-            ], limit=1, order='fecha desc, id desc')
-            
-            vals['contador_anterior_bn'] = ultima_lectura.contador_actual_bn if ultima_lectura else 0
-            vals['contador_anterior_color'] = ultima_lectura.contador_actual_color if ultima_lectura else 0
+    def create(self, vals_list):
+        """Método create corregido para manejar tanto lista como diccionario individual"""
+        
+        # Asegurar que vals_list sea una lista
+        if isinstance(vals_list, dict):
+            vals_list = [vals_list]
+        
+        # Procesar cada conjunto de valores
+        for vals in vals_list:
+            # Lógica original para contadores anteriores
+            if not vals.get('contador_anterior_bn'):
+                # Buscar última lectura confirmada
+                ultima_lectura = self.search([
+                    ('maquina_id', '=', vals.get('maquina_id')),
+                    ('state', '=', 'confirmed')
+                ], limit=1, order='fecha desc, id desc')
+                
+                vals['contador_anterior_bn'] = ultima_lectura.contador_actual_bn if ultima_lectura else 0
+                vals['contador_anterior_color'] = ultima_lectura.contador_actual_color if ultima_lectura else 0
 
-        if vals.get('name', 'New') == 'New':
-            vals['name'] = self.env['ir.sequence'].next_by_code('copier.counter') or 'New'
-            
-        return super(CopierCounter, self).create(vals)
+            # Generar secuencia si es necesario
+            if vals.get('name', 'New') == 'New':
+                vals['name'] = self.env['ir.sequence'].next_by_code('copier.counter') or 'New'
+        
+        # Llamar al método padre con la lista procesada
+        return super(CopierCounter, self).create(vals_list)
     @api.depends('fecha_facturacion', 'fecha_emision_factura')
     def _compute_mes_facturacion(self):
         meses = {
