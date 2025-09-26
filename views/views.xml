@@ -180,96 +180,106 @@
     </field>
 </record>
 
-    <!-- Kanban View -->
-    <record model="ir.ui.view" id="copier_company.kanban">
-    <field name="name">copier_company.kanban</field>
-    <field name="model">copier.company</field>
-    <field name="arch" type="xml">
-        <kanban default_group_by="estado_maquina_id" class="o_kanban_mobile" records_draggable="1">
-            <field name="name"/>
-            <field name="marca_id"/>
-            <field name="serie_id"/>
-            <field name="cliente_id"/>
-            <field name="sede"/>
-            <field name="ubicacion"/>
-            <field name="estado_maquina_id"/>
-            <field name="tipo"/>
-            <field name="formato"/>
-            <field name="secuencia"/>
-            
-            <templates>
-                <t t-name="kanban-box">
-                    <div t-attf-class="oe_kanban_card oe_kanban_global_click w-100 position-relative rounded-3 shadow-sm" 
-                         t-attf-style="background-color: #{
-                            record.estado_maquina_id.raw_value === 'Disponible' ? 'rgba(40, 167, 69, 0.1)' :
-                            record.estado_maquina_id.raw_value === 'En Uso' ? 'rgba(0, 123, 255, 0.1)' :
-                            record.estado_maquina_id.raw_value === 'Alquilada' ? 'rgba(255, 193, 7, 0.1)' :
-                            record.estado_maquina_id.raw_value === 'Mantenimiento' ? 'rgba(220, 53, 69, 0.1)' : 'rgba(108, 117, 125, 0.1)'
-                         }">
-                        
-                        <div class="p-3">
-                            <!-- Header Section -->
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <div>
-                                    <h3 class="mb-0 fw-bold">
-                                        <field name="name"/> - <field name="secuencia"/>
-                                    </h3>
-                                    <small class="text-muted">Serie: <field name="serie_id"/></small>
-                                </div>
-                                <span t-attf-class="badge rounded-pill #{
-                                    record.estado_maquina_id.raw_value === 'Disponible' ? 'bg-success' :
-                                    record.estado_maquina_id.raw_value === 'En Uso' ? 'bg-primary' :
-                                    record.estado_maquina_id.raw_value === 'Alquilada' ? 'bg-warning' :
-                                    record.estado_maquina_id.raw_value === 'Mantenimiento' ? 'bg-danger' : 'bg-secondary'
-                                }">
-                                    <field name="estado_maquina_id"/>
-                                </span>
-                            </div>
+ <!-- Kanban View (Odoo 17/18) -->
+<record model="ir.ui.view" id="copier_company.kanban">
+  <field name="name">copier_company.kanban</field>
+  <field name="model">copier.company</field>
+  <field name="arch" type="xml">
+    <kanban default_group_by="estado_maquina_id"
+            class="o_kanban_mobile"
+            records_draggable="1"
+            create="1" quick_create="0">
 
-                            <!-- Details Section -->
-                            <div class="mb-3">
-                                <div class="d-flex flex-column gap-2">
-                                    <div class="d-flex align-items-center">
-                                        <i class="fa fa-copyright me-2 text-muted"/> 
-                                        <field name="marca_id"/>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fa fa-building me-2 text-primary"/> 
-                                        <field name="cliente_id"/>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fa fa-map-marker me-2 text-danger"/>
-                                        <field name="ubicacion"/> - <field name="sede"/>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fa fa-print me-2 text-success"/>
-                                        <field name="tipo"/> - <field name="formato"/>
-                                    </div>
-                                </div>
-                            </div>
+      <!-- Declarar todos los campos usados en la card -->
+      <field name="name"/>
+      <field name="marca_id"/>
+      <field name="serie_id"/>
+      <field name="cliente_id"/>
+      <field name="sede"/>
+      <field name="ubicacion"/>
+      <field name="estado_maquina_id"/>
+      <field name="tipo"/>
+      <field name="formato"/>
+      <field name="secuencia"/>
 
-                            <!-- Action Buttons -->
-                            <div class="d-flex gap-2">
-                                <button name="crear_ticket" type="object" 
-                                        class="btn btn-primary btn-sm">
-                                    <i class="fa fa-wrench me-1"/> Servicio
-                                </button>
-                                <button name="generar_qr_code" type="object" 
-                                        class="btn btn-info btn-sm text-white">
-                                    <i class="fa fa-qrcode me-1"/> QR
-                                </button>
-                                <button name="enviar_correo_propuesta" type="object" 
-                                        class="btn btn-success btn-sm">
-                                    <i class="fa fa-envelope me-1"/> Email
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </t>
-            </templates>
-        </kanban>
-    </field>
+      <templates>
+        <t t-name="card">
+          <!-- Mapear clases/estilo según estado (usar .value para M2O) -->
+          <t t-set="estado" t-value="record.estado_maquina_id.value or ''"/>
+          <t t-set="bg_style"
+             t-value="'background-color: ' + (
+               'rgba(40,167,69,0.1)'  if estado == 'Disponible'   else
+               'rgba(0,123,255,0.1)'  if estado == 'En Uso'       else
+               'rgba(255,193,7,0.1)'  if estado == 'Alquilada'    else
+               'rgba(220,53,69,0.1)'  if estado == 'Mantenimiento' else
+               'rgba(108,117,125,0.1)'
+             )"/>
+          <t t-set="badge_class"
+             t-value="('bg-success' if estado == 'Disponible' else
+                      'bg-primary'   if estado == 'En Uso'     else
+                      'bg-warning'   if estado == 'Alquilada'  else
+                      'bg-danger'    if estado == 'Mantenimiento' else
+                      'bg-secondary')"/>
+
+          <div class="o_kanban_record o_kanban_global_click w-100 position-relative rounded-3 shadow-sm"
+               t-att-style="bg_style">
+
+            <div class="p-3">
+              <!-- Header -->
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                  <h3 class="mb-0 fw-bold">
+                    <field name="name"/> - <field name="secuencia"/>
+                  </h3>
+                  <small class="text-muted">Serie: <field name="serie_id"/></small>
+                </div>
+                <span class="badge rounded-pill" t-att-class="badge_class">
+                  <field name="estado_maquina_id"/>
+                </span>
+              </div>
+
+              <!-- Details -->
+              <div class="mb-3">
+                <div class="d-flex flex-column gap-2">
+                  <div class="d-flex align-items-center">
+                    <i class="fa fa-copyright me-2 text-muted"/>
+                    <field name="marca_id"/>
+                  </div>
+                  <div class="d-flex align-items-center">
+                    <i class="fa fa-building me-2 text-primary"/>
+                    <field name="cliente_id"/>
+                  </div>
+                  <div class="d-flex align-items-center">
+                    <i class="fa fa-map-marker me-2 text-danger"/>
+                    <field name="ubicacion"/> - <field name="sede"/>
+                  </div>
+                  <div class="d-flex align-items-center">
+                    <i class="fa fa-print me-2 text-success"/>
+                    <field name="tipo"/> - <field name="formato"/>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="d-flex gap-2">
+                <button name="crear_ticket" type="object" class="btn btn-primary btn-sm">
+                  <i class="fa fa-wrench me-1"/> Servicio
+                </button>
+                <button name="generar_qr_code" type="object" class="btn btn-info btn-sm text-white">
+                  <i class="fa fa-qrcode me-1"/> QR
+                </button>
+                <button name="enviar_correo_propuesta" type="object" class="btn btn-success btn-sm">
+                  <i class="fa fa-envelope me-1"/> Email
+                </button>
+              </div>
+            </div>
+          </div>
+        </t>
+      </templates>
+    </kanban>
+  </field>
 </record>
+
     <!-- Search View -->
     <record id="copier_company_search" model="ir.ui.view">
       <field name="name">copier.company.search</field>

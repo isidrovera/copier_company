@@ -2,80 +2,92 @@
 <odoo>
     <!-- Kanban View -->
     <record id="view_copier_counter_kanban" model="ir.ui.view">
-        <field name="name">copier.counter.kanban</field>
-        <field name="model">copier.counter</field>
-        <field name="arch" type="xml">
-            <kanban
-                class="o_kanban_mobile"
-                sample="1"
-                default_group_by="state">
-                <field name="name" />
-                <field name="cliente_id" />
-                <field name="serie" />
-                <field name="fecha_facturacion" />
-                <field name="mes_facturacion" />
-                <field name="state" />
-                <field name="total" />
-                <field name="currency_id" />
-                <progressbar
-                    field="state"
-                    colors='{
-                        "draft": "success",
-                        "confirmed": "info",
-                        "invoiced": "warning",
-                        "cancelled": "danger"}' />
-                <templates>
-                    <t t-name="kanban-box">
-                        <div class="oe_kanban_global_click p-0">
-                            <div class="oe_kanban_details p-3">
-                                <div class="o_kanban_record_top mb-2">
-                                    <div class="o_kanban_record_headings">
-                                        <strong class="o_kanban_record_title">
-                                            <span class="text-primary">
-                                                <field name="name" />
-                                            </span>
-                                        </strong>
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <div class="col-6">
-                                        <strong>Cliente:</strong>
-                                        <field name="cliente_id" />
-                                    </div>
-                                    <div class="col-6">
-                                        <strong>Serie:</strong>
-                                        <field name="serie" />
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <div class="col-6">
-                                        <field name="mes_facturacion" />
-                                    </div>
-                                    <div class="col-6 text-end">
-                                        <field name="total" widget="monetary" />
-                                    </div>
-                                </div>
-                                <div class="o_kanban_record_bottom">
-                                    <div class="oe_kanban_bottom_left">
-                                        <span
-                                            t-attf-class="badge rounded-pill bg-#{
-                                            record.state.raw_value == 'confirmed' ? 'success' : 
-                                            record.state.raw_value == 'draft' ? 'info' : 
-                                            record.state.raw_value == 'invoiced' ? 'warning' : 'danger'}">
-                                            <field name="state" />
-                                        </span>
-                                    </div>
-                                    <div class="oe_kanban_bottom_right">
-                                        <field name="fecha_facturacion" widget="date" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </t>
-                </templates>
-            </kanban>
-        </field>
-    </record>
+  <field name="name">copier.counter.kanban</field>
+  <field name="model">copier.counter</field>
+  <field name="arch" type="xml">
+    <kanban class="o_kanban_mobile"
+            sample="1"
+            default_group_by="state"
+            create="1" quick_create="0">
+      <!-- Declarar todos los campos usados -->
+      <field name="name"/>
+      <field name="cliente_id"/>
+      <field name="serie"/>
+      <field name="fecha_facturacion"/>
+      <field name="mes_facturacion"/>
+      <field name="state"/>
+      <field name="total"/>
+      <field name="currency_id"/>
+
+      <progressbar field="state"
+                   colors='{
+                     "draft": "info",
+                     "confirmed": "success",
+                     "invoiced": "warning",
+                     "cancelled": "danger"
+                   }'/>
+
+      <templates>
+        <t t-name="card">
+          <div class="o_kanban_record o_kanban_global_click p-0">
+            <div class="oe_kanban_details p-3">
+              <!-- Header -->
+              <div class="o_kanban_record_top mb-2 d-flex justify-content-between align-items-start">
+                <div class="o_kanban_record_headings">
+                  <strong class="o_kanban_record_title text-primary">
+                    <field name="name"/>
+                  </strong>
+                </div>
+                <!-- Monto a la derecha (formateado con currency) -->
+                <div class="text-end">
+                  <field name="total" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                </div>
+              </div>
+
+              <!-- Datos principales -->
+              <div class="row mb-2">
+                <div class="col-6">
+                  <strong>Cliente:</strong> <field name="cliente_id"/>
+                </div>
+                <div class="col-6">
+                  <strong>Serie:</strong> <field name="serie"/>
+                </div>
+              </div>
+
+              <div class="row mb-2">
+                <div class="col-6">
+                  <field name="mes_facturacion"/>
+                </div>
+                <div class="col-6 text-end">
+                  <!-- vacío a propósito; el total ya está arriba -->
+                </div>
+              </div>
+
+              <!-- Footer -->
+              <div class="o_kanban_record_bottom d-flex justify-content-between align-items-center">
+                <div>
+                  <t t-set="estado" t-value="record.state.raw_value or ''"/>
+                  <t t-set="badge_class"
+                     t-value="('bg-success' if estado == 'confirmed' else
+                              'bg-info'    if estado == 'draft'     else
+                              'bg-warning' if estado == 'invoiced'  else
+                              'bg-danger')"/>
+                  <span class="badge rounded-pill" t-att-class="badge_class">
+                    <field name="state"/>
+                  </span>
+                </div>
+                <div class="text-muted">
+                  <field name="fecha_facturacion" widget="date"/>
+                </div>
+              </div>
+            </div>
+          </div>
+        </t>
+      </templates>
+    </kanban>
+  </field>
+</record>
+
 
     <!-- Tree/List View -->
     <record id="view_copier_counter_tree" model="ir.ui.view">

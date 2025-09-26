@@ -305,61 +305,80 @@ action = records.action_create_multiple_sale_order()
 
    
 
-    <!-- Vista Kanban para Stock de Copiadoras -->
-    <record id="view_copier_stock_kanban" model="ir.ui.view">
-        <field name="name">copier.stock.kanban</field>
-        <field name="model">copier.stock</field>
-        <field name="arch" type="xml">
-            <kanban class="o_kanban_mobile">
-                <field name="name"/>
-                <field name="marca_id"/>
-                <field name="modelo_id"/>
-                <field name="serie"/>
-                <field name="tipo"/>
-                <field name="state"/>
-                <field name="contometro"/>                
-                <field name="sale_price"/>
-                <field name="image"/>
-                <templates>
-                    <t t-name="kanban-box">
-                        <div t-attf-class="oe_kanban_global_click o_kanban_record_has_image_fill">
-                            <div class="o_kanban_image_fill_left">
-                                <img t-att-src="kanban_image('copier.stock','image',record.id.raw_value)"
-                                     t-att-alt="record.name.value" class="o_kanban_image_fill"/>
-                            </div>
-                            <div class="oe_kanban_details">
-                                <div class="o_kanban_record_top">
-                                    <div class="o_kanban_record_headings">
-                                        <strong class="o_kanban_record_title">
-                                            <field name="name"/>
-                                        </strong>
-                                    </div>
-                                    <span class="badge badge-pill float-right" t-att-class="
-                                        record.state.raw_value=='available'? 'badge-success':
-                                        record.state.raw_value=='reserved'?  'badge-warning':
-                                        record.state.raw_value=='pending_payment'? 'badge-info': 'badge-secondary'">
-                                        <field name="state"/>
-                                    </span>
-                                </div>
-                                <div class="o_kanban_record_body">
-                                    <field name="modelo_id"/>
-                                    <div>Serie: <field name="serie"/></div>
-                                    <div>Tipo: <field name="tipo"/></div>
-                                    <div>
-                                        <i class="fa fa-print text-primary me-2"/> Contador: <field name="contometro"/>
-                                      </div>
-                                      
-                                    <div t-if="record.sale_price.raw_value">
-                                        <strong>Precio: $</strong><field name="sale_price"/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </t>
-                </templates>
-            </kanban>
-        </field>
-    </record>
+  <!-- Vista Kanban para Stock de Copiadoras (Odoo 17/18) -->
+<record id="view_copier_stock_kanban" model="ir.ui.view">
+  <field name="name">copier.stock.kanban</field>
+  <field name="model">copier.stock</field>
+  <field name="arch" type="xml">
+    <kanban class="o_kanban_mobile" create="1" quick_create="0">
+      <!-- Declarar campos usados en la card -->
+      <field name="name"/>
+      <field name="marca_id"/>
+      <field name="modelo_id"/>
+      <field name="serie"/>
+      <field name="tipo"/>
+      <field name="state"/>
+      <field name="contometro"/>
+      <field name="sale_price"/>
+      <field name="image"/>
+      <!-- Si tienes currency_id, descomenta la siguiente línea y usa widget monetary más abajo -->
+      <!-- <field name="currency_id"/> -->
+
+      <templates>
+        <t t-name="card">
+          <t t-set="estado" t-value="record.state.raw_value or ''"/>
+          <t t-set="badge_class"
+             t-value="('bg-success' if estado == 'available' else
+                      'bg-warning' if estado == 'reserved' else
+                      'bg-info'    if estado == 'pending_payment' else
+                      'bg-secondary')"/>
+
+          <div class="o_kanban_record o_kanban_global_click o_kanban_record_has_image_fill">
+            <!-- Imagen lateral -->
+            <div class="o_kanban_image_fill_left">
+              <img t-att-src="kanban_image('copier.stock','image',record.id.raw_value)"
+                   t-att-alt="record.name.value"
+                   class="o_kanban_image_fill"/>
+            </div>
+
+            <!-- Detalles -->
+            <div class="oe_kanban_details">
+              <!-- Header -->
+              <div class="o_kanban_record_top d-flex justify-content-between align-items-start">
+                <div class="o_kanban_record_headings">
+                  <strong class="o_kanban_record_title">
+                    <field name="name"/>
+                  </strong>
+                </div>
+                <span class="badge rounded-pill" t-att-class="badge_class">
+                  <field name="state"/>
+                </span>
+              </div>
+
+              <!-- Cuerpo -->
+              <div class="o_kanban_record_body">
+                <div class="mb-1"><field name="modelo_id"/></div>
+                <div>Serie: <field name="serie"/></div>
+                <div>Tipo: <field name="tipo"/></div>
+                <div class="mt-1">
+                  <i class="fa fa-print text-primary me-2"/> Contador: <field name="contometro"/>
+                </div>
+
+                <t t-if="record.sale_price.raw_value">
+                  <div class="mt-2">
+                    <!-- Si tienes currency_id, usa: <field name="sale_price" widget="monetary" options="{'currency_field':'currency_id'}"/> -->
+                    <strong>Precio: </strong><field name="sale_price"/>
+                  </div>
+                </t>
+              </div>
+            </div>
+          </div>
+        </t>
+      </templates>
+    </kanban>
+  </field>
+</record>
+
 
  
 
