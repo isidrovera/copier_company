@@ -1432,6 +1432,30 @@
         const canvas = document.getElementById('userChart');
         if (!canvas) return;
         
+<!-- Script para el gráfico -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script type="text/javascript">
+<![CDATA[
+    // Variable global para almacenar el gráfico
+    let userChart = null;
+    
+    function initUserChart() {
+        // Verificar si existe el canvas y hay datos
+        const canvas = document.getElementById('userChart');
+        if (!canvas) return;
+        
+        // Destruir gráfico existente si existe
+        if (userChart) {
+            userChart.destroy();
+            userChart = null;
+        }
+        
+        // También verificar con Chart.getChart por seguridad
+        const existingChart = Chart.getChart(canvas);
+        if (existingChart) {
+            existingChart.destroy();
+        }
+        
         ]]><t t-if="counters[0].usuario_detalle_ids"><![CDATA[
             // Preparar los datos del gráfico
             const userData = [
@@ -1453,7 +1477,8 @@
             
             const ctx = canvas.getContext('2d');
             
-            new Chart(ctx, {
+            // Crear el nuevo gráfico
+            userChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: userData.map(item => item.label),
@@ -1532,7 +1557,17 @@
                 }
             });
         ]]></t><![CDATA[
-    });
+    }
+    
+    // Inicializar cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', initUserChart);
+    
+    // También inicializar si la página ya está cargada
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initUserChart);
+    } else {
+        initUserChart();
+    }
 ]]>
 </script>
             <!-- Botones de acción mejorados -->
