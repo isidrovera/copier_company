@@ -1396,24 +1396,145 @@
 </t>
             
             <!-- Gráfico por usuario adicional -->
-            <div class="row g-4 mt-2">
-                <div class="col-12">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white border-bottom">
-                            <h5 class="mb-0 fw-bold text-dark">
-                                <i class="bi bi-pie-chart me-2 text-primary"></i>
-                                Gráfico de Copias por Usuario
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart-container" style="height: 300px;">
-                                <canvas id="userChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<div class="row g-4 mt-2">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 fw-bold text-dark">
+                    <i class="bi bi-pie-chart me-2 text-primary"></i>
+                    Gráfico de Copias por Usuario
+                </h5>
             </div>
+            <div class="card-body">
+                <t t-if="counters[0].usuario_detalle_ids">
+                    <div class="chart-container" style="height: 400px;">
+                        <canvas id="userChart"></canvas>
+                    </div>
+                </t>
+                <t t-else="">
+                    <div class="text-center py-4">
+                        <i class="bi bi-pie-chart text-muted mb-3" style="font-size: 3rem; opacity: 0.5;"></i>
+                        <h6 class="text-muted">Sin datos para mostrar</h6>
+                        <p class="text-muted mb-0">No hay datos de usuarios para generar el gráfico</p>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script para el gráfico -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script type="text/javascript">
+<![CDATA[
+    document.addEventListener('DOMContentLoaded', function() {
+        // Verificar si existe el canvas y hay datos
+        const canvas = document.getElementById('userChart');
+        if (!canvas) return;
+        
+        ]]><t t-if="counters[0].usuario_detalle_ids"><![CDATA[
+            // Preparar los datos del gráfico
+            const userData = [
+                ]]><t t-foreach="counters[0].usuario_detalle_ids" t-as="line"><![CDATA[
+                    {
+                        label: ']]><t t-esc="line.usuario_id.name"/><![CDATA[',
+                        data: ]]><t t-esc="line.cantidad_copias"/><![CDATA[,
+                        percentage: ]]><t t-esc="round(line.cantidad_copias / counters[0].total_copias_bn * 100, 1) if counters[0].total_copias_bn > 0 else 0"/><![CDATA[
+                    }]]><t t-if="not line_last"><![CDATA[,]]></t><![CDATA[
+                ]]></t><![CDATA[
+            ];
             
+            // Colores para el gráfico
+            const colors = [
+                '#0d6efd', '#6610f2', '#6f42c1', '#d63384', '#dc3545',
+                '#fd7e14', '#ffc107', '#198754', '#20c997', '#0dcaf0',
+                '#6c757d', '#495057', '#f8f9fa', '#e9ecef', '#dee2e6'
+            ];
+            
+            const ctx = canvas.getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: userData.map(item => item.label),
+                    datasets: [{
+                        data: userData.map(item => item.data),
+                        backgroundColor: colors.slice(0, userData.length),
+                        borderColor: '#ffffff',
+                        borderWidth: 2,
+                        hoverBorderWidth: 3,
+                        hoverBackgroundColor: colors.slice(0, userData.length).map(color => color + 'CC')
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                font: {
+                                    size: 12,
+                                    weight: '500'
+                                },
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    if (data.labels.length && data.datasets.length) {
+                                        return data.labels.map((label, i) => {
+                                            const value = data.datasets[0].data[i];
+                                            const percentage = userData[i].percentage;
+                                            return {
+                                                text: `${label}: ${value} copias (${percentage}%)`,
+                                                fillStyle: data.datasets[0].backgroundColor[i],
+                                                strokeStyle: data.datasets[0].borderColor,
+                                                lineWidth: 1,
+                                                pointStyle: 'circle',
+                                                hidden: isNaN(value) || value === null,
+                                                index: i
+                                            };
+                                        });
+                                    }
+                                    return [];
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed;
+                                    const percentage = userData[context.dataIndex].percentage;
+                                    return `${label}: ${value} copias (${percentage}%)`;
+                                }
+                            },
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            borderColor: '#ffffff',
+                            borderWidth: 1,
+                            padding: 12,
+                            cornerRadius: 8,
+                            displayColors: true
+                        }
+                    },
+                    layout: {
+                        padding: 10
+                    },
+                    animation: {
+                        animateRotate: true,
+                        animateScale: true,
+                        duration: 1000,
+                        easing: 'easeInOutQuart'
+                    },
+                    cutout: '50%'
+                }
+            });
+        ]]></t><![CDATA[
+    });
+]]>
+</script>
             <!-- Botones de acción mejorados -->
             <div class="text-center mt-4 mb-4">
                 <div class="btn-group" role="group">
