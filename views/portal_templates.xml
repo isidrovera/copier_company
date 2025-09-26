@@ -20,7 +20,7 @@
     </template>
 
     <!-- Integración con el home del portal -->
-   <template id="portal_my_home_copier_equipment" name="Mis Equipos en el Portal" customize_show="True" inherit_id="portal.portal_my_home" priority="50">
+    <template id="portal_my_home_copier_equipment" name="Mis Equipos en el Portal" customize_show="True" inherit_id="portal.portal_my_home" priority="50">
         <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
             <t t-set="portal_service_category_enable" t-value="True"/>
         </xpath>
