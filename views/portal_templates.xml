@@ -1519,11 +1519,15 @@
     // Función para preparar datos de todos los meses
     function prepareAllUserData() {
         allUserData = [];
+        console.log('Preparando datos de usuarios...');
+        
         ]]><t t-foreach="counters" t-as="counter"><![CDATA[
             ]]><t t-if="counter.usuario_detalle_ids"><![CDATA[
+                console.log('Procesando contador:', ']]><t t-esc="counter.mes_facturacion"/><![CDATA[', 'Usuarios:', ]]><t t-esc="len(counter.usuario_detalle_ids)"/><![CDATA[);
                 allUserData.push({
                     month: ']]><t t-esc="counter.mes_facturacion"/><![CDATA[',
                     date: ']]><t t-esc="counter.fecha"/><![CDATA[',
+                    name: ']]><t t-esc="counter.name"/><![CDATA[',
                     users: [
                         ]]><t t-foreach="counter.usuario_detalle_ids" t-as="line"><![CDATA[
                             {
@@ -1535,6 +1539,9 @@
                 });
             ]]></t><![CDATA[
         ]]></t><![CDATA[
+        
+        console.log('Datos totales preparados:', allUserData);
+        console.log('Número de meses con datos:', allUserData.length);
     }
     
     // Función para inicializar el gráfico de análisis
@@ -1562,20 +1569,30 @@
     // Función para poblar el select de meses
     function populateMonthFilter() {
         const monthFilter = document.getElementById('monthFilter');
-        if (!monthFilter || allUserData.length === 0) return;
+        if (!monthFilter) return;
+        
+        console.log('Poblando filtro de meses...');
         
         // Limpiar opciones existentes (excepto "Todos los meses")
         while (monthFilter.children.length > 1) {
             monthFilter.removeChild(monthFilter.lastChild);
         }
         
+        if (allUserData.length === 0) {
+            console.log('No hay datos para poblar el filtro');
+            return;
+        }
+        
         // Agregar opciones de meses
-        allUserData.forEach(data => {
+        allUserData.forEach((data, index) => {
+            console.log(`Agregando opción ${index + 1}:`, data.month, '- Usuarios:', data.users.length);
             const option = document.createElement('option');
             option.value = data.month;
-            option.textContent = data.month;
+            option.textContent = `${data.month} (${data.users.length} usuarios)`;
             monthFilter.appendChild(option);
         });
+        
+        console.log('Filtro poblado con', allUserData.length, 'meses');
     }
     
     // Función para actualizar el gráfico de análisis
