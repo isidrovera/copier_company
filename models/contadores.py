@@ -1003,7 +1003,7 @@ class CopierCounter(models.Model):
             'invoice_date': fecha_para_factura,
             'invoice_payment_term_id': self.payment_term_id.id,
             'invoice_origin': self.name,
-            'narration': f'Facturación por uso de máquina {self.serie} - {self.mes_facturacion}\n{info_maquina}',
+            
         }
         
         invoice = self.env['account.move'].create(invoice_vals)
