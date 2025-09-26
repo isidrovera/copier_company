@@ -1446,7 +1446,47 @@
         </div>
     </div>
 </div>
-
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🚀 Inyectando datos de usuario desde template...');
+        
+        // Preparar datos de todos los meses con usuarios
+        const userData = [];
+        
+        <t t-foreach="counters" t-as="counter">
+            <t t-if="counter.usuario_detalle_ids">
+                console.log('📅 Agregando datos del contador:', '<t t-esc="counter.mes_facturacion"/>');
+                userData.push({
+                    month: '<t t-esc="counter.mes_facturacion"/>',
+                    date: '<t t-esc="counter.fecha"/>',
+                    name: '<t t-esc="counter.name"/>',
+                    users: [
+                        <t t-foreach="counter.usuario_detalle_ids" t-as="line">
+                            {
+                                name: '<t t-esc="line.usuario_id.name"/>',
+                                copies: <t t-esc="line.cantidad_copias"/>
+                            }<t t-if="not line_last">,</t>
+                        </t>
+                    ]
+                });
+            </t>
+        </t>
+        
+        console.log('✅ Datos preparados:', userData);
+        
+        // Actualizar datos en el archivo JavaScript externo
+        if (typeof window.updateUserDataFromTemplate === 'function') {
+            window.updateUserDataFromTemplate(userData);
+        } else {
+            console.log('⏳ Esperando que se cargue counter_charts.js...');
+            setTimeout(function() {
+                if (typeof window.updateUserDataFromTemplate === 'function') {
+                    window.updateUserDataFromTemplate(userData);
+                }
+            }, 1000);
+        }
+    });
+</script>
             <!-- Botones de acción mejorados -->
             <div class="text-center mt-4 mb-4">
                 <div class="btn-group" role="group">
