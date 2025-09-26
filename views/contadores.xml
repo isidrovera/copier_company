@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <!-- Kanban View -->
-    <record id="view_copier_counter_kanban" model="ir.ui.view">
+ <!-- Kanban View -->
+<record id="view_copier_counter_kanban" model="ir.ui.view">
   <field name="name">copier.counter.kanban</field>
   <field name="model">copier.counter</field>
   <field name="arch" type="xml">
@@ -9,7 +9,8 @@
             sample="1"
             default_group_by="state"
             create="1" quick_create="0">
-      <!-- Declarar todos los campos usados -->
+
+      <!-- Declarar campos usados -->
       <field name="name"/>
       <field name="cliente_id"/>
       <field name="serie"/>
@@ -38,7 +39,6 @@
                     <field name="name"/>
                   </strong>
                 </div>
-                <!-- Monto a la derecha (formateado con currency) -->
                 <div class="text-end">
                   <field name="total" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                 </div>
@@ -59,7 +59,7 @@
                   <field name="mes_facturacion"/>
                 </div>
                 <div class="col-6 text-end">
-                  <!-- vacío a propósito; el total ya está arriba -->
+                  <!-- vacío a propósito -->
                 </div>
               </div>
 
@@ -67,12 +67,13 @@
               <div class="o_kanban_record_bottom d-flex justify-content-between align-items-center">
                 <div>
                   <t t-set="estado" t-value="record.state.raw_value or ''"/>
-                  <t t-set="badge_class"
-                     t-value="('bg-success' if estado == 'confirmed' else
-                              'bg-info'    if estado == 'draft'     else
-                              'bg-warning' if estado == 'invoiced'  else
-                              'bg-danger')"/>
-                  <span class="badge rounded-pill" t-att-class="badge_class">
+                  <span class="badge rounded-pill"
+                        t-att-class="{
+                          'bg-success': estado == 'confirmed',
+                          'bg-info':    estado == 'draft',
+                          'bg-warning': estado == 'invoiced',
+                          'bg-danger':  estado == 'cancelled'
+                        }">
                     <field name="state"/>
                   </span>
                 </div>
@@ -80,6 +81,7 @@
                   <field name="fecha_facturacion" widget="date"/>
                 </div>
               </div>
+
             </div>
           </div>
         </t>
@@ -87,7 +89,6 @@
     </kanban>
   </field>
 </record>
-
 
     <!-- Tree/List View -->
     <record id="view_copier_counter_tree" model="ir.ui.view">
