@@ -279,22 +279,38 @@ class CopierCompanyPortal(CustomerPortal):
                 try:
                     _logger.info("Buscando contadores para el equipo ID: %s", equipment_id)
 
+                    # CAMBIO 1: Buscar TODOS los contadores (no solo confirmed/invoiced)
                     counters = request.env['copier.counter'].search([
                         ('maquina_id', '=', equipment_id)
                     ], order='fecha desc')
 
                     _logger.info("Contadores encontrados: %s", len(counters))
 
-                    # Preparar datos para el gráfico general
+                    # CAMBIO 2: Filtrar contadores que tienen datos de usuario
+                    counters_with_users = counters.filtered(lambda c: c.usuario_detalle_ids)
+                    _logger.info("Contadores con datos de usuario: %s", len(counters_with_users))
+
+                    # CAMBIO 3: Log detallado de cada contador con usuarios
+                    for counter in counters_with_users:
+                        _logger.info("Contador con usuarios: ID=%s, Nombre=%s, Mes=%s, Usuarios=%s, Estado=%s", 
+                                counter.id, counter.name, counter.mes_facturacion, 
+                                len(counter.usuario_detalle_ids), counter.state)
+                        
+                        # Log de cada usuario
+                        for user_detail in counter.usuario_detalle_ids:
+                            _logger.info("  - Usuario: %s, Copias: %s", 
+                                    user_detail.usuario_id.name, user_detail.cantidad_copias)
+
+                    # Preparar datos para el gráfico general (código existente...)
                     monthly_data = []
                     yearly_data = []
                     month_dict = {}
                     year_dict = {}
 
-                    for counter in counters:
-                        if counter.state not in ('confirmed', 'invoiced'):
-                            continue
-
+                    # CAMBIO 4: Procesar solo contadores confirmados para gráficos principales
+                    confirmed_counters = counters.filtered(lambda c: c.state in ('confirmed', 'invoiced'))
+                    
+                    for counter in confirmed_counters:
                         fecha = counter.fecha
                         if not fecha:
                             continue
@@ -327,32 +343,34 @@ class CopierCompanyPortal(CustomerPortal):
                     for key in sorted(year_dict.keys()):
                         yearly_data.append(year_dict[key])
 
-                    # Gráfico del último contador por usuario
+                    # CAMBIO 5: Gráfico del último contador por usuario (solo si tiene datos)
                     chart_user_data = []
-                    if counters:
-                        first = counters[0]
-                        if first.informe_por_usuario and first.usuario_detalle_ids:
+                    if counters_with_users:
+                        first = counters_with_users[0]  # El más reciente
+                        if first.usuario_detalle_ids:
                             for user_detail in first.usuario_detalle_ids:
                                 chart_user_data.append({
                                     'name': user_detail.usuario_id.name,
                                     'copies': user_detail.cantidad_copias
                                 })
+                            _logger.info("Datos de usuario del contador más reciente: %s usuarios", len(chart_user_data))
 
-                    # Gráfico mensual por usuario acumulado
+                    # CAMBIO 6: Gráfico mensual por usuario - usar TODOS los contadores con usuarios
                     from collections import defaultdict
                     monthly_user_data = defaultdict(lambda: defaultdict(int))
 
-                    for counter in counters:
-                        if counter.state not in ('confirmed', 'invoiced'):
-                            continue
-
-                        mes = counter.mes_facturacion or counter.fecha.strftime('%B %Y')
+                    for counter in counters_with_users:  # Usar todos los contadores con usuarios
+                        mes = counter.mes_facturacion or counter.fecha.strftime('%B %Y') if counter.fecha else 'Sin fecha'
                         for detalle in counter.usuario_detalle_ids:
                             nombre = detalle.usuario_id.name or 'Sin nombre'
                             monthly_user_data[mes][nombre] += detalle.cantidad_copias
 
                     labels = sorted(monthly_user_data.keys())
                     usuarios_unicos = sorted({u for datos in monthly_user_data.values() for u in datos})
+
+                    _logger.info("Datos de usuario mensual: %s meses, %s usuarios únicos", len(labels), len(usuarios_unicos))
+                    _logger.info("Meses encontrados: %s", labels)
+                    _logger.info("Usuarios únicos: %s", usuarios_unicos)
 
                     datasets = []
                     for usuario in usuarios_unicos:
@@ -372,7 +390,8 @@ class CopierCompanyPortal(CustomerPortal):
                         }
                     }
 
-                    _logger.info("Datos para gráfico preparados: %s meses, %s años", len(monthly_data), len(yearly_data))
+                    _logger.info("Datos para gráfico preparados: %s meses, %s años, %s usuarios", 
+                            len(monthly_data), len(yearly_data), len(chart_user_data))
 
                 except Exception as e:
                     _logger.exception("Error al buscar contadores o preparar gráficos: %s", str(e))
