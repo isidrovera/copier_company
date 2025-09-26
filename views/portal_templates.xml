@@ -20,20 +20,20 @@
     </template>
 
     <!-- Integración con el home del portal -->
-<data name="Mis Equipos en el Portal" customize_show="True" inherit_id="portal.portal_my_home" priority="50">
-    <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
-        <t t-set="portal_service_category_enable" t-value="True"/>
-    </xpath>
-    <div id="portal_service_category" position="inside">
-        <t t-call="portal.portal_docs_entry">
-            <t t-set="icon" t-value="'/copier_company/static/src/img/printer.svg'"/>
-            <t t-set="title">Mis Equipos</t>
-            <t t-set="text">Consulta los equipos que tienes en alquiler</t>
-            <t t-set="url" t-value="'/my/copier/equipments'"/>
-            <t t-set="placeholder_count" t-value="'equipment_count'"/>
-        </t>
-    </div>
-</data>
+    <template id="portal_my_home_copier_equipment" name="Mis Equipos en el Portal" customize_show="True" inherit_id="portal.portal_my_home" priority="50">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="portal_service_category_enable" t-value="True"/>
+        </xpath>
+        <div id="portal_service_category" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/copier_company/static/src/img/printer.svg'"/>
+                <t t-set="title">Mis Equipos</t>
+                <t t-set="text">Consulta los equipos que tienes en alquiler</t>
+                <t t-set="url" t-value="'/my/copier/equipments'"/>
+                <t t-set="placeholder_count" t-value="'equipment_count'"/>
+            </t>
+        </div>
+    </template>
     
 
     <!-- Template para la página de listado de equipos en formato LISTA -->
