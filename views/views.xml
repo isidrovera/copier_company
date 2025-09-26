@@ -190,7 +190,7 @@
             records_draggable="1"
             create="1" quick_create="0">
 
-      <!-- Declarar todos los campos usados en la card -->
+      <!-- Declarar campos usados -->
       <field name="name"/>
       <field name="marca_id"/>
       <field name="serie_id"/>
@@ -204,25 +204,17 @@
 
       <templates>
         <t t-name="card">
-          <!-- Mapear clases/estilo según estado (usar .value para M2O) -->
+          <!-- Usar el display_name del M2O para comparar -->
           <t t-set="estado" t-value="record.estado_maquina_id.value or ''"/>
-          <t t-set="bg_style"
-             t-value="'background-color: ' + (
-               'rgba(40,167,69,0.1)'  if estado == 'Disponible'   else
-               'rgba(0,123,255,0.1)'  if estado == 'En Uso'       else
-               'rgba(255,193,7,0.1)'  if estado == 'Alquilada'    else
-               'rgba(220,53,69,0.1)'  if estado == 'Mantenimiento' else
-               'rgba(108,117,125,0.1)'
-             )"/>
-          <t t-set="badge_class"
-             t-value="('bg-success' if estado == 'Disponible' else
-                      'bg-primary'   if estado == 'En Uso'     else
-                      'bg-warning'   if estado == 'Alquilada'  else
-                      'bg-danger'    if estado == 'Mantenimiento' else
-                      'bg-secondary')"/>
 
           <div class="o_kanban_record o_kanban_global_click w-100 position-relative rounded-3 shadow-sm"
-               t-att-style="bg_style">
+               t-att-style="'background-color: ' + (
+                 (estado == 'Disponible'    and 'rgba(40,167,69,0.1)')  or
+                 (estado == 'En Uso'        and 'rgba(0,123,255,0.1)') or
+                 (estado == 'Alquilada'     and 'rgba(255,193,7,0.1)') or
+                 (estado == 'Mantenimiento' and 'rgba(220,53,69,0.1)') or
+                 'rgba(108,117,125,0.1)'
+               )">
 
             <div class="p-3">
               <!-- Header -->
@@ -233,7 +225,14 @@
                   </h3>
                   <small class="text-muted">Serie: <field name="serie_id"/></small>
                 </div>
-                <span class="badge rounded-pill" t-att-class="badge_class">
+                <span class="badge rounded-pill"
+                      t-att-class="{
+                        'bg-success':  estado == 'Disponible',
+                        'bg-primary':  estado == 'En Uso',
+                        'bg-warning':  estado == 'Alquilada',
+                        'bg-danger':   estado == 'Mantenimiento',
+                        'bg-secondary': ['Disponible','En Uso','Alquilada','Mantenimiento'].indexOf(estado) == -1
+                      }">
                   <field name="estado_maquina_id"/>
                 </span>
               </div>
