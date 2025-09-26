@@ -1394,6 +1394,24 @@
         </div>
     </div>
 </t>
+<!-- Nueva pestaña -->
+<li class="nav-item" role="presentation">
+    <button class="nav-link rounded-0 py-3 text-dark"
+            id="user-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#user"
+            type="button"
+            role="tab">
+        <i class="bi bi-people me-2"></i>
+        Por Usuario (Actual)
+    </button>
+</li>
+<div class="tab-pane fade p-4" id="user" role="tabpanel">
+    <div class="chart-container" style="height: 400px;">
+        <canvas id="userChart"></canvas>
+    </div>
+</div>
+
 
 <!-- Gráfico por usuario adicional -->
 <div class="row g-4 mt-2">
