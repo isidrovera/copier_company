@@ -1419,10 +1419,14 @@
                         <div class="col-md-6">
                             <label for="chartType" class="form-label fw-semibold">Tipo de gráfico:</label>
                             <select id="chartType" class="form-select">
-                                <option value="doughnut">Circular (Doughnut)</option>
-                                <option value="pie">Circular (Pie)</option>
-                                <option value="bar">Barras</option>
-                                <option value="line">Líneas</option>
+                                <option value="doughnut">Doughnut Chart</option>
+                                <option value="pie">Pie Chart</option>
+                                <option value="bar">Bar Chart</option>
+                                <option value="line">Line Chart</option>
+                                <option value="polarArea">Polar Area Chart</option>
+                                <option value="radar">Radar Chart</option>
+                                <option value="scatter">Scatter Chart</option>
+                                <option value="bubble">Bubble Chart</option>
                             </select>
                         </div>
                     </div>
@@ -1606,7 +1610,11 @@
         
         const labels = Object.keys(userTotals);
         const data = Object.values(userTotals);
-        const colors = ['#0d6efd', '#6610f2', '#6f42c1', '#d63384', '#dc3545', '#fd7e14', '#ffc107', '#198754', '#20c997', '#0dcaf0', '#6c757d', '#495057'];
+        const colors = [
+            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', 
+            '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384',
+            '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'
+        ];
         
         // Destruir gráfico anterior
         if (userAnalysisChart) {
@@ -1615,29 +1623,83 @@
         
         const ctx = canvas.getContext('2d');
         
-        userAnalysisChart = new Chart(ctx, {
-            type: selectedType,
-            data: {
-                labels: labels,
-                datasets: [{
+        // Configuración base para datasets
+        let datasets = [];
+        
+        // Configurar datasets según el tipo de gráfico
+        switch(selectedType) {
+            case 'bubble':
+                datasets = [{
+                    label: 'Copias por Usuario',
+                    data: data.map((value, index) => ({
+                        x: index + 1,
+                        y: value,
+                        r: Math.sqrt(value) / 2 // Radio proporcional a las copias
+                    })),
+                    backgroundColor: colors.slice(0, labels.length).map(color => color + '80'),
+                    borderColor: colors.slice(0, labels.length),
+                    borderWidth: 2
+                }];
+                break;
+                
+            case 'scatter':
+                datasets = [{
+                    label: 'Copias por Usuario',
+                    data: data.map((value, index) => ({
+                        x: index + 1,
+                        y: value
+                    })),
+                    backgroundColor: colors.slice(0, labels.length),
+                    borderColor: colors.slice(0, labels.length),
+                    borderWidth: 2,
+                    pointRadius: 8
+                }];
+                break;
+                
+            case 'radar':
+                datasets = [{
                     label: 'Copias por Usuario',
                     data: data,
-                    backgroundColor: colors.slice(0, labels.length),
-                    borderColor: selectedType === 'line' ? colors.slice(0, labels.length) : '#ffffff',
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgb(54, 162, 235)',
                     borderWidth: 2,
-                    fill: selectedType === 'line' ? false : true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: selectedType === 'bar' || selectedType === 'line' ? 'top' : 'right'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
+                    pointBackgroundColor: colors.slice(0, labels.length),
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: colors.slice(0, labels.length)
+                }];
+                break;
+                
+            default:
+                datasets = [{
+                    label: 'Copias por Usuario',
+                    data: data,
+                    backgroundColor: selectedType === 'line' ? 'rgba(54, 162, 235, 0.1)' : colors.slice(0, labels.length),
+                    borderColor: selectedType === 'line' ? 'rgb(54, 162, 235)' : (selectedType.includes('Chart') ? '#ffffff' : colors.slice(0, labels.length)),
+                    borderWidth: 2,
+                    fill: selectedType === 'line' ? true : undefined,
+                    tension: selectedType === 'line' ? 0.4 : undefined
+                }];
+        }
+        
+        // Opciones específicas por tipo de gráfico
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: ['bar', 'line', 'scatter', 'bubble'].includes(selectedType) ? 'top' : 'right',
+                    display: true
+                },
+                tooltip: {
+                    enabled: true,
+                    callbacks: {
+                        label: function(context) {
+                            if (selectedType === 'bubble') {
+                                return `${labels[context.dataIndex]}: ${context.parsed.y} copias`;
+                            } else if (selectedType === 'scatter') {
+                                return `${labels[context.dataIndex]}: ${context.parsed.y} copias`;
+                            } else {
                                 const total = data.reduce((a, b) => a + b, 0);
                                 const percentage = ((context.parsed / total) * 100).toFixed(1);
                                 return `${context.label}: ${context.parsed} copias (${percentage}%)`;
@@ -1645,12 +1707,123 @@
                         }
                     }
                 },
-                scales: selectedType === 'bar' || selectedType === 'line' ? {
+                // Plugin personalizado para mostrar etiquetas
+                datalabels: {
+                    display: true,
+                    anchor: 'end',
+                    align: 'top',
+                    formatter: function(value, context) {
+                        if (['doughnut', 'pie', 'polarArea'].includes(selectedType)) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return percentage + '%';
+                        }
+                        return value;
+                    },
+                    color: '#000',
+                    font: {
+                        weight: 'bold',
+                        size: 12
+                    }
+                }
+            },
+            // Configurar escalas según el tipo
+            scales: getScalesConfig(selectedType),
+            // Elementos específicos para radar
+            elements: selectedType === 'radar' ? {
+                line: {
+                    borderWidth: 3
+                }
+            } : {},
+            // Animation
+            animation: {
+                animateScale: true,
+                animateRotate: true
+            }
+        };
+        
+        userAnalysisChart = new Chart(ctx, {
+            type: selectedType,
+            data: {
+                labels: labels,
+                datasets: datasets
+            },
+            options: chartOptions,
+            plugins: [
+                // Plugin personalizado para mostrar etiquetas en gráficos circulares
+                {
+                    id: 'customLabels',
+                    afterDatasetsDraw: function(chart) {
+                        if (!['doughnut', 'pie', 'polarArea'].includes(selectedType)) return;
+                        
+                        const ctx = chart.ctx;
+                        ctx.save();
+                        
+                        chart.data.datasets.forEach((dataset, datasetIndex) => {
+                            const meta = chart.getDatasetMeta(datasetIndex);
+                            
+                            meta.data.forEach((arc, index) => {
+                                const centerX = arc.x;
+                                const centerY = arc.y;
+                                const radius = arc.outerRadius;
+                                const startAngle = arc.startAngle;
+                                const endAngle = arc.endAngle;
+                                const midAngle = (startAngle + endAngle) / 2;
+                                
+                                // Calcular posición de la etiqueta
+                                const labelRadius = radius + 30;
+                                const labelX = centerX + Math.cos(midAngle) * labelRadius;
+                                const labelY = centerY + Math.sin(midAngle) * labelRadius;
+                                
+                                // Configurar estilo del texto
+                                ctx.fillStyle = '#333';
+                                ctx.font = 'bold 12px Arial';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'middle';
+                                
+                                // Obtener datos
+                                const value = dataset.data[index];
+                                const total = dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                const label = chart.data.labels[index];
+                                
+                                // Dibujar etiqueta
+                                ctx.fillText(`${label}`, labelX, labelY - 8);
+                                ctx.fillText(`${percentage}%`, labelX, labelY + 8);
+                                
+                                // Dibujar línea de conexión
+                                ctx.beginPath();
+                                ctx.strokeStyle = '#ccc';
+                                ctx.lineWidth = 1;
+                                ctx.moveTo(centerX + Math.cos(midAngle) * radius, centerY + Math.sin(midAngle) * radius);
+                                ctx.lineTo(labelX - Math.cos(midAngle) * 15, labelY - Math.sin(midAngle) * 15);
+                                ctx.stroke();
+                            });
+                        });
+                        
+                        ctx.restore();
+                    }
+                }
+            ]
+        });
+    }
+    
+    // Función helper para configurar escalas
+    function getScalesConfig(chartType) {
+        switch(chartType) {
+            case 'bar':
+            case 'line':
+                return {
                     y: {
                         beginAtZero: true,
                         title: {
                             display: true,
                             text: 'Número de Copias'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString();
+                            }
                         }
                     },
                     x: {
@@ -1659,9 +1832,45 @@
                             text: 'Usuarios'
                         }
                     }
-                } : {}
-            }
-        });
+                };
+            case 'scatter':
+            case 'bubble':
+                return {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom',
+                        title: {
+                            display: true,
+                            text: 'Orden de Usuario'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Número de Copias'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString();
+                            }
+                        }
+                    }
+                };
+            case 'radar':
+                return {
+                    r: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString();
+                            }
+                        }
+                    }
+                };
+            default:
+                return {};
+        }
     }
     
     // Event listeners
