@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     
-    <!-- NUEVO TEMPLATE (no hereda, es completamente nuevo) -->
+    <!-- Template wrapper que llama al documento moderno -->
+    <template id="report_invoice_modern">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="lang" t-value="o.partner_id.lang"/>
+                <t t-call="factura_moderna.report_invoice_document_modern" t-lang="lang"/>
+            </t>
+        </t>
+    </template>
+    
+    <!-- Template del documento moderno -->
     <template id="report_invoice_document_modern">
         <t t-call="web.external_layout">
             <t t-set="o" t-value="o.with_context(lang=lang)"/>
-            <t t-set="forced_vat" t-value="o.fiscal_position_id.foreign_vat"/>
             
-            <!-- Variables para Perú (con manejo de errores) -->
+            <!-- Variables para Perú (con manejo seguro) -->
+            <t t-set="spot" t-value="None"/>
             <t t-set="extra_edi_vals" t-value="{}"/>
-            <t t-set="spot" t-value="{}"/>
-            <t t-try="">
-                <t t-if="o._get_name_invoice_report() == 'l10n_pe_edi.report_invoice_document'">
-                    <t t-set="extra_edi_vals" t-value="o._l10n_pe_edi_get_extra_report_values()"/>
-                    <t t-set="spot" t-value="o._l10n_pe_edi_get_spot()"/>
-                </t>
-            </t>
-            <t t-catch=""/>
             
             <div style="font-family: Arial, sans-serif; font-size: 12px; padding: 20px;">
                 
@@ -48,11 +50,7 @@
                                     RUC <span t-field="o.company_id.vat"/>
                                 </div>
                                 <div style="font-size: 16px; font-weight: bold; margin: 8px 0; color: #000;">
-                                    <span t-if="o.move_type == 'out_invoice' and o.l10n_latam_document_type_id" 
-                                          t-field="o.l10n_latam_document_type_id.report_name"/>
-                                    <span t-elif="o.move_type == 'out_invoice'">FACTURA ELECTRÓNICA</span>
-                                    <span t-elif="o.move_type == 'out_refund' and o.l10n_latam_document_type_id"
-                                          t-field="o.l10n_latam_document_type_id.report_name"/>
+                                    <span t-if="o.move_type == 'out_invoice'">FACTURA ELECTRÓNICA</span>
                                     <span t-elif="o.move_type == 'out_refund'">NOTA DE CRÉDITO</span>
                                     <span t-elif="o.move_type == 'in_invoice'">FACTURA PROVEEDOR</span>
                                 </div>
@@ -122,9 +120,7 @@
 
                 <!-- MONTO EN PALABRAS -->
                 <div style="padding: 10px; background: #f0f0f0; border-left: 4px solid #555; margin-bottom: 15px; font-size: 11px;">
-                    <strong>SON:</strong> 
-                    <span t-if="extra_edi_vals.get('amount_to_text')" t-out="extra_edi_vals['amount_to_text']"/>
-                    <span t-elif="o.amount_total_words" t-field="o.amount_total_words"/>
+                    <strong>SON:</strong> <span t-field="o.amount_total_words"/>
                 </div>
 
                 <!-- LAYOUT: SPOT + TOTALES -->
@@ -132,34 +128,28 @@
                     
                     <!-- SPOT (Izquierda) -->
                     <div style="flex: 1;">
-                        <!-- SPOT solo si existe -->
-                        <div t-if="spot" style="border: 2px solid #f90; background: #fffbf0; padding: 12px; border-radius: 4px; margin-bottom: 15px;">
+                        <!-- SPOT condicional -->
+                        <div t-if="o.l10n_pe_edi_operation_type == '1001'" style="border: 2px solid #f90; background: #fffbf0; padding: 12px; border-radius: 4px; margin-bottom: 15px;">
                             <div style="font-weight: bold; font-size: 11px; margin-bottom: 8px; color: #c60;">
                                 Operación sujeta al Sistema de Pago de Obligaciones Tributarias - SPOT
                             </div>
                             <table style="width: 100%; font-size: 10px; border-collapse: collapse;">
-                                <tr t-if="spot.get('payment_means_id')">
+                                <tr>
                                     <td style="padding: 4px; border: 1px solid #ffc; background: #fff;">Código bien o servicio:</td>
-                                    <td style="padding: 4px; border: 1px solid #ffc; background: #fff; font-weight: bold;">
-                                        <span t-out="spot['payment_means_id']"/>
-                                    </td>
+                                    <td style="padding: 4px; border: 1px solid #ffc; background: #fff; font-weight: bold;">019</td>
                                 </tr>
-                                <tr t-if="spot.get('payee_financial_account')">
+                                <tr>
                                     <td style="padding: 4px; border: 1px solid #ffc; background: #fff;">Nº cuenta Banco de la Nación:</td>
-                                    <td style="padding: 4px; border: 1px solid #ffc; background: #fff; font-weight: bold;">
-                                        <span t-out="spot['payee_financial_account']"/>
-                                    </td>
+                                    <td style="padding: 4px; border: 1px solid #ffc; background: #fff; font-weight: bold;">00802007582</td>
                                 </tr>
-                                <tr t-if="spot.get('payment_percent')">
+                                <tr>
                                     <td style="padding: 4px; border: 1px solid #ffc; background: #fff;">Porcentaje de detracción:</td>
-                                    <td style="padding: 4px; border: 1px solid #ffc; background: #fff; font-weight: bold;">
-                                        <span t-out="spot['payment_percent']"/>%
-                                    </td>
+                                    <td style="padding: 4px; border: 1px solid #ffc; background: #fff; font-weight: bold;">10.0%</td>
                                 </tr>
-                                <tr t-if="spot.get('amount')">
+                                <tr>
                                     <td style="padding: 4px; border: 1px solid #ffc; background: #fff;">Monto de detracción:</td>
                                     <td style="padding: 4px; border: 1px solid #ffc; background: #fff; font-weight: bold;">
-                                        <span t-out="spot['amount']" t-options="{'widget': 'monetary', 'display_currency': spot.get('currency', o.currency_id)}"/>
+                                        <span t-esc="'S/ %.2f' % (o.amount_total * 0.10)"/>
                                     </td>
                                 </tr>
                             </table>
@@ -217,9 +207,15 @@
         </t>
     </template>
     
-    <!-- Sobrescribir el método para usar nuestro template -->
-    <record id="account.account_invoices" model="ir.actions.report">
-        <field name="report_name">copier_company.report_invoice_document_modern</field>
+    <!-- Crear nuevo reporte que use nuestro template -->
+    <record id="action_report_invoice_modern" model="ir.actions.report">
+        <field name="name">Factura Moderna</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">copier_company.report_invoice_modern</field>
+        <field name="report_file">copier_company.report_invoice_modern</field>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_type">report</field>
     </record>
 
 </odoo>
