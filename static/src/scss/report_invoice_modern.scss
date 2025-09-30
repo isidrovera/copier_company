@@ -1,11 +1,11 @@
 // ============================================================
-// FACTURA MODERNA - ESTILOS SCSS
+// FACTURA MODERNA - SOLO ESTILOS (SIN MODIFICAR ESTRUCTURA)
 // ============================================================
-// Archivo: factura_moderna/static/src/scss/report_invoice_modern.scss
+// Este archivo solo mejora visualmente el reporte existente
 // ============================================================
 
 // ============================================================
-// VARIABLES - Personaliza estos colores según tu marca
+// VARIABLES - Personaliza estos colores
 // ============================================================
 $primary-color: #667eea;
 $primary-dark: #764ba2;
@@ -14,153 +14,103 @@ $success-color: #48bb78;
 $text-primary: #1a202c;
 $text-secondary: #4a5568;
 $text-light: #718096;
-$text-muted: #a0aec0;
 $border-color: #e2e8f0;
 $bg-light: #f8f9fa;
-$bg-lighter: #f5f7fa;
 $bg-white: #ffffff;
 
 // ============================================================
-// MIXINS
+// MEJORAS GENERALES AL REPORTE
 // ============================================================
-@mixin gradient-bg {
-    background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
-}
-
-@mixin card-shadow {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-}
-
-@mixin hover-effect {
-    transition: all 0.2s ease-in-out;
+.modern-invoice-styles {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     
-    &:hover {
-        background-color: $bg-lighter;
+    // Mejorar el layout general
+    .page {
+        padding: 20px;
+    }
+
+    // Mejorar tipografía
+    h1, h2, h3, h4, h5, h6 {
+        font-weight: 600;
+        color: $text-primary;
+    }
+
+    strong {
+        font-weight: 600;
+        color: $text-primary;
     }
 }
 
 // ============================================================
-// CONTENEDOR PRINCIPAL
+// SECCIÓN DE DIRECCIONES (HEADER)
 // ============================================================
-.modern-invoice-wrapper {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    color: $text-primary;
-    line-height: 1.6;
-    font-size: 13px;
-}
-
-// ============================================================
-// HEADER MODERNO CON GRADIENTE
-// ============================================================
-.modern-header {
-    @include gradient-bg;
-    color: $bg-white;
-    padding: 35px 40px;
-    margin: -40px -40px 35px -40px;
-    border-radius: 0;
-
-    .modern-header-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 40px;
-        flex-wrap: wrap;
-    }
-
-    .company-section {
-        display: flex;
-        gap: 20px;
-        align-items: flex-start;
-        flex: 1;
-        min-width: 300px;
-
-        .company-logo {
-            flex-shrink: 0;
-            
-            img {
-                border-radius: 8px;
-                background: $bg-white;
-                padding: 8px;
-            }
+.modern-addresses-section {
+    margin-bottom: 30px;
+    
+    .col-6 {
+        background: $bg-light;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid $primary-color;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+        
+        address {
+            font-size: 14px;
+            line-height: 1.8;
+            color: $text-secondary;
+            margin-bottom: 12px;
         }
 
-        .company-info {
-            flex: 1;
-
-            .company-name {
-                font-size: 26px;
-                font-weight: 700;
-                margin: 0 0 12px 0;
-                color: $bg-white;
-                line-height: 1.2;
-            }
-
-            .company-details {
-                font-size: 13px;
-                opacity: 0.95;
-                line-height: 1.8;
-
-                div {
-                    margin: 4px 0;
-                }
-
-                strong {
-                    font-weight: 600;
-                    margin-right: 4px;
-                }
-            }
-        }
-    }
-
-    .invoice-title-section {
-        text-align: right;
-        flex-shrink: 0;
-
-        .invoice-type-title {
-            font-size: 32px;
-            font-weight: 800;
-            margin: 0 0 12px 0;
-            color: $bg-white;
+        strong {
+            color: $primary-color;
+            font-size: 13px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
+            display: block;
+            margin-bottom: 8px;
         }
 
-        .invoice-number {
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(10px);
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 700;
-            display: inline-block;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+        div[id*="partner_vat"] {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid $border-color;
+            font-weight: 500;
+        }
+    }
+
+    // Dirección de envío
+    .col-6:first-child {
+        border-left-color: #1890ff;
+        
+        strong {
+            color: #1890ff;
         }
     }
 }
 
 // ============================================================
-// GRID DE FECHAS
+// GRID DE INFORMACIÓN (FECHAS, ETC)
 // ============================================================
-.modern-dates-grid {
-    display: grid;
+.modern-info-grid {
+    display: grid !important;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 15px;
     margin-bottom: 30px;
 
-    .date-card {
+    .col {
         background: $bg-light;
-        padding: 18px;
+        padding: 16px;
         border-radius: 8px;
         text-align: center;
         border: 1px solid $border-color;
-        transition: transform 0.2s, box-shadow 0.2s;
+        transition: all 0.2s;
 
         &:hover {
             transform: translateY(-2px);
-            @include card-shadow;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
         }
 
-        label {
+        strong {
             display: block;
             color: $primary-color;
             font-size: 11px;
@@ -170,199 +120,132 @@ $bg-white: #ffffff;
             font-weight: 700;
         }
 
-        .date-value {
+        div {
             color: $text-primary;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
         }
     }
 }
 
 // ============================================================
-// GRID DE INFORMACIÓN (CLIENTE Y PAGO)
+// TÍTULO DEL DOCUMENTO
 // ============================================================
-.modern-info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    margin-bottom: 35px;
-
-    .info-card {
-        background: $bg-light;
-        padding: 24px;
-        border-radius: 10px;
-        border-left: 5px solid $primary-color;
-        @include card-shadow;
-        transition: transform 0.2s;
-
-        &:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-        }
-
-        .info-card-title {
-            color: $primary-color;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin: 0 0 16px 0;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            
-            &:before {
-                content: '';
-                display: inline-block;
-                width: 4px;
-                height: 16px;
-                background: $primary-color;
-                margin-right: 8px;
-                border-radius: 2px;
-            }
-        }
-
-        .info-card-content {
-            color: $text-secondary;
-            font-size: 13px;
-            line-height: 1.9;
-
-            .partner-name {
-                display: block;
-                color: $text-primary;
-                font-weight: 700;
-                font-size: 15px;
-                margin-bottom: 8px;
-            }
-
-            div {
-                margin: 6px 0;
-            }
-
-            strong {
-                color: $text-primary;
-                font-weight: 600;
-                margin-right: 4px;
-            }
-        }
+.modern-invoice-styles {
+    // Mejorar el título del documento
+    .page > span,
+    [t-field="o.name"] {
+        background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
+        color: $bg-white;
+        padding: 15px 25px;
+        border-radius: 8px;
+        display: inline-block;
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
     }
 }
 
 // ============================================================
-// TABLA MODERNA DE LÍNEAS
+// TABLA DE LÍNEAS MODERNA
 // ============================================================
 .modern-invoice-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 35px;
-    font-size: 13px;
     border-radius: 10px;
     overflow: hidden;
-    @include card-shadow;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-bottom: 30px;
 
+    // Header de la tabla
     thead {
-        @include gradient-bg;
-        color: $bg-white;
-
-        th {
-            padding: 16px 14px;
+        background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
+        
+        tr th {
+            color: $bg-white !important;
+            padding: 16px 12px;
             font-weight: 700;
             font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 0.8px;
-            border: none;
-
-            &:first-child {
-                padding-left: 20px;
-                border-top-left-radius: 10px;
-            }
-
-            &:last-child {
-                padding-right: 20px;
-                border-top-right-radius: 10px;
-            }
+            border: none !important;
         }
     }
 
-    .modern-invoice-tbody {
+    // Cuerpo de la tabla
+    tbody.invoice_tbody {
         background: $bg-white;
 
         tr {
             border-bottom: 1px solid $border-color;
-            @include hover-effect;
+            transition: background-color 0.2s;
+
+            &:hover:not(.o_line_section):not(.o_line_note) {
+                background-color: rgba(102, 126, 234, 0.05);
+            }
 
             &:last-child {
                 border-bottom: none;
             }
 
             td {
-                padding: 18px 14px;
-                color: $text-secondary;
+                padding: 16px 12px;
                 vertical-align: top;
-                border: none;
+                font-size: 13px;
+                color: $text-secondary;
 
+                // Primera columna (descripción)
                 &:first-child {
-                    padding-left: 20px;
+                    color: $text-primary;
+                    font-weight: 500;
                 }
 
+                // Última columna (total)
                 &:last-child {
-                    padding-right: 20px;
-                }
-            }
-
-            &.o_line_section {
-                background: linear-gradient(to right, $bg-light 0%, $bg-white 100%);
-                
-                .section-row {
                     font-weight: 700;
                     color: $text-primary;
                     font-size: 14px;
-                    padding: 16px 20px;
+                }
+            }
+
+            // Secciones
+            &.o_line_section {
+                background: linear-gradient(to right, rgba(102, 126, 234, 0.1) 0%, $bg-white 100%);
+                
+                td {
+                    font-weight: 700;
+                    color: $primary-color;
+                    font-size: 14px;
+                    padding: 14px 12px;
                     border-top: 2px solid $primary-color;
                     border-bottom: 2px solid $primary-color;
                 }
             }
 
+            // Notas
             &.o_line_note {
                 background: #fffbf0;
                 
-                .note-row {
+                td {
                     font-style: italic;
                     color: $text-light;
-                    padding: 12px 20px;
                     font-size: 12px;
+                    padding: 12px;
                 }
             }
 
+            // Subtotales
             &.is-subtotal {
-                background: $bg-lighter;
+                background: $bg-light;
                 font-weight: 600;
                 border-top: 2px solid $border-color;
                 
                 td {
-                    padding: 14px 20px;
                     color: $text-primary;
+                    padding: 14px 12px;
                 }
             }
-        }
-
-        .line-description {
-            .item-name {
-                font-weight: 600;
-                color: $text-primary;
-                margin-bottom: 6px;
-                font-size: 14px;
-            }
-
-            .item-code {
-                font-size: 12px;
-                color: $text-muted;
-            }
-        }
-
-        .line-total {
-            font-weight: 700;
-            color: $text-primary;
-            font-size: 14px;
         }
     }
 }
@@ -370,242 +253,234 @@ $bg-white: #ffffff;
 // ============================================================
 // SECCIÓN DE TOTALES
 // ============================================================
-.modern-totals-wrapper {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 40px;
-    margin-top: 40px;
-    align-items: start;
+.modern-totals-section {
+    background: $bg-white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
-    @media (max-width: 768px) {
-        grid-template-columns: 1fr;
-    }
-
-    .modern-notes-section {
-        .info-card {
-            background: #fffbf0;
-            padding: 24px;
-            border-radius: 10px;
-            border-left: 5px solid $accent-color;
-            @include card-shadow;
-
-            .info-card-title {
-                color: $accent-color;
-                font-size: 13px;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-                margin: 0 0 16px 0;
-                font-weight: 700;
-            }
-
-            .info-card-content {
-                color: $text-secondary;
-                font-size: 13px;
-                line-height: 1.8;
-            }
-        }
-    }
-
-    .modern-totals-box {
-        min-width: 350px;
-        background: $bg-white;
-        border-radius: 10px;
-        padding: 20px;
-        @include card-shadow;
-
-        @media (max-width: 768px) {
-            min-width: 100%;
-        }
-
-        .total-line {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 16px;
+    #total {
+        .o_total_table {
             font-size: 14px;
-            color: $text-secondary;
-            border-radius: 6px;
-            margin-bottom: 4px;
 
-            &:hover {
-                background: $bg-lighter;
-            }
+            tr {
+                td {
+                    padding: 10px 12px;
+                    border-bottom: 1px solid $border-color;
 
-            span {
-                &:first-child {
-                    font-weight: 500;
+                    &:first-child {
+                        color: $text-secondary;
+                        font-weight: 500;
+                    }
+
+                    &:last-child {
+                        color: $text-primary;
+                        font-weight: 600;
+                        text-align: right;
+                    }
                 }
+
+                // Fila de total final
+                &:last-child td {
+                    background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
+                    color: $bg-white !important;
+                    padding: 18px 20px;
+                    border-radius: 8px;
+                    font-size: 18px;
+                    font-weight: 800;
+                    border: none;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+            }
+        }
+    }
+
+    // Monto en palabras
+    p.text-end {
+        background: #e6f2ff;
+        padding: 15px;
+        border-radius: 8px;
+        border: 2px solid #b3d9ff;
+        text-align: center !important;
+        margin-top: 15px;
+
+        small {
+            font-size: 14px !important;
+            font-weight: 600;
+            color: $text-primary !important;
+        }
+    }
+}
+
+// ============================================================
+// SECCIÓN DE PAGO
+// ============================================================
+.modern-payment-section {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid $border-color;
+
+    p {
+        background: $bg-light;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid $primary-color;
+        line-height: 1.8;
+        margin-bottom: 15px;
+        font-size: 13px;
+        color: $text-secondary;
+
+        strong, .fw-bold, span.fw-bold {
+            color: $text-primary;
+            font-weight: 600;
+        }
+    }
+
+    #payment_terms_note_id {
+        font-weight: 500;
+        color: $text-primary;
+    }
+}
+
+// ============================================================
+// QR CODE
+// ============================================================
+.modern-qr-section {
+    background: $bg-light;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+    justify-content: center !important;
+    align-items: center;
+
+    #qrcode_image {
+        img {
+            border: 4px solid $bg-white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+    }
+
+    #qrcode_info {
+        font-size: 14px;
+        color: $text-secondary;
+        margin-left: 20px;
+        
+        p {
+            margin: 0;
+            line-height: 1.6;
+        }
+    }
+}
+
+// ============================================================
+// SECCIÓN SPOT (DETRACCIONES PERÚ)
+// ============================================================
+.modern-spot-section {
+    background: #fff8e1;
+    border: 3px solid $accent-color;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 4px 12px rgba(255, 167, 38, 0.2);
+
+    table {
+        margin-bottom: 15px;
+        background: $bg-white;
+        border-radius: 8px;
+        overflow: hidden;
+
+        thead {
+            th {
+                background: $accent-color !important;
+                color: $bg-white !important;
+                font-weight: 700;
+                font-size: 13px;
+                padding: 14px 12px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+        }
+
+        tbody {
+            tr {
+                border-bottom: 1px solid #ffe0b2;
 
                 &:last-child {
-                    font-weight: 600;
-                    color: $text-primary;
+                    border-bottom: none;
                 }
-            }
 
-            &.tax-line {
-                background: $bg-light;
-                color: $text-light;
-                font-size: 13px;
-                padding: 10px 16px;
-            }
+                td {
+                    padding: 12px;
+                    color: $text-secondary;
+                    font-size: 13px;
 
-            &.payment-line {
-                background: #e6fffa;
-                border-left: 4px solid $success-color;
-                color: darken($success-color, 10%);
-                font-size: 13px;
-                
-                i {
-                    font-style: italic;
-                }
-            }
+                    &:first-child {
+                        font-weight: 600;
+                        color: $text-primary;
+                        width: 60%;
+                    }
 
-            &.amount-due {
-                background: #fff5f5;
-                border-left: 4px solid #f56565;
-                color: #c53030;
-                font-weight: 700;
-                margin-top: 8px;
-            }
-
-            &.final-total {
-                @include gradient-bg;
-                color: $bg-white;
-                padding: 22px 24px;
-                border-radius: 10px;
-                font-size: 20px;
-                font-weight: 800;
-                margin-top: 16px;
-                box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3);
-                text-transform: uppercase;
-                letter-spacing: 1px;
-
-                span {
-                    color: $bg-white;
-                    
                     &:last-child {
-                        font-size: 24px;
+                        font-weight: 700;
+                        color: darken($accent-color, 15%);
                     }
                 }
             }
         }
     }
 
-    .modern-amount-words {
-        background: #e6f2ff;
-        padding: 18px 20px;
-        border-radius: 8px;
-        text-align: center;
-        margin-top: 20px;
-        color: $text-primary;
+    p {
+        color: darken($accent-color, 20%);
+        font-weight: 600;
         font-size: 13px;
-        border: 2px solid #b3d9ff;
-        grid-column: 1 / -1;
+        margin: 12px 0;
 
-        strong {
-            display: block;
-            font-weight: 700;
-            margin-bottom: 6px;
-            color: darken($primary-color, 10%);
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        &:last-child {
+            text-align: center;
+            margin-top: 20px;
         }
+    }
 
-        span {
-            font-weight: 600;
-            font-size: 14px;
-        }
+    img {
+        border: 3px solid $bg-white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 }
 
 // ============================================================
-// INFORMACIÓN ADICIONAL AL FINAL
+// LEYENDA Y MONTO EN TEXTO (PERÚ)
 // ============================================================
-.modern-footer-info {
-    margin-top: 40px;
-    padding-top: 30px;
-    border-top: 2px solid $border-color;
+.modern-invoice-styles {
+    // Leyenda EDI
+    p[t-if*="l10n_pe_edi_legend_value"] {
+        background: #e6f7ff;
+        padding: 12px 16px;
+        border-radius: 6px;
+        border-left: 4px solid #1890ff;
+        font-style: italic;
+        color: #0050b3;
+        margin-bottom: 15px;
+    }
 
-    .payment-terms-section,
-    .fiscal-notes,
-    .tax-legal-notes {
-        background: $bg-light;
-        padding: 20px;
+    // SON: (monto en texto)
+    p:has(b:contains("SON:")) {
+        background: #e6f2ff;
+        padding: 16px 20px;
         border-radius: 8px;
-        margin-bottom: 20px;
-        font-size: 13px;
-        line-height: 1.8;
-        color: $text-secondary;
-        border-left: 4px solid $primary-color;
-
-        p {
-            margin: 0;
-        }
-    }
-
-    .qr-code-section {
-        margin: 30px 0;
-        
-        .qr-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 30px;
-            background: $bg-light;
-            padding: 30px;
-            border-radius: 12px;
-            @include card-shadow;
-
-            .qr-image {
-                flex-shrink: 0;
-
-                img {
-                    max-width: 150px;
-                    height: auto;
-                    border: 4px solid $bg-white;
-                    border-radius: 12px;
-                    @include card-shadow;
-                }
-            }
-
-            .qr-text {
-                color: $text-secondary;
-                font-size: 14px;
-                line-height: 1.8;
-                font-style: italic;
-
-                p {
-                    margin: 0;
-                }
-            }
-        }
-    }
-
-    .invoice-footer-text {
+        border: 2px solid #b3d9ff;
         text-align: center;
-        color: $text-light;
-        font-size: 12px;
-        line-height: 2;
-        padding: 25px 0;
-        margin-top: 20px;
-        border-top: 1px solid $border-color;
+        font-weight: 600;
+        color: $text-primary;
+        margin: 20px 0;
 
-        p {
-            margin: 6px 0;
-        }
-
-        .company-website {
-            font-weight: 600;
-            color: $primary-color;
-            
-            a {
-                color: $primary-color;
-                text-decoration: none;
-                
-                &:hover {
-                    text-decoration: underline;
-                }
-            }
+        b {
+            color: darken($primary-color, 10%);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-right: 8px;
         }
     }
 }
@@ -614,124 +489,45 @@ $bg-white: #ffffff;
 // AJUSTES PARA IMPRESIÓN
 // ============================================================
 @media print {
-    .modern-invoice-wrapper {
-        font-size: 11px;
-    }
+    .modern-invoice-styles {
+        .modern-invoice-table,
+        .modern-totals-section,
+        .modern-qr-section,
+        .modern-spot-section {
+            page-break-inside: avoid;
+        }
 
-    .modern-header {
-        margin: 0;
-        padding: 25px 30px;
-        page-break-inside: avoid;
-    }
-
-    .modern-invoice-table {
-        page-break-inside: auto;
-        
-        thead {
+        .modern-invoice-table thead {
             display: table-header-group;
         }
-        
-        tr {
-            page-break-inside: avoid;
-            page-break-after: auto;
-        }
-    }
-
-    .modern-totals-wrapper {
-        page-break-inside: avoid;
-    }
-
-    .modern-footer-info {
-        page-break-inside: avoid;
     }
 }
 
 // ============================================================
-// RESPONSIVE - MÓVIL
+// RESPONSIVE
 // ============================================================
 @media (max-width: 768px) {
-    .modern-header {
-        padding: 25px 20px;
-        margin: -20px -20px 25px -20px;
-
-        .modern-header-content {
-            flex-direction: column;
-            gap: 25px;
-        }
-
-        .company-section {
-            min-width: 100%;
-        }
-
-        .invoice-title-section {
-            text-align: left;
-            width: 100%;
-
-            .invoice-type-title {
-                font-size: 24px;
-            }
-
-            .invoice-number {
-                font-size: 14px;
-                padding: 8px 16px;
-            }
-        }
-    }
-
-    .modern-dates-grid {
+    .modern-info-grid {
         grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
         gap: 12px;
     }
 
-    .modern-info-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
+    .modern-addresses-section .col-6 {
+        margin-bottom: 15px;
     }
 
     .modern-invoice-table {
-        font-size: 11px;
+        font-size: 12px;
 
-        thead th,
-        tbody td {
-            padding: 12px 10px;
+        thead tr th {
+            padding: 12px 8px;
+            font-size: 11px;
+        }
 
-            &:first-child {
-                padding-left: 12px;
-            }
-
-            &:last-child {
-                padding-right: 12px;
-            }
+        tbody tr td {
+            padding: 12px 8px;
         }
     }
-
-    .modern-totals-wrapper {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-}
-
-// ============================================================
-// CLASES AUXILIARES
-// ============================================================
-.avoid-page-break-inside {
-    page-break-inside: avoid;
-}
-
-.text-nowrap {
-    white-space: nowrap;
-}
-
-.fw-bold {
-    font-weight: 700;
-}
-
-.fst-italic {
-    font-style: italic;
-}
-
-.text-muted {
-    color: $text-muted;
 }
 
 // ============================================================
