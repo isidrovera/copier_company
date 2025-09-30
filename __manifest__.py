@@ -81,6 +81,7 @@
         'views/servicios_web.xml',
         'views/cotizaciones_multiples.xml',
         'views/template_cotizaciones.xml',
+        'views/report_invoice_modern.xml',
         'views/menus_actions.xml',
         'views/printtracker_config_views.xml',   
         
@@ -97,6 +98,7 @@
             'copier_company/static/src/css/cotizacion_styles.css',
             'copier_company/static/src/css/PcloudDescargas.css',
             'copier_company/static/src/css/copier_list.css',
+            'copier_company/static/src/scss/report_invoice_modern.scss',
             
             # 3) Tus scripts propios
             'copier_company/static/src/js/manuals.js',

@@ -1,0 +1,739 @@
+// ============================================================
+// FACTURA MODERNA - ESTILOS SCSS
+// ============================================================
+// Archivo: factura_moderna/static/src/scss/report_invoice_modern.scss
+// ============================================================
+
+// ============================================================
+// VARIABLES - Personaliza estos colores según tu marca
+// ============================================================
+$primary-color: #667eea;
+$primary-dark: #764ba2;
+$accent-color: #ffa726;
+$success-color: #48bb78;
+$text-primary: #1a202c;
+$text-secondary: #4a5568;
+$text-light: #718096;
+$text-muted: #a0aec0;
+$border-color: #e2e8f0;
+$bg-light: #f8f9fa;
+$bg-lighter: #f5f7fa;
+$bg-white: #ffffff;
+
+// ============================================================
+// MIXINS
+// ============================================================
+@mixin gradient-bg {
+    background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
+}
+
+@mixin card-shadow {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+@mixin hover-effect {
+    transition: all 0.2s ease-in-out;
+    
+    &:hover {
+        background-color: $bg-lighter;
+    }
+}
+
+// ============================================================
+// CONTENEDOR PRINCIPAL
+// ============================================================
+.modern-invoice-wrapper {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    color: $text-primary;
+    line-height: 1.6;
+    font-size: 13px;
+}
+
+// ============================================================
+// HEADER MODERNO CON GRADIENTE
+// ============================================================
+.modern-header {
+    @include gradient-bg;
+    color: $bg-white;
+    padding: 35px 40px;
+    margin: -40px -40px 35px -40px;
+    border-radius: 0;
+
+    .modern-header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 40px;
+        flex-wrap: wrap;
+    }
+
+    .company-section {
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+        flex: 1;
+        min-width: 300px;
+
+        .company-logo {
+            flex-shrink: 0;
+            
+            img {
+                border-radius: 8px;
+                background: $bg-white;
+                padding: 8px;
+            }
+        }
+
+        .company-info {
+            flex: 1;
+
+            .company-name {
+                font-size: 26px;
+                font-weight: 700;
+                margin: 0 0 12px 0;
+                color: $bg-white;
+                line-height: 1.2;
+            }
+
+            .company-details {
+                font-size: 13px;
+                opacity: 0.95;
+                line-height: 1.8;
+
+                div {
+                    margin: 4px 0;
+                }
+
+                strong {
+                    font-weight: 600;
+                    margin-right: 4px;
+                }
+            }
+        }
+    }
+
+    .invoice-title-section {
+        text-align: right;
+        flex-shrink: 0;
+
+        .invoice-type-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin: 0 0 12px 0;
+            color: $bg-white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .invoice-number {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            display: inline-block;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+    }
+}
+
+// ============================================================
+// GRID DE FECHAS
+// ============================================================
+.modern-dates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+
+    .date-card {
+        background: $bg-light;
+        padding: 18px;
+        border-radius: 8px;
+        text-align: center;
+        border: 1px solid $border-color;
+        transition: transform 0.2s, box-shadow 0.2s;
+
+        &:hover {
+            transform: translateY(-2px);
+            @include card-shadow;
+        }
+
+        label {
+            display: block;
+            color: $primary-color;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .date-value {
+            color: $text-primary;
+            font-size: 15px;
+            font-weight: 600;
+        }
+    }
+}
+
+// ============================================================
+// GRID DE INFORMACIÓN (CLIENTE Y PAGO)
+// ============================================================
+.modern-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 35px;
+
+    .info-card {
+        background: $bg-light;
+        padding: 24px;
+        border-radius: 10px;
+        border-left: 5px solid $primary-color;
+        @include card-shadow;
+        transition: transform 0.2s;
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .info-card-title {
+            color: $primary-color;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0 0 16px 0;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            
+            &:before {
+                content: '';
+                display: inline-block;
+                width: 4px;
+                height: 16px;
+                background: $primary-color;
+                margin-right: 8px;
+                border-radius: 2px;
+            }
+        }
+
+        .info-card-content {
+            color: $text-secondary;
+            font-size: 13px;
+            line-height: 1.9;
+
+            .partner-name {
+                display: block;
+                color: $text-primary;
+                font-weight: 700;
+                font-size: 15px;
+                margin-bottom: 8px;
+            }
+
+            div {
+                margin: 6px 0;
+            }
+
+            strong {
+                color: $text-primary;
+                font-weight: 600;
+                margin-right: 4px;
+            }
+        }
+    }
+}
+
+// ============================================================
+// TABLA MODERNA DE LÍNEAS
+// ============================================================
+.modern-invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 35px;
+    font-size: 13px;
+    border-radius: 10px;
+    overflow: hidden;
+    @include card-shadow;
+
+    thead {
+        @include gradient-bg;
+        color: $bg-white;
+
+        th {
+            padding: 16px 14px;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            border: none;
+
+            &:first-child {
+                padding-left: 20px;
+                border-top-left-radius: 10px;
+            }
+
+            &:last-child {
+                padding-right: 20px;
+                border-top-right-radius: 10px;
+            }
+        }
+    }
+
+    .modern-invoice-tbody {
+        background: $bg-white;
+
+        tr {
+            border-bottom: 1px solid $border-color;
+            @include hover-effect;
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            td {
+                padding: 18px 14px;
+                color: $text-secondary;
+                vertical-align: top;
+                border: none;
+
+                &:first-child {
+                    padding-left: 20px;
+                }
+
+                &:last-child {
+                    padding-right: 20px;
+                }
+            }
+
+            &.o_line_section {
+                background: linear-gradient(to right, $bg-light 0%, $bg-white 100%);
+                
+                .section-row {
+                    font-weight: 700;
+                    color: $text-primary;
+                    font-size: 14px;
+                    padding: 16px 20px;
+                    border-top: 2px solid $primary-color;
+                    border-bottom: 2px solid $primary-color;
+                }
+            }
+
+            &.o_line_note {
+                background: #fffbf0;
+                
+                .note-row {
+                    font-style: italic;
+                    color: $text-light;
+                    padding: 12px 20px;
+                    font-size: 12px;
+                }
+            }
+
+            &.is-subtotal {
+                background: $bg-lighter;
+                font-weight: 600;
+                border-top: 2px solid $border-color;
+                
+                td {
+                    padding: 14px 20px;
+                    color: $text-primary;
+                }
+            }
+        }
+
+        .line-description {
+            .item-name {
+                font-weight: 600;
+                color: $text-primary;
+                margin-bottom: 6px;
+                font-size: 14px;
+            }
+
+            .item-code {
+                font-size: 12px;
+                color: $text-muted;
+            }
+        }
+
+        .line-total {
+            font-weight: 700;
+            color: $text-primary;
+            font-size: 14px;
+        }
+    }
+}
+
+// ============================================================
+// SECCIÓN DE TOTALES
+// ============================================================
+.modern-totals-wrapper {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 40px;
+    margin-top: 40px;
+    align-items: start;
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+    }
+
+    .modern-notes-section {
+        .info-card {
+            background: #fffbf0;
+            padding: 24px;
+            border-radius: 10px;
+            border-left: 5px solid $accent-color;
+            @include card-shadow;
+
+            .info-card-title {
+                color: $accent-color;
+                font-size: 13px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin: 0 0 16px 0;
+                font-weight: 700;
+            }
+
+            .info-card-content {
+                color: $text-secondary;
+                font-size: 13px;
+                line-height: 1.8;
+            }
+        }
+    }
+
+    .modern-totals-box {
+        min-width: 350px;
+        background: $bg-white;
+        border-radius: 10px;
+        padding: 20px;
+        @include card-shadow;
+
+        @media (max-width: 768px) {
+            min-width: 100%;
+        }
+
+        .total-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 16px;
+            font-size: 14px;
+            color: $text-secondary;
+            border-radius: 6px;
+            margin-bottom: 4px;
+
+            &:hover {
+                background: $bg-lighter;
+            }
+
+            span {
+                &:first-child {
+                    font-weight: 500;
+                }
+
+                &:last-child {
+                    font-weight: 600;
+                    color: $text-primary;
+                }
+            }
+
+            &.tax-line {
+                background: $bg-light;
+                color: $text-light;
+                font-size: 13px;
+                padding: 10px 16px;
+            }
+
+            &.payment-line {
+                background: #e6fffa;
+                border-left: 4px solid $success-color;
+                color: darken($success-color, 10%);
+                font-size: 13px;
+                
+                i {
+                    font-style: italic;
+                }
+            }
+
+            &.amount-due {
+                background: #fff5f5;
+                border-left: 4px solid #f56565;
+                color: #c53030;
+                font-weight: 700;
+                margin-top: 8px;
+            }
+
+            &.final-total {
+                @include gradient-bg;
+                color: $bg-white;
+                padding: 22px 24px;
+                border-radius: 10px;
+                font-size: 20px;
+                font-weight: 800;
+                margin-top: 16px;
+                box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3);
+                text-transform: uppercase;
+                letter-spacing: 1px;
+
+                span {
+                    color: $bg-white;
+                    
+                    &:last-child {
+                        font-size: 24px;
+                    }
+                }
+            }
+        }
+    }
+
+    .modern-amount-words {
+        background: #e6f2ff;
+        padding: 18px 20px;
+        border-radius: 8px;
+        text-align: center;
+        margin-top: 20px;
+        color: $text-primary;
+        font-size: 13px;
+        border: 2px solid #b3d9ff;
+        grid-column: 1 / -1;
+
+        strong {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: darken($primary-color, 10%);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        span {
+            font-weight: 600;
+            font-size: 14px;
+        }
+    }
+}
+
+// ============================================================
+// INFORMACIÓN ADICIONAL AL FINAL
+// ============================================================
+.modern-footer-info {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 2px solid $border-color;
+
+    .payment-terms-section,
+    .fiscal-notes,
+    .tax-legal-notes {
+        background: $bg-light;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 13px;
+        line-height: 1.8;
+        color: $text-secondary;
+        border-left: 4px solid $primary-color;
+
+        p {
+            margin: 0;
+        }
+    }
+
+    .qr-code-section {
+        margin: 30px 0;
+        
+        .qr-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            background: $bg-light;
+            padding: 30px;
+            border-radius: 12px;
+            @include card-shadow;
+
+            .qr-image {
+                flex-shrink: 0;
+
+                img {
+                    max-width: 150px;
+                    height: auto;
+                    border: 4px solid $bg-white;
+                    border-radius: 12px;
+                    @include card-shadow;
+                }
+            }
+
+            .qr-text {
+                color: $text-secondary;
+                font-size: 14px;
+                line-height: 1.8;
+                font-style: italic;
+
+                p {
+                    margin: 0;
+                }
+            }
+        }
+    }
+
+    .invoice-footer-text {
+        text-align: center;
+        color: $text-light;
+        font-size: 12px;
+        line-height: 2;
+        padding: 25px 0;
+        margin-top: 20px;
+        border-top: 1px solid $border-color;
+
+        p {
+            margin: 6px 0;
+        }
+
+        .company-website {
+            font-weight: 600;
+            color: $primary-color;
+            
+            a {
+                color: $primary-color;
+                text-decoration: none;
+                
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+}
+
+// ============================================================
+// AJUSTES PARA IMPRESIÓN
+// ============================================================
+@media print {
+    .modern-invoice-wrapper {
+        font-size: 11px;
+    }
+
+    .modern-header {
+        margin: 0;
+        padding: 25px 30px;
+        page-break-inside: avoid;
+    }
+
+    .modern-invoice-table {
+        page-break-inside: auto;
+        
+        thead {
+            display: table-header-group;
+        }
+        
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+    }
+
+    .modern-totals-wrapper {
+        page-break-inside: avoid;
+    }
+
+    .modern-footer-info {
+        page-break-inside: avoid;
+    }
+}
+
+// ============================================================
+// RESPONSIVE - MÓVIL
+// ============================================================
+@media (max-width: 768px) {
+    .modern-header {
+        padding: 25px 20px;
+        margin: -20px -20px 25px -20px;
+
+        .modern-header-content {
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .company-section {
+            min-width: 100%;
+        }
+
+        .invoice-title-section {
+            text-align: left;
+            width: 100%;
+
+            .invoice-type-title {
+                font-size: 24px;
+            }
+
+            .invoice-number {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+        }
+    }
+
+    .modern-dates-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+    }
+
+    .modern-info-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .modern-invoice-table {
+        font-size: 11px;
+
+        thead th,
+        tbody td {
+            padding: 12px 10px;
+
+            &:first-child {
+                padding-left: 12px;
+            }
+
+            &:last-child {
+                padding-right: 12px;
+            }
+        }
+    }
+
+    .modern-totals-wrapper {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+// ============================================================
+// CLASES AUXILIARES
+// ============================================================
+.avoid-page-break-inside {
+    page-break-inside: avoid;
+}
+
+.text-nowrap {
+    white-space: nowrap;
+}
+
+.fw-bold {
+    font-weight: 700;
+}
+
+.fst-italic {
+    font-style: italic;
+}
+
+.text-muted {
+    color: $text-muted;
+}
+
+// ============================================================
+// FIN DEL ARCHIVO
+// ============================================================
