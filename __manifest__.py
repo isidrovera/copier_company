@@ -81,7 +81,7 @@
         'views/servicios_web.xml',
         'views/cotizaciones_multiples.xml',
         'views/template_cotizaciones.xml',
-        'views/report_invoice_modern.xml',
+        #'views/report_invoice_modern.xml',
         'views/menus_actions.xml',
         'views/printtracker_config_views.xml',   
         
