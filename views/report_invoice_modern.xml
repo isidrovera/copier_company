@@ -1,25 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-  <!-- Wrapper que prepara contexto y llama al documento -->
+  <!-- ================================
+       Reporte: Factura Moderna (PDF)
+       Módulo: copier_company
+       Odoo:   18.0
+       ================================ -->
+
+  <!-- Wrapper: prepara el contexto (idioma) y llama al template del documento
+       Importante: el registro 'o' SE PASA dentro del t-call para que el hijo lo vea -->
   <template id="report_invoice_modern">
     <t t-call="web.html_container">
       <t t-foreach="docs" t-as="o">
-        <!-- Idioma del partner (fallback a es_PE si viene vacío) -->
+        <!-- Idioma del partner (fallback a es_PE) -->
         <t t-set="lang" t-value="o.partner_id.lang or 'es_PE'"/>
-        <!-- Pasar el registro ya con el contexto de idioma aplicado -->
-        <t t-set="o" t-value="o.with_context(lang=lang)"/>
-        <!-- Llamar al template de este mismo módulo -->
-        <t t-call="copier_company.report_invoice_document_modern"/>
+        <!-- Pasar 'o' con contexto de idioma AL INTERIOR del t-call -->
+        <t t-call="copier_company.report_invoice_document_modern">
+          <t t-set="o" t-value="o.with_context(lang=lang)"/>
+        </t>
       </t>
     </t>
   </template>
 
-  <!-- Template del documento moderno -->
+  <!-- Documento: contenido visual del PDF.
+       No redefinir 'o' aquí; ya viene desde el wrapper -->
   <template id="report_invoice_document_modern">
     <t t-call="web.external_layout">
 
-      <!-- Variables auxiliares (no referencian 'o') -->
+      <!-- Variables auxiliares -->
       <t t-set="spot" t-value="None"/>
       <t t-set="extra_edi_vals" t-value="{}"/>
 
@@ -30,7 +38,8 @@
           <tr>
             <td style="width: 58%; vertical-align: top;">
               <div style="display: flex; gap: 12px; align-items: start;">
-                <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)"
+                <img t-if="o.company_id.logo"
+                     t-att-src="image_data_uri(o.company_id.logo)"
                      style="max-height: 55px; max-width: 100px;"/>
                 <div>
                   <div style="font-size: 15px; font-weight: bold; margin-bottom: 6px;">
@@ -131,7 +140,8 @@
 
           <!-- SPOT (Izquierda) -->
           <div style="flex: 1;">
-            <div t-if="o.l10n_pe_edi_operation_type == '1001'" style="border: 2px solid #f90; background: #fffbf0; padding: 12px; border-radius: 4px; margin-bottom: 15px;">
+            <div t-if="o.l10n_pe_edi_operation_type == '1001'"
+                 style="border: 2px solid #f90; background: #fffbf0; padding: 12px; border-radius: 4px; margin-bottom: 15px;">
               <div style="font-weight: bold; font-size: 11px; margin-bottom: 8px; color: #c60;">
                 Operación sujeta al Sistema de Pago de Obligaciones Tributarias - SPOT
               </div>
@@ -208,11 +218,12 @@
     </t>
   </template>
 
-  <!-- Acción del reporte -->
+  <!-- Acción del reporte (PDF) -->
   <record id="action_report_invoice_modern" model="ir.actions.report">
     <field name="name">Factura Moderna</field>
     <field name="model">account.move</field>
     <field name="report_type">qweb-pdf</field>
+    <!-- Debe apuntar al ID del wrapper -->
     <field name="report_name">copier_company.report_invoice_modern</field>
     <field name="report_file">copier_company.report_invoice_modern</field>
     <field name="binding_model_id" ref="account.model_account_move"/>
