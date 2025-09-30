@@ -2,7 +2,7 @@
 <odoo>
     
     <!-- Template completamente nuevo basado en el peruano pero con diseño moderno -->
-    <template id="report_invoice_document_modern" inherit_id="account.report_invoice_document" priority="99">
+    <template id="report_invoice_document_modern" inherit_id="account.report_invoice_document" priority="100">
         
         <!-- Reemplazar todo el contenido después de external_layout -->
         <xpath expr="//t[@t-call='web.external_layout']/*" position="replace">
@@ -10,9 +10,15 @@
             <t t-set="o" t-value="o.with_context(lang=lang)"/>
             <t t-set="forced_vat" t-value="o.fiscal_position_id.foreign_vat"/>
             
-            <!-- Variables adicionales para Perú -->
-            <t t-set="extra_edi_vals" t-value="o._l10n_pe_edi_get_extra_report_values() if hasattr(o, '_l10n_pe_edi_get_extra_report_values') else {}"/>
-            <t t-set="spot" t-value="o._l10n_pe_edi_get_spot() if hasattr(o, '_l10n_pe_edi_get_spot') else {}"/>
+            <!-- Variables para evitar errores si no existen los métodos -->
+            <t t-set="extra_edi_vals" t-value="{}"/>
+            <t t-set="spot" t-value="{}"/>
+            <t t-try="">
+                <t t-set="extra_edi_vals" t-value="o._l10n_pe_edi_get_extra_report_values()"/>
+                <t t-set="spot" t-value="o._l10n_pe_edi_get_spot()"/>
+            </t>
+            <t t-catch=""/>
+            
             
             <div class="modern-invoice-container">
                 
