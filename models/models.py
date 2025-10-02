@@ -422,7 +422,11 @@ class CopierCompany(models.Model):
         new_partner._doc_number_change()
         self.cliente_id = new_partner.id
         self.tipo_identificacion = new_partner.l10n_latam_identification_type_id.id
-
+    payment_term_id = fields.Many2one(
+        'account.payment.term',
+        string='Términos de pago',
+        help='Términos de pago para esta transacción'
+    )
     @api.depends('volumen_mensual_color', 'volumen_mensual_bn', 'costo_copia_color', 
              'costo_copia_bn', 'igv', 'descuento', 'tipo_calculo', 
              'monto_mensual_bn', 'monto_mensual_color', 'monto_mensual_total',
