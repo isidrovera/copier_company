@@ -1075,34 +1075,247 @@ class CopierCounter(models.Model):
             'target': 'current',
         }
     def action_create_multiple_invoices(self):
-        """Crea facturas para múltiples lecturas seleccionadas"""
+        """Crea una factura consolidada por cliente para múltiples lecturas seleccionadas"""
+        
+        # Validar que hay registros seleccionados
+        if not self:
+            raise UserError('No se han seleccionado registros para facturar.')
+        
+        # Validar estado de los registros
+        registros_invalidos = self.filtered(lambda r: r.state != 'confirmed')
+        if registros_invalidos:
+            raise UserError(
+                f'Algunos registros no están confirmados:\n' +
+                '\n'.join([f"- {r.name} ({r.state})" for r in registros_invalidos])
+            )
+        
+        # Agrupar por cliente
+        lecturas_por_cliente = {}
+        for record in self:
+            cliente_id = record.cliente_id.id
+            if cliente_id not in lecturas_por_cliente:
+                lecturas_por_cliente[cliente_id] = self.env['copier.counter']
+            lecturas_por_cliente[cliente_id] |= record
+        
         facturas_creadas = []
         errores = []
         
-        for record in self:
+        # Crear una factura por cada cliente
+        for cliente_id, lecturas in lecturas_por_cliente.items():
             try:
-                if record.state == 'confirmed' and record.producto_facturable_id:
-                    result = record.action_create_invoice()
-                    facturas_creadas.append(record.name)
-                else:
-                    errores.append(f"{record.name}: Estado o producto no válido")
+                factura = self._crear_factura_consolidada(lecturas)
+                if factura:
+                    facturas_creadas.append({
+                        'factura': factura,
+                        'lecturas': lecturas,
+                        'cliente': lecturas[0].cliente_id.name
+                    })
             except Exception as e:
-                errores.append(f"{record.name}: {str(e)}")
+                cliente_name = lecturas[0].cliente_id.name
+                errores.append(f"{cliente_name}: {str(e)}")
+                _logger.exception(f"Error creando factura para cliente {cliente_name}")
         
-        mensaje = f"Facturas creadas: {len(facturas_creadas)}"
+        # Preparar mensaje de resultado
+        if facturas_creadas:
+            mensaje_detalle = '\n'.join([
+                f"✓ {item['cliente']}: {item['factura'].name} ({len(item['lecturas'])} equipos)"
+                for item in facturas_creadas
+            ])
+            mensaje = f"Facturas creadas: {len(facturas_creadas)}\n\n{mensaje_detalle}"
+            tipo = 'success'
+        else:
+            mensaje = "No se crearon facturas"
+            tipo = 'warning'
+        
         if errores:
-            mensaje += f"\nErrores: {len(errores)}"
+            mensaje += f"\n\n❌ Errores: {len(errores)}\n" + '\n'.join(errores)
+            tipo = 'warning'
         
-        return {
+        # Mostrar notificación
+        notification = {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': 'Proceso de Facturación',
+                'title': 'Facturación Masiva Completada',
                 'message': mensaje,
-                'type': 'success' if facturas_creadas else 'warning',
+                'type': tipo,
                 'sticky': True,
             }
         }
+        
+        # Si solo hay una factura, abrir directamente
+        if len(facturas_creadas) == 1:
+            return {
+                'name': 'Factura Creada',
+                'type': 'ir.actions.act_window',
+                'res_model': 'account.move',
+                'res_id': facturas_creadas[0]['factura'].id,
+                'view_mode': 'form',
+                'target': 'current',
+            }
+        
+        # Si hay múltiples, mostrar lista de facturas creadas
+        if facturas_creadas:
+            factura_ids = [item['factura'].id for item in facturas_creadas]
+            return {
+                'name': 'Facturas Creadas',
+                'type': 'ir.actions.act_window',
+                'res_model': 'account.move',
+                'view_mode': 'tree,form',
+                'domain': [('id', 'in', factura_ids)],
+                'target': 'current',
+            }
+        
+        return notification
+
+
+    def _crear_factura_consolidada(self, lecturas):
+        """Crea una factura consolidada para múltiples lecturas del mismo cliente"""
+        
+        if not lecturas:
+            return False
+        
+        # Usar la primera lectura como referencia
+        primera_lectura = lecturas[0]
+        cliente = primera_lectura.cliente_id
+        
+        # Validar que todas sean del mismo cliente
+        if any(l.cliente_id.id != cliente.id for l in lecturas):
+            raise UserError('Todas las lecturas deben ser del mismo cliente.')
+        
+        # Validar productos configurados
+        for lectura in lecturas:
+            productos_faltantes = []
+            
+            if lectura.maquina_id.tipo == 'monocroma':
+                if not lectura.producto_facturable_bn_id and lectura.copias_facturables_bn > 0:
+                    productos_faltantes.append(f"Producto B/N para {lectura.serie}")
+            else:  # color
+                if not lectura.producto_facturable_bn_id and lectura.copias_facturables_bn > 0:
+                    productos_faltantes.append(f"Producto B/N para {lectura.serie}")
+                if not lectura.producto_facturable_color_id and lectura.copias_facturables_color > 0:
+                    productos_faltantes.append(f"Producto Color para {lectura.serie}")
+            
+            if productos_faltantes:
+                raise UserError(
+                    f"Faltan productos en la máquina {lectura.serie}:\n" +
+                    "\n".join([f"- {p}" for p in productos_faltantes])
+                )
+        
+        # Determinar fecha de factura (usar la más reciente de fecha_emision_factura o hoy)
+        fechas_emision = [l.fecha_emision_factura for l in lecturas if l.fecha_emision_factura]
+        if fechas_emision:
+            fecha_para_factura = max(fechas_emision)
+        else:
+            fecha_para_factura = fields.Date.today()
+        
+        # Obtener término de pago (usar el de la primera lectura)
+        payment_term = primera_lectura.payment_term_id
+        
+        # Crear factura
+        invoice_vals = {
+            'partner_id': cliente.id,
+            'move_type': 'out_invoice',
+            'invoice_date': fecha_para_factura,
+            'invoice_payment_term_id': payment_term.id if payment_term else False,
+            'invoice_origin': ', '.join(lecturas.mapped('name')),
+        }
+        
+        invoice = self.env['account.move'].create(invoice_vals)
+        
+        # Crear líneas de factura para cada lectura
+        invoice_lines = []
+        total_copias_bn = 0
+        total_copias_color = 0
+        total_equipos = 0
+        
+        for lectura in lecturas.sorted(key=lambda l: l.serie):
+            modelo_maquina = lectura.maquina_id.name.name if lectura.maquina_id.name else 'N/A'
+            info_maquina = f"Modelo: {modelo_maquina} - Serie: {lectura.serie}"
+            
+            # Línea B/N
+            if lectura.copias_facturables_bn > 0 and lectura.producto_facturable_bn_id:
+                descripcion_bn = (
+                    f'{lectura.producto_facturable_bn_id.name} - '
+                    f'Copias B/N: {int(lectura.copias_facturables_bn)} - '
+                    f'{lectura.mes_facturacion}\n{info_maquina}'
+                )
+                
+                line_vals_bn = {
+                    'move_id': invoice.id,
+                    'product_id': lectura.producto_facturable_bn_id.id,
+                    'name': descripcion_bn,
+                    'quantity': 1,
+                    'price_unit': lectura.subtotal_bn,
+                    'account_id': (
+                        lectura.producto_facturable_bn_id.property_account_income_id.id or 
+                        lectura.producto_facturable_bn_id.categ_id.property_account_income_categ_id.id
+                    ),
+                }
+                invoice_lines.append((0, 0, line_vals_bn))
+                total_copias_bn += lectura.copias_facturables_bn
+                total_equipos += 1
+            
+            # Línea Color
+            if lectura.copias_facturables_color > 0 and lectura.producto_facturable_color_id:
+                descripcion_color = (
+                    f'{lectura.producto_facturable_color_id.name} - '
+                    f'Copias Color: {int(lectura.copias_facturables_color)} - '
+                    f'{lectura.mes_facturacion}\n{info_maquina}'
+                )
+                
+                line_vals_color = {
+                    'move_id': invoice.id,
+                    'product_id': lectura.producto_facturable_color_id.id,
+                    'name': descripcion_color,
+                    'quantity': 1,
+                    'price_unit': lectura.subtotal_color,
+                    'account_id': (
+                        lectura.producto_facturable_color_id.property_account_income_id.id or 
+                        lectura.producto_facturable_color_id.categ_id.property_account_income_categ_id.id
+                    ),
+                }
+                invoice_lines.append((0, 0, line_vals_color))
+                total_copias_color += lectura.copias_facturables_color
+        
+        if not invoice_lines:
+            invoice.unlink()
+            raise UserError('No se pudieron crear líneas de factura para ninguna lectura.')
+        
+        # Asignar líneas a la factura
+        invoice.write({'invoice_line_ids': invoice_lines})
+        
+        # Marcar lecturas como facturadas
+        lecturas.write({'state': 'invoiced'})
+        
+        # Agregar nota en el chatter de cada lectura
+        for lectura in lecturas:
+            lectura.message_post(
+                body=f'Incluido en factura consolidada: {invoice.name}\n'
+                    f'- B/N: {lectura.copias_facturables_bn} copias = S/ {lectura.total_bn:.2f}\n'
+                    f'- Color: {lectura.copias_facturables_color} copias = S/ {lectura.total_color:.2f}\n'
+                    f'- Subtotal equipo: S/ {lectura.total:.2f}',
+                message_type='notification'
+            )
+        
+        # Nota en la factura
+        resumen = f'''
+    Factura consolidada con {total_equipos} equipos:
+    - Total copias B/N: {int(total_copias_bn)}
+    - Total copias Color: {int(total_copias_color)}
+
+    Equipos incluidos:
+    {chr(10).join([f'• {l.serie} ({l.mes_facturacion})' for l in lecturas])}
+    '''
+        
+        invoice.message_post(
+            body=resumen,
+            message_type='notification'
+        )
+        
+        _logger.info(f"Factura consolidada {invoice.name} creada para cliente {cliente.name} con {len(lecturas)} lecturas")
+        
+        return invoice
 
         
 
