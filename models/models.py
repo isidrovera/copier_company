@@ -425,14 +425,28 @@ class CopierCompany(models.Model):
 
     @api.depends('volumen_mensual_color', 'volumen_mensual_bn', 'costo_copia_color', 
              'costo_copia_bn', 'igv', 'descuento', 'tipo_calculo', 
-             'monto_mensual_bn', 'monto_mensual_color', 'monto_mensual_total')
+             'monto_mensual_bn', 'monto_mensual_color', 'monto_mensual_total',
+             'precio_bn_incluye_igv', 'precio_color_incluye_igv')  # AGREGAR DEPENDENCIAS
     def _compute_renta_mensual(self):
         for record in self:
             # Caso 1: Cálculo automático por costo unitario
             if record.tipo_calculo == 'auto':
-                # Cálculo estándar por costos unitarios
-                renta_color = record.volumen_mensual_color * record.costo_copia_color
-                renta_bn = record.volumen_mensual_bn * record.costo_copia_bn
+                # Calcular rentas según si el precio incluye o no IGV
+                if record.precio_bn_incluye_igv:
+                    # El precio YA incluye IGV, calcular subtotal sin IGV
+                    renta_bn_con_igv = record.volumen_mensual_bn * record.costo_copia_bn
+                    renta_bn = renta_bn_con_igv / (1 + (record.igv / 100))
+                else:
+                    # El precio NO incluye IGV
+                    renta_bn = record.volumen_mensual_bn * record.costo_copia_bn
+                
+                if record.precio_color_incluye_igv:
+                    # El precio YA incluye IGV, calcular subtotal sin IGV
+                    renta_color_con_igv = record.volumen_mensual_color * record.costo_copia_color
+                    renta_color = renta_color_con_igv / (1 + (record.igv / 100))
+                else:
+                    # El precio NO incluye IGV
+                    renta_color = record.volumen_mensual_color * record.costo_copia_color
                 
             # Caso 2: Cálculo con montos fijos para B/N
             elif record.tipo_calculo in ['manual_sin_igv_bn', 'manual_con_igv_bn']:
@@ -441,8 +455,12 @@ class CopierCompany(models.Model):
                 else:  # manual_con_igv_bn
                     renta_bn = record.monto_mensual_bn / (1 + (record.igv / 100))
                 
-                # Mantener el cálculo normal para color
-                renta_color = record.volumen_mensual_color * record.costo_copia_color
+                # Color sigue la lógica del checkbox
+                if record.precio_color_incluye_igv:
+                    renta_color_con_igv = record.volumen_mensual_color * record.costo_copia_color
+                    renta_color = renta_color_con_igv / (1 + (record.igv / 100))
+                else:
+                    renta_color = record.volumen_mensual_color * record.costo_copia_color
             
             # Caso 3: Cálculo con montos fijos para Color
             elif record.tipo_calculo in ['manual_sin_igv_color', 'manual_con_igv_color']:
@@ -451,35 +469,48 @@ class CopierCompany(models.Model):
                 else:  # manual_con_igv_color
                     renta_color = record.monto_mensual_color / (1 + (record.igv / 100))
                 
-                # Mantener el cálculo normal para B/N
-                renta_bn = record.volumen_mensual_bn * record.costo_copia_bn
+                # B/N sigue la lógica del checkbox
+                if record.precio_bn_incluye_igv:
+                    renta_bn_con_igv = record.volumen_mensual_bn * record.costo_copia_bn
+                    renta_bn = renta_bn_con_igv / (1 + (record.igv / 100))
+                else:
+                    renta_bn = record.volumen_mensual_bn * record.costo_copia_bn
             
             # Caso 4: Cálculo con montos fijos para el total
             elif record.tipo_calculo in ['manual_sin_igv_total', 'manual_con_igv_total']:
-                # Determinar monto sin IGV total
                 if record.tipo_calculo == 'manual_sin_igv_total':
                     monto_total = record.monto_mensual_total
                 else:  # manual_con_igv_total
                     monto_total = record.monto_mensual_total / (1 + (record.igv / 100))
                 
-                # Distribuir el monto según los costos unitarios calculados
                 volumen_total = record.volumen_mensual_bn + record.volumen_mensual_color
                 
                 if volumen_total > 0:
-                    # Usar los costos unitarios ya calculados
-                    renta_bn = record.volumen_mensual_bn * record.costo_copia_bn
-                    renta_color = record.volumen_mensual_color * record.costo_copia_color
+                    # Calcular costos base según checkbox
+                    if record.precio_bn_incluye_igv:
+                        costo_bn_base = (record.volumen_mensual_bn * record.costo_copia_bn) / (1 + (record.igv / 100))
+                    else:
+                        costo_bn_base = record.volumen_mensual_bn * record.costo_copia_bn
                     
-                    # Ajustar si es necesario para asegurar que la suma sea exactamente el monto deseado
-                    factor_ajuste = monto_total / (renta_bn + renta_color) if (renta_bn + renta_color) > 0 else 1
-                    renta_bn = renta_bn * factor_ajuste
-                    renta_color = renta_color * factor_ajuste
+                    if record.precio_color_incluye_igv:
+                        costo_color_base = (record.volumen_mensual_color * record.costo_copia_color) / (1 + (record.igv / 100))
+                    else:
+                        costo_color_base = record.volumen_mensual_color * record.costo_copia_color
+                    
+                    costo_total_base = costo_bn_base + costo_color_base
+                    
+                    if costo_total_base > 0:
+                        factor = monto_total / costo_total_base
+                        renta_bn = costo_bn_base * factor
+                        renta_color = costo_color_base * factor
+                    else:
+                        renta_bn = monto_total
+                        renta_color = 0
                 else:
-                    # Si no hay volumen, asignar todo a B/N
                     renta_bn = monto_total
                     renta_color = 0
             
-            # Común para todos los casos: cálculo de totales
+            # Común para todos: cálculo de totales
             subtotal = renta_color + renta_bn
             
             # Aplicar descuento
@@ -489,17 +520,12 @@ class CopierCompany(models.Model):
             # Calcular IGV
             igv_valor = subtotal_con_descuento * (record.igv / 100.0)
             
-            # Asignar valores a los campos
+            # Asignar valores
             record.renta_mensual_color = renta_color
             record.renta_mensual_bn = renta_bn
             record.subtotal_sin_igv = subtotal_con_descuento
             record.monto_igv = igv_valor
             record.total_facturar_mensual = subtotal_con_descuento + igv_valor
-    payment_term_id = fields.Many2one(
-        'account.payment.term',
-        string='Términos de pago',
-        help='Términos de pago para esta transacción'
-    )
 
     def debug_urgente_company(self):
         """Debug urgente para identificar el problema real"""
