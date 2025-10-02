@@ -50,6 +50,13 @@
         </field>
     </record>
 
+    <!-- Acción para Estados -->
+    <record id="action_copier_estados" model="ir.actions.act_window">
+        <field name="name">Estados de Copiadoras</field>
+        <field name="res_model">copier.estados</field>
+        <field name="view_mode">list,form,kanban</field>
+    </record>
+
     <!-- Acción para Solicitudes de Asistencia Remota -->
     <record id="action_remote_assistance_request" model="ir.actions.act_window">
         <field name="name">Solicitudes de Asistencia Remota</field>
@@ -220,12 +227,6 @@
         <field name="view_mode">list,form,kanban</field>
     </record>
 
-    <record id="action_copier_estados" model="ir.actions.act_window">
-        <field name="name">Estados de Copiadoras</field>
-        <field name="res_model">copier.estados</field>
-        <field name="view_mode">list,form,kanban</field>
-    </record>
-
     <record id="action_accesorios_maquinas" model="ir.actions.act_window">
         <field name="name">Accesorios de Máquinas</field>
         <field name="res_model">accesorios.maquinas</field>
@@ -237,8 +238,6 @@
         <field name="res_model">copier.checklist.item</field>
         <field name="view_mode">list,form,kanban</field>
     </record>
-
-  
 
     <record id="action_copier_machine_user" model="ir.actions.act_window">
         <field name="name">Usuarios Internos</field>
@@ -297,7 +296,23 @@
         </field>
     </record>
 
-    <!-- Acción del Servidor -->
+    <!-- Acción PrintTracker -->
+    <record id="action_printtracker_config" model="ir.actions.act_window">
+        <field name="name">Configuración PrintTracker</field>
+        <field name="res_model">copier.printtracker.config</field>
+        <field name="view_mode">form,list</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configure la conexión con PrintTracker Pro
+            </p>
+            <p>
+                Ingrese la URL de la API, API Key y ID de entidad para conectar 
+                con PrintTracker Pro y obtener lecturas automáticas de contadores.
+            </p>
+        </field>
+    </record>
+
+    <!-- Acciones de Servidor -->
     <record id="action_counter_report_server" model="ir.actions.server">
         <field name="name">Generar Reporte de Lecturas</field>
         <field name="model_id" ref="model_copier_counter"/>
@@ -305,6 +320,53 @@
         <field name="binding_view_types">list</field>
         <field name="state">code</field>
         <field name="code">action = env['copier.counter'].browse(records.ids).action_generate_report()</field>
+    </record>
+
+    <record id="action_update_counter_printtracker_server" model="ir.actions.server">
+        <field name="name">Actualizar desde PrintTracker</field>
+        <field name="model_id" ref="model_copier_counter"/>
+        <field name="binding_model_id" ref="model_copier_counter"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">
+if record.exists():
+    action = record.action_update_from_printtracker()
+        </field>
+    </record>
+
+    <record id="action_update_multiple_counters_printtracker_server" model="ir.actions.server">
+        <field name="name">Actualizar Múltiples desde PrintTracker</field>
+        <field name="model_id" ref="model_copier_counter"/>
+        <field name="binding_model_id" ref="model_copier_counter"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+if records.exists():
+    action = records.action_update_multiple_from_printtracker()
+        </field>
+    </record>
+
+    <record id="action_map_printtracker_server" model="ir.actions.server">
+        <field name="name">Mapear con PrintTracker</field>
+        <field name="model_id" ref="model_copier_company"/>
+        <field name="binding_model_id" ref="model_copier_company"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">
+if record.exists():
+    action = record.action_map_printtracker()
+        </field>
+    </record>
+
+    <record id="action_server_create_multiple_invoices" model="ir.actions.server">
+        <field name="name">Crear Factura(s)</field>
+        <field name="model_id" ref="model_copier_counter"/>
+        <field name="binding_model_id" ref="model_copier_counter"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+action = records.action_create_multiple_invoices()
+        </field>
     </record>
 
     <!-- ========================================= -->
@@ -336,6 +398,13 @@
               parent="copier_company.menu_root"
               action="action_copier_counter"
               sequence="30"/>
+
+    <!-- 3.5 Estados (NUEVO - entre Contadores y Solicitudes) -->
+    <menuitem id="menu_copier_estados" 
+              name="Estados de Copiadoras" 
+              parent="copier_company.menu_root"  
+              action="action_copier_estados" 
+              sequence="35"/> 
 
     <!-- 4. Solicitudes (Menú Padre) -->
     <menuitem name="Solicitudes" 
@@ -450,131 +519,48 @@
               action="accion_modelos_maquinas" 
               sequence="20"/>
 
-    <menuitem id="menu_copier_estados" 
-          name="Estados de Copiadoras" 
-          parent="copier_company.menu_root"  
-          action="action_copier_estados" 
-          sequence="35"/> 
-
     <menuitem id="menu_accesorios_maquinas" 
               name="Accesorios de Máquinas" 
               parent="menu_ajustes" 
               action="action_accesorios_maquinas" 
-              sequence="40"/>
+              sequence="30"/>
 
     <menuitem id="menu_copier_checklist_item"
               name="Items de Checklist"
               parent="menu_ajustes"
               action="action_copier_checklist_item"
-              sequence="50"/>
-
-   
+              sequence="40"/>
 
     <menuitem id="menu_copier_machine_user"
               name="Usuarios Internos"
               action="action_copier_machine_user"
               parent="menu_ajustes"
-              sequence="70"/>
+              sequence="50"/>
 
     <menuitem id="menu_copier_counter_user_detail"
               name="Detalle Copias Usuarios"
               action="action_copier_counter_user_detail"
               parent="menu_ajustes"
-              sequence="80"/>
+              sequence="60"/>
 
     <menuitem id="menu_security_control"
               name="Control de Seguridad"
               action="action_security_control"
               parent="menu_ajustes"
               groups="base.group_system"
-              sequence="90"/>
+              sequence="70"/>
 
     <menuitem id="menu_pcloud_config" 
               name="pCloud Configuration" 
               parent="menu_ajustes" 
               action="view_pcloud_config_form_action"
-              sequence="100"/>
-    <!-- ========================================= -->
-<!-- AGREGAR ESTAS LÍNEAS EN TU ARCHIVO DE MENÚS EXISTENTE -->
-<!-- ========================================= -->
+              sequence="80"/>
 
-<!-- NUEVAS ACCIONES PARA PRINTTRACKER -->
-<record id="action_printtracker_config" model="ir.actions.act_window">
-    <field name="name">Configuración PrintTracker</field>
-    <field name="res_model">copier.printtracker.config</field>
-    <field name="view_mode">form,list</field>
-    <field name="help" type="html">
-        <p class="o_view_nocontent_smiling_face">
-            Configure la conexión con PrintTracker Pro
-        </p>
-        <p>
-            Ingrese la URL de la API, API Key y ID de entidad para conectar 
-            con PrintTracker Pro y obtener lecturas automáticas de contadores.
-        </p>
-    </field>
-</record>
+    <menuitem id="menu_printtracker_config"
+              name="PrintTracker Config"
+              action="action_printtracker_config"
+              parent="menu_ajustes"
+              groups="base.group_system"
+              sequence="90"/>
 
-<!-- AGREGAR ESTE MENÚ DENTRO DE "menu_ajustes" (en la sección 11. Ajustes) -->
-<!-- Insertar después de la línea del menú "pCloud Configuration" -->
-
-<menuitem id="menu_printtracker_config"
-          name="PrintTracker Config"
-          action="action_printtracker_config"
-          parent="menu_ajustes"
-          groups="base.group_system"
-          sequence="105"/>
-
-<!-- ========================================= -->
-<!-- TAMBIÉN NECESITAS ESTAS ACCIONES DE SERVIDOR PARA LOS BOTONES -->
-<!-- ========================================= -->
-
-<!-- Acción del servidor para actualizar un contador desde PrintTracker -->
-<record id="action_update_counter_printtracker_server" model="ir.actions.server">
-    <field name="name">Actualizar desde PrintTracker</field>
-    <field name="model_id" ref="model_copier_counter"/>
-    <field name="binding_model_id" ref="model_copier_counter"/>
-    <field name="binding_view_types">form</field>
-    <field name="state">code</field>
-    <field name="code">
-        if record.exists():
-            action = record.action_update_from_printtracker()
-    </field>
-</record>
-
-<!-- Acción del servidor para actualizar múltiples contadores -->
-<record id="action_update_multiple_counters_printtracker_server" model="ir.actions.server">
-    <field name="name">Actualizar Múltiples desde PrintTracker</field>
-    <field name="model_id" ref="model_copier_counter"/>
-    <field name="binding_model_id" ref="model_copier_counter"/>
-    <field name="binding_view_types">list</field>
-    <field name="state">code</field>
-    <field name="code">
-        if records.exists():
-            action = records.action_update_multiple_from_printtracker()
-    </field>
-</record>
-
-<!-- Acción del servidor para mapear máquina con PrintTracker -->
-<record id="action_map_printtracker_server" model="ir.actions.server">
-    <field name="name">Mapear con PrintTracker</field>
-    <field name="model_id" ref="model_copier_company"/>
-    <field name="binding_model_id" ref="model_copier_company"/>
-    <field name="binding_view_types">form</field>
-    <field name="state">code</field>
-    <field name="code">
-        if record.exists():
-            action = record.action_map_printtracker()
-    </field>
-</record>
-<!-- Acción de servidor para facturación masiva -->
-<record id="action_server_create_multiple_invoices" model="ir.actions.server">
-    <field name="name">Crear Factura(s)</field>
-    <field name="model_id" ref="model_copier_counter"/>
-    <field name="binding_model_id" ref="model_copier_counter"/>
-    <field name="binding_view_types">list</field>
-    <field name="state">code</field>
-    <field name="code">
-        action = records.action_create_multiple_invoices()
-    </field>
-</record>
 </odoo>
