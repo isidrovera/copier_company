@@ -20,7 +20,7 @@
     'depends': [
         'base', 'web', 'mail', 'contacts', 'helpdesk',
         'sale_management', 'portal', 'sale_subscription',
-        'website', 'website_event', 'website_form', 'website_dynamic_snippet',
+        'website',
         'auth_signup', 'auth_oauth',
     ],
 
