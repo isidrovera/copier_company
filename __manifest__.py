@@ -69,6 +69,7 @@
         'views/servicios_web.xml',
         'views/cotizaciones_multiples.xml',
         'views/template_cotizaciones.xml',
+        'views/website_header_templates.xml',
         'views/menus_actions.xml',
         'views/printtracker_config_views.xml',
         # ❗️ No cargues QWeb de frontend aquí; mejor en assets_qweb (abajo)
@@ -84,12 +85,14 @@
             'copier_company/static/src/css/PcloudDescargas.css',
             'copier_company/static/src/css/copier_list.css',
             'copier_company/static/src/scss/report_invoice_modern.scss',
+            'copier_company/static/src/css/modern_headers.css',
 
             # Scripts propios
             'copier_company/static/src/js/manuals.js',
             'copier_company/static/src/js/counter_charts.js',
             'copier_company/static/src/js/PcloudDescargas.js',
             'copier_company/static/src/js/custom_script.js',
+            'copier_company/static/src/js/header_effects.js',
             'copier_company/static/src/js/copier_homepage_scripts.js',
 
             # 📄 PDF.js: usa una sola variante; elimina los .mjs locales para evitar conflictos AMD
