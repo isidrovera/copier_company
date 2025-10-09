@@ -112,12 +112,7 @@
             'copier_company/static/src/xml/counter_charts_templates.xml',
         ],
 
-        # Assets para reportes (se permiten externos, pero mejor “vendorizar” si hay CSP/CDN bloqueos)
-        'web.report_assets_common': [
-            ('https://unpkg.com/modern-normalize@2.0.0/modern-normalize.css', {'type': 'external'}),
-            ('https://unpkg.com/@tailwindcss/typography@0.5.10/dist/typography.min.css', {'type': 'external'}),
-            ('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap', {'type': 'external'}),
-        ],
+       
     },
 
     'application': True,
