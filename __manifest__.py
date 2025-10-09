@@ -83,7 +83,7 @@
             'copier_company/static/src/css/cotizacion_styles.css',
             'copier_company/static/src/css/PcloudDescargas.css',
             'copier_company/static/src/css/copier_list.css',
-            'copier_company/static/src/scss/report_invoice_modern.scss',
+            
          
 
             # Scripts propios
