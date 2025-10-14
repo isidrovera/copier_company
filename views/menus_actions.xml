@@ -61,7 +61,7 @@
     <record id="action_remote_assistance_request" model="ir.actions.act_window">
         <field name="name">Solicitudes de Asistencia Remota</field>
         <field name="res_model">remote.assistance.request</field>
-        <field name="view_mode">kanban,list,form,calendar,pivot,graph</field>
+        <field name="view_mode">kanban,list,form</field>
         <field name="search_view_id" ref="view_remote_assistance_request_search"/>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
@@ -82,7 +82,7 @@
     <record id="action_toner_request" model="ir.actions.act_window">
         <field name="name">Solicitudes de Toner</field>
         <field name="res_model">toner.request</field>
-        <field name="view_mode">kanban,list,form,calendar,pivot,graph</field>
+        <field name="view_mode">kanban,list,form</field>
         <field name="search_view_id" ref="view_toner_request_search"/>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
@@ -120,7 +120,7 @@
     <record id="action_client_counter_submission" model="ir.actions.act_window">
         <field name="name">Contadores de Clientes</field>
         <field name="res_model">client.counter.submission</field>
-        <field name="view_mode">kanban,list,form,calendar,pivot,graph</field>
+        <field name="view_mode">kanban,list,form</field>
         <field name="search_view_id" ref="view_client_counter_submission_search"/>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
