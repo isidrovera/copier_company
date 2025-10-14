@@ -365,58 +365,6 @@
     </field>
 </record>
 
-    <!-- Vista Calendar -->
-    <record id="view_remote_assistance_request_calendar" model="ir.ui.view">
-        <field name="name">remote.assistance.request.calendar</field>
-        <field name="model">remote.assistance.request</field>
-        <field name="arch" type="xml">
-            <calendar string="Calendario de Asistencias Remotas" 
-                      date_start="scheduled_datetime" 
-                      date_stop="scheduled_datetime"
-                      color="priority"
-                      mode="month"
-                      quick_create="False">
-                <field name="secuencia"/>
-                <field name="equipment_id"/>
-                <field name="partner_id"/>
-                <field name="contact_name"/>
-                <field name="technician_id"/>
-                <field name="assistance_type"/>
-                <field name="state"/>
-                <field name="priority"/>
-            </calendar>
-        </field>
-    </record>
-
-    <!-- Vista Pivot -->
-    <record id="view_remote_assistance_request_pivot" model="ir.ui.view">
-        <field name="name">remote.assistance.request.pivot</field>
-        <field name="model">remote.assistance.request</field>
-        <field name="arch" type="xml">
-            <pivot string="Análisis de Solicitudes de Asistencia Remota">
-                <field name="technician_id" type="row"/>
-                <field name="state" type="col"/>
-                <field name="assistance_type" type="row"/>
-                <field name="priority" type="row"/>
-                <field name="actual_duration" type="measure"/>
-                <field name="estimated_cost" type="measure"/>
-                <field name="actual_cost" type="measure"/>
-            </pivot>
-        </field>
-    </record>
-
-    <!-- Vista Graph -->
-    <record id="view_remote_assistance_request_graph" model="ir.ui.view">
-        <field name="name">remote.assistance.request.graph</field>
-        <field name="model">remote.assistance.request</field>
-        <field name="arch" type="xml">
-            <graph string="Estadísticas de Asistencias Remotas" type="bar">
-                <field name="state" type="row"/>
-                <field name="assistance_type" type="row"/>
-                <field name="technician_id" type="row"/>
-            </graph>
-        </field>
-    </record>
-
+   
    
 </odoo>

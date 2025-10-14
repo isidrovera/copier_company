@@ -395,58 +395,7 @@
     </field>
 </record>
 
-    <!-- Vista Calendar -->
-    <record id="view_toner_request_calendar" model="ir.ui.view">
-        <field name="name">toner.request.calendar</field>
-        <field name="model">toner.request</field>
-        <field name="arch" type="xml">
-            <calendar string="Calendario de Solicitudes de Toner" 
-                      date_start="request_date" 
-                      color="urgency"
-                      mode="month"
-                      quick_create="False">
-                <field name="secuencia"/>
-                <field name="equipment_id"/>
-                <field name="partner_id"/>
-                <field name="client_name"/>
-                <field name="toner_type"/>
-                <field name="quantity"/>
-                <field name="responsible_id"/>
-                <field name="state"/>
-                <field name="urgency"/>
-            </calendar>
-        </field>
-    </record>
+   
 
-    <!-- Vista Pivot -->
-    <record id="view_toner_request_pivot" model="ir.ui.view">
-        <field name="name">toner.request.pivot</field>
-        <field name="model">toner.request</field>
-        <field name="arch" type="xml">
-            <pivot string="Análisis de Solicitudes de Toner">
-                <field name="responsible_id" type="row"/>
-                <field name="state" type="col"/>
-                <field name="toner_type" type="row"/>
-                <field name="urgency" type="row"/>
-                <field name="quantity" type="measure"/>
-                <field name="estimated_cost" type="measure"/>
-                <field name="actual_cost" type="measure"/>
-            </pivot>
-        </field>
-    </record>
-
-    <!-- Vista Graph -->
-    <record id="view_toner_request_graph" model="ir.ui.view">
-        <field name="name">toner.request.graph</field>
-        <field name="model">toner.request</field>
-        <field name="arch" type="xml">
-            <graph string="Estadísticas de Solicitudes de Toner" type="bar">
-                <field name="state" type="row"/>
-                <field name="toner_type" type="row"/>
-                <field name="urgency" type="row"/>
-                <field name="quantity" type="measure"/>
-            </graph>
-        </field>
-    </record> 
-
+   
 </odoo>
