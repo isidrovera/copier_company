@@ -109,13 +109,8 @@
                 <field name="machine_id" string="Máquina"/>
                 <field name="phone_number" string="Teléfono"/>
                 
-                <filter string="Pendientes" name="pending" 
-                        domain="[('status', '=', 'pending')]"/>
-                <filter string="Enviadas" name="sent" 
-                        domain="[('status', '=', 'sent')]"/>
-                <filter string="Fallidas" name="failed" 
-                        domain="[('status', '=', 'failed')]"/>
                 
+           
                 <separator/>
                 <filter string="Nuevo Stock" name="new_stock" 
                         domain="[('alert_type', '=', 'new_stock')]"/>
