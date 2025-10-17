@@ -96,7 +96,7 @@ class CopierCompanyPortal(CustomerPortal):
             
             # Configurar ordenamiento
             searchbar_sortings = {
-                'date': {'label': _('Fecha'), 'order': 'create_date desc'},
+                
                 'name': {'label': _('Máquina'), 'order': 'name'},
                 'estado': {'label': _('Estado'), 'order': 'estado_renovacion'},
             }

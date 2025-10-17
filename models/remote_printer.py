@@ -15,7 +15,7 @@ class RemoteAssistanceRequest(models.Model):
     _name = 'remote.assistance.request'
     _description = 'Solicitudes de Asistencia Remota'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    _order = 'create_date desc'
+    
     _rec_name = 'display_name'
 
     # --------- Identidad / Display ----------

@@ -10,7 +10,7 @@ class CopierQuotation(models.Model):
     _name = 'copier.quotation'
     _description = 'Cotización de Alquiler de Equipos'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    _order = 'create_date desc'
+    
 
     # Información básica
     name = fields.Char('Número de Cotización', default='New', copy=False, required=True, readonly=True)

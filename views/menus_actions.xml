@@ -170,20 +170,21 @@
     </record>
 
     <record id="action_copier_whatsapp_alert_pending" model="ir.actions.act_window">
-        <field name="name">Alertas Pendientes</field>
-        <field name="res_model">copier.whatsapp.alert</field>
-        <field name="view_mode">list,form</field>
-        <field name="domain">[('status', '=', 'pending')]</field>
-        <field name="context">{}</field>
-    </record>
-
+    <field name="name">Alertas Pendientes</field>
+    <field name="res_model">copier.whatsapp.alert</field>
+    <field name="view_mode">list,form</field>
+    <!-- antes: [('status', '=', 'pending')] -->
+    <field name="domain">[('state', '=', 'pending')]</field>
+    <field name="context">{}</field>
+</record>
     <record id="action_copier_whatsapp_alert_failed" model="ir.actions.act_window">
-        <field name="name">Alertas Fallidas</field>
-        <field name="res_model">copier.whatsapp.alert</field>
-        <field name="view_mode">list,form</field>
-        <field name="domain">[('status', '=', 'failed')]</field>
-        <field name="context">{}</field>
-    </record>
+    <field name="name">Alertas Fallidas</field>
+    <field name="res_model">copier.whatsapp.alert</field>
+    <field name="view_mode">list,form</field>
+    <!-- antes: [('status', '=', 'failed')] -->
+    <field name="domain">[('state', '=', 'failed')]</field>
+    <field name="context">{}</field>
+</record>
 
     <!-- Acciones pCloud -->
     <record id="action_pcloud_folder_file" model="ir.actions.act_window">

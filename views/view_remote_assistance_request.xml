@@ -5,7 +5,7 @@
         <field name="name">remote.assistance.request.tree</field>
         <field name="model">remote.assistance.request</field>
         <field name="arch" type="xml">
-            <list string="Solicitudes de Asistencia Remota" default_order="create_date desc" 
+            <list string="Solicitudes de Asistencia Remota"  
                   decoration-info="state == 'pending'" 
                   decoration-warning="state == 'scheduled'" 
                   decoration-success="state == 'completed'" 

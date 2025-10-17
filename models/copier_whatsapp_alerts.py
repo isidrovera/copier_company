@@ -10,7 +10,7 @@ _logger = logging.getLogger(__name__)
 class CopierWhatsappAlert(models.Model):
     _name = 'copier.whatsapp.alert'
     _description = 'Gestión de Alertas WhatsApp para Stock de Máquinas'
-    _order = 'create_date desc'
+    
 
     # Información básica
     partner_id = fields.Many2one(
