@@ -972,33 +972,33 @@ class CopierCompanyPortal(CustomerPortal):
     def _send_technical_notification(self, assistance_request):
         """Envía notificación por email para nueva solicitud de asistencia remota"""
         _logger.info("=== INICIANDO _send_technical_notification para solicitud %s ===", assistance_request.secuencia)
-        
         try:
-            # Emails del equipo técnico
-            technical_emails = [
-                'soporte@copiercompanysac.com',
-                'tecnico@copiercompanysac.com',
-                'administracion@copiercompanysac.com'
-            ]
-            
-            # Buscar el servidor de correo Outlook configurado
-            mail_server = request.env['ir.mail_server'].sudo().search([
-                ('name', '=', 'Outlook')
-            ], limit=1)
-            
+            # 1) Destinatarios: primero por grupo, si no hay usar lista fija
+            technical_emails = []
+            try:
+                tech_group = request.env.ref('copier_company.group_technical_support', False)
+                if tech_group and tech_group.users:
+                    technical_emails = [u.email for u in tech_group.users if u.email]
+            except Exception:
+                _logger.info("Grupo técnico no encontrado; usando fallback.")
+            if not technical_emails:
+                technical_emails = [
+                    'soporte@copiercompanysac.com',
+                    'tecnico@copiercompanysac.com',
+                    'administracion@copiercompanysac.com',
+                ]
+
+            # 2) Servidor de correo: Outlook con fallback
+            mail_server = request.env['ir.mail_server'].sudo().search([('name', '=', 'Outlook')], limit=1)
             if not mail_server:
-                _logger.error("No se encontró el servidor de correo 'Outlook'")
-                # Buscar cualquier servidor de correo disponible como fallback
+                _logger.error("No se encontró el servidor de correo 'Outlook'. Intentando fallback…")
                 mail_server = request.env['ir.mail_server'].sudo().search([], limit=1)
-                if mail_server:
-                    _logger.info("Usando servidor de correo fallback: %s", mail_server.name)
-                else:
+                if not mail_server:
                     _logger.error("No hay servidores de correo configurados")
                     return False
-            else:
-                _logger.info("Usando servidor de correo: %s (ID: %s)", mail_server.name, mail_server.id)
-            
-            # Mapeo de tipos de asistencia
+            _logger.info("Usando servidor de correo: %s (ID: %s)", mail_server.name, mail_server.id)
+
+            # 3) Mapeos legibles
             assistance_types = {
                 'general': 'Asistencia General',
                 'scanner_email': 'Configuración Escáner por Email',
@@ -1009,32 +1009,44 @@ class CopierCompanyPortal(CustomerPortal):
                 'maintenance': 'Mantenimiento Preventivo',
                 'other': 'Otro'
             }
-            
-            priority_names = {
-                'low': 'Baja',
-                'medium': 'Media',
-                'high': 'Alta',
-                'urgent': 'Urgente'
-            }
-            
-            priority_icons = {
-                'low': '🟢',
-                'medium': '🟡', 
-                'high': '🟠',
-                'urgent': '🔴'
-            }
-            
-            # Preparar datos del equipo
+            priority_names = {'low': 'Baja', 'medium': 'Media', 'high': 'Alta', 'urgent': 'Urgente'}
+            priority_icons = {'low': '🟢', 'medium': '🟡', 'high': '🟠', 'urgent': '🔴'}
+
             equipment = assistance_request.equipment_id
-            
+            base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url') or ''
+
+            # 4) Datos de acceso (passwords enmascaradas)
+            def mask(val):
+                return '●' * len(val) if val else ''
+            access_rows = []
+            if assistance_request.anydesk_id:
+                access_rows.append(f"<tr><td>AnyDesk ID</td><td>{assistance_request.anydesk_id}</td></tr>")
+            if assistance_request.username:
+                access_rows.append(f"<tr><td>Usuario del Equipo</td><td>{assistance_request.username}</td></tr>")
+            if assistance_request.user_password:
+                access_rows.append(f"<tr><td>Contraseña</td><td>{mask(assistance_request.user_password)}</td></tr>")
+            if assistance_request.scanner_email:
+                access_rows.append(f"<tr><td>Email del Escáner</td><td>{assistance_request.scanner_email}</td></tr>")
+            if assistance_request.scanner_password:
+                access_rows.append(f"<tr><td>Clave Email Escáner</td><td>{mask(assistance_request.scanner_password)}</td></tr>")
+            access_table = ("<table border='1' style='border-collapse:collapse;width:100%'>"
+                            "<tr style='background:#f0f0f0'><th style='text-align:left;padding:8px'>Dato</th>"
+                            "<th style='text-align:left;padding:8px'>Información</th></tr>"
+                            + "".join([r.replace("<td>", "<td style='padding:8px;border:1px solid #ddd;'>")
+                                        .replace("<tr>", "<tr style='border:1px solid #ddd;'>") for r in access_rows])
+                            + "</table>") if access_rows else "<p>No se proporcionaron datos de acceso específicos.</p>"
+
+            # 5) Cuerpo del correo (combina lo mejor de ambos)
             email_body = f"""
             <h2>🛠️ Nueva Solicitud de Asistencia Remota</h2>
-            
+
             <h3>📋 Información de la Solicitud</h3>
             <p><strong>Número:</strong> {assistance_request.secuencia}</p>
             <p><strong>Fecha:</strong> {assistance_request.request_date.strftime('%d/%m/%Y %H:%M')}</p>
-            <p><strong>Prioridad:</strong> {priority_icons.get(assistance_request.priority, '⚪')} {priority_names.get(assistance_request.priority, 'Media')}</p>
-            
+            <p><strong>Tipo:</strong> {assistance_types.get(assistance_request.assistance_type, 'General')}</p>
+            <p><strong>Prioridad:</strong> {priority_icons.get(assistance_request.priority, '⚪')}
+                {priority_names.get(assistance_request.priority, 'Media')}</p>
+
             <h3>🖨️ Información del Equipo</h3>
             <p><strong>Equipo:</strong> {equipment.name.name if equipment.name else 'Sin nombre'}</p>
             <p><strong>Serie:</strong> {equipment.serie_id or 'Sin serie'}</p>
@@ -1044,193 +1056,59 @@ class CopierCompanyPortal(CustomerPortal):
             <p><strong>Ubicación:</strong> {equipment.ubicacion or 'Sin ubicación'}</p>
             <p><strong>Sede:</strong> {equipment.sede or 'Sin sede'}</p>
             <p><strong>IP:</strong> {equipment.ip_id or 'Sin IP'}</p>
-            
+
             <h3>👤 Información del Contacto</h3>
             <p><strong>Nombre:</strong> {assistance_request.contact_name}</p>
             <p><strong>Email:</strong> {assistance_request.contact_email}</p>
             <p><strong>Teléfono:</strong> {assistance_request.contact_phone or 'No proporcionado'}</p>
-            
-            <h3>🛠️ Detalles de la Asistencia</h3>
-            <table border="1" style="border-collapse: collapse; width: 100%; margin: 10px 0;">
-                <tr style="background-color: #f0f0f0;">
-                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Detalle</th>
-                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Información</th>
-                </tr>
-                <tr>
-                    <td style="padding: 8px; border: 1px solid #ddd;">Tipo de Asistencia</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">{assistance_types.get(assistance_request.assistance_type, 'Desconocido')}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px; border: 1px solid #ddd;">Prioridad</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">{priority_icons.get(assistance_request.priority, '⚪')} {priority_names.get(assistance_request.priority, 'Media')}</td>
-                </tr>
-                {f'<tr><td style="padding: 8px; border: 1px solid #ddd;">AnyDesk ID</td><td style="padding: 8px; border: 1px solid #ddd;">{assistance_request.anydesk_id}</td></tr>' if assistance_request.anydesk_id else ''}
-                {f'<tr><td style="padding: 8px; border: 1px solid #ddd;">Usuario del Equipo</td><td style="padding: 8px; border: 1px solid #ddd;">{assistance_request.username}</td></tr>' if assistance_request.username else ''}
-                {f'<tr><td style="padding: 8px; border: 1px solid #ddd;">Email del Escáner</td><td style="padding: 8px; border: 1px solid #ddd;">{assistance_request.scanner_email}</td></tr>' if assistance_request.scanner_email else ''}
-            </table>
-            
+
             <h3>🔍 Descripción del Problema</h3>
-            <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #007bff; margin: 10px 0;">
-                <p style="margin: 0;">{assistance_request.problem_description}</p>
+            <div style="background:#f9f9f9;padding:15px;border-left:4px solid #007bff;margin:10px 0;">
+                <p style="margin:0;">{(assistance_request.problem_description or '').replace(chr(10), '<br/>')}</p>
             </div>
-            
-            <h3>⚡ Acciones Sugeridas</h3>
-            <ul>
-                <li><a href="{request.env['ir.config_parameter'].sudo().get_param('web.base.url')}/web#id={assistance_request.id}&model=remote.assistance.request&view_type=form">Ver Solicitud en el Sistema</a></li>
-                <li>Contactar al cliente para coordinar la sesión de asistencia remota</li>
-                <li>Verificar la disponibilidad de acceso remoto (AnyDesk, TeamViewer, etc.)</li>
-                <li>Programar la fecha y hora de la asistencia</li>
-                <li>Preparar las herramientas necesarias según el tipo de problema</li>
-                <li>Actualizar el estado de la solicitud en el sistema</li>
-            </ul>
-            
-            <hr/>
-            <p><small>Esta solicitud fue generada automáticamente desde el portal de equipos de Copier Company.</small></p>
-            """
-            
-            # Enviar email a cada persona del equipo técnico
-            for email in technical_emails:
-                if email:
-                    try:
-                        mail_values = {
-                            'subject': f'🛠️ Nueva Solicitud de Asistencia Remota - {assistance_request.secuencia} - {equipment.name.name if equipment.name else "Equipo"}',
-                            'email_to': email,
-                            'email_from': 'info@copiercompanysac.com',
-                            'body_html': email_body,
-                            'auto_delete': False,
-                            'mail_server_id': mail_server.id,  # ✅ USAR SERVIDOR OUTLOOK
-                        }
-                        
-                        mail = request.env['mail.mail'].sudo().create(mail_values)
-                        mail.send()
-                        _logger.info("Notificación de asistencia remota enviada a: %s usando servidor: %s", 
-                                email, mail_server.name)
-                        
-                    except Exception as e:
-                        _logger.error("Error enviando notificación de asistencia remota a %s: %s", email, str(e))
-            
-            _logger.info("Proceso de notificación de asistencia remota completado")
-            return True
-            
-        except Exception as e:
-            _logger.exception("Error en _send_technical_notification: %s", str(e))
-            return False
-    def _send_technical_notification(self, assistance_request):
-        """Envía notificación por email al equipo técnico"""
-        _logger.info("=== INICIANDO _send_technical_notification para solicitud %s ===", assistance_request.secuencia)
-        
-        try:
-            # Buscar emails del equipo técnico (configurar según tu setup)
-            technical_emails = []
-            
-            # Opción 1: Buscar grupo específico de técnicos
-            try:
-                tech_group = request.env.ref('copier_company.group_technical_support', False)
-                if tech_group and tech_group.users:
-                    technical_emails.extend([user.email for user in tech_group.users if user.email])
-                    _logger.info("Emails encontrados del grupo técnico: %s", technical_emails)
-            except Exception:
-                _logger.info("Grupo técnico no encontrado, usando emails por defecto")
-            
-            # Opción 2: Emails por defecto si no hay grupo configurado
-            if not technical_emails:
-                technical_emails = [
-                    'soporte@copiercompanysac.com',
-                    'tecnico@copiercompanysac.com'
-                ]
-                _logger.info("Usando emails técnicos por defecto: %s", technical_emails)
-            
-            # Preparar datos para el email
-            equipment = assistance_request.equipment_id
-            assistance_type_name = dict(assistance_request._fields['assistance_type'].selection).get(
-                assistance_request.assistance_type, 'General'
-            )
-            priority_name = dict(assistance_request._fields['priority'].selection).get(
-                assistance_request.priority, 'Media'
-            )
-            
-            # Preparar datos de acceso si están disponibles
-            access_info = []
-            if assistance_request.anydesk_id:
-                access_info.append(f"• AnyDesk ID: {assistance_request.anydesk_id}")
-            if assistance_request.username:
-                access_info.append(f"• Usuario: {assistance_request.username}")
-            if assistance_request.user_password:
-                access_info.append(f"• Contraseña: {assistance_request.user_password}")
-            if assistance_request.scanner_email:
-                access_info.append(f"• Email Escáner: {assistance_request.scanner_email}")
-            if assistance_request.scanner_password:
-                access_info.append(f"• Clave Email Escáner: {assistance_request.scanner_password}")
-            
-            access_info_text = "<br/>".join(access_info) if access_info else "No se proporcionaron datos de acceso específicos."
-            
-            # Crear el cuerpo del email
-            email_body = f"""
-            <h2>🖥️ Nueva Solicitud de Asistencia Remota</h2>
-            
-            <h3>📋 Información de la Solicitud</h3>
-            <p><strong>Número:</strong> {assistance_request.secuencia}</p>
-            <p><strong>Fecha:</strong> {assistance_request.request_date.strftime('%d/%m/%Y %H:%M')}</p>
-            <p><strong>Tipo:</strong> {assistance_type_name}</p>
-            <p><strong>Prioridad:</strong> {priority_name}</p>
-            
-            <h3>🖨️ Información del Equipo</h3>
-            <p><strong>Equipo:</strong> {equipment.name.name if equipment.name else 'Sin nombre'}</p>
-            <p><strong>Serie:</strong> {equipment.serie_id or 'Sin serie'}</p>
-            <p><strong>Marca:</strong> {equipment.marca_id.name if equipment.marca_id else 'Sin marca'}</p>
-            <p><strong>Tipo:</strong> {'Color' if equipment.tipo == 'color' else 'Blanco y Negro'}</p>
-            <p><strong>Cliente:</strong> {equipment.cliente_id.name if equipment.cliente_id else 'Sin cliente'}</p>
-            <p><strong>Ubicación:</strong> {equipment.ubicacion or 'Sin ubicación'}</p>
-            <p><strong>Sede:</strong> {equipment.sede or 'Sin sede'}</p>
-            <p><strong>IP:</strong> {equipment.ip_id or 'Sin IP'}</p>
-            
-            <h3>👤 Información del Contacto</h3>
-            <p><strong>Nombre:</strong> {assistance_request.contact_name}</p>
-            <p><strong>Email:</strong> {assistance_request.contact_email}</p>
-            <p><strong>Teléfono:</strong> {assistance_request.contact_phone or 'No proporcionado'}</p>
-            
-            <h3>🔧 Descripción del Problema</h3>
-            <p>{assistance_request.problem_description.replace(chr(10), '<br/>')}</p>
-            
+
             <h3>🔑 Datos de Acceso Remoto</h3>
-            <p>{access_info_text}</p>
-            
-            <h3>⚡ Acciones Sugeridas</h3>
+            {access_table}
+
+            <h3>⚡ Acciones</h3>
             <ul>
-                <li>Revisar la solicitud en el sistema: <a href="{request.env['ir.config_parameter'].sudo().get_param('web.base.url')}/web#id={assistance_request.id}&model=remote.assistance.request&view_type=form">Ver Solicitud</a></li>
-                <li>Contactar al cliente para coordinar la asistencia</li>
-                <li>Programar la sesión de asistencia remota</li>
+                <li><a href="{base_url}/web#id={assistance_request.id}&model=remote.assistance.request&view_type=form">Ver Solicitud en el Sistema</a></li>
+                <li>Contactar al cliente para coordinar la sesión</li>
+                <li>Programar fecha y hora de la asistencia</li>
                 <li>Actualizar el estado de la solicitud</li>
             </ul>
-            
+
             <hr/>
             <p><small>Este email fue generado automáticamente desde el portal de equipos de Copier Company.</small></p>
             """
-            
-            # Enviar email a cada técnico
+
+            # 6) Enviar
+            subject = f"🛠️ Nueva Solicitud de Asistencia Remota - {assistance_request.secuencia} - " \
+                    f"{equipment.name.name if equipment.name else 'Equipo'}"
             for email in technical_emails:
-                if email:
-                    try:
-                        mail_values = {
-                            'subject': f'🖥️ Nueva Asistencia Remota - {assistance_request.secuencia} - {equipment.name.name if equipment.name else "Equipo"}',
-                            'email_to': email,
-                            'email_from': 'noreply@copiercompanysac.com',
-                            'body_html': email_body,
-                            'auto_delete': False,
-                        }
-                        
-                        mail = request.env['mail.mail'].sudo().create(mail_values)
-                        mail.send()
-                        _logger.info("Email de notificación enviado a: %s", email)
-                        
-                    except Exception as e:
-                        _logger.error("Error enviando email a %s: %s", email, str(e))
-            
-            _logger.info("Proceso de notificación técnica completado")
-            
+                if not email:
+                    continue
+                try:
+                    mail_values = {
+                        'subject': subject,
+                        'email_to': email,
+                        'email_from': 'info@copiercompanysac.com',
+                        'body_html': email_body,
+                        'auto_delete': False,
+                        'mail_server_id': mail_server.id,
+                    }
+                    mail = request.env['mail.mail'].sudo().create(mail_values)
+                    mail.send()
+                    _logger.info("Notificación de asistencia remota enviada a: %s con servidor: %s", email, mail_server.name)
+                except Exception as e:
+                    _logger.error("Error enviando notificación a %s: %s", email, str(e))
+
+            _logger.info("Proceso de notificación de asistencia remota completado")
+            return True
+
         except Exception as e:
             _logger.exception("Error en _send_technical_notification: %s", str(e))
-            raise
+            return False
 
     
     @http.route(['/public/request_toner'], type='http', auth="public", website=True)

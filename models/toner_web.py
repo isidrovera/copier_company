@@ -16,7 +16,7 @@ class TonerRequest(models.Model):
     _name = 'toner.request'
     _description = 'Solicitudes de Toner'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    _order = 'request_date desc'
+    _order = 'create_date desc'
     _rec_name = 'display_name'
 
     # Campo computed para el nombre del registro
