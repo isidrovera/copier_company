@@ -11,7 +11,7 @@ class CopierCounter(models.Model):
     _name = 'copier.counter'
     _description = 'Control de Contadores de Máquinas'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    _order = 'fecha_facturacion desc, maquina_id'
+   
 
     name = fields.Char('Referencia', default='New', copy=False, readonly=True)
     

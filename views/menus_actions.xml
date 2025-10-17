@@ -38,7 +38,7 @@
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">copier.counter</field>
         <field name="view_mode">list,kanban,form</field>
-        <field name="context">{'search_default_current_month': 1}</field>
+        
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Registra el primer contador!
@@ -72,10 +72,7 @@
                 a todas las sesiones de soporte técnico remoto para tus equipos.
             </p>
         </field>
-        <field name="context">{
-            'search_default_pending': 1,
-            'search_default_my_requests': 1
-        }</field>
+       
     </record>
 
     <!-- Acción para Solicitudes de Toner -->
@@ -93,10 +90,7 @@
                 a todas las solicitudes de consumibles para tus equipos.
             </p>
         </field>
-        <field name="context">{
-            'search_default_pending': 1,
-            'search_default_my_requests': 1
-        }</field>
+        
     </record>
 
     <!-- Acción para Cotizaciones -->
@@ -131,10 +125,7 @@
                 las lecturas mensuales enviadas por tus clientes para la facturación.
             </p>
         </field>
-        <field name="context">{
-            'search_default_pending': 1,
-            'search_default_last_30_days': 1
-        }</field>
+        
     </record>
 
     <!-- Acción para Duraciones de Alquiler -->
@@ -149,10 +140,7 @@
         <field name="name">Alertas WhatsApp</field>
         <field name="res_model">copier.whatsapp.alert</field>
         <field name="view_mode">list,kanban,form</field>
-        <field name="context">{
-            'search_default_pending': 1,
-            'search_default_today': 1
-        }</field>
+        
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 ¡No hay alertas WhatsApp!
@@ -173,17 +161,13 @@
     <field name="name">Alertas Pendientes</field>
     <field name="res_model">copier.whatsapp.alert</field>
     <field name="view_mode">list,form</field>
-    <!-- antes: [('status', '=', 'pending')] -->
-    <field name="domain">[('state', '=', 'pending')]</field>
-    <field name="context">{}</field>
+    
 </record>
     <record id="action_copier_whatsapp_alert_failed" model="ir.actions.act_window">
     <field name="name">Alertas Fallidas</field>
     <field name="res_model">copier.whatsapp.alert</field>
     <field name="view_mode">list,form</field>
-    <!-- antes: [('status', '=', 'failed')] -->
-    <field name="domain">[('state', '=', 'failed')]</field>
-    <field name="context">{}</field>
+    
 </record>
 
     <!-- Acciones pCloud -->

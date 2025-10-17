@@ -1097,7 +1097,7 @@ class CopierCompany(models.Model):
 class CopierRenewalHistory(models.Model):
     _name = 'copier.renewal.history'
     _description = 'Historial de Renovaciones de Contratos'
-    _order = 'fecha_renovacion desc'
+ 
 
     copier_id = fields.Many2one('copier.company', string='Máquina', required=True, ondelete='cascade')
     fecha_renovacion = fields.Date(string='Fecha de Renovación', default=fields.Date.today)

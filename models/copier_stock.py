@@ -7,7 +7,7 @@ from datetime import timedelta
 class CopierChecklistItem(models.Model):
     _name = 'copier.checklist.item'
     _description = 'Items de Checklist para Fotocopiadoras'
-    _order = 'sequence, id'
+
 
     name = fields.Char(string='Nombre del Item', required=True)
     sequence = fields.Integer(string='Secuencia', default=10)
@@ -28,7 +28,7 @@ class CopierChecklistItem(models.Model):
 class CopierStock(models.Model):
     _name = 'copier.stock'
     _description = 'Stock de Máquinas (Fotocopiadoras de 2ª mano)'
-    _order = 'name'
+    
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     # Secuencia automática
@@ -360,7 +360,7 @@ class CopierStock(models.Model):
 class CopierChecklistLine(models.Model):
     _name = 'copier.checklist.line'
     _description = 'Línea de Checklist para cada Máquina'
-    _order = 'sequence, id'
+
 
     machine_id = fields.Many2one('copier.stock', string='Máquina', ondelete='cascade', required=True)
     item_id = fields.Many2one('copier.checklist.item', string='Item')

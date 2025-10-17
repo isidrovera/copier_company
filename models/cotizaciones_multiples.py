@@ -239,7 +239,7 @@ class CopierQuotationLine(models.Model):
     """Líneas de equipos en la cotización"""
     _name = 'copier.quotation.line'
     _description = 'Línea de Equipo en Cotización'
-    _order = 'quotation_id, sequence'
+
 
     quotation_id = fields.Many2one('copier.quotation', string='Cotización', required=True, ondelete='cascade')
     sequence = fields.Integer('Secuencia', default=10)
@@ -311,7 +311,7 @@ class CopierPaymentMode(models.Model):
     """Modalidades de pago disponibles"""
     _name = 'copier.payment.mode'
     _description = 'Modalidades de Pago para Alquiler'
-    _order = 'frecuencia_meses'
+    
 
     name = fields.Char('Nombre', required=True)
     descripcion = fields.Text('Descripción')

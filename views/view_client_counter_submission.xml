@@ -5,7 +5,7 @@
         <field name="name">client.counter.submission.list</field>
         <field name="model">client.counter.submission</field>
         <field name="arch" type="xml">
-            <list string="Contadores de Clientes" default_order="submission_date desc" 
+            <list string="Contadores de Clientes"  
                   decoration-info="state == 'pending'" 
                   decoration-warning="state == 'reviewed'" 
                   decoration-primary="state == 'approved'"

@@ -16,7 +16,7 @@ class ClientCounterSubmission(models.Model):
     _name = 'client.counter.submission'
     _description = 'Contadores Enviados por Clientes'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    _order = 'submission_date desc'
+ 
     _rec_name = 'display_name'
 
     # Campo computed para el nombre del registro
