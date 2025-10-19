@@ -331,6 +331,107 @@
         </search>
     </field>
 </record>
+ <!-- Vista Search para copier.counter -->
+    <record id="copier_counter_view_search" model="ir.ui.view">
+        <field name="name">copier.counter.view.search</field>
+        <field name="model">copier.counter</field>
+        <field name="arch" type="xml">
+            <search>
+                <!-- Campos de búsqueda -->
+                <field name="name" string="Referencia"/>
+                <field name="cliente_id" string="Cliente"/>
+                <field name="maquina_id" string="Máquina"/>
+                <field name="serie" string="Serie"/>
+                <field name="mes_facturacion" string="Mes de Facturación"/>
+                <field name="fecha" string="Fecha de Lectura"/>
+                <field name="fecha_facturacion" string="Fecha de Facturación"/>
+                
+                <separator/>
+                
+                <!-- Filtros por Estado -->
+                <filter name="draft" string="Borrador"
+                        domain="[('state', '=', 'draft')]"/>
+                <filter name="confirmed" string="Confirmado"
+                        domain="[('state', '=', 'confirmed')]"/>
+                <filter name="invoiced" string="Facturado"
+                        domain="[('state', '=', 'invoiced')]"/>
+                <filter name="cancelled" string="Cancelado"
+                        domain="[('state', '=', 'cancelled')]"/>
+                
+                <separator/>
+                
+                <!-- Filtros por Tipo de Máquina -->
+                <filter name="maquinas_monocromas" string="Máquinas Monocromas"
+                        domain="[('maquina_id.tipo', '=', 'monocroma')]"/>
+                <filter name="maquinas_color" string="Máquinas Color"
+                        domain="[('maquina_id.tipo', '=', 'color')]"/>
+                
+                <separator/>
+                
+                <!-- Filtros por Fecha -->
+                <filter name="mes_actual" string="Mes Actual"
+                        domain="[('fecha', '&gt;=', (context_today() - relativedelta(day=1)).strftime('%Y-%m-%d')),
+                                ('fecha', '&lt;=', (context_today() + relativedelta(day=31)).strftime('%Y-%m-%d'))]"/>
+                <filter name="mes_anterior" string="Mes Anterior"
+                        domain="[('fecha', '&gt;=', (context_today() - relativedelta(months=1, day=1)).strftime('%Y-%m-%d')),
+                                ('fecha', '&lt;=', (context_today() - relativedelta(months=1, day=31)).strftime('%Y-%m-%d'))]"/>
+                <filter name="ultimos_3_meses" string="Últimos 3 Meses"
+                        domain="[('fecha', '&gt;=', (context_today() - relativedelta(months=3)).strftime('%Y-%m-%d'))]"/>
+                
+                <separator/>
+                
+                <!-- Filtros por Copias -->
+                <filter name="con_exceso_bn" string="Con Exceso B/N"
+                        domain="[('exceso_bn', '&gt;', 0)]"/>
+                <filter name="con_exceso_color" string="Con Exceso Color"
+                        domain="[('exceso_color', '&gt;', 0)]"/>
+                <filter name="sin_copias_bn" string="Sin Copias B/N"
+                        domain="[('total_copias_bn', '=', 0)]"/>
+                <filter name="sin_copias_color" string="Sin Copias Color"
+                        domain="[('total_copias_color', '=', 0)]"/>
+                
+                <separator/>
+                
+                <!-- Filtros por Monto -->
+                <filter name="montos_altos" string="Montos Altos (> S/ 1000)"
+                        domain="[('total', '&gt;', 1000)]"/>
+                <filter name="montos_medios" string="Montos Medios (S/ 500 - S/ 1000)"
+                        domain="[('total', '&gt;=', 500), ('total', '&lt;=', 1000)]"/>
+                <filter name="montos_bajos" string="Montos Bajos (&lt; S/ 500)"
+                        domain="[('total', '&lt;', 500)]"/>
+                
+                <separator/>
+                
+                <!-- Filtros especiales -->
+                <filter name="pendiente_facturar" string="Pendiente de Facturar"
+                        domain="[('state', '=', 'confirmed')]"/>
+                <filter name="con_informe_usuarios" string="Con Informe por Usuarios"
+                        domain="[('informe_por_usuario', '=', True)]"/>
+                
+                <separator/>
+                
+                <!-- Agrupaciones -->
+                <group name="group_by">
+                    <filter name="group_by_cliente" string="Cliente"
+                            context="{'group_by': 'cliente_id'}"/>
+                    <filter name="group_by_maquina" string="Máquina"
+                            context="{'group_by': 'maquina_id'}"/>
+                    <filter name="group_by_estado" string="Estado"
+                            context="{'group_by': 'state'}"/>
+                    <filter name="group_by_mes_facturacion" string="Mes de Facturación"
+                            context="{'group_by': 'mes_facturacion'}"/>
+                    <filter name="group_by_fecha_lectura" string="Fecha de Lectura"
+                            context="{'group_by': 'fecha'}"/>
+                    <filter name="group_by_fecha_facturacion" string="Fecha de Facturación"
+                            context="{'group_by': 'fecha_facturacion'}"/>
+                    <filter name="group_by_currency" string="Moneda"
+                            context="{'group_by': 'currency_id'}"/>
+                    <filter name="group_by_tipo_maquina" string="Tipo de Máquina"
+                            context="{'group_by': 'maquina_id.tipo'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
 
 
 </odoo>
