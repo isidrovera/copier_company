@@ -313,24 +313,6 @@
     </field>
 </record>
     <!-- Search View -->
-<record id="view_copier_counter_search" model="ir.ui.view">
-    <field name="name">copier.counter.search</field>
-    <field name="model">copier.counter</field>
-    <field name="arch" type="xml">
-        <search>
-            <field name="name" />
-            <field name="cliente_id" />
-            <field name="serie" />
-            <field name="mes_facturacion" />
-            <filter string="Borradores" name="draft" domain="[('state','=','draft')]" />
-            <filter string="Confirmados" name="confirmed" domain="[('state','=','confirmed')]" />
-            <filter string="Facturados" name="invoiced" domain="[('state','=','invoiced')]" />
-            <filter string="Cancelados" name="cancelled" domain="[('state','=','cancelled')]" />
-            <separator />
-            
-        </search>
-    </field>
-</record>
 <record id="copier_counter_view_search" model="ir.ui.view">
         <field name="name">copier.counter.view.search</field>
         <field name="model">copier.counter</field>
@@ -390,5 +372,6 @@
             </search>
         </field>
     </record>
+
 
 </odoo>
