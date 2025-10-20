@@ -1,24 +1,61 @@
 <odoo>
   <data>
     <!-- List View -->
-    <record model="ir.ui.view" id="copier_company.list">
-      <field name="name">copier_company.list</field>
-      <field name="model">copier.company</field>
-      <field name="arch" type="xml">
-        <list>
-          <field name="secuencia"/>
-          <field name="marca_id"/>
-          <field name="name"/>
-          <field name="serie_id"/>
-          <field name="cliente_id"/>
-          <field name="sede"/>
-          <field name="ubicacion"/>
-          <field name="estado_maquina_id"/>
-          <field name="qr_code"/>
-          <button name="crear_ticket" string="Servicio" type="object" icon="fa-wrench" class="btn-primary"/>
-          <button name="generar_qr_code" string="QR" type="object" icon="fa-qrcode" class="btn-info"/>
-        </list>
-      </field>
+    <record model="ir.ui.view" id="copier_company_list_enhanced">
+        <field name="name">copier.company.list.enhanced</field>
+        <field name="model">copier.company</field>
+        <field name="arch" type="xml">
+            <list>
+                <!-- Campos siempre visibles -->
+                <field name="secuencia"/>
+                <field name="marca_id"/>
+                <field name="name"/>
+                <field name="serie_id"/>
+                <field name="cliente_id"/>
+                <field name="sede"/>
+                <field name="ubicacion"/>
+                <field name="estado_maquina_id"/>
+                
+                <!-- Campos opcionales - Facturación -->
+                <field name="tipo" optional="hide"/>
+                <field name="currency_id" optional="hide"/>
+                <field name="fecha_inicio_alquiler" optional="hide"/>
+                <field name="fecha_fin_alquiler" optional="hide"/>
+                <field name="dia_facturacion" optional="hide"/>
+                
+                <!-- Campos opcionales - Volúmenes -->
+                <field name="volumen_mensual_bn" optional="hide" string="Vol. Mensual B/N"/>
+                <field name="volumen_mensual_color" optional="hide" string="Vol. Mensual Color"/>
+                
+                <!-- Campos opcionales - Costos -->
+                <field name="costo_copia_bn" optional="hide" string="Costo B/N"/>
+                <field name="costo_copia_color" optional="hide" string="Costo Color"/>
+                
+                <!-- Campos opcionales - Totales Financieros -->
+                <field name="renta_mensual_bn" optional="hide" string="Renta B/N"/>
+                <field name="renta_mensual_color" optional="hide" string="Renta Color"/>
+                <field name="subtotal_sin_igv" optional="hide" string="Subtotal"/>
+                <field name="igv" optional="hide"/>
+                <field name="monto_igv" optional="hide" string="Monto IGV"/>
+                <field name="descuento" optional="hide"/>
+                <field name="total_facturar_mensual" optional="show" string="Total Mensual" widget="monetary"/>
+                
+                <!-- Campos opcionales - Estado -->
+                <field name="estado_renovacion" optional="hide"/>
+                <field name="duracion_alquiler_id" optional="hide" string="Duración"/>
+                
+                <!-- Campos opcionales - Productos -->
+                <field name="producto_facturable_bn_id" optional="hide" string="Producto B/N"/>
+                <field name="producto_facturable_color_id" optional="hide" string="Producto Color"/>
+                
+                <!-- Campo QR Code -->
+                <field name="qr_code" optional="hide"/>
+                
+                <!-- Botones de acción -->
+                <button name="crear_ticket" string="Servicio" type="object" icon="fa-wrench" class="btn-primary"/>
+                <button name="generar_qr_code" string="QR" type="object" icon="fa-qrcode" class="btn-info"/>
+            </list>
+        </field>
     </record>
 
     <!-- Form View -->
