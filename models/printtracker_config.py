@@ -469,6 +469,7 @@ class CopierCounter(models.Model):
     def _obtener_ultima_lectura_printtracker_v2(self, config):
         """
         SOLUCIÓN FINAL: La API requiere AMBOS parámetros page Y limit > 0
+        CORRECCIÓN: Buscar por deviceId._id en lugar de deviceKey
         """
         _logger.info("--- Iniciando obtención de medidores ---")
         _logger.info(f"Device ID buscado: {self.maquina_id.pt_device_id}")
@@ -510,11 +511,21 @@ class CopierCounter(models.Model):
                 _logger.info(f"Buscando dispositivo: {target_device_id}")
                 
                 for i, meter_data in enumerate(all_meters):
-                    device_key = meter_data.get('deviceKey')
+                    # CORRECCIÓN: La estructura correcta es deviceId._id, NO deviceKey
+                    device_info = meter_data.get('deviceId', {})
+                    device_id_actual = device_info.get('_id') if isinstance(device_info, dict) else None
                     
-                    if device_key == target_device_id:
+                    # Log de debug para el primer registro
+                    if i == 0:
+                        _logger.info(f"Estructura ejemplo página 1:")
+                        _logger.info(f"  deviceId type: {type(device_info)}")
+                        if isinstance(device_info, dict):
+                            _logger.info(f"  deviceId keys: {list(device_info.keys())}")
+                        _logger.info(f"  deviceId._id: {device_id_actual}")
+                    
+                    if device_id_actual == target_device_id:
                         _logger.info(f"🎯 MEDIDOR ENCONTRADO en posición {i+1}")
-                        _logger.info(f"Device Key: {device_key}")
+                        _logger.info(f"Device ID: {device_id_actual}")
                         _logger.info(f"Timestamp: {meter_data.get('timestamp', 'N/A')}")
                         
                         # Analizar estructura del medidor
@@ -570,8 +581,10 @@ class CopierCounter(models.Model):
                     _logger.info(f"📄 Página 2: {len(all_meters_page2)} medidores")
                     
                     for i, meter_data in enumerate(all_meters_page2):
-                        device_key = meter_data.get('deviceKey')
-                        if device_key == target_device_id:
+                        # CORRECCIÓN: Usar deviceId._id
+                        device_info = meter_data.get('deviceId', {})
+                        device_id_actual = device_info.get('_id') if isinstance(device_info, dict) else None
+                        if device_id_actual == target_device_id:
                             _logger.info(f"🎯 MEDIDOR ENCONTRADO en página 2, posición {i+1}")
                             return meter_data
                 
@@ -581,10 +594,11 @@ class CopierCounter(models.Model):
                 
                 available_devices = []
                 for i, meter in enumerate(all_meters[:10]):
-                    device_key = meter.get('deviceKey', 'N/A')
+                    device_info = meter.get('deviceId', {})
+                    device_id_actual = device_info.get('_id', 'N/A') if isinstance(device_info, dict) else 'N/A'
                     timestamp = meter.get('timestamp', 'N/A')
-                    available_devices.append(device_key)
-                    _logger.info(f"  {i+1}. {device_key} | {timestamp}")
+                    available_devices.append(device_id_actual)
+                    _logger.info(f"  {i+1}. {device_id_actual} | {timestamp}")
                 
                 return None
                 
