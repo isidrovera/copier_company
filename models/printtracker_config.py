@@ -466,10 +466,12 @@ class CopierCounter(models.Model):
                 }
             }
 
+   
     def _obtener_ultima_lectura_printtracker_v2(self, config):
         """
         Obtiene el medidor más reciente de un dispositivo específico YA MAPEADO.
-        Usa el endpoint correcto: GET /entity/{entityId}/device/{deviceId}/meter
+        Usa: GET /entity/{entityId}/device/{deviceId}/meter
+        REQUIERE: fechas de inicio y fin
         """
         _logger.info("--- Iniciando obtención de medidores ---")
         target_device_id = self.maquina_id.pt_device_id
@@ -480,23 +482,34 @@ class CopierCounter(models.Model):
             return None
         
         try:
-            # CORRECCIÓN: Usar endpoint específico del dispositivo
-            # Según documentación: GET /entity/{entityId}/device/{deviceId}/meter
+            from datetime import datetime, timedelta
+            
+            # Calcular rango de fechas: últimos 30 días
+            end_date = datetime.now()
+            start_date = end_date - timedelta(days=30)
+            
+            # Formatear fechas en ISO 8601
+            start_date_str = start_date.strftime('%Y-%m-%dT%H:%M:%S.000Z')
+            end_date_str = end_date.strftime('%Y-%m-%dT%H:%M:%S.000Z')
+            
+            # Endpoint específico del dispositivo
             url = f'{config.api_url.rstrip("/")}/entity/{config.entity_bbbb_id}/device/{target_device_id}/meter'
             headers = config.get_api_headers()
             
-            _logger.info(f"URL petición (endpoint específico): {url}")
+            _logger.info(f"URL petición: {url}")
             _logger.info(f"Headers: {headers}")
             
-            # Parámetros para obtener solo el medidor más reciente
+            # CORRECCIÓN: Agregar fechas obligatorias
             params = {
+                'startDate': start_date_str,
+                'endDate': end_date_str,
                 'sort': 'timestamp',
                 'order': 'desc',
                 'limit': 1
             }
             
-            _logger.info(f"Parámetros: {params}")
-            _logger.info("Haciendo petición HTTP al endpoint específico del dispositivo...")
+            _logger.info(f"Parámetros con fechas: {params}")
+            _logger.info("Haciendo petición HTTP...")
             
             response = requests.get(
                 url,
@@ -512,87 +525,49 @@ class CopierCounter(models.Model):
                 meters = response.json()
                 
                 if not meters or len(meters) == 0:
-                    _logger.warning(f"❌ No se encontraron medidores para el dispositivo {target_device_id}")
-                    _logger.warning("El dispositivo no tiene lecturas disponibles")
+                    _logger.warning(f"❌ No hay medidores en los últimos 30 días")
                     return None
                 
-                # Tomar el primer medidor (el más reciente por el sort)
                 meter_data = meters[0]
                 _logger.info(f"✅ MEDIDOR ENCONTRADO")
-                _logger.info(f"Device ID: {target_device_id}")
                 _logger.info(f"Timestamp: {meter_data.get('timestamp', 'N/A')}")
                 
-                # Analizar estructura del medidor
+                # Analizar estructura
                 page_counts = meter_data.get('pageCounts', {})
-                _logger.info(f"Estructura pageCounts: {list(page_counts.keys())}")
+                _logger.info(f"Estructuras disponibles: {list(page_counts.keys())}")
                 
-                default_counts = None
-                if 'default' in page_counts:
-                    default_counts = page_counts['default']
-                    _logger.info(f"✅ Usando estructura 'default'")
-                    _logger.info(f"Campos disponibles: {list(default_counts.keys())}")
-                elif 'life' in page_counts:
-                    default_counts = page_counts['life']
-                    _logger.info(f"✅ Usando estructura 'life'")
-                    _logger.info(f"Campos disponibles: {list(default_counts.keys())}")
-                else:
-                    _logger.error("❌ No se encontró estructura 'default' ni 'life'")
-                    _logger.info(f"Estructuras disponibles: {list(page_counts.keys())}")
+                default_counts = page_counts.get('default') or page_counts.get('life')
+                
+                if not default_counts:
+                    _logger.error("❌ No se encontró estructura de contadores")
                     return None
                 
-                # Extraer y logar valores específicos
-                if default_counts:
-                    total_black = self._safe_int(default_counts.get('totalBlack', {}).get('value', 0))
-                    total_color = self._safe_int(default_counts.get('totalColor', {}).get('value', 0))
-                    total_pages = self._safe_int(default_counts.get('total', {}).get('value', 0))
-                    
-                    _logger.info(f"📊 VALORES EXTRAÍDOS:")
-                    _logger.info(f"  Total páginas: {total_pages:,}")
-                    _logger.info(f"  Total B/N: {total_black:,}")
-                    _logger.info(f"  Total Color: {total_color:,}")
-                    
-                    if total_black == 0 and total_color == 0 and total_pages == 0:
-                        _logger.warning("⚠️ Todos los contadores son 0 - verificar si es correcto")
-                    else:
-                        _logger.info("✅ Valores válidos encontrados")
+                total_black = self._safe_int(default_counts.get('totalBlack', {}).get('value', 0))
+                total_color = self._safe_int(default_counts.get('totalColor', {}).get('value', 0))
+                total_pages = self._safe_int(default_counts.get('total', {}).get('value', 0))
+                
+                _logger.info(f"📊 CONTADORES:")
+                _logger.info(f"  B/N: {total_black:,}")
+                _logger.info(f"  Color: {total_color:,}")
+                _logger.info(f"  Total: {total_pages:,}")
                 
                 return meter_data
                 
             elif response.status_code == 404:
-                _logger.error(f"❌ ERROR 404: Dispositivo {target_device_id} no encontrado")
-                _logger.error("Posibles causas:")
-                _logger.error("  1. El Device ID es incorrecto")
-                _logger.error("  2. El dispositivo fue eliminado de PrintTracker")
-                _logger.error("  3. El dispositivo pertenece a otra entidad")
-                _logger.error("")
-                _logger.error("💡 SOLUCIÓN: Usar 'Mapear con PrintTracker' en la máquina")
+                _logger.error(f"❌ Dispositivo {target_device_id} no existe")
                 return None
-                
-            elif response.status_code == 401:
-                _logger.error("❌ ERROR 401: API Key inválida")
+            elif response.status_code == 400:
+                _logger.error(f"❌ Error 400: {response.text}")
                 return None
-                
-            elif response.status_code == 403:
-                _logger.error("❌ ERROR 403: Sin permisos")
-                return None
-                
             else:
-                _logger.error(f"❌ Error HTTP {response.status_code}")
-                _logger.error(f"Response: {response.text[:500]}")
+                _logger.error(f"❌ Error HTTP {response.status_code}: {response.text[:500]}")
                 return None
                 
-        except requests.exceptions.Timeout:
-            _logger.error("⏱️ Timeout en la petición")
-            return None
-        except requests.exceptions.ConnectionError:
-            _logger.error("🔌 Error de conexión a PrintTracker")
-            return None
         except Exception as e:
-            _logger.error(f"💥 Excepción en obtención de medidores: {e}")
+            _logger.error(f"💥 Error: {e}")
             import traceback
-            _logger.error(f"Traceback: {traceback.format_exc()}")
+            _logger.error(traceback.format_exc())
             return None
-
     def debug_printtracker_api_raw(self):
         """Debug directo de la API con diferentes combinaciones de parámetros"""
         try:
