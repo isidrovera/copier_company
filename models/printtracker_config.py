@@ -471,7 +471,7 @@ class CopierCounter(models.Model):
         """
         Obtiene el medidor más reciente de un dispositivo específico YA MAPEADO.
         Usa: GET /entity/{entityId}/device/{deviceId}/meter
-        REQUIERE: fechas de inicio y fin
+        Parámetros: start y end (no startDate/endDate)
         """
         _logger.info("--- Iniciando obtención de medidores ---")
         target_device_id = self.maquina_id.pt_device_id
@@ -499,10 +499,10 @@ class CopierCounter(models.Model):
             _logger.info(f"URL petición: {url}")
             _logger.info(f"Headers: {headers}")
             
-            # CORRECCIÓN: Agregar fechas obligatorias
+            # CORRECCIÓN: Usar 'start' y 'end' en lugar de 'startDate' y 'endDate'
             params = {
-                'startDate': start_date_str,
-                'endDate': end_date_str,
+                'start': start_date_str,  # ← Cambio aquí
+                'end': end_date_str,      # ← Cambio aquí
                 'sort': 'timestamp',
                 'order': 'desc',
                 'limit': 1
