@@ -1,11 +1,14 @@
 <odoo>
   <data>
-    <!-- List View -->
     <record model="ir.ui.view" id="copier_company_list_enhanced">
         <field name="name">copier.company.list.enhanced</field>
         <field name="model">copier.company</field>
         <field name="arch" type="xml">
-            <list>
+            <list string="Máquinas"
+                  decoration-success="estado_maquina_id and estado_maquina_id.name == 'Alquilada'"
+                  decoration-info="estado_maquina_id and estado_maquina_id.name == 'Disponible'"
+                  decoration-warning="estado_maquina_id and estado_maquina_id.name == 'En Mantenimiento'"
+                  decoration-danger="estado_maquina_id and estado_maquina_id.name == 'Fuera de Servicio'">
                 <!-- Campos siempre visibles -->
                 <field name="secuencia"/>
                 <field name="marca_id"/>
@@ -24,21 +27,21 @@
                 <field name="dia_facturacion" optional="hide"/>
                 
                 <!-- Campos opcionales - Volúmenes -->
-                <field name="volumen_mensual_bn" optional="hide" string="Vol. Mensual B/N"/>
-                <field name="volumen_mensual_color" optional="hide" string="Vol. Mensual Color"/>
+                <field name="volumen_mensual_bn" optional="hide" string="Vol. Mensual B/N" sum="Total Vol. B/N"/>
+                <field name="volumen_mensual_color" optional="hide" string="Vol. Mensual Color" sum="Total Vol. Color"/>
                 
                 <!-- Campos opcionales - Costos -->
-                <field name="costo_copia_bn" optional="hide" string="Costo B/N"/>
-                <field name="costo_copia_color" optional="hide" string="Costo Color"/>
+                <field name="costo_copia_bn" optional="hide" string="Costo B/N" avg="Promedio Costo B/N"/>
+                <field name="costo_copia_color" optional="hide" string="Costo Color" avg="Promedio Costo Color"/>
                 
                 <!-- Campos opcionales - Totales Financieros -->
-                <field name="renta_mensual_bn" optional="hide" string="Renta B/N"/>
-                <field name="renta_mensual_color" optional="hide" string="Renta Color"/>
-                <field name="subtotal_sin_igv" optional="hide" string="Subtotal"/>
-                <field name="igv" optional="hide"/>
-                <field name="monto_igv" optional="hide" string="Monto IGV"/>
-                <field name="descuento" optional="hide"/>
-                <field name="total_facturar_mensual" optional="show" string="Total Mensual" widget="monetary"/>
+                <field name="renta_mensual_bn" optional="hide" string="Renta B/N" sum="Total Renta B/N" widget="monetary"/>
+                <field name="renta_mensual_color" optional="hide" string="Renta Color" sum="Total Renta Color" widget="monetary"/>
+                <field name="subtotal_sin_igv" optional="hide" string="Subtotal" sum="Total Subtotal" widget="monetary"/>
+                <field name="igv" optional="hide" avg="Promedio IGV"/>
+                <field name="monto_igv" optional="hide" string="Monto IGV" sum="Total IGV" widget="monetary"/>
+                <field name="descuento" optional="hide" avg="Promedio Descuento"/>
+                <field name="total_facturar_mensual" optional="show" string="Total Mensual" sum="Total General" widget="monetary"/>
                 
                 <!-- Campos opcionales - Estado -->
                 <field name="estado_renovacion" optional="hide"/>
@@ -317,22 +320,105 @@
 </record>
 
     <!-- Search View -->
+  
     <record id="copier_company_search" model="ir.ui.view">
-      <field name="name">copier.company.search</field>
-      <field name="model">copier.company</field>
-      <field name="arch" type="xml">
-        <search>
-          <field name="name"/>
-          <field name="serie_id"/>
-          <field name="cliente_id"/>
-          <field name="sede"/>
-          <separator/>
-          <filter string="Disponibles" name="disponible" domain="[('estado_maquina_id.name','=','Disponible')]"/>
-          <filter string="En Mantenimiento" name="mantenimiento" domain="[('estado_maquina_id.name','=','En Mantenimiento')]"/>
-          <filter string="Fuera de Servicio" name="fuera_servicio" domain="[('estado_maquina_id.name','=','Fuera de Servicio')]"/>
-          
-        </search>
-      </field>
+        <field name="name">copier.company.search</field>
+        <field name="model">copier.company</field>
+        <field name="arch" type="xml">
+            <search>
+                <!-- Campos de búsqueda -->
+                <field name="secuencia" string="Secuencia"/>
+                <field name="name" string="Modelo"/>
+                <field name="serie_id" string="Serie"/>
+                <field name="cliente_id" string="Cliente"/>
+                <field name="sede" string="Sede"/>
+                <field name="marca_id" string="Marca"/>
+                
+                <separator/>
+                
+                <!-- Filtros por Estado de Máquina -->
+                <filter name="disponible" string="Disponibles" 
+                        domain="[('estado_maquina_id.name', '=', 'Disponible')]"/>
+                <filter name="alquilada" string="Alquiladas" 
+                        domain="[('estado_maquina_id.name', '=', 'Alquilada')]"/>
+                <filter name="mantenimiento" string="En Mantenimiento" 
+                        domain="[('estado_maquina_id.name', '=', 'En Mantenimiento')]"/>
+                <filter name="fuera_servicio" string="Fuera de Servicio" 
+                        domain="[('estado_maquina_id.name', '=', 'Fuera de Servicio')]"/>
+                
+                <separator/>
+                
+                <!-- Filtros por Tipo de Máquina -->
+                <filter name="monocroma" string="Monocromas" 
+                        domain="[('tipo', '=', 'monocroma')]"/>
+                <filter name="color" string="A Color" 
+                        domain="[('tipo', '=', 'color')]"/>
+                
+                <separator/>
+                
+                <!-- Filtros por Estado de Renovación -->
+                <filter name="vigente" string="Vigente" 
+                        domain="[('estado_renovacion', '=', 'vigente')]"/>
+                <filter name="por_vencer" string="Por Vencer" 
+                        domain="[('estado_renovacion', '=', 'por_vencer')]"/>
+                <filter name="vencido" string="Vencido" 
+                        domain="[('estado_renovacion', '=', 'vencido')]"/>
+                <filter name="renovado" string="Renovado" 
+                        domain="[('estado_renovacion', '=', 'renovado')]"/>
+                
+                <separator/>
+                
+                <!-- Filtros por Facturación -->
+                <filter name="con_facturacion_auto" string="Facturación Automática" 
+                        domain="[('facturacion_automatica', '=', True)]"/>
+                <filter name="sin_facturacion_auto" string="Facturación Manual" 
+                        domain="[('facturacion_automatica', '=', False)]"/>
+                
+                <separator/>
+                
+                <!-- Filtros por Monto -->
+                <filter name="renta_alta" string="Renta Alta (&gt; 1000)" 
+                        domain="[('total_facturar_mensual', '&gt;', 1000)]"/>
+                <filter name="renta_media" string="Renta Media (500 - 1000)" 
+                        domain="[('total_facturar_mensual', '&gt;=', 500), ('total_facturar_mensual', '&lt;=', 1000)]"/>
+                <filter name="renta_baja" string="Renta Baja (&lt; 500)" 
+                        domain="[('total_facturar_mensual', '&lt;', 500)]"/>
+                
+                <separator/>
+                
+                <!-- Filtros por Volumen -->
+                <filter name="alto_volumen_bn" string="Alto Volumen B/N (&gt; 5000)" 
+                        domain="[('volumen_mensual_bn', '&gt;', 5000)]"/>
+                <filter name="con_volumen_color" string="Con Volumen Color" 
+                        domain="[('volumen_mensual_color', '&gt;', 0)]"/>
+                
+                <separator/>
+                
+                <!-- Agrupaciones -->
+                <group name="groupby">
+                    <filter name="group_by_estado" string="Estado" 
+                            context="{'group_by': 'estado_maquina_id'}"/>
+                    <filter name="group_by_tipo" string="Tipo de Máquina" 
+                            context="{'group_by': 'tipo'}"/>
+                    <filter name="group_by_marca" string="Marca" 
+                            context="{'group_by': 'marca_id'}"/>
+                    <filter name="group_by_modelo" string="Modelo" 
+                            context="{'group_by': 'name'}"/>
+                    <filter name="group_by_cliente" string="Cliente" 
+                            context="{'group_by': 'cliente_id'}"/>
+                    <filter name="group_by_sede" string="Sede" 
+                            context="{'group_by': 'sede'}"/>
+                    <filter name="group_by_renovacion" string="Estado Renovación" 
+                            context="{'group_by': 'estado_renovacion'}"/>
+                    <filter name="group_by_duracion" string="Duración Alquiler" 
+                            context="{'group_by': 'duracion_alquiler_id'}"/>
+                    <filter name="group_by_currency" string="Moneda" 
+                            context="{'group_by': 'currency_id'}"/>
+                    <filter name="group_by_fecha_inicio" string="Fecha Inicio" 
+                            context="{'group_by': 'fecha_inicio_alquiler'}"/>
+                </group>
+            </search>
+        </field>
     </record>
 
     
