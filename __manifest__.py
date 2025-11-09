@@ -20,8 +20,7 @@
     'depends': [
         'base', 'web', 'mail', 'contacts', 'helpdesk',
         'sale_management', 'portal', 'sale_subscription',
-        'website',
-        'auth_signup', 'auth_oauth',
+        'website'
     ],
 
     'data': [
