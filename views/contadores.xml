@@ -91,7 +91,7 @@
 </record>
 
     <!-- Tree/List View -->
-    <record id="view_copier_counter_tree" model="ir.ui.view">
+     <record id="view_copier_counter_tree" model="ir.ui.view">
         <field name="name">copier.counter.tree</field>
         <field name="model">copier.counter</field>
         <field name="arch" type="xml">
@@ -99,12 +99,14 @@
                 decoration-success="state == 'confirmed'"
                 decoration-warning="state == 'invoiced'"
                 decoration-danger="state == 'cancelled'"
+                default_order="fecha desc, id desc"
                 sample="1">
 
                 <!--<field name="name" widget="many2one_avatar_user" />-->
                 <field name="cliente_id" optional="hide" />
                 <field name="maquina_id" />
                 <field name="serie" />
+                <field name="fecha" />
                 <field name="mes_facturacion" optional="hide" />
                 <field name="contador_actual_bn" sum="Total B/N" optional="hide"/>
                 <field name="total_copias_bn" sum="Total Copias B/N" />
@@ -365,7 +367,7 @@
                     <filter name="group_by_mes" string="Mes de Facturación"
                             context="{'group_by': 'mes_facturacion'}"/>
                     <filter name="group_by_fecha" string="Fecha de Lectura"
-                            context="{'group_by': 'fecha'}"/>
+                            context="{'group_by': 'fecha:month'}"/>
                     <filter name="group_by_currency" string="Moneda"
                             context="{'group_by': 'currency_id'}"/>
                 </group>
