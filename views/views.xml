@@ -5,10 +5,12 @@
         <field name="model">copier.company</field>
         <field name="arch" type="xml">
             <list string="Máquinas"
+                  default_order="secuencia desc, id desc"
                   decoration-success="estado_maquina_id and estado_maquina_id.name == 'Alquilada'"
                   decoration-info="estado_maquina_id and estado_maquina_id.name == 'Disponible'"
                   decoration-warning="estado_maquina_id and estado_maquina_id.name == 'En Mantenimiento'"
                   decoration-danger="estado_maquina_id and estado_maquina_id.name == 'Fuera de Servicio'">
+                
                 <!-- Campos siempre visibles -->
                 <field name="secuencia"/>
                 <field name="marca_id"/>
@@ -22,7 +24,7 @@
                 <!-- Campos opcionales - Facturación -->
                 <field name="tipo" optional="hide"/>
                 <field name="currency_id" optional="hide"/>
-                <field name="fecha_inicio_alquiler" optional="hide"/>
+                <field name="fecha_inicio_alquiler" optional="show"/>
                 <field name="fecha_fin_alquiler" optional="hide"/>
                 <field name="dia_facturacion" optional="hide"/>
                 
@@ -44,7 +46,7 @@
                 <field name="total_facturar_mensual" optional="show" string="Total Mensual" sum="Total General" widget="monetary"/>
                 
                 <!-- Campos opcionales - Estado -->
-                <field name="estado_renovacion" optional="hide"/>
+                <field name="estado_renovacion" optional="show"/>
                 <field name="duracion_alquiler_id" optional="hide" string="Duración"/>
                 
                 <!-- Campos opcionales - Productos -->
@@ -321,7 +323,7 @@
 
     <!-- Search View -->
   
-    <record id="copier_company_search" model="ir.ui.view">
+     <record id="copier_company_search" model="ir.ui.view">
         <field name="name">copier.company.search</field>
         <field name="model">copier.company</field>
         <field name="arch" type="xml">
@@ -396,8 +398,10 @@
                 
                 <!-- Agrupaciones -->
                 <group name="groupby">
-                    <filter name="group_by_estado" string="Estado" 
+                    <filter name="group_by_estado" string="Estado Máquina" 
                             context="{'group_by': 'estado_maquina_id'}"/>
+                    <filter name="group_by_renovacion" string="Estado Renovación" 
+                            context="{'group_by': 'estado_renovacion'}"/>
                     <filter name="group_by_tipo" string="Tipo de Máquina" 
                             context="{'group_by': 'tipo'}"/>
                     <filter name="group_by_marca" string="Marca" 
@@ -408,19 +412,16 @@
                             context="{'group_by': 'cliente_id'}"/>
                     <filter name="group_by_sede" string="Sede" 
                             context="{'group_by': 'sede'}"/>
-                    <filter name="group_by_renovacion" string="Estado Renovación" 
-                            context="{'group_by': 'estado_renovacion'}"/>
                     <filter name="group_by_duracion" string="Duración Alquiler" 
                             context="{'group_by': 'duracion_alquiler_id'}"/>
                     <filter name="group_by_currency" string="Moneda" 
                             context="{'group_by': 'currency_id'}"/>
                     <filter name="group_by_fecha_inicio" string="Fecha Inicio" 
-                            context="{'group_by': 'fecha_inicio_alquiler'}"/>
+                            context="{'group_by': 'fecha_inicio_alquiler:month'}"/>
                 </group>
             </search>
         </field>
     </record>
-
     
   </data>
 </odoo>

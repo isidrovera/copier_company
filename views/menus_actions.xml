@@ -9,9 +9,17 @@
         <field name="name">Gestión de Máquinas</field>
         <field name="res_model">copier.company</field>
         <field name="view_mode">list,kanban,form</field>
+        <field name="context">{
+            'search_default_alquilada': 1,
+            'search_default_group_by_estado': 1,
+        }</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                ¡Registre su primera máquina!
+                ¡Registra tu primera máquina!
+            </p>
+            <p>
+                Gestiona el inventario de máquinas, asignaciones a clientes,
+                contratos de alquiler y facturación mensual.
             </p>
         </field>
     </record>
