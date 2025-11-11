@@ -14,6 +14,21 @@ _logger = logging.getLogger(__name__)
 
 
 class CopierPortal(CustomerPortal):
+    def _safe_get_text(self, value, maxlen=200):
+        """
+        Normaliza texto para mostrar en plantillas/valores.
+        No cambia comportamiento: solo coalesce, strip y recorte opcional.
+        """
+        try:
+            s = value or ''
+            if not isinstance(s, str):
+                s = str(s)
+            s = s.strip()
+            if maxlen and len(s) > maxlen:
+                s = s[:maxlen]
+            return s
+        except Exception:
+            return ''
 
     def _prepare_portal_layout_values(self):
         values = super()._prepare_portal_layout_values()
