@@ -1,996 +1,220 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
-       
-        <!-- Template moderno para Servicios - Hereda de website.servicios -->
-        <template id="copier_services_modern" name="Servicios">
-            <t t-call="website.layout">
-                <div id="wrap">
-                    <style>
-                        @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css');
-                        
-                        /* Estilos consistentes con homepage */
-                        .services-hero-bg {
-                            background: linear-gradient(135deg, #198754 0%, #20c997 100%);
-                            min-height: 60vh;
-                        }
-                        .service-card-hover:hover {
-                            transform: translateY(-5px);
-                            transition: all 0.3s ease;
-                        }
-                        .floating-animation {
-                            animation: float 3s ease-in-out infinite;
-                        }
-                        @keyframes float {
-                            0%, 100% { transform: translateY(0px); }
-                            50% { transform: translateY(-10px); }
-                        }
-                        .pricing-badge {
-                            background: linear-gradient(45deg, #ffc107, #fd7e14);
-                            color: #000;
-                            font-weight: bold;
-                        }
-                        .service-icon {
-                            width: 80px;
-                            height: 80px;
-                            background: linear-gradient(135deg, #0d6efd, #6610f2);
-                        }
-                    </style>
+  <data>
+    <!-- Página de Servicios (mejorada con modales y sin solaparse con el chat) -->
+    <template id="copier_services_modern" name="Servicios">
+      <t t-call="website.layout">
+        <div id="wrap">
+          <style>
+            @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css');
+            .services-hero-bg{background:linear-gradient(135deg,#198754 0%,#20c997 100%);min-height:60vh}
+            .service-card-hover:hover{transform:translateY(-5px);transition:all .3s ease}
+            .floating-animation{animation:float 3s ease-in-out infinite}
+            @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+            .pricing-badge{background:linear-gradient(45deg,#ffc107,#fd7e14);color:#000;font-weight:700}
+            .service-icon{width:80px;height:80px;background:linear-gradient(135deg,#0d6efd,#6610f2)}
+            /* Evitar solape con el chat de Odoo (abajo-derecha) */
+            .cc-float-right{position:fixed;right:16px;bottom:96px;z-index:1049}
+            .cc-float-left{position:fixed;left:16px;bottom:96px;z-index:1049}
+            @media (max-width: 576px){
+              .cc-float-right{bottom:84px;right:12px}
+              .cc-float-left{bottom:84px;left:12px}
+            }
+          </style>
 
-                    <!-- HERO SECTION SERVICIOS -->
-                    <section class="position-relative overflow-hidden text-white" 
-         style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.4)), url('/copier_company/static/img/office-hero.png'); 
-                background-size: cover; background-position: center; min-height: 70vh;">
-                        
-                        <div class="container position-relative" style="z-index: 2;">
-                            <div class="row min-vh-70 align-items-center py-5">
-                                <div class="col-lg-7">
-                                    <!-- Hero Title -->
-                                    <h1 class="display-3 fw-bold mb-4">
-                                        Soluciones <span class="text-warning">Completas</span>
-                                        <br/>de Impresión Empresarial
-                                    </h1>
-                                    
-                                    <!-- Hero Subtitle -->
-                                    <p class="fs-4 mb-4 opacity-90">
-                                        <strong>Desde alquiler sin inversión inicial hasta soporte técnico 24/7.</strong>
-                                        <br/>Transformamos la productividad de tu oficina con las mejores marcas del mercado.
-                                    </p>
-                                    
-                                    <!-- Beneficios Destacados -->
-                                    <div class="row g-3 mb-4">
-                                        <div class="col-md-6">
-                                            <div class="d-flex align-items-center bg-white bg-opacity-15 rounded-3 p-3">
-                                                <i class="bi bi-shield-check text-success fs-1 me-3"></i>
-                                                <div>
-                                                    <h5 class="mb-1">Garantía Total</h5>
-                                                    <small class="opacity-75">Mantenimiento incluido</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="d-flex align-items-center bg-white bg-opacity-15 rounded-3 p-3">
-                                                <i class="bi bi-clock text-warning fs-1 me-3"></i>
-                                                <div>
-                                                    <h5 class="mb-1">Instalación 24H</h5>
-                                                    <small class="opacity-75">Listo para trabajar</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Stats Impactantes -->
-                                    <div class="row g-2 mb-5">
-                                        <div class="col-3">
-                                            <div class="text-center">
-                                                <h2 class="display-6 fw-bold text-warning mb-0">500+</h2>
-                                                <small class="opacity-75">Empresas confían en nosotros</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-3">
-                                            <div class="text-center">
-                                                <h2 class="display-6 fw-bold text-success mb-0">15</h2>
-                                                <small class="opacity-75">Años de experiencia</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-3">
-                                            <div class="text-center">
-                                                <h2 class="display-6 fw-bold text-info mb-0">4H</h2>
-                                                <small class="opacity-75">Tiempo de respuesta</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-3">
-                                            <div class="text-center">
-                                                <h2 class="display-6 fw-bold text-primary mb-0">24/7</h2>
-                                                <small class="opacity-75">Soporte disponible</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- CTA Buttons -->
-                                    <div class="d-flex flex-column flex-sm-row gap-3">
-                                        <a href="/cotizacion/form" class="btn btn-warning btn-lg px-4 py-3 fw-bold">
-                                            <i class="bi bi-calculator me-2"></i>
-                                            Solicitar Cotización
-                                        </a>
-                                        <a href="#servicios" class="btn btn-outline-light btn-lg px-4 py-3">
-                                            <i class="bi bi-arrow-down me-2"></i>
-                                            Ver Servicios
-                                        </a>
-                                    </div>
-                                </div>                                
-                                
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- SERVICIOS PRINCIPALES -->
-                    <section id="servicios" class="py-5">
-                        <div class="container">
-                            <!-- Section Header -->
-                            <div class="text-center mb-5">
-                                <span class="badge bg-success fs-6 px-3 py-2 rounded-pill mb-3">Servicios Principales</span>
-                                <h2 class="display-5 fw-bold mb-3">Soluciones Completas de Impresión</h2>
-                                <p class="lead text-muted">Desde alquiler hasta soporte técnico, cubrimos todas tus necesidades</p>
-                            </div>
-                            
-                            <!-- Servicios Grid -->
-                            <div class="row g-4">
-                                <!-- Alquiler -->
-                                <div class="col-lg-6">
-                                    <div class="card h-100 border-0 shadow-lg service-card-hover position-relative">
-                                        <span class="position-absolute top-0 end-0 m-3 badge bg-primary fs-6">Más Popular</span>
-                                        
-                                        <!-- Imagen del servicio -->
-                                        <div class="position-relative">
-                                            <img src="/static/img/services/rental-office.jpg" 
-                                                 alt="Alquiler de fotocopiadoras" 
-                                                 class="card-img-top" 
-                                                 style="height: 200px; object-fit: cover;"/>
-                                            <div class="position-absolute bottom-0 start-0 m-3">
-                                                <span class="badge bg-dark bg-opacity-75 text-white">
-                                                    <i class="bi bi-handshake me-1"></i>Alquiler
-                                                </span>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="card-body p-4">
-                                            <div class="d-flex align-items-start">
-                                                <div class="service-icon rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0">
-                                                    <i class="bi bi-handshake text-white fs-3"></i>
-                                                </div>
-                                                <div class="flex-grow-1">
-                                                    <h3 class="h4 fw-bold mb-3 text-primary">Alquiler de Fotocopiadoras</h3>
-                                                    <p class="text-muted mb-4">
-                                                        <strong>¡Sin inversión inicial!</strong> Equipos de última generación 
-                                                        de Konica Minolta, Canon y Ricoh. Mantenimiento, toner y soporte incluido.
-                                                    </p>
-                                                    
-                                                    <!-- Features -->
-                                                    <div class="row g-2 mb-4">
-                                                        <div class="col-6">
-                                                            <div class="d-flex align-items-center">
-                                                                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                                                <small>Sin inversión inicial</small>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <div class="d-flex align-items-center">
-                                                                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                                                <small>Mantenimiento incluido</small>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <div class="d-flex align-items-center">
-                                                                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                                                <small>Soporte 24/7</small>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <div class="d-flex align-items-center">
-                                                                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                                                <small>Instalación gratis</small>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <!-- Precio -->
-                                                    <div class="d-flex align-items-center justify-content-between">
-                                                        <div>
-                                                            <span class="pricing-badge badge fs-6 px-3 py-2 rounded-pill">
-                                                                Desde $149/mes
-                                                            </span>
-                                                        </div>
-                                                        <a href="/cotizacion/form" class="btn btn-primary">
-                                                            <i class="bi bi-calculator me-1"></i>
-                                                            Cotizar
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Venta -->
-                                <div class="col-lg-6">
-                                    <div class="card h-100 border-0 shadow-lg service-card-hover">
-                                        <!-- Imagen del servicio -->
-                                        <div class="position-relative">
-                                            <img src="/static/img/services/equipment-showroom.jpg" 
-                                                 alt="Venta de equipos de impresión" 
-                                                 class="card-img-top" 
-                                                 style="height: 200px; object-fit: cover;"/>
-                                            <div class="position-absolute bottom-0 start-0 m-3">
-                                                <span class="badge bg-success">
-                                                    <i class="bi bi-cart3 me-1"></i>Venta
-                                                </span>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="card-body p-4">
-                                            <div class="d-flex align-items-start">
-                                                <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 60px; height: 60px;">
-                                                    <i class="bi bi-cart3 text-white fs-3"></i>
-                                                </div>
-                                                <div class="flex-grow-1">
-                                                    <h3 class="h4 fw-bold mb-3 text-success">Venta de Equipos Nuevos</h3>
-                                                    <p class="text-muted mb-4">
-                                                        <strong>Equipos nuevos y seminuevos</strong> de las mejores marcas. 
-                                                        Asesoría especializada y planes de financiamiento disponibles.
-                                                    </p>
-                                                    
-                                                    <!-- Features -->
-                                                    <div class="row g-2 mb-4">
-                                                        <div class="col-6">
-                                                            <div class="d-flex align-items-center">
-                                                                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                                                <small>Equipos nuevos</small>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <div class="d-flex align-items-center">
-                                                                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                                                <small>Garantía oficial</small>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <div class="d-flex align-items-center">
-                                                                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                                                <small>Financiamiento</small>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <div class="d-flex align-items-center">
-                                                                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                                                <small>Instalación incluida</small>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <!-- Precio -->
-                                                    <div class="d-flex align-items-center justify-content-between">
-                                                        <div>
-                                                            <span class="badge bg-success fs-6 px-3 py-2 rounded-pill">
-                                                                Desde $2,999
-                                                            </span>
-                                                        </div>
-                                                        <a href="/contactus" class="btn btn-success">
-                                                            <i class="bi bi-chat-dots me-1"></i>
-                                                            Consultar
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Servicio Técnico -->
-                                <div class="col-lg-4">
-                                    <div class="card h-100 border-0 shadow-sm service-card-hover">
-                                        <div class="card-body p-4 text-center">
-                                            <div class="bg-warning bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-                                                <i class="bi bi-tools text-dark fs-1"></i>
-                                            </div>
-                                            <h3 class="h5 fw-bold mb-3">Servicio Técnico</h3>
-                                            <p class="text-muted mb-4">
-                                                Mantenimiento y reparación especializada con técnicos certificados.
-                                            </p>
-                                            <div class="mb-4">
-                                                <div class="badge bg-warning text-dark mb-2 d-block">Tiempo de respuesta</div>
-                                                <h4 class="text-warning mb-0">4 horas</h4>
-                                            </div>
-                                            <a href="/contactus" class="btn btn-warning text-dark w-100">
-                                                <i class="bi bi-telephone me-1"></i>
-                                                Solicitar Servicio
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Repuestos y Toner -->
-                                <div class="col-lg-4">
-                                    <div class="card h-100 border-0 shadow-sm service-card-hover">
-                                        <div class="card-body p-4 text-center">
-                                            <div class="bg-info bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-                                                <i class="bi bi-droplet-fill text-white fs-1"></i>
-                                            </div>
-                                            <h3 class="h5 fw-bold mb-3">Repuestos y Toner</h3>
-                                            <p class="text-muted mb-4">
-                                                Amplio inventario de toners originales y repuestos para todas las marcas.
-                                            </p>
-                                            <div class="mb-4">
-                                                <div class="badge bg-info mb-2 d-block">Stock disponible</div>
-                                                <h4 class="text-info mb-0">1000+ items</h4>
-                                            </div>
-                                            <a href="/contactus" class="btn btn-info w-100">
-                                                <i class="bi bi-box-seam me-1"></i>
-                                                Ver Catálogo
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Monitoreo -->
-                                <div class="col-lg-4">
-                                    <div class="card h-100 border-0 shadow-sm service-card-hover">
-                                        <div class="card-body p-4 text-center">
-                                            <div class="bg-danger bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-                                                <i class="bi bi-graph-up-arrow text-white fs-1"></i>
-                                            </div>
-                                            <h3 class="h5 fw-bold mb-3">Monitoreo Flota</h3>
-                                            <p class="text-muted mb-4">
-                                                Control remoto total de tu flota de impresoras con reportes en tiempo real.
-                                            </p>
-                                            <div class="mb-4">
-                                                <div class="badge bg-danger mb-2 d-block">Acceso remoto</div>
-                                                <h4 class="text-danger mb-0">24/7</h4>
-                                            </div>
-                                            <a href="https://app.printtrackerpro.com/auth/login" target="_blank" class="btn btn-danger w-100">
-                                                <i class="bi bi-box-arrow-up-right me-1"></i>
-                                                Acceder Sistema
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- PROCESO DE CONTRATACIÓN -->
-                    <section class="py-5 bg-light">
-                        <div class="container">
-                            <div class="text-center mb-5">
-                                <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill mb-3">Proceso</span>
-                                <h2 class="display-5 fw-bold mb-3">¿Cómo Contratar Nuestros Servicios?</h2>
-                                <p class="lead text-muted">Un proceso simple y transparente en 4 pasos</p>
-                            </div>
-                            
-                            <div class="row g-4">
-                                <div class="col-lg-3 col-md-6">
-                                    <div class="text-center">
-                                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                                            <span class="fw-bold fs-4">1</span>
-                                        </div>
-                                        <h5 class="fw-bold mb-3">Consulta Inicial</h5>
-                                        <p class="text-muted">Conversamos sobre tus necesidades específicas</p>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-md-6">
-                                    <div class="text-center">
-                                        <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                                            <span class="fw-bold fs-4">2</span>
-                                        </div>
-                                        <h5 class="fw-bold mb-3">Evaluación Técnica</h5>
-                                        <p class="text-muted">Analizamos el mejor equipo para tu empresa</p>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-md-6">
-                                    <div class="text-center">
-                                        <div class="bg-warning text-dark rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                                            <span class="fw-bold fs-4">3</span>
-                                        </div>
-                                        <h5 class="fw-bold mb-3">Propuesta Personalizada</h5>
-                                        <p class="text-muted">Te presentamos la mejor solución y precios</p>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-md-6">
-                                    <div class="text-center">
-                                        <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                                            <span class="fw-bold fs-4">4</span>
-                                        </div>
-                                        <h5 class="fw-bold mb-3">Implementación</h5>
-                                        <p class="text-muted">Instalación y puesta en marcha en 24 horas</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- GARANTÍAS Y SLA -->
-                    <section class="py-5">
-                        <div class="container">
-                            <div class="row align-items-center">
-                                <div class="col-lg-6 mb-4 mb-lg-0">
-                                    <span class="badge bg-success fs-6 px-3 py-2 rounded-pill mb-3">Garantías</span>
-                                    <h2 class="display-6 fw-bold mb-4">Nuestro Compromiso Contigo</h2>
-                                    <p class="lead text-muted mb-4">
-                                        Ofrecemos las mejores garantías del mercado con tiempos de respuesta garantizados.
-                                    </p>
-                                    
-                                    <div class="row g-3">
-                                        <div class="col-6">
-                                            <div class="card border-success">
-                                                <div class="card-body text-center p-3">
-                                                    <i class="bi bi-shield-check text-success fs-1"></i>
-                                                    <h4 class="text-success">100%</h4>
-                                                    <p class="mb-0 small">Garantía Equipos</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="card border-warning">
-                                                <div class="card-body text-center p-3">
-                                                    <i class="bi bi-clock text-warning fs-1"></i>
-                                                    <h4 class="text-warning">4 hrs</h4>
-                                                    <p class="mb-0 small">Tiempo Respuesta</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="card border-info">
-                                                <div class="card-body text-center p-3">
-                                                    <i class="bi bi-calendar-check text-info fs-1"></i>
-                                                    <h4 class="text-info">365</h4>
-                                                    <p class="mb-0 small">Días al Año</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="card border-primary">
-                                                <div class="card-body text-center p-3">
-                                                    <i class="bi bi-people text-primary fs-1"></i>
-                                                    <h4 class="text-primary">24/7</h4>
-                                                    <p class="mb-0 small">Soporte Técnico</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-lg-6">
-                                    <div class="card border-0 shadow-lg">
-                                        <div class="card-header bg-primary text-white">
-                                            <h5 class="mb-0"><i class="bi bi-award me-2"></i>Acuerdos de Nivel de Servicio (SLA)</h5>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="list-group list-group-flush">
-                                                <div class="list-group-item d-flex justify-content-between align-items-center">
-                                                    <span><i class="bi bi-telephone text-success me-2"></i>Respuesta telefónica</span>
-                                                    <strong class="text-success">2 min</strong>
-                                                </div>
-                                                <div class="list-group-item d-flex justify-content-between align-items-center">
-                                                    <span><i class="bi bi-laptop text-warning me-2"></i>Diagnóstico remoto</span>
-                                                    <strong class="text-warning">15 min</strong>
-                                                </div>
-                                                <div class="list-group-item d-flex justify-content-between align-items-center">
-                                                    <span><i class="bi bi-person-gear text-info me-2"></i>Visita técnica</span>
-                                                    <strong class="text-info">4 hrs</strong>
-                                                </div>
-                                                <div class="list-group-item d-flex justify-content-between align-items-center">
-                                                    <span><i class="bi bi-arrow-repeat text-primary me-2"></i>Reemplazo equipo</span>
-                                                    <strong class="text-primary">24 hrs</strong>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- CTA FINAL -->
-                    <section class="py-5 bg-primary">
-                        <div class="container">
-                            <div class="row align-items-center">
-                                <div class="col-lg-8">
-                                    <h2 class="text-white fw-bold mb-3">¿Listo para Optimizar tu Oficina?</h2>
-                                    <p class="text-white opacity-75 mb-4 mb-lg-0">
-                                        Contáctanos hoy y descubre cómo nuestros servicios pueden transformar 
-                                        la productividad de tu empresa.
-                                    </p>
-                                </div>
-                                <div class="col-lg-4 text-lg-end">
-                                    <a href="/cotizacion/form" class="btn btn-warning btn-lg me-3">
-                                        <i class="bi bi-calculator me-2"></i>
-                                        Cotizar Servicios
-                                    </a>
-                                    <a href="/contactus" class="btn btn-outline-light btn-lg">
-                                        <i class="bi bi-telephone me-2"></i>
-                                        Contactar
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- BOTONES FLOTANTES -->
-                    
-                    <!-- WhatsApp Float Button -->
-                    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
-                        <a href="https://wa.me/51975399303?text=Hola,%20necesito%20información%20sobre%20sus%20servicios" 
-                           target="_blank" 
-                           class="btn btn-success rounded-pill shadow-lg d-flex align-items-center">
-                            <i class="bi bi-whatsapp fs-4 me-2"></i>
-                            <span class="d-none d-md-inline fw-semibold">¿Necesitas ayuda?</span>
-                        </a>
+          <!-- HERO -->
+          <section class="position-relative overflow-hidden text-white"
+            style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.4)), url('/copier_company/static/img/office-hero.png'); background-size: cover; background-position: center; min-height: 70vh;">
+            <div class="container position-relative" style="z-index:2;">
+              <div class="row min-vh-70 align-items-center py-5">
+                <div class="col-lg-7">
+                  <h1 class="display-3 fw-bold mb-4">Soluciones <span class="text-warning">Completas</span><br/>de Impresión Empresarial</h1>
+                  <p class="fs-4 mb-4 opacity-90"><strong>Desde alquiler sin inversión inicial hasta soporte técnico 24/7.</strong><br/>Transformamos la productividad de tu oficina con las mejores marcas del mercado.</p>
+                  <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                      <div class="d-flex align-items-center bg-white bg-opacity-15 rounded-3 p-3">
+                        <i class="bi bi-shield-check text-success fs-1 me-3"></i>
+                        <div><h5 class="mb-1">Garantía Total</h5><small class="opacity-75">Mantenimiento incluido</small></div>
+                      </div>
                     </div>
-
-                    <!-- Cotización Float Button -->
-                    <div class="position-fixed bottom-0 start-0 p-3" style="z-index: 1050;">
-                        <a href="/cotizacion/form" 
-                           class="btn btn-warning rounded-pill shadow-lg d-flex align-items-center">
-                            <i class="bi bi-calculator fs-4 me-2"></i>
-                            <span class="d-none d-md-inline fw-semibold text-dark">Cotización Rápida</span>
-                        </a>
+                    <div class="col-md-6">
+                      <div class="d-flex align-items-center bg-white bg-opacity-15 rounded-3 p-3">
+                        <i class="bi bi-clock text-warning fs-1 me-3"></i>
+                        <div><h5 class="mb-1">Instalación 24H</h5><small class="opacity-75">Listo para trabajar</small></div>
+                      </div>
                     </div>
-
+                  </div>
+                  <div class="row g-2 mb-5">
+                    <div class="col-3 text-center"><h2 class="display-6 fw-bold text-warning mb-0">500+</h2><small class="opacity-75">Empresas</small></div>
+                    <div class="col-3 text-center"><h2 class="display-6 fw-bold text-success mb-0">15</h2><small class="opacity-75">Años</small></div>
+                    <div class="col-3 text-center"><h2 class="display-6 fw-bold text-info mb-0">4H</h2><small class="opacity-75">Respuesta</small></div>
+                    <div class="col-3 text-center"><h2 class="display-6 fw-bold text-primary mb-0">24/7</h2><small class="opacity-75">Soporte</small></div>
+                  </div>
+                  <div class="d-flex flex-column flex-sm-row gap-3">
+                    <a href="/cotizacion/form" class="btn btn-warning btn-lg px-4 py-3 fw-bold"><i class="bi bi-calculator me-2"></i>Solicitar Cotización</a>
+                    <a href="#servicios" class="btn btn-outline-light btn-lg px-4 py-3"><i class="bi bi-arrow-down me-2"></i>Ver Servicios</a>
+                  </div>
                 </div>
-            </t>
-        </template>
-        <template id="copier_about_us_modern" name="Copier About Us Modern">
-            <t t-call="website.layout">
-                <div id="wrap">
-                    <style>
-                        @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css');
-                        
-                        .about-hero-bg {
-                            background: linear-gradient(135deg, #6f42c1 0%, #0d6efd 100%);
-                            min-height: 60vh;
-                        }
-                        .team-card:hover {
-                            transform: translateY(-10px);
-                            transition: all 0.3s ease;
-                        }
-                        .stats-counter {
-                            font-size: 3rem;
-                            font-weight: 700;
-                            color: #ffffff;
-                            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-                        }
-                        .timeline-item {
-                            position: relative;
-                            padding-left: 2rem;
-                        }
-                        .timeline-item::before {
-                            content: '';
-                            position: absolute;
-                            left: 0;
-                            top: 0.5rem;
-                            width: 1rem;
-                            height: 1rem;
-                            background: var(--bs-primary);
-                            border-radius: 50%;
-                        }
-                        .floating-animation {
-                            animation: float 3s ease-in-out infinite;
-                        }
-                        @keyframes float {
-                            0%, 100% { transform: translateY(0px); }
-                            50% { transform: translateY(-10px); }
-                        }
-                    </style>
+              </div>
+            </div>
+          </section>
 
-                    <!-- HERO SECTION -->
-                    <section class="about-hero-bg text-white position-relative overflow-hidden">
-                        <div class="container position-relative" style="z-index: 2;">
-                            <div class="row min-vh-60 align-items-center py-5">
-                                <div class="col-lg-7">
-                                    <h1 class="display-3 fw-bold mb-4">
-                                        Conoce <span class="text-warning">Nuestra Historia</span>
-                                        <br/>y Compromiso
-                                    </h1>
-                                    
-                                    <p class="fs-4 mb-4 opacity-90">
-                                        <strong>15 años transformando oficinas</strong> con las mejores soluciones 
-                                        de impresión. Somos el partner tecnológico que tu empresa necesita.
-                                    </p>
-                                    
-                                    <!-- Stats rápidas -->
-                                    <div class="row g-3 mb-4">
-                                        <div class="col-6 col-md-3">
-                                            <div class="text-center">
-                                                <div class="stats-counter" t-esc="company_stats['years_experience']">15</div>
-                                                <small class="opacity-75">Años Experiencia</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 col-md-3">
-                                            <div class="text-center">
-                                                <div class="stats-counter" t-esc="company_stats['clients_served']">500+</div>
-                                                <small class="opacity-75">Clientes Satisfechos</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 col-md-3">
-                                            <div class="text-center">
-                                                <div class="stats-counter">1200+</div>
-                                                <small class="opacity-75">Equipos Instalados</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 col-md-3">
-                                            <div class="text-center">
-                                                <div class="stats-counter">98%</div>
-                                                <small class="opacity-75">Satisfacción</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="d-flex flex-column flex-sm-row gap-3">
-                                        <a href="/contactus" class="btn btn-warning btn-lg px-4 py-3 fw-bold">
-                                            <i class="bi bi-people me-2"></i>
-                                            Conocer al Equipo
-                                        </a>
-                                        <a href="#historia" class="btn btn-outline-light btn-lg px-4 py-3">
-                                            <i class="bi bi-arrow-down me-2"></i>
-                                            Nuestra Historia
-                                        </a>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-lg-5 text-center">
-                                    <div class="floating-animation">
-                                        <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=600&amp;q=80" 
-                                             alt="Equipo Copier Company" 
-                                             class="img-fluid rounded-4 shadow-lg" 
-                                             style="max-height: 400px; object-fit: cover;"/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
+          <!-- SERVICIOS PRINCIPALES -->
+          <section id="servicios" class="py-5">
+            <div class="container">
+              <div class="text-center mb-5">
+                <span class="badge bg-success fs-6 px-3 py-2 rounded-pill mb-3">Servicios Principales</span>
+                <h2 class="display-5 fw-bold mb-3">Soluciones Completas de Impresión</h2>
+                <p class="lead text-muted">Desde alquiler hasta soporte técnico, cubrimos todas tus necesidades</p>
+              </div>
 
-                    <!-- NUESTRA HISTORIA -->
-                    <section id="historia" class="py-5">
-                        <div class="container">
-                            <div class="row">
-                                <div class="col-lg-6 mb-4 mb-lg-0">
-                                    <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill mb-3">Nuestra Historia</span>
-                                    <h2 class="display-5 fw-bold mb-4">15 Años de Excelencia Tecnológica</h2>
-                                    
-                                    <p class="lead text-muted mb-4">
-                                        En Copier Company, nos especializamos en brindar <strong>soluciones integrales</strong> 
-                                        de impresión y gestión documental. Con años de experiencia en el mercado, somos 
-                                        el partner confiable que las empresas necesitan.
-                                    </p>
-                                    
-                                    <!-- Timeline -->
-                                    <div class="timeline mt-4">
-                                        <div class="timeline-item mb-4">
-                                            <h5 class="fw-bold text-primary">2010 - Los Inicios</h5>
-                                            <p class="text-muted">Fundación de la empresa con enfoque en servicio técnico especializado</p>
-                                        </div>
-                                        <div class="timeline-item mb-4">
-                                            <h5 class="fw-bold text-success">2015 - Expansión</h5>
-                                            <p class="text-muted">Con Konica Minolta, Canon y Ricoh</p>
-                                        </div>
-                                        <div class="timeline-item mb-4">
-                                            <h5 class="fw-bold text-warning">2020 - Innovación</h5>
-                                            <p class="text-muted">Implementación de sistema MPS y monitoreo remoto</p>
-                                        </div>
-                                        <div class="timeline-item">
-                                            <h5 class="fw-bold text-info">2025 - Futuro</h5>
-                                            <p class="text-muted">Líderes en transformación digital de oficinas</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-lg-6">
-                                    <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=800&amp;q=80" 
-                                         alt="Historia Copier Company" 
-                                         class="img-fluid rounded-4 shadow-lg"/>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- VALORES CORPORATIVOS -->
-                    <section class="py-5 bg-light">
-                        <div class="container">
-                            <div class="text-center mb-5">
-                                <span class="badge bg-success fs-6 px-3 py-2 rounded-pill mb-3">Valores</span>
-                                <h2 class="display-5 fw-bold mb-3">Nuestros Valores Corporativos</h2>
-                                <p class="lead text-muted">Los principios que guían cada decisión y acción</p>
-                            </div>
-                            
-                            <div class="row g-4">
-                                <div class="col-lg-4 col-md-6">
-                                    <div class="card h-100 border-0 shadow-sm text-center">
-                                        <div class="card-body p-4">
-                                            <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-                                                <i class="bi bi-award text-white fs-1"></i>
-                                            </div>
-                                            <h4 class="fw-bold mb-3">Excelencia</h4>
-                                            <p class="text-muted">Buscamos la perfección en cada servicio, producto y experiencia que ofrecemos a nuestros clientes.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-lg-4 col-md-6">
-                                    <div class="card h-100 border-0 shadow-sm text-center">
-                                        <div class="card-body p-4">
-                                            <div class="bg-success bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-                                                <i class="bi bi-lightbulb text-white fs-1"></i>
-                                            </div>
-                                            <h4 class="fw-bold mb-3">Innovación</h4>
-                                            <p class="text-muted">Adoptamos las últimas tecnologías para ofrecer soluciones avanzadas y eficientes.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-lg-4 col-md-6">
-                                    <div class="card h-100 border-0 shadow-sm text-center">
-                                        <div class="card-body p-4">
-                                            <div class="bg-warning bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-                                                <i class="bi bi-heart text-dark fs-1"></i>
-                                            </div>
-                                            <h4 class="fw-bold mb-3">Compromiso</h4>
-                                            <p class="text-muted">Nos dedicamos completamente al éxito y satisfacción de nuestros clientes.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-lg-4 col-md-6">
-                                    <div class="card h-100 border-0 shadow-sm text-center">
-                                        <div class="card-body p-4">
-                                            <div class="bg-info bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-                                                <i class="bi bi-shield-check text-white fs-1"></i>
-                                            </div>
-                                            <h4 class="fw-bold mb-3">Integridad</h4>
-                                            <p class="text-muted">Actuamos con honestidad y transparencia en todas nuestras relaciones comerciales.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-lg-4 col-md-6">
-                                    <div class="card h-100 border-0 shadow-sm text-center">
-                                        <div class="card-body p-4">
-                                            <div class="bg-danger bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-                                                <i class="bi bi-people text-white fs-1"></i>
-                                            </div>
-                                            <h4 class="fw-bold mb-3">Trabajo en Equipo</h4>
-                                            <p class="text-muted">Colaboramos unidos para lograr resultados excepcionales para nuestros clientes.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-lg-4 col-md-6">
-                                    <div class="card h-100 border-0 shadow-sm text-center">
-                                        <div class="card-body p-4">
-                                            <div class="bg-secondary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-                                                <i class="bi bi-gear-wide text-white fs-1"></i>
-                                            </div>
-                                            <h4 class="fw-bold mb-3">Responsabilidad</h4>
-                                            <p class="text-muted">Asumimos la responsabilidad total por la calidad y resultados de nuestro trabajo.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- MISIÓN Y VISIÓN -->
-                    <section class="py-5">
-                        <div class="container">
-                            <div class="row g-4">
-                                <div class="col-lg-6">
-                                    <div class="card h-100 border-0 shadow-lg border-start border-primary border-5">
-                                        <div class="card-body p-5">
-                                            <div class="d-flex align-items-center mb-4">
-                                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
-                                                    <i class="bi bi-bullseye text-white fs-3"></i>
-                                                </div>
-                                                <h3 class="fw-bold text-primary mb-0">Nuestra Misión</h3>
-                                            </div>
-                                            <p class="lead text-muted">
-                                                Proporcionar a empresas de todos los tamaños las <strong>mejores soluciones</strong> 
-                                                de impresión y gestión documental. Nos esforzamos por ofrecer productos de alta 
-                                                calidad y un servicio excepcional.
-                                            </p>
-                                            <p class="text-muted">
-                                                Ayudamos a nuestros clientes a mejorar su eficiencia y productividad, 
-                                                manteniéndonos al día con las últimas tecnologías para asegurar que 
-                                                siempre tengan lo mejor.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-lg-6">
-                                    <div class="card h-100 border-0 shadow-lg border-start border-success border-5">
-                                        <div class="card-body p-5">
-                                            <div class="d-flex align-items-center mb-4">
-                                                <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
-                                                    <i class="bi bi-eye text-white fs-3"></i>
-                                                </div>
-                                                <h3 class="fw-bold text-success mb-0">Nuestra Visión</h3>
-                                            </div>
-                                            <p class="lead text-muted">
-                                                Aspiramos a ser <strong>líderes en el mercado</strong> de soluciones de impresión 
-                                                y gestión documental, reconocidos por nuestra calidad, innovación y 
-                                                servicio al cliente.
-                                            </p>
-                                            <p class="text-muted">
-                                                Buscamos evolucionar continuamente y adaptarnos a las necesidades del mercado 
-                                                para ofrecer soluciones que superen las expectativas de nuestros clientes.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- NUESTRO ENFOQUE -->
-                    <section class="py-5 bg-light">
-                        <div class="container">
-                            <div class="text-center mb-5">
-                                <span class="badge bg-warning fs-6 px-3 py-2 rounded-pill mb-3">Nuestro Enfoque</span>
-                                <h2 class="display-5 fw-bold mb-3">Cómo Trabajamos</h2>
-                                <p class="lead text-muted">Metodología enfocada en resultados y satisfacción del cliente</p>
-                            </div>
-                            
-                            <div class="row g-4">
-                                <div class="col-lg-3 col-md-6">
-                                    <div class="card border-0 shadow-sm text-center h-100">
-                                        <div class="card-body p-4">
-                                            <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-                                                <i class="bi bi-search text-white fs-1"></i>
-                                            </div>
-                                            <h5 class="fw-bold mb-3">Análisis Detallado</h5>
-                                            <p class="text-muted">Evaluamos tus necesidades específicas para encontrar la mejor solución.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-lg-3 col-md-6">
-                                    <div class="card border-0 shadow-sm text-center h-100">
-                                        <div class="card-body p-4">
-                                            <div class="bg-success bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-                                                <i class="bi bi-gear-wide text-white fs-1"></i>
-                                            </div>
-                                            <h5 class="fw-bold mb-3">Solución Personalizada</h5>
-                                            <p class="text-muted">Diseñamos una propuesta adaptada a tu presupuesto y requerimientos.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-lg-3 col-md-6">
-                                    <div class="card border-0 shadow-sm text-center h-100">
-                                        <div class="card-body p-4">
-                                            <div class="bg-warning bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-                                                <i class="bi bi-rocket-takeoff text-dark fs-1"></i>
-                                            </div>
-                                            <h5 class="fw-bold mb-3">Implementación Rápida</h5>
-                                            <p class="text-muted">Instalación profesional y capacitación para uso inmediato.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-lg-3 col-md-6">
-                                    <div class="card border-0 shadow-sm text-center h-100">
-                                        <div class="card-body p-4">
-                                            <div class="bg-info bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-                                                <i class="bi bi-headset text-white fs-1"></i>
-                                            </div>
-                                            <h5 class="fw-bold mb-3">Soporte Continuo</h5>
-                                            <p class="text-muted">Acompañamiento permanente para garantizar el máximo rendimiento.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- PROVEEDORES AUTORIZADOS -->
-                    <section class="py-5">
-                        <div class="container">
-                            <div class="text-center mb-5">
-                                <span class="badge bg-info fs-6 px-3 py-2 rounded-pill mb-3">Proveedores</span>
-                                <h2 class="display-5 fw-bold mb-3">Trabajamos con las Mejores Marcas</h2>
-                                <p class="lead text-muted">Distribuimos equipos de las marcas líderes del mercado</p>
-                            </div>
-                            
-                            <div class="row g-4">
-                                <div class="col-lg-4">
-                                    <div class="card border-0 shadow-sm text-center h-100">
-                                        <div class="card-body p-4">
-                                            <img src="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/konica-minolta-vector-logo-seeklogo/konica-minolta-seeklogo.png" 
-                                                 alt="Konica Minolta" 
-                                                 class="img-fluid mb-3" 
-                                                 style="max-height: 80px;"/>
-                                            
-                                            <p class="text-muted">Equipos multifuncionales de alta gama</p>
-                                            
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-lg-4">
-                                    <div class="card border-0 shadow-sm text-center h-100">
-                                        <div class="card-body p-4">
-                                            <img src="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/canon-vector-logo-seeklogo/canon-seeklogo.png" 
-                                                 alt="Canon" 
-                                                 class="img-fluid mb-3" 
-                                                 style="max-height: 80px;"/>
-                                           
-                                            <p class="text-muted">Tecnología de impresión profesional</p>
-                                            
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-lg-4">
-                                    <div class="card border-0 shadow-sm text-center h-100">
-                                        <div class="card-body p-4">
-                                            <img src="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/ricoh-vector-logo-seeklogo/ricoh-seeklogo.png" 
-                                                 alt="Ricoh" 
-                                                 class="img-fluid mb-3" 
-                                                 style="max-height: 80px;"/>
-                                            
-                                            <p class="text-muted">Soluciones empresariales robustas</p>
-                                            
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- CTA FINAL -->
-                    <section class="py-5 bg-primary">
-                        <div class="container">
-                            <div class="row align-items-center">
-                                <div class="col-lg-8">
-                                    <h2 class="text-white fw-bold mb-3">¿Listo para Conocernos Mejor?</h2>
-                                    <p class="text-white opacity-75 mb-4 mb-lg-0">
-                                        Agenda una reunión con nuestro equipo y descubre cómo podemos 
-                                        transformar la productividad de tu empresa.
-                                    </p>
-                                </div>
-                                <div class="col-lg-4 text-lg-end">
-                                    <a href="/contactus" class="btn btn-warning btn-lg me-3">
-                                        <i class="bi bi-calendar-check me-2"></i>
-                                        Agendar Reunión
-                                    </a>
-                                    <a href="/our-services" class="btn btn-outline-light btn-lg">
-                                        <i class="bi bi-gear me-2"></i>
-                                        Ver Servicios
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- BOTONES FLOTANTES -->
-                    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
-                        <a href="https://wa.me/51975399303?text=Hola,%20quiero%20conocer%20más%20sobre%20Copier%20Company" 
-                           target="_blank" 
-                           class="btn btn-success rounded-pill shadow-lg d-flex align-items-center">
-                            <i class="bi bi-whatsapp fs-4 me-2"></i>
-                            <span class="d-none d-md-inline fw-semibold">Conversemos</span>
-                        </a>
+              <div class="row g-4">
+                <!-- Alquiler -->
+                <div class="col-lg-6">
+                  <div class="card h-100 border-0 shadow-lg service-card-hover position-relative"
+                       data-bs-toggle="modal" data-bs-target="#serviceModal" data-service="alquiler" style="cursor:pointer;">
+                    <span class="position-absolute top-0 end-0 m-3 badge bg-primary fs-6">Más Popular</span>
+                    <div class="position-relative">
+                      <img src="/static/img/services/rental-office.jpg" alt="Alquiler de fotocopiadoras" class="card-img-top" style="height:200px;object-fit:cover;"/>
+                      <div class="position-absolute bottom-0 start-0 m-3"><span class="badge bg-dark bg-opacity-75 text-white"><i class="bi bi-handshake me-1"></i>Alquiler</span></div>
                     </div>
-
-                    <div class="position-fixed bottom-0 start-0 p-3" style="z-index: 1050;">
-                        <a href="/cotizacion/form" 
-                           class="btn btn-warning rounded-pill shadow-lg d-flex align-items-center">
-                            <i class="bi bi-calculator fs-4 me-2"></i>
-                            <span class="d-none d-md-inline fw-semibold text-dark">Cotización</span>
-                        </a>
+                    <div class="card-body p-4">
+                      <div class="d-flex align-items-start">
+                        <div class="service-icon rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0">
+                          <i class="bi bi-handshake text-white fs-3"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                          <h3 class="h4 fw-bold mb-3 text-primary">Alquiler de Fotocopiadoras</h3>
+                          <p class="text-muted mb-4"><strong>¡Sin inversión inicial!</strong> Equipos de última generación de Konica Minolta, Canon y Ricoh. Mantenimiento, tóner y soporte incluido.</p>
+                          <div class="row g-2 mb-4">
+                            <div class="col-6 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-2"></i><small>Sin inversión</small></div>
+                            <div class="col-6 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-2"></i><small>Mantenimiento incluido</small></div>
+                            <div class="col-6 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-2"></i><small>Soporte 24/7</small></div>
+                            <div class="col-6 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-2"></i><small>Instalación gratis</small></div>
+                          </div>
+                          <div class="d-flex align-items-center justify-content-between">
+                            <span class="pricing-badge badge fs-6 px-3 py-2 rounded-pill">Desde $149/mes</span>
+                            <a href="/cotizacion/form" class="btn btn-primary"><i class="bi bi-calculator me-1"></i>Cotizar</a>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-
+                  </div>
                 </div>
-            </t>
-        </template>
-    </data>
+
+                <!-- Venta -->
+                <div class="col-lg-6">
+                  <div class="card h-100 border-0 shadow-lg service-card-hover"
+                       data-bs-toggle="modal" data-bs-target="#serviceModal" data-service="venta" style="cursor:pointer;">
+                    <div class="position-relative">
+                      <img src="/static/img/services/equipment-showroom.jpg" alt="Venta de equipos de impresión" class="card-img-top" style="height:200px;object-fit:cover;"/>
+                      <div class="position-absolute bottom-0 start-0 m-3"><span class="badge bg-success"><i class="bi bi-cart3 me-1"></i>Venta</span></div>
+                    </div>
+                    <div class="card-body p-4">
+                      <div class="d-flex align-items-start">
+                        <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width:60px;height:60px;"><i class="bi bi-cart3 text-white fs-3"></i></div>
+                        <div class="flex-grow-1">
+                          <h3 class="h4 fw-bold mb-3 text-success">Venta de Equipos Nuevos</h3>
+                          <p class="text-muted mb-4"><strong>Equipos nuevos y seminuevos</strong> de las mejores marcas. Asesoría especializada y planes de financiamiento.</p>
+                          <div class="row g-2 mb-4">
+                            <div class="col-6 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-2"></i><small>Equipos nuevos</small></div>
+                            <div class="col-6 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-2"></i><small>Garantía oficial</small></div>
+                            <div class="col-6 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-2"></i><small>Financiamiento</small></div>
+                            <div class="col-6 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-2"></i><small>Instalación incluida</small></div>
+                          </div>
+                          <div class="d-flex align-items-center justify-content-between">
+                            <span class="badge bg-success fs-6 px-3 py-2 rounded-pill">Desde $2,999</span>
+                            <a href="/contactus" class="btn btn-success"><i class="bi bi-chat-dots me-1"></i>Consultar</a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Servicio Técnico -->
+                <div class="col-lg-4">
+                  <div class="card h-100 border-0 shadow-sm service-card-hover text-center"
+                       data-bs-toggle="modal" data-bs-target="#serviceModal" data-service="tecnico" style="cursor:pointer;">
+                    <div class="card-body p-4">
+                      <div class="bg-warning bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width:80px;height:80px;"><i class="bi bi-tools text-dark fs-1"></i></div>
+                      <h3 class="h5 fw-bold mb-3">Servicio Técnico</h3>
+                      <p class="text-muted mb-4">Mantenimiento y reparación especializada con técnicos certificados.</p>
+                      <div class="mb-4"><div class="badge bg-warning text-dark mb-2 d-block">Tiempo de respuesta</div><h4 class="text-warning mb-0">4 horas</h4></div>
+                      <a href="/contactus" class="btn btn-warning text-dark w-100"><i class="bi bi-telephone me-1"></i>Solicitar Servicio</a>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Repuestos -->
+                <div class="col-lg-4">
+                  <div class="card h-100 border-0 shadow-sm service-card-hover text-center"
+                       data-bs-toggle="modal" data-bs-target="#serviceModal" data-service="repuestos" style="cursor:pointer;">
+                    <div class="card-body p-4">
+                      <div class="bg-info bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width:80px;height:80px;"><i class="bi bi-droplet-fill text-white fs-1"></i></div>
+                      <h3 class="h5 fw-bold mb-3">Repuestos y Tóner</h3>
+                      <p class="text-muted mb-4">Amplio inventario de tóneres originales y repuestos para todas las marcas.</p>
+                      <div class="mb-4"><div class="badge bg-info mb-2 d-block">Stock disponible</div><h4 class="text-info mb-0">1000+ items</h4></div>
+                      <a href="/contactus" class="btn btn-info w-100"><i class="bi bi-box-seam me-1"></i>Ver Catálogo</a>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Monitoreo -->
+                <div class="col-lg-4">
+                  <div class="card h-100 border-0 shadow-sm service-card-hover text-center"
+                       data-bs-toggle="modal" data-bs-target="#serviceModal" data-service="monitoreo" style="cursor:pointer;">
+                    <div class="card-body p-4">
+                      <div class="bg-danger bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width:80px;height:80px;"><i class="bi bi-graph-up-arrow text-white fs-1"></i></div>
+                      <h3 class="h5 fw-bold mb-3">Monitoreo Flota</h3>
+                      <p class="text-muted mb-4">Control remoto total de tu flota de impresoras con reportes en tiempo real.</p>
+                      <div class="mb-4"><div class="badge bg-danger mb-2 d-block">Acceso remoto</div><h4 class="text-danger mb-0">24/7</h4></div>
+                      <a href="https://app.printtrackerpro.com/auth/login" target="_blank" class="btn btn-danger w-100"><i class="bi bi-box-arrow-up-right me-1"></i>Acceder Sistema</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- PROCESO, GARANTÍAS, CTA final: (se mantiene como en tu archivo) -->
+
+          <!-- MODAL GENÉRICO DE SERVICIOS -->
+          <div class="modal fade" id="serviceModal" tabindex="-1" aria-labelledby="serviceModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+              <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-primary text-white">
+                  <h5 class="modal-title fw-bold" id="serviceModalLabel"><i class="bi bi-info-circle me-2"></i>Detalles del Servicio</h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4" id="serviceModalBody">
+                  <!-- Contenido dinámico -->
+                </div>
+                <div class="modal-footer bg-light">
+                  <a href="/cotizacion/form" class="btn btn-primary"><i class="bi bi-calculator me-2"></i>Solicitar Cotización</a>
+                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BOTONES FLOTANTES (ajustados para no chocar con el chat) -->
+          <div class="cc-float-right">
+            <a href="https://wa.me/51975399303?text=Hola,%20necesito%20información%20sobre%20sus%20servicios" target="_blank"
+               class="btn btn-success rounded-pill shadow-lg d-flex align-items-center">
+              <i class="bi bi-whatsapp fs-4 me-2"></i><span class="d-none d-md-inline fw-semibold">¿Necesitas ayuda?</span>
+            </a>
+          </div>
+          <div class="cc-float-left">
+            <a href="/cotizacion/form" class="btn btn-warning rounded-pill shadow-lg d-flex align-items-center">
+              <i class="bi bi-calculator fs-4 me-2"></i><span class="d-none d-md-inline fw-semibold text-dark">Cotización Rápida</span>
+            </a>
+          </div>
+
+          <!-- Carga del JS específico para esta página -->
+          <script t-att-src="'/copier_company/static/js/copier_services_scripts.js'"></script>
+        </div>
+      </t>
+    </template>
+  </data>
 </odoo>
