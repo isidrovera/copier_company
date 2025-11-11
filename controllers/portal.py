@@ -17,7 +17,6 @@ class CopierPortal(CustomerPortal):
 
     def _prepare_portal_layout_values(self):
         values = super()._prepare_portal_layout_values()
-        # contador para el "home" (ya lo usas en tus logs)
         try:
             partner = request.env.user.partner_id
             equipment_count = request.env['copier.company'].sudo().search_count([('cliente_id', '=', partner.id)])
@@ -30,45 +29,27 @@ class CopierPortal(CustomerPortal):
 
     @http.route(['/my/copier/equipments'], type='http', auth='user', website=True)
     def portal_my_equipment(self, **kwargs):
-        """Listado de equipos en el portal (corrige KeyError 'date')."""
         _logger.info("=== INICIANDO portal_my_equipment ===")
         page = int(kwargs.get('page', 1))
         partner = request.env.user.partner_id
 
-        # --- ORDENAMIENTOS (se añadió 'date' y fallback más abajo) ---
+        # --- ORDENAMIENTOS (incluye 'date' para evitar KeyError) ---
         searchbar_sortings = {
-            'name': {
-                'label': _('Nombre'),
-                'order': 'name asc',
-            },
-            'date': {  # <- CLAVE AÑADIDA para evitar KeyError: 'date'
-                'label': _('Fecha'),
-                'order': 'create_date desc',
-            },
-            'status': {
-                'label': _('Estado'),
-                'order': 'estado_renovacion asc, name asc',
-            },
+            'name': {'label': _('Nombre'), 'order': 'name asc'},
+            'date': {'label': _('Fecha'), 'order': 'create_date desc'},
+            'status': {'label': _('Estado'), 'order': 'estado_renovacion asc, name asc'},
         }
 
         # --- FILTROS ---
         domain_base = [('cliente_id', '=', partner.id)]
         searchbar_filters = {
-            'all': {
-                'label': _('Todos'),
-                'domain': domain_base,
-            },
-            'active': {
-                'label': _('Contratos Activos'),
-                'domain': AND([domain_base, [('estado_renovacion', 'in', ['vigente', 'por_vencer'])]]),
-            },
-            'expired': {
-                'label': _('Vencidos'),
-                'domain': AND([domain_base, [('estado_renovacion', '=', 'finalizado')]]),
-            },
+            'all': {'label': _('Todos'), 'domain': domain_base},
+            'active': {'label': _('Contratos Activos'),
+                       'domain': AND([domain_base, [('estado_renovacion', 'in', ['vigente', 'por_vencer'])]])},
+            'expired': {'label': _('Vencidos'),
+                        'domain': AND([domain_base, [('estado_renovacion', '=', 'finalizado')]])},
         }
 
-        # parámetros de ui
         filterby = kwargs.get('filterby') or 'all'
         if filterby not in searchbar_filters:
             filterby = 'all'
@@ -76,40 +57,37 @@ class CopierPortal(CustomerPortal):
 
         sortby = kwargs.get('sortby') or 'name'
         if sortby not in searchbar_sortings:
-            # Fallback seguro en caso llegue sortby inválido (ej. 'date' cuando no existía)
             sortby = 'name'
         order = searchbar_sortings[sortby]['order']
 
-        # paginación
+        # --- Paginación (no usar pager['step']) ---
+        step = 20  # usa este valor para limit
         Equip = request.env['copier.company'].sudo()
-        equipment_count = Equip.search_count(current_domain)
+        total = Equip.search_count(current_domain)
         pager = portal_pager(
             url="/my/copier/equipments",
             url_args={'filterby': filterby, 'sortby': sortby},
-            total=equipment_count,
+            total=total,
             page=page,
-            step=20
+            step=step
         )
+        offset = pager.get('offset', 0)
 
-        equipments = Equip.search(current_domain, order=order, limit=pager['step'], offset=pager['offset'])
+        equipments = Equip.search(current_domain, order=order, limit=step, offset=offset)
 
         values = {
-            'page_name': 'equipment',  # para breadcrumbs en tus plantillas
+            'page_name': 'equipment',
             'equipments': equipments,
             'pager': pager,
-
-            # searchbar data esperada por portal.portal_searchbar
             'searchbar_sortings': searchbar_sortings,
             'sortby': sortby,
             'filters': searchbar_filters,
             'filterby': filterby,
         }
-
         return request.render('copier_company.portal_my_copier_equipments', values)
 
     @http.route(['/my/copier/equipment/<int:equipment_id>'], type='http', auth='user', website=True)
     def portal_equipment_detail(self, equipment_id, **kwargs):
-        """Detalle del equipo (sin cambios funcionales, solo page_name)."""
         Equip = request.env['copier.company'].sudo()
         equipment = Equip.browse(equipment_id)
         if not equipment or equipment.cliente_id.id != request.env.user.partner_id.id:
@@ -123,18 +101,15 @@ class CopierPortal(CustomerPortal):
 
     @http.route(['/my/copier/equipment/<int:equipment_id>/counters'], type='http', auth='user', website=True)
     def portal_equipment_counters(self, equipment_id, **kwargs):
-        """Historial de lecturas (sin cambios, solo page_name y variables esperadas por tu template)."""
         Equip = request.env['copier.company'].sudo()
         equipment = Equip.browse(equipment_id)
         if not equipment or equipment.cliente_id.id != request.env.user.partner_id.id:
             return request.redirect('/my')
 
-        # Trae lecturas (ajusta el modelo si usas otro)
         Counter = request.env['copier.counter'].sudo()
         counters = Counter.search([('maquina_id', '=', equipment.id)], order='fecha desc, id desc')
 
-        # `chart_data` es usado por tu template (div #charts-data)
-        chart_data = {}  # deja el dict vacío si tu JS lo rellena por window.updateUserDataFromTemplate
+        chart_data = {}
 
         values = {
             'page_name': 'equipment_counters',
