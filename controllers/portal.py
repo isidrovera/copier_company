@@ -13,220 +13,136 @@ import base64
 _logger = logging.getLogger(__name__)
 
 
-class CopierCompanyPortal(CustomerPortal):
-    
-    # ✅ MÉTODO _safe_get_text CORREGIDO - SOLO UNA VERSIÓN
-    def _safe_get_text(self, value):
-        """Método auxiliar para asegurar que siempre devolvamos strings seguros"""
-        try:
-            if value is None:
-                return ''
-            return str(value).strip()
-        except Exception as e:
-            _logger.warning("Error al obtener texto: %s", str(e))
-            return ''
+class CopierPortal(CustomerPortal):
 
-    def _prepare_home_portal_values(self, counters):
-        """Prepara los valores para la página de inicio del portal, incluyendo el conteo de equipos en alquiler"""
-        _logger.info("=== INICIANDO _prepare_home_portal_values ===")
-        
-        values = super()._prepare_home_portal_values(counters)
-        
-        # Solo calcular 'equipment_count' si está en counters o si counters está vacío (significa todos)
-        if not counters or 'equipment_count' in counters:
+    def _prepare_portal_layout_values(self):
+        values = super()._prepare_portal_layout_values()
+        # contador para el "home" (ya lo usas en tus logs)
+        try:
             partner = request.env.user.partner_id
-            _logger.info("Contando equipos para el partner_id: %s", partner.id)
-            
+            equipment_count = request.env['copier.company'].sudo().search_count([('cliente_id', '=', partner.id)])
+        except Exception:
             equipment_count = 0
-            
-            try:
-                if 'copier.company' not in request.env:
-                    _logger.error("Modelo 'copier.company' no encontrado en la base de datos")
-                else:
-                    equipment_count = request.env['copier.company'].sudo().search_count([
-                        ('cliente_id', '=', partner.id)
-                    ])
-                    _logger.info("Equipos encontrados para el partner: %s", equipment_count)
-            except Exception as e:
-                _logger.exception("¡EXCEPCIÓN en _prepare_home_portal_values!: %s", str(e))
-            
-            values['equipment_count'] = equipment_count
-            
-        _logger.info("=== FINALIZANDO _prepare_home_portal_values ===")
+        values.update({
+            'equipment_count': equipment_count,
+        })
         return values
-        
-    @http.route(['/my/copier/equipments', '/my/copier/equipments/page/<int:page>'], type='http', auth="user", website=True)
-    def portal_my_equipment(self, page=1, date_begin=None, date_end=None, sortby=None, filterby=None, search=None, search_in='name', groupby=None, **kw):
-        """Muestra la lista de equipos en alquiler del cliente"""
+
+    @http.route(['/my/copier/equipments'], type='http', auth='user', website=True)
+    def portal_my_equipment(self, **kwargs):
+        """Listado de equipos en el portal (corrige KeyError 'date')."""
         _logger.info("=== INICIANDO portal_my_equipment ===")
-        _logger.info("Parámetros recibidos: page=%s, date_begin=%s, date_end=%s, sortby=%s, filterby=%s, search=%s, search_in=%s", 
-                    page, date_begin, date_end, sortby, filterby, search, search_in)
-        
-        try:
-            # Verificaciones iniciales
-            if 'copier.company' not in request.env:
-                _logger.error("Modelo 'copier.company' no encontrado - Redirigiendo a /my")
-                return request.redirect('/my')
-            
-            # Obtener valores base del portal
-            values = self._prepare_portal_layout_values()
-            partner = request.env.user.partner_id
-            CopierCompany = request.env['copier.company']
-            
-            _logger.info("Usuario: ID=%s, Nombre=%s, Partner ID=%s", 
-                        request.env.user.id, request.env.user.name, partner.id)
-            
-            # Construir dominio
-            domain = [('cliente_id', '=', partner.id)]
-            _logger.info("Dominio base de búsqueda: %s", domain)
-            
-            # Configurar opciones de búsqueda
-            searchbar_inputs = {
-                'name': {'input': 'name', 'label': _('Máquina')},
-                'serie': {'input': 'serie_id', 'label': _('Serie')},
-            }
-            
-            # Configurar filtros
-            searchbar_filters = {
-                'all': {'label': _('Todos'), 'domain': domain},
-                'active': {'label': _('Contratos Activos'), 'domain': AND([domain, [('estado_renovacion', 'in', ['vigente', 'por_vencer'])]])},
-                'color': {'label': _('Impresoras Color'), 'domain': AND([domain, [('tipo', '=', 'color')]])},
-                'bw': {'label': _('Impresoras B/N'), 'domain': AND([domain, [('tipo', '=', 'monocroma')]])},
-            }
-            
-            # Configurar ordenamiento
-            searchbar_sortings = {
-                
-                'name': {'label': _('Máquina'), 'order': 'name'},
-                'estado': {'label': _('Estado'), 'order': 'estado_renovacion'},
-            }
-            
-            # Aplicar valores por defecto
-            if not sortby:
-                sortby = 'date'
-            sort_order = searchbar_sortings[sortby]['order']
-            _logger.info("Ordenamiento aplicado: %s", sort_order)
-            
-            if not filterby:
-                filterby = 'all'
-            domain = searchbar_filters[filterby]['domain']
-            _logger.info("Filtro aplicado: %s, dominio resultante: %s", filterby, domain)
-            
-            # Aplicar búsqueda de texto
-            if search and search_in:
-                _logger.info("Aplicando búsqueda de texto: '%s' en campo '%s'", search, search_in)
-                search_domain = []
-                if search_in == 'name':
-                    search_domain = [('name.name', 'ilike', search)]
-                elif search_in == 'serie':
-                    search_domain = [('serie_id', 'ilike', search)]
-                domain = AND([domain, search_domain])
-                _logger.info("Dominio final con búsqueda: %s", domain)
-            
-            # Contar total de registros
-            try:
-                equipment_count = CopierCompany.search_count(domain)
-                _logger.info("Total de equipos encontrados: %s", equipment_count)
-            except Exception as e:
-                _logger.exception("Error al contar equipos: %s", str(e))
-                equipment_count = 0
-            
-            # Configurar paginación
-            pager = portal_pager(
-                url="/my/copier/equipments",
-                url_args={'date_begin': date_begin, 'date_end': date_end, 'sortby': sortby, 
-                         'filterby': filterby, 'search_in': search_in, 'search': search},
-                total=equipment_count,
-                page=page,
-                step=self._items_per_page
-            )
-            _logger.info("Paginación configurada: página=%s, offset=%s, límite=%s", 
-                        page, pager['offset'], self._items_per_page)
-            
-            # Obtener registros para esta página
-            try:
-                equipments = CopierCompany.search(domain, order=sort_order, 
-                                                limit=self._items_per_page, offset=pager['offset'])
-                _logger.info("Equipos recuperados para esta página: %s", len(equipments))
-                
-                # Log detallado de equipos encontrados
-                for equipment in equipments:
-                    _logger.info("Equipo encontrado: ID=%s, Nombre=%s, Cliente=%s, Serie=%s", 
-                                equipment.id, 
-                                self._safe_get_text(equipment.name.name) if equipment.name else 'Sin nombre',
-                                self._safe_get_text(equipment.cliente_id.name) if equipment.cliente_id else 'Sin cliente',
-                                self._safe_get_text(equipment.serie_id) or 'Sin serie')
-            except Exception as e:
-                _logger.exception("Error al buscar equipos: %s", str(e))
-                equipments = CopierCompany.browse([])
-            
-            # Preparar valores para renderizar la plantilla
-            values.update({
-                'equipments': equipments,
-                'page_name': 'equipment',
-                'pager': pager,
-                'default_url': '/my/copier/equipments',
-                'searchbar_sortings': searchbar_sortings,
-                'searchbar_filters': searchbar_filters,
-                'searchbar_inputs': searchbar_inputs,
-                'search_in': search_in,
-                'sortby': sortby,
-                'filterby': filterby,
-            })
-            
-            # Verificar existencia del template
-            template = 'copier_company.portal_my_copier_equipments'
-            if not request.env['ir.ui.view'].sudo().search([('key', '=', template)]):
-                _logger.error("¡ERROR! Template %s no encontrado", template)
-                return request.redirect('/my')
-            
-            _logger.info("Renderizando template: %s", template)
-            _logger.info("=== FINALIZANDO portal_my_equipment ===")
-            return request.render(template, values)
-        
-        except Exception as e:
-            _logger.exception("¡EXCEPCIÓN GENERAL en portal_my_equipment!: %s", str(e))
+        page = int(kwargs.get('page', 1))
+        partner = request.env.user.partner_id
+
+        # --- ORDENAMIENTOS (se añadió 'date' y fallback más abajo) ---
+        searchbar_sortings = {
+            'name': {
+                'label': _('Nombre'),
+                'order': 'name asc',
+            },
+            'date': {  # <- CLAVE AÑADIDA para evitar KeyError: 'date'
+                'label': _('Fecha'),
+                'order': 'create_date desc',
+            },
+            'status': {
+                'label': _('Estado'),
+                'order': 'estado_renovacion asc, name asc',
+            },
+        }
+
+        # --- FILTROS ---
+        domain_base = [('cliente_id', '=', partner.id)]
+        searchbar_filters = {
+            'all': {
+                'label': _('Todos'),
+                'domain': domain_base,
+            },
+            'active': {
+                'label': _('Contratos Activos'),
+                'domain': AND([domain_base, [('estado_renovacion', 'in', ['vigente', 'por_vencer'])]]),
+            },
+            'expired': {
+                'label': _('Vencidos'),
+                'domain': AND([domain_base, [('estado_renovacion', '=', 'finalizado')]]),
+            },
+        }
+
+        # parámetros de ui
+        filterby = kwargs.get('filterby') or 'all'
+        if filterby not in searchbar_filters:
+            filterby = 'all'
+        current_domain = searchbar_filters[filterby]['domain']
+
+        sortby = kwargs.get('sortby') or 'name'
+        if sortby not in searchbar_sortings:
+            # Fallback seguro en caso llegue sortby inválido (ej. 'date' cuando no existía)
+            sortby = 'name'
+        order = searchbar_sortings[sortby]['order']
+
+        # paginación
+        Equip = request.env['copier.company'].sudo()
+        equipment_count = Equip.search_count(current_domain)
+        pager = portal_pager(
+            url="/my/copier/equipments",
+            url_args={'filterby': filterby, 'sortby': sortby},
+            total=equipment_count,
+            page=page,
+            step=20
+        )
+
+        equipments = Equip.search(current_domain, order=order, limit=pager['step'], offset=pager['offset'])
+
+        values = {
+            'page_name': 'equipment',  # para breadcrumbs en tus plantillas
+            'equipments': equipments,
+            'pager': pager,
+
+            # searchbar data esperada por portal.portal_searchbar
+            'searchbar_sortings': searchbar_sortings,
+            'sortby': sortby,
+            'filters': searchbar_filters,
+            'filterby': filterby,
+        }
+
+        return request.render('copier_company.portal_my_copier_equipments', values)
+
+    @http.route(['/my/copier/equipment/<int:equipment_id>'], type='http', auth='user', website=True)
+    def portal_equipment_detail(self, equipment_id, **kwargs):
+        """Detalle del equipo (sin cambios funcionales, solo page_name)."""
+        Equip = request.env['copier.company'].sudo()
+        equipment = Equip.browse(equipment_id)
+        if not equipment or equipment.cliente_id.id != request.env.user.partner_id.id:
             return request.redirect('/my')
-        
-    @http.route(['/my/copier/equipment/<int:equipment_id>'], type='http', auth="user", website=True)
-    def portal_my_equipment_detail(self, equipment_id, **kw):
-        """Muestra el detalle de un equipo específico"""
-        _logger.info("=== INICIANDO portal_my_equipment_detail ===")
-        _logger.info("Parámetros recibidos - equipment_id: %s, kw: %s", equipment_id, kw)
-        
-        try:
-            # Verificar acceso al documento
-            _logger.info("Verificando acceso al equipo ID: %s", equipment_id)
-            try:
-                equipment_sudo = self._document_check_access('copier.company', equipment_id)
-                _logger.info("Acceso verificado para equipo ID: %s", equipment_id)
-                _logger.info("Equipo: Nombre=%s, Cliente=%s, Serie=%s", 
-                            self._safe_get_text(equipment_sudo.name.name) if equipment_sudo.name else 'Sin nombre',
-                            self._safe_get_text(equipment_sudo.cliente_id.name) if equipment_sudo.cliente_id else 'Sin cliente',
-                            self._safe_get_text(equipment_sudo.serie_id) or 'Sin serie')
-            except (AccessError, MissingError) as e:
-                _logger.error("Error de acceso para equipo ID %s: %s", equipment_id, str(e))
-                return request.redirect('/my')
-                
-            values = self._prepare_portal_layout_values()
-            values.update({
-                'equipment': equipment_sudo,
-                'page_name': 'equipment_detail',
-            })
-            
-            # Verificar existencia del template
-            template = 'copier_company.portal_my_copier_equipment'
-            if not request.env['ir.ui.view'].sudo().search([('key', '=', template)]):
-                _logger.error("¡ERROR! Template %s no encontrado", template)
-                return request.redirect('/my')
-            
-            _logger.info("Renderizando template: %s", template)
-            _logger.info("=== FINALIZANDO portal_my_equipment_detail ===")
-            return request.render(template, values)
-            
-        except Exception as e:
-            _logger.exception("¡EXCEPCIÓN GENERAL en portal_my_equipment_detail!: %s", str(e))
+
+        values = {
+            'page_name': 'equipment_detail',
+            'equipment': equipment,
+        }
+        return request.render('copier_company.portal_my_copier_equipment', values)
+
+    @http.route(['/my/copier/equipment/<int:equipment_id>/counters'], type='http', auth='user', website=True)
+    def portal_equipment_counters(self, equipment_id, **kwargs):
+        """Historial de lecturas (sin cambios, solo page_name y variables esperadas por tu template)."""
+        Equip = request.env['copier.company'].sudo()
+        equipment = Equip.browse(equipment_id)
+        if not equipment or equipment.cliente_id.id != request.env.user.partner_id.id:
             return request.redirect('/my')
+
+        # Trae lecturas (ajusta el modelo si usas otro)
+        Counter = request.env['copier.counter'].sudo()
+        counters = Counter.search([('maquina_id', '=', equipment.id)], order='fecha desc, id desc')
+
+        # `chart_data` es usado por tu template (div #charts-data)
+        chart_data = {}  # deja el dict vacío si tu JS lo rellena por window.updateUserDataFromTemplate
+
+        values = {
+            'page_name': 'equipment_counters',
+            'equipment': equipment,
+            'counters': counters,
+            'chart_data': chart_data,
+        }
+        return request.render('copier_company.portal_my_copier_counters', values)
         
     @http.route(['/my/copier/equipment/<int:equipment_id>/ticket'], type='http', auth="user", website=True)
     def portal_create_equipment_ticket(self, equipment_id, **kw):

@@ -5,7 +5,7 @@ import qrcode
 import base64
 import io
 from dateutil import tz
-from datetime import datetime
+from datetime import datetime, timedelta
 from PIL import Image
 from PIL import ImageDraw, ImageFont
 import textwrap
