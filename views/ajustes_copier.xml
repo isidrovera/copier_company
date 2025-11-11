@@ -36,7 +36,7 @@
             <field name="arch" type="xml">
                 <kanban string="Accesorios de Máquinas">
                     <templates>
-                        <t t-name="kanban-box">
+                        <t t-name="card">
                             <div class="oe_kanban_global_click">
                                 <strong>
                                     <field name="name"/>
@@ -82,7 +82,7 @@
             <field name="arch" type="xml">
                 <kanban string="Estados de Copiadoras">
                     <templates>
-                        <t t-name="kanban-box">
+                        <t t-name="card">
                             <div class="oe_kanban_global_click">
                                 <strong>
                                     <field name="name"/>
@@ -128,7 +128,7 @@
             <field name="arch" type="xml">
                 <kanban string="Duraciones de Alquiler">
                     <templates>
-                        <t t-name="kanban-box">
+                        <t t-name="card">
                             <div class="oe_kanban_global_click">
                                 <strong>
                                     <field name="name"/>
