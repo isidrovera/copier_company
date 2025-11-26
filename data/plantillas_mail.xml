@@ -307,8 +307,7 @@
         <field name="email_to">{{object.cliente_id.email}}</field>
 
         <!-- Asunto -->
-        <field name="subject">
-            Lecturas de contadores - {{ object.cliente_id.name or '' }} - {{ object.mes_facturacion or '' }}
+        <field name="subject">Lecturas de contadores - {{ object.cliente_id.name or '' }} - {{ object.mes_facturacion or '' }}
         </field>
 
         <!-- Adjuntar reporte PDF -->
