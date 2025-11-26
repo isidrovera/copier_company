@@ -111,8 +111,8 @@
                                 <p t-if="cliente.vat" style="color: #64748b;">
                                     RUC/DNI: <t t-esc="cliente.vat" />
                                 </p>
-                                <p t-if="maquina.ubicacion" style="color: #64748b;">
-                                    Ubicación: <t t-esc="maquina.ubicacion" />
+                                <p t-if="maquina_id.ubicacion" style="color: #64748b;">
+                                    Ubicación: <t t-esc="maquina_id.ubicacion" />
                                 </p>
 
                             </div>
