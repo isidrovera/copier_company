@@ -298,24 +298,22 @@
 </html>
             ]]></field>
         </record>
-        <record id="email_template_counter_readings" model="mail.template">
-        <field name="name">Lecturas de Contadores</field>
-        <!-- Modelo: copier.counter -->
+         <record id="email_template_counter_readings" model="mail.template">
+        <field name="name">Reporte de Lecturas de Contadores</field>
         <field name="model_id" ref="model_copier_counter"/>
 
         <!-- Remitente y destinatario -->
-        <field name="email_from">${user.email or 'info@copiercompanysac.com'}</field>
-        <field name="email_to">${object.cliente_id.email or ''}</field>
+        <field name="email_from">{{ user.email or 'info@copiercompanysac.com' }}</field>
+        <field name="email_to">{{ object.cliente_id.email }}</field>
 
-        <!-- Asunto del correo -->
+        <!-- Asunto -->
         <field name="subject">
-            Lecturas de contadores - ${object.cliente_id.name or ''} - ${object.mes_facturacion or ''}
+            Lecturas de contadores - {{ object.cliente_id.name or '' }} - {{ object.mes_facturacion or '' }}
         </field>
 
-        <!-- Adjuntar el reporte de lecturas -->
+        <!-- Adjuntar reporte PDF -->
         <field name="report_template_ids"
                eval="[(4, ref('copier_company.action_report_counter_readings'))]"/>
-
         <field name="auto_delete" eval="True"/>
 
         <field name="body_html"><![CDATA[
@@ -323,202 +321,124 @@
     <div style="padding: 25px; background-color: #ffffff;">
         <!-- Saludo -->
         <h2 style="color: #2C3E50; margin-bottom: 20px;">
-            Estimado/a ${object.cliente_id.name or ''}
+            Estimado/a <t t-out="object.cliente_id.name or ''"/>
         </h2>
         
-        <!-- Texto principal -->
+        <!-- Texto introductorio -->
         <p style="color: #34495E; font-size: 15px; margin-bottom: 15px; line-height: 1.6;">
-            Por medio del presente, le hacemos llegar el reporte de lecturas de contadores
-            correspondiente al período 
-            <strong>${object.mes_facturacion or ''}</strong>.
+            Por medio del presente, le hacemos llegar el 
+            <strong>reporte de lecturas de contadores</strong> correspondiente al período 
+            <strong><t t-out="object.mes_facturacion or ''"/></strong>.
             En el archivo adjunto encontrará el detalle completo por equipo.
         </p>
 
-        <!-- Resumen de cliente y equipo -->
-        <table style="width: 100%; max-width: 600px; border-collapse: collapse; margin: 15px 0;">
-            <tr>
-                <td colspan="2" 
-                    style="background-color: #f3f6fb; padding: 8px 12px; 
-                           font-weight: bold; color: #2C3E50; border: 1px solid #dce3f0;">
-                    Datos del cliente
-                </td>
-            </tr>
-            <tr>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0; width: 35%;">
-                    Cliente:
-                </td>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0;">
-                    ${object.cliente_id.name or ''}
-                </td>
-            </tr>
-            <tr>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0;">
-                    RUC/DNI:
-                </td>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0;">
-                    ${object.cliente_id.vat or '-'}
-                </td>
-            </tr>
-            <tr>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0;">
-                    Ubicación:
-                </td>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0;">
-                    ${object.ubicacion or ''}
-                </td>
-            </tr>
-        </table>
+        <!-- Datos del cliente -->
+        <div style="background-color: #f3f6fb; padding: 15px; border: 1px solid #dce3f0; margin-top: 10px;">
+            <div style="font-size: 16px; font-weight: bold; margin-bottom: 10px; color: #2C3E50;">
+                Datos del Cliente
+            </div>
+            <div>Cliente: <strong><t t-out="object.cliente_id.name or ''"/></strong></div>
+            <div>
+                RUC/DNI: 
+                <strong><t t-out="object.cliente_id.vat or '-'"/></strong>
+            </div>
+            <div>
+                Ubicación: 
+                <strong><t t-out="object.ubicacion or ''"/></strong>
+            </div>
+        </div>
 
         <!-- Datos del equipo -->
-        <table style="width: 100%; max-width: 600px; border-collapse: collapse; margin: 15px 0;">
-            <tr>
-                <td colspan="2" 
-                    style="background-color: #f3f6fb; padding: 8px 12px; 
-                           font-weight: bold; color: #2C3E50; border: 1px solid #dce3f0;">
-                    Datos del equipo
-                </td>
-            </tr>
-            <tr>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0; width: 35%;">
-                    Modelo:
-                </td>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0;">
-                    ${object.maquina_id.name.name or ''}
-                </td>
-            </tr>
-            <tr>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0;">
-                    Serie:
-                </td>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0;">
-                    ${object.serie or ''}
-                </td>
-            </tr>
-            <tr>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0;">
-                    Tipo:
-                </td>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0;">
-                    % if object.maquina_id.tipo == 'monocroma':
+        <div style="background-color: #f8fafc; padding: 15px; border: 1px solid #e2e8f0; margin-top: 15px;">
+            <div style="font-size: 16px; font-weight: bold; margin-bottom: 10px; color: #2C3E50;">
+                Datos del Equipo
+            </div>
+            <div>
+                Modelo: 
+                <strong><t t-out="object.maquina_id.name and object.maquina_id.name.name or ''"/></strong>
+            </div>
+            <div>
+                Serie: 
+                <strong><t t-out="object.serie or ''"/></strong>
+            </div>
+            <div>
+                Tipo: 
+                <strong>
+                    <t t-if="object.maquina_id.tipo == 'monocroma'">
                         Monocromática (B/N)
-                    % elif object.maquina_id.tipo == 'color':
+                    </t>
+                    <t t-elif="object.maquina_id.tipo == 'color'">
                         Color
-                    % else:
+                    </t>
+                    <t t-else="">
                         -
-                    % endif
-                </td>
-            </tr>
-            <tr>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0;">
-                    Fecha de lectura:
-                </td>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0;">
-                    % if object.fecha:
-                        ${object.fecha.strftime('%d/%m/%Y')}
-                    % else:
+                    </t>
+                </strong>
+            </div>
+            <div>
+                Fecha de lectura: 
+                <strong>
+                    <t t-if="object.fecha">
+                        <t t-out="object.fecha.strftime('%d/%m/%Y')"/>
+                    </t>
+                    <t t-else="">
                         -
-                    % endif
-                </td>
-            </tr>
-            <tr>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0;">
-                    Período de facturación:
-                </td>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0;">
-                    ${object.mes_facturacion or ''}
-                </td>
-            </tr>
-        </table>
+                    </t>
+                </strong>
+            </div>
+            <div>
+                Período de facturación: 
+                <strong><t t-out="object.mes_facturacion or ''"/></strong>
+            </div>
+        </div>
 
-        <!-- Resumen numérico (opcional) -->
-        <table style="width: 100%; max-width: 600px; border-collapse: collapse; margin: 15px 0;">
-            <tr>
-                <td colspan="2" 
-                    style="background-color: #f3f6fb; padding: 8px 12px; 
-                           font-weight: bold; color: #2C3E50; border: 1px solid #dce3f0;">
-                    Resumen de copias y montos
-                </td>
-            </tr>
-            <tr>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0; width: 50%;">
-                    Copias facturables B/N:
-                </td>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0; text-align: right;">
-                    ${'{:,.0f}'.format(object.copias_facturables_bn or 0)}
-                </td>
-            </tr>
-            <tr>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0;">
-                    Copias facturables Color:
-                </td>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0; text-align: right;">
-                    ${'{:,.0f}'.format(object.copias_facturables_color or 0)}
-                </td>
-            </tr>
-            <tr>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0;">
-                    Subtotal (sin IGV):
-                </td>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0; text-align: right;">
-                    S/ ${'{:,.2f}'.format(object.subtotal or 0.0)}
-                </td>
-            </tr>
-            <tr>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0;">
-                    IGV:
-                </td>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0; text-align: right;">
-                    S/ ${'{:,.2f}'.format(object.igv or 0.0)}
-                </td>
-            </tr>
-            <tr>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0; font-weight: bold;">
-                    Total a pagar:
-                </td>
-                <td style="padding: 6px 12px; border: 1px solid #dce3f0; text-align: right; font-weight: bold; color: #1d4ed8;">
-                    S/ ${'{:,.2f}'.format(object.total or 0.0)}
-                </td>
-            </tr>
-        </table>
+        <!-- Resumen de copias y montos -->
+        <div style="background-color: #f0fff4; padding: 15px; border: 1px solid #c6f6d5; margin-top: 15px;">
+            <div style="font-size: 16px; font-weight: bold; margin-bottom: 10px; color: #22543d;">
+                Resumen de Copias y Montos
+            </div>
+            <div>
+                Copias facturables B/N: 
+                <strong>
+                    <t t-out="'{:,.0f}'.format(object.copias_facturables_bn or 0)"/>
+                </strong>
+            </div>
+            <div>
+                Copias facturables Color: 
+                <strong>
+                    <t t-out="'{:,.0f}'.format(object.copias_facturables_color or 0)"/>
+                </strong>
+            </div>
+            <div>
+                Subtotal (sin IGV): 
+                <strong>
+                    S/ <t t-out="'{:,.2f}'.format(object.subtotal or 0.0)"/>
+                </strong>
+            </div>
+            <div>
+                IGV: 
+                <strong>
+                    S/ <t t-out="'{:,.2f}'.format(object.igv or 0.0)"/>
+                </strong>
+            </div>
+            <div style="margin-top: 5px;">
+                Total a pagar: 
+                <strong style="color: #1d4ed8;">
+                    S/ <t t-out="'{:,.2f}'.format(object.total or 0.0)"/>
+                </strong>
+            </div>
+        </div>
 
+        <!-- Texto de cierre -->
         <p style="color: #34495E; font-size: 15px; margin-top: 20px; line-height: 1.6;">
-            Ante cualquier consulta o si requiere alguna aclaración adicional sobre las lecturas 
-            o el cálculo de los montos, no dude en contactarnos. 
-            Estaremos atentos para poder asistirle.
+            Si requiere alguna aclaración adicional sobre las lecturas, el cálculo de los montos
+            o necesita información complementaria, no dude en contactarnos.
+            Estaremos encantados de atenderle.
         </p>
 
         <p style="color: #34495E;">Saludos cordiales,</p>
 
-        <!-- Firma Profesional (igual estilo que tu otro template) -->
-        <table style="width: 100%; max-width: 600px; margin-top: 20px; border-top: 3px solid #3498DB; padding-top: 20px;">
-            <tr>
-                <td style="vertical-align: top; padding-right: 20px;">
-                    <img src="/web/image/res.company/${user.company_id.id}/logo/100x100"
-                         alt="Company Logo"
-                         style="width: 100px; height: auto;"/>
-                </td>
-                <td style="vertical-align: top;">
-                    <p style="margin: 0; color: #2C3E50; font-size: 18px; font-weight: bold;">
-                        ${user.name or ''}
-                    </p>
-                    <p style="margin: 3px 0; color: #7F8C8D; font-size: 14px;">
-                        ${user.job_title or ''}
-                    </p>
-                    <p style="margin: 3px 0; color: #2980B9; font-weight: bold; font-size: 16px;">
-                        ${user.company_id.name or ''}
-                    </p>
-                    <p style="margin: 3px 0; color: #7F8C8D; font-size: 14px;">
-                        📞 ${user.phone or ''}
-                    </p>
-                    <p style="margin: 3px 0; color: #7F8C8D; font-size: 14px;">
-                        ✉️ ${user.email or ''}
-                    </p>
-                    <p style="margin: 3px 0; color: #7F8C8D; font-size: 14px;">
-                        🌐 ${user.company_id.website or ''}
-                    </p>
-                </td>
-            </tr>
-        </table>
+       
 
         <!-- Disclaimer -->
         <p style="margin-top: 20px; font-size: 11px; color: #95A5A6; text-align: justify;">
