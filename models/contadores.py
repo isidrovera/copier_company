@@ -38,7 +38,7 @@ class CopierCounter(models.Model):
         string='Serie',
         store=True
     )
-    ubicacion = fields.Char('maquina_id.ubicacion', string='Ubicación', store=True)
+    ubicacion = fields.Char(related='maquina_id.ubicacion', string='Ubicación', store=True)
     fecha = fields.Date(
         'Fecha de Lectura',
         required=True,
