@@ -62,9 +62,28 @@ class CopierCounter(models.Model):
     )
     def action_send_counter_email(self):
         self.ensure_one()
-        template = self.env.ref('copier_company.email_template_counter_readings')
-        template.send_mail(self.id, force_send=True)
-        return True
+        template = self.env.ref('copier_company.email_template_counter_readings', raise_if_not_found=False)
+        if not template:
+            raise UserError("No se encontró la plantilla de correo 'email_template_counter_readings'.")
+
+        if not self.cliente_id or not self.cliente_id.email:
+            raise UserError("El cliente no tiene un correo configurado. Verifique el campo Email en el contacto.")
+
+        # Debug para ver a quién va
+        _logger.info("📧 Enviando correo de lecturas para counter %s a %s", self.name, self.cliente_id.email)
+
+        mail_id = template.send_mail(self.id, force_send=True)
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Correo enviado',
+                'message': f'Se ha enviado el reporte de lecturas a {self.cliente_id.email}.',
+                'type': 'success',
+                'sticky': False,
+            }
+        }
 
     # Contadores B/N
     contador_anterior_bn = fields.Integer(
