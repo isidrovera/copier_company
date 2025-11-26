@@ -111,6 +111,10 @@
                                 <p t-if="cliente.vat" style="color: #64748b;">
                                     RUC/DNI: <t t-esc="cliente.vat" />
                                 </p>
+                                <p t-if="maquina.ubicacion" style="color: #64748b;">
+                                    Ubicación: <t t-esc="maquina.ubicacion" />
+                                </p>
+
                             </div>
                             <div class="col-6 text-end">
                                 <h4 style="color: #1e293b; font-weight: 600;">
