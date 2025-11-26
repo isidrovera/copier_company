@@ -60,6 +60,11 @@ class CopierCounter(models.Model):
         'Fecha de Emisión',
         help="Fecha que aparecerá en la factura. Si está vacío, usa la fecha de hoy"
     )
+    def action_send_counter_email(self):
+        self.ensure_one()
+        template = self.env.ref('copier_company.email_template_counter_readings')
+        template.send_mail(self.id, force_send=True)
+        return True
 
     # Contadores B/N
     contador_anterior_bn = fields.Integer(
