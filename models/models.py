@@ -26,10 +26,6 @@ class CopierCompany(models.Model):
     
     @api.model
     def create(self, vals_list):
-        """
-        Override create method to handle sequence generation
-        Compatible with both single dict and list of dicts
-        """
         if isinstance(vals_list, dict):
             vals_list = [vals_list]
 
@@ -38,15 +34,32 @@ class CopierCompany(models.Model):
                 vals['secuencia'] = self.env['ir.sequence'].next_by_code('copier.company') or '/'
 
         records = super(CopierCompany, self).create(vals_list)
-        # 🔁 recalcular costos después de crear
-        records._recalcular_costos_unitarios()
+
+        # recalcular después de crear
+        for rec in records:
+            extra_vals = rec._get_costos_unitarios_vals()
+            if extra_vals:
+                rec.with_context(skip_recalc_costos=True).write(extra_vals)
+
         return records
 
+
     def write(self, vals):
+        # Si venimos de la escritura interna para actualizar costos, no recalcular otra vez
+        if self.env.context.get('skip_recalc_costos'):
+            return super(CopierCompany, self).write(vals)
+
         res = super(CopierCompany, self).write(vals)
-        # 🔁 recalcular costos después de guardar cambios
-        self._recalcular_costos_unitarios()
+
+        # Después de guardar, recalculamos y escribimos SOLO los costos
+        for rec in self:
+            extra_vals = rec._get_costos_unitarios_vals()
+            if extra_vals:
+                rec.with_context(skip_recalc_costos=True).write(extra_vals)
+
         return res
+
+    
 
     imagen_id = fields.Binary(related='name.imagen',string="Imagen de la Máquina", attachment=True)
 
@@ -146,138 +159,95 @@ class CopierCompany(models.Model):
         string="Monto Mensual Ingresado",
         currency_field='currency_id'
     )
-    def _recalcular_costos_unitarios(self):
-        """Recalcula costo_copia_bn y costo_copia_color según tipo_calculo y montos"""
-        for rec in self:
-            # Si es cálculo automático, no tocar los costos
-            if rec.tipo_calculo == 'auto':
-                continue
+    
 
-            # Validaciones de volumen
-            if rec.tipo_calculo in ['manual_sin_igv_bn', 'manual_con_igv_bn'] and rec.volumen_mensual_bn <= 0:
-                continue
+    def _get_costos_unitarios_vals(self):
+        """Devuelve los valores calculados para costo_copia_bn y costo_copia_color."""
+        self.ensure_one()
+        vals = {}
 
-            if rec.tipo_calculo in ['manual_sin_igv_color', 'manual_con_igv_color'] and rec.volumen_mensual_color <= 0:
-                continue
+        rec = self
 
-            if rec.tipo_calculo in ['manual_sin_igv_total', 'manual_con_igv_total']:
-                if (rec.volumen_mensual_bn + rec.volumen_mensual_color) <= 0:
-                    continue
+        # No hacemos nada si es cálculo automático
+        if rec.tipo_calculo == 'auto':
+            return vals
 
-            # --- B/N ---
-            if rec.tipo_calculo in ['manual_sin_igv_bn', 'manual_con_igv_bn']:
-                monto_sin_igv = rec.monto_mensual_bn
-                if rec.tipo_calculo == 'manual_con_igv_bn':
-                    monto_sin_igv = rec.monto_mensual_bn / (1 + (rec.igv / 100.0))
+        # Validaciones de volumen
+        if rec.tipo_calculo in ['manual_sin_igv_bn', 'manual_con_igv_bn'] and rec.volumen_mensual_bn <= 0:
+            return vals
 
-                if rec.volumen_mensual_bn > 0:
-                    rec.costo_copia_bn = monto_sin_igv / rec.volumen_mensual_bn
+        if rec.tipo_calculo in ['manual_sin_igv_color', 'manual_con_igv_color'] and rec.volumen_mensual_color <= 0:
+            return vals
 
-            # --- Color ---
-            elif rec.tipo_calculo in ['manual_sin_igv_color', 'manual_con_igv_color']:
-                monto_sin_igv = rec.monto_mensual_color
-                if rec.tipo_calculo == 'manual_con_igv_color':
-                    monto_sin_igv = rec.monto_mensual_color / (1 + (rec.igv / 100.0))
+        if rec.tipo_calculo in ['manual_sin_igv_total', 'manual_con_igv_total']:
+            if (rec.volumen_mensual_bn + rec.volumen_mensual_color) <= 0:
+                return vals
 
-                if rec.volumen_mensual_color > 0:
-                    rec.costo_copia_color = monto_sin_igv / rec.volumen_mensual_color
+        # --- Cálculo para monto mensual B/N ---
+        if rec.tipo_calculo in ['manual_sin_igv_bn', 'manual_con_igv_bn']:
+            monto_sin_igv = rec.monto_mensual_bn
+            if rec.tipo_calculo == 'manual_con_igv_bn':
+                monto_sin_igv = rec.monto_mensual_bn / (1 + (rec.igv / 100.0))
 
-            # --- Total (reparto proporcional) ---
-            elif rec.tipo_calculo in ['manual_sin_igv_total', 'manual_con_igv_total']:
-                monto_sin_igv = rec.monto_mensual_total
-                if rec.tipo_calculo == 'manual_con_igv_total':
-                    monto_sin_igv = rec.monto_mensual_total / (1 + (rec.igv / 100.0))
+            if rec.volumen_mensual_bn > 0:
+                vals['costo_copia_bn'] = monto_sin_igv / rec.volumen_mensual_bn
 
-                # Solo B/N
-                if rec.volumen_mensual_bn > 0 and rec.volumen_mensual_color == 0:
-                    rec.costo_copia_bn = monto_sin_igv / rec.volumen_mensual_bn
-                    rec.costo_copia_color = 0.0
+        # --- Cálculo para monto mensual Color ---
+        elif rec.tipo_calculo in ['manual_sin_igv_color', 'manual_con_igv_color']:
+            monto_sin_igv = rec.monto_mensual_color
+            if rec.tipo_calculo == 'manual_con_igv_color':
+                monto_sin_igv = rec.monto_mensual_color / (1 + (rec.igv / 100.0))
 
-                # Solo Color
-                elif rec.volumen_mensual_color > 0 and rec.volumen_mensual_bn == 0:
-                    rec.costo_copia_color = monto_sin_igv / rec.volumen_mensual_color
-                    rec.costo_copia_bn = 0.0
+            if rec.volumen_mensual_color > 0:
+                vals['costo_copia_color'] = monto_sin_igv / rec.volumen_mensual_color
 
-                # Ambos volúmenes
-                elif rec.volumen_mensual_bn > 0 and rec.volumen_mensual_color > 0:
-                    ratio_precio = 4  # color ≈ 4 veces B/N
-                    denominator = rec.volumen_mensual_bn + (ratio_precio * rec.volumen_mensual_color)
-                    if denominator > 0:
-                        precio_bn = monto_sin_igv / denominator
-                        precio_color = precio_bn * ratio_precio
-                        rec.costo_copia_bn = precio_bn
-                        rec.costo_copia_color = precio_color
+        # --- Cálculo para monto mensual Total (distribución proporcional) ---
+        elif rec.tipo_calculo in ['manual_sin_igv_total', 'manual_con_igv_total']:
+            monto_sin_igv = rec.monto_mensual_total
+            if rec.tipo_calculo == 'manual_con_igv_total':
+                monto_sin_igv = rec.monto_mensual_total / (1 + (rec.igv / 100.0))
 
-    @api.onchange('tipo_calculo', 'monto_mensual_bn', 'monto_mensual_color', 'monto_mensual_total',
-              'volumen_mensual_bn', 'volumen_mensual_color', 'igv')
-    def _onchange_montos_mensuales(self):
-        """Actualiza los costos unitarios cuando se cambian los montos mensuales deseados"""
-        self._recalcular_costos_unitarios()
-        """Actualiza los costos unitarios cuando se cambian los montos mensuales deseados"""
-        # Evitar cálculos innecesarios
-        if self.tipo_calculo == 'auto':
-            return
-            
-        # Validar que haya volúmenes válidos
-        if self.tipo_calculo in ['manual_sin_igv_bn', 'manual_con_igv_bn'] and self.volumen_mensual_bn <= 0:
-            return
-            
-        if self.tipo_calculo in ['manual_sin_igv_color', 'manual_con_igv_color'] and self.volumen_mensual_color <= 0:
-            return
-            
-        if self.tipo_calculo in ['manual_sin_igv_total', 'manual_con_igv_total']:
-            if (self.volumen_mensual_bn + self.volumen_mensual_color) <= 0:
-                return
-        
-        # Cálculo para monto mensual B/N
-        if self.tipo_calculo in ['manual_sin_igv_bn', 'manual_con_igv_bn']:
-            monto_sin_igv = self.monto_mensual_bn
-            if self.tipo_calculo == 'manual_con_igv_bn':
-                monto_sin_igv = self.monto_mensual_bn / (1 + (self.igv / 100))
-                
-            if self.volumen_mensual_bn > 0:
-                self.costo_copia_bn = monto_sin_igv / self.volumen_mensual_bn
-        
-        # Cálculo para monto mensual Color
-        elif self.tipo_calculo in ['manual_sin_igv_color', 'manual_con_igv_color']:
-            monto_sin_igv = self.monto_mensual_color
-            if self.tipo_calculo == 'manual_con_igv_color':
-                monto_sin_igv = self.monto_mensual_color / (1 + (self.igv / 100))
-                
-            if self.volumen_mensual_color > 0:
-                self.costo_copia_color = monto_sin_igv / self.volumen_mensual_color
-        
-        # Cálculo para monto mensual Total (distribución proporcional)
-        elif self.tipo_calculo in ['manual_sin_igv_total', 'manual_con_igv_total']:
-            monto_sin_igv = self.monto_mensual_total
-            if self.tipo_calculo == 'manual_con_igv_total':
-                monto_sin_igv = self.monto_mensual_total / (1 + (self.igv / 100))
-            
-            # Si solo hay volumen B/N
-            if self.volumen_mensual_bn > 0 and self.volumen_mensual_color == 0:
-                self.costo_copia_bn = monto_sin_igv / self.volumen_mensual_bn
-                self.costo_copia_color = 0
-            
-            # Si solo hay volumen Color
-            elif self.volumen_mensual_color > 0 and self.volumen_mensual_bn == 0:
-                self.costo_copia_color = monto_sin_igv / self.volumen_mensual_color
-                self.costo_copia_bn = 0
-            
-            # Si hay ambos tipos, distribuir proporcionalmente pero manteniendo relación
-            elif self.volumen_mensual_bn > 0 and self.volumen_mensual_color > 0:
-                # Por defecto, el color suele ser más caro (4-5 veces)
-                ratio_precio = 4
-                
-                # Fórmula: volumen_bn * x + volumen_color * (ratio*x) = monto_sin_igv
-                # Donde x es el precio unitario B/N
-                denominator = self.volumen_mensual_bn + (ratio_precio * self.volumen_mensual_color)
-                
+            # Solo hay volumen B/N
+            if rec.volumen_mensual_bn > 0 and rec.volumen_mensual_color == 0:
+                vals['costo_copia_bn'] = monto_sin_igv / rec.volumen_mensual_bn
+                vals['costo_copia_color'] = 0.0
+
+            # Solo hay volumen Color
+            elif rec.volumen_mensual_color > 0 and rec.volumen_mensual_bn == 0:
+                vals['costo_copia_color'] = monto_sin_igv / rec.volumen_mensual_color
+                vals['costo_copia_bn'] = 0.0
+
+            # Hay ambos tipos, distribuir proporcionalmente manteniendo relación
+            elif rec.volumen_mensual_bn > 0 and rec.volumen_mensual_color > 0:
+                ratio_precio = 4  # color ≈ 4 veces B/N
+                denominator = rec.volumen_mensual_bn + (ratio_precio * rec.volumen_mensual_color)
+
                 if denominator > 0:
                     precio_bn = monto_sin_igv / denominator
                     precio_color = precio_bn * ratio_precio
-                    
-                    self.costo_copia_bn = precio_bn
-                    self.costo_copia_color = precio_color
+                    vals['costo_copia_bn'] = precio_bn
+                    vals['costo_copia_color'] = precio_color
+
+        return vals
+
+
+    @api.onchange('tipo_calculo',
+                'monto_mensual_bn',
+                'monto_mensual_color',
+                'monto_mensual_total',
+                'volumen_mensual_bn',
+                'volumen_mensual_color',
+                'igv')
+    def _onchange_montos_mensuales(self):
+        """
+        Actualiza los costos unitarios cuando se cambian los montos mensuales
+        o los volúmenes. Solo actúa en memoria (no escribe en BD).
+        """
+        for rec in self:
+            vals = rec._get_costos_unitarios_vals()
+            for field_name, value in vals.items():
+                setattr(rec, field_name, value)
+
 
     def format_phone_number(self, phone):
         if not phone:
