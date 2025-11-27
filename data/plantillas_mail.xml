@@ -2,23 +2,19 @@
 <odoo>
     <data>
         <record id="email_template_propuesta_alquiler" model="mail.template">
-    <field name="name">Propuesta de Alquiler</field>
-    <field name="model_id" ref="model_copier_company"/>
-
-    <!-- Remitente y destinatario -->
-    <field name="email_from">info@copiercompanysac.com</field>
-    <field name="email_to">{{ object.cliente_id.email }}</field>
-
-    <!-- Asunto (en una sola línea, sin saltos) -->
-    <field name="subject">Propuesta de Solución de Impresión - {{ object.secuencia or '' }}</field>
-
-    <!-- Adjuntar reporte PDF existente -->
-    <field name="report_template_ids"
+            <field name="name">Propuesta de Alquiler</field>
+            <field name="model_id" ref="model_copier_company"/>
+            <!-- Remitente y destinatario -->
+            <field name="email_from">info@copiercompanysac.com</field>
+            <field name="email_to">{{ object.cliente_id.email }}</field>
+            <!-- Asunto (en una sola línea, sin saltos) -->
+            <field name="subject">Propuesta de Solución de Impresión - {{ object.secuencia or '' }}</field>
+            <!-- Adjuntar reporte PDF existente -->
+            <field name="report_template_ids"
            eval="[(4, ref('copier_company.action_report_report_cotizacion_alquiler'))]"/>
-
-    <field name="auto_delete" eval="True"/>
-
-    <field name="body_html"><![CDATA[
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html">
+                <![CDATA[
 <div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif;">
     <div style="padding: 25px; background-color: #ffffff;">
         <!-- Saludo -->
@@ -41,58 +37,7 @@
 
         <p style="color: #34495E;">Saludos cordiales,</p>
 
-        <!-- Firma Profesional -->
-        <table style="width: 100%; max-width: 600px; margin-top: 20px; border-top: 3px solid #3498DB; padding-top: 20px;">
-            <tr>
-                <td style="vertical-align: top; padding-right: 20px;">
-                    <!-- Logo de la empresa -->
-                    <img t-att-src="'/web/image/res.company/%s/logo/100x100' % user.company_id.id"
-                         alt="Company Logo"
-                         style="width: 100px; height: auto;"/>
-                </td>
-                <td style="vertical-align: top;">
-                    <!-- Información de contacto -->
-                    <p style="margin: 0; color: #2C3E50; font-size: 18px; font-weight: bold;">
-                        <t t-out="user.name or ''"/>
-                    </p>
-                    <p style="margin: 3px 0; color: #7F8C8D; font-size: 14px;">
-                        <t t-out="user.job_title or ''"/>
-                    </p>
-                    <p style="margin: 3px 0; color: #2980B9; font-weight: bold; font-size: 16px;">
-                        <t t-out="user.company_id.name or ''"/>
-                    </p>
-                    <p style="margin: 3px 0; color: #7F8C8D; font-size: 14px;">
-                        📞 <t t-out="user.phone or ''"/>
-                    </p>
-                    <p style="margin: 3px 0; color: #7F8C8D; font-size: 14px;">
-                        ✉️ <t t-out="user.email or ''"/>
-                    </p>
-                    <p style="margin: 3px 0; color: #7F8C8D; font-size: 14px;">
-                        🌐 <t t-out="user.company_id.website or ''"/>
-                    </p>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2" style="padding-top: 15px;">
-                    <!-- Redes Sociales -->
-                    <div style="margin-top: 15px;">
-                        <a href="https://facebook.com/company" style="text-decoration:none; margin-right:15px; font-size: 24px; color: #1877F2;">
-                            📘 Facebook
-                        </a>
-                        <a href="https://instagram.com/company" style="text-decoration:none; margin-right:15px; font-size: 24px; color: #E4405F;">
-                            📷 Instagram
-                        </a>
-                        <a href="https://wa.me/51999999999" style="text-decoration:none; margin-right:15px; font-size: 24px; color: #25D366;">
-                            📱 WhatsApp
-                        </a>
-                        <a href="https://youtube.com/company" style="text-decoration:none; font-size: 24px; color: #FF0000;">
-                            📺 YouTube
-                        </a>
-                    </div>
-                </td>
-            </tr>
-        </table>
-        
+       
         <!-- Disclaimer -->
         <p style="margin-top: 20px; font-size: 11px; color: #95A5A6; text-align: justify;">
             Este mensaje puede contener información confidencial y privilegiada. Si usted no es el destinatario, 
@@ -108,24 +53,20 @@
         </div>
     </div>
 </div>
-    ]]></field>
-</record>
-
-
+    ]]>
+            </field>
+        </record>
         <record id="email_template_cotizacion_multiple" model="mail.template">
-    <field name="name">💼 Cotización Múltiple de Alquiler</field>
-    <field name="model_id" ref="model_copier_quotation"/>
-
-    <field name="email_from">info@copiercompanysac.com</field>
-    <field name="email_to">{{ object.cliente_id.email }}</field>
-
-    <field name="subject">💼 Cotización {{ object.name }} - {{ object.modalidad_pago_id.name }}</field>
-
-    <field name="report_template_ids"
+            <field name="name">💼 Cotización Múltiple de Alquiler</field>
+            <field name="model_id" ref="model_copier_quotation"/>
+            <field name="email_from">info@copiercompanysac.com</field>
+            <field name="email_to">{{ object.cliente_id.email }}</field>
+            <field name="subject">💼 Cotización {{ object.name }} - {{ object.modalidad_pago_id.name }}</field>
+            <field name="report_template_ids"
            eval="[(4, ref('copier_company.action_report_copier_quotation'))]"/>
-    <field name="auto_delete" eval="False"/>
-
-    <field name="body_html"><![CDATA[
+            <field name="auto_delete" eval="False"/>
+            <field name="body_html">
+                <![CDATA[
 <!DOCTYPE html>
 <html>
 <head>
@@ -332,26 +273,23 @@
     </div>
 </body>
 </html>
-    ]]></field>
-</record>
-
-         <record id="email_template_counter_readings" model="mail.template">
-        <field name="name">Reporte de Lecturas de Contadores</field>
-        <field name="model_id" ref="model_copier_counter"/>
-
-        <!-- Remitente y destinatario -->
-        <field name="email_from">info@copiercompanysac.com</field>
-        <field name="email_to">{{object.cliente_id.email}}</field>
-
-        <!-- Asunto -->
-        <field name="subject">Lecturas de contadores - {{ object.cliente_id.name or '' }} - {{ object.mes_facturacion or '' }}</field>
-
-        <!-- Adjuntar reporte PDF -->
-        <field name="report_template_ids"
+    ]]>
+            </field>
+        </record>
+        <record id="email_template_counter_readings" model="mail.template">
+            <field name="name">Reporte de Lecturas de Contadores</field>
+            <field name="model_id" ref="model_copier_counter"/>
+            <!-- Remitente y destinatario -->
+            <field name="email_from">info@copiercompanysac.com</field>
+            <field name="email_to">{{object.cliente_id.email}}</field>
+            <!-- Asunto -->
+            <field name="subject">Lecturas de contadores - {{ object.cliente_id.name or '' }} - {{ object.mes_facturacion or '' }}</field>
+            <!-- Adjuntar reporte PDF -->
+            <field name="report_template_ids"
                eval="[(4, ref('copier_company.action_report_counter_readings'))]"/>
-        <field name="auto_delete" eval="True"/>
-
-        <field name="body_html"><![CDATA[
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html">
+                <![CDATA[
 <div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif;">
     <div style="padding: 25px; background-color: #ffffff;">
         <!-- Saludo -->
@@ -490,7 +428,8 @@
         </div>
     </div>
 </div>
-        ]]></field>
-    </record>
+        ]]>
+            </field>
+        </record>
     </data>
 </odoo>
