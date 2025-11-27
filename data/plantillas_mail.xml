@@ -2,23 +2,35 @@
 <odoo>
     <data>
         <record id="email_template_propuesta_alquiler" model="mail.template">
-            <field name="name">Propuesta de Alquiler</field>
-            <field name="model_id" ref="model_copier_company"/>
-            <field name="email_from">info@copiercompanysac.com</field>
-            <field name="email_to">${object.cliente_id.email}</field>
-            <field name="subject">Propuesta de Solución de Impresión - ${object.secuencia}</field>
-            <field name="report_template_ids" eval="[(4, ref('copier_company.action_report_report_cotizacion_alquiler'))]"/>
-            
-            <field name="body_html"><![CDATA[
+    <field name="name">Propuesta de Alquiler</field>
+    <field name="model_id" ref="model_copier_company"/>
+
+    <!-- Remitente y destinatario -->
+    <field name="email_from">info@copiercompanysac.com</field>
+    <field name="email_to">{{ object.cliente_id.email }}</field>
+
+    <!-- Asunto (en una sola línea, sin saltos) -->
+    <field name="subject">Propuesta de Solución de Impresión - {{ object.secuencia or '' }}</field>
+
+    <!-- Adjuntar reporte PDF existente -->
+    <field name="report_template_ids"
+           eval="[(4, ref('copier_company.action_report_report_cotizacion_alquiler'))]"/>
+
+    <field name="auto_delete" eval="True"/>
+
+    <field name="body_html"><![CDATA[
 <div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif;">
     <div style="padding: 25px; background-color: #ffffff;">
+        <!-- Saludo -->
         <h2 style="color: #2C3E50; margin-bottom: 20px;">
-            Estimado/a ${object.cliente_id.name or ''}
+            Estimado/a <t t-out="object.cliente_id.name or ''"/>
         </h2>
         
+        <!-- Texto principal -->
         <p style="color: #34495E; font-size: 15px; margin-bottom: 15px; line-height: 1.6;">
             Es un placer saludarle. Adjunto encontrará nuestra propuesta detallada 
-            para el servicio de alquiler de la máquina ${object.name.name or ''}, 
+            para el servicio de alquiler de la máquina 
+            <strong><t t-out="object.name and object.name.name or ''"/></strong>, 
             que hemos preparado especialmente para su empresa.
         </p>
 
@@ -34,27 +46,29 @@
             <tr>
                 <td style="vertical-align: top; padding-right: 20px;">
                     <!-- Logo de la empresa -->
-                    <img src="/web/image/res.company/${user.company_id.id}/logo/100x100" alt="Company Logo" style="width: 100px; height: auto;"/>
+                    <img t-att-src="'/web/image/res.company/%s/logo/100x100' % user.company_id.id"
+                         alt="Company Logo"
+                         style="width: 100px; height: auto;"/>
                 </td>
                 <td style="vertical-align: top;">
                     <!-- Información de contacto -->
                     <p style="margin: 0; color: #2C3E50; font-size: 18px; font-weight: bold;">
-                        ${user.name or ''}
+                        <t t-out="user.name or ''"/>
                     </p>
                     <p style="margin: 3px 0; color: #7F8C8D; font-size: 14px;">
-                        ${user.job_title or ''}
+                        <t t-out="user.job_title or ''"/>
                     </p>
                     <p style="margin: 3px 0; color: #2980B9; font-weight: bold; font-size: 16px;">
-                        ${user.company_id.name or ''}
+                        <t t-out="user.company_id.name or ''"/>
                     </p>
                     <p style="margin: 3px 0; color: #7F8C8D; font-size: 14px;">
-                        📞 ${user.phone or ''}
+                        📞 <t t-out="user.phone or ''"/>
                     </p>
                     <p style="margin: 3px 0; color: #7F8C8D; font-size: 14px;">
-                        ✉️ ${user.email or ''}
+                        ✉️ <t t-out="user.email or ''"/>
                     </p>
                     <p style="margin: 3px 0; color: #7F8C8D; font-size: 14px;">
-                        🌐 ${user.company_id.website or ''}
+                        🌐 <t t-out="user.company_id.website or ''"/>
                     </p>
                 </td>
             </tr>
@@ -62,22 +76,15 @@
                 <td colspan="2" style="padding-top: 15px;">
                     <!-- Redes Sociales -->
                     <div style="margin-top: 15px;">
-                        <!-- Facebook -->
                         <a href="https://facebook.com/company" style="text-decoration:none; margin-right:15px; font-size: 24px; color: #1877F2;">
                             📘 Facebook
                         </a>
-                        
-                        <!-- Instagram -->
                         <a href="https://instagram.com/company" style="text-decoration:none; margin-right:15px; font-size: 24px; color: #E4405F;">
                             📷 Instagram
                         </a>
-
-                        <!-- WhatsApp -->
                         <a href="https://wa.me/51999999999" style="text-decoration:none; margin-right:15px; font-size: 24px; color: #25D366;">
                             📱 WhatsApp
                         </a>
-
-                        <!-- YouTube -->
                         <a href="https://youtube.com/company" style="text-decoration:none; font-size: 24px; color: #FF0000;">
                             📺 YouTube
                         </a>
@@ -101,18 +108,24 @@
         </div>
     </div>
 </div>
-            ]]></field>
-        </record>
+    ]]></field>
+</record>
+
 
         <record id="email_template_cotizacion_multiple" model="mail.template">
-            <field name="name">💼 Cotización Múltiple de Alquiler</field>
-            <field name="model_id" ref="model_copier_quotation"/>
-            <field name="email_from">info@copiercompanysac.com</field>
-            <field name="email_to">${object.cliente_id.email}</field>
-            <field name="subject">💼 Cotización ${object.name} - ${object.modalidad_pago_id.name}</field>
-            <field name="report_template_ids" eval="[(4, ref('copier_company.action_report_copier_quotation'))]"/>
-            <field name="auto_delete" eval="False"/>
-            <field name="body_html"><![CDATA[
+    <field name="name">💼 Cotización Múltiple de Alquiler</field>
+    <field name="model_id" ref="model_copier_quotation"/>
+
+    <field name="email_from">info@copiercompanysac.com</field>
+    <field name="email_to">{{ object.cliente_id.email }}</field>
+
+    <field name="subject">💼 Cotización {{ object.name }} - {{ object.modalidad_pago_id.name }}</field>
+
+    <field name="report_template_ids"
+           eval="[(4, ref('copier_company.action_report_copier_quotation'))]"/>
+    <field name="auto_delete" eval="False"/>
+
+    <field name="body_html"><![CDATA[
 <!DOCTYPE html>
 <html>
 <head>
@@ -126,16 +139,19 @@
         <!-- Encabezado -->
         <div style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); padding: 25px; text-align: center;">
             <div style="color: #ffffff; font-size: 26px; font-weight: bold; margin-bottom: 5px;">
-                💼 Cotización Múltiple N° ${object.name}
+                💼 Cotización Múltiple N° <t t-out="object.name"/>
             </div>
             <div style="color: #ecf0f1; font-size: 14px;">
-                📅 ${object.fecha_cotizacion.strftime('%d de %B de %Y') if object.fecha_cotizacion else ''}
+                📅 
+                <t t-if="object.fecha_cotizacion">
+                    <t t-out="object.fecha_cotizacion.strftime('%d de %B de %Y')"/>
+                </t>
             </div>
             <div style="color: #f1c40f; font-size: 16px; font-weight: bold; margin-top: 10px;">
-                🎯 Modalidad: ${object.modalidad_pago_id.name or ''}
-                % if object.modalidad_pago_id and object.modalidad_pago_id.descuento_porcentaje > 0:
-                    - 🎉 Descuento: ${object.modalidad_pago_id.descuento_porcentaje}%
-                % endif
+                🎯 Modalidad: <t t-out="object.modalidad_pago_id.name or ''"/>
+                <t t-if="object.modalidad_pago_id and object.modalidad_pago_id.descuento_porcentaje &gt; 0">
+                    - 🎉 Descuento: <t t-out="object.modalidad_pago_id.descuento_porcentaje"/>%
+                </t>
             </div>
         </div>
 
@@ -145,7 +161,6 @@
                 📋 Responda a esta cotización:
             </div>
             
-            <!-- Botones de Acción con URLs dinámicas -->
             <table style="width: 100%; max-width: 500px; margin: 0 auto;">
                 <tr>
                     <td style="padding: 5px;">
@@ -178,12 +193,13 @@
             
             <!-- Saludo -->
             <div style="font-size: 18px; margin-bottom: 20px; color: #2c3e50;">
-                Estimado/a <strong>${object.cliente_id.name or ''}</strong>,
+                Estimado/a <strong><t t-out="object.cliente_id.name or ''"/></strong>,
             </div>
             
             <!-- Mensaje Principal -->
             <div style="font-size: 15px; margin-bottom: 25px; line-height: 1.6; color: #34495e;">
-                Es un placer saludarle. Adjunto encontrará nuestra <strong>cotización múltiple detallada</strong> 
+                Es un placer saludarle. Adjunto encontrará nuestra 
+                <strong>cotización múltiple detallada</strong> 
                 para el servicio de alquiler de equipos multifuncionales que hemos preparado especialmente para su empresa.
             </div>
 
@@ -193,40 +209,54 @@
                     📋 Resumen de Equipos Cotizados:
                 </div>
                 
-                % for linea in object.linea_equipos_ids:
+                <t t-foreach="object.linea_equipos_ids" t-as="linea">
                     <div style="margin-bottom: 10px; padding: 10px; background-color: #ffffff; border-radius: 4px; border: 1px solid #e9ecef;">
-                        <strong style="color: #2980b9;">🖨️ ${linea.equipo_id.name or ''}</strong>
-                        % if linea.cantidad > 1:
-                            <span style="color: #e67e22;">(Cantidad: ${linea.cantidad})</span>
-                        % endif
+                        <strong style="color: #2980b9;">🖨️ <t t-out="linea.equipo_id.name or ''"/></strong>
+                        <t t-if="linea.cantidad &gt; 1">
+                            <span style="color: #e67e22;">(Cantidad: <t t-out="linea.cantidad"/>)</span>
+                        </t>
                         <br/>
                         <span style="font-size: 13px; color: #7f8c8d;">
-                            ${linea.marca_id.name or ''} | 
-                            % if linea.tipo_equipo == 'color':
+                            <t t-out="linea.marca_id.name or ''"/> |
+                            <t t-if="linea.tipo_equipo == 'color'">
                                 🎨 Color
-                            % endif
-                            % if linea.tipo_equipo == 'monocroma':
+                            </t>
+                            <t t-if="linea.tipo_equipo == 'monocroma'">
                                 ⚫ Blanco y Negro
-                            % endif
-                             | Formato: ${linea.formato.upper() if linea.formato else ''}
+                            </t>
+                             | Formato: 
+                             <t t-if="linea.formato">
+                                <t t-out="linea.formato.upper()"/>
+                             </t>
                         </span>
                     </div>
-                % endfor
+                </t>
             </div>
 
             <!-- Totales Destacados -->
             <div style="background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); padding: 20px; border-radius: 10px; margin-bottom: 25px; text-align: center; color: #ffffff;">
-                <div style="font-size: 14px; margin-bottom: 5px;">💰 Total por ${object.modalidad_pago_id.name or ''}:</div>
+                <div style="font-size: 14px; margin-bottom: 5px;">
+                    💰 Total por <t t-out="object.modalidad_pago_id.name or ''"/>:
+                </div>
                 <div style="font-size: 28px; font-weight: bold; margin-bottom: 5px;">
-                    S/. ${'{:,.2f}'.format(object.total_por_modalidad) if object.total_por_modalidad else '0.00'}
+                    S/. 
+                    <t t-if="object.total_por_modalidad">
+                        <t t-out="'{:,.2f}'.format(object.total_por_modalidad)"/>
+                    </t>
+                    <t t-else="">0.00</t>
                 </div>
                 <div style="font-size: 12px; opacity: 0.9;">Incluye IGV</div>
                 
-                % if object.modalidad_pago_id and object.modalidad_pago_id.descuento_porcentaje > 0:
+                <t t-if="object.modalidad_pago_id and object.modalidad_pago_id.descuento_porcentaje &gt; 0">
                     <div style="margin-top: 10px; font-size: 13px; background-color: rgba(255,255,255,0.2); padding: 8px; border-radius: 4px;">
-                        🎉 ¡Ahorro por modalidad de pago: S/. ${'{:,.2f}'.format(object.descuento_modalidad) if object.descuento_modalidad else '0.00'}!
+                        🎉 ¡Ahorro por modalidad de pago: S/. 
+                        <t t-if="object.descuento_modalidad">
+                            <t t-out="'{:,.2f}'.format(object.descuento_modalidad)"/>
+                        </t>
+                        <t t-else="">0.00</t>
+                        !
                     </div>
-                % endif
+                </t>
             </div>
 
             <!-- Información Adicional -->
@@ -246,8 +276,14 @@
             <!-- Validez -->
             <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 6px; margin-bottom: 25px;">
                 <div style="color: #856404; font-size: 14px;">
-                    ⏰ <strong>Validez de la cotización:</strong> ${object.validez_dias or 0} días 
-                    (hasta el ${object.fecha_vencimiento.strftime('%d/%m/%Y') if object.fecha_vencimiento else ''})
+                    ⏰ <strong>Validez de la cotización:</strong> 
+                    <t t-out="object.validez_dias or 0"/> días 
+                    (hasta el 
+                    <t t-if="object.fecha_vencimiento">
+                        <t t-out="object.fecha_vencimiento.strftime('%d/%m/%Y')"/>
+                    </t>
+                    <t t-else="">-</t>
+                    )
                 </div>
             </div>
 
@@ -296,8 +332,9 @@
     </div>
 </body>
 </html>
-            ]]></field>
-        </record>
+    ]]></field>
+</record>
+
          <record id="email_template_counter_readings" model="mail.template">
         <field name="name">Reporte de Lecturas de Contadores</field>
         <field name="model_id" ref="model_copier_counter"/>
