@@ -598,6 +598,7 @@
                     margin-top: -20px;
                 }
             }
+            
         </style>
         
         <!-- Hero Section -->
@@ -1024,6 +1025,35 @@
         <t t-call="portal.portal_searchbar">
             <t t-set="title">Historial de Lecturas</t>
         </t>
+                <style>
+            /* ================================
+               FIX NAV PILLS GRÁFICOS (graphTabs)
+               ================================ */
+
+            /* Pestaña activa: fondo claro + texto azul */
+            #graphTabs .nav-link.active {
+                background-color: #e9f1ff !important;   /* azul clarito */
+                color: #1e40af !important;              /* azul oscuro */
+                font-weight: 600;
+                border-radius: 0;
+                border-bottom: 3px solid #1e40af;       /* subrayado inferior */
+            }
+
+            /* Pestañas inactivas */
+            #graphTabs .nav-link {
+                background-color: #ffffff !important;
+                color: #374151 !important;
+                border-radius: 0;
+                border-bottom: 3px solid transparent;
+            }
+
+            /* Hover */
+            #graphTabs .nav-link:hover {
+                background-color: #f1f5f9 !important;
+                color: #1e40af !important;
+            }
+        </style>
+
         
         <!-- Header del equipo con diseño mejorado -->
         <div class="container-fluid px-0">
