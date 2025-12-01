@@ -248,6 +248,53 @@ class CopierCompany(models.Model):
             for field_name, value in vals.items():
                 setattr(rec, field_name, value)
 
+        # ==========================
+    # HELPERS PARA EL REPORTE
+    # ==========================
+
+    def has_volumen_mensual_bn(self):
+        """Indica si hay volumen mensual B/N configurado."""
+        self.ensure_one()
+        return (self.volumen_mensual_bn or 0) > 0
+
+    def has_volumen_mensual_color(self):
+        """Indica si hay volumen mensual Color configurado."""
+        self.ensure_one()
+        return (self.volumen_mensual_color or 0) > 0
+
+    def get_label_costo_bn(self):
+        """
+        Devuelve el texto del costo B/N listo para el reporte,
+        respetando si incluye IGV o no.
+        Ejemplo:
+            - 'S/ 0.040 + IGV'
+            - 'S/ 0.040 (incluye IGV)'
+        """
+        self.ensure_one()
+        simbolo = self.currency_id.symbol or 'S/'
+        monto_str = f"{self.costo_copia_bn:.3f}"  # 3 decimales B/N
+
+        if self.precio_bn_incluye_igv:
+            return f"{simbolo} {monto_str} (incluye IGV)"
+        else:
+            return f"{simbolo} {monto_str} + IGV"
+
+    def get_label_costo_color(self):
+        """
+        Devuelve el texto del costo Color listo para el reporte,
+        respetando si incluye IGV o no.
+        Ejemplo:
+            - 'S/ 0.20 + IGV'
+            - 'S/ 0.20 (incluye IGV)'
+        """
+        self.ensure_one()
+        simbolo = self.currency_id.symbol or 'S/'
+        monto_str = f"{self.costo_copia_color:.2f}"  # 2 decimales Color
+
+        if self.precio_color_incluye_igv:
+            return f"{simbolo} {monto_str} (incluye IGV)"
+        else:
+            return f"{simbolo} {monto_str} + IGV"
 
     def format_phone_number(self, phone):
         if not phone:
