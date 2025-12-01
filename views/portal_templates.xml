@@ -20,26 +20,27 @@
     </template>
 
     <!-- Integración con el home del portal -->
-    <data inherit_id="portal.portal_my_home"
-            name="Mis Equipos en el Portal"
-            priority="50">
+        <!-- Integración con el home del portal -->
+    <template id="portal_my_home_copier_equipment"
+              inherit_id="portal.portal_my_home"
+              name="Mis Equipos en el Portal"
+              priority="50">
 
         <xpath expr="//div[@id='oe_structure_portal_my_home_2']" position="before">
-            <div class="row g-2 mt-3 o_portal_category">
-                <div class="col-12 col-md-6 col-lg-4">
-                    <t t-call="portal.portal_docs_entry">
-                        <t t-set="icon" t-value="'/copier_company/static/src/img/printer.svg'"/>
-                        <t t-set="title">Mis Equipos</t>
-                        <t t-set="text">Consulta los equipos que tienes en alquiler</t>
-                        <t t-set="url" t-value="'/my/copier/equipments'"/>
-                        <t t-set="config_card" t-value="True"/>
-                        <t t-set="placeholder_count" t-value="'equipment_count'"/>
-                    </t>
-                </div>
+            <div class="o_portal_category row g-2 mt-3">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/copier_company/static/src/img/printer.svg'"/>
+                    <t t-set="title">Mis Equipos</t>
+                    <t t-set="text">Consulta los equipos que tienes en alquiler</t>
+                    <t t-set="url" t-value="'/my/copier/equipments'"/>
+                    <t t-set="config_card" t-value="True"/>
+                    <t t-set="placeholder_count" t-value="'equipment_count'"/>
+                </t>
             </div>
         </xpath>
 
-    </data>
+    </template>
+
 
 
     
