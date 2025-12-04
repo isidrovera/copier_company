@@ -6,58 +6,37 @@ from odoo.exceptions import MissingError
 class PortalWizardUser(models.TransientModel):
     _inherit = "portal.wizard.user"
 
-    def _safe_super_call(self, method_name, force_reset_password=False):
+    def _safe_super_call(self, method_name):
         """
-        Ejecuta un método del padre solo sobre registros que realmente existen.
-        Opcionalmente, fuerza el envío de correo de reset/invitación
-        para los usuarios portal asociados a los partners del wizard.
+        Ejecuta el método del padre únicamente sobre los registros que aún existen.
+        Evita el error 'Record does not exist' cuando Odoo elimina el wizard
+        automáticamente después de procesarlo.
         """
+        # Filtrar registros que sí existen (Odoo borra los transient muy rápido)
         existing = self.exists()
-        Users = self.env['res.users'].sudo()
 
-        # 1) Si ya no hay registros, no hay nada que hacer
+        # Si ya no existen, simplemente no hacemos nada.
         if not existing:
             return True
 
-        # 2) Llamar al método original de Odoo
+        # Obtener referencia al método original sobre los registros existentes
+        method = getattr(super(PortalWizardUser, existing), method_name)
+
         try:
-            method = getattr(super(PortalWizardUser, existing), method_name)
-            res = method()
+            # Ejecutar el método original (envía correo de invitación)
+            return method()
         except MissingError:
-            # Si revienta por un registro huérfano, no rompemos la UI
-            res = True
-
-        # 3) (Opcional) Forzar envío de correo de creación/reset de contraseña
-        if force_reset_password:
-            for wiz in existing:
-                # Lo ideal es que user_id ya esté puesto por el super()
-                user = wiz.user_id
-                if not user:
-                    # Respaldo: buscar usuario por partner, por si acaso
-                    user = Users.search([
-                        ('partner_id', '=', wiz.partner_id.id)
-                    ], limit=1)
-
-                if user and user.email:
-                    try:
-                        user.action_reset_password()
-                    except Exception:
-                        # No rompemos todo si falla el SMTP o similar
-                        continue
-
-        return res
+            # Si aún así falla por un race condition, ignoramos el error
+            return True
 
     def action_grant_access(self):
         """
-        Parche para evitar el popup 'Record does not exist'
-        al conceder acceso al portal, y forzar envío del correo.
+        Otorga acceso al portal SIN romper la interfaz ni generar el popup.
         """
-        # Aquí decimos: usa _safe_super_call y obliga reset_password
-        return self._safe_super_call("action_grant_access", force_reset_password=True)
+        return self._safe_super_call("action_grant_access")
 
     def action_invite_again(self):
         """
-        Parche para evitar el popup 'Record does not exist'
-        al reenviar la invitación al portal, y reenviar el correo.
+        Reenvía invitación SIN generar el error de registro inexistente.
         """
-        return self._safe_super_call("action_invite_again", force_reset_password=True)
+        return self._safe_super_call("action_invite_again")
