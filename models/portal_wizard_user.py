@@ -1,40 +1,56 @@
-# -*- coding: utf-8 -*-
-from odoo import models
-from odoo.exceptions import MissingError
+from odoo.tools import email_normalize
+from odoo.exceptions import UserError
 
 
 class PortalWizardUser(models.TransientModel):
     _inherit = "portal.wizard.user"
 
-    def _safe_super_call(self, method_name):
+    def _send_email(self):
+        """Enviar correo de invitación al portal (mismo comportamiento que Odoo),
+        pero con logs para poder depurar.
         """
-        Ejecuta el método original de Odoo (action_grant_access / action_invite_again)
-        solo sobre los registros que todavía existen, y traga el MissingError para
-        evitar el popup 'Record does not exist or has been deleted'.
-        """
-        # Filtrar solo los registros que siguen existiendo en BD
-        existing = self.exists()
+        self.ensure_one()
 
-        # Si ya no hay ninguno, no hacemos nada (y por tanto no se envía correo)
-        if not existing:
+        _logger.info(
+            "COPIER_PORTAL: preparando envío de email de portal para wizard_user %s (partner_id=%s, email=%s)",
+            self.id, self.partner_id.id, self.email,
+        )
+
+        # Misma plantilla que el core
+        template = self.env.ref('auth_signup.portal_set_password_email', raise_if_not_found=False)
+        if not template:
+            _logger.error(
+                "COPIER_PORTAL: plantilla 'auth_signup.portal_set_password_email' NO encontrada."
+            )
+            # Mantenemos el mismo comportamiento que el core
+            raise UserError(_('The template "Portal: new user" not found for sending email to the portal user.'))
+
+        # user_id debería estar calculado a partir de partner.user_ids
+        user = self.user_id.sudo()
+        if not user:
+            _logger.error(
+                "COPIER_PORTAL: _send_email llamado sin user_id para wizard_user %s (partner_id=%s)",
+                self.id, self.partner_id.id,
+            )
             return True
 
-        # Buscar el método original sobre ese recordset
-        method = getattr(super(PortalWizardUser, existing), method_name)
+        lang = user.lang
+        partner = user.partner_id
+        partner.signup_prepare()
 
-        try:
-            # Aquí se ejecuta la lógica estándar:
-            # - crea/activa usuario portal
-            # - llama a _send_email() con la plantilla auth_signup.portal_set_password_email
-            return method()
-        except MissingError:
-            # Si aun así Odoo lanza MissingError por un registro fantasma, no rompemos la UI
-            return True
+        _logger.info(
+            "COPIER_PORTAL: enviando mail de portal a user %s login=%s email=%s lang=%s",
+            user.id, user.login, user.email, lang,
+        )
 
-    def action_grant_access(self):
-        """Parche de 'Conceder acceso' que evita el error de registro faltante."""
-        return self._safe_super_call("action_grant_access")
+        # Este send_mail crea un mail.mail y lo deja en cola o lo envía (force_send=True)
+        template.with_context(
+            dbname=self.env.cr.dbname,
+            lang=lang,
+            welcome_message=self.wizard_id.welcome_message,
+            medium='portalinvite',
+        ).send_mail(user.id, force_send=True)
 
-    def action_invite_again(self):
-        """Parche de 'Reenviar invitación' que evita el error de registro faltante."""
-        return self._safe_super_call("action_invite_again")
+        _logger.info("COPIER_PORTAL: correo de portal enviado/queueado para user %s", user.id)
+
+        return True
