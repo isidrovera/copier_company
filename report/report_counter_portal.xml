@@ -102,7 +102,8 @@
                 </style>
 
                 <!-- Contexto: docs es un recordset de copier.counter -->
-                <t t-set="company" t-value="company"/>
+                <!-- FIX: asegurar que company nunca sea None -->
+                <t t-set="company" t-value="docs and docs.env.company or env.company"/>
                 <t t-set="partner"
                    t-value="docs and docs[0].cliente_id or (docs and docs[0].maquina_id.cliente_id)"/>
                 <t t-set="equipment"
@@ -114,7 +115,8 @@
                     <div class="cc-header-bar">
                         <div class="row">
                             <div class="col-6">
-                                <t t-if="company.logo">
+                                <!-- FIX: proteger acceso a company.logo -->
+                                <t t-if="company and company.logo">
                                     <img t-att-src="image_data_uri(company.logo)"
                                          style="max-height: 40px;"/>
                                 </t>
@@ -122,7 +124,8 @@
                             <div class="col-6 text-right">
                                 <p class="cc-title">Historial de Lecturas de Equipo</p>
                                 <p class="cc-subtitle">
-                                    <t t-esc="company.name"/> – <t t-esc="time.strftime('%d/%m/%Y')"/>
+                                    <t t-esc="company and company.name or ''"/> –
+                                    <t t-esc="time.strftime('%d/%m/%Y')"/>
                                 </p>
                             </div>
                         </div>
@@ -251,7 +254,7 @@
                             Total B/N:
                             <span t-esc="total_bn or 0"/>
                             <t t-if="equipment and equipment.tipo == 'color'">
-                                Total Color:
+                                &nbsp;&nbsp;Total Color:
                                 <span t-esc="total_color or 0"/>
                             </t>
                         </div>
