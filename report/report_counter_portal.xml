@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- FORMATO DE PAPEL: puedes reutilizar el que ya tienes
-         o usar este si quieres uno separado para portal -->
+    <!-- FORMATO DE PAPEL PARA PORTAL -->
     <record id="paperformat_counter_portal" model="report.paperformat">
         <field name="name">Counter Portal Report</field>
         <field name="format">A4</field>
@@ -24,7 +23,6 @@
         <field name="report_name">copier_company.report_counter_readings_portal</field>
         <field name="report_file">copier_company.report_counter_readings_portal</field>
         <field name="paperformat_id" ref="copier_company.paperformat_counter_portal"/>
-        <!-- Nombre de archivo dinámico -->
         <field name="print_report_name">
             'Lecturas - %s - %s' % (object.maquina_id.name.name if object.maquina_id else '', time.strftime('%d-%m-%Y'))
         </field>
@@ -101,13 +99,9 @@
                     }
                 </style>
 
-                <!-- Contexto: docs es un recordset de copier.counter -->
-                <!-- FIX: asegurar que company nunca sea None -->
-                <t t-set="company" t-value="docs and docs.env.company or env.company"/>
-                <t t-set="partner"
-                   t-value="docs and docs[0].cliente_id or (docs and docs[0].maquina_id.cliente_id)"/>
-                <t t-set="equipment"
-                   t-value="docs and docs[0].maquina_id or False"/>
+                <!-- Tomamos el primer registro como referencia -->
+                <t t-set="first" t-value="docs and docs[0] or False"/>
+                <t t-set="is_color" t-value="first and first.maquina_id and first.maquina_id.tipo == 'color' or False"/>
 
                 <div class="page">
 
@@ -115,7 +109,6 @@
                     <div class="cc-header-bar">
                         <div class="row">
                             <div class="col-6">
-                                <!-- FIX: proteger acceso a company.logo -->
                                 <t t-if="company and company.logo">
                                     <img t-att-src="image_data_uri(company.logo)"
                                          style="max-height: 40px;"/>
@@ -124,7 +117,7 @@
                             <div class="col-6 text-right">
                                 <p class="cc-title">Historial de Lecturas de Equipo</p>
                                 <p class="cc-subtitle">
-                                    <t t-esc="company and company.name or ''"/> –
+                                    <t t-esc="company and company.name or ''"/> – 
                                     <t t-esc="time.strftime('%d/%m/%Y')"/>
                                 </p>
                             </div>
@@ -137,33 +130,33 @@
                             <div class="col-6">
                                 <p>
                                     <span class="cc-info-label">Cliente:</span>
-                                    <t t-esc="partner and partner.name or ''"/>
+                                    <t t-esc="first and first.cliente_id and first.cliente_id.name or ''"/>
                                 </p>
-                                <t t-if="partner and partner.vat">
+                                <t t-if="first and first.cliente_id and first.cliente_id.vat">
                                     <p>
                                         <span class="cc-info-label">RUC/DNI:</span>
-                                        <t t-esc="partner.vat"/>
+                                        <t t-esc="first.cliente_id.vat"/>
                                     </p>
                                 </t>
-                                <t t-if="docs and docs[0].ubicacion">
+                                <t t-if="first and first.ubicacion">
                                     <p>
                                         <span class="cc-info-label">Ubicación:</span>
-                                        <t t-esc="docs[0].ubicacion"/>
+                                        <t t-esc="first.ubicacion"/>
                                     </p>
                                 </t>
                             </div>
                             <div class="col-6">
                                 <p>
                                     <span class="cc-info-label">Equipo:</span>
-                                    <t t-esc="equipment and equipment.name.name or ''"/>
+                                    <t t-esc="first and first.maquina_id and first.maquina_id.name and first.maquina_id.name.name or ''"/>
                                 </p>
                                 <p>
                                     <span class="cc-info-label">Serie:</span>
-                                    <t t-esc="equipment and equipment.serie_id or ''"/>
+                                    <t t-esc="first and first.maquina_id and first.maquina_id.serie_id or ''"/>
                                 </p>
                                 <p>
                                     <span class="cc-info-label">Tipo:</span>
-                                    <t t-if="equipment and equipment.tipo == 'monocroma'">
+                                    <t t-if="first and first.maquina_id and first.maquina_id.tipo == 'monocroma'">
                                         Blanco y Negro
                                     </t>
                                     <t t-else="">
@@ -184,7 +177,7 @@
                                 <th class="cc-table-cell text-right">Anterior B/N</th>
                                 <th class="cc-table-cell text-right">Actual B/N</th>
                                 <th class="cc-table-cell text-right">Total B/N</th>
-                                <t t-if="equipment and equipment.tipo == 'color'">
+                                <t t-if="is_color">
                                     <th class="cc-table-cell text-right">Anterior Color</th>
                                     <th class="cc-table-cell text-right">Actual Color</th>
                                     <th class="cc-table-cell text-right">Total Color</th>
@@ -201,7 +194,8 @@
                                         </td>
                                         <td class="cc-table-cell">
                                             <t t-if="counter.fecha">
-                                                <span t-esc="format_date(counter.fecha, lang=counter.env.user.lang)"/>
+                                                <!-- SIN format_date, usamos t-field del propio campo -->
+                                                <span t-field="counter.fecha"/>
                                             </t>
                                         </td>
                                         <td class="cc-table-cell">
@@ -216,7 +210,7 @@
                                         <td class="cc-table-cell cc-table-cell-num cc-table-cell-bold">
                                             <t t-esc="counter.total_copias_bn or 0"/>
                                         </td>
-                                        <t t-if="equipment and equipment.tipo == 'color'">
+                                        <t t-if="is_color">
                                             <td class="cc-table-cell cc-table-cell-num">
                                                 <t t-esc="counter.contador_anterior_color or 0"/>
                                             </td>
@@ -253,7 +247,7 @@
                             <span class="cc-info-label">Resumen del período:</span>
                             Total B/N:
                             <span t-esc="total_bn or 0"/>
-                            <t t-if="equipment and equipment.tipo == 'color'">
+                            <t t-if="is_color">
                                 Total Color:
                                 <span t-esc="total_color or 0"/>
                             </t>
