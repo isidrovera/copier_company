@@ -14,66 +14,65 @@ except ImportError:
 
 class CopierPortalCounters(http.Controller):
 
-    # ---------- MÉTODOS PRIVADOS DE APOYO ----------
+    # -------------------------------------------------------------------------
+    # HELPERS
+    # -------------------------------------------------------------------------
 
     def _get_portal_partner(self):
+        """Cliente logueado en el portal."""
         return request.env.user.partner_id
 
     def _get_equipment_for_portal(self, equipment_id):
         """
-        Recupera el equipo y verifica que pertenezca al partner del portal.
-        Ajusta el modelo y el campo cliente_id/partner_id según tu implementación.
+        Retorna la máquina siempre que pertenezca al cliente del portal.
+        Modelo real: copier.company
         """
-        # SUPOSICIÓN: modelo 'copier.equipment' (ajusta si tu modelo se llama distinto)
-        Equipment = request.env['copier.equipment'].sudo()
-        equipment = Equipment.browse(equipment_id)
+        Equipment = request.env['copier.company'].sudo()
+        equipment = Equipment.browse(int(equipment_id))
+
         partner = self._get_portal_partner()
 
-        # AJUSTAR ESTE CAMPO: cliente_id / partner_id / company_id, etc.
-        owner = equipment.cliente_id or equipment.partner_id
-
-        if not equipment.exists() or not owner or owner.id != partner.id:
+        if not equipment.exists():
             return None
+
+        # Seguridad: validar que la máquina pertenece al cliente logueado
+        if equipment.cliente_id.id != partner.id:
+            return None
+
         return equipment
 
     def _get_counters_for_equipment(self, equipment):
         """
-        Devuelve los copier.counter del equipo para este cliente.
-        Ajusta el dominio a tu modelo real.
+        Devuelve todos los copier.counter asociados a una máquina
+        y al cliente del portal.
         """
         Counter = request.env['copier.counter'].sudo()
         partner = self._get_portal_partner()
 
-        domain = [
-            ('maquina_id', '=', equipment.id),   # AJUSTAR campo si es otro
-            ('cliente_id', '=', partner.id),     # AJUSTAR si tu campo cliente se llama distinto
-        ]
-        counters = Counter.search(domain, order="fecha asc, id asc")
-        return counters
+        return Counter.search([
+            ('maquina_id', '=', equipment.id),
+            ('cliente_id', '=', partner.id),
+        ], order="fecha asc, id asc")
 
     def _check_counter_access(self, counter):
-        """
-        Verifica que un solo copier.counter pertenece al partner portal.
-        """
+        """Valida que la lectura pertenece al cliente portal."""
         partner = self._get_portal_partner()
 
-        # AJUSTA campos 'cliente_id' y 'maquina_id.cliente_id' según tu modelo
-        if counter.cliente_id and counter.cliente_id.id == partner.id:
-            return True
-        if counter.maquina_id and counter.maquina_id.cliente_id and counter.maquina_id.cliente_id.id == partner.id:
-            return True
-        return False
+        if not counter.exists():
+            return False
 
-    # ---------- RUTAS PDF ----------
+        return counter.cliente_id.id == partner.id
+
+    # -------------------------------------------------------------------------
+    # PDF — TODAS LAS LECTURAS DE UNA MÁQUINA
+    # -------------------------------------------------------------------------
 
     @http.route(
         ['/my/copier/equipment/<int:equipment_id>/counters/pdf'],
         type='http', auth='user', website=True
     )
     def portal_counters_pdf_all(self, equipment_id, **kwargs):
-        """
-        PDF con TODAS las lecturas del equipo para el cliente del portal.
-        """
+
         equipment = self._get_equipment_for_portal(equipment_id)
         if not equipment:
             return request.not_found()
@@ -83,50 +82,53 @@ class CopierPortalCounters(http.Controller):
             return request.not_found()
 
         report = request.env.ref('copier_company.action_report_counter_readings_portal')
-        pdf_content, _ = report._render_qweb_pdf(counters.ids)
+        pdf_content, _ = report._render_qweb_pdf(res_ids=counters.ids)
 
-        filename = 'Lecturas_%s.pdf' % (equipment.display_name or equipment.id)
+        filename = f"Lecturas_{equipment.serie_id or equipment.id}.pdf"
         headers = [
             ('Content-Type', 'application/pdf'),
-            ('Content-Length', len(pdf_content)),
             ('Content-Disposition', http.content_disposition(filename)),
         ]
+
         return request.make_response(pdf_content, headers=headers)
+
+    # -------------------------------------------------------------------------
+    # PDF — UNA SOLA LECTURA
+    # -------------------------------------------------------------------------
 
     @http.route(
         ['/my/copier/counter/<int:counter_id>/pdf'],
         type='http', auth='user', website=True
     )
     def portal_counter_pdf_single(self, counter_id, **kwargs):
-        """
-        PDF de UNA sola lectura (fila).
-        """
+
         Counter = request.env['copier.counter'].sudo()
-        counter = Counter.browse(counter_id)
-        if not counter.exists() or not self._check_counter_access(counter):
+        counter = Counter.browse(int(counter_id))
+
+        if not self._check_counter_access(counter):
             return request.not_found()
 
         report = request.env.ref('copier_company.action_report_counter_readings_portal')
-        pdf_content, _ = report._render_qweb_pdf(counter.ids)
+        pdf_content, _ = report._render_qweb_pdf(res_ids=counter.ids)
 
-        filename = 'Lectura_%s.pdf' % (counter.name or counter.id)
+        filename = f"Lectura_{counter.name}.pdf"
         headers = [
             ('Content-Type', 'application/pdf'),
-            ('Content-Length', len(pdf_content)),
             ('Content-Disposition', http.content_disposition(filename)),
         ]
+
         return request.make_response(pdf_content, headers=headers)
 
-    # ---------- RUTA EXCEL ----------
+    # -------------------------------------------------------------------------
+    # EXCEL — TODAS LAS LECTURAS
+    # -------------------------------------------------------------------------
 
     @http.route(
         ['/my/copier/equipment/<int:equipment_id>/counters/xlsx'],
         type='http', auth='user', website=True
     )
     def portal_counters_xlsx(self, equipment_id, **kwargs):
-        """
-        Exporta todas las lecturas del equipo a Excel con las mismas columnas que la tabla.
-        """
+
         if not xlsxwriter:
             return request.not_found()
 
@@ -138,44 +140,47 @@ class CopierPortalCounters(http.Controller):
         if not counters:
             return request.not_found()
 
-        # Crear libro en memoria
+        # Crear archivo Excel en memoria
         output = io.BytesIO()
         workbook = xlsxwriter.Workbook(output, {'in_memory': True})
-        sheet = workbook.add_worksheet('Lecturas')
+        sheet = workbook.add_worksheet("Lecturas")
 
-        # Formatos
-        head_fmt = workbook.add_format({'bold': True})
-        num_fmt = workbook.add_format({'num_format': '#,##0'})
+        # Estilos
+        header_fmt = workbook.add_format({'bold': True})
+        number_fmt = workbook.add_format({'num_format': '#,##0'})
         date_fmt = workbook.add_format({'num_format': 'dd/mm/yyyy'})
 
-        # Encabezados (mismas columnas que la tabla)
+        # Encabezados (mismas columnas del portal)
         headers = [
             'Referencia',
-            'Fecha',
+            'Fecha Lectura',
             'Mes Facturación',
             'Anterior B/N',
             'Actual B/N',
             'Total B/N',
         ]
+
         if equipment.tipo == 'color':
             headers += [
                 'Anterior Color',
                 'Actual Color',
                 'Total Color',
             ]
+
         headers += ['Estado']
 
-        for col, name in enumerate(headers):
-            sheet.write(0, col, name, head_fmt)
+        # Escribir encabezados
+        for col, title in enumerate(headers):
+            sheet.write(0, col, title, header_fmt)
 
-        # Filas
+        # Escribir datos
         row = 1
         for counter in counters:
             col = 0
+
             sheet.write(row, col, counter.name or '')
             col += 1
 
-            # Fecha
             if counter.fecha:
                 sheet.write_datetime(row, col, counter.fecha, date_fmt)
             else:
@@ -185,19 +190,19 @@ class CopierPortalCounters(http.Controller):
             sheet.write(row, col, counter.mes_facturacion or '')
             col += 1
 
-            sheet.write_number(row, col, counter.contador_anterior_bn or 0, num_fmt)
+            sheet.write_number(row, col, counter.contador_anterior_bn or 0, number_fmt)
             col += 1
-            sheet.write_number(row, col, counter.contador_actual_bn or 0, num_fmt)
+            sheet.write_number(row, col, counter.contador_actual_bn or 0, number_fmt)
             col += 1
-            sheet.write_number(row, col, counter.total_copias_bn or 0, num_fmt)
+            sheet.write_number(row, col, counter.total_copias_bn or 0, number_fmt)
             col += 1
 
             if equipment.tipo == 'color':
-                sheet.write_number(row, col, counter.contador_anterior_color or 0, num_fmt)
+                sheet.write_number(row, col, counter.contador_anterior_color or 0, number_fmt)
                 col += 1
-                sheet.write_number(row, col, counter.contador_actual_color or 0, num_fmt)
+                sheet.write_number(row, col, counter.contador_actual_color or 0, number_fmt)
                 col += 1
-                sheet.write_number(row, col, counter.total_copias_color or 0, num_fmt)
+                sheet.write_number(row, col, counter.total_copias_color or 0, number_fmt)
                 col += 1
 
             sheet.write(row, col, counter.state or '')
@@ -205,12 +210,10 @@ class CopierPortalCounters(http.Controller):
 
         workbook.close()
         xlsx_data = output.getvalue()
-        output.close()
 
-        filename = 'Lecturas_%s.xlsx' % (equipment.display_name or equipment.id)
+        filename = f"Lecturas_{equipment.serie_id or equipment.id}.xlsx"
         headers = [
             ('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
-            ('Content-Length', len(xlsx_data)),
             ('Content-Disposition', http.content_disposition(filename)),
         ]
         return request.make_response(xlsx_data, headers=headers)
