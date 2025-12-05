@@ -37,6 +37,7 @@
         'report/counter_report.xml',
         'report/sticker_report.xml',
         'report/cotizacion_multiples.xml',
+        'report/report_counter_portal.xml',
         'views/copier_company_form_template.xml',
         'views/security_control_views.xml',
         'data/plantillas_mail.xml',

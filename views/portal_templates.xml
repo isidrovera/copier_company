@@ -1226,12 +1226,27 @@
                                 
                                 <!-- Tabla de datos mejorada -->
                                 <div class="card border-0 shadow-sm mb-4">
-                                    <div class="card-header bg-white border-bottom">
+                                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
                                         <h5 class="mb-0 fw-bold text-dark">
                                             <i class="bi bi-table me-2 text-primary"></i>
                                             Historial de Lecturas
                                         </h5>
+                                        <div class="btn-group">
+                                            <!-- PDF con todas las lecturas del equipo -->
+                                            <a t-att-href="'/my/copier/equipment/%s/counters/pdf' % equipment.id"
+                                            class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-file-earmark-pdf me-1"></i>
+                                                PDF (todas)
+                                            </a>
+                                            <!-- Excel con todas las lecturas del equipo -->
+                                            <a t-att-href="'/my/copier/equipment/%s/counters/xlsx' % equipment.id"
+                                            class="btn btn-sm btn-outline-success">
+                                                <i class="bi bi-file-earmark-excel me-1"></i>
+                                                Excel
+                                            </a>
+                                        </div>
                                     </div>
+
                                     <div class="card-body p-0">
                                         <div class="table-responsive">
                                             <table class="table table-hover mb-0 align-middle">
@@ -1247,6 +1262,8 @@
                                                         <th t-if="equipment.tipo == 'color'" class="fw-bold text-center">Actual Color</th>
                                                         <th t-if="equipment.tipo == 'color'" class="fw-bold text-center">Total Color</th>
                                                         <th class="fw-bold text-center">Estado</th>
+                                                        <!-- NUEVA COLUMNA ACCIONES -->
+                                                        <th class="fw-bold text-center">Acciones</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -1279,8 +1296,15 @@
                                                             <span t-field="counter.total_copias_color" t-options="{'widget': 'integer'}"/>
                                                         </td>
                                                         <td class="text-center">
-                                                            <span t-field="counter.state" 
-                                                                  t-attf-class="badge rounded-pill px-3 py-2 bg-{{ counter.state == 'draft' and 'warning' or (counter.state == 'confirmed' and 'success' or (counter.state == 'invoiced' and 'info' or 'danger')) }}"/>
+                                                            <span t-field="counter.state"
+                                                                t-attf-class="badge rounded-pill px-3 py-2 bg-{{ counter.state == 'draft' and 'warning' or (counter.state == 'confirmed' and 'success' or (counter.state == 'invoiced' and 'info' or 'danger')) }}"/>
+                                                        </td>
+                                                        <!-- ACCIÓN PDF POR FILA -->
+                                                        <td class="text-center">
+                                                            <a t-att-href="'/my/copier/counter/%s/pdf' % counter.id"
+                                                            class="btn btn-sm btn-outline-primary">
+                                                                <i class="bi bi-file-earmark-pdf"></i>
+                                                            </a>
                                                         </td>
                                                     </tr>
                                                 </tbody>
@@ -1288,6 +1312,7 @@
                                         </div>
                                     </div>
                                 </div>
+
                                 
                                 <!-- Detalle de facturación mejorado -->
                                 <div class="row g-4 mb-4">

@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- FORMATO DE PAPEL: puedes reutilizar el que ya tienes
+         o usar este si quieres uno separado para portal -->
+    <record id="paperformat_counter_portal" model="report.paperformat">
+        <field name="name">Counter Portal Report</field>
+        <field name="format">A4</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">10</field>
+        <field name="margin_bottom">15</field>
+        <field name="margin_left">7</field>
+        <field name="margin_right">7</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">10</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <!-- ACCIÓN DE REPORTE SOLO PARA PORTAL -->
+    <record id="action_report_counter_readings_portal" model="ir.actions.report">
+        <field name="name">Historial de Lecturas (Portal)</field>
+        <field name="model">copier.counter</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">copier_company.report_counter_readings_portal</field>
+        <field name="report_file">copier_company.report_counter_readings_portal</field>
+        <field name="paperformat_id" ref="copier_company.paperformat_counter_portal"/>
+        <!-- Nombre de archivo dinámico -->
+        <field name="print_report_name">
+            'Lecturas - %s - %s' % (object.maquina_id.name.name if object.maquina_id else '', time.strftime('%d-%m-%Y'))
+        </field>
+    </record>
+
+    <!-- TEMPLATE QWEB DEL REPORTE PORTAL -->
+    <template id="report_counter_readings_portal">
+        <t t-name="copier_company.report_counter_readings_portal">
+            <t t-call="web.basic_layout">
+
+                <style>
+                    .cc-header-bar {
+                        background: #e5f0ff;
+                        border-radius: 4px;
+                        padding: 10px 14px;
+                        margin-bottom: 10px;
+                    }
+                    .cc-title {
+                        font-size: 18px;
+                        font-weight: 700;
+                        color: #111827;
+                        margin: 0;
+                    }
+                    .cc-subtitle {
+                        font-size: 11px;
+                        color: #6b7280;
+                        margin: 2px 0 0 0;
+                    }
+                    .cc-info-box {
+                        background-color: #f9fafb;
+                        border-radius: 4px;
+                        padding: 8px 12px;
+                        margin-bottom: 10px;
+                        font-size: 11px;
+                    }
+                    .cc-info-label {
+                        font-weight: 600;
+                        color: #4b5563;
+                    }
+                    .cc-table-header {
+                        background-color: #f3f4f6;
+                        font-size: 10px;
+                    }
+                    .cc-table-cell {
+                        font-size: 10px;
+                        padding: 4px 3px !important;
+                    }
+                    .cc-table-cell-num {
+                        text-align: right;
+                        font-family: "Courier New", monospace;
+                    }
+                    .cc-table-cell-bold {
+                        font-weight: 700;
+                    }
+                    .cc-state-badge {
+                        font-size: 9px;
+                        padding: 2px 6px;
+                        border-radius: 999px;
+                        border: 1px solid #e5e7eb;
+                        text-transform: capitalize;
+                    }
+                    .cc-summary-box {
+                        margin-top: 8px;
+                        padding: 6px 10px;
+                        background-color: #ecfdf5;
+                        border-radius: 4px;
+                        font-size: 10px;
+                    }
+                    .cc-footer {
+                        font-size: 8px;
+                        color: #9ca3af;
+                        text-align: right;
+                        margin-top: 4px;
+                    }
+                </style>
+
+                <!-- Contexto: docs es un recordset de copier.counter -->
+                <t t-set="company" t-value="company"/>
+                <t t-set="partner"
+                   t-value="docs and docs[0].cliente_id or (docs and docs[0].maquina_id.cliente_id)"/>
+                <t t-set="equipment"
+                   t-value="docs and docs[0].maquina_id or False"/>
+
+                <div class="page">
+
+                    <!-- ENCABEZADO -->
+                    <div class="cc-header-bar">
+                        <div class="row">
+                            <div class="col-6">
+                                <t t-if="company.logo">
+                                    <img t-att-src="image_data_uri(company.logo)"
+                                         style="max-height: 40px;"/>
+                                </t>
+                            </div>
+                            <div class="col-6 text-right">
+                                <p class="cc-title">Historial de Lecturas de Equipo</p>
+                                <p class="cc-subtitle">
+                                    <t t-esc="company.name"/> – <t t-esc="time.strftime('%d/%m/%Y')"/>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INFORMACIÓN GENERAL -->
+                    <div class="cc-info-box">
+                        <div class="row">
+                            <div class="col-6">
+                                <p>
+                                    <span class="cc-info-label">Cliente:</span>
+                                    <t t-esc="partner and partner.name or ''"/>
+                                </p>
+                                <t t-if="partner and partner.vat">
+                                    <p>
+                                        <span class="cc-info-label">RUC/DNI:</span>
+                                        <t t-esc="partner.vat"/>
+                                    </p>
+                                </t>
+                                <t t-if="docs and docs[0].ubicacion">
+                                    <p>
+                                        <span class="cc-info-label">Ubicación:</span>
+                                        <t t-esc="docs[0].ubicacion"/>
+                                    </p>
+                                </t>
+                            </div>
+                            <div class="col-6">
+                                <p>
+                                    <span class="cc-info-label">Equipo:</span>
+                                    <t t-esc="equipment and equipment.name.name or ''"/>
+                                </p>
+                                <p>
+                                    <span class="cc-info-label">Serie:</span>
+                                    <t t-esc="equipment and equipment.serie_id or ''"/>
+                                </p>
+                                <p>
+                                    <span class="cc-info-label">Tipo:</span>
+                                    <t t-if="equipment and equipment.tipo == 'monocroma'">
+                                        Blanco y Negro
+                                    </t>
+                                    <t t-else="">
+                                        Color
+                                    </t>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TABLA DE LECTURAS -->
+                    <table class="table table-sm table-bordered">
+                        <thead class="cc-table-header">
+                            <tr>
+                                <th class="cc-table-cell">Referencia</th>
+                                <th class="cc-table-cell">Fecha</th>
+                                <th class="cc-table-cell">Mes Facturación</th>
+                                <th class="cc-table-cell text-right">Anterior B/N</th>
+                                <th class="cc-table-cell text-right">Actual B/N</th>
+                                <th class="cc-table-cell text-right">Total B/N</th>
+                                <t t-if="equipment and equipment.tipo == 'color'">
+                                    <th class="cc-table-cell text-right">Anterior Color</th>
+                                    <th class="cc-table-cell text-right">Actual Color</th>
+                                    <th class="cc-table-cell text-right">Total Color</th>
+                                </t>
+                                <th class="cc-table-cell text-center">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-if="docs">
+                                <t t-foreach="docs.sorted(lambda r: r.fecha or r.create_date)" t-as="counter">
+                                    <tr>
+                                        <td class="cc-table-cell">
+                                            <t t-esc="counter.name"/>
+                                        </td>
+                                        <td class="cc-table-cell">
+                                            <t t-if="counter.fecha">
+                                                <span t-esc="format_date(counter.fecha, lang=counter.env.user.lang)"/>
+                                            </t>
+                                        </td>
+                                        <td class="cc-table-cell">
+                                            <t t-esc="counter.mes_facturacion or ''"/>
+                                        </td>
+                                        <td class="cc-table-cell cc-table-cell-num">
+                                            <t t-esc="counter.contador_anterior_bn or 0"/>
+                                        </td>
+                                        <td class="cc-table-cell cc-table-cell-num">
+                                            <t t-esc="counter.contador_actual_bn or 0"/>
+                                        </td>
+                                        <td class="cc-table-cell cc-table-cell-num cc-table-cell-bold">
+                                            <t t-esc="counter.total_copias_bn or 0"/>
+                                        </td>
+                                        <t t-if="equipment and equipment.tipo == 'color'">
+                                            <td class="cc-table-cell cc-table-cell-num">
+                                                <t t-esc="counter.contador_anterior_color or 0"/>
+                                            </td>
+                                            <td class="cc-table-cell cc-table-cell-num">
+                                                <t t-esc="counter.contador_actual_color or 0"/>
+                                            </td>
+                                            <td class="cc-table-cell cc-table-cell-num cc-table-cell-bold">
+                                                <t t-esc="counter.total_copias_color or 0"/>
+                                            </td>
+                                        </t>
+                                        <td class="cc-table-cell text-center">
+                                            <span class="cc-state-badge">
+                                                <t t-esc="counter.state"/>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </t>
+                            <t t-else="">
+                                <tr>
+                                    <td class="cc-table-cell" colspan="10">
+                                        Sin lecturas registradas.
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <!-- RESUMEN SIMPLE -->
+                    <t t-if="docs">
+                        <t t-set="total_bn" t-value="sum(docs.mapped('total_copias_bn'))"/>
+                        <t t-set="total_color" t-value="sum(docs.mapped('total_copias_color'))"/>
+                        <div class="cc-summary-box">
+                            <span class="cc-info-label">Resumen del período:</span>
+                            Total B/N:
+                            <span t-esc="total_bn or 0"/>
+                            <t t-if="equipment and equipment.tipo == 'color'">
+                                Total Color:
+                                <span t-esc="total_color or 0"/>
+                            </t>
+                        </div>
+                    </t>
+
+                    <div class="cc-footer">
+                        Generado el
+                        <t t-esc="time.strftime('%d/%m/%Y %H:%M')"/>
+                        – Página <span class="page"/> / <span class="topage"/>
+                    </div>
+                </div>
+
+            </t>
+        </t>
+    </template>
+
+</odoo>
