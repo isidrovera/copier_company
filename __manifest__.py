@@ -92,7 +92,7 @@
             'copier_company/static/src/js/PcloudDescargas.js',
             'copier_company/static/src/js/custom_script.js',            
             'copier_company/static/src/js/copier_homepage_scripts.js',
-            'copier_company/static/src/js/copier_services_scripts.js',
+            #'copier_company/static/src/js/copier_services_scripts.js',
 
             # 📄 PDF.js: usa una sola variante; elimina los .mjs locales para evitar conflictos AMD
             # Si prefieres CDN UMD (suficiente para visor):
