@@ -25,13 +25,13 @@
 
     'data': [
         # VISTAS / DATOS / REPORTES
+        'security/ir.model.access.csv',
         'views/views.xml',
         'views/ticket_copier.xml',
         'views/marcas.xml',
         'views/modelos.xml',
         'views/portal_suscripcion.xml',
-        'views/vista_tree_portal.xml',
-        'security/ir.model.access.csv',
+        'views/vista_tree_portal.xml',        
         'data/ir.secuencia.xml',
         'report/copier_company_report.xml',
         'report/counter_report.xml',
@@ -54,7 +54,7 @@
         'views/ajustes_copier.xml',
         'views/contadores.xml',
         'views/detalles_usuarios.xml',
-        'views/portal_templates.xml',
+        #'views/portal_templates.xml',
         'views/manuals.xml',
         'views/manuals_template.xml',
         'views/copier_stock_views.xml',
@@ -92,7 +92,7 @@
             'copier_company/static/src/js/PcloudDescargas.js',
             'copier_company/static/src/js/custom_script.js',            
             'copier_company/static/src/js/copier_homepage_scripts.js',
-            #'copier_company/static/src/js/copier_services_scripts.js',
+            'copier_company/static/src/js/copier_services_scripts.js',
 
             # 📄 PDF.js: usa una sola variante; elimina los .mjs locales para evitar conflictos AMD
             # Si prefieres CDN UMD (suficiente para visor):
