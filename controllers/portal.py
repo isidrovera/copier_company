@@ -7,7 +7,7 @@ from odoo import http, _, fields
 from odoo.exceptions import AccessError, MissingError, ValidationError
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
-from odoo.osv.expression import OR, AND
+from odoo.osv import expression
 import base64
 
 _logger = logging.getLogger(__name__)
@@ -60,7 +60,7 @@ class CopierPortal(CustomerPortal):
         searchbar_filters = {
             'all': {'label': _('Todos'), 'domain': domain_base},
             'active': {'label': _('Contratos Activos'),
-                       'domain': AND([domain_base, [('estado_renovacion', 'in', ['vigente', 'por_vencer'])]])},
+                       'domain': expression.AND([domain_base, [('estado_renovacion', 'in', ['vigente', 'por_vencer'])]])},
             'expired': {'label': _('Vencidos'),
                         'domain': AND([domain_base, [('estado_renovacion', '=', 'finalizado')]])},
         }
