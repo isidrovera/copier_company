@@ -60,9 +60,9 @@ class CopierPortal(CustomerPortal):
         searchbar_filters = {
             'all': {'label': _('Todos'), 'domain': domain_base},
             'active': {'label': _('Contratos Activos'),
-                       'domain': expression.AND([domain_base, [('estado_renovacion', 'in', ['vigente', 'por_vencer'])]])},
+                    'domain': expression.AND([domain_base, [('estado_renovacion', 'in', ['vigente', 'por_vencer'])]])},
             'expired': {'label': _('Vencidos'),
-                        'domain': AND([domain_base, [('estado_renovacion', '=', 'finalizado')]])},
+                        'domain': expression.AND([domain_base, [('estado_renovacion', '=', 'finalizado')]])},
         }
 
         filterby = kwargs.get('filterby') or 'all'
