@@ -474,3 +474,9 @@ class CopierQuotation(models.Model):
                 'type': 'success',
             }
         }
+
+class CopierWebsite(http.Controller):
+    
+    @http.route('/about-us', type='http', auth='public', website=True)
+    def about_us(self):
+        return http.request.render('copier_company.copier_about_us_page')
