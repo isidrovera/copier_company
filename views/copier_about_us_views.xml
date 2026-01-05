@@ -1,35 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <data>
-    <!-- Template básico para probar herencia -->
-    <template id="copier_about_us_basic" name="About Us Basic" inherit_id="website.aboutus">
+    <!-- Reemplazar página Sobre Nosotros -->
+    <template id="copier_about_us_modern" name="Copier About Us" inherit_id="website.sobre-nosotros">
       <xpath expr="//div[@id='wrap']" position="replace">
         <div id="wrap" class="oe_structure">
           <style>
             @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css');
-            .about-hero{background:linear-gradient(135deg,#0d6efd 0%,#6610f2 100%);min-height:70vh}
+            .about-hero-gradient{background:linear-gradient(135deg,#0d6efd 0%,#6610f2 100%);min-height:70vh}
+            .value-card:hover{transform:translateY(-10px);transition:all 0.3s ease}
           </style>
 
-          <!-- HERO BÁSICO -->
-          <section class="about-hero text-white">
-            <div class="container py-5">
-              <div class="row min-vh-70 align-items-center">
+          <!-- HERO SECTION -->
+          <section class="about-hero-gradient text-white position-relative overflow-hidden">
+            <div class="container position-relative" style="z-index:2;">
+              <div class="row min-vh-70 align-items-center py-5">
                 <div class="col-lg-6 py-5">
-                  <h1 class="display-3 fw-bold mb-4">Sobre Copier Company</h1>
-                  <p class="fs-5 mb-4">Empresa peruana especializada en soluciones de impresión desde 2014.</p>
+                  <div class="d-inline-flex align-items-center bg-white bg-opacity-20 px-3 py-2 rounded-pill mb-4">
+                    <i class="bi bi-building text-warning me-2"></i>
+                    <span class="fw-semibold">Desde 2014</span>
+                  </div>
                   
-                  <div class="row g-3 mb-4">
+                  <h1 class="display-3 fw-bold mb-4">
+                    Sobre <span class="text-warning">Copier Company</span>
+                  </h1>
+                  
+                  <p class="fs-5 mb-5 opacity-90">
+                    Somos <strong>Copier Company S.A.C.</strong>, empresa peruana especializada en soluciones integrales de impresión. 
+                    Con más de <strong>10 años de experiencia</strong>, ayudamos a empresas a optimizar sus procesos documentales.
+                  </p>
+
+                  <!-- Stats Cards -->
+                  <div class="row g-3 mb-5">
                     <div class="col-6 col-md-3">
                       <div class="bg-white bg-opacity-15 rounded-3 p-3 text-center">
-                        <h3 class="fw-bold">10+</h3>
-                        <small>Años</small>
+                        <h3 class="display-6 fw-bold text-warning mb-0">10+</h3>
+                        <small class="opacity-75">Años</small>
                       </div>
                     </div>
                     <div class="col-6 col-md-3">
                       <div class="bg-white bg-opacity-15 rounded-3 p-3 text-center">
-                        <h3 class="fw-bold">120+</h3>
-                        <small>Clientes</small>
+                        <h3 class="display-6 fw-bold text-success mb-0">120+</h3>
+                        <small class="opacity-75">Clientes</small>
                       </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                      <div class="bg-white bg-opacity-15 rounded-3 p-3 text-center">
+                        <h3 class="display-6 fw-bold text-info mb-0">50+</h3>
+                        <small class="opacity-75">Equipos</small>
+                      </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                      <div class="bg-white bg-opacity-15 rounded-3 p-3 text-center">
+                        <h3 class="display-6 fw-bold text-danger mb-0">24/7</h3>
+                        <small class="opacity-75">Soporte</small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="d-flex flex-column flex-sm-row gap-3">
+                    <a href="#historia" class="btn btn-warning btn-lg px-4 py-3 fw-bold">
+                      <i class="bi bi-arrow-down me-2"></i>Conoce Más
+                    </a>
+                    <a href="/contactus" class="btn btn-outline-light btn-lg px-4 py-3">
+                      <i class="bi bi-telephone me-2"></i>Contáctanos
+                    </a>
+                  </div>
+                </div>
+
+                <div class="col-lg-6 text-center">
+                  <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&amp;q=80" 
+                       alt="Oficina moderna" 
+                       class="img-fluid rounded-4 shadow-lg"
+                       style="max-height:500px;object-fit:cover;"/>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- HISTORIA -->
+          <section id="historia" class="py-5 bg-light">
+            <div class="container">
+              <div class="text-center mb-5">
+                <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill mb-3">Nuestra Historia</span>
+                <h2 class="display-5 fw-bold mb-3">Una Década de Experiencia</h2>
+                <p class="lead text-muted">Más de 10 años sirviendo a empresas peruanas</p>
+              </div>
+
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                      <span class="badge bg-primary mb-3">2014</span>
+                      <h4 class="fw-bold mb-3">Fundación</h4>
+                      <p class="text-muted">Inicio de operaciones en Carabayllo, Lima, enfocados en soluciones de impresión empresarial.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                      <span class="badge bg-success mb-3">2016</span>
+                      <h4 class="fw-bold mb-3">Crecimiento</h4>
+                      <p class="text-muted">Expandimos servicios atendiendo empresas medianas y grandes con alquiler de equipos.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                      <span class="badge bg-info mb-3">2020</span>
+                      <h4 class="fw-bold mb-3">Sistema MPS</h4>
+                      <p class="text-muted">Implementamos monitoreo inteligente de flotas de impresión en tiempo real.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="card border-0 shadow-sm h-100 border-primary" style="border-width:2px!important">
+                    <div class="card-body p-4">
+                      <span class="badge bg-primary mb-3">2024</span>
+                      <h4 class="fw-bold mb-3">Actualidad</h4>
+                      <p class="text-muted">120+ clientes activos, 50+ equipos instalados y creciendo continuamente.</p>
                     </div>
                   </div>
                 </div>
@@ -41,24 +135,176 @@
           <section class="py-5">
             <div class="container">
               <div class="text-center mb-5">
-                <h2 class="display-5 fw-bold">Misión y Visión</h2>
+                <span class="badge bg-success fs-6 px-3 py-2 rounded-pill mb-3">Nuestra Filosofía</span>
+                <h2 class="display-5 fw-bold mb-3">Misión y Visión</h2>
               </div>
-              
-              <div class="row g-4">
+
+              <div class="row g-4 mb-5">
                 <div class="col-lg-6">
-                  <div class="card h-100 border-0 shadow">
-                    <div class="card-body p-4">
-                      <h3 class="fw-bold mb-3">Nuestra Misión</h3>
-                      <p class="text-muted">Proporcionar soluciones de impresión de alta calidad para empresas.</p>
+                  <div class="card h-100 border-0 shadow-lg value-card">
+                    <div class="card-body p-5">
+                      <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" 
+                           style="width:100px;height:100px">
+                        <i class="bi bi-bullseye text-white" style="font-size:3rem"></i>
+                      </div>
+                      <h3 class="fw-bold mb-4">Nuestra Misión</h3>
+                      <p class="text-muted fs-5">
+                        Proporcionar a empresas de todos los tamaños las mejores soluciones de impresión y gestión documental, 
+                        ofreciendo productos de alta calidad y un servicio excepcional que mejore su eficiencia y productividad.
+                      </p>
                     </div>
                   </div>
                 </div>
-                
+
                 <div class="col-lg-6">
-                  <div class="card h-100 border-0 shadow">
+                  <div class="card h-100 border-0 shadow-lg value-card">
+                    <div class="card-body p-5">
+                      <div class="bg-success bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" 
+                           style="width:100px;height:100px">
+                        <i class="bi bi-eye text-white" style="font-size:3rem"></i>
+                      </div>
+                      <h3 class="fw-bold mb-4">Nuestra Visión</h3>
+                      <p class="text-muted fs-5">
+                        Ser reconocidos como líderes en el mercado peruano de soluciones de impresión y gestión documental, 
+                        destacando por nuestra calidad, innovación y servicio al cliente.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- VALORES -->
+              <div class="row g-4">
+                <div class="col-lg-3 col-md-6">
+                  <div class="card h-100 border-0 shadow-sm text-center value-card">
                     <div class="card-body p-4">
-                      <h3 class="fw-bold mb-3">Nuestra Visión</h3>
-                      <p class="text-muted">Ser líderes en el mercado peruano de soluciones de impresión.</p>
+                      <div class="bg-warning bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                           style="width:80px;height:80px">
+                        <i class="bi bi-star text-dark fs-1"></i>
+                      </div>
+                      <h4 class="fw-bold mb-3">Excelencia</h4>
+                      <p class="text-muted mb-0">Calidad superior en cada servicio</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                  <div class="card h-100 border-0 shadow-sm text-center value-card">
+                    <div class="card-body p-4">
+                      <div class="bg-info bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                           style="width:80px;height:80px">
+                        <i class="bi bi-lightbulb text-white fs-1"></i>
+                      </div>
+                      <h4 class="fw-bold mb-3">Innovación</h4>
+                      <p class="text-muted mb-0">Tecnología de vanguardia</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                  <div class="card h-100 border-0 shadow-sm text-center value-card">
+                    <div class="card-body p-4">
+                      <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                           style="width:80px;height:80px">
+                        <i class="bi bi-shield-check text-white fs-1"></i>
+                      </div>
+                      <h4 class="fw-bold mb-3">Integridad</h4>
+                      <p class="text-muted mb-0">Honestidad y transparencia</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                  <div class="card h-100 border-0 shadow-sm text-center value-card">
+                    <div class="card-body p-4">
+                      <div class="bg-success bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                           style="width:80px;height:80px">
+                        <i class="bi bi-people text-white fs-1"></i>
+                      </div>
+                      <h4 class="fw-bold mb-3">Trabajo en Equipo</h4>
+                      <p class="text-muted mb-0">Colaboración constante</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- UBICACIÓN -->
+          <section class="py-5 bg-light">
+            <div class="container">
+              <div class="text-center mb-5">
+                <span class="badge bg-danger fs-6 px-3 py-2 rounded-pill mb-3">Nuestra Ubicación</span>
+                <h2 class="display-5 fw-bold mb-3">Encuéntranos</h2>
+              </div>
+
+              <div class="row g-4">
+                <div class="col-lg-4">
+                  <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4 text-center">
+                      <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                           style="width:80px;height:80px">
+                        <i class="bi bi-geo-alt text-danger fs-1"></i>
+                      </div>
+                      <h5 class="fw-bold mb-3">Dirección</h5>
+                      <p class="text-muted mb-0">Cal. las Águilas Mza. A7 Lote. 14<br/>Urbanización la Planicie Etapa 1<br/>Carabayllo, Lima - Perú</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-4">
+                  <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4 text-center">
+                      <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                           style="width:80px;height:80px">
+                        <i class="bi bi-telephone text-success fs-1"></i>
+                      </div>
+                      <h5 class="fw-bold mb-3">Teléfono</h5>
+                      <p class="text-muted mb-2">(01) 975399303</p>
+                      <a href="tel:+51975399303" class="btn btn-sm btn-outline-success">
+                        <i class="bi bi-telephone me-1"></i>Llamar Ahora
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-4">
+                  <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4 text-center">
+                      <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                           style="width:80px;height:80px">
+                        <i class="bi bi-clock text-primary fs-1"></i>
+                      </div>
+                      <h5 class="fw-bold mb-3">Horario</h5>
+                      <p class="text-muted mb-1">Lunes a Viernes: 8:00 AM - 6:00 PM</p>
+                      <p class="text-muted mb-0">Sábados: 9:00 AM - 1:00 PM</p>
+                      <span class="badge bg-success mt-2">Soporte 24/7</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- CTA FINAL -->
+          <section class="py-5 bg-dark">
+            <div class="container">
+              <div class="card text-white border-0 shadow-lg" style="background:linear-gradient(135deg,#0d6efd 0%,#6610f2 100%)">
+                <div class="card-body p-5">
+                  <div class="row align-items-center">
+                    <div class="col-lg-8 mb-4 mb-lg-0">
+                      <h2 class="display-6 fw-bold mb-3">¿Listo para Trabajar con Nosotros?</h2>
+                      <p class="fs-5 mb-4 opacity-90">
+                        Contáctanos para una cotización personalizada o visita nuestras oficinas en Carabayllo.
+                      </p>
+                    </div>
+                    <div class="col-lg-4 text-center">
+                      <a href="/contactus" class="btn btn-warning btn-lg mb-3 d-block fw-bold">
+                        <i class="bi bi-calendar-check me-2"></i>Contactar
+                      </a>
+                      <a href="/cotizacion/form" class="btn btn-outline-light btn-lg d-block">
+                        <i class="bi bi-calculator me-2"></i>Cotizar
+                      </a>
                     </div>
                   </div>
                 </div>
