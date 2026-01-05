@@ -1,34 +1,383 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <data>
-    <!-- Página Nueva Sobre Nosotros -->
+    <!-- Página Sobre Nosotros - Completa y Moderna -->
     <template id="copier_about_us_page" name="About Us Modern">
       <t t-call="website.layout">
         <div id="wrap">
           <style>
             @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css');
-            .hero-about{background:linear-gradient(135deg,#0d6efd,#6610f2);min-height:60vh;color:white}
+            
+            .about-hero-gradient{background:linear-gradient(135deg,#0d6efd 0%,#6610f2 100%);min-height:70vh}
+            .timeline-item{position:relative;padding-left:40px;margin-bottom:30px}
+            .timeline-item::before{content:'';position:absolute;left:0;top:0;width:20px;height:20px;background:#0d6efd;border:4px solid #fff;border-radius:50%;box-shadow:0 0 0 4px rgba(13,110,253,0.1)}
+            .timeline-item::after{content:'';position:absolute;left:9px;top:20px;width:2px;height:calc(100% + 10px);background:#dee2e6}
+            .timeline-item:last-child::after{display:none}
+            .value-card{transition:all 0.3s ease}
+            .value-card:hover{transform:translateY(-10px);box-shadow:0 1rem 3rem rgba(0,0,0,0.175)!important}
+            .team-card{overflow:hidden}
+            .team-card img{transition:transform 0.3s ease}
+            .team-card:hover img{transform:scale(1.1)}
+            .floating-badge{animation:float 3s ease-in-out infinite}
+            @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+            .service-icon{width:80px;height:80px;background:linear-gradient(135deg,#0d6efd,#6610f2)}
+            
+            @media (max-width: 768px){
+              .about-hero-gradient{min-height:50vh}
+              .timeline-item{padding-left:30px}
+            }
           </style>
 
-          <!-- HERO -->
-          <section class="hero-about">
-            <div class="container py-5">
-              <div class="row align-items-center min-vh-60">
-                <div class="col-lg-8 py-5">
-                  <h1 class="display-3 fw-bold mb-4">Sobre Copier Company</h1>
-                  <p class="fs-4 mb-4">Empresa peruana líder en soluciones de impresión desde 2014</p>
+          <!-- HERO SECTION -->
+          <section class="about-hero-gradient text-white position-relative overflow-hidden">
+            <div class="position-absolute top-0 start-0 w-100 h-100" style="background:url('data:image/svg+xml,%3Csvg width=&quot;100&quot; height=&quot;100&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Ccircle cx=&quot;50&quot; cy=&quot;50&quot; r=&quot;2&quot; fill=&quot;white&quot; fill-opacity=&quot;0.1&quot;/%3E%3C/svg%3E');opacity:0.3"></div>
+            
+            <div class="container position-relative" style="z-index:2;">
+              <div class="row min-vh-70 align-items-center py-5">
+                <div class="col-lg-6 py-5">
+                  <div class="d-inline-flex align-items-center bg-white bg-opacity-20 px-3 py-2 rounded-pill mb-4">
+                    <i class="bi bi-building text-warning me-2"></i>
+                    <span class="fw-semibold">Desde 2014</span>
+                  </div>
                   
-                  <div class="row g-3">
-                    <div class="col-3">
-                      <div class="bg-white bg-opacity-15 rounded p-3 text-center">
-                        <h3 class="fw-bold">10+</h3>
-                        <small>Años</small>
+                  <h1 class="display-3 fw-bold mb-4">
+                    Transformando la <span class="text-warning">Productividad</span> de tu Oficina
+                  </h1>
+                  
+                  <p class="fs-5 mb-5 opacity-90">
+                    Somos <strong>Copier Company S.A.C.</strong>, empresa peruana especializada en soluciones integrales de impresión. 
+                    Con más de <strong>10 años de experiencia</strong>, ayudamos a empresas a optimizar sus procesos documentales 
+                    con tecnología de vanguardia.
+                  </p>
+
+                  <!-- Stats Cards -->
+                  <div class="row g-3 mb-5">
+                    <div class="col-6 col-md-3">
+                      <div class="bg-white bg-opacity-15 rounded-3 p-3 text-center">
+                        <h3 class="display-6 fw-bold text-warning mb-0">10+</h3>
+                        <small class="opacity-75">Años</small>
                       </div>
                     </div>
-                    <div class="col-3">
-                      <div class="bg-white bg-opacity-15 rounded p-3 text-center">
-                        <h3 class="fw-bold">120+</h3>
-                        <small>Clientes</small>
+                    <div class="col-6 col-md-3">
+                      <div class="bg-white bg-opacity-15 rounded-3 p-3 text-center">
+                        <h3 class="display-6 fw-bold text-success mb-0">120+</h3>
+                        <small class="opacity-75">Clientes</small>
+                      </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                      <div class="bg-white bg-opacity-15 rounded-3 p-3 text-center">
+                        <h3 class="display-6 fw-bold text-info mb-0">50+</h3>
+                        <small class="opacity-75">Equipos</small>
+                      </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                      <div class="bg-white bg-opacity-15 rounded-3 p-3 text-center">
+                        <h3 class="display-6 fw-bold text-danger mb-0">24/7</h3>
+                        <small class="opacity-75">Soporte</small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="d-flex flex-column flex-sm-row gap-3">
+                    <a href="#nuestra-historia" class="btn btn-warning btn-lg px-4 py-3 fw-bold">
+                      <i class="bi bi-arrow-down me-2"></i>Conoce Nuestra Historia
+                    </a>
+                    <a href="/contactus" class="btn btn-outline-light btn-lg px-4 py-3">
+                      <i class="bi bi-telephone me-2"></i>Contáctanos
+                    </a>
+                  </div>
+                </div>
+
+                <div class="col-lg-6 text-center position-relative">
+                  <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=800&amp;q=80" 
+                       alt="Oficina moderna" 
+                       class="img-fluid rounded-4 shadow-lg"
+                       style="max-height:500px;object-fit:cover;"/>
+                  
+                  <!-- Floating badges -->
+                  <div class="position-absolute top-0 start-0 m-3 floating-badge">
+                    <div class="bg-white rounded-3 shadow p-3 d-flex align-items-center">
+                      <i class="bi bi-award text-warning fs-4 me-2"></i>
+                      <span class="fw-semibold text-dark">Experiencia</span>
+                    </div>
+                  </div>
+                  <div class="position-absolute bottom-0 end-0 m-3 floating-badge" style="animation-delay:1s">
+                    <div class="bg-white rounded-3 shadow p-3 d-flex align-items-center">
+                      <i class="bi bi-shield-check text-success fs-4 me-2"></i>
+                      <span class="fw-semibold text-dark">Garantía Total</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- NUESTRA HISTORIA / TIMELINE -->
+          <section id="nuestra-historia" class="py-5 bg-light">
+            <div class="container">
+              <div class="text-center mb-5">
+                <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill mb-3">Nuestra Trayectoria</span>
+                <h2 class="display-5 fw-bold mb-3">Una Década de Excelencia</h2>
+                <p class="lead text-muted">Más de 10 años construyendo relaciones duraderas con nuestros clientes</p>
+              </div>
+
+              <!-- Timeline -->
+              <div class="row">
+                <div class="col-lg-8 mx-auto">
+                  
+                  <div class="timeline-item">
+                    <div class="card border-0 shadow-sm">
+                      <div class="card-body p-4">
+                        <span class="badge bg-primary mb-3">2014</span>
+                        <h4 class="fw-bold mb-3">Fundación de Copier Company</h4>
+                        <p class="text-muted mb-0">Inicio de operaciones en Carabayllo, Lima, con la visión de transformar la gestión documental de las empresas peruanas.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="timeline-item">
+                    <div class="card border-0 shadow-sm">
+                      <div class="card-body p-4">
+                        <span class="badge bg-success mb-3">2016</span>
+                        <h4 class="fw-bold mb-3">Primeros Clientes Corporativos</h4>
+                        <p class="text-muted mb-0">Expandimos nuestra cartera atendiendo a empresas medianas y grandes, consolidando nuestro servicio de alquiler.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="timeline-item">
+                    <div class="card border-0 shadow-sm">
+                      <div class="card-body p-4">
+                        <span class="badge bg-warning mb-3">2018</span>
+                        <h4 class="fw-bold mb-3">Expansión de Servicios</h4>
+                        <p class="text-muted mb-0">Ampliamos nuestra gama de servicios incluyendo mantenimiento especializado y venta de equipos nuevos y seminuevos.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="timeline-item">
+                    <div class="card border-0 shadow-sm">
+                      <div class="card-body p-4">
+                        <span class="badge bg-info mb-3">2020</span>
+                        <h4 class="fw-bold mb-3">Implementación Sistema MPS</h4>
+                        <p class="text-muted mb-0">Lanzamos nuestro sistema de monitoreo inteligente MPS, revolucionando el control de flotas de impresión.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="timeline-item">
+                    <div class="card border-0 shadow-sm border-primary" style="border-width:2px!important">
+                      <div class="card-body p-4">
+                        <span class="badge bg-primary mb-3">2024 - Presente</span>
+                        <h4 class="fw-bold mb-3">Líderes del Mercado</h4>
+                        <p class="text-muted mb-3">120+ clientes activos, 50+ equipos instalados y un equipo comprometido con la excelencia.</p>
+                        <div class="d-flex gap-2 flex-wrap">
+                          <span class="badge bg-success-subtle text-success">120+ Clientes</span>
+                          <span class="badge bg-info-subtle text-info">50+ Equipos</span>
+                          <span class="badge bg-warning-subtle text-warning">Soporte 24/7</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- MISIÓN, VISIÓN Y VALORES -->
+          <section class="py-5">
+            <div class="container">
+              <div class="text-center mb-5">
+                <span class="badge bg-success fs-6 px-3 py-2 rounded-pill mb-3">Nuestra Filosofía</span>
+                <h2 class="display-5 fw-bold mb-3">Misión, Visión y Valores</h2>
+                <p class="lead text-muted">Los principios que guían nuestro trabajo diario</p>
+              </div>
+
+              <!-- Misión y Visión -->
+              <div class="row g-4 mb-5">
+                <div class="col-lg-6">
+                  <div class="card h-100 border-0 shadow-lg value-card">
+                    <div class="card-body p-5">
+                      <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" 
+                           style="width:100px;height:100px">
+                        <i class="bi bi-bullseye text-white" style="font-size:3rem"></i>
+                      </div>
+                      <h3 class="fw-bold mb-4">Nuestra Misión</h3>
+                      <p class="text-muted fs-5 mb-0">
+                        Proporcionar a empresas de todos los tamaños las mejores soluciones de impresión y gestión documental, 
+                        ofreciendo productos de alta calidad y un servicio excepcional que mejore su eficiencia y productividad. 
+                        Nos comprometemos a mantenernos al día con las últimas tecnologías para asegurar que nuestros clientes 
+                        siempre tengan lo mejor en sus manos.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-6">
+                  <div class="card h-100 border-0 shadow-lg value-card">
+                    <div class="card-body p-5">
+                      <div class="bg-success bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" 
+                           style="width:100px;height:100px">
+                        <i class="bi bi-eye text-white" style="font-size:3rem"></i>
+                      </div>
+                      <h3 class="fw-bold mb-4">Nuestra Visión</h3>
+                      <p class="text-muted fs-5 mb-0">
+                        Ser reconocidos como líderes en el mercado peruano de soluciones de impresión y gestión documental, 
+                        destacando por nuestra calidad, innovación y servicio al cliente. Buscamos evolucionar continuamente 
+                        para ofrecer soluciones que no solo satisfagan, sino que superen las expectativas de nuestros clientes.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Valores -->
+              <div class="row g-4">
+                <div class="col-lg-3 col-md-6">
+                  <div class="card h-100 border-0 shadow-sm text-center value-card">
+                    <div class="card-body p-4">
+                      <div class="bg-warning bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                           style="width:80px;height:80px">
+                        <i class="bi bi-star text-dark fs-1"></i>
+                      </div>
+                      <h4 class="fw-bold mb-3">Excelencia</h4>
+                      <p class="text-muted mb-0">Buscamos la perfección en cada servicio que brindamos</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                  <div class="card h-100 border-0 shadow-sm text-center value-card">
+                    <div class="card-body p-4">
+                      <div class="bg-info bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                           style="width:80px;height:80px">
+                        <i class="bi bi-lightbulb text-white fs-1"></i>
+                      </div>
+                      <h4 class="fw-bold mb-3">Innovación</h4>
+                      <p class="text-muted mb-0">Adoptamos las últimas tecnologías del mercado</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                  <div class="card h-100 border-0 shadow-sm text-center value-card">
+                    <div class="card-body p-4">
+                      <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                           style="width:80px;height:80px">
+                        <i class="bi bi-shield-check text-white fs-1"></i>
+                      </div>
+                      <h4 class="fw-bold mb-3">Integridad</h4>
+                      <p class="text-muted mb-0">Actuamos con honestidad y transparencia siempre</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                  <div class="card h-100 border-0 shadow-sm text-center value-card">
+                    <div class="card-body p-4">
+                      <div class="bg-success bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                           style="width:80px;height:80px">
+                        <i class="bi bi-people text-white fs-1"></i>
+                      </div>
+                      <h4 class="fw-bold mb-3">Trabajo en Equipo</h4>
+                      <p class="text-muted mb-0">Colaboramos para alcanzar objetivos comunes</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- NUESTRO EQUIPO -->
+          <section class="py-5 bg-light">
+            <div class="container">
+              <div class="text-center mb-5">
+                <span class="badge bg-info fs-6 px-3 py-2 rounded-pill mb-3">Nuestro Equipo</span>
+                <h2 class="display-5 fw-bold mb-3">Profesionales Comprometidos</h2>
+                <p class="lead text-muted">Expertos dedicados a tu satisfacción</p>
+              </div>
+
+              <div class="row g-4">
+                <div class="col-lg-3 col-md-6">
+                  <div class="card border-0 shadow-sm team-card">
+                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=400&amp;q=80" 
+                         alt="Gerente General" 
+                         class="card-img-top"
+                         style="height:300px;object-fit:cover"/>
+                    <div class="card-body text-center p-4">
+                      <h5 class="fw-bold mb-1">Gerencia General</h5>
+                      <p class="text-muted mb-3">Dirección Estratégica</p>
+                      <div class="d-flex gap-2 justify-content-center">
+                        <a href="#" class="btn btn-sm btn-outline-primary rounded-circle">
+                          <i class="bi bi-linkedin"></i>
+                        </a>
+                        <a href="#" class="btn btn-sm btn-outline-primary rounded-circle">
+                          <i class="bi bi-envelope"></i>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                  <div class="card border-0 shadow-sm team-card">
+                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=400&amp;q=80" 
+                         alt="Jefe Técnico" 
+                         class="card-img-top"
+                         style="height:300px;object-fit:cover"/>
+                    <div class="card-body text-center p-4">
+                      <h5 class="fw-bold mb-1">Jefatura Técnica</h5>
+                      <p class="text-muted mb-3">Servicio y Soporte</p>
+                      <div class="d-flex gap-2 justify-content-center">
+                        <a href="#" class="btn btn-sm btn-outline-primary rounded-circle">
+                          <i class="bi bi-linkedin"></i>
+                        </a>
+                        <a href="#" class="btn btn-sm btn-outline-primary rounded-circle">
+                          <i class="bi bi-envelope"></i>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                  <div class="card border-0 shadow-sm team-card">
+                    <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=400&amp;q=80" 
+                         alt="Comercial" 
+                         class="card-img-top"
+                         style="height:300px;object-fit:cover"/>
+                    <div class="card-body text-center p-4">
+                      <h5 class="fw-bold mb-1">Área Comercial</h5>
+                      <p class="text-muted mb-3">Ventas y Alquiler</p>
+                      <div class="d-flex gap-2 justify-content-center">
+                        <a href="#" class="btn btn-sm btn-outline-primary rounded-circle">
+                          <i class="bi bi-linkedin"></i>
+                        </a>
+                        <a href="#" class="btn btn-sm btn-outline-primary rounded-circle">
+                          <i class="bi bi-envelope"></i>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                  <div class="card border-0 shadow-sm team-card">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=400&amp;q=80" 
+                         alt="Soporte" 
+                         class="card-img-top"
+                         style="height:300px;object-fit:cover"/>
+                    <div class="card-body text-center p-4">
+                      <h5 class="fw-bold mb-1">Atención al Cliente</h5>
+                      <p class="text-muted mb-3">Soporte 24/7</p>
+                      <div class="d-flex gap-2 justify-content-center">
+                        <a href="#" class="btn btn-sm btn-outline-primary rounded-circle">
+                          <i class="bi bi-linkedin"></i>
+                        </a>
+                        <a href="#" class="btn btn-sm btn-outline-primary rounded-circle">
+                          <i class="bi bi-envelope"></i>
+                        </a>
                       </div>
                     </div>
                   </div>
@@ -37,33 +386,339 @@
             </div>
           </section>
 
-          <!-- MISIÓN -->
+          <!-- POR QUÉ ELEGIRNOS -->
           <section class="py-5">
             <div class="container">
-              <h2 class="text-center mb-5">Misión y Visión</h2>
+              <div class="text-center mb-5">
+                <span class="badge bg-warning fs-6 px-3 py-2 rounded-pill mb-3">Ventajas Competitivas</span>
+                <h2 class="display-5 fw-bold mb-3">¿Por Qué Elegirnos?</h2>
+                <p class="lead text-muted">Diferenciadores que nos hacen únicos</p>
+              </div>
+
               <div class="row g-4">
-                <div class="col-md-6">
-                  <div class="card h-100 shadow">
+                <div class="col-lg-4 col-md-6">
+                  <div class="card h-100 border-0 shadow-sm value-card">
                     <div class="card-body p-4">
-                      <h3>Misión</h3>
-                      <p>Proporcionar soluciones de impresión de alta calidad para empresas peruanas.</p>
+                      <div class="bg-primary bg-opacity-10 rounded-3 p-3 d-inline-block mb-3">
+                        <i class="bi bi-clock-history text-primary" style="font-size:2.5rem"></i>
+                      </div>
+                      <h4 class="fw-bold mb-3">Experiencia Comprobada</h4>
+                      <p class="text-muted mb-3">Más de 10 años en el mercado peruano respaldándonos. Conocemos a fondo las necesidades de empresas locales.</p>
+                      <div class="row g-2">
+                        <div class="col-6">
+                          <div class="bg-light rounded-3 p-2 text-center">
+                            <h5 class="fw-bold text-primary mb-0">10+</h5>
+                            <small class="text-muted">Años</small>
+                          </div>
+                        </div>
+                        <div class="col-6">
+                          <div class="bg-light rounded-3 p-2 text-center">
+                            <h5 class="fw-bold text-primary mb-0">120+</h5>
+                            <small class="text-muted">Clientes</small>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div class="col-md-6">
-                  <div class="card h-100 shadow">
+
+                <div class="col-lg-4 col-md-6">
+                  <div class="card h-100 border-0 shadow-sm value-card">
                     <div class="card-body p-4">
-                      <h3>Visión</h3>
-                      <p>Ser líderes en el mercado peruano de soluciones de impresión.</p>
+                      <div class="bg-success bg-opacity-10 rounded-3 p-3 d-inline-block mb-3">
+                        <i class="bi bi-headset text-success" style="font-size:2.5rem"></i>
+                      </div>
+                      <h4 class="fw-bold mb-3">Soporte Integral 24/7</h4>
+                      <p class="text-muted mb-3">Atención técnica disponible las 24 horas, los 7 días de la semana. Tu productividad no puede esperar.</p>
+                      <div class="d-flex gap-2 flex-wrap">
+                        <span class="badge bg-success-subtle text-success">Telefónico</span>
+                        <span class="badge bg-success-subtle text-success">Remoto</span>
+                        <span class="badge bg-success-subtle text-success">Presencial</span>
+                        <span class="badge bg-success-subtle text-success">WhatsApp</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                  <div class="card h-100 border-0 shadow-sm value-card">
+                    <div class="card-body p-4">
+                      <div class="bg-info bg-opacity-10 rounded-3 p-3 d-inline-block mb-3">
+                        <i class="bi bi-graph-up-arrow text-info" style="font-size:2.5rem"></i>
+                      </div>
+                      <h4 class="fw-bold mb-3">Tecnología MPS</h4>
+                      <p class="text-muted mb-3">Sistema de monitoreo inteligente incluido. Control total de tu flota de impresoras en tiempo real.</p>
+                      <a href="/our-services" class="btn btn-outline-info btn-sm">
+                        <i class="bi bi-arrow-right me-1"></i>Conocer MPS
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                  <div class="card h-100 border-0 shadow-sm value-card">
+                    <div class="card-body p-4">
+                      <div class="bg-warning bg-opacity-10 rounded-3 p-3 d-inline-block mb-3">
+                        <i class="bi bi-truck text-warning" style="font-size:2.5rem"></i>
+                      </div>
+                      <h4 class="fw-bold mb-3">Instalación Rápida</h4>
+                      <p class="text-muted mb-3">Equipos instalados y configurados en menos de 24 horas. Incluye capacitación completa a tu equipo.</p>
+                      <div class="alert alert-warning border-0 mb-0">
+                        <i class="bi bi-lightning-fill me-2"></i>
+                        <small>Respuesta en 4 horas máximo</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                  <div class="card h-100 border-0 shadow-sm value-card">
+                    <div class="card-body p-4">
+                      <div class="bg-danger bg-opacity-10 rounded-3 p-3 d-inline-block mb-3">
+                        <i class="bi bi-shield-check text-danger" style="font-size:2.5rem"></i>
+                      </div>
+                      <h4 class="fw-bold mb-3">Garantía Total</h4>
+                      <p class="text-muted mb-3">Cobertura completa en reparaciones y reemplazos. Tu tranquilidad es nuestra prioridad empresarial.</p>
+                      <ul class="list-unstyled mb-0">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-danger me-2"></i>Repuestos originales</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-danger me-2"></i>Técnicos certificados</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                  <div class="card h-100 border-0 shadow-sm value-card">
+                    <div class="card-body p-4">
+                      <div class="bg-primary bg-opacity-10 rounded-3 p-3 d-inline-block mb-3">
+                        <i class="bi bi-cash-coin text-primary" style="font-size:2.5rem"></i>
+                      </div>
+                      <h4 class="fw-bold mb-3">Flexibilidad de Pago</h4>
+                      <p class="text-muted mb-3">Planes de alquiler sin inversión inicial. Venta con opciones de financiamiento adaptadas a tu presupuesto.</p>
+                      <a href="/cotizacion/form" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-calculator me-1"></i>Cotizar Ahora
+                      </a>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </section>
+
+          <!-- COMPROMISO CON EL CLIENTE -->
+          <section class="py-5 bg-light">
+            <div class="container">
+              <div class="row align-items-center">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                  <img src="https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=800&amp;q=80" 
+                       alt="Compromiso" 
+                       class="img-fluid rounded-4 shadow-lg"/>
+                </div>
+                <div class="col-lg-6 ps-lg-5">
+                  <span class="badge bg-success fs-6 px-3 py-2 rounded-pill mb-3">Nuestro Compromiso</span>
+                  <h2 class="display-5 fw-bold mb-4">Tu Éxito es Nuestro Éxito</h2>
+                  <p class="fs-5 text-muted mb-4">
+                    En Copier Company no solo vendemos o alquilamos equipos. Construimos relaciones duraderas 
+                    basadas en la confianza, el servicio excepcional y el compromiso con tu satisfacción.
+                  </p>
+
+                  <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                      <div class="d-flex align-items-start">
+                        <div class="bg-success bg-opacity-10 rounded-3 p-2 me-3">
+                          <i class="bi bi-shield-check text-success fs-4"></i>
+                        </div>
+                        <div>
+                          <h6 class="fw-bold mb-1">Garantía Total</h6>
+                          <small class="text-muted">Cobertura completa en todos los servicios</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="d-flex align-items-start">
+                        <div class="bg-primary bg-opacity-10 rounded-3 p-2 me-3">
+                          <i class="bi bi-people text-primary fs-4"></i>
+                        </div>
+                        <div>
+                          <h6 class="fw-bold mb-1">Atención Personalizada</h6>
+                          <small class="text-muted">Soluciones adaptadas a cada cliente</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="d-flex align-items-start">
+                        <div class="bg-warning bg-opacity-10 rounded-3 p-2 me-3">
+                          <i class="bi bi-clock text-warning fs-4"></i>
+                        </div>
+                        <div>
+                          <h6 class="fw-bold mb-1">Respuesta Inmediata</h6>
+                          <small class="text-muted">Soporte técnico en menos de 4 horas</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="d-flex align-items-start">
+                        <div class="bg-info bg-opacity-10 rounded-3 p-2 me-3">
+                          <i class="bi bi-graph-up text-info fs-4"></i>
+                        </div>
+                        <div>
+                          <h6 class="fw-bold mb-1">Mejora Continua</h6>
+                          <small class="text-muted">Innovación constante en nuestros servicios</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <a href="/contactus" class="btn btn-success btn-lg px-4 py-3">
+                    <i class="bi bi-chat-dots me-2"></i>Conversemos
+                  </a>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- UBICACIÓN -->
+          <section class="py-5">
+            <div class="container">
+              <div class="text-center mb-5">
+                <span class="badge bg-danger fs-6 px-3 py-2 rounded-pill mb-3">Nuestra Ubicación</span>
+                <h2 class="display-5 fw-bold mb-3">Encuéntranos</h2>
+                <p class="lead text-muted">Estamos en Carabayllo, Lima - Perú</p>
+              </div>
+
+              <div class="row g-4">
+                <div class="col-lg-4">
+                  <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4 text-center">
+                      <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                           style="width:80px;height:80px">
+                        <i class="bi bi-geo-alt text-danger fs-1"></i>
+                      </div>
+                      <h5 class="fw-bold mb-3">Dirección</h5>
+                      <p class="text-muted mb-0">Cal. las Águilas Mza. A7 Lote. 14<br/>Urbanización la Planicie Etapa 1<br/>Carabayllo, Lima - Perú</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-4">
+                  <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4 text-center">
+                      <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                           style="width:80px;height:80px">
+                        <i class="bi bi-telephone text-success fs-1"></i>
+                      </div>
+                      <h5 class="fw-bold mb-3">Teléfono</h5>
+                      <p class="text-muted mb-2">(01) 975399303</p>
+                      <a href="tel:+51975399303" class="btn btn-sm btn-outline-success">
+                        <i class="bi bi-telephone me-1"></i>Llamar Ahora
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-4">
+                  <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4 text-center">
+                      <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                           style="width:80px;height:80px">
+                        <i class="bi bi-clock text-primary fs-1"></i>
+                      </div>
+                      <h5 class="fw-bold mb-3">Horario</h5>
+                      <p class="text-muted mb-1">Lunes a Viernes: 8:00 AM - 6:00 PM</p>
+                      <p class="text-muted mb-0">Sábados: 9:00 AM - 1:00 PM</p>
+                      <span class="badge bg-success mt-2">Soporte 24/7</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mapa -->
+              <div class="card border-0 shadow-sm mt-4">
+                <div class="card-body p-0">
+                  <div class="ratio ratio-21x9">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3903.8!2d-77.03!3d-11.88!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTHCsDUyJzQ4LjAiUyA3N8KwMDEnNDguMCJX!5e0!3m2!1ses!2spe!4v1234567890" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy"></iframe>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- CTA FINAL -->
+          <section class="py-5 bg-dark">
+            <div class="container">
+              <div class="card bg-gradient text-white border-0 shadow-lg" style="background:linear-gradient(135deg,#0d6efd 0%,#6610f2 100%)">
+                <div class="card-body p-5">
+                  <div class="row align-items-center">
+                    <div class="col-lg-8 mb-4 mb-lg-0">
+                      <h2 class="display-6 fw-bold mb-3">¿Quieres Conocer Más Sobre Nosotros?</h2>
+                      <p class="fs-5 mb-4 opacity-90">
+                        Agenda una visita a nuestras oficinas o solicita una presentación virtual. 
+                        Conoce nuestro showroom y los equipos que tenemos disponibles.
+                      </p>
+                      <div class="d-flex flex-wrap gap-3">
+                        <span class="badge bg-white text-primary fs-6 py-2 px-3">
+                          <i class="bi bi-check-circle me-1"></i>Showroom disponible
+                        </span>
+                        <span class="badge bg-white text-primary fs-6 py-2 px-3">
+                          <i class="bi bi-check-circle me-1"></i>Demo gratuita
+                        </span>
+                        <span class="badge bg-white text-primary fs-6 py-2 px-3">
+                          <i class="bi bi-check-circle me-1"></i>Asesoría personalizada
+                        </span>
+                      </div>
+                    </div>
+                    <div class="col-lg-4 text-center">
+                      <a href="/contactus" class="btn btn-warning btn-lg mb-3 d-block fw-bold">
+                        <i class="bi bi-calendar-check me-2"></i>Agendar Visita
+                      </a>
+                      <a href="/cotizacion/form" class="btn btn-outline-light btn-lg mb-3 d-block">
+                        <i class="bi bi-calculator me-2"></i>Solicitar Cotización
+                      </a>
+                      <div class="mt-3">
+                        <a href="https://wa.me/51975399303" target="_blank" class="text-white text-decoration-none">
+                          <i class="bi bi-whatsapp fs-4 me-2"></i>
+                          <span>WhatsApp: 975 399 303</span>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- BOTONES FLOTANTES -->
+          <div class="position-fixed bottom-0 end-0 p-3" style="z-index:1050">
+            <a href="https://wa.me/51975399303?text=Hola,%20quiero%20conocer%20más%20sobre%20Copier%20Company"
+               target="_blank"
+               class="btn btn-success rounded-pill shadow-lg d-flex align-items-center mb-2">
+              <i class="bi bi-whatsapp fs-4 me-2"></i>
+              <span class="d-none d-md-inline fw-semibold">Contactar</span>
+            </a>
+          </div>
+
+          <div class="position-fixed bottom-0 start-0 p-3" style="z-index:1050">
+            <a href="/cotizacion/form" 
+               class="btn btn-warning rounded-pill shadow-lg d-flex align-items-center">
+              <i class="bi bi-calculator fs-4 me-2"></i>
+              <span class="d-none d-md-inline fw-semibold text-dark">Cotizar</span>
+            </a>
+          </div>
 
         </div>
       </t>
     </template>
+
+    <!-- Controlador para la ruta /about-us -->
+    <record id="copier_about_us_page_route" model="website.page">
+      <field name="name">About Us</field>
+      <field name="url">/about-us</field>
+      <field name="view_id" ref="copier_about_us_page"/>
+      <field name="website_published" eval="True"/>
+    </record>
+
   </data>
 </odoo>
