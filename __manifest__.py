@@ -66,6 +66,7 @@
         'views/view_client_counter_submission.xml',
         'views/view_toner_request.xml',
         'views/homepage_template.xml',
+        'views/copier_about_us_template.xml',
         'views/servicios_web.xml',
         'views/cotizaciones_multiples.xml',
         'views/template_cotizaciones.xml',       
