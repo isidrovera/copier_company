@@ -151,7 +151,7 @@ class CopierPortal(CustomerPortal):
                 return request.redirect('/my')
             
             # Redirigir al formulario público de tickets con el ID del equipo
-            redirect_url = f'/public/helpdesk_ticket?copier_company_id={equipment_id}'
+            redirect_url = f'/public/service_request?copier_company_id={equipment_id}'
             _logger.info("Redirigiendo a: %s", redirect_url)
             _logger.info("=== FINALIZANDO portal_create_equipment_ticket ===")
             return request.redirect(redirect_url)

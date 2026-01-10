@@ -380,7 +380,7 @@
                                         <a t-attf-href="/public/remote_assistance?copier_company_id=#{equipment.id}" class="action-btn btn-warning">
                                             <i class="bi bi-display me-1"></i>Asistencia
                                         </a>
-                                        <a t-attf-href="/public/helpdesk_ticket?copier_company_id=#{equipment.id}" class="action-btn btn-danger">
+                                        <a t-attf-href="/public/service_request?copier_company_id=#{equipment.id}" class="action-btn btn-danger">
                                             <i class="bi bi-exclamation-triangle me-1"></i>Problema
                                         </a>
                                         <a t-attf-href="/my/copier/equipment/#{equipment.id}/counters" class="action-btn btn-purple">
@@ -673,7 +673,7 @@
                                 
                                 <!-- Reportar Problema -->
                                 <div class="col-12">
-                                    <a t-attf-href="/public/helpdesk_ticket?copier_company_id=#{equipment.id}" class="action-card">
+                                    <a t-attf-href="/public/service_request?copier_company_id=#{equipment.id}" class="action-card">
                                         <div class="action-icon bg-gradient-danger">
                                             <i class="bi bi-exclamation-triangle"></i>
                                         </div>
