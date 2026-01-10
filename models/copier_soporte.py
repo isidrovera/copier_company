@@ -10,7 +10,7 @@ class CopierServiceRequest(models.Model):
     _name = 'copier.service.request'
     _description = 'Solicitudes de Servicio Técnico'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    _order = 'priority desc, create_date desc'
+   
 
     # ==========================================
     # CAMPOS BÁSICOS
