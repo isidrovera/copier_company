@@ -20,3 +20,4 @@ from . import copier_stock_extend
 from . import copier_whatsapp_alerts
 from . import copier_stock_whatsapp_extend
 from . import printtracker_config
+from . import copier_soporte

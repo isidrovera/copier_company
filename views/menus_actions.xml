@@ -559,4 +559,126 @@ action = records.action_create_multiple_invoices()
               groups="base.group_system"
               sequence="90"/>
 
+
+    <!-- ========================================= -->
+    <!-- ACCIONES DE VENTANA - SERVICIO TÉCNICO -->
+    <!-- ========================================= -->
+
+    <!-- Acción Principal: Todas las Solicitudes -->
+    <record id="action_copier_service_request" model="ir.actions.act_window">
+        <field name="name">Solicitudes de Servicio</field>
+        <field name="res_model">copier.service.request</field>
+        <field name="view_mode">kanban,list,form,calendar,pivot,graph,activity</field>
+        <field name="context">{
+            'search_default_en_proceso': 1,
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear nueva solicitud de servicio
+            </p>
+            <p>
+                Registre las solicitudes de servicio técnico de sus clientes.<br/>
+                El sistema asignará técnicos y gestionará todo el flujo de trabajo.
+            </p>
+        </field>
+    </record>
+
+    <!-- Acción: Mis Servicios (para técnicos) -->
+    <record id="action_copier_service_request_my" model="ir.actions.act_window">
+        <field name="name">Mis Servicios</field>
+        <field name="res_model">copier.service.request</field>
+        <field name="view_mode">kanban,list,calendar,form</field>
+        <field name="context">{
+            'search_default_mis_servicios': 1,
+            'search_default_en_proceso': 1,
+        }</field>
+        <field name="domain">[('tecnico_id', '=', uid)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No tienes servicios asignados
+            </p>
+            <p>
+                Aquí aparecerán todos los servicios técnicos asignados a ti.
+            </p>
+        </field>
+    </record>
+
+    <!-- Acción: Servicios de Hoy -->
+    <record id="action_copier_service_request_today" model="ir.actions.act_window">
+        <field name="name">Servicios de Hoy</field>
+        <field name="res_model">copier.service.request</field>
+        <field name="view_mode">kanban,list,calendar,form</field>
+        <field name="context">{
+            'search_default_hoy': 1,
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay servicios programados para hoy
+            </p>
+        </field>
+    </record>
+
+    <!-- Acción: Servicios Urgentes -->
+    <record id="action_copier_service_request_urgent" model="ir.actions.act_window">
+        <field name="name">Servicios Urgentes</field>
+        <field name="res_model">copier.service.request</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="context">{
+            'search_default_critica': 1,
+        }</field>
+        <field name="domain">[('estado', 'not in', ['completado', 'cancelado'])]</field>
+    </record>
+
+    <!-- Acción: Tipos de Problemas -->
+    <record id="action_copier_service_problem_type" model="ir.actions.act_window">
+        <field name="name">Tipos de Problemas</field>
+        <field name="res_model">copier.service.problem.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configure los tipos de problemas
+            </p>
+            <p>
+                Defina las categorías de problemas más comunes para clasificar
+                las solicitudes de servicio técnico.
+            </p>
+        </field>
+    </record>
+
+    <!-- ========================================= -->
+    <!-- MENÚS - SERVICIO TÉCNICO -->
+    <!-- ========================================= -->
+
+    <!-- Agregar en Solicitudes (después de Toner) -->
+    <menuitem id="menu_service_requests" 
+              name="Servicio Técnico" 
+              parent="menu_solicitudes" 
+              action="action_copier_service_request" 
+              sequence="30"/>
+
+    <menuitem id="menu_service_requests_my" 
+              name="Mis Servicios" 
+              parent="menu_solicitudes" 
+              action="action_copier_service_request_my" 
+              sequence="31"/>
+
+    <menuitem id="menu_service_requests_today" 
+              name="Servicios de Hoy" 
+              parent="menu_solicitudes" 
+              action="action_copier_service_request_today" 
+              sequence="32"/>
+
+    <menuitem id="menu_service_requests_urgent" 
+              name="Servicios Urgentes" 
+              parent="menu_solicitudes" 
+              action="action_copier_service_request_urgent" 
+              sequence="33"/>
+
+    <!-- Agregar en Ajustes (después de PrintTracker Config) -->
+    <menuitem id="menu_service_problem_types"
+              name="Tipos de Problemas"
+              action="action_copier_service_problem_type"
+              parent="menu_ajustes"
+              sequence="95"/>
+
 </odoo>
