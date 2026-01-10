@@ -446,17 +446,24 @@ class CopierServiceRequest(models.Model):
     # ==========================================
     
     @api.model
-    def create(self, vals):
-        if vals.get('name', 'New') == 'New':
-            vals['name'] = self.env['ir.sequence'].next_by_code('copier.service.request') or 'New'
+    def create(self, vals_list):
+        # Normalizar vals_list a lista
+        if isinstance(vals_list, dict):
+            vals_list = [vals_list]
         
-        record = super(CopierServiceRequest, self).create(vals)
+        # Asignar secuencia a cada registro
+        for vals in vals_list:
+            if vals.get('name', 'New') == 'New':
+                vals['name'] = self.env['ir.sequence'].next_by_code('copier.service.request') or 'New'
         
-        # Notificar creación
-        record._notificar_nueva_solicitud()
+        records = super(CopierServiceRequest, self).create(vals_list)
         
-        return record
-    
+        # Notificar creación para cada registro
+        for record in records:
+            record._notificar_nueva_solicitud()
+        
+        return records
+        
     def write(self, vals):
         # Capturar cambios de estado
         old_estado = self.estado
