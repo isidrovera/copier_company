@@ -1339,18 +1339,17 @@ class CopierPortal(CustomerPortal):
                             
                             # Registrar en el chatter quién reportó
                             service_request.message_post(
-                                body=f"""<div style="font-family: Arial, sans-serif;">
-                                    <p style="margin: 0 0 10px 0;"><strong>📱 Información del Reportante:</strong></p>
-                                    <ul style="margin: 0; padding-left: 20px;">
-                                        <li><strong>Nombre:</strong> {form_data['contacto']}</li>
-                                        <li><strong>Email:</strong> {form_data['correo']}</li>
-                                        <li><strong>Teléfono:</strong> {form_data['telefono_contacto']}</li>
-                                        <li><strong>Origen:</strong> {'📱 Escáner QR' if from_qr else '🌐 Portal Web'}</li>
-                                    </ul>
-                                </div>""",
+                                body=f'''
+                                    📱 Información del Reportante
+                                    
+                                    • Nombre: {form_data['contacto']}
+                                    • Email: {form_data['correo']}
+                                    • Teléfono: {form_data['telefono_contacto']}
+                                    • Origen: {'📱 Escáner QR' if from_qr else '🌐 Portal Web'}
+                                ''',
                                 message_type='notification'
                             )
-                                                        
+                                                                                    
                             # Obtener tipo de problema para mensaje
                             tipo_problema = request.env['copier.service.problem.type'].sudo().browse(
                                 form_data['tipo_problema_id']
