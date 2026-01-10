@@ -155,15 +155,15 @@ class CopierServiceRequest(models.Model):
     tecnico_id = fields.Many2one(
         'res.users',
         string='Técnico Asignado',
-        tracking=True,
-        domain=[('groups_id', 'in', [lambda self: self.env.ref('copier_company.group_copier_technician').id])]
+        tracking=True
+        
     )
     
     tecnico_respaldo_id = fields.Many2one(
         'res.users',
         string='Técnico de Respaldo',
-        tracking=True,
-        domain=[('groups_id', 'in', [lambda self: self.env.ref('copier_company.group_copier_technician').id])]
+        tracking=True
+       
     )
     
     fecha_programada = fields.Datetime(
@@ -173,7 +173,7 @@ class CopierServiceRequest(models.Model):
     
     duracion_estimada = fields.Float(
         string='Duración Estimada (horas)',
-        default=1.0
+        default=3.0
     )
     
     # ==========================================
