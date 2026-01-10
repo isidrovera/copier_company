@@ -216,5 +216,430 @@
         </div>
       </t>
     </template>
+
+      <!-- ========================================== -->
+    <!-- TEMPLATE: FORMULARIO SERVICIO TÉCNICO -->
+    <!-- ========================================== -->
+    <template id="portal_service_request" name="Solicitud de Servicio Técnico">
+        <t t-call="portal.frontend_layout">
+            <t t-set="additional_title">Solicitar Servicio Técnico</t>
+            
+            <!-- CSS Custom -->
+            <t t-set="head">
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet"/>
+                <style>
+                    .service-header {
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                        padding: 3rem 0;
+                        margin-bottom: 2rem;
+                        border-radius: 0 0 30px 30px;
+                    }
+                    .equipment-info-card {
+                        background: #f8f9fa;
+                        border-left: 4px solid #667eea;
+                        padding: 1.5rem;
+                        margin-bottom: 2rem;
+                        border-radius: 8px;
+                    }
+                    .form-label {
+                        font-weight: 600;
+                        color: #495057;
+                        margin-bottom: 0.5rem;
+                    }
+                    .form-control, .form-select {
+                        border-radius: 8px;
+                        border: 1px solid #dee2e6;
+                        padding: 0.75rem;
+                    }
+                    .form-control:focus, .form-select:focus {
+                        border-color: #667eea;
+                        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+                    }
+                    .btn-submit {
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        border: none;
+                        padding: 1rem 3rem;
+                        font-weight: 600;
+                        border-radius: 50px;
+                        transition: all 0.3s;
+                    }
+                    .btn-submit:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+                    }
+                    .priority-badge {
+                        display: inline-block;
+                        padding: 0.5rem 1rem;
+                        border-radius: 20px;
+                        font-weight: 600;
+                        margin: 0.25rem;
+                        cursor: pointer;
+                        transition: all 0.3s;
+                    }
+                    .priority-badge:hover {
+                        transform: scale(1.05);
+                    }
+                    .success-card {
+                        background: #d4edda;
+                        border: 1px solid #c3e6cb;
+                        border-radius: 12px;
+                        padding: 2rem;
+                        margin: 2rem 0;
+                    }
+                    .error-card {
+                        background: #f8d7da;
+                        border: 1px solid #f5c6cb;
+                        border-radius: 12px;
+                        padding: 1.5rem;
+                        margin: 2rem 0;
+                    }
+                    .qr-badge {
+                        background: #fff3cd;
+                        border: 1px solid #ffc107;
+                        padding: 1rem;
+                        border-radius: 8px;
+                        margin-bottom: 1.5rem;
+                    }
+                    .photo-preview {
+                        max-width: 200px;
+                        max-height: 200px;
+                        margin-top: 1rem;
+                        border-radius: 8px;
+                        display: none;
+                    }
+                </style>
+            </t>
+
+            <div class="container-fluid p-0">
+                <!-- Header -->
+                <div class="service-header">
+                    <div class="container">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h1 class="display-5 fw-bold mb-2">
+                                    <i class="bi bi-tools me-3"></i>
+                                    Solicitar Servicio Técnico
+                                </h1>
+                                <p class="lead mb-0">Complete el formulario y nos pondremos en contacto</p>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <div class="bg-white bg-opacity-25 rounded p-3">
+                                    <i class="bi bi-headset fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="container mb-5">
+                    <!-- Mensaje si viene de QR -->
+                    <t t-if="from_qr">
+                        <div class="qr-badge">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-qr-code fs-2 me-3 text-warning"></i>
+                                <div>
+                                    <h5 class="mb-1">Acceso mediante código QR</h5>
+                                    <p class="mb-0 small">Por favor ingrese sus datos de contacto para que podamos atenderle</p>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+
+                    <!-- Mensajes de éxito/error -->
+                    <t t-if="success_message">
+                        <div class="success-card">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-check-circle-fill fs-1 text-success me-3"></i>
+                                <div class="flex-grow-1">
+                                    <h4 class="text-success mb-3">¡Solicitud Creada Exitosamente!</h4>
+                                    <div t-raw="success_message"/>
+                                    
+                                    <div class="mt-4 p-3 bg-white rounded">
+                                        <h6 class="fw-bold mb-3">Detalles de su solicitud:</h6>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p class="mb-2"><strong>Número:</strong> <span class="text-primary" t-esc="request_data.get('number')"/></p>
+                                                <p class="mb-2"><strong>Tipo:</strong> <t t-esc="request_data.get('tipo_problema')"/></p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p class="mb-2"><strong>Prioridad:</strong> <t t-esc="request_data.get('prioridad')"/></p>
+                                                <p class="mb-2"><strong>Estado:</strong> <span class="badge bg-info" t-esc="request_data.get('estado')"/></p>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <p class="mb-1"><strong>Reportado por:</strong> <t t-esc="request_data.get('reportado_por')"/></p>
+                                            <p class="mb-1"><strong>Email:</strong> <t t-esc="request_data.get('email')"/></p>
+                                            <p class="mb-0"><strong>Teléfono:</strong> <t t-esc="request_data.get('telefono')"/></p>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4">
+                                        <a t-attf-href="/public/equipment_menu?copier_company_id=#{equipment.id}" 
+                                           class="btn btn-primary">
+                                            <i class="bi bi-arrow-left me-2"></i>
+                                            Volver al Menú
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+
+                    <t t-if="error_message">
+                        <div class="error-card">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-exclamation-triangle-fill fs-2 text-danger me-3"></i>
+                                <div>
+                                    <h5 class="text-danger mb-2">Error al procesar la solicitud</h5>
+                                    <p class="mb-0" t-esc="error_message"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+
+                    <!-- Formulario (solo mostrar si NO hay éxito) -->
+                    <t t-if="not success_message">
+                        <!-- Información del Equipo -->
+                        <div class="equipment-info-card">
+                            <h5 class="mb-3">
+                                <i class="bi bi-printer me-2"></i>
+                                Información del Equipo
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-2">
+                                        <strong>Equipo:</strong> 
+                                        <span t-esc="equipment_data.get('name')"/>
+                                    </p>
+                                    <p class="mb-2">
+                                        <strong>Serie:</strong> 
+                                        <span t-esc="equipment_data.get('serie')"/>
+                                    </p>
+                                    <p class="mb-0">
+                                        <strong>Marca:</strong> 
+                                        <span t-esc="equipment_data.get('marca')"/>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-2">
+                                        <strong>Ubicación:</strong> 
+                                        <span t-esc="equipment_data.get('ubicacion')"/>
+                                    </p>
+                                    <p class="mb-2">
+                                        <strong>Tipo:</strong> 
+                                        <span t-esc="equipment_data.get('tipo')"/>
+                                    </p>
+                                    <p class="mb-0">
+                                        <strong>Cliente:</strong> 
+                                        <span t-esc="equipment_data.get('cliente_name')"/>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Formulario -->
+                        <form method="POST" enctype="multipart/form-data" id="serviceForm">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                            <!-- Sección: Datos de Contacto -->
+                            <div class="card shadow-sm mb-4">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-person-fill me-2"></i>
+                                        Datos de Contacto
+                                        <span class="badge bg-warning text-dark ms-2">OBLIGATORIO</span>
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label" for="contacto">
+                                                Nombre Completo <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="text" 
+                                                   class="form-control" 
+                                                   id="contacto" 
+                                                   name="contacto" 
+                                                   t-att-value="contact_data.get('contacto', '')"
+                                                   placeholder="Ej: Juan Pérez López"
+                                                   required="required"/>
+                                            <small class="text-muted">Persona que reporta el problema</small>
+                                        </div>
+
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label" for="correo">
+                                                Email <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="email" 
+                                                   class="form-control" 
+                                                   id="correo" 
+                                                   name="correo" 
+                                                   t-att-value="contact_data.get('correo', '')"
+                                                   placeholder="ejemplo@empresa.com"
+                                                   required="required"/>
+                                            <small class="text-muted">Para notificaciones y seguimiento</small>
+                                        </div>
+
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label" for="telefono_contacto">
+                                                Teléfono/Celular <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="tel" 
+                                                   class="form-control" 
+                                                   id="telefono_contacto" 
+                                                   name="telefono_contacto" 
+                                                   t-att-value="contact_data.get('telefono_contacto', '')"
+                                                   placeholder="987654321"
+                                                   pattern="[0-9]{9,15}"
+                                                   required="required"/>
+                                            <small class="text-muted">Mínimo 9 dígitos</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sección: Descripción del Problema -->
+                            <div class="card shadow-sm mb-4">
+                                <div class="card-header bg-danger text-white">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-exclamation-circle-fill me-2"></i>
+                                        Descripción del Problema
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label" for="tipo_problema_id">
+                                                Tipo de Problema <span class="text-danger">*</span>
+                                            </label>
+                                            <select class="form-select" 
+                                                    id="tipo_problema_id" 
+                                                    name="tipo_problema_id" 
+                                                    required="required">
+                                                <option value="">-- Seleccione un tipo --</option>
+                                                <t t-foreach="problem_types" t-as="ptype">
+                                                    <option t-att-value="ptype.id">
+                                                        <t t-esc="ptype.icono"/> <t t-esc="ptype.name"/>
+                                                    </option>
+                                                </t>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">
+                                                Prioridad <span class="text-danger">*</span>
+                                            </label>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                <input type="radio" class="btn-check" name="prioridad" id="prioridad_baja" value="0"/>
+                                                <label class="priority-badge bg-success text-white" for="prioridad_baja">
+                                                    🟢 Baja
+                                                </label>
+
+                                                <input type="radio" class="btn-check" name="prioridad" id="prioridad_normal" value="1" checked="checked"/>
+                                                <label class="priority-badge bg-info text-white" for="prioridad_normal">
+                                                    🔵 Normal
+                                                </label>
+
+                                                <input type="radio" class="btn-check" name="prioridad" id="prioridad_alta" value="2"/>
+                                                <label class="priority-badge bg-warning text-dark" for="prioridad_alta">
+                                                    🟠 Alta
+                                                </label>
+
+                                                <input type="radio" class="btn-check" name="prioridad" id="prioridad_critica" value="3"/>
+                                                <label class="priority-badge bg-danger text-white" for="prioridad_critica">
+                                                    🔴 Crítica
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label" for="problema_reportado">
+                                            Descripción Detallada <span class="text-danger">*</span>
+                                        </label>
+                                        <textarea class="form-control" 
+                                                  id="problema_reportado" 
+                                                  name="problema_reportado" 
+                                                  rows="5" 
+                                                  placeholder="Describa el problema con el mayor detalle posible. Ej: La impresora no imprime desde hace 2 días, muestra mensaje de error 'E000020-0001'..."
+                                                  required="required"></textarea>
+                                        <small class="text-muted">
+                                            Sea lo más específico posible. Incluya mensajes de error si los hay.
+                                        </small>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label" for="foto_antes">
+                                            Foto del Problema (Opcional)
+                                        </label>
+                                        <input type="file" 
+                                               class="form-control" 
+                                               id="foto_antes" 
+                                               name="foto_antes" 
+                                               accept="image/*"
+                                               onchange="previewImage(this)"/>
+                                        <small class="text-muted">
+                                            Si es posible, adjunte una foto del error o problema
+                                        </small>
+                                        <img id="imagePreview" class="photo-preview img-thumbnail" alt="Vista previa"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Botones -->
+                            <div class="text-center my-5">
+                                <button type="submit" class="btn btn-primary btn-submit btn-lg">
+                                    <i class="bi bi-send-fill me-2"></i>
+                                    Enviar Solicitud de Servicio
+                                </button>
+                                <br/>
+                                <a t-attf-href="/public/equipment_menu?copier_company_id=#{equipment.id}" 
+                                   class="btn btn-link mt-3">
+                                    <i class="bi bi-arrow-left me-2"></i>
+                                    Volver al Menú
+                                </a>
+                            </div>
+                        </form>
+                    </t>
+                </div>
+            </div>
+
+            <!-- JavaScript -->
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            <script>
+                // Preview de imagen
+                function previewImage(input) {
+                    const preview = document.getElementById('imagePreview');
+                    if (input.files &amp;&amp; input.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            preview.src = e.target.result;
+                            preview.style.display = 'block';
+                        }
+                        reader.readAsDataURL(input.files[0]);
+                    } else {
+                        preview.style.display = 'none';
+                    }
+                }
+
+                // Validación del formulario
+                (function() {
+                    'use strict';
+                    const form = document.getElementById('serviceForm');
+                    if (form) {
+                        form.addEventListener('submit', function(event) {
+                            if (!form.checkValidity()) {
+                                event.preventDefault();
+                                event.stopPropagation();
+                            }
+                            form.classList.add('was-validated');
+                        }, false);
+                    }
+                })();
+            </script>
+        </t>
+    </template>
   </data>
 </odoo>
