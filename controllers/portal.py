@@ -1340,11 +1340,31 @@ class CopierPortal(CustomerPortal):
                             # Registrar en el chatter quién reportó
                             service_request.message_post(
                                 body=f"""
-                                📱 <strong>Información del Reportante:</strong><br/>
-                                • Nombre: {form_data['contacto']}<br/>
-                                • Email: {form_data['correo']}<br/>
-                                • Teléfono: {form_data['telefono_contacto']}<br/>
-                                • Origen: {'📱 Escáner QR' if from_qr else '🌐 Portal Web'}
+                                <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif;">
+                                    <tr style="background-color: #f0f0f0;">
+                                        <td colspan="2" style="padding: 10px; font-weight: bold; border-bottom: 2px solid #667eea;">
+                                            📱 Información del Reportante
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; width: 30%; font-weight: bold; border-bottom: 1px solid #eee;">Nombre:</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #eee;">{form_data['contacto']}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Email:</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #eee;">{form_data['correo']}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Teléfono:</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #eee;">{form_data['telefono_contacto']}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; font-weight: bold;">Origen:</td>
+                                        <td style="padding: 8px;">
+                                            {'📱 Escáner QR' if from_qr else '🌐 Portal Web'}
+                                        </td>
+                                    </tr>
+                                </table>
                                 """,
                                 message_type='notification'
                             )
