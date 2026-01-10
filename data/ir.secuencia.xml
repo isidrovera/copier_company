@@ -1,5 +1,75 @@
 <odoo>
     <data noupdate="1">
+        <record id="seq_copier_service_request" model="ir.sequence">
+            <field name="name">Solicitud de Servicio</field>
+            <field name="code">copier.service.request</field>
+            <field name="prefix">SRV-%(year)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+        </record>
+
+        <!-- Tipos de problemas comunes -->
+        <record id="problem_type_no_enciende" model="copier.service.problem.type">
+            <field name="name">Equipo No Enciende</field>
+            <field name="icono">❌</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="problem_type_atasco" model="copier.service.problem.type">
+            <field name="name">Atasco de Papel</field>
+            <field name="icono">📄</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <record id="problem_type_calidad" model="copier.service.problem.type">
+            <field name="name">Calidad de Impresión Deficiente</field>
+            <field name="icono">🖨️</field>
+            <field name="sequence">30</field>
+        </record>
+
+        <record id="problem_type_error" model="copier.service.problem.type">
+            <field name="name">Error en Pantalla</field>
+            <field name="icono">🔧</field>
+            <field name="sequence">40</field>
+        </record>
+
+        <record id="problem_type_red" model="copier.service.problem.type">
+            <field name="name">Problemas de Red/Conexión</field>
+            <field name="icono">🌐</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <record id="problem_type_contador" model="copier.service.problem.type">
+            <field name="name">Contador No Reporta</field>
+            <field name="icono">📊</field>
+            <field name="sequence">60</field>
+        </record>
+
+        <record id="problem_type_color" model="copier.service.problem.type">
+            <field name="name">Problemas con Color</field>
+            <field name="icono">🎨</field>
+            <field name="sequence">70</field>
+        </record>
+
+        <record id="problem_type_mantenimiento" model="copier.service.problem.type">
+            <field name="name">Mantenimiento Preventivo</field>
+            <field name="icono">🔄</field>
+            <field name="sequence">80</field>
+        </record>
+
+        <record id="problem_type_capacitacion" model="copier.service.problem.type">
+            <field name="name">Capacitación/Consulta</field>
+            <field name="icono">📞</field>
+            <field name="sequence">90</field>
+        </record>
+
+        <record id="problem_type_otro" model="copier.service.problem.type">
+            <field name="name">Otro</field>
+            <field name="icono">⚙️</field>
+            <field name="sequence">100</field>
+        </record>
+        
         <record id="seq_cotizacion" model="ir.sequence">
             <field name="name">Cotizaciones</field>
             <field name="code">copier.company</field>

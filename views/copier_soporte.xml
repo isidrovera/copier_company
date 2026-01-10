@@ -1,0 +1,744 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ========================================== -->
+    <!-- VISTA LIST (antes tree) -->
+    <!-- ========================================== -->
+    <record id="view_copier_service_request_list" model="ir.ui.view">
+        <field name="name">copier.service.request.list</field>
+        <field name="model">copier.service.request</field>
+        <field name="arch" type="xml">
+            <list string="Solicitudes de Servicio" 
+                  multi_edit="1"
+                  sample="1"
+                  decoration-danger="prioridad == '3'"
+                  decoration-warning="prioridad == '2'"
+                  decoration-success="estado == 'completado'"
+                  decoration-muted="estado == 'cancelado'">
+                
+                <header>
+                    <button name="action_asignar_tecnico" 
+                            type="object" 
+                            string="Asignar Técnico"
+                            />
+                </header>
+                
+                <field name="name" string="Número"/>
+                <field name="create_date" string="Fecha Solicitud" optional="show"/>
+                <field name="cliente_id" string="Cliente"/>
+                <field name="modelo_maquina" string="Modelo" optional="show"/>
+                <field name="serie_maquina" string="Serie" optional="hide"/>
+                <field name="ubicacion" string="Ubicación" optional="show"/>
+                <field name="tipo_problema_id" string="Tipo" optional="show"/>
+                
+                <field name="prioridad" 
+                       string="Prioridad" 
+                       widget="priority"
+                       optional="show"/>
+                
+                <field name="estado" 
+                       string="Estado"
+                       widget="badge"
+                       decoration-success="estado == 'completado'"
+                       decoration-warning="estado in ('en_ruta', 'en_sitio')"
+                       decoration-info="estado == 'asignado'"
+                       decoration-danger="estado == 'pausado'"/>
+                
+                <field name="tecnico_id" string="Técnico" optional="show"/>
+                <field name="fecha_programada" string="Programado" optional="show"/>
+                
+                <field name="sla_limite" 
+                       string="Límite SLA" 
+                       optional="hide"
+                       decoration-danger="sla_limite and sla_limite &lt; context_today()"/>
+                
+                <field name="origen_solicitud" string="Origen" optional="hide"/>
+                <field name="calificacion" string="Calificación" optional="hide" widget="priority"/>
+                
+                <field name="activity_ids" widget="list_activity"/>
+                
+                <field name="color" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- VISTA FORM -->
+    <!-- ========================================== -->
+    <record id="view_copier_service_request_form" model="ir.ui.view">
+        <field name="name">copier.service.request.form</field>
+        <field name="model">copier.service.request</field>
+        <field name="arch" type="xml">
+            <form string="Solicitud de Servicio">
+                <header>
+                    <!-- Botones según estado -->
+                    <button name="action_asignar_tecnico" 
+                            type="object" 
+                            string="Asignar Técnico"
+                            invisible="estado not in ('nuevo', 'asignado')"
+                            
+                            class="btn-primary"/>
+                    
+                    <button name="action_confirmar_visita" 
+                            type="object" 
+                            string="Confirmar Visita"
+                            invisible="estado != 'asignado'"
+                            class="btn-primary"/>
+                    
+                    <button name="action_iniciar_ruta" 
+                            type="object" 
+                            string="Iniciar Ruta"
+                            invisible="estado != 'confirmado'"
+                            
+                            class="btn-warning"/>
+                    
+                    <button name="action_iniciar_servicio" 
+                            type="object" 
+                            string="Iniciar Servicio"
+                            invisible="estado != 'en_ruta'"
+                            
+                            class="btn-success"/>
+                    
+                    <button name="action_pausar_servicio" 
+                            type="object" 
+                            string="Pausar"
+                            invisible="estado != 'en_sitio'"
+                            />
+                    
+                    <button name="action_completar_servicio" 
+                            type="object" 
+                            string="Completar Servicio"
+                            invisible="estado not in ('en_sitio', 'pausado')"
+                            
+                            class="btn-success"/>
+                    
+                    <button name="action_cancelar_servicio" 
+                            type="object" 
+                            string="Cancelar"
+                            invisible="estado in ('completado', 'cancelado')"
+                            />
+                    
+                    <button name="action_enviar_encuesta" 
+                            type="object" 
+                            string="Enviar Encuesta"
+                            invisible="estado != 'completado' or calificacion"
+                            class="btn-secondary"/>
+                    
+                    <!-- Barra de estado -->
+                    <field name="estado" widget="statusbar" 
+                           statusbar_visible="nuevo,asignado,confirmado,en_ruta,en_sitio,completado"/>
+                </header>
+
+                <sheet>
+                    <!-- Alertas y Ribbons -->
+                    <div class="ribbon ribbon-top-right" invisible="prioridad != '3'">
+                        <span class="bg-danger">CRÍTICA</span>
+                    </div>
+                    
+                    <div class="alert alert-warning" role="alert" 
+                         invisible="not sla_limite or sla_limite &gt; context_today() or estado in ('completado', 'cancelado')">
+                        <strong>⚠️ Atención:</strong> SLA próximo a vencer o vencido
+                    </div>
+
+                    <!-- Título -->
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                        <h2>
+                            <field name="tipo_problema_id" 
+                                   placeholder="Seleccione tipo de problema..."
+                                   readonly="estado in ('completado', 'cancelado')"/>
+                        </h2>
+                    </div>
+
+                    <!-- Widgets de estado -->
+                    <group>
+                        <group>
+                            <field name="prioridad" widget="priority"/>
+                            <field name="origen_solicitud"/>
+                        </group>
+                        <group>
+                            <field name="sla_limite" readonly="1"/>
+                            <field name="sla_cumplido" 
+                                   invisible="estado != 'completado'"
+                                   widget="boolean"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <!-- TAB: INFORMACIÓN GENERAL -->
+                        <page string="Información General" name="general">
+                            <group>
+                                <group string="Máquina y Cliente">
+                                    <field name="maquina_id" 
+                                           readonly="estado not in ('nuevo', 'asignado')"
+                                           options="{'no_create': True}"/>
+                                    <field name="cliente_id" readonly="1" force_save="1"/>
+                                    <field name="modelo_maquina" readonly="1" force_save="1"/>
+                                    <field name="serie_maquina" readonly="1" force_save="1"/>
+                                    <field name="ip_maquina" readonly="1" force_save="1"/>
+                                </group>
+                                
+                                <group string="Ubicación y Contacto">
+                                    <field name="ubicacion" readonly="1" force_save="1"/>
+                                    <field name="sede" readonly="1" force_save="1"/>
+                                    <field name="contacto"/>
+                                    <field name="telefono_contacto"/>
+                                </group>
+                            </group>
+
+                            <group string="Problema Reportado">
+                                <field name="problema_reportado" 
+                                       nolabel="1" 
+                                       placeholder="Describa el problema reportado por el cliente..."
+                                       readonly="estado in ('completado', 'cancelado')"/>
+                            </group>
+                        </page>
+
+                        <!-- TAB: ASIGNACIÓN -->
+                        <page string="Asignación" name="asignacion">
+                            <group>
+                                <group string="Técnico">
+                                    <field name="tecnico_id" 
+                                           widget="many2one_avatar_user"
+                                           readonly="estado in ('completado', 'cancelado')"/>
+                                    <field name="tecnico_respaldo_id" 
+                                           widget="many2one_avatar_user"
+                                           readonly="estado in ('completado', 'cancelado')"/>
+                                </group>
+                                
+                                <group string="Programación">
+                                    <field name="fecha_programada" 
+                                           readonly="estado in ('completado', 'cancelado')"/>
+                                    <field name="duracion_estimada" 
+                                           widget="float_time"
+                                           readonly="estado in ('completado', 'cancelado')"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <!-- TAB: EJECUCIÓN DEL SERVICIO -->
+                        <page string="Ejecución" 
+                              name="ejecucion"
+                              invisible="estado in ('nuevo', 'asignado', 'confirmado')">
+                            <group>
+                                <group string="Tiempos">
+                                    <field name="fecha_inicio" readonly="1" force_save="1"/>
+                                    <field name="fecha_fin" readonly="1" force_save="1"/>
+                                    <field name="duracion_real" 
+                                           widget="float_time" 
+                                           readonly="1" 
+                                           force_save="1"/>
+                                </group>
+                                
+                                <group string="Métricas SLA">
+                                    <field name="tiempo_respuesta" 
+                                           widget="float_time" 
+                                           readonly="1" 
+                                           force_save="1"/>
+                                    <field name="tiempo_resolucion" 
+                                           widget="float_time" 
+                                           readonly="1" 
+                                           force_save="1"/>
+                                </group>
+                            </group>
+
+                            <group string="Diagnóstico y Solución">
+                                <field name="diagnostico" 
+                                       nolabel="1" 
+                                       placeholder="Diagnóstico realizado por el técnico..."
+                                       readonly="estado in ('completado', 'cancelado')"/>
+                                
+                                <field name="solucion_aplicada" 
+                                       readonly="estado in ('completado', 'cancelado')"/>
+                                
+                                <field name="trabajo_realizado" 
+                                       nolabel="1" 
+                                       placeholder="Detalle el trabajo realizado..."
+                                       readonly="estado in ('completado', 'cancelado')"/>
+                            </group>
+
+                            <group string="Insumos y Observaciones">
+                                <field name="insumos_utilizados" 
+                                       nolabel="1" 
+                                       placeholder="Tóner, kits, piezas, etc..."
+                                       readonly="estado in ('completado', 'cancelado')"/>
+                                
+                                <field name="observaciones_tecnico" 
+                                       nolabel="1" 
+                                       placeholder="Observaciones adicionales del técnico..."
+                                       readonly="estado in ('completado', 'cancelado')"/>
+                            </group>
+                        </page>
+
+                        <!-- TAB: CONTADORES -->
+                        <page string="Contadores" 
+                              name="contadores"
+                              invisible="estado not in ('en_sitio', 'pausado', 'completado')">
+                            <group>
+                                <group string="Contadores al Servicio">
+                                    <field name="contador_bn" 
+                                           readonly="estado == 'completado'"/>
+                                    <field name="contador_color" 
+                                           readonly="estado == 'completado'"/>
+                                    <field name="contador_total" 
+                                           readonly="1" 
+                                           force_save="1"/>
+                                </group>
+                            </group>
+
+                            <div class="alert alert-info" role="alert">
+                                <strong>ℹ️ Información:</strong> Los contadores se registrarán automáticamente al completar el servicio.
+                            </div>
+                        </page>
+
+                        <!-- TAB: EVIDENCIAS -->
+                        <page string="Evidencias" 
+                              name="evidencias"
+                              invisible="estado in ('nuevo', 'asignado', 'confirmado')">
+                            <group>
+                                <group string="Fotos">
+                                    <field name="foto_antes" 
+                                           widget="image" 
+                                           class="oe_avatar"
+                                           readonly="estado == 'completado'"/>
+                                    <field name="foto_despues" 
+                                           widget="image" 
+                                           class="oe_avatar"
+                                           readonly="estado == 'completado'"/>
+                                </group>
+                                
+                                <group string="Conformidad">
+                                    <field name="firma_cliente" 
+                                           widget="image" 
+                                           readonly="estado == 'completado'"/>
+                                    <field name="nombre_firma" 
+                                           readonly="estado == 'completado'"/>
+                                    <field name="conformidad_cliente" 
+                                           widget="boolean_toggle"
+                                           readonly="estado == 'completado'"/>
+                                </group>
+                            </group>
+
+                            <group string="Fotos Adicionales">
+                                <field name="fotos_adicionales" 
+                                       nolabel="1" 
+                                       widget="many2many_binary"
+                                       readonly="estado == 'completado'"/>
+                            </group>
+                        </page>
+
+                        <!-- TAB: EVALUACIÓN -->
+                        <page string="Evaluación" 
+                              name="evaluacion"
+                              invisible="estado != 'completado'">
+                            <group>
+                                <group>
+                                    <field name="calificacion" widget="priority"/>
+                                </group>
+                            </group>
+                            
+                            <group string="Comentarios del Cliente">
+                                <field name="comentario_cliente" 
+                                       nolabel="1" 
+                                       placeholder="Comentarios y sugerencias del cliente..."/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <!-- Chatter -->
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- VISTA KANBAN -->
+    <!-- ========================================== -->
+    <record id="view_copier_service_request_kanban" model="ir.ui.view">
+        <field name="name">copier.service.request.kanban</field>
+        <field name="model">copier.service.request</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="estado" 
+                    class="o_kanban_small_column" 
+                    sample="1"
+                    quick_create="false">
+                
+                <field name="name"/>
+                <field name="cliente_id"/>
+                <field name="modelo_maquina"/>
+                <field name="tipo_problema_id"/>
+                <field name="prioridad"/>
+                <field name="estado"/>
+                <field name="tecnico_id"/>
+                <field name="fecha_programada"/>
+                <field name="sla_limite"/>
+                <field name="color"/>
+                <field name="activity_ids"/>
+                <field name="activity_state"/>
+
+                <templates>
+                    <t t-name="card" class="row">
+                        <aside>
+                            <field name="prioridad" widget="priority"/>
+                        </aside>
+                        
+                        <main class="ms-2">
+                            <!-- Header -->
+                            <div class="d-flex align-items-baseline">
+                                <strong class="me-2">
+                                    <field name="name"/>
+                                </strong>
+                                
+                                <span class="badge rounded-pill"
+                                      t-attf-class="#{record.prioridad.raw_value == '3' ? 'text-bg-danger' : record.prioridad.raw_value == '2' ? 'text-bg-warning' : 'text-bg-secondary'}">
+                                    <field name="tipo_problema_id"/>
+                                </span>
+                            </div>
+
+                            <!-- Cliente y Máquina -->
+                            <div class="mt-2">
+                                <i class="fa fa-building-o me-1"/>
+                                <field name="cliente_id"/>
+                            </div>
+                            
+                            <div>
+                                <i class="fa fa-print me-1"/>
+                                <field name="modelo_maquina"/>
+                            </div>
+
+                            <!-- Técnico -->
+                            <div class="mt-2" invisible="not tecnico_id">
+                                <field name="tecnico_id" widget="many2one_avatar_user"/>
+                            </div>
+
+                            <!-- Fecha Programada -->
+                            <div class="mt-2" invisible="not fecha_programada">
+                                <i class="fa fa-calendar me-1"/>
+                                <field name="fecha_programada" widget="date"/>
+                            </div>
+
+                            <!-- Alerta SLA -->
+                            <div class="mt-2 text-danger" 
+                                 invisible="not sla_limite or sla_limite &gt; context_today() or estado in ('completado', 'cancelado')">
+                                <i class="fa fa-warning me-1"/>
+                                <strong>SLA Vencido</strong>
+                            </div>
+
+                            <!-- Footer con actividades -->
+                            <footer class="mt-3">
+                                <field name="activity_ids" widget="kanban_activity"/>
+                            </footer>
+                        </main>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- VISTA CALENDARIO -->
+    <!-- ========================================== -->
+    <record id="view_copier_service_request_calendar" model="ir.ui.view">
+        <field name="name">copier.service.request.calendar</field>
+        <field name="model">copier.service.request</field>
+        <field name="arch" type="xml">
+            <calendar string="Servicios Programados" 
+                      date_start="fecha_programada"
+                      color="tecnico_id"
+                      event_open_popup="true"
+                      quick_create="false"
+                      mode="month">
+                
+                <field name="name"/>
+                <field name="cliente_id"/>
+                <field name="modelo_maquina"/>
+                <field name="tipo_problema_id"/>
+                <field name="tecnico_id" 
+                       filters="1" 
+                       avatar_field="image_128"/>
+                <field name="prioridad" 
+                       filters="1"
+                       invisible="1"/>
+                <field name="estado" 
+                       filters="1"
+                       invisible="1"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- VISTA PIVOT (para reportes) -->
+    <!-- ========================================== -->
+    <record id="view_copier_service_request_pivot" model="ir.ui.view">
+        <field name="name">copier.service.request.pivot</field>
+        <field name="model">copier.service.request</field>
+        <field name="arch" type="xml">
+            <pivot string="Análisis de Servicios" sample="1">
+                <field name="create_date" interval="month" type="col"/>
+                <field name="tecnico_id" type="row"/>
+                <field name="tipo_problema_id" type="row"/>
+                <field name="duracion_real" type="measure"/>
+                <field name="tiempo_resolucion" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- VISTA GRAPH -->
+    <!-- ========================================== -->
+    <record id="view_copier_service_request_graph" model="ir.ui.view">
+        <field name="name">copier.service.request.graph</field>
+        <field name="model">copier.service.request</field>
+        <field name="arch" type="xml">
+            <graph string="Gráficos de Servicios" sample="1" type="bar">
+                <field name="create_date" interval="week"/>
+                <field name="estado" type="col"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- VISTA ACTIVITY -->
+    <!-- ========================================== -->
+    <record id="view_copier_service_request_activity" model="ir.ui.view">
+        <field name="name">copier.service.request.activity</field>
+        <field name="model">copier.service.request</field>
+        <field name="arch" type="xml">
+            <activity string="Actividades de Servicio">
+                <templates>
+                    <div t-name="activity-box">
+                        <div>
+                            <field name="name"/>
+                        </div>
+                        <div>
+                            <field name="cliente_id" muted="1"/>
+                        </div>
+                        <div>
+                            <field name="tipo_problema_id"/>
+                        </div>
+                    </div>
+                </templates>
+            </activity>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- VISTA SEARCH -->
+    <!-- ========================================== -->
+    <record id="view_copier_service_request_search" model="ir.ui.view">
+        <field name="name">copier.service.request.search</field>
+        <field name="model">copier.service.request</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Servicios">
+                <!-- Campos de búsqueda -->
+                <field name="name" string="Número"/>
+                <field name="cliente_id" string="Cliente"/>
+                <field name="modelo_maquina" string="Modelo"/>
+                <field name="serie_maquina" string="Serie"/>
+                <field name="ubicacion" string="Ubicación"/>
+                <field name="tecnico_id" string="Técnico"/>
+                <field name="tipo_problema_id" string="Tipo de Problema"/>
+
+                <!-- Filtros predefinidos -->
+                <filter name="mis_servicios" 
+                        string="Mis Servicios"
+                        domain="[('tecnico_id', '=', uid)]"/>
+                
+                <filter name="nuevos" 
+                        string="Nuevos"
+                        domain="[('estado', '=', 'nuevo')]"/>
+                
+                <filter name="en_proceso" 
+                        string="En Proceso"
+                        domain="[('estado', 'in', ['asignado', 'confirmado', 'en_ruta', 'en_sitio', 'pausado'])]"/>
+                
+                <filter name="completados" 
+                        string="Completados"
+                        domain="[('estado', '=', 'completado')]"/>
+                
+                <separator/>
+                
+                <filter name="critica" 
+                        string="Prioridad Crítica"
+                        domain="[('prioridad', '=', '3')]"/>
+                
+                <filter name="alta" 
+                        string="Prioridad Alta"
+                        domain="[('prioridad', '=', '2')]"/>
+                
+                <separator/>
+                
+                <filter name="sla_vencido" 
+                        string="SLA Vencido"
+                        domain="[('sla_limite', '&lt;', context_today()), ('estado', 'not in', ['completado', 'cancelado'])]"/>
+                
+                <filter name="hoy" 
+                        string="Hoy"
+                        domain="[('fecha_programada', '&gt;=', context_today()), ('fecha_programada', '&lt;', (context_today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d'))]"/>
+                
+                <filter name="esta_semana" 
+                        string="Esta Semana"
+                        domain="[('fecha_programada', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d')), ('fecha_programada', '&lt;', (context_today() + datetime.timedelta(days=7-context_today().weekday())).strftime('%Y-%m-%d'))]"/>
+                
+                <separator/>
+                
+                <filter name="sin_calificar" 
+                        string="Sin Calificar"
+                        domain="[('estado', '=', 'completado'), ('calificacion', '=', False)]"/>
+
+                <!-- Agrupar por -->
+                <group expand="0" string="Agrupar por">
+                    <filter name="group_estado" 
+                            string="Estado" 
+                            context="{'group_by': 'estado'}"/>
+                    <filter name="group_tecnico" 
+                            string="Técnico" 
+                            context="{'group_by': 'tecnico_id'}"/>
+                    <filter name="group_cliente" 
+                            string="Cliente" 
+                            context="{'group_by': 'cliente_id'}"/>
+                    <filter name="group_tipo" 
+                            string="Tipo de Problema" 
+                            context="{'group_by': 'tipo_problema_id'}"/>
+                    <filter name="group_prioridad" 
+                            string="Prioridad" 
+                            context="{'group_by': 'prioridad'}"/>
+                    <filter name="group_fecha" 
+                            string="Fecha Programada" 
+                            context="{'group_by': 'fecha_programada:week'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- ACCIÓN DE VENTANA -->
+    <!-- ========================================== -->
+    <record id="action_copier_service_request" model="ir.actions.act_window">
+        <field name="name">Solicitudes de Servicio</field>
+        <field name="res_model">copier.service.request</field>
+        <field name="view_mode">kanban,list,form,calendar,pivot,graph,activity</field>
+        <field name="context">{
+            'search_default_en_proceso': 1,
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear nueva solicitud de servicio
+            </p>
+            <p>
+                Registre las solicitudes de servicio técnico de sus clientes.<br/>
+                El sistema asignará técnicos y gestionará todo el flujo de trabajo.
+            </p>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- MENÚ PRINCIPAL -->
+    <!-- ========================================== -->
+    <menuitem id="menu_copier_service_root"
+              name="Servicio Técnico"
+              sequence="20"/>
+
+    <menuitem id="menu_copier_service_requests"
+              name="Solicitudes"
+              parent="menu_copier_service_root"
+              action="action_copier_service_request"
+              sequence="10"/>
+
+    <!-- Submenu Mis Servicios (para técnicos) -->
+    <record id="action_copier_service_request_my" model="ir.actions.act_window">
+        <field name="name">Mis Servicios</field>
+        <field name="res_model">copier.service.request</field>
+        <field name="view_mode">kanban,list,calendar,form</field>
+        <field name="context">{
+            'search_default_mis_servicios': 1,
+            'search_default_en_proceso': 1,
+        }</field>
+        <field name="domain">[('tecnico_id', '=', uid)]</field>
+    </record>
+
+    <menuitem id="menu_copier_service_my"
+              name="Mis Servicios"
+              parent="menu_copier_service_root"
+              action="action_copier_service_request_my"
+              sequence="5"
+             />
+
+    <!-- ========================================== -->
+    <!-- VISTAS PARA TIPOS DE PROBLEMAS -->
+    <!-- ========================================== -->
+    
+    <!-- List view -->
+    <record id="view_copier_service_problem_type_list" model="ir.ui.view">
+        <field name="name">copier.service.problem.type.list</field>
+        <field name="model">copier.service.problem.type</field>
+        <field name="arch" type="xml">
+            <list string="Tipos de Problemas" editable="top">
+                <field name="sequence" widget="handle"/>
+                <field name="icono"/>
+                <field name="name"/>
+                <field name="descripcion"/>
+                <field name="cantidad_servicios" string="Servicios" readonly="1"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form view -->
+    <record id="view_copier_service_problem_type_form" model="ir.ui.view">
+        <field name="name">copier.service.problem.type.form</field>
+        <field name="model">copier.service.problem.type</field>
+        <field name="arch" type="xml">
+            <form string="Tipo de Problema">
+                <sheet>
+                    <widget name="web_ribbon" title="Archivado" bg_color="text-bg-danger" invisible="active"/>
+                    
+                    <div class="oe_title">
+                        <h1>
+                            <field name="icono" class="me-2" style="font-size: 2em;"/>
+                            <field name="name" placeholder="Nombre del tipo de problema..."/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group>
+                            <field name="sequence"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                        <group>
+                            <field name="cantidad_servicios" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <field name="descripcion" 
+                               placeholder="Descripción detallada del tipo de problema..."
+                               nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción -->
+    <record id="action_copier_service_problem_type" model="ir.actions.act_window">
+        <field name="name">Tipos de Problemas</field>
+        <field name="res_model">copier.service.problem.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Menú -->
+    <menuitem id="menu_copier_service_config"
+              name="Configuración"
+              parent="menu_copier_service_root"
+              sequence="100"/>
+
+    <menuitem id="menu_copier_service_problem_types"
+              name="Tipos de Problemas"
+              parent="menu_copier_service_config"
+              action="action_copier_service_problem_type"
+              sequence="10"/>
+
+</odoo>
