@@ -576,11 +576,11 @@
                 
                 <filter name="hoy" 
                         string="Hoy"
-                        domain="[('fecha_programada', '&gt;=', context_today()), ('fecha_programada', '&lt;', (context_today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d'))]"/>
+                        domain="[('fecha_programada', '&gt;=', context_today()), ('fecha_programada', '&lt;', (context_today() + relativedelta(days=1)).strftime('%%Y-%%m-%%d'))]"/>
                 
                 <filter name="esta_semana" 
                         string="Esta Semana"
-                        domain="[('fecha_programada', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d')), ('fecha_programada', '&lt;', (context_today() + datetime.timedelta(days=7-context_today().weekday())).strftime('%Y-%m-%d'))]"/>
+                        domain="[('create_date', '&gt;=', (context_today() - relativedelta(weeks=1)).strftime('%%Y-%%m-%%d'))]"/>
                 
                 <separator/>
                 
@@ -612,7 +612,6 @@
             </search>
         </field>
     </record>
-
     
     <!-- ========================================== -->
     <!-- VISTAS PARA TIPOS DE PROBLEMAS -->
