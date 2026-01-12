@@ -255,6 +255,41 @@ class CopierServiceRequest(models.Model):
         string='Insumos Utilizados',
         help='Descripción de insumos/repuestos utilizados'
     )
+    # En la sección de campos básicos, después de company_id:
+
+    color = fields.Integer(
+        string='Color',
+        compute='_compute_color',
+        store=False
+    )
+
+    # Y agrega este método compute:
+
+    @api.depends('prioridad', 'estado', 'sla_cumplido')
+    def _compute_color(self):
+        """Calcula el color para la vista kanban/list según prioridad y estado"""
+        for record in self:
+            # Prioridad crítica = rojo
+            if record.prioridad == '3':
+                record.color = 1  # Rojo
+            # Prioridad alta = naranja
+            elif record.prioridad == '2':
+                record.color = 3  # Naranja
+            # Completado = verde
+            elif record.estado == 'completado':
+                if record.sla_cumplido:
+                    record.color = 10  # Verde
+                else:
+                    record.color = 9  # Rosa (completado pero SLA no cumplido)
+            # Cancelado = gris
+            elif record.estado == 'cancelado':
+                record.color = 4  # Azul claro/gris
+            # Pausado = amarillo
+            elif record.estado == 'pausado':
+                record.color = 5  # Amarillo
+            # Normal = sin color
+            else:
+                record.color = 0  # Sin color
     
     # ========================================
     # CONTADORES
