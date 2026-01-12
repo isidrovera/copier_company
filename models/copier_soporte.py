@@ -91,13 +91,13 @@ class CopierServiceRequest(models.Model):
     )
     
     modelo_maquina = fields.Many2one(
-        'copier.model',
+        'modelos.maquinas',  
         string='Modelo',
         related='maquina_id.name',
         store=True,
         readonly=True
     )
-    
+        
     ubicacion = fields.Char(
         string='Ubicación',
         related='maquina_id.ubicacion',
