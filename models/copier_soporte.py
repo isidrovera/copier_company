@@ -356,7 +356,7 @@ class CopierServiceRequest(models.Model):
         store=True
     )
     
-    sla_limite = fields.Float(
+    sla_limite_1 = fields.Float(
         string='Límite SLA (horas)',
         compute='_compute_sla_limite',
         store=True
@@ -425,9 +425,9 @@ class CopierServiceRequest(models.Model):
             '0': 48.0   # Baja: 48 horas
         }
         for record in self:
-            record.sla_limite = sla_map.get(record.prioridad, 24.0)
+            record.sla_limite_1 = sla_map.get(record.prioridad, 24.0)
     
-    @api.depends('create_date', 'fecha_inicio', 'fecha_fin', 'sla_limite')
+    @api.depends('create_date', 'fecha_inicio', 'fecha_fin', 'sla_limite_1')
     def _compute_sla(self):
         """Calcula los tiempos de SLA"""
         for record in self:
@@ -447,7 +447,7 @@ class CopierServiceRequest(models.Model):
             
             # Verificar si se cumplió el SLA
             if record.estado == 'completado' and record.tiempo_resolucion:
-                record.sla_cumplido = record.tiempo_resolucion <= record.sla_limite
+                record.sla_cumplido = record.tiempo_resolucion <= record.sla_limite_1
             else:
                 record.sla_cumplido = False
     
@@ -743,7 +743,7 @@ class CopierServiceRequest(models.Model):
             try:
                 # Calcular tiempo transcurrido
                 tiempo_transcurrido = (fields.Datetime.now() - solicitud.create_date).total_seconds() / 3600.0
-                tiempo_restante = solicitud.sla_limite - tiempo_transcurrido
+                tiempo_restante = solicitud.sla_limite_1 - tiempo_transcurrido
                 
                 # Alertar si queda menos de 1 hora
                 if 0 < tiempo_restante <= 1.0:
@@ -752,7 +752,7 @@ class CopierServiceRequest(models.Model):
                             ⚠️ ALERTA SLA
                             
                             • Tiempo restante: {tiempo_restante:.1f} horas
-                            • Límite SLA: {solicitud.sla_limite} horas
+                            • Límite SLA: {solicitud.sla_limite_1} horas
                             • Prioridad: {dict(solicitud._fields['prioridad'].selection)[solicitud.prioridad]}
                             
                             ¡ACCIÓN REQUERIDA!

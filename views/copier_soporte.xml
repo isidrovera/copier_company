@@ -46,7 +46,7 @@
                 <field name="tecnico_id" string="Técnico" optional="show"/>
                 <field name="fecha_programada" string="Programado" optional="show"/>
                 
-                <field name="sla_limite" 
+                <field name="sla_limite_1" 
                        string="Límite SLA (hrs)" 
                        optional="hide"/>
                 
@@ -157,7 +157,7 @@
                             <field name="origen_solicitud"/>
                         </group>
                         <group>
-                            <field name="sla_limite" readonly="1" string="Límite SLA (horas)"/>
+                            <field name="sla_limite_1" readonly="1" string="Límite SLA (horas)"/>
                             <field name="sla_cumplido" 
                                    invisible="estado != 'completado'"
                                    widget="boolean"/>
@@ -372,7 +372,7 @@
                 <field name="estado"/>
                 <field name="tecnico_id"/>
                 <field name="fecha_programada"/>
-                <field name="sla_limite"/>
+                <field name="sla_limite_1"/>
                 <field name="sla_cumplido"/>
                 <field name="color"/>
                 <field name="activity_ids"/>
