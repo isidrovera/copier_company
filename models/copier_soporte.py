@@ -290,12 +290,12 @@ class CopierServiceRequest(models.Model):
         attachment=True
     )
     
-    fotos_adicionales = fields.Many2many(
+    fotos_adicionales = fields.One2many(
         'ir.attachment',
-        'service_request_attachment_rel',
-        'request_id',
-        'attachment_id',
-        string='Fotos Adicionales'
+        'res_id',
+        string='Fotos Adicionales',
+        domain=[('res_model', '=', 'copier.service.request')],
+        help='Fotos adicionales del servicio'
     )
     
     observaciones_tecnico = fields.Text(
