@@ -47,9 +47,8 @@
                 <field name="fecha_programada" string="Programado" optional="show"/>
                 
                 <field name="sla_limite" 
-                       string="Límite SLA" 
-                       optional="hide"
-                       decoration-danger="sla_limite and sla_limite &lt; context_today()"/>
+                       string="Límite SLA (hrs)" 
+                       optional="hide"/>
                 
                 <field name="origen_solicitud" string="Origen" optional="hide"/>
                 <field name="calificacion" string="Calificación" optional="hide" widget="priority"/>
@@ -135,8 +134,8 @@
                     </div>
                     
                     <div class="alert alert-warning" role="alert" 
-                         invisible="not sla_limite or sla_limite &gt; context_today() or estado in ('completado', 'cancelado')">
-                        <strong>⚠️ Atención:</strong> SLA próximo a vencer o vencido
+                         invisible="sla_cumplido or estado in ('completado', 'cancelado')">
+                        <strong>⚠️ Atención:</strong> Verificar cumplimiento de SLA
                     </div>
 
                     <!-- Título -->
@@ -158,7 +157,7 @@
                             <field name="origen_solicitud"/>
                         </group>
                         <group>
-                            <field name="sla_limite" readonly="1"/>
+                            <field name="sla_limite" readonly="1" string="Límite SLA (horas)"/>
                             <field name="sla_cumplido" 
                                    invisible="estado != 'completado'"
                                    widget="boolean"/>
@@ -374,6 +373,7 @@
                 <field name="tecnico_id"/>
                 <field name="fecha_programada"/>
                 <field name="sla_limite"/>
+                <field name="sla_cumplido"/>
                 <field name="color"/>
                 <field name="activity_ids"/>
                 <field name="activity_state"/>
@@ -421,9 +421,9 @@
 
                             <!-- Alerta SLA -->
                             <div class="mt-2 text-danger" 
-                                 invisible="not sla_limite or sla_limite &gt; context_today() or estado in ('completado', 'cancelado')">
+                                 invisible="sla_cumplido or estado in ('completado', 'cancelado')">
                                 <i class="fa fa-warning me-1"/>
-                                <strong>SLA Vencido</strong>
+                                <strong>Revisar SLA</strong>
                             </div>
 
                             <!-- Footer con actividades -->
@@ -580,7 +580,5 @@
             </form>
         </field>
     </record>
-
-  
 
 </odoo>
