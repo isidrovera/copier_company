@@ -41,6 +41,7 @@
         'views/copier_company_form_template.xml',
         'views/security_control_views.xml',
         'data/plantillas_mail.xml',
+        'data/copier_soporte_mail.xml',
         'data/checklist_items_data.xml',
         'data/copier_company_data.xml',
         'views/pCloud.xml',
