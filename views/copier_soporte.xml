@@ -116,11 +116,7 @@
                             invisible="estado in ('completado', 'cancelado')"
                             />
                     
-                    <button name="action_enviar_encuesta" 
-                            type="object" 
-                            string="Enviar Encuesta"
-                            invisible="estado != 'completado' or calificacion"
-                            class="btn-secondary"/>
+                   
                     
                     <!-- Barra de estado -->
                     <field name="estado" widget="statusbar" 
