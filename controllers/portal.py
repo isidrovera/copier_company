@@ -1326,6 +1326,11 @@ class CopierPortal(CustomerPortal):
                                 'prioridad': form_data['prioridad'],
                                 'origen_solicitud': form_data['origen_solicitud'],
                                 'estado': 'nuevo',
+                                
+                                # ✅ AGREGAR ESTOS TRES CAMPOS:
+                                'contacto': form_data['contacto'],
+                                'correo': form_data['correo'],
+                                'telefono_contacto': form_data['telefono_contacto'],
                             }
                             
                             # Agregar foto si existe

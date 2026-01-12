@@ -256,7 +256,10 @@ class CopierServiceRequest(models.Model):
         help='Descripción de insumos/repuestos utilizados'
     )
     # En la sección de campos básicos, después de company_id:
-
+    correo = fields.Char(
+        string='Email',
+        help='Email del reportante'
+    )
     color = fields.Integer(
         string='Color',
         compute='_compute_color',
