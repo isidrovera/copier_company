@@ -25,8 +25,7 @@
 
     'data': [
         # VISTAS / DATOS / REPORTES
-        'views/views.xml',
-        'views/ticket_copier.xml',
+        'views/views.xml',        
         'views/marcas.xml',
         'views/modelos.xml',
         'views/portal_suscripcion.xml',
