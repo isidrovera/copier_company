@@ -10,7 +10,7 @@ _logger = logging.getLogger(__name__)
 class WhatsAppConfig(models.Model):
     _name = 'whatsapp.config'
     _description = 'Configuración de WhatsApp API (Baileys)'
-    _order = 'sequence, id'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
     # Información básica
     name = fields.Char('Nombre de Configuración', required=True, default='Configuración Principal')
