@@ -158,22 +158,7 @@
     <!-- ========================================= -->
     <!-- VISTA BÚSQUEDA -->
     <!-- ========================================= -->
-    <record id="view_whatsapp_config_search" model="ir.ui.view">
-        <field name="name">whatsapp.config.search</field>
-        <field name="model">whatsapp.config</field>
-        <field name="arch" type="xml">
-            <search string="Buscar Configuración WhatsApp">
-                <field name="name"/>
-                <field name="api_url"/>
-                <separator/>
-                <filter string="Activas" name="active" domain="[('active', '=', True)]"/>
-                <filter string="Inactivas" name="inactive" domain="[('active', '=', False)]"/>
-                <separator/>
-                <filter string="Conectadas" name="connected" domain="[('is_connected', '=', True)]"/>
-                <filter string="Desconectadas" name="disconnected" domain="[('is_connected', '=', False)]"/>
-            </search>
-        </field>
-    </record>
+    
 
     <!-- ========================================= -->
     <!-- WIZARD: MENSAJE DE PRUEBA -->
