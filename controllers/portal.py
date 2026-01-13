@@ -34,7 +34,11 @@ class CopierPortal(CustomerPortal):
         values = super()._prepare_portal_layout_values()
         try:
             partner = request.env.user.partner_id
-            equipment_count = request.env['copier.company'].sudo().search_count([('cliente_id', '=', partner.id)])
+            # ✅ Solo contar equipos alquilados
+            equipment_count = request.env['copier.company'].sudo().search_count([
+                ('cliente_id', '=', partner.id),
+                ('estado_maquina_id.name', '=', 'Alquilada')
+            ])
         except Exception:
             equipment_count = 0
         values.update({
@@ -48,15 +52,19 @@ class CopierPortal(CustomerPortal):
         page = int(kwargs.get('page', 1))
         partner = request.env.user.partner_id
 
-        # --- ORDENAMIENTOS (incluye 'date' para evitar KeyError) ---
+        # --- ORDENAMIENTOS ---
         searchbar_sortings = {
             'name': {'label': _('Nombre'), 'order': 'name asc'},
             'date': {'label': _('Fecha'), 'order': 'create_date desc'},
             'status': {'label': _('Estado'), 'order': 'estado_renovacion asc, name asc'},
         }
 
-        # --- FILTROS ---
-        domain_base = [('cliente_id', '=', partner.id)]
+        # --- FILTROS (✅ Base con Alquilada) ---
+        domain_base = [
+            ('cliente_id', '=', partner.id),
+            ('estado_maquina_id.name', '=', 'Alquilada')  # ✅ Solo equipos alquilados
+        ]
+        
         searchbar_filters = {
             'all': {'label': _('Todos'), 'domain': domain_base},
             'active': {'label': _('Contratos Activos'),
@@ -75,8 +83,8 @@ class CopierPortal(CustomerPortal):
             sortby = 'name'
         order = searchbar_sortings[sortby]['order']
 
-        # --- Paginación (no usar pager['step']) ---
-        step = 20  # usa este valor para limit
+        # --- Paginación ---
+        step = 20
         Equip = request.env['copier.company'].sudo()
         total = Equip.search_count(current_domain)
         pager = portal_pager(
@@ -90,6 +98,17 @@ class CopierPortal(CustomerPortal):
 
         equipments = Equip.search(current_domain, order=order, limit=step, offset=offset)
 
+        # ✅ NUEVO: Contar servicios por equipo
+        service_counts = {}
+        if equipments:
+            equipment_ids = equipments.ids
+            service_data = request.env['copier.service.request'].sudo().read_group(
+                [('maquina_id', 'in', equipment_ids)],
+                ['maquina_id'],
+                ['maquina_id']
+            )
+            service_counts = {item['maquina_id'][0]: item['maquina_id_count'] for item in service_data}
+
         values = {
             'page_name': 'equipment',
             'equipments': equipments,
@@ -98,9 +117,124 @@ class CopierPortal(CustomerPortal):
             'sortby': sortby,
             'filters': searchbar_filters,
             'filterby': filterby,
+            'service_counts': service_counts,  # ✅ Pasar contadores al template
         }
         return request.render('copier_company.portal_my_copier_equipments', values)
 
+    # ✅ NUEVO: Ruta para ver historial de servicios del equipo
+    @http.route(['/my/copier/equipment/<int:equipment_id>/services'], type='http', auth='user', website=True)
+    def portal_equipment_services(self, equipment_id, **kwargs):
+        """Muestra el historial de servicios técnicos del equipo"""
+        _logger.info("=== INICIANDO portal_equipment_services ===")
+        _logger.info("Parámetros recibidos - equipment_id: %s, kwargs: %s", equipment_id, kwargs)
+        
+        try:
+            # Verificar acceso al equipo
+            _logger.info("Verificando acceso al equipo ID: %s", equipment_id)
+            try:
+                equipment_sudo = self._document_check_access('copier.company', equipment_id)
+                _logger.info("Acceso verificado para equipo ID: %s", equipment_id)
+            except (AccessError, MissingError) as e:
+                _logger.error("Error de acceso para equipo ID %s: %s", equipment_id, str(e))
+                return request.redirect('/my')
+            
+            # Buscar servicios del equipo
+            page = int(kwargs.get('page', 1))
+            step = 20
+            
+            domain = [('maquina_id', '=', equipment_id)]
+            
+            # Filtro por estado
+            filterby = kwargs.get('filterby', 'all')
+            if filterby == 'pending':
+                domain.append(('estado', 'not in', ['completado', 'cancelado']))
+            elif filterby == 'completed':
+                domain.append(('estado', '=', 'completado'))
+            elif filterby == 'cancelled':
+                domain.append(('estado', '=', 'cancelado'))
+            
+            ServiceRequest = request.env['copier.service.request'].sudo()
+            total = ServiceRequest.search_count(domain)
+            
+            pager = portal_pager(
+                url=f"/my/copier/equipment/{equipment_id}/services",
+                url_args={'filterby': filterby},
+                total=total,
+                page=page,
+                step=step
+            )
+            
+            services = ServiceRequest.search(
+                domain,
+                order='create_date desc',
+                limit=step,
+                offset=pager.get('offset', 0)
+            )
+            
+            # Filtros
+            searchbar_filters = {
+                'all': {'label': _('Todos'), 'count': ServiceRequest.search_count([('maquina_id', '=', equipment_id)])},
+                'pending': {'label': _('Pendientes'), 'count': ServiceRequest.search_count([('maquina_id', '=', equipment_id), ('estado', 'not in', ['completado', 'cancelado'])])},
+                'completed': {'label': _('Completados'), 'count': ServiceRequest.search_count([('maquina_id', '=', equipment_id), ('estado', '=', 'completado')])},
+                'cancelled': {'label': _('Cancelados'), 'count': ServiceRequest.search_count([('maquina_id', '=', equipment_id), ('estado', '=', 'cancelado')])},
+            }
+            
+            values = {
+                'equipment': equipment_sudo,
+                'services': services,
+                'page_name': 'equipment_services',
+                'pager': pager,
+                'filterby': filterby,
+                'filters': searchbar_filters,
+            }
+            
+            template = 'copier_company.portal_my_copier_equipment_services'
+            if not request.env['ir.ui.view'].sudo().search([('key', '=', template)]):
+                _logger.error("¡ERROR! Template %s no encontrado", template)
+                return request.redirect(f'/my/copier/equipment/{equipment_id}')
+            
+            _logger.info("Renderizando template: %s", template)
+            _logger.info("=== FINALIZANDO portal_equipment_services ===")
+            return request.render(template, values)
+            
+        except Exception as e:
+            _logger.exception("¡EXCEPCIÓN GENERAL en portal_equipment_services!: %s", str(e))
+            return request.redirect('/my')
+
+    # ✅ NUEVO: Ruta para ver detalle de un servicio
+    @http.route(['/my/copier/service/<int:service_id>'], type='http', auth='user', website=True)
+    def portal_service_detail(self, service_id, **kwargs):
+        """Muestra el detalle de un servicio técnico"""
+        _logger.info("=== INICIANDO portal_service_detail ===")
+        
+        try:
+            service = request.env['copier.service.request'].sudo().browse(service_id)
+            
+            if not service.exists():
+                _logger.error("Servicio ID %s no encontrado", service_id)
+                return request.redirect('/my')
+            
+            # Verificar que el usuario tenga acceso (sea cliente del equipo)
+            if service.cliente_id.id != request.env.user.partner_id.id:
+                _logger.error("Usuario no autorizado para ver servicio %s", service_id)
+                return request.redirect('/my')
+            
+            values = {
+                'service': service,
+                'page_name': 'service_detail',
+            }
+            
+            template = 'copier_company.portal_my_copier_service_detail'
+            if not request.env['ir.ui.view'].sudo().search([('key', '=', template)]):
+                _logger.error("¡ERROR! Template %s no encontrado", template)
+                return request.redirect('/my')
+            
+            _logger.info("=== FINALIZANDO portal_service_detail ===")
+            return request.render(template, values)
+            
+        except Exception as e:
+            _logger.exception("Error en portal_service_detail: %s", str(e))
+            return request.redirect('/my')
     @http.route(['/my/copier/equipment/<int:equipment_id>'], type='http', auth='user', website=True)
     def portal_equipment_detail(self, equipment_id, **kwargs):
         Equip = request.env['copier.company'].sudo()
