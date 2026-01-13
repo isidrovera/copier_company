@@ -11,3 +11,4 @@ from . import sticker_controller
 from . import controladores_web
 from . import cotizaciones_multiples
 from . import portal_counters
+from . import service_request
