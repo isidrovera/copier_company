@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import logging
 import base64
-from odoo import http, _, request
+from odoo import http, _
+from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
 from odoo.exceptions import AccessError, MissingError
 
