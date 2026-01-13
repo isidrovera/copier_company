@@ -681,4 +681,33 @@ action = records.action_create_multiple_invoices()
               parent="menu_ajustes"
               sequence="95"/>
 
+    <!-- ========================================= -->
+    <!-- ACCIÓN DE VENTANA -->
+    <!-- ========================================= -->
+    <record id="action_whatsapp_config" model="ir.actions.act_window">
+        <field name="name">WhatsApp API</field>
+        <field name="res_model">whatsapp.config</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configura la conexión con WhatsApp API
+            </p>
+            <p>
+                Conecta tu sistema con WhatsApp (Baileys) para enviar notificaciones automáticas 
+                de servicio técnico, solicitudes de toner y más.
+            </p>
+        </field>
+    </record>
+
+    <!-- ========================================= -->
+    <!-- MENÚ -->
+    <!-- ========================================= -->
+    <menuitem id="menu_whatsapp_config"
+              name="WhatsApp API Config"
+              action="action_whatsapp_config"
+              parent="menu_ajustes"
+              groups="base.group_system"
+              sequence="91"/>
+
 </odoo>

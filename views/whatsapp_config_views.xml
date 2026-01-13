@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ========================================= -->
+    <!-- VISTA FORMULARIO -->
+    <!-- ========================================= -->
+    <record id="view_whatsapp_config_form" model="ir.ui.view">
+        <field name="name">whatsapp.config.form</field>
+        <field name="model">whatsapp.config</field>
+        <field name="arch" type="xml">
+            <form string="Configuración WhatsApp">
+                <header>
+                    <button name="check_connection" 
+                            string="🔌 Verificar Conexión" 
+                            type="object" 
+                            class="oe_highlight"/>
+                    <button name="action_open_qr_page" 
+                            string="📱 Ver Código QR" 
+                            type="object" 
+                            class="oe_highlight"/>
+                    <button name="action_test_notification" 
+                            string="🧪 Enviar Prueba" 
+                            type="object"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Activo" bg_color="text-bg-success" invisible="not active"/>
+                    <widget name="web_ribbon" title="Inactivo" bg_color="text-bg-danger" invisible="active"/>
+                    
+                    <div class="oe_button_box" name="button_box">
+                        <button name="toggle_active" 
+                                type="object" 
+                                class="oe_stat_button" 
+                                icon="fa-archive">
+                            <field name="active" widget="boolean_button" options="{'terminology': 'archive'}"/>
+                        </button>
+                        <button type="object" 
+                                name="check_connection" 
+                                class="oe_stat_button" 
+                                icon="fa-plug">
+                            <field name="is_connected" 
+                                   widget="boolean" 
+                                   options="{'terminology': {'string_true': 'Conectado', 'string_false': 'Desconectado', 'hover_true': '✅ WhatsApp Conectado', 'hover_false': '❌ WhatsApp Desconectado'}}"/>
+                        </button>
+                    </div>
+                    
+                    <div class="oe_title">
+                        <label for="name" string="Configuración"/>
+                        <h1>
+                            <field name="name" placeholder="Nombre de configuración..."/>
+                        </h1>
+                    </div>
+                    
+                    <group>
+                        <group name="connection" string="🔗 Configuración de Conexión">
+                            <field name="api_url" placeholder="http://localhost:3000"/>
+                            <field name="api_key" password="True"/>
+                            <field name="session_name"/>
+                            <field name="sequence"/>
+                        </group>
+                        
+                        <group name="status" string="📊 Estado">
+                            <field name="last_check" readonly="1"/>
+                            <field name="connection_status" widget="text" readonly="1"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="📞 Contactos Técnicos" name="contacts">
+                            <group>
+                                <group>
+                                    <label for="technical_phones" string="Teléfonos Técnicos"/>
+                                    <div>
+                                        <field name="technical_phones" 
+                                               widget="text" 
+                                               placeholder="51987654321&#10;51999888777&#10;51988776655"
+                                               nolabel="1"/>
+                                        <div class="text-muted">
+                                            <small>Un número por línea o separados por coma. Formato: 51987654321</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <field name="supervisor_phone" placeholder="51924894829"/>
+                                </group>
+                                <group>
+                                    <field name="backup_phone" placeholder="51924894829"/>
+                                </group>
+                            </group>
+                        </page>
+                        
+                        <page string="⚙️ Configuración de Notificaciones" name="notifications">
+                            <group>
+                                <group string="Opciones de Envío">
+                                    <field name="notify_client"/>
+                                    <field name="notify_technical"/>
+                                    <field name="notify_high_priority"/>
+                                    <field name="send_photos"/>
+                                </group>
+                                <group string="Opciones de Sistema">
+                                    <field name="log_messages"/>
+                                </group>
+                            </group>
+                        </page>
+                        
+                        <page string="📝 Plantillas de Mensajes" name="templates">
+                            <group>
+                                <separator string="Plantilla para Cliente"/>
+                                <field name="client_message_template" 
+                                       widget="text" 
+                                       nolabel="1"
+                                       placeholder="Variables: {contacto}, {numero_ticket}, {equipo}, {ubicacion}, {sede}, {tipo_problema}, {prioridad}, {descripcion}"/>
+                            </group>
+                            <group>
+                                <separator string="Plantilla para Técnicos"/>
+                                <field name="technical_message_template" 
+                                       widget="text" 
+                                       nolabel="1"
+                                       placeholder="Variables: {numero_ticket}, {prioridad}, {fecha_creacion}, {cliente}, {contacto}, {telefono}, {email}, {modelo}, {serie}, {marca}, {ubicacion}, {sede}, {tipo_problema}, {descripcion}, {origen}"/>
+                            </group>
+                        </page>
+                        
+                        <page string="📈 Estadísticas" name="stats">
+                            <group>
+                                <group string="Mensajes Enviados">
+                                    <field name="total_messages_sent" readonly="1"/>
+                                    <field name="total_messages_failed" readonly="1"/>
+                                </group>
+                                <group string="Última Actividad">
+                                    <field name="last_message_date" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ========================================= -->
+    <!-- VISTA LISTA -->
+    <!-- ========================================= -->
+    <record id="view_whatsapp_config_list" model="ir.ui.view">
+        <field name="name">whatsapp.config.list</field>
+        <field name="model">whatsapp.config</field>
+        <field name="arch" type="xml">
+            <list string="Configuraciones WhatsApp" default_order="sequence, id">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="api_url"/>
+                <field name="is_connected" widget="boolean_toggle" readonly="1"/>
+                <field name="last_check" optional="show"/>
+                <field name="total_messages_sent" optional="show" sum="Total"/>
+                <field name="total_messages_failed" optional="hide"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ========================================= -->
+    <!-- VISTA BÚSQUEDA -->
+    <!-- ========================================= -->
+    <record id="view_whatsapp_config_search" model="ir.ui.view">
+        <field name="name">whatsapp.config.search</field>
+        <field name="model">whatsapp.config</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Configuración WhatsApp">
+                <field name="name"/>
+                <field name="api_url"/>
+                <separator/>
+                <filter string="Activas" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Inactivas" name="inactive" domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter string="Conectadas" name="connected" domain="[('is_connected', '=', True)]"/>
+                <filter string="Desconectadas" name="disconnected" domain="[('is_connected', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- ========================================= -->
+    <!-- WIZARD: MENSAJE DE PRUEBA -->
+    <!-- ========================================= -->
+    <record id="view_whatsapp_test_message_wizard_form" model="ir.ui.view">
+        <field name="name">whatsapp.test.message.wizard.form</field>
+        <field name="model">whatsapp.test.message.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Enviar Mensaje de Prueba">
+                <group>
+                    <field name="config_id" invisible="1"/>
+                    <field name="phone" placeholder="51987654321"/>
+                    <field name="message" widget="text"/>
+                </group>
+                <footer>
+                    <button string="📤 Enviar" 
+                            name="action_send_test" 
+                            type="object" 
+                            class="oe_highlight"/>
+                    <button string="Cancelar" 
+                            class="btn-secondary" 
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    
+
+</odoo>
