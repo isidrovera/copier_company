@@ -479,7 +479,8 @@
     </t>
 </template>
     <!--Vista que muestra detalle de equipo se puede crear ticket, toner, asistemcia remota-->
- <template id="portal_my_copier_equipment" name="My Rental Equipment Details">
+ <!--Vista que muestra detalle de equipo se puede crear ticket, toner, asistencia remota-->
+<template id="portal_my_copier_equipment" name="My Rental Equipment Details">
     <t t-call="portal.portal_layout">
         <t t-set="wrapwrap_classes" t-value="'o_portal_bg_dark'"/>
         
@@ -571,6 +572,7 @@
             .bg-gradient-danger { background: linear-gradient(135deg, #ef4444, #dc2626) !important; }
             .bg-gradient-info { background: linear-gradient(135deg, #06b6d4, #0891b2) !important; }
             .bg-gradient-purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important; }
+            .bg-gradient-secondary { background: linear-gradient(135deg, #6b7280, #4b5563) !important; }
             
             .info-card {
                 background: white;
@@ -623,6 +625,39 @@
                 box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             }
             
+            /* ✅ ESTILOS PARA LA SECCIÓN DE SERVICIOS */
+            .service-mini-card {
+                background: white;
+                border-radius: 12px;
+                border: 2px solid #f1f5f9;
+                padding: 15px;
+                margin-bottom: 15px;
+                transition: all 0.3s ease;
+                cursor: pointer;
+            }
+            
+            .service-mini-card:hover {
+                transform: translateX(5px);
+                border-color: #8b5cf6;
+                box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+            }
+            
+            .service-status-badge {
+                padding: 4px 12px;
+                border-radius: 15px;
+                font-weight: 600;
+                font-size: 0.75rem;
+                display: inline-flex;
+                align-items: center;
+            }
+            
+            .service-priority-badge {
+                padding: 2px 8px;
+                border-radius: 10px;
+                font-weight: 500;
+                font-size: 0.7rem;
+            }
+            
             @media (max-width: 768px) {
                 .hero-equipment {
                     margin: -20px -15px 0;
@@ -634,7 +669,6 @@
                     margin-top: -20px;
                 }
             }
-            
         </style>
         
         <!-- Hero Section -->
@@ -726,6 +760,17 @@
                                         </div>
                                         <h6 class="fw-semibold mb-2">Ver Lecturas</h6>
                                         <p class="text-muted small mb-0">Historial de contadores</p>
+                                    </a>
+                                </div>
+                                
+                                <!-- ✅ NUEVO: Ver Servicios Técnicos -->
+                                <div class="col-12">
+                                    <a t-att-href="'/my/copier/equipment/%s/services' % equipment.id" class="action-card">
+                                        <div class="action-icon bg-gradient-secondary">
+                                            <i class="bi bi-tools"></i>
+                                        </div>
+                                        <h6 class="fw-semibold mb-2">Ver Servicios</h6>
+                                        <p class="text-muted small mb-0">Historial de servicio técnico</p>
                                     </a>
                                 </div>
                             </div>
@@ -933,13 +978,110 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- ✅ NUEVA SECCIÓN: ÚLTIMOS SERVICIOS TÉCNICOS -->
+                        <div class="col-12 mb-4">
+                            <div class="info-card">
+                                <div class="info-card-header">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="fw-bold mb-0" style="color: #8b5cf6;">
+                                            <i class="bi bi-tools me-2"></i>
+                                            Últimos Servicios Técnicos
+                                        </h5>
+                                        <a t-att-href="'/my/copier/equipment/%s/services' % equipment.id" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-list-ul me-1"></i>
+                                            Ver Todos
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="card-body p-3">
+                                    <!-- Buscar últimos 5 servicios -->
+                                    <t t-set="recent_services" t-value="request.env['copier.service.request'].sudo().search([('maquina_id', '=', equipment.id)], order='create_date desc', limit=5)"/>
+                                    
+                                    <!-- Si no hay servicios -->
+                                    <t t-if="not recent_services">
+                                        <div class="text-center py-4">
+                                            <i class="bi bi-inbox text-muted" style="font-size: 3rem; opacity: 0.3;"></i>
+                                            <p class="text-muted mb-2 mt-3">No hay servicios técnicos registrados</p>
+                                            <small class="text-muted">Los servicios aparecerán aquí cuando se reporten</small>
+                                        </div>
+                                    </t>
+                                    
+                                    <!-- Lista de servicios -->
+                                    <t t-if="recent_services">
+                                        <t t-foreach="recent_services" t-as="service">
+                                            <div class="service-mini-card" t-attf-onclick="window.location.href='/my/copier/service/#{service.id}'">
+                                                <div class="row align-items-center">
+                                                    <div class="col-md-8">
+                                                        <div class="d-flex align-items-center mb-2">
+                                                            <i class="bi bi-wrench-adjustable text-primary me-2" style="font-size: 1.2rem;"></i>
+                                                            <strong class="text-dark" t-field="service.name"/>
+                                                        </div>
+                                                        <small class="text-muted d-block mb-2">
+                                                            <i class="bi bi-tag me-1"></i>
+                                                            <span t-field="service.tipo_problema_id.name"/>
+                                                        </small>
+                                                        <small class="text-muted d-block">
+                                                            <i class="bi bi-calendar me-1"></i>
+                                                            <span t-field="service.create_date" t-options="{'widget': 'datetime', 'format': 'dd/MM/yyyy HH:mm'}"/>
+                                                        </small>
+                                                    </div>
+                                                    <div class="col-md-4 text-end">
+                                                        <!-- Estado -->
+                                                        <span t-if="service.estado == 'nuevo'" class="service-status-badge bg-info text-white d-block mb-2">
+                                                            <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>Nuevo
+                                                        </span>
+                                                        <span t-elif="service.estado == 'asignado'" class="service-status-badge bg-primary text-white d-block mb-2">
+                                                            <i class="bi bi-person-check me-1" style="font-size: 0.7rem;"></i>Asignado
+                                                        </span>
+                                                        <span t-elif="service.estado == 'confirmado'" class="service-status-badge bg-warning text-dark d-block mb-2">
+                                                            <i class="bi bi-calendar-check me-1" style="font-size: 0.7rem;"></i>Confirmado
+                                                        </span>
+                                                        <span t-elif="service.estado == 'en_ruta'" class="service-status-badge text-white d-block mb-2" style="background: #8b5cf6;">
+                                                            <i class="bi bi-truck me-1" style="font-size: 0.7rem;"></i>En Ruta
+                                                        </span>
+                                                        <span t-elif="service.estado == 'en_sitio'" class="service-status-badge bg-warning text-dark d-block mb-2">
+                                                            <i class="bi bi-tools me-1" style="font-size: 0.7rem;"></i>En Sitio
+                                                        </span>
+                                                        <span t-elif="service.estado == 'pausado'" class="service-status-badge bg-secondary text-white d-block mb-2">
+                                                            <i class="bi bi-pause-circle me-1" style="font-size: 0.7rem;"></i>Pausado
+                                                        </span>
+                                                        <span t-elif="service.estado == 'completado'" class="service-status-badge bg-success text-white d-block mb-2">
+                                                            <i class="bi bi-check-circle me-1" style="font-size: 0.7rem;"></i>Completado
+                                                        </span>
+                                                        <span t-elif="service.estado == 'cancelado'" class="service-status-badge bg-danger text-white d-block mb-2">
+                                                            <i class="bi bi-x-circle me-1" style="font-size: 0.7rem;"></i>Cancelado
+                                                        </span>
+                                                        
+                                                        <!-- Prioridad -->
+                                                        <span t-if="service.prioridad == '3'" class="service-priority-badge bg-danger text-white d-block">
+                                                            🔴 Crítica
+                                                        </span>
+                                                        <span t-elif="service.prioridad == '2'" class="service-priority-badge bg-warning text-dark d-block">
+                                                            🟠 Alta
+                                                        </span>
+                                                        <span t-elif="service.prioridad == '1'" class="service-priority-badge bg-info text-white d-block">
+                                                            🔵 Normal
+                                                        </span>
+                                                        <span t-else="" class="service-priority-badge bg-secondary text-white d-block">
+                                                            ⚪ Baja
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         
         <script>
-            // Efectos adicionales
+            // Efectos adicionales (JAVASCRIPT ORIGINAL SIN CAMBIOS)
             document.addEventListener('DOMContentLoaded', function() {
                 // Efecto hover en las tarjetas de información
                 const infoRows = document.querySelectorAll('.info-row');
