@@ -2,7 +2,6 @@
 
 from . import models
 from . import res_partner_extend
-from . import ticket
 from . import modelos
 from . import pCloudModel
 from . import pcloud_folder_file
