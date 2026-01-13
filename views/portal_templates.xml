@@ -50,6 +50,16 @@
                     <t t-set="placeholder_count" t-value="'equipment_count'"/>
                 </t>
             </div>
+            <div class="o_portal_category row g-2 mt-3">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/copier_company/static/src/img/printer.svg'"/>
+                    <t t-set="title">Mis Equipos</t>
+                    <t t-set="text">Consulta los equipos que tienes en alquiler</t>
+                    <t t-set="url" t-value="'/my/copier/equipments'"/>
+                    <t t-set="config_card" t-value="True"/>
+                    <t t-set="placeholder_count" t-value="'equipment_count'"/>
+                </t>
+            </div>
         </xpath>
 
     </template>
