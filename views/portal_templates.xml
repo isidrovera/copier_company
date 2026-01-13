@@ -168,6 +168,7 @@
             .action-btn.btn-warning:hover { background: #f59e0b; border-color: #f59e0b; }
             .action-btn.btn-danger:hover { background: #ef4444; border-color: #ef4444; }
             .action-btn.btn-purple:hover { background: #8b5cf6; border-color: #8b5cf6; }
+            .action-btn.btn-secondary:hover { background: #6b7280; border-color: #6b7280; } 
             
             .equipment-info {
                 display: flex;
@@ -412,6 +413,14 @@
                                         </a>
                                         <a t-attf-href="/my/copier/equipment/#{equipment.id}/counters" class="action-btn btn-purple">
                                             <i class="bi bi-speedometer2 me-1"></i>Historial
+                                        </a>
+                                        
+                                        <!-- ✅ NUEVO BOTÓN: SERVICIOS TÉCNICOS CON CONTADOR -->
+                                        <a t-attf-href="/my/copier/equipment/#{equipment.id}/services" class="action-btn btn-secondary">
+                                            <i class="bi bi-tools me-1"></i>Servicios
+                                            <span t-if="service_counts.get(equipment.id)" 
+                                                class="badge bg-danger rounded-pill ms-1" 
+                                                t-esc="service_counts.get(equipment.id)"/>
                                         </a>
                                     </div>
                                     <div class="equipment-id text-muted">
