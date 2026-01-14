@@ -429,36 +429,7 @@
         </field>
     </record>
 
-    <!-- ========================================= -->
-    <!-- VISTA BÚSQUEDA - PLANTILLA -->
-    <!-- ========================================= -->
-    <record id="view_whatsapp_template_search" model="ir.ui.view">
-        <field name="name">whatsapp.template.search</field>
-        <field name="model">whatsapp.template</field>
-        <field name="arch" type="xml">
-            <search string="Buscar Plantillas">
-                <field name="name"/>
-                <field name="code"/>
-                <field name="model_id"/>
-                <separator/>
-                <filter string="Activas" name="active" domain="[('active', '=', True)]"/>
-                <filter string="Inactivas" name="inactive" domain="[('active', '=', False)]"/>
-                <separator/>
-                <filter string="Auto-aplicar" name="auto_apply" domain="[('auto_apply', '=', True)]"/>
-                <separator/>
-                <filter string="Al Crear" name="trigger_create" domain="[('trigger_type', '=', 'create')]"/>
-                <filter string="Al Modificar" name="trigger_write" domain="[('trigger_type', '=', 'write')]"/>
-                <filter string="Cambio Estado" name="trigger_state" domain="[('trigger_type', '=', 'state_change')]"/>
-                <filter string="Manual" name="trigger_manual" domain="[('trigger_type', '=', 'manual')]"/>
-                <separator/>
-                <group expand="0" string="Agrupar Por">
-                    <filter string="Modelo" name="group_by_model" context="{'group_by': 'model_id'}"/>
-                    <filter string="Trigger" name="group_by_trigger" context="{'group_by': 'trigger_type'}"/>
-                    <filter string="Estado" name="group_by_active" context="{'group_by': 'active'}"/>
-                </group>
-            </search>
-        </field>
-    </record>
+   
 
     
 
