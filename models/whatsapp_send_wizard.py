@@ -159,3 +159,11 @@ class WhatsAppSendWizard(models.TransientModel):
         """Enviar y cerrar wizard"""
         self.action_send()
         return {'type': 'ir.actions.act_window_close'}
+
+
+class WhatsAppTemplateVariable(models.Model):
+    _name = 'whatsapp.template.variable'
+    _description = 'Variables de Plantilla WhatsApp (Temporal)'
+    
+    name = fields.Char('Nombre')
+    model = fields.Char('Modelo')
