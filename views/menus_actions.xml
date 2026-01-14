@@ -738,6 +738,47 @@ action = records.action_create_multiple_invoices()
             </ul>
         </field>
     </record>
+    <!-- ========================================= -->
+    <!-- ACCIÓN DE VENTANA - NOTIFICACIÓN -->
+    <!-- ========================================= -->
+    <record id="action_whatsapp_notification" model="ir.actions.act_window">
+        <field name="name">Notificaciones WhatsApp</field>
+        <field name="res_model">whatsapp.notification</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay notificaciones WhatsApp
+            </p>
+            <p>
+                Aquí aparecerán todas las notificaciones WhatsApp enviadas desde el sistema.
+            </p>
+        </field>
+    </record>
+
+    <!-- Acciones por Estado -->
+    <record id="action_whatsapp_notification_sent" model="ir.actions.act_window">
+        <field name="name">Notificaciones Enviadas</field>
+        <field name="res_model">whatsapp.notification</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('state', '=', 'sent')]</field>
+        <field name="context">{'search_default_sent': 1}</field>
+    </record>
+
+    <record id="action_whatsapp_notification_failed" model="ir.actions.act_window">
+        <field name="name">Notificaciones Fallidas</field>
+        <field name="res_model">whatsapp.notification</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('state', '=', 'failed')]</field>
+        <field name="context">{'search_default_failed': 1}</field>
+    </record>
+
+    <record id="action_whatsapp_notification_pending" model="ir.actions.act_window">
+        <field name="name">Notificaciones Pendientes</field>
+        <field name="res_model">whatsapp.notification</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('state', 'in', ['draft', 'sending'])]</field>
+    </record>
     <!-- PLANTILLAS (en menú WhatsApp principal) -->
     <!-- ========================================= -->
     <menuitem id="menu_whatsapp_templates"
