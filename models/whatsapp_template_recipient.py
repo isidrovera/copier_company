@@ -48,7 +48,7 @@ class WhatsAppTemplateRecipient(models.Model):
     recipient_field_id = fields.Many2one(
         'ir.model.fields',
         'Campo de Teléfono',
-        domain="[('model_id', '=', recipient_model_id), ('ttype', '=', 'char')]",  # ← Cambiar aquí
+        domain="[('model_id', '=', model_id), ('ttype', '=', 'char')]",
         help='Campo que contiene el teléfono'
     )
     recipient_related_path = fields.Char(
@@ -80,13 +80,13 @@ class WhatsAppTemplateRecipient(models.Model):
     # ============================================
     # CAMPOS RELACIONADOS (HELPERS)
     # ============================================
-    recipient_model_id = fields.Many2one(
+    model_id = fields.Many2one(
         'ir.model',
         related='template_id.model_id',
-        store=False,
+        string='Modelo',
+        store=False,  # Sin store para evitar problemas de carga
         readonly=True
     )
-
     
     # ============================================
     # VALIDACIONES

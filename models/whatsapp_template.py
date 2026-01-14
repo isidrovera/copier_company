@@ -101,11 +101,11 @@ class WhatsAppTemplate(models.Model):
        help='Cómo obtener el número de teléfono del destinatario')
     
     recipient_field_id = fields.Many2one(
-    'ir.model.fields',
-    'Campo de Teléfono',
-    domain="[('model_id', '=', recipient_model_id), ('ttype', '=', 'char')]",  # ← Cambiar aquí
-    help='Campo que contiene el teléfono'
-)
+        'ir.model.fields',
+        'Campo de Teléfono',
+        domain="[('model_id', '=', model_id), ('ttype', '=', 'char')]",
+        help='Campo que contiene el teléfono (ej: mobile, phone, celular)'
+    )
     recipient_related_path = fields.Char(
         'Ruta del Campo Relacionado',
         help='Ruta al campo relacionado (ej: partner_id.mobile, cliente_id.phone)'
