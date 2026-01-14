@@ -22,7 +22,8 @@ class WhatsAppTemplateTestWizard(models.TransientModel):
     model_name = fields.Char(
         related='template_id.model_name',
         string='Modelo',
-        readonly=True
+        readonly=True,
+        store=False  # ← CORREGIDO: Sin store para evitar problemas
     )
     test_record_id = fields.Integer(
         'ID del Registro de Prueba',
@@ -59,8 +60,15 @@ class WhatsAppTemplateTestWizard(models.TransientModel):
                 continue
             
             try:
+                # Obtener modelo desde template_id directamente
+                model_name = wizard.template_id.model_name
+                if not model_name:
+                    wizard.preview_message = 'Plantilla sin modelo configurado'
+                    wizard.preview_recipients = ''
+                    continue
+                
                 # Obtener registro
-                record = self.env[wizard.model_name].browse(wizard.test_record_id)
+                record = self.env[model_name].browse(wizard.test_record_id)
                 if not record.exists():
                     wizard.preview_message = f'Registro ID {wizard.test_record_id} no encontrado'
                     wizard.preview_recipients = ''
@@ -83,6 +91,7 @@ class WhatsAppTemplateTestWizard(models.TransientModel):
                         wizard.preview_recipients = '⚠️ No se encontraron destinatarios'
                 
             except Exception as e:
+                _logger.exception("Error generando preview")
                 wizard.preview_message = f'Error: {str(e)}'
                 wizard.preview_recipients = ''
     
@@ -94,8 +103,13 @@ class WhatsAppTemplateTestWizard(models.TransientModel):
         self.ensure_one()
         
         try:
+            # Obtener modelo desde template_id
+            model_name = self.template_id.model_name
+            if not model_name:
+                raise UserError(_('La plantilla no tiene modelo configurado'))
+            
             # Obtener registro
-            record = self.env[self.model_name].browse(self.test_record_id)
+            record = self.env[model_name].browse(self.test_record_id)
             if not record.exists():
                 raise UserError(_('Registro ID %s no encontrado') % self.test_record_id)
             
@@ -156,4 +170,5 @@ class WhatsAppTemplateTestWizard(models.TransientModel):
         except UserError:
             raise
         except Exception as e:
+            _logger.exception("Error enviando prueba")
             raise UserError(_('Error enviando prueba: %s') % str(e))

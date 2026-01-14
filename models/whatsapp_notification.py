@@ -10,7 +10,7 @@ class WhatsAppNotification(models.Model):
     _name = 'whatsapp.notification'
     _description = 'Log de Notificaciones WhatsApp'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    _order = 'create_date desc, id desc'
+
     _rec_name = 'name'
     
     # ============================================
