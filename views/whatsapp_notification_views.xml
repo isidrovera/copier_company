@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ========================================= -->
+    <!-- VISTA FORMULARIO - NOTIFICACIÓN -->
+    <!-- ========================================= -->
+    <record id="view_whatsapp_notification_form" model="ir.ui.view">
+        <field name="name">whatsapp.notification.form</field>
+        <field name="model">whatsapp.notification</field>
+        <field name="arch" type="xml">
+            <form string="Notificación WhatsApp" create="false">
+                <header>
+                    <button name="action_retry_send" 
+                            string="🔄 Reintentar Envío" 
+                            type="object" 
+                            invisible="state not in ['failed', 'cancelled']"
+                            class="oe_highlight"/>
+                    <button name="action_open_record" 
+                            string="📄 Ver Registro" 
+                            type="object"/>
+                    <button name="action_cancel" 
+                            string="Cancelar" 
+                            type="object" 
+                            invisible="state not in ['draft', 'sending']"
+                            confirm="¿Cancelar esta notificación?"/>
+                    <button name="action_set_to_draft" 
+                            string="Volver a Borrador" 
+                            type="object" 
+                            invisible="state not in ['failed', 'cancelled']"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,sending,sent"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Enviado" bg_color="text-bg-success" invisible="state != 'sent'"/>
+                    <widget name="web_ribbon" title="Fallido" bg_color="text-bg-danger" invisible="state != 'failed'"/>
+                    <widget name="web_ribbon" title="Cancelado" bg_color="text-bg-warning" invisible="state != 'cancelled'"/>
+                    
+                    <div class="oe_title">
+                        <label for="name" string="Notificación"/>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    
+                    <group>
+                        <group name="recipient" string="📱 Destinatario">
+                            <field name="recipient_phone"/>
+                            <field name="recipient_name"/>
+                            <field name="recipient_type"/>
+                        </group>
+                        
+                        <group name="status" string="📊 Estado">
+                            <field name="sent_date"/>
+                            <field name="retry_count"/>
+                            <field name="delivery_status" invisible="not delivery_status"/>
+                        </group>
+                    </group>
+                    
+                    <group>
+                        <group name="template" string="📝 Plantilla">
+                            <field name="template_id" readonly="1"/>
+                            <field name="template_code" readonly="1"/>
+                            <field name="config_id" readonly="1"/>
+                        </group>
+                        
+                        <group name="record" string="📄 Registro Origen">
+                            <field name="model_name" readonly="1"/>
+                            <field name="res_id" readonly="1"/>
+                            <field name="record_reference" readonly="1"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="💬 Mensaje" name="message">
+                            <group>
+                                <field name="message_content" widget="text" nolabel="1" readonly="1"/>
+                            </group>
+                        </page>
+                        
+                        <page string="📎 Adjunto" name="attachment" invisible="not has_attachment">
+                            <group>
+                                <field name="has_attachment"/>
+                                <field name="attachment_name"/>
+                            </group>
+                        </page>
+                        
+                        <page string="🔧 Respuesta API" name="api">
+                            <group>
+                                <group>
+                                    <field name="api_message_id" readonly="1"/>
+                                </group>
+                            </group>
+                            <group>
+                                <field name="api_response" widget="ace" options="{'mode': 'json'}" readonly="1" nolabel="1"/>
+                            </group>
+                        </page>
+                        
+                        <page string="❌ Error" name="error" invisible="not error_message">
+                            <group>
+                                <field name="error_message" widget="text" nolabel="1" readonly="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ========================================= -->
+    <!-- VISTA LISTA - NOTIFICACIÓN -->
+    <!-- ========================================= -->
+    <record id="view_whatsapp_notification_list" model="ir.ui.view">
+        <field name="name">whatsapp.notification.list</field>
+        <field name="model">whatsapp.notification</field>
+        <field name="arch" type="xml">
+            <list string="Notificaciones WhatsApp" default_order="create_date desc" create="false">
+                <field name="name"/>
+                <field name="template_code" optional="show"/>
+                <field name="recipient_phone"/>
+                <field name="recipient_name" optional="show"/>
+                <field name="model_name" optional="hide"/>
+                <field name="record_reference" optional="show"/>
+                <field name="state" widget="badge" 
+                       decoration-success="state == 'sent'"
+                       decoration-danger="state == 'failed'"
+                       decoration-warning="state == 'cancelled'"
+                       decoration-info="state in ['draft', 'sending']"/>
+                <field name="sent_date" optional="show"/>
+                <field name="retry_count" optional="hide"/>
+                <field name="create_date" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ========================================= -->
+    <!-- VISTA KANBAN - NOTIFICACIÓN -->
+    <!-- ========================================= -->
+    <record id="view_whatsapp_notification_kanban" model="ir.ui.view">
+        <field name="name">whatsapp.notification.kanban</field>
+        <field name="model">whatsapp.notification</field>
+        <field name="arch" type="xml">
+            <kanban string="Notificaciones WhatsApp" default_order="create_date desc" create="false">
+                <field name="id"/>
+                <field name="name"/>
+                <field name="template_code"/>
+                <field name="recipient_phone"/>
+                <field name="recipient_name"/>
+                <field name="state"/>
+                <field name="sent_date"/>
+                <field name="error_message"/>
+                <field name="record_reference"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="o_kanban_card_header">
+                                <div class="o_kanban_card_header_title">
+                                    <div class="o_primary"><strong><field name="name"/></strong></div>
+                                    <div class="text-muted"><small><field name="template_code"/></small></div>
+                                </div>
+                                <div class="o_kanban_card_header_right">
+                                    <span t-if="record.state.raw_value == 'sent'" class="badge text-bg-success">✅ Enviado</span>
+                                    <span t-if="record.state.raw_value == 'failed'" class="badge text-bg-danger">❌ Fallido</span>
+                                    <span t-if="record.state.raw_value == 'cancelled'" class="badge text-bg-warning">⚠️ Cancelado</span>
+                                    <span t-if="record.state.raw_value == 'draft'" class="badge text-bg-secondary">📝 Borrador</span>
+                                    <span t-if="record.state.raw_value == 'sending'" class="badge text-bg-info">📤 Enviando</span>
+                                </div>
+                            </div>
+                            <div class="o_kanban_card_content">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <i class="fa fa-mobile"/> <field name="recipient_phone"/>
+                                        <span t-if="record.recipient_name.raw_value">
+                                            - <field name="recipient_name"/>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-12 text-muted">
+                                        <small><field name="record_reference"/></small>
+                                    </div>
+                                </div>
+                                <div class="row mt-2" t-if="record.error_message.raw_value">
+                                    <div class="col-12">
+                                        <span class="text-danger"><small><field name="error_message"/></small></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="o_kanban_card_footer">
+                                <div class="row">
+                                    <div class="col-12 text-muted">
+                                        <small><i class="fa fa-clock-o"/> <field name="sent_date" widget="relative"/></small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ========================================= -->
+    <!-- VISTA BÚSQUEDA - NOTIFICACIÓN -->
+    <!-- ========================================= -->
+    <record id="view_whatsapp_notification_search" model="ir.ui.view">
+        <field name="name">whatsapp.notification.search</field>
+        <field name="model">whatsapp.notification</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Notificaciones">
+                <field name="name"/>
+                <field name="recipient_phone"/>
+                <field name="recipient_name"/>
+                <field name="template_id"/>
+                <field name="model_name"/>
+                <field name="record_reference"/>
+                <separator/>
+                <filter string="Enviadas" name="sent" domain="[('state', '=', 'sent')]"/>
+                <filter string="Fallidas" name="failed" domain="[('state', '=', 'failed')]"/>
+                <filter string="Canceladas" name="cancelled" domain="[('state', '=', 'cancelled')]"/>
+                <filter string="Borradores" name="draft" domain="[('state', '=', 'draft')]"/>
+                <separator/>
+                <filter string="Hoy" name="today" 
+                        domain="[('create_date', '>=', datetime.datetime.now().strftime('%Y-%m-%d 00:00:00'))]"/>
+                <filter string="Esta Semana" name="this_week" 
+                        domain="[('create_date', '>=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+                <filter string="Este Mes" name="this_month" 
+                        domain="[('create_date', '>=', (context_today().replace(day=1)).strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <group expand="0" string="Agrupar Por">
+                    <filter string="Estado" name="group_by_state" context="{'group_by': 'state'}"/>
+                    <filter string="Plantilla" name="group_by_template" context="{'group_by': 'template_id'}"/>
+                    <filter string="Modelo" name="group_by_model" context="{'group_by': 'model_name'}"/>
+                    <filter string="Fecha de Envío" name="group_by_sent_date" context="{'group_by': 'sent_date:day'}"/>
+                    <filter string="Destinatario" name="group_by_recipient" context="{'group_by': 'recipient_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ========================================= -->
+    <!-- ACCIÓN DE VENTANA - NOTIFICACIÓN -->
+    <!-- ========================================= -->
+    <record id="action_whatsapp_notification" model="ir.actions.act_window">
+        <field name="name">Notificaciones WhatsApp</field>
+        <field name="res_model">whatsapp.notification</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay notificaciones WhatsApp
+            </p>
+            <p>
+                Aquí aparecerán todas las notificaciones WhatsApp enviadas desde el sistema.
+            </p>
+        </field>
+    </record>
+
+    <!-- Acciones por Estado -->
+    <record id="action_whatsapp_notification_sent" model="ir.actions.act_window">
+        <field name="name">Notificaciones Enviadas</field>
+        <field name="res_model">whatsapp.notification</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('state', '=', 'sent')]</field>
+        <field name="context">{'search_default_sent': 1}</field>
+    </record>
+
+    <record id="action_whatsapp_notification_failed" model="ir.actions.act_window">
+        <field name="name">Notificaciones Fallidas</field>
+        <field name="res_model">whatsapp.notification</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('state', '=', 'failed')]</field>
+        <field name="context">{'search_default_failed': 1}</field>
+    </record>
+
+    <record id="action_whatsapp_notification_pending" model="ir.actions.act_window">
+        <field name="name">Notificaciones Pendientes</field>
+        <field name="res_model">whatsapp.notification</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('state', 'in', ['draft', 'sending'])]</field>
+    </record>
+
+</odoo>

@@ -22,3 +22,9 @@ from . import printtracker_config
 from . import copier_soporte
 from . import whatsapp_config
 from . import whatsapp_test_wizard
+from . import whatsapp_template
+from . import whatsapp_template_recipient
+from . import whatsapp_notification
+from . import whatsapp_mixin
+from . import whatsapp_send_wizard
+from . import whatsapp_template_test_wizard

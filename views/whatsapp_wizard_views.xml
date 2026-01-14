@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ========================================= -->
+    <!-- WIZARD: ENVIAR WHATSAPP -->
+    <!-- ========================================= -->
+    <record id="view_whatsapp_send_wizard_form" model="ir.ui.view">
+        <field name="name">whatsapp.send.wizard.form</field>
+        <field name="model">whatsapp.send.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Enviar WhatsApp">
+                <group>
+                    <field name="model_name" invisible="1"/>
+                    <field name="res_id" invisible="1"/>
+                    
+                    <field name="template_id" 
+                           domain="[('model_name', '=', model_name), ('active', '=', True)]"
+                           options="{'no_create': True, 'no_open': True}"/>
+                    
+                    <field name="force_send"/>
+                </group>
+                
+                <group string="📱 Vista Previa">
+                    <group>
+                        <label for="preview_recipients" string="Destinatarios"/>
+                        <field name="preview_recipients" widget="text" nolabel="1" readonly="1"/>
+                    </group>
+                    
+                    <separator string="💬 Mensaje" colspan="2"/>
+                    <group colspan="2">
+                        <field name="preview_message" widget="text" nolabel="1" readonly="1"/>
+                    </group>
+                </group>
+                
+                <footer>
+                    <button string="📤 Enviar" 
+                            name="action_send_and_close" 
+                            type="object" 
+                            class="oe_highlight"/>
+                    <button string="Cancelar" 
+                            class="btn-secondary" 
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- ========================================= -->
+    <!-- WIZARD: PROBAR PLANTILLA -->
+    <!-- ========================================= -->
+    <record id="view_whatsapp_template_test_wizard_form" model="ir.ui.view">
+        <field name="name">whatsapp.template.test.wizard.form</field>
+        <field name="model">whatsapp.template.test.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Probar Plantilla WhatsApp">
+                <group>
+                    <field name="template_id" invisible="1"/>
+                    <field name="model_name" invisible="1"/>
+                    
+                    <field name="test_record_id" 
+                           placeholder="ID del registro para probar (ej: 123)"/>
+                    
+                    <field name="test_phone" 
+                           placeholder="Número de prueba (opcional, ej: 51987654321)"/>
+                </group>
+                
+                <group string="📱 Vista Previa del Envío">
+                    <group>
+                        <label for="preview_recipients" string="Se enviará a"/>
+                        <field name="preview_recipients" widget="text" nolabel="1" readonly="1"/>
+                    </group>
+                    
+                    <separator string="💬 Mensaje que se enviará" colspan="2"/>
+                    <group colspan="2">
+                        <field name="preview_message" widget="text" nolabel="1" readonly="1"/>
+                    </group>
+                </group>
+                
+                <div class="alert alert-warning" role="alert">
+                    <p><strong>⚠️ Advertencia:</strong></p>
+                    <p>Este es un envío REAL. El mensaje se enviará por WhatsApp.</p>
+                    <ul>
+                        <li>Si especificas un <strong>Teléfono de Prueba</strong>, se enviará solo a ese número</li>
+                        <li>Si dejas vacío el teléfono, se usarán los destinatarios configurados en la plantilla</li>
+                    </ul>
+                </div>
+                
+                <footer>
+                    <button string="📤 Enviar Prueba" 
+                            name="action_send_test" 
+                            type="object" 
+                            class="oe_highlight"
+                            confirm="¿Enviar mensaje de prueba por WhatsApp?"/>
+                    <button string="Cancelar" 
+                            class="btn-secondary" 
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

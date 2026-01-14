@@ -709,5 +709,45 @@ action = records.action_create_multiple_invoices()
               parent="menu_ajustes"
               groups="base.group_system"
               sequence="91"/>
+    
+!-- ========================================= -->
+    <!-- PLANTILLAS (en menú WhatsApp principal) -->
+    <!-- ========================================= -->
+    <menuitem id="menu_whatsapp_templates"
+              name="Plantillas"
+              action="action_whatsapp_template"
+              parent="menu_whatsapp_root"
+              sequence="40"/>
 
+    <!-- ========================================= -->
+    <!-- NOTIFICACIONES (en menú WhatsApp principal) -->
+    <!-- ========================================= -->
+    <menuitem id="menu_whatsapp_notifications"
+              name="Notificaciones"
+              parent="menu_whatsapp_root"
+              sequence="50"/>
+
+    <menuitem id="menu_whatsapp_notifications_all"
+              name="Todas"
+              action="action_whatsapp_notification"
+              parent="menu_whatsapp_notifications"
+              sequence="10"/>
+
+    <menuitem id="menu_whatsapp_notifications_sent"
+              name="Enviadas"
+              action="action_whatsapp_notification_sent"
+              parent="menu_whatsapp_notifications"
+              sequence="20"/>
+
+    <menuitem id="menu_whatsapp_notifications_failed_new"
+              name="Fallidas"
+              action="action_whatsapp_notification_failed"
+              parent="menu_whatsapp_notifications"
+              sequence="30"/>
+
+    <menuitem id="menu_whatsapp_notifications_pending_new"
+              name="Pendientes"
+              action="action_whatsapp_notification_pending"
+              parent="menu_whatsapp_notifications"
+              sequence="40"/>
 </odoo>

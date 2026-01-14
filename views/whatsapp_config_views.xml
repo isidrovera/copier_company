@@ -7,7 +7,7 @@
         <field name="name">whatsapp.config.form</field>
         <field name="model">whatsapp.config</field>
         <field name="arch" type="xml">
-            <form string="Configuración WhatsApp">
+            <form string="Configuración WhatsApp API">
                 <header>
                     <button name="check_connection" 
                             string="🔌 Verificar Conexión" 
@@ -40,6 +40,17 @@
                                    widget="boolean" 
                                    options="{'terminology': {'string_true': 'Conectado', 'string_false': 'Desconectado', 'hover_true': '✅ WhatsApp Conectado', 'hover_false': '❌ WhatsApp Desconectado'}}"/>
                         </button>
+                        <button name="action_view_notifications" 
+                                type="object" 
+                                class="oe_stat_button" 
+                                icon="fa-whatsapp">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="total_messages_sent" widget="integer"/>
+                                </span>
+                                <span class="o_stat_text">Mensajes Enviados</span>
+                            </div>
+                        </button>
                     </div>
                     
                     <div class="oe_title">
@@ -50,82 +61,71 @@
                     </div>
                     
                     <group>
-                        <group name="connection" string="🔗 Configuración de Conexión">
+                        <group name="connection" string="🔗 Configuración de API">
                             <field name="api_url" placeholder="http://localhost:3000"/>
                             <field name="api_key" password="True"/>
                             <field name="session_name"/>
                             <field name="sequence"/>
                         </group>
                         
-                        <group name="status" string="📊 Estado">
+                        <group name="status" string="📊 Estado de Conexión">
                             <field name="last_check" readonly="1"/>
                             <field name="connection_status" widget="text" readonly="1"/>
                         </group>
                     </group>
                     
                     <notebook>
-                        <page string="📞 Contactos Técnicos" name="contacts">
-                            <group>
-                                <group>
-                                    <label for="technical_phones" string="Teléfonos Técnicos"/>
-                                    <div>
-                                        <field name="technical_phones" 
-                                               widget="text" 
-                                               placeholder="51987654321&#10;51999888777&#10;51988776655"
-                                               nolabel="1"/>
-                                        <div class="text-muted">
-                                            <small>Un número por línea o separados por coma. Formato: 51987654321</small>
-                                        </div>
-                                    </div>
-                                    
-                                    <field name="supervisor_phone" placeholder="51924894829"/>
-                                </group>
-                                <group>
-                                    <field name="backup_phone" placeholder="51924894829"/>
-                                </group>
-                            </group>
-                        </page>
-                        
-                        <page string="⚙️ Configuración de Notificaciones" name="notifications">
-                            <group>
-                                <group string="Opciones de Envío">
-                                    <field name="notify_client"/>
-                                    <field name="notify_technical"/>
-                                    <field name="notify_high_priority"/>
-                                    <field name="send_photos"/>
-                                </group>
-                                <group string="Opciones de Sistema">
-                                    <field name="log_messages"/>
-                                </group>
-                            </group>
-                        </page>
-                        
-                        <page string="📝 Plantillas de Mensajes" name="templates">
-                            <group>
-                                <separator string="Plantilla para Cliente"/>
-                                <field name="client_message_template" 
-                                       widget="text" 
-                                       nolabel="1"
-                                       placeholder="Variables: {contacto}, {numero_ticket}, {equipo}, {ubicacion}, {sede}, {tipo_problema}, {prioridad}, {descripcion}"/>
-                            </group>
-                            <group>
-                                <separator string="Plantilla para Técnicos"/>
-                                <field name="technical_message_template" 
-                                       widget="text" 
-                                       nolabel="1"
-                                       placeholder="Variables: {numero_ticket}, {prioridad}, {fecha_creacion}, {cliente}, {contacto}, {telefono}, {email}, {modelo}, {serie}, {marca}, {ubicacion}, {sede}, {tipo_problema}, {descripcion}, {origen}"/>
-                            </group>
-                        </page>
-                        
                         <page string="📈 Estadísticas" name="stats">
                             <group>
-                                <group string="Mensajes Enviados">
+                                <group string="Mensajes">
                                     <field name="total_messages_sent" readonly="1"/>
                                     <field name="total_messages_failed" readonly="1"/>
-                                </group>
-                                <group string="Última Actividad">
                                     <field name="last_message_date" readonly="1"/>
                                 </group>
+                                <group string="Opciones">
+                                    <field name="log_messages"/>
+                                    <field name="auto_verify_numbers"/>
+                                </group>
+                            </group>
+                            
+                            <group string="📊 Información">
+                                <div class="alert alert-info" role="alert">
+                                    <p><strong>ℹ️ Estadísticas Globales</strong></p>
+                                    <ul>
+                                        <li>Total enviados: <strong><field name="total_messages_sent" readonly="1" nolabel="1"/></strong></li>
+                                        <li>Total fallidos: <strong><field name="total_messages_failed" readonly="1" nolabel="1"/></strong></li>
+                                        <li>Tasa de éxito: <strong>
+                                            <field name="total_messages_sent" readonly="1" invisible="1"/>
+                                            <field name="total_messages_failed" readonly="1" invisible="1"/>
+                                        </strong></li>
+                                    </ul>
+                                </div>
+                            </group>
+                        </page>
+                        
+                        <page string="ℹ️ Información" name="info">
+                            <group>
+                                <div class="alert alert-info" role="alert">
+                                    <h4>🔧 Configuración de WhatsApp API (Baileys)</h4>
+                                    <p>Esta configuración conecta Odoo con tu API de WhatsApp basada en Baileys.</p>
+                                    
+                                    <h5>📋 Pasos para configurar:</h5>
+                                    <ol>
+                                        <li>Ingresa la <strong>URL de tu API</strong> (ej: http://localhost:3000 o http://baileys-api:3000)</li>
+                                        <li>Ingresa tu <strong>API Key</strong> (configurada en tu servidor Baileys)</li>
+                                        <li>Click en <strong>"🔌 Verificar Conexión"</strong></li>
+                                        <li>Si muestra "Desconectado", click en <strong>"📱 Ver Código QR"</strong></li>
+                                        <li>Escanea el código QR desde WhatsApp en tu teléfono</li>
+                                        <li>Verifica nuevamente la conexión</li>
+                                    </ol>
+                                    
+                                    <h5>🧪 Probar Configuración:</h5>
+                                    <p>Una vez conectado, usa el botón <strong>"🧪 Enviar Prueba"</strong> para verificar que los mensajes se envían correctamente.</p>
+                                    
+                                    <h5>📝 Plantillas de Mensajes:</h5>
+                                    <p>Las plantillas de mensajes se configuran en: <strong>WhatsApp → Plantillas</strong></p>
+                                    <p>Allí podrás crear plantillas dinámicas para cualquier modelo de Odoo.</p>
+                                </div>
                             </group>
                         </page>
                     </notebook>
@@ -148,8 +148,8 @@
                 <field name="api_url"/>
                 <field name="is_connected" widget="boolean_toggle" readonly="1"/>
                 <field name="last_check" optional="show"/>
-                <field name="total_messages_sent" optional="show" sum="Total"/>
-                <field name="total_messages_failed" optional="hide"/>
+                <field name="total_messages_sent" optional="show" sum="Total Enviados"/>
+                <field name="total_messages_failed" optional="hide" sum="Total Fallidos"/>
                 <field name="active" widget="boolean_toggle"/>
             </list>
         </field>
@@ -158,7 +158,27 @@
     <!-- ========================================= -->
     <!-- VISTA BÚSQUEDA -->
     <!-- ========================================= -->
-    
+    <record id="view_whatsapp_config_search" model="ir.ui.view">
+        <field name="name">whatsapp.config.search</field>
+        <field name="model">whatsapp.config</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Configuración WhatsApp">
+                <field name="name"/>
+                <field name="api_url"/>
+                <separator/>
+                <filter string="Activas" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Inactivas" name="inactive" domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter string="✅ Conectadas" name="connected" domain="[('is_connected', '=', True)]"/>
+                <filter string="❌ Desconectadas" name="disconnected" domain="[('is_connected', '=', False)]"/>
+                <separator/>
+                <group expand="0" string="Agrupar Por">
+                    <filter string="Estado Conexión" name="group_by_connected" context="{'group_by': 'is_connected'}"/>
+                    <filter string="Estado Activo" name="group_by_active" context="{'group_by': 'active'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
 
     <!-- ========================================= -->
     <!-- WIZARD: MENSAJE DE PRUEBA -->
@@ -186,6 +206,25 @@
         </field>
     </record>
 
-    
+    <!-- ========================================= -->
+    <!-- ACCIÓN DE VENTANA -->
+    <!-- ========================================= -->
+    <record id="action_whatsapp_config" model="ir.actions.act_window">
+        <field name="name">WhatsApp API</field>
+        <field name="res_model">whatsapp.config</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configura la conexión con WhatsApp API
+            </p>
+            <p>
+                Conecta tu sistema con WhatsApp (Baileys) para enviar notificaciones automáticas.<br/>
+                <strong>Una sola configuración</strong> sirve para todas las plantillas de mensajes.
+            </p>
+        </field>
+    </record>
+
+  
 
 </odoo>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ========================================= -->
+    <!-- VISTA FORMULARIO - DESTINATARIO -->
+    <!-- ========================================= -->
+    <record id="view_whatsapp_template_recipient_form" model="ir.ui.view">
+        <field name="name">whatsapp.template.recipient.form</field>
+        <field name="model">whatsapp.template.recipient</field>
+        <field name="arch" type="xml">
+            <form string="Destinatario">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="sequence"/>
+                            <field name="recipient_type" widget="radio"/>
+                        </group>
+                        <group>
+                            <field name="is_backup"/>
+                            <field name="active"/>
+                            <field name="template_id" invisible="1"/>
+                            <field name="model_id" invisible="1"/>
+                        </group>
+                    </group>
+                    
+                    <group string="Configuración">
+                        <group invisible="recipient_type != 'field'">
+                            <field name="recipient_field_id" 
+                                   domain="[('model_id', '=', model_id), ('ttype', '=', 'char')]"
+                                   options="{'no_create': True}"/>
+                        </group>
+                        
+                        <group invisible="recipient_type != 'related'">
+                            <field name="recipient_related_path" placeholder="partner_id.mobile"/>
+                        </group>
+                        
+                        <group invisible="recipient_type != 'fixed'">
+                            <field name="recipient_fixed_number" placeholder="51987654321"/>
+                        </group>
+                        
+                        <group invisible="recipient_type != 'python'" colspan="2">
+                            <field name="recipient_python_code" 
+                                   widget="ace" 
+                                   options="{'mode': 'python'}"
+                                   nolabel="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>
