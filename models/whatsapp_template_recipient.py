@@ -80,7 +80,7 @@ class WhatsAppTemplateRecipient(models.Model):
     # ============================================
     # CAMPOS RELACIONADOS (HELPERS)
     # ============================================
-    model_id = fields.Many2one(
+    recipient_model_id = fields.Many2one(
         'ir.model',
         related='template_id.model_id',
         store=False,
