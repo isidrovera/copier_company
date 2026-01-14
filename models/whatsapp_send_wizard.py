@@ -161,9 +161,33 @@ class WhatsAppSendWizard(models.TransientModel):
         return {'type': 'ir.actions.act_window_close'}
 
 
+
+
 class WhatsAppTemplateVariable(models.Model):
     _name = 'whatsapp.template.variable'
-    _description = 'Variables de Plantilla WhatsApp (Temporal)'
+    _description = 'Variables de Plantilla WhatsApp'
     
-    name = fields.Char('Nombre')
-    model = fields.Char('Modelo')
+    name = fields.Char('Nombre Variable', required=True)
+    button_id = fields.Many2one('whatsapp.template.button', 'Botón', ondelete='cascade')
+    template_id = fields.Many2one('whatsapp.template', 'Plantilla')
+    variable_type = fields.Selection([
+        ('text', 'Texto'),
+        ('field', 'Campo'),
+    ], default='text')
+    default_value = fields.Char('Valor por Defecto')
+
+
+
+
+class WhatsAppTemplateButton(models.Model):
+    _name = 'whatsapp.template.button'
+    _description = 'Botones de Plantilla WhatsApp'
+    
+    name = fields.Char('Nombre del Botón', required=True)
+    template_id = fields.Many2one('whatsapp.template', 'Plantilla', ondelete='cascade')
+    button_type = fields.Selection([
+        ('url', 'URL'),
+        ('phone', 'Teléfono'),
+        ('quick_reply', 'Respuesta Rápida'),
+    ], required=True, default='quick_reply')
+    variable_ids = fields.One2many('whatsapp.template.variable', 'button_id', 'Variables')
