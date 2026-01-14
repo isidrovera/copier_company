@@ -198,44 +198,5 @@
         </field>
     </record>
 
-    <!-- ========================================= -->
-    <!-- VISTA BÚSQUEDA - NOTIFICACIÓN -->
-    <!-- ========================================= -->
-    <record id="view_whatsapp_notification_search" model="ir.ui.view">
-        <field name="name">whatsapp.notification.search</field>
-        <field name="model">whatsapp.notification</field>
-        <field name="arch" type="xml">
-            <search string="Buscar Notificaciones">
-                <field name="name"/>
-                <field name="recipient_phone"/>
-                <field name="recipient_name"/>
-                <field name="template_id"/>
-                <field name="model_name"/>
-                <field name="record_reference"/>
-                <separator/>
-                <filter string="Enviadas" name="sent" domain="[('state', '=', 'sent')]"/>
-                <filter string="Fallidas" name="failed" domain="[('state', '=', 'failed')]"/>
-                <filter string="Canceladas" name="cancelled" domain="[('state', '=', 'cancelled')]"/>
-                <filter string="Borradores" name="draft" domain="[('state', '=', 'draft')]"/>
-                <separator/>
-                <filter string="Hoy" name="today" 
-                        domain="[('create_date', '>=', datetime.datetime.now().strftime('%Y-%m-%d 00:00:00'))]"/>
-                <filter string="Esta Semana" name="this_week" 
-                        domain="[('create_date', '>=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
-                <filter string="Este Mes" name="this_month" 
-                        domain="[('create_date', '>=', (context_today().replace(day=1)).strftime('%Y-%m-%d'))]"/>
-                <separator/>
-                <group expand="0" string="Agrupar Por">
-                    <filter string="Estado" name="group_by_state" context="{'group_by': 'state'}"/>
-                    <filter string="Plantilla" name="group_by_template" context="{'group_by': 'template_id'}"/>
-                    <filter string="Modelo" name="group_by_model" context="{'group_by': 'model_name'}"/>
-                    <filter string="Fecha de Envío" name="group_by_sent_date" context="{'group_by': 'sent_date:day'}"/>
-                    <filter string="Destinatario" name="group_by_recipient" context="{'group_by': 'recipient_type'}"/>
-                </group>
-            </search>
-        </field>
-    </record>
-
     
-
 </odoo>
