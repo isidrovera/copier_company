@@ -84,7 +84,7 @@ class WhatsAppTemplateRecipient(models.Model):
         'ir.model',
         related='template_id.model_id',
         string='Modelo',
-        store=False,  # ← CORREGIDO: Cambiado de True a False para evitar error de carga
+        store=False,  # ← Sin store para evitar problemas de carga
         readonly=True
     )
     

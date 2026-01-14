@@ -19,11 +19,12 @@ class WhatsAppTemplateTestWizard(models.TransientModel):
         required=True,
         ondelete='cascade'
     )
-    model_name = fields.Char(
-        related='template_id.model_name',
+    model_id = fields.Many2one(
+        'ir.model',
+        related='template_id.model_id',
         string='Modelo',
-        readonly=True,
-        store=False  # ← CORREGIDO: Sin store para evitar problemas
+        store=False,  # ← Sin store para evitar problemas de carga
+        readonly=True
     )
     test_record_id = fields.Integer(
         'ID del Registro de Prueba',
