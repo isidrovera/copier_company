@@ -9,7 +9,7 @@ _logger = logging.getLogger(__name__)
 class WhatsAppTemplateRecipient(models.Model):
     _name = 'whatsapp.template.recipient'
     _description = 'Destinatarios Múltiples de Plantilla WhatsApp'
-
+    _order = 'template_id, sequence, id'
     
     # ============================================
     # RELACIÓN
@@ -84,7 +84,7 @@ class WhatsAppTemplateRecipient(models.Model):
         'ir.model',
         related='template_id.model_id',
         string='Modelo',
-        store=False,  # ← Sin store para evitar problemas de carga
+        store=False,  # Sin store para evitar problemas de carga
         readonly=True
     )
     
