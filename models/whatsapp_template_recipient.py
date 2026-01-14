@@ -83,10 +83,10 @@ class WhatsAppTemplateRecipient(models.Model):
     model_id = fields.Many2one(
         'ir.model',
         related='template_id.model_id',
-        string='Modelo',
-        store=False,  # Sin store para evitar problemas de carga
+        store=False,
         readonly=True
     )
+
     
     # ============================================
     # VALIDACIONES
