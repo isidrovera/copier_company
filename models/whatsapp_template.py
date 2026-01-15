@@ -327,7 +327,41 @@ class WhatsAppTemplate(models.Model):
             record.notification_count = self.env['whatsapp.notification'].search_count([
                 ('template_id', '=', record.id)
             ])
-    
+    @api.model
+    def _can_use_whatsapp(self, model_name):
+        """
+        Verifica si WhatsApp puede ser usado para el modelo dado.
+        
+        :param model_name: Nombre técnico del modelo (ej: 'res.partner', 'sale.order')
+        :return: True si el modelo puede usar WhatsApp, False en caso contrario
+        """
+        # Verifica si el modelo existe
+        if not model_name or model_name not in self.env:
+            return False
+        
+        try:
+            # Verifica si hay plantillas activas para este modelo
+            template_count = self.search_count([
+                ('model_name', '=', model_name),
+                ('active', '=', True),
+            ])
+            
+            if template_count == 0:
+                return False
+            
+            # Verifica si el modelo tiene campos de teléfono
+            model = self.env[model_name]
+            model_fields = model._fields
+            
+            # Busca campos comunes de teléfono/móvil
+            phone_fields = ['mobile', 'phone', 'whatsapp_number', 'celular', 'telefono']
+            has_phone_field = any(field in model_fields for field in phone_fields)
+            
+            return has_phone_field
+            
+        except Exception as e:
+            _logger.warning(f"Error verificando si el modelo {model_name} puede usar WhatsApp: {e}")
+            return False
     # ============================================
     # ONCHANGE
     # ============================================
