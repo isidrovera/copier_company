@@ -29,7 +29,7 @@ class WhatsAppTemplate(models.Model):
         'res.company',
         string='Compañías Permitidas',
         compute='_compute_allowed_company_ids',
-        store=False,
+        store=True,
         help='Compañías que pueden acceder a esta plantilla'
     )
     @api.depends('company_id')
