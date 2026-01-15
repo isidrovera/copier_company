@@ -645,7 +645,7 @@ class WhatsAppTestMessageWizard(models.TransientModel):
         default='Este es un mensaje de prueba desde Odoo 🚀'
     )
     
-    def action_send_test_message(self):
+    def action_send_test(self):  # ✅ CORREGIDO: cambié de action_send_test_message a action_send_test
         """Enviar mensaje de prueba"""
         self.ensure_one()
         
