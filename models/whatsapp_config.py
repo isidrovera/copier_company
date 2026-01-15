@@ -545,7 +545,8 @@ Error: {str(e)}"""
     # MÉTODOS AUXILIARES
     # ============================================
    
-    def clean_phone_number(phone, country_code='51'):
+    @api.model
+    def clean_phone_number(self, phone, country_code='51'):
         """
         Limpiar y normalizar número de teléfono
         
@@ -555,6 +556,14 @@ Error: {str(e)}"""
             
         Returns:
             str: Número limpio o cadena vacía si es inválido
+            
+        Examples:
+            >>> self.env['whatsapp.config'].clean_phone_number('987654321')
+            '51987654321'
+            >>> self.env['whatsapp.config'].clean_phone_number('+51 987 654 321')
+            '51987654321'
+            >>> self.env['whatsapp.config'].clean_phone_number('51987654321')
+            '51987654321'
         """
         import re
         
@@ -565,19 +574,21 @@ Error: {str(e)}"""
         clean = re.sub(r'[^0-9]', '', str(phone))
         
         # Agregar código de país si falta
-        if len(clean) == 9:  # Solo número local
+        if len(clean) == 9:  # Solo número local (987654321)
             clean = country_code + clean
-        elif len(clean) == 11 and clean.startswith('0'):  # Con 0 inicial
+        elif len(clean) == 11 and clean.startswith('0'):  # Con 0 inicial (0987654321)
             clean = country_code + clean[1:]
-        elif len(clean) == 11 and clean.startswith(country_code):
-            pass  # Ya tiene formato correcto
+        elif len(clean) == 11 and clean.startswith(country_code):  # Ya correcto (51987654321)
+            pass
         else:
             # Longitud incorrecta
+            _logger.warning("Número con longitud incorrecta: %s (longitud: %d)", phone, len(clean))
             return ''
         
-        # Validar longitud final (11 dígitos para Perú)
+        # Validar longitud final (11 dígitos para Perú: 51 + 9 dígitos)
         expected_length = len(country_code) + 9
         if len(clean) != expected_length:
+            _logger.warning("Número no cumple longitud esperada de %d dígitos: %s", expected_length, clean)
             return ''
         
         return clean

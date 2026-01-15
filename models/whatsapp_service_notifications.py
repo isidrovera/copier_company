@@ -113,7 +113,7 @@ class WhatsAppServiceNotification(models.Model):
                 if not connection.get('connected'):
                     raise ValidationError(_('WhatsApp no está conectado. Por favor escanea el código QR.'))
             
-            # Limpiar número
+            # ✅ LIMPIAR NÚMERO (forma recomendada)
             clean_phone = self.env['whatsapp.config'].clean_phone_number(self.phone_number)
             if not clean_phone:
                 raise ValidationError(_('Número de teléfono inválido: %s') % self.phone_number)
@@ -863,9 +863,8 @@ class WhatsAppTemplateTestWizard(models.TransientModel):
         """Enviar mensaje de prueba"""
         self.ensure_one()
         
-        # Limpiar número
-        from odoo.addons.copier_company.models.whatsapp_config import WhatsAppConfig
-        clean_phone = WhatsAppConfig.clean_phone_number(self.phone)
+        # ✅ LIMPIAR NÚMERO (forma recomendada)
+        clean_phone = self.env['whatsapp.config'].clean_phone_number(self.phone)
         
         if not clean_phone:
             raise ValidationError(_(
