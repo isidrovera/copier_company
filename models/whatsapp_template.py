@@ -224,6 +224,13 @@ class WhatsAppTemplate(models.Model):
         default=True,
         help='Verificar que el número existe en WhatsApp antes de enviar'
     )
+    wa_account_id = fields.Many2one(
+        'whatsapp.config',
+        'Cuenta WhatsApp',
+        compute='_compute_wa_account_id',
+        store=False,
+        help='Campo para compatibilidad con reglas de acceso'
+    )
     auto_apply = fields.Boolean(
         'Aplicar Automáticamente',
         default=True,
@@ -327,6 +334,12 @@ class WhatsAppTemplate(models.Model):
             record.notification_count = self.env['whatsapp.notification'].search_count([
                 ('template_id', '=', record.id)
             ])
+
+    @api.depends('config_id')
+    def _compute_wa_account_id(self):
+        """Compute wa_account_id para compatibilidad"""
+        for record in self:
+            record.wa_account_id = record.config_id or False
     @api.model
     def _can_use_whatsapp(self, model_name):
         """
