@@ -544,7 +544,7 @@ Error: {str(e)}"""
     # ============================================
     # MÉTODOS AUXILIARES
     # ============================================
-    @staticmethod
+   
     def clean_phone_number(phone, country_code='51'):
         """
         Limpiar y normalizar número de teléfono
