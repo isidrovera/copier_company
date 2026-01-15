@@ -117,49 +117,177 @@
         <field name="model">whatsapp.service.template</field>
         <field name="arch" type="xml">
             <form string="Plantilla de Mensaje WhatsApp">
+                <header>
+                    <button name="action_show_variables_help" 
+                        string="Ver Variables Disponibles" 
+                        type="object" 
+                        class="btn-info"
+                        icon="fa-question-circle"/>
+                
+                <button name="action_send_test_message" 
+                        string="Enviar Mensaje de Prueba" 
+                        type="object" 
+                        class="btn-primary"
+                        icon="fa-paper-plane"/>
+                </header>
                 <sheet>
-                    <div class="oe_button_box" name="button_box">
-                        <field name="active" widget="boolean_button" options="{'terminology': 'active'}"/>
+                <div class="oe_button_box" name="button_box">
+                    <field name="active" widget="boolean_button" options="{'terminology': 'active'}"/>
+                </div>
+                
+                <div class="oe_title">
+                    <h1>
+                        <field name="name" placeholder="Nombre de la plantilla..."/>
+                    </h1>
+                </div>
+                
+                <group>
+                    <group>
+                        <field name="notification_type"/>
+                        <field name="sequence"/>
+                    </group>
+                    <group>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                    </group>
+                </group>
+                
+                <notebook>
+                    <page string="📝 Plantilla" name="template">
+                        <group>
+                            <div class="alert alert-info mb-3" role="alert">
+                                <strong>💡 Consejo:</strong> 
+                                Haz clic en "Ver Variables Disponibles" para ver todas las variables que puedes usar.
+                                Las variables se escriben entre llaves: <code>{variable}</code>
+                            </div>
+                            
+                            <field name="template_text" 
+                                   nolabel="1" 
+                                   widget="text" 
+                                   placeholder="Escribe tu plantilla aquí...
+
+Ejemplo:
+✅ *SOLICITUD RECIBIDA*
+
+Hola {contact}, hemos recibido tu solicitud.
+
+📋 Número: {number}
+🖨️ Equipo: {equipment}
+📍 Ubicación: {location}
+
+Nuestro equipo te contactará pronto.
+
+_Gracias por tu confianza_ 🙏"
+                                   options="{'resizable': true}"
+                                   style="min-height: 300px;"/>
+                        </group>
+                        
+                        <div class="alert alert-success mt-3" role="alert">
+                            <h5>🎨 Formato WhatsApp:</h5>
+                            <ul class="mb-0">
+                                <li><code>*texto*</code> para <strong>negritas</strong></li>
+                                <li><code>_texto_</code> para <em>cursivas</em></li>
+                                <li><code>~texto~</code> para <del>tachado</del></li>
+                                <li><code>```texto```</code> para código</li>
+                                <li>Usa emojis para hacer el mensaje más atractivo 🎉</li>
+                            </ul>
+                        </div>
+                    </page>
+                    
+                    <page string="👁️ Vista Preliminar" name="preview">
+                        <div class="alert alert-warning mb-3" role="alert">
+                            <strong>ℹ️ Vista Preliminar:</strong> 
+                            Este es cómo se verá tu mensaje con datos de ejemplo. 
+                            Los valores reales se insertarán automáticamente al enviar.
+                        </div>
+                        
+                        <group>
+                            <field name="preview_text" 
+                                   nolabel="1" 
+                                   widget="text" 
+                                   readonly="1"
+                                   style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #dee2e6; min-height: 300px; font-family: 'Courier New', monospace; white-space: pre-wrap;"/>
+                        </group>
+                        
+                        <div class="alert alert-info mt-3" role="alert">
+                            💡 <strong>Tip:</strong> Usa el botón "Enviar Mensaje de Prueba" en la parte superior 
+                            para enviar esta vista preliminar a tu WhatsApp y ver cómo se ve realmente.
+                        </div>
+                    </page>
+                </notebook>
+            </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="view_whatsapp_template_test_wizard_form" model="ir.ui.view">
+        <field name="name">whatsapp.template.test.wizard.form</field>
+        <field name="model">whatsapp.template.test.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Enviar Mensaje de Prueba">
+                <sheet>
+                    <div class="alert alert-info" role="alert">
+                        <strong>📱 Mensaje de Prueba</strong>
+                        <p class="mb-0">
+                            Envía la vista preliminar de esta plantilla a tu WhatsApp para ver cómo se verá el mensaje real.
+                        </p>
                     </div>
                     
                     <group>
                         <group>
-                            <field name="name"/>
-                            <field name="notification_type"/>
-                            <field name="sequence"/>
-                        </group>
-                        <group>
-                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="template_id" invisible="1"/>
+                            <field name="phone" 
+                                   placeholder="+51 987 654 321"
+                                   widget="phone"/>
                         </group>
                     </group>
                     
-                    <group string="Plantilla del Mensaje">
-                        <field name="template_text" nolabel="1" widget="text" 
-                               placeholder="Escribe tu plantilla aquí...
-                               
-Variables disponibles:
-{number} - Número de solicitud
-{client} - Nombre del cliente
-{equipment} - Modelo del equipo
-{serie} - Serie del equipo
-{location} - Ubicación
-{problem} - Tipo de problema
-{priority} - Prioridad
-{technician} - Nombre del técnico
-{date} - Fecha programada
-{contact} - Nombre del contacto
-{phone} - Teléfono de contacto
-{work_done} - Trabajo realizado
-{reason} - Motivo (pausa/cancelación)
-{time} - Fecha/hora actual
-{time_remaining} - Tiempo restante (alertas SLA)"/>
-                    </group>
+                    <notebook>
+                        <page string="Mensaje">
+                            <field name="template_text" 
+                                   nolabel="1" 
+                                   widget="text"
+                                   style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; min-height: 250px; font-family: 'Courier New', monospace; white-space: pre-wrap;"/>
+                        </page>
+                    </notebook>
                     
-                    <div class="alert alert-info" role="alert">
-                        <strong>💡 Tip:</strong> Usa emojis para hacer tus mensajes más atractivos.
-                        Las variables entre llaves {} se reemplazarán automáticamente con los datos reales.
+                    <div class="alert alert-warning mt-3" role="alert">
+                        <strong>⚠️ Importante:</strong>
+                        <ul class="mb-0">
+                            <li>Asegúrate de que WhatsApp esté conectado antes de enviar</li>
+                            <li>El número debe tener WhatsApp activo</li>
+                            <li>Se usarán datos de ejemplo, no datos reales</li>
+                        </ul>
                     </div>
                 </sheet>
+                
+                <footer>
+                    <button string="📤 Enviar Mensaje" 
+                            name="action_send_test" 
+                            type="object" 
+                            class="btn-primary"/>
+                    <button string="Cancelar" 
+                            class="btn-secondary" 
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    
+    <!-- ========================================== -->
+    <!-- WIZARD: AYUDA DE VARIABLES -->
+    <!-- ========================================== -->
+    
+    <record id="view_whatsapp_template_variables_wizard_form" model="ir.ui.view">
+        <field name="name">whatsapp.template.variables.wizard.form</field>
+        <field name="model">whatsapp.template.variables.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Variables Disponibles">
+                <sheet>
+                    <field name="variables_info" nolabel="1" widget="html"/>
+                </sheet>
+                
+                <footer>
+                    <button string="Cerrar" class="btn-primary" special="cancel"/>
+                </footer>
             </form>
         </field>
     </record>

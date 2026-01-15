@@ -225,6 +225,72 @@ class WhatsAppServiceTemplate(models.Model):
         string='Nombre',
         required=True
     )
+    preview_text = fields.Text(
+        string='Vista Preliminar',
+        compute='_compute_preview_text',
+        store=False,
+        help='Vista preliminar del mensaje con valores de ejemplo'
+    )
+    
+    @api.depends('template_text')
+    def _compute_preview_text(self):
+        """Generar vista preliminar con datos de ejemplo"""
+        for record in self:
+            if not record.template_text:
+                record.preview_text = ''
+                continue
+            
+            # Variables de ejemplo
+            sample_variables = {
+                'number': 'ST-2024-001',
+                'client': 'Empresa Demo S.A.C.',
+                'equipment': 'Ricoh MP C3004',
+                'serie': 'E1234567890',
+                'location': 'Av. Javier Prado 123, Piso 5, Oficina 501',
+                'problem': 'Atasco de papel',
+                'priority': 'Alta',
+                'technician': 'Juan Pérez',
+                'date': '15/01/2026 14:30',
+                'contact': 'María García',
+                'phone': '+51 987 654 321',
+                'work_done': 'Se realizó limpieza de rodillos, ajuste de sensores y pruebas de impresión. Equipo funcionando correctamente.',
+                'reason': 'Falta de repuestos en stock',
+                'time': '15/01/2026 16:45',
+                'time_remaining': '1.5 horas',
+            }
+            
+            try:
+                record.preview_text = record.template_text.format(**sample_variables)
+            except KeyError as e:
+                record.preview_text = f'⚠️ Error en plantilla: Variable no reconocida {str(e)}\n\nPlantilla original:\n{record.template_text}'
+    
+    def action_send_test_message(self):
+        """Abrir wizard para enviar mensaje de prueba"""
+        self.ensure_one()
+        
+        return {
+            'name': _('Enviar Mensaje de Prueba'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'whatsapp.template.test.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_template_id': self.id,
+                'default_template_text': self.preview_text,
+            }
+        }
+    
+    def action_show_variables_help(self):
+        """Mostrar ayuda con todas las variables disponibles"""
+        self.ensure_one()
+        
+        return {
+            'name': _('Variables Disponibles'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'whatsapp.template.variables.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+        }
     
     notification_type = fields.Selection([
         ('new_request_support', 'Nueva Solicitud (Soporte)'),
@@ -768,3 +834,229 @@ class CopierServiceCancelWizard(models.TransientModel):
             _logger.error("Error notificando cancelación por WhatsApp: %s", str(e))
         
         return res
+
+class WhatsAppTemplateTestWizard(models.TransientModel):
+    _name = 'whatsapp.template.test.wizard'
+    _description = 'Wizard para Enviar Mensaje de Prueba de Plantilla'
+    
+    template_id = fields.Many2one(
+        'whatsapp.service.template',
+        string='Plantilla',
+        required=True,
+        readonly=True
+    )
+    
+    phone = fields.Char(
+        string='Número de Teléfono',
+        required=True,
+        default='+51 ',
+        help='Ingresa el número con código de país (ejemplo: +51 987654321)'
+    )
+    
+    template_text = fields.Text(
+        string='Mensaje de Prueba',
+        required=True,
+        help='Este es el mensaje que se enviará con los datos de ejemplo'
+    )
+    
+    def action_send_test(self):
+        """Enviar mensaje de prueba"""
+        self.ensure_one()
+        
+        # Limpiar número
+        from odoo.addons.copier_company.models.whatsapp_config import WhatsAppConfig
+        clean_phone = WhatsAppConfig.clean_phone_number(self.phone)
+        
+        if not clean_phone:
+            raise ValidationError(_(
+                'Número de teléfono inválido.\n'
+                'Formato correcto: +51987654321 o 51987654321'
+            ))
+        
+        try:
+            # Obtener configuración activa
+            config = self.env['whatsapp.config'].get_active_config()
+            
+            # Verificar conexión
+            if not config.is_connected:
+                connection = config.check_connection(silent=True)
+                if not connection.get('connected'):
+                    raise ValidationError(_('WhatsApp no está conectado. Por favor escanea el código QR.'))
+            
+            # Verificar número (opcional)
+            if config.auto_verify_numbers:
+                exists = config.verify_number(clean_phone)
+                if not exists:
+                    raise ValidationError(_(
+                        'El número %s no existe en WhatsApp.\n'
+                        'Verifica que el número sea correcto y tenga WhatsApp activo.'
+                    ) % self.phone)
+            
+            # Enviar mensaje
+            result = config.send_message(clean_phone, self.template_text)
+            
+            if result['success']:
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'message': f'✅ Mensaje de prueba enviado exitosamente a {self.phone}',
+                        'type': 'success',
+                        'sticky': False,
+                    }
+                }
+            else:
+                raise ValidationError(_(
+                    '❌ Error al enviar mensaje de prueba:\n%s'
+                ) % result['error'])
+                
+        except ValidationError:
+            raise
+        except Exception as e:
+            _logger.exception("Error enviando mensaje de prueba: %s", str(e))
+            raise ValidationError(_(
+                '❌ Error inesperado al enviar mensaje:\n%s'
+            ) % str(e))
+
+
+# ============================================
+# WIZARD: AYUDA DE VARIABLES
+# ============================================
+class WhatsAppTemplateVariablesWizard(models.TransientModel):
+    _name = 'whatsapp.template.variables.wizard'
+    _description = 'Ayuda de Variables para Plantillas WhatsApp'
+    
+    variables_info = fields.Html(
+        string='Variables Disponibles',
+        default=lambda self: self._get_variables_html(),
+        readonly=True
+    )
+    
+    def _get_variables_html(self):
+        """Generar HTML con información de todas las variables"""
+        return """
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+            <h3 style="color: #25D366; margin-bottom: 20px;">
+                📱 Variables Disponibles para Plantillas WhatsApp
+            </h3>
+            
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <h4 style="color: #333; margin-top: 0;">💡 ¿Cómo usar las variables?</h4>
+                <p style="color: #666;">
+                    Escribe las variables entre llaves <code>{}</code> en tu plantilla. 
+                    Se reemplazarán automáticamente con los datos reales al enviar el mensaje.
+                </p>
+                <p style="color: #666; margin-bottom: 0;">
+                    <strong>Ejemplo:</strong> <code>Hola {contact}, tu solicitud {number} fue recibida.</code>
+                </p>
+            </div>
+            
+            <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                <thead>
+                    <tr style="background-color: #25D366; color: white;">
+                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Variable</th>
+                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Descripción</th>
+                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Ejemplo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{number}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Número de la solicitud</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">ST-2024-001</td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{client}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Nombre del cliente</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Empresa Demo S.A.C.</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{equipment}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Modelo del equipo</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Ricoh MP C3004</td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{serie}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Serie del equipo</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">E1234567890</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{location}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Ubicación del equipo</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Av. Javier Prado 123, Piso 5</td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{problem}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Tipo de problema reportado</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Atasco de papel</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{priority}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Prioridad de la solicitud</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Alta / Normal / Baja / Crítica</td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{technician}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Nombre del técnico asignado</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Juan Pérez</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{date}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Fecha programada del servicio</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">15/01/2026 14:30</td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{contact}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Nombre de la persona de contacto</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">María García</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{phone}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Teléfono de contacto</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">+51 987 654 321</td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{work_done}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Descripción del trabajo realizado</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Se realizó limpieza de rodillos...</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{reason}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Motivo de pausa o cancelación</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Falta de repuestos en stock</td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{time}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Fecha y hora actual del envío</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">15/01/2026 16:45</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{time_remaining}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Tiempo restante para alertas SLA</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">1.5 horas</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div style="background-color: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #ffc107;">
+                <h4 style="color: #856404; margin-top: 0;">⚠️ Importante</h4>
+                <ul style="color: #856404; margin-bottom: 0;">
+                    <li>Las variables son <strong>case-sensitive</strong> (distinguen mayúsculas/minúsculas)</li>
+                    <li>Usa exactamente el nombre mostrado en la tabla</li>
+                    <li>No todas las variables están disponibles en todos los tipos de notificación</li>
+                    <li>Si una variable no está disponible, se mostrará "N/A"</li>
+                </ul>
+            </div>
+            
+            <div style="background-color: #d1ecf1; padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #17a2b8;">
+                <h4 style="color: #0c5460; margin-top: 0;">💡 Consejos</h4>
+                <ul style="color: #0c5460; margin-bottom: 0;">
+                    <li>Usa emojis para hacer tus mensajes más atractivos 🎉</li>
+                    <li>Usa <code>*texto*</code> para <strong>negritas</strong></li>
+                    <li>Usa <code>_texto_</code> para <em>cursivas</em></li>
+                    <li>Usa <code>~texto~</code> para <del>tachado</del></li>
+                    <li>Usa <code>```texto```</code> para código/monoespaciado</li>
+                </ul>
+            </div>
+        </div>
+        """
