@@ -175,7 +175,7 @@ class CopierServiceRequest(models.Model):
         string='Email',
         help='Email del reportante'
     )
-    
+ 
     telefono_contacto = fields.Char(
         string='Teléfono',
         help='Teléfono del reportante'
@@ -255,11 +255,7 @@ class CopierServiceRequest(models.Model):
         string='Insumos Utilizados',
         help='Descripción de insumos/repuestos utilizados'
     )
-    # En la sección de campos básicos, después de company_id:
-    correo = fields.Char(
-        string='Email',
-        help='Email del reportante'
-    )
+    
     color = fields.Integer(
         string='Color',
         compute='_compute_color',
@@ -1099,31 +1095,28 @@ class CopierServiceRequest(models.Model):
         """
         Cron job que se ejecuta diariamente.
         Busca servicios completados hace 48 horas sin calificación
-        y que NO hayan recibido recordatorio aún.
-        Envía UN SOLO recordatorio por solicitud.
+        y envía recordatorio por EMAIL y WHATSAPP.
         """
         _logger.info("=== INICIANDO CRON: Envío de recordatorios de evaluación ===")
         
         try:
-            # Calcular fecha de hace 48 horas (con margen de ±6 horas)
             now = fields.Datetime.now()
             fecha_48h_antes = now - timedelta(hours=48)
-            fecha_46h_antes = now - timedelta(hours=46)  # Margen superior
-            fecha_50h_antes = now - timedelta(hours=50)  # Margen inferior
+            fecha_46h_antes = now - timedelta(hours=46)
+            fecha_50h_antes = now - timedelta(hours=50)
             
             _logger.info("Buscando servicios completados entre %s y %s", 
                         fecha_50h_antes.strftime('%d/%m/%Y %H:%M'),
                         fecha_46h_antes.strftime('%d/%m/%Y %H:%M'))
             
-            # Buscar solicitudes que cumplan TODAS las condiciones
             domain = [
                 ('estado', '=', 'completado'),
                 ('fecha_fin', '!=', False),
-                ('fecha_fin', '>=', fecha_50h_antes),  # Completado hace 48-50 horas
-                ('fecha_fin', '<=', fecha_46h_antes),  # Completado hace 46-48 horas
-                ('calificacion', '=', False),  # No ha calificado
-                ('recordatorio_enviado', '=', False),  # No se ha enviado recordatorio
-                ('correo', '!=', False),  # Tiene email
+                ('fecha_fin', '>=', fecha_50h_antes),
+                ('fecha_fin', '<=', fecha_46h_antes),
+                ('calificacion', '=', False),
+                ('recordatorio_enviado', '=', False),
+                ('correo', '!=', False),
             ]
             
             solicitudes = self.search(domain)
@@ -1134,18 +1127,26 @@ class CopierServiceRequest(models.Model):
                 _logger.info("No hay solicitudes pendientes de recordatorio")
                 return
             
-            # Enviar recordatorio a cada solicitud
-            enviados = 0
+            enviados_email = 0
+            enviados_whatsapp = 0
             errores = 0
             
             for solicitud in solicitudes:
                 try:
                     _logger.info("Procesando solicitud %s (ID: %s)", solicitud.name, solicitud.id)
                     
+                    # Enviar EMAIL
                     if solicitud._send_email_recordatorio_evaluacion():
-                        enviados += 1
+                        enviados_email += 1
                     else:
                         errores += 1
+                    
+                    # ✅ ENVIAR WHATSAPP
+                    try:
+                        if solicitud._notify_evaluation_reminder():
+                            enviados_whatsapp += 1
+                    except Exception as e:
+                        _logger.error("Error enviando recordatorio WhatsApp: %s", str(e))
                         
                 except Exception as e:
                     _logger.exception("Error procesando solicitud %s: %s", solicitud.name, str(e))
@@ -1154,12 +1155,12 @@ class CopierServiceRequest(models.Model):
             
             _logger.info("=== CRON FINALIZADO ===")
             _logger.info("Total procesadas: %s", len(solicitudes))
-            _logger.info("Enviados exitosamente: %s", enviados)
+            _logger.info("Emails enviados: %s", enviados_email)
+            _logger.info("WhatsApp enviados: %s", enviados_whatsapp)
             _logger.info("Errores: %s", errores)
             
         except Exception as e:
             _logger.exception("Error general en CRON de recordatorios: %s", str(e))
-
 
 # ========================================
 # WIZARDS

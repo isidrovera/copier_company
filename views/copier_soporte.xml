@@ -116,7 +116,13 @@
                             invisible="estado in ('completado', 'cancelado')"
                             />
                     
-                   
+                    <button name="action_view_whatsapp_notifications"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-whatsapp"
+                        invisible="whatsapp_notifications_count == 0">
+                    <field name="whatsapp_notifications_count" widget="statinfo" string="WhatsApp"/>
+                </button>
                     
                     <!-- Barra de estado -->
                     <field name="estado" widget="statusbar" 
@@ -157,6 +163,8 @@
                             <field name="sla_cumplido" 
                                    invisible="estado != 'completado'"
                                    widget="boolean"/>
+
+                            <field name="enable_whatsapp_notifications" widget="boolean_toggle"/>
                         </group>
                     </group>
 

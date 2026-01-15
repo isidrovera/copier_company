@@ -73,7 +73,8 @@
         'views/menus_actions.xml',
         'views/printtracker_config_views.xml',
         'views/portal_servicios_cliente.xml',
-        'views/whatsapp_config_views.xml',               
+        'views/whatsapp_config_views.xml', 
+        'views/whatsapp_service_notification_views.xml',              
         'views/copier_soporte.xml',
         # ❗️ No cargues QWeb de frontend aquí; mejor en assets_qweb (abajo)
         # 'static/src/xml/counter_charts_templates.xml',

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Vista Lista: Notificaciones WhatsApp -->
+    <record id="view_whatsapp_service_notification_list" model="ir.ui.view">
+        <field name="name">whatsapp.service.notification.list</field>
+        <field name="model">whatsapp.service.notification</field>
+        <field name="arch" type="xml">
+            <list string="Notificaciones WhatsApp" 
+                  decoration-success="state == 'sent'"
+                  decoration-danger="state == 'failed'"
+                  decoration-muted="state == 'pending'">
+                
+                <field name="create_date" string="Fecha Creación"/>
+                <field name="service_request_id" string="Solicitud"/>
+                <field name="notification_type" string="Tipo"/>
+                <field name="recipient_type" string="Destinatario"/>
+                <field name="phone_number" string="Teléfono"/>
+                <field name="state" string="Estado" widget="badge"
+                       decoration-success="state == 'sent'"
+                       decoration-danger="state == 'failed'"
+                       decoration-warning="state == 'pending'"/>
+                <field name="sent_date" string="Enviado"/>
+                
+                <button name="action_retry_send" 
+                        type="object" 
+                        string="Reintentar"
+                        attrs="{'invisible': [('state', '!=', 'failed')]}"
+                        icon="fa-refresh"
+                        class="btn-primary"/>
+            </list>
+        </field>
+    </record>
+    
+    <!-- Vista Formulario: Notificaciones WhatsApp -->
+    <record id="view_whatsapp_service_notification_form" model="ir.ui.view">
+        <field name="name">whatsapp.service.notification.form</field>
+        <field name="model">whatsapp.service.notification</field>
+        <field name="arch" type="xml">
+            <form string="Notificación WhatsApp">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="pending,sent,failed"/>
+                    <button name="action_retry_send" 
+                            string="Reintentar Envío" 
+                            type="object" 
+                            class="btn-primary"
+                            attrs="{'invisible': [('state', '!=', 'failed')]}"/>
+                </header>
+                
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(copier_company.action_copier_service_request)d"
+                                type="action"
+                                class="oe_stat_button"
+                                icon="fa-ticket"
+                                context="{'search_default_id': service_request_id}">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">Ver Solicitud</span>
+                            </div>
+                        </button>
+                    </div>
+                    
+                    <group>
+                        <group string="Información Básica">
+                            <field name="service_request_id" readonly="1"/>
+                            <field name="notification_type"/>
+                            <field name="recipient_type"/>
+                            <field name="phone_number"/>
+                        </group>
+                        
+                        <group string="Estado de Envío">
+                            <field name="create_date" string="Fecha Creación"/>
+                            <field name="sent_date" attrs="{'invisible': [('sent_date', '=', False)]}"/>
+                            <field name="config_id" attrs="{'invisible': [('config_id', '=', False)]}"/>
+                            <field name="whatsapp_message_id" attrs="{'invisible': [('whatsapp_message_id', '=', False)]}"/>
+                        </group>
+                    </group>
+                    
+                    <group string="Mensaje">
+                        <field name="message_text" nolabel="1" widget="text"/>
+                    </group>
+                    
+                    <group string="Error" attrs="{'invisible': [('error_message', '=', False)]}">
+                        <field name="error_message" nolabel="1" widget="text" class="text-danger"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+   
+ 
+    
+    
+    <!-- ========================================== -->
+    <!-- PLANTILLAS DE MENSAJES WHATSAPP           -->
+    <!-- ========================================== -->
+    
+    <!-- Vista Lista: Plantillas WhatsApp -->
+    <record id="view_whatsapp_service_template_list" model="ir.ui.view">
+        <field name="name">whatsapp.service.template.list</field>
+        <field name="model">whatsapp.service.template</field>
+        <field name="arch" type="xml">
+            <list string="Plantillas de Mensajes WhatsApp" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="notification_type"/>
+                <field name="active" widget="boolean_toggle"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+    
+    <!-- Vista Formulario: Plantillas WhatsApp -->
+    <record id="view_whatsapp_service_template_form" model="ir.ui.view">
+        <field name="name">whatsapp.service.template.form</field>
+        <field name="model">whatsapp.service.template</field>
+        <field name="arch" type="xml">
+            <form string="Plantilla de Mensaje WhatsApp">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <field name="active" widget="boolean_button" options="{'terminology': 'active'}"/>
+                    </div>
+                    
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="notification_type"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    
+                    <group string="Plantilla del Mensaje">
+                        <field name="template_text" nolabel="1" widget="text" 
+                               placeholder="Escribe tu plantilla aquí...
+                               
+Variables disponibles:
+{number} - Número de solicitud
+{client} - Nombre del cliente
+{equipment} - Modelo del equipo
+{serie} - Serie del equipo
+{location} - Ubicación
+{problem} - Tipo de problema
+{priority} - Prioridad
+{technician} - Nombre del técnico
+{date} - Fecha programada
+{contact} - Nombre del contacto
+{phone} - Teléfono de contacto
+{work_done} - Trabajo realizado
+{reason} - Motivo (pausa/cancelación)
+{time} - Fecha/hora actual
+{time_remaining} - Tiempo restante (alertas SLA)"/>
+                    </group>
+                    
+                    <div class="alert alert-info" role="alert">
+                        <strong>💡 Tip:</strong> Usa emojis para hacer tus mensajes más atractivos.
+                        Las variables entre llaves {} se reemplazarán automáticamente con los datos reales.
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>  
+
+</odoo>

@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Template: Nueva Solicitud (Soporte) -->
+        <record id="whatsapp_template_new_request_support" model="whatsapp.service.template">
+            <field name="name">Nueva Solicitud - Soporte</field>
+            <field name="notification_type">new_request_support</field>
+            <field name="sequence">10</field>
+            <field name="template_text">🚨 *NUEVA SOLICITUD DE SERVICIO*
+
+📋 Número: {number}
+👤 Cliente: {client}
+🖨️ Equipo: {equipment} (Serie: {serie})
+📍 Ubicación: {location}
+🔧 Problema: {problem}
+⚠️ Prioridad: {priority}
+
+📞 Contacto: {contact}
+📱 Teléfono: {phone}
+
+⏰ Hora: {time}</field>
+        </record>
+        
+        <!-- Template: Confirmación Cliente -->
+        <record id="whatsapp_template_new_request_client" model="whatsapp.service.template">
+            <field name="name">Confirmación - Cliente</field>
+            <field name="notification_type">new_request_client</field>
+            <field name="sequence">20</field>
+            <field name="template_text">✅ *SOLICITUD RECIBIDA*
+
+Hola {contact}, hemos recibido tu solicitud de servicio técnico.
+
+📋 *Número:* {number}
+🖨️ *Equipo:* {equipment}
+📍 *Ubicación:* {location}
+🔧 *Problema:* {problem}
+
+Nuestro equipo técnico revisará tu solicitud y te contactará pronto.
+
+📧 Recibirás actualizaciones por email y WhatsApp.
+
+_Gracias por confiar en nosotros_ 🙏</field>
+        </record>
+        
+        <!-- Template: Técnico Asignado -->
+        <record id="whatsapp_template_technician_assigned" model="whatsapp.service.template">
+            <field name="name">Técnico Asignado</field>
+            <field name="notification_type">technician_assigned</field>
+            <field name="sequence">30</field>
+            <field name="template_text">👨‍🔧 *TÉCNICO ASIGNADO*
+
+Hola {contact},
+
+Tu solicitud *{number}* ha sido asignada:
+
+👤 *Técnico:* {technician}
+📅 *Fecha programada:* {date}
+🖨️ *Equipo:* {equipment}
+📍 *Ubicación:* {location}
+
+El técnico se pondrá en contacto contigo para confirmar la visita.
+
+_¡Gracias por tu paciencia!_ 🙏</field>
+        </record>
+        
+        <!-- Template: Técnico en Camino -->
+        <record id="whatsapp_template_technician_on_route" model="whatsapp.service.template">
+            <field name="name">Técnico en Camino</field>
+            <field name="notification_type">technician_on_route</field>
+            <field name="sequence">40</field>
+            <field name="template_text">🚗 *TÉCNICO EN CAMINO*
+
+Hola {contact},
+
+El técnico *{technician}* está en camino a tu ubicación.
+
+📋 Solicitud: {number}
+📍 Destino: {location}
+⏰ Llegada estimada: Próximamente
+
+_Por favor mantente atento_ 📱</field>
+        </record>
+        
+        <!-- Template: Servicio Iniciado -->
+        <record id="whatsapp_template_service_started" model="whatsapp.service.template">
+            <field name="name">Servicio Iniciado</field>
+            <field name="notification_type">service_started</field>
+            <field name="sequence">50</field>
+            <field name="template_text">✅ *SERVICIO INICIADO*
+
+El técnico *{technician}* ha iniciado el servicio en tu equipo.
+
+📋 Solicitud: {number}
+🖨️ Equipo: {equipment}
+⏰ Inicio: {time}
+
+_Trabajando en resolver el problema..._ 🔧</field>
+        </record>
+        
+        <!-- Template: Servicio Completado -->
+        <record id="whatsapp_template_service_completed" model="whatsapp.service.template">
+            <field name="name">Servicio Completado</field>
+            <field name="notification_type">service_completed</field>
+            <field name="sequence">60</field>
+            <field name="template_text">🎉 *SERVICIO COMPLETADO*
+
+Hola {contact},
+
+Tu solicitud *{number}* ha sido completada exitosamente.
+
+✅ *Trabajo realizado:*
+{work_done}
+
+⏰ Finalizado: {time}
+👨‍🔧 Técnico: {technician}
+
+📝 *¿Cómo calificas el servicio?*
+Tu opinión es muy importante para nosotros.
+
+_¡Gracias por tu confianza!_ 🙏</field>
+        </record>
+        
+        <!-- Template: Servicio Pausado -->
+        <record id="whatsapp_template_service_paused" model="whatsapp.service.template">
+            <field name="name">Servicio Pausado</field>
+            <field name="notification_type">service_paused</field>
+            <field name="sequence">70</field>
+            <field name="template_text">⏸️ *SERVICIO PAUSADO*
+
+Hola {contact},
+
+Tu solicitud *{number}* ha sido pausada temporalmente.
+
+📝 Motivo: {reason}
+
+Te contactaremos pronto para continuar.
+
+_Disculpa las molestias_ 🙏</field>
+        </record>
+        
+        <!-- Template: Servicio Cancelado -->
+        <record id="whatsapp_template_service_cancelled" model="whatsapp.service.template">
+            <field name="name">Servicio Cancelado</field>
+            <field name="notification_type">service_cancelled</field>
+            <field name="sequence">80</field>
+            <field name="template_text">❌ *SERVICIO CANCELADO*
+
+Hola {contact},
+
+Tu solicitud *{number}* ha sido cancelada.
+
+📝 Motivo: {reason}
+⏰ Fecha: {time}
+
+Si necesitas más información, no dudes en contactarnos.
+
+_Quedamos a tu disposición_ 📞</field>
+        </record>
+        
+        <!-- Template: Recordatorio Evaluación -->
+        <record id="whatsapp_template_evaluation_reminder" model="whatsapp.service.template">
+            <field name="name">Recordatorio Evaluación</field>
+            <field name="notification_type">evaluation_reminder</field>
+            <field name="sequence">90</field>
+            <field name="template_text">⭐ *RECORDATORIO DE EVALUACIÓN*
+
+Hola {contact},
+
+Hace unos días completamos el servicio de tu equipo (Solicitud *{number}*).
+
+📝 *¿Nos ayudas con tu opinión?*
+Tu evaluación nos ayuda a mejorar nuestro servicio.
+
+_¡Gracias por tu tiempo!_ 🙏</field>
+        </record>
+        
+        <!-- Parámetro: Teléfono de Soporte -->
+        <record id="ir_config_parameter_whatsapp_support_phone" model="ir.config_parameter">
+            <field name="key">whatsapp.support_phone</field>
+            <field name="value">51975399303</field>
+        </record>
+        
+    </data>
+</odoo>

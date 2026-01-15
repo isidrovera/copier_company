@@ -709,5 +709,55 @@ action = records.action_create_multiple_invoices()
               parent="menu_ajustes"
               groups="base.group_system"
               sequence="91"/>
+    <!-- Acción: Notificaciones WhatsApp -->
+    <record id="action_whatsapp_service_notification" model="ir.actions.act_window">
+        <field name="name">Notificaciones WhatsApp</field>
+        <field name="res_model">whatsapp.service.notification</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay notificaciones WhatsApp registradas
+            </p>
+            <p>
+                Las notificaciones se crean automáticamente cuando se realizan cambios en las solicitudes de servicio.
+            </p>
+        </field>
+    </record>
+    
+    <!-- Acción: Plantillas WhatsApp -->
+    <record id="action_whatsapp_service_template" model="ir.actions.act_window">
+        <field name="name">Plantillas de Mensajes</field>
+        <field name="res_model">whatsapp.service.template</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crea tu primera plantilla de mensaje WhatsApp
+            </p>
+            <p>
+                Las plantillas te permiten personalizar los mensajes que se envían automáticamente 
+                a los clientes y al equipo de soporte.
+            </p>
+        </field>
+    </record>
+    
+    <!-- ========================================== -->
+    <!-- MENÚS - NOTIFICACIONES WHATSAPP -->
+    <!-- ========================================== -->
+    
+    <!-- Menú: Notificaciones WhatsApp (bajo Solicitudes → Servicio Técnico) -->
+    <menuitem id="menu_whatsapp_service_notification"
+              name="Notificaciones WhatsApp"
+              parent="menu_solicitudes"
+              action="action_whatsapp_service_notification"
+              sequence="34"/>
+    
+    <!-- Menú: Plantillas WhatsApp (bajo Ajustes) -->
+    <menuitem id="menu_whatsapp_service_template"
+              name="Plantillas WhatsApp Servicio"
+              action="action_whatsapp_service_template"
+              parent="menu_ajustes"
+              sequence="96"/>
     
 </odoo>
