@@ -41,7 +41,7 @@
         'views/security_control_views.xml',
         'data/plantillas_mail.xml',
         'data/copier_soporte_mail.xml',
-        'whatsapp_service_templates.xml',
+        'data/whatsapp_service_templates.xml',
         'data/checklist_items_data.xml',
         'data/copier_company_data.xml',
         'views/pCloud.xml',
