@@ -25,6 +25,18 @@ class WhatsAppTemplate(models.Model):
         tracking=True,
         help='Compañía a la que pertenece esta plantilla'
     )
+    allowed_company_ids = fields.Many2many(
+        'res.company',
+        string='Compañías Permitidas',
+        compute='_compute_allowed_company_ids',
+        store=False,
+        help='Compañías que pueden acceder a esta plantilla'
+    )
+    @api.depends('company_id')
+    def _compute_allowed_company_ids(self):
+        """Compute allowed companies"""
+        for record in self:
+            record.allowed_company_ids = record.company_id
     name = fields.Char(
         'Nombre de Plantilla',
         required=True,
