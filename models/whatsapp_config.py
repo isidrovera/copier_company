@@ -11,11 +11,20 @@ class WhatsAppConfig(models.Model):
     _name = 'whatsapp.config'
     _description = 'Configuración de WhatsApp API (Baileys)'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    _order = 'sequence, id'
+   
 
     # ============================================
     # INFORMACIÓN BÁSICA
     # ============================================
+    company_id = fields.Many2one(
+        'res.company',
+        'Compañía',
+        default=lambda self: self.env.company,
+        required=True,
+        index=True,
+        tracking=True,
+        help='Compañía a la que pertenece esta configuración'
+    )
     name = fields.Char(
         'Nombre de Configuración', 
         required=True, 
@@ -116,19 +125,19 @@ class WhatsAppConfig(models.Model):
     # ============================================
     # VALIDACIONES
     # ============================================
-    @api.constrains('active')
+    @api.constrains('active', 'company_id')  # ✅ AGREGAR company_id
     def _check_single_active(self):
-        """Asegurar que solo haya una configuración activa"""
+        """Asegurar que solo haya una configuración activa por compañía"""
         for record in self:
             if record.active:
                 other_active = self.search([
                     ('active', '=', True),
+                    ('company_id', '=', record.company_id.id),  # ✅ AGREGAR ESTA LÍNEA
                     ('id', '!=', record.id)
                 ])
                 if other_active:
                     other_active.write({'active': False})
                     _logger.info("Desactivando otras configuraciones: %s", other_active.mapped('name'))
-    
     @api.constrains('api_url')
     def _check_api_url(self):
         """Validar formato de URL"""
@@ -579,7 +588,7 @@ Error: {str(e)}"""
     @api.model
     def get_active_config(self):
         """
-        Obtener configuración activa
+        Obtener configuración activa para la compañía actual
         
         Returns:
             whatsapp.config: Configuración activa
@@ -587,11 +596,15 @@ Error: {str(e)}"""
         Raises:
             ValidationError: Si no hay configuración activa
         """
-        config = self.search([('active', '=', True)], limit=1)
+        config = self.search([
+            ('active', '=', True),
+            ('company_id', '=', self.env.company.id)  # ✅ AGREGAR ESTA LÍNEA
+        ], limit=1)
+        
         if not config:
             raise ValidationError(_(
-                'No hay configuración de WhatsApp activa.\n'
+                'No hay configuración de WhatsApp activa para la compañía %s.\n'
                 'Por favor configura WhatsApp en:\n'
                 'Ajustes → WhatsApp API Config'
-            ))
+            ) % self.env.company.name)  # ✅ AGREGAR nombre de compañía
         return config

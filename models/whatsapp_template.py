@@ -16,6 +16,15 @@ class WhatsAppTemplate(models.Model):
     # ============================================
     # IDENTIFICACIÓN
     # ============================================
+    company_id = fields.Many2one(
+        'res.company',
+        'Compañía',
+        default=lambda self: self.env.company,
+        required=True,
+        index=True,
+        tracking=True,
+        help='Compañía a la que pertenece esta plantilla'
+    )
     name = fields.Char(
         'Nombre de Plantilla',
         required=True,
