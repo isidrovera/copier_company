@@ -620,3 +620,66 @@ Error: {str(e)}"""
                 'Ajustes → WhatsApp API Config'
             ) % self.env.company.name)  # ✅ AGREGAR nombre de compañía
         return config
+
+# ============================================
+# WIZARD: ENVIAR MENSAJE DE PRUEBA
+# ============================================
+class WhatsAppTestMessageWizard(models.TransientModel):
+    _name = 'whatsapp.test.message.wizard'
+    _description = 'Wizard para Enviar Mensaje de Prueba WhatsApp'
+    
+    config_id = fields.Many2one(
+        'whatsapp.config',
+        string='Configuración',
+        required=True,
+        readonly=True
+    )
+    phone = fields.Char(
+        string='Número de Teléfono',
+        required=True,
+        help='Formato: 51987654321 (código de país + número)'
+    )
+    message = fields.Text(
+        string='Mensaje',
+        required=True,
+        default='Este es un mensaje de prueba desde Odoo 🚀'
+    )
+    
+    def action_send_test_message(self):
+        """Enviar mensaje de prueba"""
+        self.ensure_one()
+        
+        # Limpiar número
+        clean_phone = WhatsAppConfig.clean_phone_number(self.phone)
+        
+        if not clean_phone:
+            raise ValidationError(_(
+                'Número de teléfono inválido.\n'
+                'Formato correcto: 51987654321 (código país + número)'
+            ))
+        
+        # Verificar que el número existe (opcional)
+        if self.config_id.auto_verify_numbers:
+            exists = self.config_id.verify_number(clean_phone)
+            if not exists:
+                raise ValidationError(_(
+                    'El número %s no existe en WhatsApp o no está registrado.'
+                ) % self.phone)
+        
+        # Enviar mensaje
+        result = self.config_id.send_message(clean_phone, self.message)
+        
+        if result['success']:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'message': f'✅ Mensaje enviado exitosamente a {self.phone}',
+                    'type': 'success',
+                    'sticky': False,
+                }
+            }
+        else:
+            raise ValidationError(_(
+                '❌ Error al enviar mensaje:\n%s'
+            ) % result['error'])
