@@ -22,10 +22,11 @@
                        decoration-warning="state == 'pending'"/>
                 <field name="sent_date" string="Enviado"/>
                 
+                <!-- ✅ SIN ATTRS -->
                 <button name="action_retry_send" 
                         type="object" 
                         string="Reintentar"
-                        attrs="{'invisible': [('state', '!=', 'failed')]}"
+                        invisible="state != 'failed'"
                         icon="fa-refresh"
                         class="btn-primary"/>
             </list>
@@ -40,11 +41,12 @@
             <form string="Notificación WhatsApp">
                 <header>
                     <field name="state" widget="statusbar" statusbar_visible="pending,sent,failed"/>
+                    <!-- ✅ SIN ATTRS -->
                     <button name="action_retry_send" 
                             string="Reintentar Envío" 
                             type="object" 
                             class="btn-primary"
-                            attrs="{'invisible': [('state', '!=', 'failed')]}"/>
+                            invisible="state != 'failed'"/>
                 </header>
                 
                 <sheet>
@@ -70,9 +72,10 @@
                         
                         <group string="Estado de Envío">
                             <field name="create_date" string="Fecha Creación"/>
-                            <field name="sent_date" attrs="{'invisible': [('sent_date', '=', False)]}"/>
-                            <field name="config_id" attrs="{'invisible': [('config_id', '=', False)]}"/>
-                            <field name="whatsapp_message_id" attrs="{'invisible': [('whatsapp_message_id', '=', False)]}"/>
+                            <!-- ✅ SIN ATTRS -->
+                            <field name="sent_date" invisible="not sent_date"/>
+                            <field name="config_id" invisible="not config_id"/>
+                            <field name="whatsapp_message_id" invisible="not whatsapp_message_id"/>
                         </group>
                     </group>
                     
@@ -80,17 +83,14 @@
                         <field name="message_text" nolabel="1" widget="text"/>
                     </group>
                     
-                    <group string="Error" attrs="{'invisible': [('error_message', '=', False)]}">
+                    <!-- ✅ SIN ATTRS -->
+                    <group string="Error" invisible="not error_message">
                         <field name="error_message" nolabel="1" widget="text" class="text-danger"/>
                     </group>
                 </sheet>
             </form>
         </field>
     </record>
-    
-   
- 
-    
     
     <!-- ========================================== -->
     <!-- PLANTILLAS DE MENSAJES WHATSAPP           -->
@@ -162,6 +162,10 @@ Variables disponibles:
                 </sheet>
             </form>
         </field>
-    </record>  
+    </record>
+    
 
+   
+    
+    
 </odoo>
