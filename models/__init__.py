@@ -21,3 +21,4 @@ from . import copier_stock_whatsapp_extend
 from . import printtracker_config
 from . import copier_soporte
 from . import whatsapp_config
+from . import whatsapp_test_wizard
