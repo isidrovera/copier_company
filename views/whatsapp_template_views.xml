@@ -428,9 +428,51 @@
             </kanban>
         </field>
     </record>
-
-   
-
-    
-
+    <!-- ========================================= -->
+    <!-- VISTA BÚSQUEDA - PLANTILLA -->
+    <!-- ========================================= -->
+    <record id="view_whatsapp_template_search" model="ir.ui.view">
+        <field name="name">whatsapp.template.search</field>
+        <field name="model">whatsapp.template</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Plantillas">
+                <!-- Campos de búsqueda -->
+                <field name="name"/>
+                <field name="code"/>
+                <field name="model_id"/>
+                <field name="message_template"/>
+                <field name="description"/>
+                
+                <!-- Filtros predefinidos -->
+                <filter name="active" string="Activas" 
+                        domain="[('active', '=', True)]"/>
+                <filter name="inactive" string="Inactivas" 
+                        domain="[('active', '=', False)]"/>
+                
+                <separator/>
+                <filter name="auto_apply" string="Auto-aplicar" 
+                        domain="[('auto_apply', '=', True)]"/>
+                <filter name="manual" string="Manuales" 
+                        domain="[('trigger_type', '=', 'manual')]"/>
+                <filter name="auto_trigger" string="Trigger Automático" 
+                        domain="[('trigger_type', '!=', 'manual')]"/>
+                
+                <separator/>
+                <filter name="with_attachment" string="Con Adjuntos" 
+                        domain="[('send_attachment', '=', True)]"/>
+                <filter name="verify_number" string="Verificar Número" 
+                        domain="[('verify_number_before_send', '=', True)]"/>
+                
+                <!-- Agrupar por -->
+                <group expand="0" string="Agrupar Por">
+                    <filter name="group_by_model" string="Modelo" 
+                            context="{'group_by': 'model_id'}"/>
+                    <filter name="group_by_trigger" string="Tipo de Trigger" 
+                            context="{'group_by': 'trigger_type'}"/>
+                    <filter name="group_by_recipient_type" string="Tipo de Destinatario" 
+                            context="{'group_by': 'recipient_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
 </odoo>
