@@ -2,18 +2,19 @@
 <odoo>
 
     <!-- ===================================================== -->
-    <!-- FORMATO DE PAPEL -->
+    <!-- FORMATO DE PAPEL VERTICAL (PORTRAIT) -->
     <!-- ===================================================== -->
-    <record id="paperformat_service_request_landscape" model="report.paperformat">
-        <field name="name">Service Request Landscape</field>
+    <record id="paperformat_service_request_portrait" model="report.paperformat">
+        <field name="name">Service Request Portrait</field>
         <field name="format">A4</field>
-        <field name="orientation">Landscape</field>
+        <field name="orientation">Portrait</field>
         <field name="margin_top">10</field>
-        <field name="margin_bottom">15</field>
+        <field name="margin_bottom">23</field>
         <field name="margin_left">10</field>
         <field name="margin_right">10</field>
-        <field name="dpi">90</field>
         <field name="header_line" eval="False"/>
+        <field name="header_spacing">10</field>
+        <field name="dpi">90</field>
     </record>
 
     <!-- ===================================================== -->
@@ -25,250 +26,530 @@
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">copier_company.report_service_request</field>
         <field name="report_file">copier_company.report_service_request</field>
-        <field name="paperformat_id" ref="copier_company.paperformat_service_request_landscape"/>
-        <field name="print_report_name">
-            'Servicio - %s' % (object.name)
-        </field>
+        <field name="paperformat_id" ref="copier_company.paperformat_service_request_portrait"/>
+        <field name="print_report_name">'Servicio - %s' % (object.name)</field>
     </record>
 
     <!-- ===================================================== -->
-    <!-- TEMPLATE -->
+    <!-- TEMPLATE DEL REPORTE -->
     <!-- ===================================================== -->
     <template id="report_service_request">
         <t t-name="copier_company.report_service_request">
             <t t-call="web.basic_layout">
-
-                <!-- ================================================= -->
-                <!-- VARIABLES OBLIGATORIAS (ODOO 19) -->
-                <!-- ================================================= -->
-                <t t-set="doc" t-value="docs[0]"/>
-                <t t-set="company" t-value="doc.company_id"/>
-
-                <!-- ================================================= -->
-                <!-- ESTILOS -->
-                <!-- ================================================= -->
+                
+                <!-- Estilos CSS -->
                 <style>
                     body {
-                        font-family: Arial, Helvetica, sans-serif;
-                        font-size: 12px;
-                        color: #0f172a;
-                    }
-                    .card {
-                        background: #ffffff;
-                        border-radius: 12px;
-                        padding: 16px;
-                        margin-bottom: 16px;
-                        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-                    }
-                    .header {
-                        background: linear-gradient(135deg, #1e3a8a, #2563eb);
-                        color: #ffffff;
-                        padding: 20px;
-                        border-radius: 12px;
-                        margin-bottom: 16px;
-                    }
-                    .title {
-                        font-size: 22px;
-                        font-weight: 700;
-                    }
-                    .subtitle {
-                        font-size: 13px;
-                        opacity: 0.9;
-                    }
-                    .section-title {
-                        font-size: 14px;
-                        font-weight: 600;
+                        font-family: 'Segoe UI', Arial, sans-serif;
+                        font-size: 11px;
                         color: #1e293b;
-                        border-bottom: 2px solid #e5e7eb;
-                        margin-bottom: 10px;
-                        padding-bottom: 4px;
                     }
-                    .label {
-                        color: #64748b;
-                        font-size: 11px;
+                    
+                    .card-container {
+                        background-color: white;
+                        border-radius: 12px;
+                        padding: 1.2rem;
+                        margin-bottom: 1.5rem;
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+                        border: 1px solid #e2e8f0;
                     }
-                    .value {
-                        font-weight: 600;
-                        font-size: 12px;
-                    }
-                    .badge {
-                        padding: 4px 10px;
-                        border-radius: 999px;
-                        font-size: 11px;
+                    
+                    .header-gradient {
+                        background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+                        border-radius: 10px;
+                        padding: 1.5rem;
+                        margin-bottom: 1.5rem;
+                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
                         color: white;
                     }
-                    .badge-ok { background: #16a34a; }
-                    .badge-warn { background: #f59e0b; }
-                    .badge-danger { background: #dc2626; }
-
-                    table {
-                        width: 100%;
-                        border-collapse: collapse;
+                    
+                    .company-logo {
+                        max-height: 80px;
+                        width: auto;
                     }
-                    th {
-                        background: #f1f5f9;
+                    
+                    .report-title {
+                        font-size: 24px;
+                        font-weight: 700;
+                        margin: 0;
+                        color: white;
+                    }
+                    
+                    .report-subtitle {
+                        font-size: 13px;
+                        opacity: 0.95;
+                        margin-top: 0.5rem;
+                    }
+                    
+                    .section-title {
+                        font-size: 15px;
+                        font-weight: 700;
+                        color: #1e3a8a;
+                        border-bottom: 3px solid #3b82f6;
+                        padding-bottom: 0.5rem;
+                        margin-bottom: 1rem;
+                        display: flex;
+                        align-items: center;
+                    }
+                    
+                    .section-title i {
+                        margin-right: 0.5rem;
+                        font-size: 18px;
+                    }
+                    
+                    .info-row {
+                        margin-bottom: 1rem;
+                    }
+                    
+                    .label {
+                        font-size: 10px;
+                        color: #64748b;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                        font-weight: 600;
+                        margin-bottom: 0.3rem;
+                    }
+                    
+                    .value {
+                        font-size: 12px;
+                        color: #1e293b;
+                        font-weight: 600;
+                    }
+                    
+                    .badge {
+                        display: inline-block;
+                        padding: 0.4rem 1rem;
+                        border-radius: 999px;
                         font-size: 11px;
-                        padding: 6px;
-                        border: 1px solid #e5e7eb;
+                        font-weight: 600;
+                        color: white;
                     }
-                    td {
-                        font-size: 11px;
-                        padding: 6px;
-                        border: 1px solid #e5e7eb;
-                    }
-                    .image-box img {
-                        max-height: 180px;
+                    
+                    .badge-success { background-color: #16a34a; }
+                    .badge-warning { background-color: #f59e0b; }
+                    .badge-danger { background-color: #dc2626; }
+                    .badge-info { background-color: #0ea5e9; }
+                    .badge-primary { background-color: #3b82f6; }
+                    
+                    .evidence-box {
+                        text-align: center;
+                        padding: 1rem;
+                        background-color: #f8fafc;
                         border-radius: 8px;
-                        border: 1px solid #e5e7eb;
+                        border: 1px solid #e2e8f0;
+                    }
+                    
+                    .evidence-box img {
+                        max-height: 200px;
+                        max-width: 100%;
+                        border-radius: 8px;
+                        border: 2px solid #e2e8f0;
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                    }
+                    
+                    .evidence-label {
+                        font-weight: 700;
+                        color: #1e3a8a;
+                        margin-bottom: 0.5rem;
+                        font-size: 12px;
+                    }
+                    
+                    .signature-box {
+                        border: 2px dashed #cbd5e1;
+                        border-radius: 8px;
+                        padding: 2rem 1rem;
+                        text-align: center;
+                        background-color: #f8fafc;
+                        min-height: 120px;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
+                    }
+                    
+                    .signature-box img {
+                        max-height: 100px;
+                        max-width: 200px;
+                        margin-bottom: 0.5rem;
+                    }
+                    
+                    .signature-line {
+                        border-top: 2px solid #334155;
+                        width: 200px;
+                        margin: 1rem auto 0.5rem;
+                    }
+                    
+                    .signature-label {
+                        font-size: 10px;
+                        color: #64748b;
+                        font-weight: 600;
+                        text-transform: uppercase;
+                        margin-bottom: 0.3rem;
+                    }
+                    
+                    .signature-name {
+                        font-size: 12px;
+                        color: #1e293b;
+                        font-weight: 700;
+                    }
+                    
+                    .text-content {
+                        background-color: #f8fafc;
+                        padding: 1rem;
+                        border-radius: 8px;
+                        border-left: 4px solid #3b82f6;
+                        line-height: 1.6;
+                        white-space: pre-wrap;
+                    }
+                    
+                    .calificacion-stars {
+                        font-size: 24px;
+                        color: #f59e0b;
+                    }
+                    
+                    .footer-info {
+                        margin-top: 2rem;
+                        padding-top: 1rem;
+                        border-top: 2px solid #e2e8f0;
+                        text-align: center;
+                        color: #64748b;
+                        font-size: 10px;
                     }
                 </style>
 
                 <div class="page">
-
-                    <!-- =================== HEADER =================== -->
-                    <div class="header">
+                    
+                    <!-- =================== HEADER CON LOGO =================== -->
+                    <div class="header-gradient">
                         <div class="row align-items-center">
-                            <div class="col-2">
-                                <img t-if="company.logo"
-                                     t-att-src="image_data_uri(company.logo)"
-                                     style="max-height:90px"/>
+                            <div class="col-3">
+                                <img t-if="docs[0].company_id.logo" 
+                                     t-att-src="image_data_uri(docs[0].company_id.logo)" 
+                                     class="company-logo" 
+                                     alt="Logo"/>
                             </div>
-                            <div class="col-10">
-                                <div class="title">Reporte de Servicio Técnico</div>
-                                <div class="subtitle">
-                                    Solicitud Nº <strong><t t-esc="doc.name"/></strong> |
+                            <div class="col-9 text-end">
+                                <h1 class="report-title">REPORTE DE SERVICIO TÉCNICO</h1>
+                                <div class="report-subtitle">
+                                    <strong>Nº <t t-esc="docs[0].name"/></strong> | 
                                     Fecha: <t t-esc="time.strftime('%d/%m/%Y')"/>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- =================== CLIENTE =================== -->
-                    <div class="card">
-                        <div class="section-title">Información del Cliente</div>
+                    <!-- =================== INFORMACIÓN DEL CLIENTE =================== -->
+                    <div class="card-container">
+                        <div class="section-title">
+                            <i class="fa fa-building"/>
+                            INFORMACIÓN DEL CLIENTE
+                        </div>
                         <div class="row">
-                            <div class="col-4">
+                            <div class="col-6 info-row">
                                 <div class="label">Cliente</div>
-                                <div class="value"><t t-esc="doc.cliente_id.name"/></div>
+                                <div class="value"><t t-esc="docs[0].cliente_id.name"/></div>
                             </div>
-                            <div class="col-4">
+                            <div class="col-6 info-row">
                                 <div class="label">Contacto</div>
-                                <div class="value"><t t-esc="doc.contacto or '—'"/></div>
+                                <div class="value"><t t-esc="docs[0].contacto or '—'"/></div>
                             </div>
-                            <div class="col-4">
-                                <div class="label">Teléfono / Email</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 info-row">
+                                <div class="label">Teléfono</div>
+                                <div class="value"><t t-esc="docs[0].telefono_contacto or '—'"/></div>
+                            </div>
+                            <div class="col-6 info-row">
+                                <div class="label">Email</div>
+                                <div class="value"><t t-esc="docs[0].correo or '—'"/></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- =================== INFORMACIÓN DEL EQUIPO =================== -->
+                    <div class="card-container">
+                        <div class="section-title">
+                            <i class="fa fa-print"/>
+                            INFORMACIÓN DEL EQUIPO
+                        </div>
+                        <div class="row">
+                            <div class="col-6 info-row">
+                                <div class="label">Modelo</div>
+                                <div class="value"><t t-esc="docs[0].modelo_maquina.name"/></div>
+                            </div>
+                            <div class="col-6 info-row">
+                                <div class="label">Serie</div>
+                                <div class="value"><t t-esc="docs[0].serie_maquina"/></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 info-row">
+                                <div class="label">Ubicación</div>
+                                <div class="value"><t t-esc="docs[0].ubicacion"/></div>
+                            </div>
+                            <div class="col-6 info-row">
+                                <div class="label">IP del Equipo</div>
+                                <div class="value"><t t-esc="docs[0].ip_maquina or '—'"/></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- =================== DETALLE DEL SERVICIO =================== -->
+                    <div class="card-container">
+                        <div class="section-title">
+                            <i class="fa fa-wrench"/>
+                            DETALLE DEL SERVICIO
+                        </div>
+                        <div class="row">
+                            <div class="col-12 info-row">
+                                <div class="label">Problema Reportado</div>
+                                <div class="text-content">
+                                    <t t-esc="docs[0].problema_reportado"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top: 1rem;">
+                            <div class="col-6 info-row">
+                                <div class="label">Técnico Asignado</div>
                                 <div class="value">
-                                    <t t-esc="doc.telefono_contacto or ''"/> |
-                                    <t t-esc="doc.correo or ''"/>
+                                    <t t-esc="docs[0].tecnico_id.name or 'No asignado'"/>
+                                </div>
+                            </div>
+                            <div class="col-6 info-row">
+                                <div class="label">Estado</div>
+                                <div>
+                                    <t t-set="estado_dict" t-value="{
+                                        'nuevo': ('badge-info', 'Nuevo'),
+                                        'asignado': ('badge-primary', 'Asignado'),
+                                        'confirmado': ('badge-success', 'Confirmado'),
+                                        'en_ruta': ('badge-warning', 'En Ruta'),
+                                        'en_sitio': ('badge-warning', 'En Sitio'),
+                                        'pausado': ('badge-warning', 'Pausado'),
+                                        'completado': ('badge-success', 'Completado'),
+                                        'cancelado': ('badge-danger', 'Cancelado')
+                                    }"/>
+                                    <span class="badge" 
+                                          t-att-class="estado_dict.get(docs[0].estado, ('badge-info', 'N/A'))[0]">
+                                        <t t-esc="estado_dict.get(docs[0].estado, ('badge-info', 'N/A'))[1]"/>
+                                    </span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- =================== EQUIPO =================== -->
-                    <div class="card">
-                        <div class="section-title">Información del Equipo</div>
+                    <!-- =================== EJECUCIÓN DEL SERVICIO =================== -->
+                    <div class="card-container">
+                        <div class="section-title">
+                            <i class="fa fa-clock-o"/>
+                            EJECUCIÓN DEL SERVICIO
+                        </div>
                         <div class="row">
-                            <div class="col-3">
-                                <div class="label">Modelo</div>
-                                <div class="value"><t t-esc="doc.modelo_maquina.name"/></div>
+                            <div class="col-4 info-row">
+                                <div class="label">Fecha Inicio</div>
+                                <div class="value">
+                                    <t t-if="docs[0].fecha_inicio" 
+                                       t-esc="docs[0].fecha_inicio.strftime('%d/%m/%Y %H:%M')"/>
+                                    <t t-else="">—</t>
+                                </div>
                             </div>
-                            <div class="col-3">
-                                <div class="label">Serie</div>
-                                <div class="value"><t t-esc="doc.serie_maquina"/></div>
+                            <div class="col-4 info-row">
+                                <div class="label">Fecha Fin</div>
+                                <div class="value">
+                                    <t t-if="docs[0].fecha_fin" 
+                                       t-esc="docs[0].fecha_fin.strftime('%d/%m/%Y %H:%M')"/>
+                                    <t t-else="">—</t>
+                                </div>
                             </div>
-                            <div class="col-3">
-                                <div class="label">Ubicación</div>
-                                <div class="value"><t t-esc="doc.ubicacion"/></div>
-                            </div>
-                            <div class="col-3">
-                                <div class="label">IP</div>
-                                <div class="value"><t t-esc="doc.ip_maquina or '—'"/></div>
+                            <div class="col-4 info-row">
+                                <div class="label">Duración (horas)</div>
+                                <div class="value">
+                                    <t t-esc="round(docs[0].duracion_real or 0, 2)"/> h
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- =================== SERVICIO =================== -->
-                    <div class="card">
-                        <div class="section-title">Detalle del Servicio</div>
-                        <div class="row">
-                            <div class="col-4">
-                                <div class="label">Problema Reportado</div>
-                                <div class="value"><t t-esc="doc.problema_reportado"/></div>
+                        <div class="row" style="margin-top: 1rem;">
+                            <div class="col-6 info-row">
+                                <div class="label">Tipo de Solución</div>
+                                <div class="value">
+                                    <t t-if="docs[0].solucion_aplicada">
+                                        <t t-esc="dict(docs[0]._fields['solucion_aplicada'].selection).get(docs[0].solucion_aplicada)"/>
+                                    </t>
+                                    <t t-else="">—</t>
+                                </div>
                             </div>
-                            <div class="col-4">
-                                <div class="label">Técnico</div>
-                                <div class="value"><t t-esc="doc.tecnico_id.name or '—'"/></div>
-                            </div>
-                            <div class="col-4">
-                                <div class="label">Estado</div>
-                                <span class="badge badge-ok">
-                                    <t t-esc="dict(doc._fields['estado'].selection).get(doc.estado)"/>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- =================== EJECUCIÓN =================== -->
-                    <div class="card">
-                        <div class="section-title">Ejecución</div>
-                        <div class="row">
-                            <div class="col-3">
-                                <div class="label">Inicio</div>
-                                <div class="value"><t t-esc="doc.fecha_inicio"/></div>
-                            </div>
-                            <div class="col-3">
-                                <div class="label">Fin</div>
-                                <div class="value"><t t-esc="doc.fecha_fin"/></div>
-                            </div>
-                            <div class="col-3">
-                                <div class="label">Duración (h)</div>
-                                <div class="value"><t t-esc="round(doc.duracion_real or 0, 2)"/></div>
-                            </div>
-                            <div class="col-3">
-                                <div class="label">SLA</div>
-                                <span class="badge"
-                                      t-att-class="doc.sla_cumplido and 'badge-ok' or 'badge-danger'">
-                                    <t t-esc="doc.sla_cumplido and 'Cumplido' or 'No Cumplido'"/>
-                                </span>
+                            <div class="col-6 info-row">
+                                <div class="label">SLA Cumplido</div>
+                                <div>
+                                    <span class="badge" 
+                                          t-att-class="docs[0].sla_cumplido and 'badge-success' or 'badge-danger'">
+                                        <t t-if="docs[0].sla_cumplido">✓ Cumplido</t>
+                                        <t t-else="">✗ No Cumplido</t>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- =================== TRABAJO REALIZADO =================== -->
-                    <t t-if="doc.trabajo_realizado">
-                        <div class="card">
-                            <div class="section-title">Trabajo Realizado</div>
-                            <p><t t-esc="doc.trabajo_realizado"/></p>
+                    <t t-if="docs[0].trabajo_realizado">
+                        <div class="card-container">
+                            <div class="section-title">
+                                <i class="fa fa-check-square-o"/>
+                                TRABAJO REALIZADO
+                            </div>
+                            <div class="text-content">
+                                <t t-esc="docs[0].trabajo_realizado"/>
+                            </div>
                         </div>
                     </t>
 
-                    <!-- =================== EVIDENCIAS =================== -->
-                    <t t-if="doc.foto_antes or doc.foto_despues">
-                        <div class="card">
-                            <div class="section-title">Evidencias</div>
-                            <div class="row image-box">
-                                <div class="col-6" t-if="doc.foto_antes">
-                                    <strong>Antes</strong><br/>
-                                    <img t-att-src="'data:image/png;base64,%s' % doc.foto_antes"/>
+                    <!-- =================== INSUMOS UTILIZADOS =================== -->
+                    <t t-if="docs[0].insumos_utilizados">
+                        <div class="card-container">
+                            <div class="section-title">
+                                <i class="fa fa-cubes"/>
+                                INSUMOS / REPUESTOS UTILIZADOS
+                            </div>
+                            <div class="text-content">
+                                <t t-esc="docs[0].insumos_utilizados"/>
+                            </div>
+                        </div>
+                    </t>
+
+                    <!-- =================== CONTADORES =================== -->
+                    <t t-if="docs[0].contador_bn or docs[0].contador_color">
+                        <div class="card-container">
+                            <div class="section-title">
+                                <i class="fa fa-tachometer"/>
+                                CONTADORES
+                            </div>
+                            <div class="row">
+                                <div class="col-4 info-row">
+                                    <div class="label">Contador B/N</div>
+                                    <div class="value">
+                                        <t t-esc="'{:,}'.format(docs[0].contador_bn or 0)"/>
+                                    </div>
                                 </div>
-                                <div class="col-6" t-if="doc.foto_despues">
-                                    <strong>Después</strong><br/>
-                                    <img t-att-src="'data:image/png;base64,%s' % doc.foto_despues"/>
+                                <div class="col-4 info-row">
+                                    <div class="label">Contador Color</div>
+                                    <div class="value">
+                                        <t t-esc="'{:,}'.format(docs[0].contador_color or 0)"/>
+                                    </div>
+                                </div>
+                                <div class="col-4 info-row">
+                                    <div class="label">Total</div>
+                                    <div class="value">
+                                        <t t-esc="'{:,}'.format(docs[0].contador_total or 0)"/>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </t>
 
-                    <!-- =================== FIRMA =================== -->
-                    <t t-if="doc.firma_cliente">
-                        <div class="card">
-                            <div class="section-title">Conformidad del Cliente</div>
-                            <p><strong><t t-esc="doc.nombre_firma"/></strong></p>
-                            <img t-att-src="'data:image/png;base64,%s' % doc.firma_cliente"
-                                 style="max-height:120px"/>
+                    <!-- =================== EVIDENCIAS FOTOGRÁFICAS =================== -->
+                    <t t-if="docs[0].foto_antes or docs[0].foto_despues">
+                        <div class="card-container">
+                            <div class="section-title">
+                                <i class="fa fa-camera"/>
+                                EVIDENCIAS FOTOGRÁFICAS
+                            </div>
+                            <div class="row">
+                                <div class="col-6" t-if="docs[0].foto_antes">
+                                    <div class="evidence-box">
+                                        <div class="evidence-label">ANTES DEL SERVICIO</div>
+                                        <img t-att-src="'data:image/png;base64,%s' % docs[0].foto_antes" 
+                                             alt="Foto Antes"/>
+                                    </div>
+                                </div>
+                                <div class="col-6" t-if="docs[0].foto_despues">
+                                    <div class="evidence-box">
+                                        <div class="evidence-label">DESPUÉS DEL SERVICIO</div>
+                                        <img t-att-src="'data:image/png;base64,%s' % docs[0].foto_despues" 
+                                             alt="Foto Después"/>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </t>
+
+                    <!-- =================== EVALUACIÓN DEL CLIENTE =================== -->
+                    <t t-if="docs[0].calificacion">
+                        <div class="card-container">
+                            <div class="section-title">
+                                <i class="fa fa-star"/>
+                                EVALUACIÓN DEL CLIENTE
+                            </div>
+                            <div class="row">
+                                <div class="col-12 info-row text-center">
+                                    <div class="calificacion-stars">
+                                        <t t-esc="'⭐' * int(docs[0].calificacion)"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <t t-if="docs[0].comentario_cliente">
+                                <div class="text-content" style="margin-top: 1rem;">
+                                    <t t-esc="docs[0].comentario_cliente"/>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+
+                    <!-- =================== FIRMAS =================== -->
+                    <div class="card-container">
+                        <div class="section-title">
+                            <i class="fa fa-pencil"/>
+                            FIRMAS Y CONFORMIDAD
+                        </div>
+                        <div class="row">
+                            <!-- Firma del Técnico -->
+                            <div class="col-6">
+                                <div class="signature-box">
+                                    <div class="signature-label">TÉCNICO</div>
+                                    <div class="signature-line"></div>
+                                    <div class="signature-name">
+                                        <t t-esc="docs[0].tecnico_id.name or '___________________'"/>
+                                    </div>
+                                    <div style="font-size: 10px; color: #64748b; margin-top: 0.3rem;">
+                                        Firma y Sello
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Firma del Cliente -->
+                            <div class="col-6">
+                                <div class="signature-box">
+                                    <div class="signature-label">CLIENTE</div>
+                                    <t t-if="docs[0].firma_cliente">
+                                        <img t-att-src="'data:image/png;base64,%s' % docs[0].firma_cliente" 
+                                             alt="Firma Cliente"/>
+                                    </t>
+                                    <div class="signature-line"></div>
+                                    <div class="signature-name">
+                                        <t t-esc="docs[0].nombre_firma or '___________________'"/>
+                                    </div>
+                                    <div style="font-size: 10px; color: #64748b; margin-top: 0.3rem;">
+                                        Firma y Conformidad
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- =================== FOOTER =================== -->
+                    <div class="footer-info">
+                        <p style="margin: 0;">
+                            <strong><t t-esc="docs[0].company_id.name"/></strong><br/>
+                            <t t-if="docs[0].company_id.phone">
+                                Tel: <t t-esc="docs[0].company_id.phone"/> |
+                            </t>
+                            <t t-if="docs[0].company_id.email">
+                                Email: <t t-esc="docs[0].company_id.email"/>
+                            </t>
+                        </p>
+                        <p style="margin: 0.5rem 0 0 0; font-size: 9px;">
+                            Este documento es válido como constancia del servicio técnico realizado
+                        </p>
+                    </div>
 
                 </div>
             </t>
