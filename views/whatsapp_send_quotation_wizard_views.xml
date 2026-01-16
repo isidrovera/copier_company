@@ -45,17 +45,19 @@
                         </group>
                         <group>
                             <field name="attach_pdf" widget="boolean_toggle"/>
-                            <label for="total_phones"/>
-                            <div>
-                                <field name="total_phones" class="oe_inline"/> números 
-                                (<field name="valid_phones" class="oe_inline text-success fw-bold"/> válidos)
+                            <label for="total_phones" string="Destinatarios"/>
+                            <div class="o_row">
+                                <field name="total_phones"/> números 
+                                <span class="text-muted">
+                                    (<span class="text-success fw-bold"><field name="valid_phones"/></span> válidos)
+                                </span>
                             </div>
                         </group>
                     </group>
                     
                     <notebook>
                         <!-- TAB 1: Destinatarios -->
-                        <page string="Destinatarios" name="recipients" decoration-bf="1">
+                        <page string="Destinatarios" name="recipients">
                             <field name="phone_line_ids" mode="tree">
                                 <list editable="bottom" multi_edit="1">
                                     <field name="sequence" widget="handle"/>
@@ -161,10 +163,6 @@
                                 <i class="fa fa-info-circle fa-2x me-3"/> 
                                 <div>
                                     La vista previa muestra cómo se verá el mensaje con los valores de la primera cotización seleccionada.
-                                    <span class="badge bg-primary ms-2" invisible="len(copier_company_ids) &lt;= 1">
-                                        +<field name="copier_company_ids" invisible="1"/>
-                                        <t t-esc="len(copier_company_ids) - 1"/> cotización(es) más
-                                    </span>
                                 </div>
                             </div>
                         </page>
