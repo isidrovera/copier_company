@@ -58,7 +58,7 @@
                     <notebook>
                         <!-- TAB 1: Destinatarios -->
                         <page string="Destinatarios" name="recipients">
-                            <field name="phone_line_ids" mode="tree">
+                            <field name="phone_line_ids" mode="list">
                                 <list editable="bottom" multi_edit="1">
                                     <field name="sequence" widget="handle"/>
                                     <field name="phone" required="1" placeholder="Ej: 987654321"/>
