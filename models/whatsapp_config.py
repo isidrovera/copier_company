@@ -432,7 +432,7 @@ Error: {str(e)}"""
                 'error': error_msg
             }
     
-    def send_media(self, phone, file_data, media_type='image', caption=''):
+    def send_media(self, phone, file_data, media_type='document', caption=''):
         """
         Enviar archivo multimedia
         
@@ -463,29 +463,35 @@ Error: {str(e)}"""
                 'video': '.mp4',
                 'audio': '.mp3'
             }
-            suffix = suffix_map.get(media_type, '.jpg')
+            suffix = suffix_map.get(media_type, '.pdf')
             
             with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp_file:
                 tmp_file.write(file_data)
                 tmp_path = tmp_file.name
             
             try:
+                # Determinar endpoint
                 endpoint_map = {
                     'image': '/api/send/image',
                     'document': '/api/send/document',
                     'video': '/api/send/video',
                     'audio': '/api/send/audio'
                 }
-                endpoint = endpoint_map.get(media_type, '/api/send/image')
+                endpoint = endpoint_map.get(media_type, '/api/send/document')
+                
+                _logger.info(f"📤 Enviando {media_type} a {phone} via {endpoint}")
                 
                 with open(tmp_path, 'rb') as file:
                     files = {
-                        'file': (f'file{suffix}', file, f'{media_type}/jpeg')
+                        'file': (f'file{suffix}', file, 'application/pdf' if media_type == 'document' else f'{media_type}/jpeg')
                     }
                     data = {
                         'number': phone,
                         'caption': caption
                     }
+                    
+                    _logger.info(f"🔗 API URL: {self.api_url}{endpoint}")
+                    _logger.info(f"📋 Data: number={phone}, caption_length={len(caption)}")
                     
                     response = requests.post(
                         f"{self.api_url}{endpoint}",
@@ -494,6 +500,9 @@ Error: {str(e)}"""
                         data=data,
                         timeout=30
                     )
+                    
+                    _logger.info(f"📡 Response Status: {response.status_code}")
+                    _logger.info(f"📡 Response Body: {response.text}")
                     
                     if response.status_code == 200:
                         result = response.json()
@@ -513,18 +522,22 @@ Error: {str(e)}"""
                                 'error': None
                             }
                         else:
+                            error_msg = result.get('message', 'Error desconocido')
                             self.write({'total_messages_failed': self.total_messages_failed + 1})
+                            _logger.error(f"❌ API returned success=false: {error_msg}")
                             return {
                                 'success': False,
                                 'message_id': None,
-                                'error': result.get('message', 'Error desconocido')
+                                'error': error_msg
                             }
                     else:
+                        error_msg = f"HTTP {response.status_code}: {response.text}"
                         self.write({'total_messages_failed': self.total_messages_failed + 1})
+                        _logger.error(f"❌ HTTP Error: {error_msg}")
                         return {
                             'success': False,
                             'message_id': None,
-                            'error': f"HTTP {response.status_code}"
+                            'error': error_msg
                         }
                         
             finally:
@@ -534,7 +547,7 @@ Error: {str(e)}"""
             
         except Exception as e:
             self.write({'total_messages_failed': self.total_messages_failed + 1})
-            _logger.exception("Error enviando media: %s", str(e))
+            _logger.exception("❌ Exception enviando media: %s", str(e))
             return {
                 'success': False,
                 'message_id': None,

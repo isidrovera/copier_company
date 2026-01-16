@@ -136,7 +136,7 @@ class WhatsAppSendQuotationWizard(models.TransientModel):
         
         # Cargar números de teléfono si hay cotizaciones en contexto
         if 'phone_line_ids' in fields_list:
-            copier_ids = self._context.get('default_copier_company_ids')
+            copier_ids = self.env.context.get('default_copier_company_ids')
             if copier_ids and isinstance(copier_ids, list) and copier_ids[0][2]:
                 phone_lines = self._prepare_phone_lines(copier_ids[0][2])
                 res['phone_line_ids'] = phone_lines
