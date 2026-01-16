@@ -535,3 +535,157 @@ class ServiceRequestPortal(CustomerPortal):
         except Exception as e:
             _logger.exception("Error en portal_my_services: %s", str(e))
             return request.redirect('/my')
+    # ========================================
+    # RUTAS PÚBLICAS CON TOKEN
+    # ========================================
+    
+    @http.route(['/service/track/<string:token>'], type='http', auth='public', website=True)
+    def public_track_service(self, token, **kw):
+        """Página pública de seguimiento de servicio (sin login)"""
+        _logger.info("=== INICIANDO public_track_service ===")
+        _logger.info("Token recibido: %s", token[:8] + "..." if len(token) > 8 else token)
+        
+        try:
+            # Buscar solicitud por token
+            service = request.env['copier.service.request'].sudo().search([
+                ('tracking_token', '=', token)
+            ], limit=1)
+            
+            if not service:
+                _logger.warning("Token de seguimiento no válido: %s", token[:8] + "...")
+                return request.render('copier_company.public_service_track_error', {
+                    'error_title': _('Enlace no válido'),
+                    'error_message': _('El enlace de seguimiento no es válido o ha expirado.'),
+                })
+            
+            _logger.info("Solicitud encontrada: %s (ID: %s)", service.name, service.id)
+            
+            # Obtener datos de seguimiento
+            tracking_data = service.get_tracking_data()
+            
+            values = {
+                'service': service,
+                'tracking_data': tracking_data,
+                'page_title': _('Seguimiento de Servicio'),
+            }
+            
+            _logger.info("Renderizando página de seguimiento para solicitud %s", service.name)
+            return request.render('copier_company.public_service_track', values)
+            
+        except Exception as e:
+            _logger.exception("Error en public_track_service: %s", str(e))
+            return request.render('copier_company.public_service_track_error', {
+                'error_title': _('Error'),
+                'error_message': _('Ocurrió un error al cargar el seguimiento. Por favor intenta más tarde.'),
+            })
+    
+    @http.route(['/service/evaluate/<string:token>'], type='http', auth='public', website=True, methods=['GET', 'POST'])
+    def public_evaluate_service(self, token, **kw):
+        """Página pública de evaluación de servicio (sin login)"""
+        _logger.info("=== INICIANDO public_evaluate_service ===")
+        _logger.info("Token recibido: %s, Método: %s", token[:8] + "...", request.httprequest.method)
+        
+        try:
+            # Buscar solicitud por token
+            service = request.env['copier.service.request'].sudo().search([
+                ('evaluation_token', '=', token)
+            ], limit=1)
+            
+            if not service:
+                _logger.warning("Token de evaluación no válido: %s", token[:8] + "...")
+                return request.render('copier_company.public_service_evaluation_error', {
+                    'error_title': _('Enlace no válido'),
+                    'error_message': _('El enlace de evaluación no es válido o ha expirado.'),
+                })
+            
+            # Verificar que esté completado
+            if service.estado != 'completado':
+                _logger.warning("Intento de evaluar servicio no completado: %s", service.name)
+                return request.render('copier_company.public_service_evaluation_error', {
+                    'error_title': _('Servicio no completado'),
+                    'error_message': _('Este servicio aún no ha sido completado. Podrás evaluarlo una vez finalizado.'),
+                    'service': service,
+                })
+            
+            # Verificar que no esté ya evaluado
+            if service.calificacion:
+                _logger.info("Servicio %s ya fue evaluado", service.name)
+                return request.render('copier_company.public_service_evaluation_already_done', {
+                    'service': service,
+                    'calificacion': service.calificacion,
+                    'comentario': service.comentario_cliente,
+                })
+            
+            # Verificar que el token no haya sido usado
+            if service.evaluation_token_used:
+                _logger.warning("Token de evaluación ya usado: %s", token[:8] + "...")
+                return request.render('copier_company.public_service_evaluation_error', {
+                    'error_title': _('Enlace ya utilizado'),
+                    'error_message': _('Este enlace de evaluación ya fue utilizado. Solo se puede usar una vez.'),
+                })
+            
+            # Si es POST, procesar la evaluación
+            if request.httprequest.method == 'POST':
+                _logger.info("Procesando evaluación POST para servicio %s", service.name)
+                
+                try:
+                    calificacion = kw.get('calificacion', '').strip()
+                    comentario = kw.get('comentario', '').strip()
+                    
+                    # Validar calificación
+                    if not calificacion or calificacion not in ['1', '2', '3', '4', '5']:
+                        return request.render('copier_company.public_service_evaluation_form', {
+                            'service': service,
+                            'token': token,
+                            'error_message': _('Por favor selecciona una calificación.'),
+                            'comentario': comentario,
+                        })
+                    
+                    # Registrar evaluación
+                    service.registrar_evaluacion_publica(calificacion, comentario)
+                    
+                    _logger.info("✅ Evaluación registrada: %s estrellas para servicio %s", 
+                                calificacion, service.name)
+                    
+                    # Mostrar página de agradecimiento
+                    return request.render('copier_company.public_service_evaluation_thanks', {
+                        'service': service,
+                        'calificacion': calificacion,
+                        'comentario': comentario,
+                    })
+                    
+                except Exception as e:
+                    _logger.exception("Error procesando evaluación: %s", str(e))
+                    return request.render('copier_company.public_service_evaluation_form', {
+                        'service': service,
+                        'token': token,
+                        'error_message': _('Ocurrió un error al guardar tu evaluación. Por favor intenta nuevamente.'),
+                    })
+            
+            # GET: Mostrar formulario de evaluación
+            _logger.info("Mostrando formulario de evaluación para servicio %s", service.name)
+            
+            values = {
+                'service': service,
+                'token': token,
+                'page_title': _('Evaluar Servicio'),
+            }
+            
+            return request.render('copier_company.public_service_evaluation_form', values)
+            
+        except Exception as e:
+            _logger.exception("Error en public_evaluate_service: %s", str(e))
+            return request.render('copier_company.public_service_evaluation_error', {
+                'error_title': _('Error'),
+                'error_message': _('Ocurrió un error al cargar la evaluación. Por favor intenta más tarde.'),
+            })
+    
+    # ========================================
+    # MÉTODO AUXILIAR
+    # ========================================
+    
+    def _safe_get_text(self, value):
+        """Helper para obtener texto seguro"""
+        if not value:
+            return ''
+        return str(value).strip() if value else ''

@@ -439,6 +439,11 @@ Tu solicitud *{number}* ha sido completada exitosamente.
 
 ✅ *Trabajo realizado:*
 {work_done}
+📄 *Ver detalles del servicio:*
+{tracking_url}
+
+⭐ *Califica nuestro servicio aquí:*
+{evaluation_url}
 
 ⏰ Finalizado: {time}
 👨‍🔧 Técnico: {technician}
@@ -479,7 +484,8 @@ Hola {contact},
 
 Hace unos días completamos el servicio de tu equipo (Solicitud *{number}*).
 
-📝 *¿Nos ayudas con tu opinión?*
+📝 Evalúa aquí (toma menos de 1 minuto):
+{evaluation_url}
 Tu evaluación nos ayuda a mejorar nuestro servicio.
 
 _¡Gracias por tu tiempo!_ 🙏""",
@@ -569,6 +575,8 @@ class CopierServiceRequest(models.Model):
                 'contact': self.contacto or 'N/A',
                 'phone': self.telefono_contacto or 'N/A',
                 'time': fields.Datetime.now().strftime('%d/%m/%Y %H:%M'),
+                'tracking_url': self.tracking_url or '',
+                'evaluation_url': self.evaluation_url or '',
             }
             
             # Agregar variables adicionales

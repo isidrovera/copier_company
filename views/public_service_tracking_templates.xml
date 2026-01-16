@@ -1,0 +1,969 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- ========================================== -->
+    <!-- ASSETS: CSS Y JS -->
+    <!-- ========================================== -->
+    
+    <template id="assets_public_service_tracking" name="Service Tracking Assets">
+        <!-- Bootstrap 5 -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" 
+              rel="stylesheet"/>
+        
+        <!-- Bootstrap Icons -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" 
+              rel="stylesheet"/>
+        
+        <!-- Anime.js v4 -->
+        <script type="module">
+            import { waapi, stagger } from 'https://cdn.jsdelivr.net/npm/animejs@4.0.0-beta.102/+esm';
+            
+            // Animación de entrada para las tarjetas
+            waapi.animate('.animate-card', {
+                opacity: [0, 1],
+                translateY: ['2rem', 0],
+                delay: stagger(100),
+                duration: 600,
+                ease: 'outQuad'
+            });
+            
+            // Animación para el timeline
+            waapi.animate('.timeline-item', {
+                opacity: [0, 1],
+                translateX: ['-2rem', 0],
+                delay: stagger(150),
+                duration: 500,
+                ease: 'outCubic'
+            });
+            
+            // Animación para badges
+            waapi.animate('.badge-animated', {
+                scale: [0.8, 1],
+                opacity: [0, 1],
+                duration: 400,
+                ease: 'outBack'
+            });
+        </script>
+        
+        <!-- Custom Styles -->
+        <style>
+            :root {
+                --primary-color: #2563eb;
+                --secondary-color: #7c3aed;
+                --success-color: #10b981;
+                --warning-color: #f59e0b;
+                --danger-color: #ef4444;
+                --info-color: #06b6d4;
+                --dark-color: #1e293b;
+                --light-color: #f8fafc;
+                --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            }
+            
+            body {
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                padding: 2rem 0;
+            }
+            
+            .service-container {
+                max-width: 900px;
+                margin: 0 auto;
+            }
+            
+            .card-modern {
+                border: none;
+                border-radius: 1rem;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+                overflow: hidden;
+                backdrop-filter: blur(10px);
+                background: rgba(255, 255, 255, 0.95);
+            }
+            
+            .card-header-modern {
+                background: var(--gradient-primary);
+                color: white;
+                padding: 2rem;
+                border: none;
+            }
+            
+            .status-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.75rem 1.5rem;
+                border-radius: 2rem;
+                font-weight: 600;
+                font-size: 1rem;
+            }
+            
+            .status-badge.nuevo { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+            .status-badge.asignado { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+            .status-badge.confirmado { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+            .status-badge.en_ruta { background: linear-gradient(135deg, #f59e0b, #d97706); }
+            .status-badge.en_sitio { background: linear-gradient(135deg, #10b981, #059669); }
+            .status-badge.completado { background: linear-gradient(135deg, #22c55e, #16a34a); }
+            .status-badge.pausado { background: linear-gradient(135deg, #f59e0b, #d97706); }
+            .status-badge.cancelado { background: linear-gradient(135deg, #ef4444, #dc2626); }
+            
+            .timeline {
+                position: relative;
+                padding-left: 3rem;
+            }
+            
+            .timeline::before {
+                content: '';
+                position: absolute;
+                left: 0.75rem;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+            }
+            
+            .timeline-item {
+                position: relative;
+                padding-bottom: 2rem;
+            }
+            
+            .timeline-item:last-child {
+                padding-bottom: 0;
+            }
+            
+            .timeline-icon {
+                position: absolute;
+                left: -2.25rem;
+                width: 2.5rem;
+                height: 2.5rem;
+                border-radius: 50%;
+                background: white;
+                border: 3px solid var(--primary-color);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1rem;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            }
+            
+            .timeline-item.completed .timeline-icon {
+                background: var(--gradient-success);
+                border-color: var(--success-color);
+                color: white;
+            }
+            
+            .info-row {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding: 1rem;
+                border-radius: 0.75rem;
+                background: var(--light-color);
+                margin-bottom: 1rem;
+                transition: all 0.3s ease;
+            }
+            
+            .info-row:hover {
+                transform: translateX(0.5rem);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            }
+            
+            .info-icon {
+                width: 3rem;
+                height: 3rem;
+                border-radius: 0.75rem;
+                background: var(--gradient-primary);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 1.5rem;
+            }
+            
+            .pulse {
+                animation: pulse 2s infinite;
+            }
+            
+            @keyframes pulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.6; }
+            }
+            
+            .btn-modern {
+                padding: 1rem 2rem;
+                border-radius: 0.75rem;
+                font-weight: 600;
+                border: none;
+                transition: all 0.3s ease;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            
+            .btn-modern:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            }
+            
+            .btn-primary-modern {
+                background: var(--gradient-primary);
+                color: white;
+            }
+            
+            .btn-success-modern {
+                background: var(--gradient-success);
+                color: white;
+            }
+            
+            @media (max-width: 768px) {
+                body {
+                    padding: 1rem 0;
+                }
+                
+                .service-container {
+                    padding: 0 1rem;
+                }
+                
+                .card-header-modern {
+                    padding: 1.5rem;
+                }
+            }
+        </style>
+    </template>
+    
+    <!-- ========================================== -->
+    <!-- TEMPLATE: SEGUIMIENTO PÚBLICO -->
+    <!-- ========================================== -->
+    
+    <template id="public_service_track" name="Public Service Tracking">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            
+            <!-- Assets -->
+            <t t-call-assets="copier_company.assets_public_service_tracking"/>
+            
+            <div class="service-container">
+                <!-- Header Card -->
+                <div class="card card-modern animate-card mb-4">
+                    <div class="card-header-modern text-center">
+                        <h1 class="mb-3">
+                            <i class="bi bi-search"></i>
+                            Seguimiento de Servicio
+                        </h1>
+                        <h2 class="h4 mb-0 opacity-90">
+                            <i class="bi bi-hash"></i>
+                            <t t-esc="tracking_data['numero']"/>
+                        </h2>
+                    </div>
+                    
+                    <div class="card-body p-4">
+                        <!-- Estado Actual -->
+                        <div class="text-center mb-4">
+                            <div t-attf-class="status-badge badge-animated text-white {{ tracking_data['estado_key'] }}">
+                                <span t-esc="tracking_data['estado_icon']"/>
+                                <span t-esc="tracking_data['estado']"/>
+                            </div>
+                        </div>
+                        
+                        <!-- Información del Servicio -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">
+                                <i class="bi bi-info-circle"></i>
+                                Información del Servicio
+                            </h5>
+                            
+                            <div class="info-row">
+                                <div class="info-icon">
+                                    <i class="bi bi-calendar3"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <small class="text-muted d-block">Fecha de Creación</small>
+                                    <strong t-esc="tracking_data['fecha_creacion'].strftime('%d/%m/%Y %H:%M')"/>
+                                </div>
+                            </div>
+                            
+                            <div class="info-row">
+                                <div class="info-icon">
+                                    <i class="bi bi-building"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <small class="text-muted d-block">Cliente</small>
+                                    <strong t-esc="tracking_data['cliente']"/>
+                                </div>
+                            </div>
+                            
+                            <div class="info-row">
+                                <div class="info-icon">
+                                    <i class="bi bi-printer"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <small class="text-muted d-block">Equipo</small>
+                                    <strong t-esc="tracking_data['equipo']"/>
+                                    <small class="text-muted d-block">Serie: <t t-esc="tracking_data['serie']"/></small>
+                                </div>
+                            </div>
+                            
+                            <div class="info-row">
+                                <div class="info-icon">
+                                    <i class="bi bi-geo-alt"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <small class="text-muted d-block">Ubicación</small>
+                                    <strong t-esc="tracking_data['ubicacion']"/>
+                                </div>
+                            </div>
+                            
+                            <div class="info-row">
+                                <div class="info-icon">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <small class="text-muted d-block">Problema Reportado</small>
+                                    <strong t-esc="tracking_data['problema']"/>
+                                </div>
+                            </div>
+                            
+                            <div class="info-row" t-if="tracking_data['tecnico'] != 'Por asignar'">
+                                <div class="info-icon">
+                                    <i class="bi bi-person-gear"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <small class="text-muted d-block">Técnico Asignado</small>
+                                    <strong t-esc="tracking_data['tecnico']"/>
+                                    <small class="text-muted d-block" t-if="tracking_data['tecnico_telefono']">
+                                        <i class="bi bi-telephone"></i>
+                                        <t t-esc="tracking_data['tecnico_telefono']"/>
+                                    </small>
+                                </div>
+                            </div>
+                            
+                            <div class="info-row" t-if="tracking_data['fecha_programada']">
+                                <div class="info-icon pulse">
+                                    <i class="bi bi-clock"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <small class="text-muted d-block">Fecha Programada</small>
+                                    <strong t-esc="tracking_data['fecha_programada'].strftime('%d/%m/%Y %H:%M')"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Timeline -->
+                        <div class="mb-4" t-if="tracking_data['timeline']">
+                            <h5 class="mb-3">
+                                <i class="bi bi-clock-history"></i>
+                                Historial
+                            </h5>
+                            
+                            <div class="timeline">
+                                <t t-foreach="tracking_data['timeline']" t-as="event">
+                                    <div t-attf-class="timeline-item {{ 'completed' if event['completed'] else '' }}">
+                                        <div class="timeline-icon">
+                                            <span t-esc="event['icon']"/>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-1" t-esc="event['titulo']"/>
+                                            <p class="mb-1 text-muted" t-esc="event['descripcion']"/>
+                                            <small class="text-muted">
+                                                <i class="bi bi-calendar3"></i>
+                                                <t t-esc="event['fecha'].strftime('%d/%m/%Y %H:%M')"/>
+                                            </small>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                        
+                        <!-- Trabajo Realizado (si está completado) -->
+                        <div class="alert alert-success d-flex align-items-start gap-3" 
+                             t-if="tracking_data['trabajo_realizado']">
+                            <i class="bi bi-check-circle-fill fs-3"></i>
+                            <div>
+                                <h6 class="alert-heading mb-2">Trabajo Realizado</h6>
+                                <p class="mb-0" t-esc="tracking_data['trabajo_realizado']"/>
+                            </div>
+                        </div>
+                        
+                        <!-- Botón Evaluar (si está completado y no evaluado) -->
+                        <div class="text-center mt-4" t-if="tracking_data['puede_evaluar']">
+                            <a t-attf-href="/service/evaluate/{{ service.evaluation_token }}" 
+                               class="btn btn-success-modern btn-lg">
+                                <i class="bi bi-star-fill"></i>
+                                Evaluar Servicio
+                            </a>
+                        </div>
+                        
+                        <!-- Mensaje Ya Evaluado -->
+                        <div class="alert alert-info d-flex align-items-center gap-3" 
+                             t-if="tracking_data['ya_evaluado']">
+                            <i class="bi bi-star-fill fs-3"></i>
+                            <div>
+                                <strong>¡Gracias por tu evaluación!</strong>
+                                <p class="mb-0">Tu opinión nos ayuda a mejorar.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Footer -->
+                <div class="text-center text-white mt-4">
+                    <small class="opacity-75">
+                        <i class="bi bi-shield-check"></i>
+                        Enlace seguro - Copier Company S.A.C.
+                    </small>
+                </div>
+            </div>
+        </t>
+    </template>
+    
+    <!-- ========================================== -->
+    <!-- TEMPLATE: ERROR DE SEGUIMIENTO -->
+    <!-- ========================================== -->
+    
+    <template id="public_service_track_error" name="Service Track Error">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            
+            <t t-call-assets="copier_company.assets_public_service_tracking"/>
+            
+            <div class="service-container">
+                <div class="card card-modern animate-card">
+                    <div class="card-body text-center p-5">
+                        <i class="bi bi-exclamation-triangle text-warning" style="font-size: 5rem;"></i>
+                        <h2 class="mt-4" t-esc="error_title"/>
+                        <p class="text-muted lead" t-esc="error_message"/>
+                        <a href="/" class="btn btn-primary-modern mt-3">
+                            <i class="bi bi-house"></i>
+                            Ir al Inicio
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+    <!-- ========================================== -->
+    <!-- TEMPLATE: FORMULARIO DE EVALUACIÓN -->
+    <!-- ========================================== -->
+    
+    <template id="public_service_evaluation_form" name="Service Evaluation Form">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            
+            <t t-call-assets="copier_company.assets_public_service_tracking"/>
+            
+            <!-- Estilos adicionales para el formulario de evaluación -->
+            <style>
+                .star-rating {
+                    display: flex;
+                    gap: 0.5rem;
+                    justify-content: center;
+                    margin: 2rem 0;
+                }
+                
+                .star-rating input[type="radio"] {
+                    display: none;
+                }
+                
+                .star-rating label {
+                    font-size: 3rem;
+                    cursor: pointer;
+                    color: #cbd5e1;
+                    transition: all 0.3s ease;
+                    transform: scale(1);
+                }
+                
+                .star-rating label:hover,
+                .star-rating label:hover ~ label,
+                .star-rating input[type="radio"]:checked ~ label {
+                    color: #fbbf24;
+                    transform: scale(1.1);
+                }
+                
+                .star-rating input[type="radio"]:checked + label {
+                    color: #f59e0b;
+                }
+                
+                .rating-label {
+                    text-align: center;
+                    font-size: 1.25rem;
+                    font-weight: 600;
+                    color: var(--dark-color);
+                    min-height: 2rem;
+                    margin-top: 1rem;
+                }
+                
+                .textarea-modern {
+                    border: 2px solid #e2e8f0;
+                    border-radius: 1rem;
+                    padding: 1rem;
+                    transition: all 0.3s ease;
+                    font-size: 1rem;
+                }
+                
+                .textarea-modern:focus {
+                    outline: none;
+                    border-color: var(--primary-color);
+                    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+                }
+            </style>
+            
+            <script type="module">
+                import { waapi } from 'https://cdn.jsdelivr.net/npm/animejs@4.0.0-beta.102/+esm';
+                
+                // Animación de entrada
+                waapi.animate('.evaluation-card', {
+                    opacity: [0, 1],
+                    scale: [0.9, 1],
+                    duration: 600,
+                    ease: 'outBack'
+                });
+                
+                // Interactividad de estrellas
+                document.addEventListener('DOMContentLoaded', function() {
+                    const stars = document.querySelectorAll('.star-rating label');
+                    const ratingLabels = {
+                        '1': '⭐ Muy Malo',
+                        '2': '⭐⭐ Malo',
+                        '3': '⭐⭐⭐ Regular',
+                        '4': '⭐⭐⭐⭐ Bueno',
+                        '5': '⭐⭐⭐⭐⭐ Excelente'
+                    };
+                    const ratingLabelElement = document.getElementById('ratingLabel');
+                    
+                    stars.forEach(star =&gt; {
+                        star.addEventListener('mouseenter', function() {
+                            const rating = this.getAttribute('data-rating');
+                            ratingLabelElement.textContent = ratingLabels[rating];
+                            
+                            waapi.animate(ratingLabelElement, {
+                                scale: [0.8, 1],
+                                opacity: [0, 1],
+                                duration: 300,
+                                ease: 'outQuad'
+                            });
+                        });
+                        
+                        star.addEventListener('click', function() {
+                            const rating = this.getAttribute('data-rating');
+                            ratingLabelElement.textContent = ratingLabels[rating];
+                            
+                            waapi.animate(this, {
+                                scale: [1, 1.3, 1],
+                                duration: 400,
+                                ease: 'outElastic'
+                            });
+                        });
+                    });
+                    
+                    // Limpiar label al salir del área de estrellas
+                    document.querySelector('.star-rating').addEventListener('mouseleave', function() {
+                        const checkedStar = document.querySelector('.star-rating input:checked');
+                        if (!checkedStar) {
+                            ratingLabelElement.textContent = 'Selecciona tu calificación';
+                        }
+                    });
+                });
+            </script>
+            
+            <div class="service-container">
+                <div class="card card-modern evaluation-card">
+                    <div class="card-header-modern text-center">
+                        <i class="bi bi-star-fill" style="font-size: 3rem;"></i>
+                        <h1 class="mt-3 mb-2">Evaluar Servicio</h1>
+                        <p class="mb-0 opacity-90">
+                            Tu opinión nos ayuda a mejorar
+                        </p>
+                    </div>
+                    
+                    <div class="card-body p-4">
+                        <!-- Información del Servicio -->
+                        <div class="alert alert-light d-flex align-items-start gap-3 mb-4">
+                            <i class="bi bi-info-circle fs-4 text-primary"></i>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-2">Servicio Completado</h6>
+                                <div class="small">
+                                    <div><strong>Solicitud:</strong> <t t-esc="service.name"/></div>
+                                    <div><strong>Equipo:</strong> <t t-esc="service.modelo_maquina.name"/></div>
+                                    <div><strong>Técnico:</strong> <t t-esc="service.tecnico_id.name"/></div>
+                                    <div><strong>Finalizado:</strong> <t t-esc="service.fecha_fin.strftime('%d/%m/%Y %H:%M')"/></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Mensaje de Error -->
+                        <div class="alert alert-danger d-flex align-items-center gap-2" t-if="error_message">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <span t-esc="error_message"/>
+                        </div>
+                        
+                        <!-- Formulario -->
+                        <form method="POST" t-attf-action="/service/evaluate/{{ token }}">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            
+                            <!-- Calificación con Estrellas -->
+                            <div class="mb-4">
+                                <h5 class="text-center mb-4">
+                                    ¿Cómo calificas el servicio recibido?
+                                </h5>
+                                
+                                <div class="star-rating">
+                                    <input type="radio" name="calificacion" value="5" id="star5"/>
+                                    <label for="star5" data-rating="5">★</label>
+                                    
+                                    <input type="radio" name="calificacion" value="4" id="star4"/>
+                                    <label for="star4" data-rating="4">★</label>
+                                    
+                                    <input type="radio" name="calificacion" value="3" id="star3"/>
+                                    <label for="star3" data-rating="3">★</label>
+                                    
+                                    <input type="radio" name="calificacion" value="2" id="star2"/>
+                                    <label for="star2" data-rating="2">★</label>
+                                    
+                                    <input type="radio" name="calificacion" value="1" id="star1"/>
+                                    <label for="star1" data-rating="1">★</label>
+                                </div>
+                                
+                                <div class="rating-label" id="ratingLabel">
+                                    Selecciona tu calificación
+                                </div>
+                            </div>
+                            
+                            <!-- Comentario -->
+                            <div class="mb-4">
+                                <label for="comentario" class="form-label">
+                                    <i class="bi bi-chat-left-text"></i>
+                                    Comentarios adicionales (opcional)
+                                </label>
+                                <textarea 
+                                    class="form-control textarea-modern" 
+                                    id="comentario" 
+                                    name="comentario" 
+                                    rows="4" 
+                                    placeholder="Cuéntanos sobre tu experiencia..."
+                                    t-att-value="comentario or ''"></textarea>
+                                <small class="text-muted">
+                                    <i class="bi bi-info-circle"></i>
+                                    Tus comentarios son confidenciales y nos ayudan a mejorar
+                                </small>
+                            </div>
+                            
+                            <!-- Botones -->
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success-modern btn-lg">
+                                    <i class="bi bi-send-fill"></i>
+                                    Enviar Evaluación
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Footer -->
+                <div class="text-center text-white mt-4">
+                    <small class="opacity-75">
+                        <i class="bi bi-shield-check"></i>
+                        Enlace seguro - Copier Company S.A.C.
+                    </small>
+                </div>
+            </div>
+        </t>
+    </template>
+    
+    <!-- ========================================== -->
+    <!-- TEMPLATE: GRACIAS POR EVALUAR -->
+    <!-- ========================================== -->
+    
+    <template id="public_service_evaluation_thanks" name="Evaluation Thank You">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            
+            <t t-call-assets="copier_company.assets_public_service_tracking"/>
+            
+            <script type="module">
+                import { waapi } from 'https://cdn.jsdelivr.net/npm/animejs@4.0.0-beta.102/+esm';
+                
+                // Animación de confetti
+                waapi.animate('.success-icon', {
+                    scale: [0, 1.2, 1],
+                    rotate: [0, 360],
+                    duration: 800,
+                    ease: 'outElastic'
+                });
+                
+                waapi.animate('.success-card', {
+                    opacity: [0, 1],
+                    translateY: ['3rem', 0],
+                    duration: 600,
+                    ease: 'outCubic'
+                });
+            </script>
+            
+            <style>
+                .success-icon {
+                    font-size: 6rem;
+                    color: #10b981;
+                    display: inline-block;
+                }
+                
+                .stars-display {
+                    font-size: 2.5rem;
+                    color: #f59e0b;
+                    margin: 1.5rem 0;
+                }
+            </style>
+            
+            <div class="service-container">
+                <div class="card card-modern success-card">
+                    <div class="card-body text-center p-5">
+                        <div class="success-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        
+                        <h1 class="mt-4 mb-3">¡Gracias por tu evaluación!</h1>
+                        
+                        <div class="stars-display">
+                            <t t-if="calificacion == '5'">⭐⭐⭐⭐⭐</t>
+                            <t t-elif="calificacion == '4'">⭐⭐⭐⭐</t>
+                            <t t-elif="calificacion == '3'">⭐⭐⭐</t>
+                            <t t-elif="calificacion == '2'">⭐⭐</t>
+                            <t t-else="">⭐</t>
+                        </div>
+                        
+                        <p class="lead text-muted mb-4">
+                            Tu opinión nos ayuda a mejorar nuestros servicios
+                        </p>
+                        
+                        <!-- Resumen -->
+                        <div class="alert alert-light text-start mb-4">
+                            <h6 class="mb-3">
+                                <i class="bi bi-receipt"></i>
+                                Resumen del Servicio
+                            </h6>
+                            <div class="small">
+                                <div class="mb-2">
+                                    <strong>Solicitud:</strong> <t t-esc="service.name"/>
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Equipo:</strong> <t t-esc="service.modelo_maquina.name"/>
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Técnico:</strong> <t t-esc="service.tecnico_id.name"/>
+                                </div>
+                                <div class="mb-2" t-if="comentario">
+                                    <strong>Tu comentario:</strong><br/>
+                                    <em class="text-muted" t-esc="comentario"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Mensaje de agradecimiento personalizado según calificación -->
+                        <div class="alert alert-success" t-if="calificacion in ['4', '5']">
+                            <i class="bi bi-emoji-smile-fill"></i>
+                            <strong>¡Excelente!</strong> Nos alegra que hayas tenido una buena experiencia.
+                        </div>
+                        
+                        <div class="alert alert-info" t-elif="calificacion == '3'">
+                            <i class="bi bi-emoji-neutral-fill"></i>
+                            <strong>Gracias por tu opinión.</strong> Trabajaremos para mejorar tu experiencia.
+                        </div>
+                        
+                        <div class="alert alert-warning" t-else="">
+                            <i class="bi bi-emoji-frown-fill"></i>
+                            <strong>Lamentamos no haber cumplido tus expectativas.</strong><br/>
+                            Nuestro equipo revisará tu comentario para mejorar.
+                        </div>
+                        
+                        <!-- Información de contacto -->
+                        <div class="mt-4 p-4 bg-light rounded">
+                            <h6 class="mb-3">
+                                <i class="bi bi-headset"></i>
+                                ¿Necesitas algo más?
+                            </h6>
+                            <p class="small text-muted mb-2">
+                                Estamos aquí para ayudarte
+                            </p>
+                            <div class="d-flex gap-3 justify-content-center">
+                                <a href="tel:+51975399303" class="btn btn-outline-primary">
+                                    <i class="bi bi-telephone"></i>
+                                    Llamar
+                                </a>
+                                <a href="mailto:soporte@copiercompanysac.com" class="btn btn-outline-primary">
+                                    <i class="bi bi-envelope"></i>
+                                    Email
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Footer -->
+                <div class="text-center text-white mt-4">
+                    <small class="opacity-75">
+                        <i class="bi bi-shield-check"></i>
+                        Copier Company S.A.C. - Comprometidos con la excelencia
+                    </small>
+                </div>
+            </div>
+        </t>
+    </template>
+    
+    <!-- ========================================== -->
+    <!-- TEMPLATE: YA EVALUADO -->
+    <!-- ========================================== -->
+    
+    <template id="public_service_evaluation_already_done" name="Already Evaluated">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            
+            <t t-call-assets="copier_company.assets_public_service_tracking"/>
+            
+            <script type="module">
+                import { waapi } from 'https://cdn.jsdelivr.net/npm/animejs@4.0.0-beta.102/+esm';
+                
+                waapi.animate('.already-done-card', {
+                    opacity: [0, 1],
+                    scale: [0.95, 1],
+                    duration: 500,
+                    ease: 'outQuad'
+                });
+            </script>
+            
+            <div class="service-container">
+                <div class="card card-modern already-done-card">
+                    <div class="card-body text-center p-5">
+                        <i class="bi bi-check-circle text-success" style="font-size: 5rem;"></i>
+                        
+                        <h2 class="mt-4 mb-3">Servicio Ya Evaluado</h2>
+                        
+                        <p class="lead text-muted">
+                            Ya has evaluado este servicio anteriormente
+                        </p>
+                        
+                        <div class="alert alert-light text-start mt-4">
+                            <h6 class="mb-3">
+                                <i class="bi bi-star-fill text-warning"></i>
+                                Tu Evaluación Anterior
+                            </h6>
+                            
+                            <div class="mb-3">
+                                <strong>Calificación:</strong>
+                                <div class="mt-2" style="font-size: 1.5rem; color: #f59e0b;">
+                                    <t t-if="calificacion == '5'">⭐⭐⭐⭐⭐</t>
+                                    <t t-elif="calificacion == '4'">⭐⭐⭐⭐</t>
+                                    <t t-elif="calificacion == '3'">⭐⭐⭐</t>
+                                    <t t-elif="calificacion == '2'">⭐⭐</t>
+                                    <t t-else="">⭐</t>
+                                </div>
+                            </div>
+                            
+                            <div t-if="comentario">
+                                <strong>Tu comentario:</strong>
+                                <p class="mt-2 mb-0 text-muted">
+                                    <em t-esc="comentario"/>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info mt-4">
+                            <i class="bi bi-info-circle"></i>
+                            Las evaluaciones solo se pueden realizar una vez por servicio
+                        </div>
+                        
+                        <a t-attf-href="/service/track/{{ service.tracking_token }}" 
+                           class="btn btn-primary-modern mt-3">
+                            <i class="bi bi-search"></i>
+                            Ver Seguimiento del Servicio
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Footer -->
+                <div class="text-center text-white mt-4">
+                    <small class="opacity-75">
+                        <i class="bi bi-shield-check"></i>
+                        Copier Company S.A.C.
+                    </small>
+                </div>
+            </div>
+        </t>
+    </template>
+    
+    <!-- ========================================== -->
+    <!-- TEMPLATE: ERROR DE EVALUACIÓN -->
+    <!-- ========================================== -->
+    
+    <template id="public_service_evaluation_error" name="Evaluation Error">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            
+            <t t-call-assets="copier_company.assets_public_service_tracking"/>
+            
+            <script type="module">
+                import { waapi } from 'https://cdn.jsdelivr.net/npm/animejs@4.0.0-beta.102/+esm';
+                
+                waapi.animate('.error-card', {
+                    opacity: [0, 1],
+                    translateY: ['2rem', 0],
+                    duration: 500,
+                    ease: 'outQuad'
+                });
+            </script>
+            
+            <div class="service-container">
+                <div class="card card-modern error-card">
+                    <div class="card-body text-center p-5">
+                        <i class="bi bi-exclamation-triangle text-warning" style="font-size: 5rem;"></i>
+                        
+                        <h2 class="mt-4" t-esc="error_title"/>
+                        
+                        <p class="lead text-muted mt-3" t-esc="error_message"/>
+                        
+                        <!-- Botones de acción -->
+                        <div class="mt-4 d-flex gap-2 justify-content-center">
+                            <a t-if="service" 
+                               t-attf-href="/service/track/{{ service.tracking_token }}"
+                               class="btn btn-primary-modern">
+                                <i class="bi bi-search"></i>
+                                Ver Seguimiento
+                            </a>
+                            
+                            <a href="/" class="btn btn-outline-secondary">
+                                <i class="bi bi-house"></i>
+                                Ir al Inicio
+                            </a>
+                        </div>
+                        
+                        <!-- Información de ayuda -->
+                        <div class="alert alert-light mt-4">
+                            <h6 class="mb-2">
+                                <i class="bi bi-info-circle"></i>
+                                ¿Necesitas ayuda?
+                            </h6>
+                            <p class="small mb-0">
+                                Contacta a nuestro equipo de soporte:<br/>
+                                <i class="bi bi-telephone"></i> +51 975 399 303<br/>
+                                <i class="bi bi-envelope"></i> soporte@copiercompanysac.com
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Footer -->
+                <div class="text-center text-white mt-4">
+                    <small class="opacity-75">
+                        <i class="bi bi-shield-check"></i>
+                        Copier Company S.A.C.
+                    </small>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

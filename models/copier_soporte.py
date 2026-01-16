@@ -428,7 +428,67 @@ class CopierServiceRequest(models.Model):
         help='Indica si ya se envió el recordatorio de evaluación',
         tracking=True
     )
-    
+    # ========================================
+    # TOKENS DE ACCESO PÚBLICO
+    # ========================================
+
+    tracking_token = fields.Char(
+        string='Token de Seguimiento',
+        readonly=True,
+        copy=False,
+        index=True,
+        help='Token único para seguimiento público sin login'
+    )
+
+    evaluation_token = fields.Char(
+        string='Token de Evaluación',
+        readonly=True,
+        copy=False,
+        index=True,
+        help='Token único para evaluación pública sin login'
+    )
+
+    evaluation_token_used = fields.Boolean(
+        string='Token de Evaluación Usado',
+        default=False,
+        readonly=True,
+        help='Indica si el token de evaluación ya fue utilizado'
+    )
+
+    tracking_url = fields.Char(
+        string='URL de Seguimiento',
+        compute='_compute_public_urls',
+        store=False,
+        help='URL pública para seguimiento del servicio'
+    )
+
+    evaluation_url = fields.Char(
+        string='URL de Evaluación',
+        compute='_compute_public_urls',
+        store=False,
+        help='URL pública para evaluar el servicio'
+    )
+
+    fecha_evaluacion = fields.Datetime(
+        string='Fecha de Evaluación',
+        readonly=True,
+        help='Fecha en que el cliente evaluó el servicio'
+    )
+    @api.depends('tracking_token', 'evaluation_token')
+    def _compute_public_urls(self):
+        """Calcular URLs públicas de seguimiento y evaluación"""
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        
+        for record in self:
+            if record.tracking_token:
+                record.tracking_url = f"{base_url}/service/track/{record.tracking_token}"
+            else:
+                record.tracking_url = ''
+            
+            if record.evaluation_token:
+                record.evaluation_url = f"{base_url}/service/evaluate/{record.evaluation_token}"
+            else:
+                record.evaluation_url = ''
     # ========================================
     # COMPUTED FIELDS
     # ========================================
@@ -491,7 +551,7 @@ class CopierServiceRequest(models.Model):
     
     @api.model
     def create(self, vals):
-        """Override create para asignar secuencia y enviar notificaciones"""
+        """Override create para asignar secuencia, generar tokens y enviar notificaciones"""
         # Manejar vals_list (puede ser dict o lista)
         if isinstance(vals, list):
             records = self.env['copier.service.request']
@@ -503,6 +563,9 @@ class CopierServiceRequest(models.Model):
                 # Crear registro
                 record = super(CopierServiceRequest, self).create(val)
                 records |= record
+                
+                # ✅ GENERAR TOKENS
+                record._generate_tokens()
                 
                 # Enviar confirmación
                 try:
@@ -521,6 +584,9 @@ class CopierServiceRequest(models.Model):
             
             # Crear el registro
             record = super(CopierServiceRequest, self).create(vals)
+            
+            # ✅ GENERAR TOKENS
+            record._generate_tokens()
             
             # Enviar email de confirmación
             try:
@@ -755,7 +821,158 @@ class CopierServiceRequest(models.Model):
                 ''',
                 message_type='notification'
             )
-    
+    def registrar_evaluacion_publica(self, calificacion, comentario=''):
+        """
+        Registrar evaluación desde formulario público
+        
+        Args:
+            calificacion (str): '1' a '5'
+            comentario (str): Comentario opcional del cliente
+        """
+        self.ensure_one()
+        
+        # Validar que esté completado
+        if self.estado != 'completado':
+            raise ValidationError(_('Solo se pueden evaluar servicios completados.'))
+        
+        # Validar que no esté ya evaluado
+        if self.calificacion:
+            raise ValidationError(_('Este servicio ya fue evaluado.'))
+        
+        # Validar que el token no haya sido usado
+        if self.evaluation_token_used:
+            raise ValidationError(_('El enlace de evaluación ya fue utilizado.'))
+        
+        # Guardar evaluación
+        self.write({
+            'calificacion': calificacion,
+            'comentario_cliente': comentario,
+            'fecha_evaluacion': fields.Datetime.now(),
+            'evaluation_token_used': True,
+        })
+        
+        _logger.info("✅ Evaluación registrada para solicitud %s: %s estrellas", 
+                    self.name, calificacion)
+        
+        # Registrar en chatter
+        estrellas = '⭐' * int(calificacion)
+        self.message_post(
+            body=f'''
+                ⭐ Evaluación del Cliente
+                
+                • Calificación: {estrellas}
+                • Comentario: {comentario or 'Sin comentarios'}
+                • Fecha: {fields.Datetime.now().strftime('%d/%m/%Y %H:%M')}
+            ''',
+            message_type='notification'
+        )
+    def get_tracking_data(self):
+        """
+        Obtener datos para la página de seguimiento público
+        
+        Returns:
+            dict: Datos del servicio para mostrar públicamente
+        """
+        self.ensure_one()
+        
+        # Estados con iconos
+        estado_icons = {
+            'nuevo': '🆕',
+            'asignado': '👨‍🔧',
+            'confirmado': '✅',
+            'en_ruta': '🚗',
+            'en_sitio': '🔧',
+            'pausado': '⏸️',
+            'completado': '✅',
+            'cancelado': '❌',
+        }
+        
+        # Prioridades
+        prioridad_names = {
+            '0': 'Baja',
+            '1': 'Normal',
+            '2': 'Alta',
+            '3': 'Crítica'
+        }
+        
+        # Timeline de eventos
+        timeline = []
+        
+        # Evento: Creación
+        timeline.append({
+            'fecha': self.create_date,
+            'titulo': 'Solicitud Creada',
+            'descripcion': f'Tu solicitud fue registrada con éxito',
+            'icon': '📋',
+            'completed': True
+        })
+        
+        # Evento: Técnico asignado
+        if self.tecnico_id:
+            timeline.append({
+                'fecha': self.write_date,  # Aproximado
+                'titulo': 'Técnico Asignado',
+                'descripcion': f'Técnico: {self.tecnico_id.name}',
+                'icon': '👨‍🔧',
+                'completed': True
+            })
+        
+        # Evento: Servicio iniciado
+        if self.fecha_inicio:
+            timeline.append({
+                'fecha': self.fecha_inicio,
+                'titulo': 'Servicio Iniciado',
+                'descripcion': 'El técnico comenzó a trabajar en tu equipo',
+                'icon': '🔧',
+                'completed': True
+            })
+        
+        # Evento: Servicio completado
+        if self.fecha_fin:
+            timeline.append({
+                'fecha': self.fecha_fin,
+                'titulo': 'Servicio Completado',
+                'descripcion': 'El servicio fue finalizado exitosamente',
+                'icon': '✅',
+                'completed': True
+            })
+        
+        return {
+            'numero': self.name,
+            'estado': dict(self._fields['estado'].selection).get(self.estado),
+            'estado_icon': estado_icons.get(self.estado, '📋'),
+            'estado_key': self.estado,
+            'prioridad': prioridad_names.get(self.prioridad, 'Normal'),
+            'fecha_creacion': self.create_date,
+            'cliente': self.cliente_id.name if self.cliente_id else 'N/A',
+            'equipo': self.modelo_maquina.name if self.modelo_maquina else 'N/A',
+            'serie': self.serie_maquina or 'N/A',
+            'ubicacion': self.ubicacion or 'N/A',
+            'problema': self.tipo_problema_id.name if self.tipo_problema_id else 'N/A',
+            'tecnico': self.tecnico_id.name if self.tecnico_id else 'Por asignar',
+            'tecnico_telefono': self.tecnico_id.phone if self.tecnico_id and self.tecnico_id.phone else None,
+            'fecha_programada': self.fecha_programada,
+            'trabajo_realizado': self.trabajo_realizado if self.estado == 'completado' else None,
+            'timeline': sorted(timeline, key=lambda x: x['fecha']),
+            'puede_evaluar': self.estado == 'completado' and not self.calificacion,
+            'ya_evaluado': bool(self.calificacion),
+            'calificacion': self.calificacion if self.calificacion else None,
+        }
+    def _generate_tokens(self):
+        """Generar tokens únicos de seguimiento y evaluación"""
+        import uuid
+        
+        self.ensure_one()
+        
+        if not self.tracking_token:
+            self.tracking_token = str(uuid.uuid4()).replace('-', '')
+            _logger.info("Token de seguimiento generado para solicitud %s: %s", 
+                        self.name, self.tracking_token[:8] + "...")
+        
+        if not self.evaluation_token:
+            self.evaluation_token = str(uuid.uuid4()).replace('-', '')
+            _logger.info("Token de evaluación generado para solicitud %s: %s", 
+                        self.name, self.evaluation_token[:8] + "...")
     # ========================================
     # CRON JOB: VERIFICAR SLA
     # ========================================
@@ -963,6 +1180,18 @@ class CopierServiceRequest(models.Model):
                 return False
             
             _logger.info("Plantilla encontrada: %s (ID: %s)", template.name, template.id)
+            report = self.env.ref('copier_company.action_report_service_request')
+            pdf_content, _ = report._render_qweb_pdf(self.id)
+
+            attachment = self.env['ir.attachment'].create({
+                'name': f'Reporte Servicio {self.name}.pdf',
+                'type': 'binary',
+                'datas': base64.b64encode(pdf_content),
+                'res_model': self._name,
+                'res_id': self.id,
+                'mimetype': 'application/pdf',
+            })
+
             
             # Enviar el email
             template.send_mail(
@@ -971,6 +1200,7 @@ class CopierServiceRequest(models.Model):
                 email_values={
                     'email_to': self.correo,
                     'email_from': 'info@copiercompanysac.com',
+                    'attachment_ids': [(4, attachment.id)],
                 }
             )
             

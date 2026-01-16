@@ -37,6 +37,7 @@
         'report/sticker_report.xml',
         'report/cotizacion_multiples.xml',
         'report/report_counter_portal.xml',
+        'report/report_service_request.xml',
         'views/copier_company_form_template.xml',
         'views/security_control_views.xml',
         'data/plantillas_mail.xml',
@@ -75,7 +76,8 @@
         'views/printtracker_config_views.xml',
         'views/portal_servicios_cliente.xml',
         'views/whatsapp_config_views.xml', 
-        'views/whatsapp_service_notification_views.xml',              
+        'views/whatsapp_service_notification_views.xml',
+        'views/public_service_tracking_templates.xml',              
         'views/copier_soporte.xml',
         # ❗️ No cargues QWeb de frontend aquí; mejor en assets_qweb (abajo)
         # 'static/src/xml/counter_charts_templates.xml',
