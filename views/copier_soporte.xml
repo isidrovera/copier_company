@@ -115,6 +115,14 @@
                             string="Cancelar"
                             invisible="estado in ('completado', 'cancelado')"
                             />
+                    <button
+                        name="action_print_service_report"
+                        type="object"
+                        string="Imprimir Reporte"
+                        icon="fa-print"
+                        class="btn-primary"
+                        invisible="estado != 'completado'"
+                    />
                     
                     <button name="action_view_whatsapp_notifications"
                         type="object"

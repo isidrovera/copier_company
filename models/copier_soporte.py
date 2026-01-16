@@ -1152,7 +1152,12 @@ class CopierServiceRequest(models.Model):
                 message_type='notification'
             )
             return False
-    
+    def action_print_service_report(self):
+        """Imprimir reporte PDF del servicio técnico"""
+        self.ensure_one()
+        return self.env.ref(
+            'copier_company.action_report_service_request'
+        ).report_action(self)
     def _send_email_completado(self):
         """
         Envía email cuando se completa el servicio.
