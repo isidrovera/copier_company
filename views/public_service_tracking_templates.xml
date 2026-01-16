@@ -820,11 +820,54 @@
             
             <!-- Estilos para evaluación -->
             <style>
+                /* ===== SECCIÓN DE FORMULARIO ===== */
+                .form-section {
+                    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+                    border-radius: var(--radius-xl);
+                    padding: 2.5rem;
+                    margin-bottom: 2rem;
+                    box-shadow: var(--shadow-md);
+                    border: 1px solid rgba(102, 126, 234, 0.1);
+                    transition: all 0.3s ease;
+                }
+                
+                .form-section:hover {
+                    box-shadow: var(--shadow-lg);
+                    transform: translateY(-2px);
+                }
+                
+                .form-section-title {
+                    font-size: 1.3rem;
+                    font-weight: 700;
+                    color: #1e293b;
+                    margin-bottom: 2rem;
+                    padding-bottom: 1rem;
+                    border-bottom: 3px solid #e0e7ff;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                }
+                
+                .form-section-title i {
+                    font-size: 1.5rem;
+                    color: var(--color-primary);
+                }
+                
+                /* ===== RATING CON ESTRELLAS ===== */
+                .rating-container {
+                    background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+                    border-radius: var(--radius-xl);
+                    padding: 3rem 2rem;
+                    margin-bottom: 2rem;
+                    box-shadow: inset 0 2px 8px rgba(251, 191, 36, 0.1);
+                    border: 2px solid #fde68a;
+                }
+                
                 .star-rating {
                     display: flex;
-                    gap: 0.75rem;
+                    gap: 1rem;
                     justify-content: center;
-                    margin: 2.5rem 0;
+                    margin: 2rem 0;
                     flex-direction: row-reverse;
                 }
                 
@@ -833,34 +876,87 @@
                 }
                 
                 .star-rating label {
-                    font-size: 3.5rem;
+                    font-size: 4rem;
                     cursor: pointer;
                     color: #cbd5e1;
                     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+                    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
+                    position: relative;
+                }
+                
+                .star-rating label::after {
+                    content: '';
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    width: 0;
+                    height: 0;
+                    border-radius: 50%;
+                    background: rgba(251, 191, 36, 0.3);
+                    transition: all 0.3s ease;
+                }
+                
+                .star-rating label:hover::after,
+                .star-rating label:hover ~ label::after {
+                    width: 120%;
+                    height: 120%;
                 }
                 
                 .star-rating label:hover,
                 .star-rating label:hover ~ label {
                     color: #fbbf24;
-                    transform: scale(1.15);
+                    transform: scale(1.2) rotate(-10deg);
+                    filter: drop-shadow(0 8px 12px rgba(251, 191, 36, 0.4));
                 }
                 
                 .star-rating input[type="radio"]:checked ~ label {
                     color: #f59e0b;
-                    transform: scale(1.1);
+                    transform: scale(1.15);
+                    filter: drop-shadow(0 6px 10px rgba(245, 158, 11, 0.5));
                 }
                 
                 .rating-label {
                     text-align: center;
-                    font-size: 1.5rem;
+                    font-size: 1.75rem;
                     font-weight: 700;
+                    color: #92400e;
+                    min-height: 3rem;
+                    margin-top: 1.5rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 0.5rem;
+                }
+                
+                /* ===== CAMPOS DE TEXTO ===== */
+                .form-group-modern {
+                    margin-bottom: 2rem;
+                }
+                
+                .form-label-modern {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    font-weight: 700;
+                    font-size: 1.1rem;
                     color: #1e293b;
-                    min-height: 2.5rem;
-                    margin-top: 1rem;
+                    margin-bottom: 0.75rem;
+                }
+                
+                .form-label-modern i {
+                    color: var(--color-primary);
+                    font-size: 1.25rem;
+                }
+                
+                .form-label-modern .badge {
+                    font-size: 0.75rem;
+                    padding: 0.25rem 0.5rem;
+                    border-radius: 0.5rem;
                 }
                 
                 .textarea-modern {
+                    width: 100%;
                     border: 2px solid #e2e8f0;
                     border-radius: var(--radius-lg);
                     padding: 1.25rem;
@@ -868,12 +964,152 @@
                     font-size: 1rem;
                     font-family: inherit;
                     resize: vertical;
+                    background: white;
+                    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+                }
+                
+                .textarea-modern:hover {
+                    border-color: #cbd5e1;
+                    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
                 }
                 
                 .textarea-modern:focus {
                     outline: none;
                     border-color: var(--color-primary);
-                    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+                    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15),
+                                inset 0 2px 4px rgba(0, 0, 0, 0.02);
+                    background: #fefeff;
+                }
+                
+                .form-text-modern {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    margin-top: 0.75rem;
+                    font-size: 0.9rem;
+                    color: #64748b;
+                }
+                
+                .form-text-modern i {
+                    color: #94a3b8;
+                }
+                
+                /* ===== CONTADOR DE CARACTERES ===== */
+                .char-counter {
+                    text-align: right;
+                    font-size: 0.85rem;
+                    color: #94a3b8;
+                    margin-top: 0.5rem;
+                }
+                
+                .char-counter.warning {
+                    color: #f59e0b;
+                    font-weight: 600;
+                }
+                
+                .char-counter.danger {
+                    color: #ef4444;
+                    font-weight: 700;
+                }
+                
+                /* ===== BOTONES MEJORADOS ===== */
+                .btn-submit-modern {
+                    width: 100%;
+                    padding: 1.25rem 2rem;
+                    font-size: 1.2rem;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    border-radius: var(--radius-xl);
+                    border: none;
+                    background: var(--gradient-success);
+                    color: white;
+                    box-shadow: var(--shadow-lg);
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    cursor: pointer;
+                    position: relative;
+                    overflow: hidden;
+                }
+                
+                .btn-submit-modern::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+                    transition: left 0.5s;
+                }
+                
+                .btn-submit-modern:hover {
+                    transform: translateY(-4px) scale(1.02);
+                    box-shadow: 0 20px 40px rgba(79, 172, 254, 0.4);
+                }
+                
+                .btn-submit-modern:hover::before {
+                    left: 100%;
+                }
+                
+                .btn-submit-modern:active {
+                    transform: translateY(-2px) scale(1);
+                }
+                
+                .btn-submit-modern:disabled {
+                    background: #cbd5e1;
+                    cursor: not-allowed;
+                    transform: none;
+                    box-shadow: var(--shadow-sm);
+                }
+                
+                /* ===== INDICADORES DE VALIDACIÓN ===== */
+                .is-valid {
+                    border-color: #10b981 !important;
+                }
+                
+                .is-invalid {
+                    border-color: #ef4444 !important;
+                }
+                
+                .valid-feedback,
+                .invalid-feedback {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    font-size: 0.9rem;
+                    margin-top: 0.5rem;
+                }
+                
+                .valid-feedback {
+                    color: #10b981;
+                }
+                
+                .invalid-feedback {
+                    color: #ef4444;
+                }
+                
+                /* ===== RESPONSIVE ===== */
+                @media (max-width: 768px) {
+                    .form-section {
+                        padding: 1.5rem;
+                    }
+                    
+                    .rating-container {
+                        padding: 2rem 1rem;
+                    }
+                    
+                    .star-rating label {
+                        font-size: 3rem;
+                    }
+                    
+                    .rating-label {
+                        font-size: 1.3rem;
+                    }
+                    
+                    .btn-submit-modern {
+                        padding: 1rem 1.5rem;
+                        font-size: 1rem;
+                    }
                 }
             </style>
             
@@ -887,21 +1123,34 @@
                     ease: 'outBack'
                 });
                 
+                waapi.animate('.form-section', {
+                    opacity: [0, 1],
+                    translateY: ['20px', 0],
+                    delay: 200,
+                    duration: 600,
+                    ease: 'outCubic'
+                });
+                
                 document.addEventListener('DOMContentLoaded', function() {
                     const stars = document.querySelectorAll('.star-rating label');
                     const ratingLabels = {
-                        '1': '⭐ Muy Malo',
-                        '2': '⭐⭐ Malo',
-                        '3': '⭐⭐⭐ Regular',
-                        '4': '⭐⭐⭐⭐ Bueno',
-                        '5': '⭐⭐⭐⭐⭐ Excelente'
+                        '1': '😞 Muy Malo',
+                        '2': '😕 Malo',
+                        '3': '😐 Regular',
+                        '4': '😊 Bueno',
+                        '5': '😍 Excelente'
                     };
                     const ratingLabelElement = document.getElementById('ratingLabel');
+                    const textarea = document.getElementById('comentario');
+                    const charCounter = document.getElementById('charCounter');
+                    const submitBtn = document.getElementById('submitBtn');
+                    const form = document.getElementById('evaluationForm');
                     
+                    // Interacción con estrellas
                     stars.forEach(star => {
                         star.addEventListener('mouseenter', function() {
                             const rating = this.getAttribute('data-rating');
-                            ratingLabelElement.textContent = ratingLabels[rating];
+                            ratingLabelElement.innerHTML = ratingLabels[rating];
                             
                             waapi.animate(ratingLabelElement, {
                                 scale: [0.9, 1],
@@ -913,12 +1162,23 @@
                         
                         star.addEventListener('click', function() {
                             const rating = this.getAttribute('data-rating');
-                            ratingLabelElement.textContent = ratingLabels[rating];
+                            ratingLabelElement.innerHTML = ratingLabels[rating];
                             
                             waapi.animate(this, {
-                                scale: [1, 1.4, 1.1],
-                                duration: 500,
+                                scale: [1, 1.5, 1.15],
+                                rotate: [0, 360],
+                                duration: 600,
                                 ease: 'outElastic'
+                            });
+                            
+                            // Habilitar botón de envío
+                            submitBtn.disabled = false;
+                            
+                            // Animación del botón
+                            waapi.animate(submitBtn, {
+                                scale: [1, 1.05, 1],
+                                duration: 400,
+                                ease: 'outQuad'
                             });
                         });
                     });
@@ -926,9 +1186,60 @@
                     document.querySelector('.star-rating').addEventListener('mouseleave', function() {
                         const checkedStar = document.querySelector('.star-rating input:checked');
                         if (!checkedStar) {
-                            ratingLabelElement.textContent = 'Selecciona tu calificación';
+                            ratingLabelElement.innerHTML = '👆 Selecciona tu calificación';
                         }
                     });
+                    
+                    // Contador de caracteres
+                    if (textarea && charCounter) {
+                        textarea.addEventListener('input', function() {
+                            const length = this.value.length;
+                            const max = 500;
+                            const remaining = max - length;
+                            
+                            charCounter.textContent = `${length} / ${max} caracteres`;
+                            
+                            charCounter.classList.remove('warning', 'danger');
+                            if (remaining < 100) {
+                                charCounter.classList.add('warning');
+                            }
+                            if (remaining < 20) {
+                                charCounter.classList.add('danger');
+                            }
+                        });
+                    }
+                    
+                    // Validación en tiempo real
+                    if (form) {
+                        form.addEventListener('submit', function(e) {
+                            const rating = document.querySelector('.star-rating input:checked');
+                            
+                            if (!rating) {
+                                e.preventDefault();
+                                
+                                // Mostrar error
+                                ratingLabelElement.innerHTML = '❌ Por favor selecciona una calificación';
+                                ratingLabelElement.style.color = '#ef4444';
+                                
+                                waapi.animate('.rating-container', {
+                                    translateX: [-10, 10, -10, 10, 0],
+                                    duration: 400,
+                                    ease: 'linear'
+                                });
+                                
+                                setTimeout(() => {
+                                    ratingLabelElement.innerHTML = '👆 Selecciona tu calificación';
+                                    ratingLabelElement.style.color = '';
+                                }, 2000);
+                                
+                                return false;
+                            }
+                            
+                            // Animación de envío
+                            submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Enviando...';
+                            submitBtn.disabled = true;
+                        });
+                    }
                 });
             </script>
             
@@ -966,17 +1277,22 @@
                         </div>
                         
                         <!-- Formulario -->
-                        <form method="POST" t-attf-action="/service/evaluate/{{ token }}">
+                        <form method="POST" t-attf-action="/service/evaluate/{{ token }}" id="evaluationForm">
                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                             
-                            <!-- Estrellas -->
-                            <div class="mb-4">
-                                <h5 class="text-center mb-4 fw-bold">
-                                    ¿Cómo calificas el servicio recibido?
-                                </h5>
+                            <!-- SECCIÓN 1: Calificación -->
+                            <div class="form-section rating-container">
+                                <div class="form-section-title">
+                                    <i class="bi bi-star-fill"></i>
+                                    Paso 1: Califica el Servicio
+                                </div>
+                                
+                                <p class="text-center text-muted mb-4">
+                                    Selecciona las estrellas según tu nivel de satisfacción
+                                </p>
                                 
                                 <div class="star-rating">
-                                    <input type="radio" name="calificacion" value="5" id="star5"/>
+                                    <input type="radio" name="calificacion" value="5" id="star5" required="required"/>
                                     <label for="star5" data-rating="5">★</label>
                                     
                                     <input type="radio" name="calificacion" value="4" id="star4"/>
@@ -993,35 +1309,68 @@
                                 </div>
                                 
                                 <div class="rating-label" id="ratingLabel">
-                                    Selecciona tu calificación
+                                    👆 Selecciona tu calificación
                                 </div>
                             </div>
                             
-                            <!-- Comentario -->
-                            <div class="mb-4">
-                                <label for="comentario" class="form-label fw-bold">
+                            <!-- SECCIÓN 2: Comentarios -->
+                            <div class="form-section">
+                                <div class="form-section-title">
                                     <i class="bi bi-chat-left-text-fill"></i>
-                                    Comentarios adicionales (opcional)
-                                </label>
-                                <textarea 
-                                    class="form-control textarea-modern" 
-                                    id="comentario" 
-                                    name="comentario" 
-                                    rows="5" 
-                                    placeholder="Cuéntanos sobre tu experiencia con el servicio..."
-                                    t-att-value="comentario or ''"></textarea>
-                                <small class="text-muted mt-2 d-block">
-                                    <i class="bi bi-lock-fill"></i>
-                                    Tus comentarios son confidenciales y nos ayudan a mejorar
-                                </small>
+                                    Paso 2: Comparte tu Experiencia
+                                </div>
+                                
+                                <div class="form-group-modern">
+                                    <label for="comentario" class="form-label-modern">
+                                        <i class="bi bi-pencil-fill"></i>
+                                        Comentarios Adicionales
+                                        <span class="badge bg-secondary">Opcional</span>
+                                    </label>
+                                    
+                                    <textarea 
+                                        class="form-control textarea-modern" 
+                                        id="comentario" 
+                                        name="comentario" 
+                                        rows="6"
+                                        maxlength="500"
+                                        placeholder="Cuéntanos sobre tu experiencia con el servicio... 
+
+• ¿Cómo fue la atención del técnico?
+• ¿El problema fue resuelto satisfactoriamente?
+• ¿Qué podríamos mejorar?
+• ¿Recomendarías nuestro servicio?"
+                                        t-att-value="comentario or ''"></textarea>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="form-text-modern">
+                                            <i class="bi bi-lock-fill"></i>
+                                            Tus comentarios son confidenciales y nos ayudan a mejorar
+                                        </small>
+                                        <div class="char-counter" id="charCounter">
+                                            0 / 500 caracteres
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             
-                            <!-- Botón -->
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-success-modern btn-lg">
+                            <!-- SECCIÓN 3: Botón de Envío -->
+                            <div class="form-section" style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);">
+                                <div class="text-center mb-3">
+                                    <i class="bi bi-shield-check" style="font-size: 2rem; color: #10b981;"></i>
+                                    <p class="text-muted mb-0 mt-2">
+                                        Tu evaluación es importante para nosotros
+                                    </p>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-submit-modern" id="submitBtn" disabled="disabled">
                                     <i class="bi bi-send-fill"></i>
                                     Enviar Evaluación
                                 </button>
+                                
+                                <p class="text-center text-muted small mt-3 mb-0">
+                                    <i class="bi bi-info-circle"></i>
+                                    Al enviar, aceptas que tu evaluación será revisada por nuestro equipo
+                                </p>
                             </div>
                         </form>
                     </div>
