@@ -356,10 +356,12 @@ Equipo Copier Company
             
             # Generar PDF si está marcado
             pdf_content = None
+            pdf_filename = None  # ⭐ INICIALIZAR SIEMPRE
+            
             if self.attach_pdf:
                 try:
-                    pdf_content = self._generate_pdf(copier)
-                    _logger.info(f"✅ PDF generado para {copier.secuencia}: {len(pdf_content)} bytes")
+                    pdf_content, pdf_filename = self._generate_pdf(copier)
+                    _logger.info(f"✅ PDF generado para {copier.secuencia}: {pdf_filename} ({len(pdf_content)} bytes)")
                 except Exception as e:
                     _logger.error(f"❌ Error generando PDF para {copier.secuencia}: {str(e)}")
                     results.append({
@@ -389,20 +391,19 @@ Equipo Copier Company
                     _logger.info(f"📱 Enviando a {phone_line.phone_clean}")
                     
                     # Enviar según si hay PDF o no
-                    if pdf_content and self.attach_pdf:
+                    if pdf_content and self.attach_pdf and pdf_filename:  # ⭐ VERIFICAR que pdf_filename existe
                         result = self.config_id.send_media(
                             phone=phone_line.phone_clean,
                             file_data=pdf_content,
                             media_type='document',
                             caption=processed_message,
-                            filename=pdf_filename  # ⭐ Usar el nombre generado
+                            filename=pdf_filename
                         )
                     else:
                         result = self.config_id.send_message(
                             phone=phone_line.phone_clean,
                             message=processed_message
                         )
-                   
                     
                     if result.get('success'):
                         total_sent += 1
