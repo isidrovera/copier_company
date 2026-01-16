@@ -327,106 +327,47 @@ class CopierCompany(models.Model):
         return formatted_phones
 
     def send_whatsapp_report(self):
-        try:
-            if not self.cliente_id or not self.cliente_id.mobile:
-                raise UserError('Se requiere un cliente con número de teléfono.')
-
-            formatted_phones = self.get_formatted_phones()
-            if not formatted_phones:
-                raise UserError('No se encontraron números de teléfono válidos.')
-
-            # Generar el PDF
-            report_action = self.env.ref('copier_company.action_report_report_cotizacion_alquiler')
-            pdf_content, _ = self.env['ir.actions.report']._render_qweb_pdf(
-                report_action.id, self.ids
-            )
-
-            # Guardar PDF temporalmente
-            filename = f"Propuesta_Comercial_{self.secuencia}.pdf"
-            temp_pdf_path = os.path.join('/tmp', filename)
-
-            try:
-                with open(temp_pdf_path, 'wb') as temp_pdf:
-                    temp_pdf.write(pdf_content)
-
-                _logger.info(f"PDF generado: {temp_pdf_path}, tamaño: {os.path.getsize(temp_pdf_path)} bytes")
-
-                WHATSAPP_API_URL = 'https://whatsappapi.copiercompanysac.com/api/message'
-                success_count = 0
-
-                for phone in formatted_phones:
-                    try:
-                        # Crear el mensaje corporativo
-                        message = f"""¡Gracias por confiar en Copier Company!
-
-        Te enviamos la *Propuesta Comercial {self.secuencia}* solicitada. 
-
-        Por favor, revisa el documento adjunto. Si tienes alguna consulta o requieres información adicional, estaremos encantados de ayudarte.
-
-        *Saludos cordiales,*
-        Equipo Copier Company
+        """Abre wizard para enviar cotización por WhatsApp"""
+        self.ensure_one()
         
-        📧 info@copiercompanysac.com
-        🌐 https://copiercompanysac.com"""
-
-                        with open(temp_pdf_path, 'rb') as pdf_file:
-                            files = {
-                                'file': (filename, pdf_file, 'application/pdf')
-                            }
-                            
-                            data = {
-                                'phone': phone,
-                                'type': 'media',
-                                'message': message
-                            }
-
-                            _logger.info("Enviando a WhatsApp API - Datos: %s", data)
-
-                            response = requests.post(
-                                WHATSAPP_API_URL,
-                                data=data,
-                                files=files
-                            )
-
-                            _logger.info("Respuesta API: Status=%s, Contenido=%s", 
-                                    response.status_code, response.text)
-
-                            response_data = response.json()
-                            if response.status_code == 200 and response_data.get('success'):
-                                success_count += 1
-                                self.message_post(
-                                    body=f"✅ Propuesta comercial enviada por WhatsApp al número {phone}.",
-                                    message_type='notification'
-                                )
-                            else:
-                                raise Exception(response_data.get('message', 'Error en la API'))
-
-                    except Exception as e:
-                        _logger.error(f"Error al enviar WhatsApp a {phone}: {str(e)}")
-                        self.message_post(
-                            body=f"❌ Error al enviar WhatsApp al número {phone}: {str(e)}",
-                            message_type='notification'
-                        )
-
-            finally:
-                if os.path.exists(temp_pdf_path):
-                    os.remove(temp_pdf_path)
-                    _logger.info(f"Archivo temporal eliminado: {temp_pdf_path}")
-
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'message': f"Propuesta comercial enviada por WhatsApp a {success_count} número(s).",
-                    'type': 'success' if success_count > 0 else 'warning',
-                    'sticky': False,
-                }
+        # Validar que tenga cliente
+        if not self.cliente_id:
+            raise UserError('Debe asignar un cliente antes de enviar por WhatsApp.')
+        
+        # Abrir wizard
+        return {
+            'name': 'Enviar Cotización por WhatsApp',
+            'type': 'ir.actions.act_window',
+            'res_model': 'whatsapp.send.quotation.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_copier_company_ids': [(6, 0, self.ids)],
             }
-
-        except Exception as e:
-            _logger.exception("Error en el envío del reporte:")
-            raise UserError(f"Error al enviar el reporte: {str(e)}")
-
+        }
+    def action_send_whatsapp_multi(self):
+        """Acción para enviar múltiples cotizaciones por WhatsApp (desde tree view)"""
+        if not self:
+            raise UserError('Debe seleccionar al menos una cotización.')
+        
+        # Validar que todas tengan cliente
+        sin_cliente = self.filtered(lambda c: not c.cliente_id)
+        if sin_cliente:
+            raise UserError(
+                f'Las siguientes cotizaciones no tienen cliente asignado:\n' +
+                '\n'.join(sin_cliente.mapped('secuencia'))
+            )
+        
+        return {
+            'name': 'Enviar Cotizaciones por WhatsApp',
+            'type': 'ir.actions.act_window',
+            'res_model': 'whatsapp.send.quotation.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_copier_company_ids': [(6, 0, self.ids)],
+            }
+        }
     # Campos de alquiler
     fecha_inicio_alquiler = fields.Date(string="Fecha de Inicio del Alquiler", tracking=True)
     duracion_alquiler_id = fields.Many2one('copier.duracion', string="Duración del Alquiler",

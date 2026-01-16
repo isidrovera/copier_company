@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============================================ -->
+    <!-- FORM VIEW: Wizard de Envío de Cotizaciones -->
+    <!-- ============================================ -->
+    <record id="view_whatsapp_send_quotation_wizard_form" model="ir.ui.view">
+        <field name="name">whatsapp.send.quotation.wizard.form</field>
+        <field name="model">whatsapp.send.quotation.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Enviar Cotización por WhatsApp">
+                <header>
+                    <button name="action_verify_numbers" 
+                            string="Verificar Números" 
+                            type="object" 
+                            class="btn-secondary"
+                            data-hotkey="v"/>
+                    <button name="action_send_quotations" 
+                            string="Enviar" 
+                            type="object" 
+                            class="btn-primary"
+                            data-hotkey="shift+s"/>
+                    <button string="Cancelar" 
+                            class="btn-secondary" 
+                            special="cancel"
+                            data-hotkey="x"/>
+                </header>
+                
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <i class="fa fa-whatsapp" style="color: #25D366;"/> 
+                            Enviar Cotización por WhatsApp
+                        </h1>
+                    </div>
+                    
+                    <!-- Información de las cotizaciones -->
+                    <group>
+                        <group>
+                            <field name="copier_company_ids" 
+                                   widget="many2many_tags" 
+                                   readonly="1"
+                                   options="{'color_field': 'color'}"/>
+                            <field name="config_id" 
+                                   options="{'no_create': True, 'no_open': True}"/>
+                        </group>
+                        <group>
+                            <field name="attach_pdf" widget="boolean_toggle"/>
+                            <label for="total_phones"/>
+                            <div>
+                                <field name="total_phones" class="oe_inline"/> números 
+                                (<field name="valid_phones" class="oe_inline" class="text-success fw-bold"/> válidos)
+                            </div>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <!-- TAB 1: Destinatarios -->
+                        <page string="Destinatarios" name="recipients" decoration-bf="1">
+                            <field name="phone_line_ids" mode="tree">
+                                <list editable="bottom" multi_edit="1">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="phone" required="1" placeholder="Ej: 987654321"/>
+                                    <field name="phone_clean" 
+                                           readonly="1" 
+                                           column_invisible="1"/>
+                                    <field name="partner_name" placeholder="Nombre del contacto"/>
+                                    <field name="copier_reference" 
+                                           column_invisible="1"
+                                           optional="hide"/>
+                                    <field name="is_valid" 
+                                           widget="boolean_toggle" 
+                                           readonly="1"
+                                           decoration-success="is_valid == True"
+                                           decoration-danger="is_valid == False"/>
+                                    <field name="is_verified" 
+                                           widget="boolean_toggle" 
+                                           readonly="1" 
+                                           column_invisible="1"
+                                           optional="show"/>
+                                    <field name="verification_result" 
+                                           column_invisible="1"
+                                           optional="show"/>
+                                </list>
+                            </field>
+                            
+                            <div class="alert alert-info mt-3 d-flex align-items-center" role="alert">
+                                <i class="fa fa-info-circle fa-2x me-3"/> 
+                                <div>
+                                    <strong>Formato de números:</strong> 
+                                    Puedes ingresar en cualquier formato (987654321, 51987654321, +51 987 654 321). 
+                                    Se limpiarán automáticamente.
+                                    <br/>
+                                    <strong>Agregar números:</strong> 
+                                    Haz clic en "Añadir una línea" o edita directamente en la lista.
+                                </div>
+                            </div>
+                        </page>
+                        
+                        <!-- TAB 2: Mensaje -->
+                        <page string="Mensaje" name="message">
+                            <group>
+                                <field name="message" 
+                                       widget="text" 
+                                       nolabel="1" 
+                                       class="o_field_text"
+                                       placeholder="Escribe tu mensaje aquí... Usa variables como {secuencia}, {cliente}, {total}, etc."/>
+                                
+                                <field name="message_length" invisible="1"/>
+                                <div class="text-muted small">
+                                    <i class="fa fa-font"/> 
+                                    <field name="message_length" class="fw-bold"/> caracteres
+                                </div>
+                            </group>
+                            
+                            <group string="💡 Variables Disponibles" class="mt-4">
+                                <div class="alert alert-warning" role="alert">
+                                    <p class="fw-bold mb-2">Usa estas variables en tu mensaje:</p>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <ul class="mb-0">
+                                                <li><code class="text-primary">{secuencia}</code> - Número de cotización</li>
+                                                <li><code class="text-primary">{cliente}</code> - Nombre del cliente</li>
+                                                <li><code class="text-primary">{contacto}</code> - Persona de contacto</li>
+                                                <li><code class="text-primary">{maquina}</code> - Modelo de máquina</li>
+                                                <li><code class="text-primary">{marca}</code> - Marca</li>
+                                                <li><code class="text-primary">{serie}</code> - Número de serie</li>
+                                                <li><code class="text-primary">{total}</code> - Total a facturar</li>
+                                                <li><code class="text-primary">{subtotal}</code> - Subtotal sin IGV</li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <ul class="mb-0">
+                                                <li><code class="text-primary">{fecha}</code> - Fecha de cotización</li>
+                                                <li><code class="text-primary">{empresa}</code> - Nombre de la empresa</li>
+                                                <li><code class="text-primary">{ubicacion}</code> - Ubicación</li>
+                                                <li><code class="text-primary">{volumen_bn}</code> - Volumen mensual B/N</li>
+                                                <li><code class="text-primary">{volumen_color}</code> - Volumen color</li>
+                                                <li><code class="text-primary">{costo_bn}</code> - Costo copia B/N</li>
+                                                <li><code class="text-primary">{costo_color}</code> - Costo copia color</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <p class="mt-3 mb-0">
+                                        <i class="fa fa-lightbulb-o text-warning"/> 
+                                        <small>Usa <strong>*texto*</strong> para negrita en WhatsApp</small>
+                                    </p>
+                                </div>
+                            </group>
+                        </page>
+                        
+                        <!-- TAB 3: Vista Previa -->
+                        <page string="Vista Previa" name="preview">
+                            <group>
+                                <field name="preview_html" 
+                                       nolabel="1" 
+                                       readonly="1"
+                                       widget="html"/>
+                            </group>
+                            
+                            <div class="alert alert-info mt-3 d-flex align-items-center" role="alert">
+                                <i class="fa fa-info-circle fa-2x me-3"/> 
+                                <div>
+                                    La vista previa muestra cómo se verá el mensaje con los valores de la primera cotización seleccionada.
+                                    <span class="badge bg-primary ms-2" invisible="len(copier_company_ids) &lt;= 1">
+                                        +<field name="copier_company_ids" invisible="1"/>
+                                        <t t-esc="len(copier_company_ids) - 1"/> cotización(es) más
+                                    </span>
+                                </div>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+                
+                <footer>
+                    <button name="action_send_quotations" 
+                            string="Enviar Ahora" 
+                            type="object" 
+                            class="btn-primary"
+                            data-hotkey="shift+enter"/>
+                    <button string="Cancelar" 
+                            class="btn-secondary" 
+                            special="cancel"
+                            data-hotkey="escape"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- ============================================ -->
+    <!-- ACTION: Abrir Wizard -->
+    <!-- ============================================ -->
+    <record id="action_whatsapp_send_quotation_wizard" model="ir.actions.act_window">
+        <field name="name">Enviar Cotización por WhatsApp</field>
+        <field name="res_model">whatsapp.send.quotation.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="view_whatsapp_send_quotation_wizard_form"/>
+    </record>
+</odoo>

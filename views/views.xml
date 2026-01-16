@@ -73,6 +73,12 @@
                 <button name="crear_ticket" string="Crear Ticket" type="object" class="btn-primary"/>
                 <button name="generar_qr_code" string="Generar QR" type="object" class="btn-info"/>
                 <button name="action_print_report" string="Imprimir Cotización" type="object" class="btn-success"/>
+                <button name="send_whatsapp_report" 
+                        string="Enviar WhatsApp" 
+                        type="object" 
+                        class="btn-success"
+                        invisible="not estado_maquina_id"
+                        data-hotkey="w"/>
                 <button name="enviar_correo_propuesta" string="Enviar Propuesta" type="object" class="oe_highlight"/>
                 <field name="estado_renovacion" widget="statusbar" statusbar_visible="vigente,por_vencer,renovado,finalizado"/>
                 <button name="debug_urgente_company" 
