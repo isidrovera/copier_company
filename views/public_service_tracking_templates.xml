@@ -1147,7 +1147,7 @@
                     const form = document.getElementById('evaluationForm');
                     
                     // Interacción con estrellas
-                    stars.forEach(star => {
+                    stars.forEach(star =&gt; {
                         star.addEventListener('mouseenter', function() {
                             const rating = this.getAttribute('data-rating');
                             ratingLabelElement.innerHTML = ratingLabels[rating];
@@ -1191,7 +1191,7 @@
                     });
                     
                     // Contador de caracteres
-                    if (textarea && charCounter) {
+                    if (textarea &amp;&amp; charCounter) {
                         textarea.addEventListener('input', function() {
                             const length = this.value.length;
                             const max = 500;
@@ -1200,10 +1200,10 @@
                             charCounter.textContent = `${length} / ${max} caracteres`;
                             
                             charCounter.classList.remove('warning', 'danger');
-                            if (remaining < 100) {
+                            if (remaining &lt; 100) {
                                 charCounter.classList.add('warning');
                             }
-                            if (remaining < 20) {
+                            if (remaining &gt; 20) {
                                 charCounter.classList.add('danger');
                             }
                         });
@@ -1227,7 +1227,7 @@
                                     ease: 'linear'
                                 });
                                 
-                                setTimeout(() => {
+                                setTimeout(() =&gt; {
                                     ratingLabelElement.innerHTML = '👆 Selecciona tu calificación';
                                     ratingLabelElement.style.color = '';
                                 }, 2000);
