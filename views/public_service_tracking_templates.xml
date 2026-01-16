@@ -592,186 +592,221 @@
     <!-- TEMPLATE: SEGUIMIENTO PÚBLICO MODERNIZADO -->
     <!-- ========================================== -->
     
-    <template id="public_service_track" name="Public Service Tracking">
-        <t t-call="website.layout">
-            <t t-set="no_header" t-value="True"/>
-            <t t-set="no_footer" t-value="True"/>
-            
-            <t t-call-assets="copier_company.assets_public_service_tracking"/>
-            
-            <div class="service-container">
-                <!-- Header Card -->
-                <div class="card card-modern animate-card mb-4">
-                    <div class="card-header-modern text-center">
-                        <div class="float-icon">
-                            <i class="bi bi-search" style="font-size: 3rem;"></i>
-                        </div>
-                        <h1 class="mt-3 mb-2">Seguimiento de Servicio</h1>
-                        <h2 class="h4 mb-0">
-                            <i class="bi bi-hash"></i>
-                            <t t-esc="tracking_data['numero']"/>
-                        </h2>
+  <template id="public_service_track" name="Public Service Tracking">
+    <t t-call="website.layout">
+        <t t-set="no_header" t-value="True"/>
+        <t t-set="no_footer" t-value="True"/>
+        
+        <t t-call-assets="copier_company.assets_public_service_tracking"/>
+        
+        <div class="service-container">
+            <!-- Header Card -->
+            <div class="card card-modern animate-card mb-4">
+                <div class="card-header-modern text-center">
+                    <div class="float-icon">
+                        <i class="bi bi-search" style="font-size: 3rem;"></i>
                     </div>
-                    
-                    <div class="card-body">
-                        <!-- Estado Actual -->
-                        <div class="text-center mb-5">
-                            <div t-attf-class="status-badge badge-animated text-white {{ tracking_data['estado_key'] }}">
-                                <span t-esc="tracking_data['estado_icon']"/>
-                                <span t-esc="tracking_data['estado']"/>
-                            </div>
-                        </div>
-                        
-                        <!-- Información del Servicio -->
-                        <div class="mb-5">
-                            <h5 class="section-title">
-                                <i class="bi bi-info-circle-fill"></i>
-                                Información del Servicio
-                            </h5>
-                            
-                            <div class="info-row">
-                                <div class="info-icon">
-                                    <i class="bi bi-calendar3"></i>
-                                </div>
-                                <div class="info-content">
-                                    <small>Fecha de Creación</small>
-                                    <strong t-esc="tracking_data['fecha_creacion'].strftime('%d/%m/%Y %H:%M')"/>
-                                </div>
-                            </div>
-                            
-                            <div class="info-row">
-                                <div class="info-icon">
-                                    <i class="bi bi-building"></i>
-                                </div>
-                                <div class="info-content">
-                                    <small>Cliente</small>
-                                    <strong t-esc="tracking_data['cliente']"/>
-                                </div>
-                            </div>
-                            
-                            <div class="info-row">
-                                <div class="info-icon">
-                                    <i class="bi bi-printer-fill"></i>
-                                </div>
-                                <div class="info-content">
-                                    <small>Equipo</small>
-                                    <strong t-esc="tracking_data['equipo']"/>
-                                    <small style="display: block; margin-top: 0.25rem; color: #94a3b8;">
-                                        Serie: <t t-esc="tracking_data['serie']"/>
-                                    </small>
-                                </div>
-                            </div>
-                            
-                            <div class="info-row">
-                                <div class="info-icon">
-                                    <i class="bi bi-geo-alt-fill"></i>
-                                </div>
-                                <div class="info-content">
-                                    <small>Ubicación</small>
-                                    <strong t-esc="tracking_data['ubicacion']"/>
-                                </div>
-                            </div>
-                            
-                            <div class="info-row">
-                                <div class="info-icon">
-                                    <i class="bi bi-exclamation-triangle-fill"></i>
-                                </div>
-                                <div class="info-content">
-                                    <small>Problema Reportado</small>
-                                    <strong t-esc="tracking_data['problema']"/>
-                                </div>
-                            </div>
-                            
-                            <div class="info-row" t-if="tracking_data['tecnico'] != 'Por asignar'">
-                                <div class="info-icon">
-                                    <i class="bi bi-person-gear"></i>
-                                </div>
-                                <div class="info-content">
-                                    <small>Técnico Asignado</small>
-                                    <strong t-esc="tracking_data['tecnico']"/>
-                                    <small style="display: block; margin-top: 0.25rem; color: #94a3b8;" t-if="tracking_data['tecnico_telefono']">
-                                        <i class="bi bi-telephone-fill"></i>
-                                        <t t-esc="tracking_data['tecnico_telefono']"/>
-                                    </small>
-                                </div>
-                            </div>
-                            
-                            <div class="info-row pulse" t-if="tracking_data['fecha_programada']">
-                                <div class="info-icon">
-                                    <i class="bi bi-clock-fill"></i>
-                                </div>
-                                <div class="info-content">
-                                    <small>Fecha Programada</small>
-                                    <strong t-esc="tracking_data['fecha_programada'].strftime('%d/%m/%Y %H:%M')"/>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Timeline -->
-                        <div class="mb-5" t-if="tracking_data['timeline']">
-                            <h5 class="section-title">
-                                <i class="bi bi-clock-history"></i>
-                                Historial del Servicio
-                            </h5>
-                            
-                            <div class="timeline">
-                                <t t-foreach="tracking_data['timeline']" t-as="event">
-                                    <div t-attf-class="timeline-item {{ 'completed' if event['completed'] else '' }}">
-                                        <div class="timeline-icon">
-                                            <span t-esc="event['icon']"/>
-                                        </div>
-                                        <div class="timeline-content">
-                                            <h6 t-esc="event['titulo']"/>
-                                            <p class="mb-2" t-esc="event['descripcion']"/>
-                                            <small>
-                                                <i class="bi bi-calendar3"></i>
-                                                <t t-esc="event['fecha'].strftime('%d/%m/%Y %H:%M')"/>
-                                            </small>
-                                        </div>
-                                    </div>
-                                </t>
-                            </div>
-                        </div>
-                        
-                        <!-- Trabajo Realizado -->
-                        <div class="alert alert-success d-flex align-items-start gap-3" 
-                             t-if="tracking_data['trabajo_realizado']">
-                            <i class="bi bi-check-circle-fill fs-3 flex-shrink-0"></i>
-                            <div>
-                                <h6 class="alert-heading mb-2 fw-bold">Trabajo Realizado</h6>
-                                <p class="mb-0" t-esc="tracking_data['trabajo_realizado']"/>
-                            </div>
-                        </div>
-                        
-                        <!-- Botón Evaluar -->
-                        <div class="text-center mt-4" t-if="tracking_data['puede_evaluar']">
-                            <a t-attf-href="/service/evaluate/{{ service.evaluation_token }}" 
-                               class="btn btn-success-modern btn-lg">
-                                <i class="bi bi-star-fill"></i>
-                                Evaluar Servicio
-                            </a>
-                        </div>
-                        
-                        <!-- Ya Evaluado -->
-                        <div class="alert alert-info d-flex align-items-center gap-3" 
-                             t-if="tracking_data['ya_evaluado']">
-                            <i class="bi bi-star-fill fs-3 flex-shrink-0"></i>
-                            <div>
-                                <strong class="d-block">¡Gracias por tu evaluación!</strong>
-                                <p class="mb-0">Tu opinión nos ayuda a mejorar nuestros servicios.</p>
-                            </div>
-                        </div>
-                    </div>
+                    <h1 class="mt-3 mb-2">Seguimiento de Servicio</h1>
+                    <h2 class="h4 mb-0">
+                        <i class="bi bi-hash"></i>
+                        <t t-esc="tracking_data['numero']"/>
+                    </h2>
                 </div>
                 
-                <!-- Footer -->
-                <div class="footer-text">
-                    <i class="bi bi-shield-check"></i>
-                    Enlace seguro - Copier Company S.A.C.
+                <div class="card-body">
+                    <!-- Estado Actual -->
+                    <div class="text-center mb-5">
+                        <div t-attf-class="status-badge badge-animated text-white {{ tracking_data['estado_key'] }}">
+                            <span t-esc="tracking_data['estado_icon']"/>
+                            <span t-esc="tracking_data['estado']"/>
+                        </div>
+                    </div>
+                    
+                    <!-- Información del Servicio EN DOS COLUMNAS -->
+                    <div class="mb-5">
+                        <h5 class="section-title">
+                            <i class="bi bi-info-circle-fill"></i>
+                            Información del Servicio
+                        </h5>
+                        
+                        <div class="row g-3">
+                            <!-- COLUMNA IZQUIERDA -->
+                            <div class="col-md-6">
+                                <div class="info-row">
+                                    <div class="info-icon">
+                                        <i class="bi bi-calendar3"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <small>Fecha de Creación</small>
+                                        <strong t-esc="tracking_data['fecha_creacion'].strftime('%d/%m/%Y %H:%M')"/>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-row">
+                                    <div class="info-icon">
+                                        <i class="bi bi-building"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <small>Cliente</small>
+                                        <strong t-esc="tracking_data['cliente']"/>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-row">
+                                    <div class="info-icon">
+                                        <i class="bi bi-printer-fill"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <small>Equipo</small>
+                                        <strong t-esc="tracking_data['equipo']"/>
+                                        <small style="display: block; margin-top: 0.25rem; color: #94a3b8;">
+                                            Serie: <t t-esc="tracking_data['serie']"/>
+                                        </small>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-row">
+                                    <div class="info-icon">
+                                        <i class="bi bi-geo-alt-fill"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <small>Ubicación</small>
+                                        <strong t-esc="tracking_data['ubicacion']"/>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- COLUMNA DERECHA -->
+                            <div class="col-md-6">
+                                <div class="info-row">
+                                    <div class="info-icon">
+                                        <i class="bi bi-exclamation-triangle-fill"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <small>Problema Reportado</small>
+                                        <strong t-esc="tracking_data['problema']"/>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-row" t-if="tracking_data['tecnico'] != 'Por asignar'">
+                                    <div class="info-icon">
+                                        <i class="bi bi-person-gear"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <small>Técnico Asignado</small>
+                                        <strong t-esc="tracking_data['tecnico']"/>
+                                        <small style="display: block; margin-top: 0.25rem; color: #94a3b8;" t-if="tracking_data['tecnico_telefono']">
+                                            <i class="bi bi-telephone-fill"></i>
+                                            <t t-esc="tracking_data['tecnico_telefono']"/>
+                                        </small>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-row pulse" t-if="tracking_data['fecha_programada']">
+                                    <div class="info-icon">
+                                        <i class="bi bi-clock-fill"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <small>Fecha Programada</small>
+                                        <strong t-esc="tracking_data['fecha_programada'].strftime('%d/%m/%Y %H:%M')"/>
+                                    </div>
+                                </div>
+                                
+                                <!-- Placeholder para mantener simetría si no hay técnico -->
+                                <div t-if="tracking_data['tecnico'] == 'Por asignar' and not tracking_data['fecha_programada']">
+                                    <div class="info-row" style="opacity: 0.5;">
+                                        <div class="info-icon">
+                                            <i class="bi bi-hourglass-split"></i>
+                                        </div>
+                                        <div class="info-content">
+                                            <small>Estado</small>
+                                            <strong>En espera de asignación</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Timeline - ANCHO COMPLETO -->
+                    <div class="mb-5" t-if="tracking_data['timeline']">
+                        <h5 class="section-title">
+                            <i class="bi bi-clock-history"></i>
+                            Historial del Servicio
+                        </h5>
+                        
+                        <div class="timeline">
+                            <t t-foreach="tracking_data['timeline']" t-as="event">
+                                <div t-attf-class="timeline-item {{ 'completed' if event['completed'] else '' }}">
+                                    <div class="timeline-icon">
+                                        <span t-esc="event['icon']"/>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-8">
+                                                <h6 t-esc="event['titulo']"/>
+                                                <p class="mb-0" t-esc="event['descripcion']"/>
+                                            </div>
+                                            <div class="col-md-4 text-md-end">
+                                                <small>
+                                                    <i class="bi bi-calendar3"></i>
+                                                    <t t-esc="event['fecha'].strftime('%d/%m/%Y %H:%M')"/>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                    
+                    <!-- Trabajo Realizado - ANCHO COMPLETO -->
+                    <div class="alert alert-success d-flex align-items-start gap-3" 
+                         t-if="tracking_data['trabajo_realizado']">
+                        <i class="bi bi-check-circle-fill fs-3 flex-shrink-0"></i>
+                        <div class="flex-grow-1">
+                            <h6 class="alert-heading mb-2 fw-bold">Trabajo Realizado</h6>
+                            <p class="mb-0" t-esc="tracking_data['trabajo_realizado']"/>
+                        </div>
+                    </div>
+                    
+                    <!-- Botones EN FILA -->
+                    <div class="d-flex gap-3 justify-content-center flex-wrap mt-4">
+                        <a t-if="tracking_data['puede_evaluar']"
+                           t-attf-href="/service/evaluate/{{ service.evaluation_token }}" 
+                           class="btn btn-success-modern btn-lg">
+                            <i class="bi bi-star-fill"></i>
+                            Evaluar Servicio
+                        </a>
+                        
+                        <a t-if="tracking_data['estado_key'] == 'completado'"
+                           href="#" 
+                           class="btn btn-outline-primary btn-lg">
+                            <i class="bi bi-download"></i>
+                            Descargar Reporte
+                        </a>
+                    </div>
+                    
+                    <!-- Ya Evaluado -->
+                    <div class="alert alert-info d-flex align-items-center gap-3" 
+                         t-if="tracking_data['ya_evaluado']">
+                        <i class="bi bi-star-fill fs-3 flex-shrink-0"></i>
+                        <div>
+                            <strong class="d-block">¡Gracias por tu evaluación!</strong>
+                            <p class="mb-0">Tu opinión nos ayuda a mejorar nuestros servicios.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </t>
-    </template>
+            
+            <!-- Footer -->
+            <div class="footer-text">
+                <i class="bi bi-shield-check"></i>
+                Enlace seguro - Copier Company S.A.C.
+            </div>
+        </div>
+    </t>
+</template>
     
     <!-- ========================================== -->
     <!-- TEMPLATE: ERROR DE SEGUIMIENTO -->
