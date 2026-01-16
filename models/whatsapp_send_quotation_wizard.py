@@ -170,24 +170,49 @@ Equipo Copier Company
         copiers = self.env['copier.company'].browse(copier_ids)
         
         for copier in copiers:
-            if not copier.cliente_id or not copier.cliente_id.mobile:
+            if not copier.cliente_id:
                 continue
             
-            # Dividir números por punto y coma
-            phones = copier.cliente_id.mobile.split(';')
+            # Intentar obtener números de diferentes campos posibles
+            phone_numbers = []
             
-            for phone in phones:
-                phone = phone.strip()
-                if not phone or phone in seen_phones:
-                    continue
+            # 1. Primero intentar el campo 'celular' de copier.company
+            if hasattr(copier, 'celular') and copier.celular:
+                phone_numbers.append(copier.celular)
+            
+            # 2. Luego intentar campos del partner
+            partner = copier.cliente_id
+            
+            # Intentar mobile (si existe)
+            if hasattr(partner, 'mobile') and partner.mobile:
+                phone_numbers.append(partner.mobile)
+            
+            # Intentar phone
+            if hasattr(partner, 'phone') and partner.phone:
+                phone_numbers.append(partner.phone)
+            
+            # Si no hay números, continuar con el siguiente
+            if not phone_numbers:
+                _logger.warning(f"No se encontraron números para la cotización {copier.secuencia}")
+                continue
+            
+            # Procesar cada número encontrado
+            for phone_field in phone_numbers:
+                # Dividir números por punto y coma
+                phones = str(phone_field).split(';')
                 
-                seen_phones.add(phone)
-                
-                phone_lines.append((0, 0, {
-                    'phone': phone,
-                    'partner_name': copier.cliente_id.name,
-                    'copier_reference': copier.secuencia,
-                }))
+                for phone in phones:
+                    phone = phone.strip()
+                    if not phone or phone in seen_phones:
+                        continue
+                    
+                    seen_phones.add(phone)
+                    
+                    phone_lines.append((0, 0, {
+                        'phone': phone,
+                        'partner_name': copier.cliente_id.name,
+                        'copier_reference': copier.secuencia,
+                    }))
         
         return phone_lines
     
