@@ -12,8 +12,8 @@
         <field name="margin_bottom">15</field>
         <field name="margin_left">10</field>
         <field name="margin_right">10</field>
-        <field name="header_line" eval="False"/>
         <field name="dpi">90</field>
+        <field name="header_line" eval="False"/>
     </record>
 
     <!-- ===================================================== -->
@@ -32,25 +32,37 @@
     </record>
 
     <!-- ===================================================== -->
-    <!-- TEMPLATE DEL REPORTE -->
+    <!-- TEMPLATE -->
     <!-- ===================================================== -->
     <template id="report_service_request">
         <t t-name="copier_company.report_service_request">
             <t t-call="web.basic_layout">
 
-                <!-- =================== ESTILOS =================== -->
+                <!-- ================================================= -->
+                <!-- VARIABLES OBLIGATORIAS (ODOO 19) -->
+                <!-- ================================================= -->
+                <t t-set="doc" t-value="docs[0]"/>
+                <t t-set="company" t-value="doc.company_id"/>
+
+                <!-- ================================================= -->
+                <!-- ESTILOS -->
+                <!-- ================================================= -->
                 <style>
-                    body { font-family: 'Helvetica', 'Arial', sans-serif; }
+                    body {
+                        font-family: Arial, Helvetica, sans-serif;
+                        font-size: 12px;
+                        color: #0f172a;
+                    }
                     .card {
                         background: #ffffff;
                         border-radius: 12px;
                         padding: 16px;
                         margin-bottom: 16px;
-                        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+                        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
                     }
                     .header {
                         background: linear-gradient(135deg, #1e3a8a, #2563eb);
-                        color: white;
+                        color: #ffffff;
                         padding: 20px;
                         border-radius: 12px;
                         margin-bottom: 16px;
@@ -60,11 +72,11 @@
                         font-weight: 700;
                     }
                     .subtitle {
-                        font-size: 14px;
+                        font-size: 13px;
                         opacity: 0.9;
                     }
                     .section-title {
-                        font-size: 15px;
+                        font-size: 14px;
                         font-weight: 600;
                         color: #1e293b;
                         border-bottom: 2px solid #e5e7eb;
@@ -73,28 +85,36 @@
                     }
                     .label {
                         color: #64748b;
-                        font-size: 12px;
+                        font-size: 11px;
                     }
                     .value {
                         font-weight: 600;
-                        color: #0f172a;
+                        font-size: 12px;
                     }
                     .badge {
                         padding: 4px 10px;
                         border-radius: 999px;
-                        font-size: 12px;
+                        font-size: 11px;
                         color: white;
                     }
-                    .badge-normal { background: #64748b; }
-                    .badge-alta { background: #f59e0b; }
-                    .badge-critica { background: #dc2626; }
                     .badge-ok { background: #16a34a; }
-                    .table th {
-                        background: #f1f5f9;
-                        font-size: 12px;
+                    .badge-warn { background: #f59e0b; }
+                    .badge-danger { background: #dc2626; }
+
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
                     }
-                    .table td {
-                        font-size: 12px;
+                    th {
+                        background: #f1f5f9;
+                        font-size: 11px;
+                        padding: 6px;
+                        border: 1px solid #e5e7eb;
+                    }
+                    td {
+                        font-size: 11px;
+                        padding: 6px;
+                        border: 1px solid #e5e7eb;
                     }
                     .image-box img {
                         max-height: 180px;
@@ -102,8 +122,6 @@
                         border: 1px solid #e5e7eb;
                     }
                 </style>
-
-                <t t-set="doc" t-value="docs[0]"/>
 
                 <div class="page">
 
@@ -185,7 +203,7 @@
                             <div class="col-4">
                                 <div class="label">Estado</div>
                                 <span class="badge badge-ok">
-                                    <t t-esc="dict(doc._fields['estado'].selection)[doc.estado]"/>
+                                    <t t-esc="dict(doc._fields['estado'].selection).get(doc.estado)"/>
                                 </span>
                             </div>
                         </div>
@@ -205,37 +223,27 @@
                             </div>
                             <div class="col-3">
                                 <div class="label">Duración (h)</div>
-                                <div class="value"><t t-esc="round(doc.duracion_real,2)"/></div>
+                                <div class="value"><t t-esc="round(doc.duracion_real or 0, 2)"/></div>
                             </div>
                             <div class="col-3">
                                 <div class="label">SLA</div>
-                                <span class="badge" t-att-class="doc.sla_cumplido and 'badge-ok' or 'badge-critica'">
+                                <span class="badge"
+                                      t-att-class="doc.sla_cumplido and 'badge-ok' or 'badge-danger'">
                                     <t t-esc="doc.sla_cumplido and 'Cumplido' or 'No Cumplido'"/>
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- =================== CONTADORES =================== -->
-                    <t t-if="doc.contador_total">
+                    <!-- =================== TRABAJO REALIZADO =================== -->
+                    <t t-if="doc.trabajo_realizado">
                         <div class="card">
-                            <div class="section-title">Contadores</div>
-                            <table class="table table-sm">
-                                <tr>
-                                    <th>B/N</th>
-                                    <th>Color</th>
-                                    <th>Total</th>
-                                </tr>
-                                <tr>
-                                    <td><t t-esc="doc.contador_bn"/></td>
-                                    <td><t t-esc="doc.contador_color"/></td>
-                                    <td><strong><t t-esc="doc.contador_total"/></strong></td>
-                                </tr>
-                            </table>
+                            <div class="section-title">Trabajo Realizado</div>
+                            <p><t t-esc="doc.trabajo_realizado"/></p>
                         </div>
                     </t>
 
-                    <!-- =================== FOTOS =================== -->
+                    <!-- =================== EVIDENCIAS =================== -->
                     <t t-if="doc.foto_antes or doc.foto_despues">
                         <div class="card">
                             <div class="section-title">Evidencias</div>
@@ -266,4 +274,5 @@
             </t>
         </t>
     </template>
+
 </odoo>
