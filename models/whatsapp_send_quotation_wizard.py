@@ -265,18 +265,21 @@ Equipo Copier Company
             copier (copier.company): Registro de cotización
             
         Returns:
-            bytes: Contenido del PDF
+            tuple: (pdf_content, filename)
         """
         try:
             report_action = self.env.ref('copier_company.action_report_report_cotizacion_alquiler')
             pdf_content, _ = self.env['ir.actions.report']._render_qweb_pdf(
                 report_action.id, copier.ids
             )
-            return pdf_content
+            
+            # Generar el mismo nombre que en send_whatsapp_report original
+            filename = f"Propuesta_Comercial_{copier.secuencia}.pdf"
+            
+            return pdf_content, filename
         except Exception as e:
             _logger.error(f"Error generando PDF para {copier.secuencia}: {str(e)}")
             raise UserError(_(f'Error al generar PDF para {copier.secuencia}: {str(e)}'))
-    
     # ============================================
     # ACCIONES
     # ============================================
@@ -391,13 +394,15 @@ Equipo Copier Company
                             phone=phone_line.phone_clean,
                             file_data=pdf_content,
                             media_type='document',
-                            caption=processed_message
+                            caption=processed_message,
+                            filename=pdf_filename  # ⭐ Usar el nombre generado
                         )
                     else:
                         result = self.config_id.send_message(
                             phone=phone_line.phone_clean,
                             message=processed_message
                         )
+                   
                     
                     if result.get('success'):
                         total_sent += 1
