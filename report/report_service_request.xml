@@ -54,13 +54,13 @@
                         border: 1px solid #e2e8f0;
                     }
                     
-                    .header-gradient {
-                        background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+                    .header-container {
+                        background: white;
                         border-radius: 10px;
                         padding: 1.5rem;
                         margin-bottom: 1.5rem;
-                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                        color: white;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                        border-left: 6px solid #1e3a8a;
                     }
                     
                     .company-logo {
@@ -72,13 +72,14 @@
                         font-size: 24px;
                         font-weight: 700;
                         margin: 0;
-                        color: white;
+                        color: #1e3a8a;
+                        text-transform: uppercase;
                     }
                     
                     .report-subtitle {
                         font-size: 13px;
-                        opacity: 0.95;
                         margin-top: 0.5rem;
+                        color: #64748b;
                     }
                     
                     .section-title {
@@ -220,7 +221,7 @@
                 <div class="page">
                     
                     <!-- =================== HEADER CON LOGO =================== -->
-                    <div class="header-gradient">
+                    <div class="header-container">
                         <div class="row align-items-center">
                             <div class="col-3">
                                 <img t-if="docs[0].company_id.logo" 
