@@ -21,7 +21,7 @@ class WhatsAppSendMultiQuotationWizard(models.TransientModel):
     )
     
     phone_line_ids = fields.One2many(
-        'whatsapp.quotation.phone.line',
+        'whatsapp.multi.quotation.phone.line',
         'wizard_id',
         string='Números de Teléfono',
         help='Lista de números a los que se enviará la cotización'

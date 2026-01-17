@@ -377,7 +377,7 @@ class CopierQuotation(models.Model):
         return {
             'name': 'Enviar Cotización por WhatsApp',
             'type': 'ir.actions.act_window',
-            'res_model': 'whatsapp.send.multi.quotation.wizard',
+            'res_model': 'whatsapp.send.multi.quotation.wizard',  # ✅ CORREGIDO
             'view_mode': 'form',
             'target': 'new',
             'context': {
