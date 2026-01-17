@@ -102,17 +102,15 @@ class CopierQuotation(models.Model):
             })
             
             # Registrar en el chatter
+            
             self.message_post(
-                body=f"""
-                📧 <strong>Cotización Enviada por Email</strong><br/>
-                • Destinatario: {self.cliente_id.email}<br/>
-                • Fecha: {datetime.now().strftime('%d/%m/%Y %H:%M')}<br/>
-                • Enlaces de acción generados<br/>
-                • Estado cambiado a: Enviado
+                body="""
+                📧 <strong>Email enviado exitosamente</strong><br/>
+                💡 Tip: Use el botón "Enviar WhatsApp" para complementar el envío
                 """,
                 message_type='notification'
             )
-            
+                        
             # Enviar notificación por WhatsApp
             self._send_whatsapp_notification()
             
@@ -272,110 +270,11 @@ class CopierQuotation(models.Model):
                 message_type='notification'
             )
 
-    def _get_formatted_phones(self):
-        """Obtiene y formatea los números de teléfono del cliente"""
-        if not self.cliente_id.mobile:
-            return []
-            
-        # Dividir números por punto y coma
-        phones = self.cliente_id.mobile.split(';')
-        formatted_phones = []
-        
-        for phone in phones:
-            formatted = self._format_phone_number(phone)
-            if formatted:
-                formatted_phones.append(formatted)
-                
-        return formatted_phones
 
-    def _format_phone_number(self, phone):
-        """Formatea un número de teléfono para WhatsApp"""
-        if not phone:
-            return False
-            
-        # Limpiar el número
-        phone = phone.strip().replace(' ', '').replace('+', '')
-        phone = re.sub(r'[^0-9]', '', phone)
-        
-        # Si el número no empieza con '51' y tiene 9 dígitos, agregar '51'
-        if not phone.startswith('51') and len(phone) == 9:
-            phone = f'51{phone}'
-        
-        # Validar que el número tenga formato correcto
-        if len(phone) >= 11 and phone.startswith('51'):
-            return phone
-        
-        return False
-    def _send_whatsapp_text_only(self):
-        """Fallback: enviar solo texto si falla el PDF"""
-        try:
-            formatted_phones = self._get_formatted_phones()
-            WHATSAPP_API_URL = 'https://whatsappapi.copiercompanysac.com/api/message'
-            
-            message = f"""🎯 *Cotización Múltiple {self.name}*
 
-    📧 Hemos enviado su cotización por email con todos los detalles.
-
-    📋 *Resumen:*
-    • {len(self.linea_equipos_ids)} equipo(s)
-    • Total: S/. {self.total_por_modalidad:,.2f}
-
-    *Por favor revise su correo electrónico*
-
-    *Copier Company SAC*"""
-
-            success_count = 0
-            for phone in formatted_phones:
-                try:
-                    data = {
-                        'phone': phone,
-                        'type': 'text',
-                        'message': message
-                    }
-                    
-                    response = requests.post(WHATSAPP_API_URL, data=data, timeout=30)
-                    
-                    if response.status_code == 200:
-                        response_data = response.json()
-                        if response_data.get('success'):
-                            success_count += 1
-                            
-                except Exception as e:
-                    _logger.error(f"Error fallback WhatsApp a {phone}: {str(e)}")
-
-            if success_count > 0:
-                self.message_post(
-                    body=f"📱 Notificación WhatsApp enviada a {success_count} número(s) (solo texto)",
-                    message_type='notification'
-                )
-                
-        except Exception as e:
-            _logger.error(f"Error en fallback WhatsApp: {str(e)}")
-
-    def action_send_pdf_whatsapp(self):
-        """Botón para enviar solo PDF por WhatsApp (sin email)"""
-        self.ensure_one()
-        
-        if self.estado == 'borrador':
-            raise UserError("No se puede enviar una cotización que aún está en borrador.")
-        
-        try:
-            # Usar la misma función que funciona
-            self._send_whatsapp_notification()
-            
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': '📱 WhatsApp Enviado',
-                    'message': f'PDF de cotización {self.name} enviado por WhatsApp',
-                    'type': 'success',
-                    'sticky': False,
-                }
-            }
-            
-        except Exception as e:
-            raise UserError(f"Error enviando WhatsApp: {str(e)}")
+   
+    
+   
     def _create_followup_activity(self):
         """Crea una actividad de seguimiento para el vendedor"""
         try:
@@ -430,22 +329,6 @@ class CopierQuotation(models.Model):
             self.estado = original_estado
             raise
 
-    def action_test_whatsapp(self):
-        """Método de prueba para WhatsApp (solo para desarrollo)"""
-        if not self.env.user.has_group('base.group_system'):
-            raise UserError("Solo administradores pueden usar esta función de prueba")
-        
-        self._send_whatsapp_notification()
-        
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': 'Test WhatsApp',
-                'message': 'Mensaje de prueba enviado. Revisa los logs.',
-                'type': 'info',
-            }
-        }
 
     def action_generar_urls_debug(self):
         """Genera URLs de debug para pruebas (solo administradores)"""
@@ -474,6 +357,79 @@ class CopierQuotation(models.Model):
                 'type': 'success',
             }
         }
+
+    # ============================================
+    # MÉTODOS DE WHATSAPP
+    # ============================================
+    def send_whatsapp_report(self):
+        """Abre wizard para enviar cotización multi-equipo por WhatsApp"""
+        self.ensure_one()
+        
+        # Validar que tenga cliente
+        if not self.cliente_id:
+            raise UserError('Debe asignar un cliente antes de enviar por WhatsApp.')
+        
+        # Validar que tenga al menos un equipo
+        if not self.linea_equipos_ids:
+            raise UserError('Debe agregar al menos un equipo a la cotización antes de enviar.')
+        
+        # Abrir wizard
+        return {
+            'name': 'Enviar Cotización por WhatsApp',
+            'type': 'ir.actions.act_window',
+            'res_model': 'whatsapp.send.multi.quotation.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_quotation_ids': [(6, 0, self.ids)],
+            }
+        }
+
+    def action_send_whatsapp_multi(self):
+        """Acción para enviar múltiples cotizaciones por WhatsApp (desde tree view)"""
+        if not self:
+            raise UserError('Debe seleccionar al menos una cotización.')
+        
+        # Validar que todas tengan cliente
+        sin_cliente = self.filtered(lambda c: not c.cliente_id)
+        if sin_cliente:
+            raise UserError(
+                f'Las siguientes cotizaciones no tienen cliente asignado:\n' +
+                '\n'.join(sin_cliente.mapped('name'))
+            )
+        
+        # Validar que todas tengan equipos
+        sin_equipos = self.filtered(lambda c: not c.linea_equipos_ids)
+        if sin_equipos:
+            raise UserError(
+                f'Las siguientes cotizaciones no tienen equipos:\n' +
+                '\n'.join(sin_equipos.mapped('name'))
+            )
+        
+        return {
+            'name': 'Enviar Cotizaciones por WhatsApp',
+            'type': 'ir.actions.act_window',
+            'res_model': 'whatsapp.send.multi.quotation.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_quotation_ids': [(6, 0, self.ids)],
+            }
+        }
+
+    def get_whatsapp_phone(self):
+        """Obtiene el número de teléfono para WhatsApp"""
+        self.ensure_one()
+        
+        # Prioridad: mobile del cliente > phone del cliente > telefono del registro
+        if hasattr(self.cliente_id, 'mobile') and self.cliente_id.mobile:
+            return self.cliente_id.mobile
+        elif self.cliente_id.phone:
+            return self.cliente_id.phone
+        elif self.telefono:
+            return self.telefono
+        
+        return False
 
 class CopierWebsite(http.Controller):
     

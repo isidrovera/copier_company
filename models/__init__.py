@@ -24,4 +24,5 @@ from . import whatsapp_config
 from . import whatsapp_service_notifications
 from . import whatsapp_send_quotation_wizard
 from . import whatsapp_quotation_phone_line
+from . import whatsapp_send_multi_quotation_wizard
 

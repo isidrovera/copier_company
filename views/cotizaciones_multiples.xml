@@ -53,10 +53,16 @@
             
             <button name="action_convertir_contratos" string="Convertir a Contratos" type="object" 
                     class="btn-warning" invisible="estado != 'aprobado'"/>
+             <button name="send_whatsapp_report" 
+                        string="Enviar WhatsApp" 
+                        type="object" 
+                        class="btn-success"
+                        invisible="not cliente_id or not linea_equipos_ids"
+                        />
             <button name="action_send_pdf_whatsapp" string="📱 WhatsApp" type="object" 
             class="btn-success" invisible="estado == 'borrador'"/>
             
-           <button name="action_test_whatsapp" string="Test WA" type="object" 
+           
             class="btn-secondary" groups="base.group_system"/>
             <field name="estado" widget="statusbar" statusbar_visible="borrador,enviado,aprobado,convertido"/>
           </header>
