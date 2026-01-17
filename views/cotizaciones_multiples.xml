@@ -59,11 +59,8 @@
                         class="btn-success"
                         invisible="not cliente_id or not linea_equipos_ids"
                         />
-            <button name="action_send_pdf_whatsapp" string="📱 WhatsApp" type="object" 
-            class="btn-success" invisible="estado == 'borrador'"/>
+          
             
-           
-            class="btn-secondary" groups="base.group_system"/>
             <field name="estado" widget="statusbar" statusbar_visible="borrador,enviado,aprobado,convertido"/>
           </header>
           
