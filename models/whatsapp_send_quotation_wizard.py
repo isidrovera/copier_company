@@ -276,7 +276,7 @@ Equipo Copier Company
             # Generar el mismo nombre que en send_whatsapp_report original
             filename = f"Propuesta_Comercial_{copier.secuencia}.pdf"
             
-            return pdf_content, filename
+            return pdf_content, filename  # ⭐ RETORNAR TUPLA
         except Exception as e:
             _logger.error(f"Error generando PDF para {copier.secuencia}: {str(e)}")
             raise UserError(_(f'Error al generar PDF para {copier.secuencia}: {str(e)}'))

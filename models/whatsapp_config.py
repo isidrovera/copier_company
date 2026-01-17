@@ -432,45 +432,71 @@ Error: {str(e)}"""
                 'error': error_msg
             }
     
-    def send_media(self, phone, file_data, media_type='document', caption=''):
+    def send_media(self, phone, file_data, media_type='document', caption='', filename=None):
         """
-        Enviar archivo multimedia
-        
+        Enviar archivo multimedia por WhatsApp (Baileys)
+
         Args:
-            phone (str): Número limpio
-            file_data (bytes): Datos del archivo
+            phone (str): Número limpio (ej: 51987654321)
+            file_data (bytes | base64): Contenido del archivo
             media_type (str): 'image', 'document', 'video', 'audio'
-            caption (str): Pie de foto/documento
-            
+            caption (str): Texto que acompaña el archivo
+            filename (str): Nombre real del archivo (ej: Propuesta_CT-000113.pdf)
+
         Returns:
-            dict: Resultado
+            dict: Resultado {'success': bool, 'message_id': str, 'error': str}
         """
         self.ensure_one()
-        
+
         try:
             import tempfile
             import os
             import base64
-            
-            # Decodificar si viene en base64
+            import mimetypes
+            import requests
+
+            # -------------------------------------------------
+            # Decodificar base64 si es necesario
+            # -------------------------------------------------
             if isinstance(file_data, str):
                 file_data = base64.b64decode(file_data)
-            
-            # Crear archivo temporal
+
+            # -------------------------------------------------
+            # Determinar extensión y MIME
+            # -------------------------------------------------
             suffix_map = {
                 'image': '.jpg',
                 'document': '.pdf',
                 'video': '.mp4',
                 'audio': '.mp3'
             }
-            suffix = suffix_map.get(media_type, '.pdf')
-            
-            with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp_file:
-                tmp_file.write(file_data)
-                tmp_path = tmp_file.name
-            
+            suffix = suffix_map.get(media_type, '.bin')
+
+            if filename:
+                mime_type, _ = mimetypes.guess_type(filename)
+            else:
+                mime_type = None
+
+            mime_type = mime_type or {
+                'image': 'image/jpeg',
+                'document': 'application/pdf',
+                'video': 'video/mp4',
+                'audio': 'audio/mpeg'
+            }.get(media_type, 'application/octet-stream')
+
+            real_filename = filename or f'file{suffix}'
+
+            # -------------------------------------------------
+            # Crear archivo temporal
+            # -------------------------------------------------
+            with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+                tmp.write(file_data)
+                tmp_path = tmp.name
+
             try:
-                # Determinar endpoint
+                # -------------------------------------------------
+                # Endpoint según tipo
+                # -------------------------------------------------
                 endpoint_map = {
                     'image': '/api/send/image',
                     'document': '/api/send/document',
@@ -478,21 +504,18 @@ Error: {str(e)}"""
                     'audio': '/api/send/audio'
                 }
                 endpoint = endpoint_map.get(media_type, '/api/send/document')
-                
-                _logger.info(f"📤 Enviando {media_type} a {phone} via {endpoint}")
-                
-                with open(tmp_path, 'rb') as file:
+
+                _logger.info("📤 Enviando %s a %s (%s)", media_type, phone, real_filename)
+
+                with open(tmp_path, 'rb') as f:
                     files = {
-                        'file': (f'file{suffix}', file, 'application/pdf' if media_type == 'document' else f'{media_type}/jpeg')
+                        'file': (real_filename, f, mime_type)
                     }
                     data = {
                         'number': phone,
-                        'caption': caption
+                        'caption': caption or ''
                     }
-                    
-                    _logger.info(f"🔗 API URL: {self.api_url}{endpoint}")
-                    _logger.info(f"📋 Data: number={phone}, caption_length={len(caption)}")
-                    
+
                     response = requests.post(
                         f"{self.api_url}{endpoint}",
                         headers={'x-api-key': self.api_key},
@@ -500,60 +523,52 @@ Error: {str(e)}"""
                         data=data,
                         timeout=30
                     )
-                    
-                    _logger.info(f"📡 Response Status: {response.status_code}")
-                    _logger.info(f"📡 Response Body: {response.text}")
-                    
-                    if response.status_code == 200:
-                        result = response.json()
-                        
-                        if result.get('success'):
-                            self.write({
-                                'total_messages_sent': self.total_messages_sent + 1,
-                                'last_message_date': fields.Datetime.now()
-                            })
-                            
-                            if self.log_messages:
-                                _logger.info("✅ %s enviado a %s", media_type.title(), phone)
-                            
-                            return {
-                                'success': True,
-                                'message_id': result.get('data', {}).get('messageId'),
-                                'error': None
-                            }
-                        else:
-                            error_msg = result.get('message', 'Error desconocido')
-                            self.write({'total_messages_failed': self.total_messages_failed + 1})
-                            _logger.error(f"❌ API returned success=false: {error_msg}")
-                            return {
-                                'success': False,
-                                'message_id': None,
-                                'error': error_msg
-                            }
-                    else:
-                        error_msg = f"HTTP {response.status_code}: {response.text}"
-                        self.write({'total_messages_failed': self.total_messages_failed + 1})
-                        _logger.error(f"❌ HTTP Error: {error_msg}")
+
+                _logger.info("📡 WhatsApp API Status: %s", response.status_code)
+
+                if response.status_code == 200:
+                    result = response.json()
+
+                    if result.get('success'):
+                        self.write({
+                            'total_messages_sent': self.total_messages_sent + 1,
+                            'last_message_date': fields.Datetime.now()
+                        })
+
+                        _logger.info("✅ Archivo enviado correctamente a %s", phone)
+
                         return {
-                            'success': False,
-                            'message_id': None,
-                            'error': error_msg
+                            'success': True,
+                            'message_id': result.get('data', {}).get('messageId'),
+                            'error': None
                         }
-                        
+
+                    error_msg = result.get('message', 'Error desconocido')
+                else:
+                    error_msg = f"HTTP {response.status_code}: {response.text}"
+
+                self.write({'total_messages_failed': self.total_messages_failed + 1})
+                _logger.error("❌ Error enviando archivo: %s", error_msg)
+
+                return {
+                    'success': False,
+                    'message_id': None,
+                    'error': error_msg
+                }
+
             finally:
-                # Limpiar archivo temporal
                 if os.path.exists(tmp_path):
                     os.unlink(tmp_path)
-            
+
         except Exception as e:
             self.write({'total_messages_failed': self.total_messages_failed + 1})
-            _logger.exception("❌ Exception enviando media: %s", str(e))
+            _logger.exception("❌ Excepción enviando media")
             return {
                 'success': False,
                 'message_id': None,
                 'error': str(e)
             }
-    
+
     # ============================================
     # MÉTODOS AUXILIARES
     # ============================================
