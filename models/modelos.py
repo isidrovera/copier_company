@@ -12,7 +12,7 @@ class ModelosMaquinas(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     # ⚠️ MISMA regla que tu _sql_constraints = unique(name)
-    @constraints('name')
+    @api.constrains('name')
     def _check_unique_name(self):
         for rec in self:
             if rec.name:
@@ -247,7 +247,7 @@ class MarcasMaquinas(models.Model):
 
     name = fields.Char(string='Marca')
 
-    @constraints('name')
+    @api.constrains('name')
     def _check_unique_name(self):
         for rec in self:
             if rec.name:
@@ -265,7 +265,7 @@ class AccesoriosMaquinas(models.Model):
 
     name = fields.Char(string='Accesorio', required=True)
 
-    @constraints('name')
+    @api.constrains('name')
     def _check_unique_name(self):
         for rec in self:
             if rec.name:
