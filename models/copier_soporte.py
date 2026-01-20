@@ -2,6 +2,8 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 from datetime import datetime, timedelta
+import base64
+
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -521,7 +523,7 @@ class CopierServiceRequest(models.Model):
         for record in self:
             record.sla_limite_1 = sla_map.get(record.prioridad, 24.0)
     
-    @api.depends('create_date', 'fecha_inicio', 'fecha_fin', 'sla_limite_1')
+    @api.depends('create_date', 'fecha_inicio', 'fecha_fin', 'sla_limite_1', 'estado')
     def _compute_sla(self):
         """Calcula los tiempos de SLA"""
         for record in self:
@@ -551,53 +553,110 @@ class CopierServiceRequest(models.Model):
     
     @api.model
     def create(self, vals):
-        """Override create para asignar secuencia, generar tokens y enviar notificaciones"""
-        # Manejar vals_list (puede ser dict o lista)
+        """Override create para asignar secuencia, autocompletar contacto,
+        generar tokens y enviar notificaciones"""
+
+        def _autocompletar_contacto_desde_partner(vals_dict):
+            """Rellena correo, teléfono y contacto desde el cliente de la máquina
+            SOLO si vienen vacíos en vals"""
+            maquina_id = vals_dict.get('maquina_id')
+            if not maquina_id:
+                return vals_dict
+
+            maquina = self.env['copier.company'].browse(maquina_id)
+            cliente = maquina.cliente_id if maquina else False
+
+            if not cliente:
+                return vals_dict
+
+            # Correo
+            if not vals_dict.get('correo') and cliente.email:
+                vals_dict['correo'] = cliente.email
+
+            # Teléfono (prioriza mobile sobre phone si existe)
+            telefono = cliente.mobile or cliente.phone
+            if not vals_dict.get('telefono_contacto') and telefono:
+                vals_dict['telefono_contacto'] = telefono
+
+            # Contacto (nombre)
+            if not vals_dict.get('contacto'):
+                if cliente.complete_name:
+                    vals_dict['contacto'] = cliente.complete_name
+                elif cliente.name:
+                    vals_dict['contacto'] = cliente.name
+
+            return vals_dict
+
+        # =========================================================
+        # SOPORTE PARA create() CON LISTA DE VALORES
+        # =========================================================
         if isinstance(vals, list):
             records = self.env['copier.service.request']
+
             for val in vals:
+                # Autocompletar datos de contacto si vienen vacíos
+                val = _autocompletar_contacto_desde_partner(val)
+
                 # Asignar secuencia si es nuevo
                 if val.get('name', _('Nuevo')) == _('Nuevo'):
-                    val['name'] = self.env['ir.sequence'].next_by_code('copier.service.request') or _('Nuevo')
-                
+                    val['name'] = self.env['ir.sequence'].next_by_code(
+                        'copier.service.request'
+                    ) or _('Nuevo')
+
                 # Crear registro
                 record = super(CopierServiceRequest, self).create(val)
                 records |= record
-                
-                # ✅ GENERAR TOKENS
+
+                # Generar tokens
                 record._generate_tokens()
-                
+
                 # Enviar confirmación
                 try:
                     record._send_email_confirmacion()
                 except Exception as e:
-                    _logger.error("Error enviando confirmación para %s: %s", record.name, str(e))
-                
+                    _logger.error(
+                        "Error enviando confirmación para %s: %s",
+                        record.name, str(e)
+                    )
+
                 # Notificar creación en chatter
                 record._notificar_nueva_solicitud()
-            
+
             return records
+
+        # =========================================================
+        # SOPORTE PARA create() NORMAL (dict)
+        # =========================================================
         else:
+            # Autocompletar datos de contacto si vienen vacíos
+            vals = _autocompletar_contacto_desde_partner(vals)
+
             # Asignar secuencia
             if vals.get('name', _('Nuevo')) == _('Nuevo'):
-                vals['name'] = self.env['ir.sequence'].next_by_code('copier.service.request') or _('Nuevo')
-            
+                vals['name'] = self.env['ir.sequence'].next_by_code(
+                    'copier.service.request'
+                ) or _('Nuevo')
+
             # Crear el registro
             record = super(CopierServiceRequest, self).create(vals)
-            
-            # ✅ GENERAR TOKENS
+
+            # Generar tokens
             record._generate_tokens()
-            
+
             # Enviar email de confirmación
             try:
                 record._send_email_confirmacion()
             except Exception as e:
-                _logger.error("Error enviando email de confirmación: %s", str(e))
-            
+                _logger.error(
+                    "Error enviando email de confirmación: %s",
+                    str(e)
+                )
+
             # Notificar en chatter
             record._notificar_nueva_solicitud()
-            
+
             return record
+
     
     def write(self, vals):
         """Override write para notificar cambios de estado"""
