@@ -10,6 +10,7 @@
     'website': "https://copiercompanysac.com",
     'category': 'Gestión de Equipos',
     'version': '0.1',
+    'license': 'LGPL-3',
 
     'external_dependencies': {
         'python': ['requests', 'requests_toolbelt', 'qrcode', 'PIL'],

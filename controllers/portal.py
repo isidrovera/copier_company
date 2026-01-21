@@ -7,7 +7,7 @@ from odoo import http, _, fields
 from odoo.exceptions import AccessError, MissingError, ValidationError
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
-from odoo.osv import expression
+from odoo.fields import Domain
 import base64
 
 _logger = logging.getLogger(__name__)
@@ -68,9 +68,10 @@ class CopierPortal(CustomerPortal):
         searchbar_filters = {
             'all': {'label': _('Todos'), 'domain': domain_base},
             'active': {'label': _('Contratos Activos'),
-                    'domain': expression.AND([domain_base, [('estado_renovacion', 'in', ['vigente', 'por_vencer'])]])},
+                'domain': Domain.AND([domain_base, [('estado_renovacion', 'in', ['vigente', 'por_vencer'])]])},
             'expired': {'label': _('Vencidos'),
-                        'domain': expression.AND([domain_base, [('estado_renovacion', '=', 'finalizado')]])},
+                'domain': Domain.AND([domain_base, [('estado_renovacion', '=', 'finalizado')]])},
+
         }
 
         filterby = kwargs.get('filterby') or 'all'
@@ -135,26 +136,7 @@ class CopierPortal(CustomerPortal):
         }
         return request.render('copier_company.portal_my_copier_equipment', values)
 
-    @http.route(['/my/copier/equipment/<int:equipment_id>/counters'], type='http', auth='user', website=True)
-    def portal_equipment_counters(self, equipment_id, **kwargs):
-        Equip = request.env['copier.company'].sudo()
-        equipment = Equip.browse(equipment_id)
-        if not equipment or equipment.cliente_id.id != request.env.user.partner_id.id:
-            return request.redirect('/my')
-
-        Counter = request.env['copier.counter'].sudo()
-        counters = Counter.search([('maquina_id', '=', equipment.id)], order='fecha desc, id desc')
-
-        chart_data = {}
-
-        values = {
-            'page_name': 'equipment_counters',
-            'equipment': equipment,
-            'counters': counters,
-            'chart_data': chart_data,
-        }
-        return request.render('copier_company.portal_my_copier_counters', values)
-        
+    
    
     @http.route(['/my/copier/equipment/<int:equipment_id>/counters'], type='http', auth="user", website=True)
     def portal_equipment_counters(self, equipment_id, **kw):
