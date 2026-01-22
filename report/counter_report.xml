@@ -229,37 +229,37 @@
                             </div>
                         </div>
                     </t>
-                    <t t-if="any(doc.informe_por_usuario for doc in docs)">
-                        <div class="card-container">
-                            <h4 style="color: #1e293b; font-weight: 600; margin-bottom: 1.5rem;">
-                                <i class="fa fa-users me-2"/>Detalle por Usuario
-                            </h4>
-                            <div class="table-responsive">
-                                <table class="table table-sm">
-                                    <thead>
-                                        <tr style="background-color: #f8fafc;">
-                                            <th scope="col">Máquina</th>
-                                            <th scope="col">Usuario/Empresa</th>
-                                            <th scope="col" class="text-end">Total Copias</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <t t-foreach="docs.filtered(lambda d: d.informe_por_usuario)" t-as="doc">
-                                            <t t-foreach="doc.usuario_detalle_ids" t-as="detalle">
-                                                <tr>
-                                                    <td><t t-esc="doc.maquina_id.name.name"/></td>
-                                                    <td><t t-esc="detalle.usuario_id.name"/></td>
-                                                    <td class="text-end">
-                                                        <t t-esc="'{:,}'.format(detalle.cantidad_copias)"/>
-                                                    </td>
-                                                </tr>
-                                            </t>
-                                        </t>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                   <t t-if="any(doc.informe_por_usuario for doc in docs)">
+    <div class="card-container">
+        <h4 style="color: #1e293b; font-weight: 600; margin-bottom: 1.5rem;">
+            <i class="fa fa-users me-2"/>Detalle por Usuario
+        </h4>
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr style="background-color: #f8fafc;">
+                        <th scope="col">Máquina</th>
+                        <th scope="col">Usuario/Empresa</th>
+                        <th scope="col" class="text-end">Total Copias</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="docs.filtered(lambda d: d.informe_por_usuario)" t-as="doc">
+                        <t t-foreach="doc.usuario_detalle_ids" t-as="detalle">
+                            <tr>
+                                <td><t t-esc="doc.maquina_id.name.name"/></td>
+                                <td><t t-esc="detalle.usuario_id.name"/></td>
+                                <td class="text-end">
+                                    <t t-esc="'{:,}'.format(detalle.total_copias or 0)"/>
+                                </td>
+                            </tr>
+                        </t>
                     </t>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</t>
 
 
                     <!-- Total General -->
