@@ -1425,6 +1425,12 @@ class CopierCounterUserDetail(models.Model):
         required=True,
         ondelete='cascade'
     )
+    tipo_maquina = fields.Selection(
+        related='contador_id.maquina_id.tipo',
+        string='Tipo Máquina',
+        store=True,
+        readonly=True
+    )
 
     usuario_id = fields.Many2one(
         'copier.machine.user',
