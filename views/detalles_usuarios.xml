@@ -63,7 +63,13 @@
                     <group>
                         <field name="contador_id" required="1"/>
                         <field name="usuario_id" required="1"/>
-                        <field name="cantidad_copias" required="1"/>
+                        <field name="cantidad_bn" required="1"/>
+
+    <!-- Solo visible si la máquina es color -->
+    <field name="cantidad_color"
+           invisible="contador_id.maquina_id.tipo == 'monocroma'"/>
+
+    <field name="total_copias" readonly="1"/>
                     </group>
                 </sheet>
             </form>
@@ -77,7 +83,13 @@
             <list>
                 <field name="contador_id"/>
                 <field name="usuario_id"/>
-                <field name="cantidad_copias"/>
+                <field name="cantidad_bn" required="1"/>
+
+    <!-- Solo visible si la máquina es color -->
+    <field name="cantidad_color"
+           invisible="contador_id.maquina_id.tipo == 'monocroma'"/>
+
+    <field name="total_copias" readonly="1"/>
             </list>
         </field>
     </record>
