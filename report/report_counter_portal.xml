@@ -115,7 +115,8 @@
 
                 <!-- Tomamos el primer registro como referencia -->
                 <t t-set="first" t-value="docs and docs[0] or False"/>
-                <t t-set="is_color" t-value="first and first.maquina_id and first.maquina_id.tipo == 'color' or False"/>
+                <t t-set="is_color" t-value="any(doc.maquina_id and doc.maquina_id.tipo == 'color' for doc in docs)"/>
+
 
                 <div class="page">
 
@@ -280,39 +281,102 @@
                     </t>
 
                     <!-- DETALLE POR USUARIO -->
-                    <t t-if="docs and any(doc.informe_por_usuario for doc in docs)">
-                        <div class="cc-user-detail-box">
-                            <p style="font-weight: 700; margin-bottom: 6px; font-size: 11px;">
-                                📊 Detalle por Usuario
-                            </p>
-                            <table class="table table-sm table-bordered" style="margin-bottom: 0;">
-                                <thead class="cc-table-header">
-                                    <tr>
-                                        <th class="cc-table-cell">Máquina</th>
-                                        <th class="cc-table-cell">Usuario/Empresa</th>
-                                        <th class="cc-table-cell text-right">Total Copias</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <t t-foreach="docs.filtered(lambda d: d.informe_por_usuario)" t-as="doc">
-                                        <t t-foreach="doc.usuario_detalle_ids" t-as="detalle">
-                                            <tr>
-                                                <td class="cc-table-cell">
-                                                    <t t-esc="doc.maquina_id.name.name"/>
-                                                </td>
-                                                <td class="cc-table-cell">
-                                                    <t t-esc="detalle.usuario_id.name"/>
-                                                </td>
-                                                <td class="cc-table-cell cc-table-cell-num">
-                                                    <t t-esc="'{:,}'.format(detalle.cantidad_copias or 0)"/>
-                                                </td>
-                                            </tr>
+                    <t t-if="any(doc.informe_por_usuario for doc in docs)">
+    <div class="card-container">
+        <h4 style="color: #1e293b; font-weight: 600; margin-bottom: 1.5rem;">
+            <i class="fa fa-users me-2"/>Detalle por Usuario
+        </h4>
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr style="background-color: #f8fafc;">
+                        <th scope="col">Máquina</th>
+                        <th scope="col">Usuario / Empresa</th>
+                        <th scope="col" class="text-end">B/N</th>
+
+                        <!-- Columna Color solo si existe al menos una máquina color -->
+                        <t t-if="any(doc.maquina_id.tipo == 'color' for doc in docs)">
+                            <th scope="col" class="text-end">Color</th>
+                        </t>
+
+                        <th scope="col" class="text-end">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- DETALLE POR USUARIO -->
+<t t-if="any(doc.informe_por_usuario for doc in docs)">
+    <div class="card-container">
+        <h4 style="color: #1e293b; font-weight: 600; margin-bottom: 1.5rem;">
+            <i class="fa fa-users me-2"/>Detalle por Usuario
+        </h4>
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr style="background-color: #f8fafc;">
+                        <th scope="col">Máquina</th>
+                        <th scope="col">Usuario / Empresa</th>
+                        <th scope="col" class="text-end">B/N</th>
+
+                        <!-- Columna Color solo si existe al menos una máquina color -->
+                        <t t-if="is_color">
+                            <th scope="col" class="text-end">Color</th>
+                        </t>
+
+                        <th scope="col" class="text-end">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="docs.filtered(lambda d: d.informe_por_usuario)" t-as="doc">
+                            <t t-foreach="doc.usuario_detalle_ids" t-as="detalle">
+                                <tr>
+                                    <!-- Máquina -->
+                                    <td>
+                                        <t t-esc="doc.maquina_id.name.name"/> - 
+                                        <t t-esc="doc.serie"/>
+                                    </td>
+
+                                    <!-- Usuario -->
+                                    <td>
+                                        <t t-esc="detalle.usuario_id.name"/>
+                                    </td>
+
+                                    <!-- B/N -->
+                                    <td class="text-end">
+                                        <t t-esc="'{:,}'.format(detalle.cantidad_bn or 0)"/>
+                                    </td>
+
+                                    <!-- Color -->
+                                    <t t-if="is_color">
+                                        <t t-if="doc.maquina_id.tipo == 'color'">
+                                            <td class="text-end">
+                                                <t t-esc="'{:,}'.format(detalle.cantidad_color or 0)"/>
+                                            </td>
+                                        </t>
+                                        <t t-else="">
+                                            <!-- Si esta máquina es mono pero hay otras color, dejamos vacío -->
+                                            <td class="text-end">-</td>
                                         </t>
                                     </t>
-                                </tbody>
-                            </table>
-                        </div>
-                    </t>
+
+                                    <!-- Total -->
+                                    <td class="text-end">
+                                        <t t-esc="'{:,}'.format(detalle.total_copias or 0)"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </t>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</t>
+
 
                     <div class="cc-footer">
                         Generado el

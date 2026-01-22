@@ -260,6 +260,32 @@ class CopierCounter(models.Model):
                     raise ValidationError(
                         "La fecha de emisión no puede ser anterior a la fecha de lectura."
                     )
+    def action_confirm(self):
+        self.ensure_one()
+
+        # Validaciones de contadores
+        if self.contador_actual_bn < self.contador_anterior_bn:
+            raise UserError('El contador actual B/N no puede ser menor al anterior')
+        if self.contador_actual_color < self.contador_anterior_color:
+            raise UserError('El contador actual Color no puede ser menor al anterior')
+
+        # VALIDAR CUADRE POR USUARIO SI ESTÁ ACTIVO EL DETALLE
+        if self.informe_por_usuario and self.usuario_detalle_ids:
+            total_bn_usuarios = sum(self.usuario_detalle_ids.mapped('cantidad_bn'))
+            total_color_usuarios = sum(self.usuario_detalle_ids.mapped('cantidad_color'))
+
+            if total_bn_usuarios != self.total_copias_bn:
+                raise UserError(
+                    f'Las copias B/N por usuario ({total_bn_usuarios}) no coinciden con el total del contador ({self.total_copias_bn}).'
+                )
+
+            if self.maquina_id.tipo == 'color':
+                if total_color_usuarios != self.total_copias_color:
+                    raise UserError(
+                        f'Las copias Color por usuario ({total_color_usuarios}) no coinciden con el total del contador ({self.total_copias_color}).'
+                    )
+
+        self.write({'state': 'confirmed'})
 
     def get_fecha_factura_efectiva(self):
         """Devuelve la fecha efectiva que se usará en la factura"""
@@ -874,17 +900,23 @@ class CopierCounter(models.Model):
         self.ensure_one()
         if not self.maquina_id:
             raise UserError('Primero selecciona la máquina asociada.')
-        
-        self.usuario_detalle_ids.unlink()  # Limpia registros previos
+
+        self.usuario_detalle_ids.unlink()
+
         usuarios = self.env['copier.machine.user'].search([
             ('maquina_id', '=', self.maquina_id.id)
         ])
-        detalles = [(0, 0, {
-            'usuario_id': usuario.id,
-            'cantidad_copias': 0  # Inicializa en 0 para ingresar manualmente
-        }) for usuario in usuarios]
+
+        detalles = []
+        for usuario in usuarios:
+            detalles.append((0, 0, {
+                'usuario_id': usuario.id,
+                'cantidad_bn': 0,
+                'cantidad_color': 0,
+            }))
 
         self.usuario_detalle_ids = detalles
+
     
 
     subtotal_bn = fields.Monetary(
@@ -1387,6 +1419,41 @@ class CopierCounterUserDetail(models.Model):
     _name = 'copier.counter.user.detail'
     _description = 'Detalle mensual de copias por usuario'
 
-    contador_id = fields.Many2one('copier.counter', string='Contador General', required=True, ondelete='cascade')
-    usuario_id = fields.Many2one('copier.machine.user', string='Empresa/Usuario', required=True)
-    cantidad_copias = fields.Integer('Total Copias', required=True)
+    contador_id = fields.Many2one(
+        'copier.counter',
+        string='Contador General',
+        required=True,
+        ondelete='cascade'
+    )
+
+    usuario_id = fields.Many2one(
+        'copier.machine.user',
+        string='Empresa/Usuario',
+        required=True
+    )
+
+    # NUEVOS CAMPOS
+    cantidad_bn = fields.Integer(
+        'Copias B/N',
+        default=0,
+        help="Total de copias en blanco y negro"
+    )
+
+    cantidad_color = fields.Integer(
+        'Copias Color',
+        default=0,
+        help="Total de copias a color"
+    )
+
+    # Campo total (opcional pero recomendable)
+    total_copias = fields.Integer(
+        'Total Copias',
+        compute='_compute_total_copias',
+        store=True
+    )
+
+    @api.depends('cantidad_bn', 'cantidad_color')
+    def _compute_total_copias(self):
+        for record in self:
+            record.total_copias = (record.cantidad_bn or 0) + (record.cantidad_color or 0)
+

@@ -1484,7 +1484,11 @@
             </div>
             
            <!-- Detalle por usuario mejorado -->
+<!-- Detalle por usuario mejorado -->
 <t t-if="counters and equipment and counters[0].informe_por_usuario">
+    <t t-set="is_color" t-value="equipment.tipo == 'color'"/>
+    <t t-set="total_general" t-value="(counters[0].total_copias_bn or 0) + (counters[0].total_copias_color or 0)"/>
+
     <div class="row g-4 mt-2">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
@@ -1494,55 +1498,72 @@
                         Detalle de Copias por Usuario
                     </h5>
                 </div>
+
                 <div class="card-body">
                     <t t-if="counters[0].usuario_detalle_ids">
-                        <div class="row g-4">
-                            <div class="col-lg-6">
-                                <div class="table-responsive">
-                                    <table class="table table-hover align-middle">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th class="fw-bold">Usuario / Empresa</th>
-                                                <th class="fw-bold text-center">Copias</th>
-                                                <th class="fw-bold text-center">Porcentaje</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr t-foreach="counters[0].usuario_detalle_ids" t-as="line">
-                                                <td>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
-                                                            <i class="bi bi-person-fill" style="font-size: 14px;"></i>
-                                                        </div>
-                                                        <span t-esc="line.usuario_id.name" class="fw-semibold text-dark"/>
-                                                    </div>
-                                                </td>
-                                                <td class="text-center font-monospace fw-bold">
-                                                    <span t-esc="line.cantidad_copias"/>
-                                                </td>
-                                                <td class="text-center">
-                                                    <div class="progress" style="height: 8px;">
-                                                        <div class="progress-bar bg-primary" 
-                                                             role="progressbar" 
-                                                             t-att-style="'width: {}%'.format(line.cantidad_copias / counters[0].total_copias_bn * 100 if counters[0].total_copias_bn > 0 else 0)">
-                                                        </div>
-                                                    </div>
-                                                    <small class="text-muted">
-                                                        <span t-esc="round(line.cantidad_copias / counters[0].total_copias_bn * 100, 1) if counters[0].total_copias_bn > 0 else 0"/>%
-                                                    </small>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="col-lg-6">
-                                <div class="chart-container" style="height: 300px;">
-                                    <canvas id="userDetailChart"></canvas>
-                                </div>
-                            </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Usuario / Empresa</th>
+                                        <th class="text-center">B/N</th>
+
+                                        <t t-if="is_color">
+                                            <th class="text-center">Color</th>
+                                        </t>
+
+                                        <th class="text-center">Total</th>
+                                        <th class="text-center">Porcentaje</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="counters[0].usuario_detalle_ids" t-as="line">
+                                        <!-- Usuario -->
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2"
+                                                     style="width: 32px; height: 32px;">
+                                                    <i class="bi bi-person-fill" style="font-size: 14px;"></i>
+                                                </div>
+                                                <span t-esc="line.usuario_id.name" class="fw-semibold text-dark"/>
+                                            </div>
+                                        </td>
+
+                                        <!-- B/N -->
+                                        <td class="text-center font-monospace fw-bold text-primary">
+                                            <t t-esc="line.cantidad_bn or 0"/>
+                                        </td>
+
+                                        <!-- Color -->
+                                        <t t-if="is_color">
+                                            <td class="text-center font-monospace fw-bold text-success">
+                                                <t t-esc="line.cantidad_color or 0"/>
+                                            </td>
+                                        </t>
+
+                                        <!-- Total -->
+                                        <td class="text-center font-monospace fw-bold">
+                                            <t t-esc="line.total_copias or 0"/>
+                                        </td>
+
+                                        <!-- Porcentaje sobre total general -->
+                                        <td class="text-center">
+                                            <div class="progress" style="height: 8px;">
+                                                <div class="progress-bar bg-primary"
+                                                     role="progressbar"
+                                                     t-att-style="'width: {}%'.format((line.total_copias / total_general * 100) if total_general > 0 else 0)">
+                                                </div>
+                                            </div>
+                                            <small class="text-muted">
+                                                <t t-esc="round((line.total_copias / total_general * 100), 1) if total_general > 0 else 0"/>%
+                                            </small>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </t>
+
                     <t t-else="">
                         <div class="text-center py-4">
                             <i class="bi bi-person-x text-muted mb-3" style="font-size: 3rem; opacity: 0.5;"></i>
@@ -1555,6 +1576,7 @@
         </div>
     </div>
 </t>
+
 <!-- Nueva pestaña -->
 <li class="nav-item" role="presentation">
     <button class="nav-link active rounded-0 py-3 text-dark"
@@ -1642,9 +1664,12 @@
                         <t t-foreach="counter.usuario_detalle_ids" t-as="line">
                             {
                                 name: '<t t-esc="line.usuario_id.name"/>',
-                                copies: <t t-esc="line.cantidad_copias"/>
+                                bn: <t t-esc="line.cantidad_bn or 0"/>,
+                                color: <t t-esc="line.cantidad_color or 0"/>,
+                                total: <t t-esc="line.total_copias or 0"/>
                             }<t t-if="not line_last">,</t>
                         </t>
+
                     ]
                 });
             </t>

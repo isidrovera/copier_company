@@ -212,12 +212,35 @@
                 <!-- Detalle de Usuarios - Solo visible cuando informe_por_usuario está activado -->
                 <div class="mt-3">
                     <field name="usuario_detalle_ids" invisible="not informe_por_usuario">
-                        <list editable="bottom" decoration-info="True" class="table-striped">
+                        <list editable="bottom" class="table-striped">
+
+                            <!-- Usuario -->
                             <field name="usuario_id" readonly="1"/>
-                            <field name="cantidad_copias" sum="Total de Copias" class="text-end"/>
+
+                            <!-- Copias B/N (siempre visible) -->
+                            <field name="cantidad_bn"
+                                string="B/N"
+                                sum="Total B/N"
+                                class="text-end"/>
+
+                            <!-- Copias Color (solo visible si la máquina es color) -->
+                            <field name="cantidad_color"
+                                string="Color"
+                                sum="Total Color"
+                                class="text-end"
+                                invisible="contador_id.maquina_id.tipo == 'monocroma'"/>
+
+                            <!-- Total por usuario -->
+                            <field name="total_copias"
+                                string="Total"
+                                sum="Gran Total"
+                                readonly="1"
+                                class="text-end"/>
+
                         </list>
                     </field>
                 </div>
+
 
                 <notebook class="mt-4">
                     <page string="🖤 Contadores B/N" name="contadores_bn">
