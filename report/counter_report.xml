@@ -239,16 +239,51 @@
                 <thead>
                     <tr style="background-color: #f8fafc;">
                         <th scope="col">Máquina</th>
-                        <th scope="col">Usuario/Empresa</th>
-                        <th scope="col" class="text-end">Total Copias</th>
+                        <th scope="col">Usuario / Empresa</th>
+                        <th scope="col" class="text-end">B/N</th>
+
+                        <!-- Mostrar columna Color solo si existe alguna máquina color -->
+                        <t t-if="any(doc.maquina_id.tipo == 'color' for doc in docs)">
+                            <th scope="col" class="text-end">Color</th>
+                        </t>
+
+                        <th scope="col" class="text-end">Total</th>
                     </tr>
                 </thead>
                 <tbody>
                     <t t-foreach="docs.filtered(lambda d: d.informe_por_usuario)" t-as="doc">
                         <t t-foreach="doc.usuario_detalle_ids" t-as="detalle">
                             <tr>
-                                <td><t t-esc="doc.maquina_id.name.name"/></td>
-                                <td><t t-esc="detalle.usuario_id.name"/></td>
+                                <!-- Máquina -->
+                                <td>
+                                    <t t-esc="doc.maquina_id.name.name"/> -
+                                    <t t-esc="doc.serie"/>
+                                </td>
+
+                                <!-- Usuario -->
+                                <td>
+                                    <t t-esc="detalle.usuario_id.name"/>
+                                </td>
+
+                                <!-- B/N -->
+                                <td class="text-end">
+                                    <t t-esc="'{:,}'.format(detalle.cantidad_bn or 0)"/>
+                                </td>
+
+                                <!-- Color (solo si esta máquina es color) -->
+                                <t t-if="doc.maquina_id.tipo == 'color'">
+                                    <td class="text-end">
+                                        <t t-esc="'{:,}'.format(detalle.cantidad_color or 0)"/>
+                                    </td>
+                                </t>
+                                <t t-else="">
+                                    <!-- Celda vacía si hay columna Color global -->
+                                    <t t-if="any(doc.maquina_id.tipo == 'color' for doc in docs)">
+                                        <td class="text-end">-</td>
+                                    </t>
+                                </t>
+
+                                <!-- Total -->
                                 <td class="text-end">
                                     <t t-esc="'{:,}'.format(detalle.total_copias or 0)"/>
                                 </td>
@@ -260,6 +295,7 @@
         </div>
     </div>
 </t>
+
 
 
                     <!-- Total General -->
