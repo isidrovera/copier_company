@@ -182,8 +182,11 @@ class CopierPortal(CustomerPortal):
                         
                         # Log de cada usuario
                         for user_detail in counter.usuario_detalle_ids:
-                            _logger.info("  - Usuario: %s, Copias: %s", 
-                                    user_detail.usuario_id.name, user_detail.cantidad_copias)
+                            _logger.info("  - Usuario: %s, B/N: %s, Color: %s", 
+                                user_detail.usuario_id.name, 
+                                user_detail.cantidad_bn, 
+                                user_detail.cantidad_color)
+
 
                     # Preparar datos para el gráfico general (código existente...)
                     monthly_data = []
@@ -235,7 +238,8 @@ class CopierPortal(CustomerPortal):
                             for user_detail in first.usuario_detalle_ids:
                                 chart_user_data.append({
                                     'name': user_detail.usuario_id.name,
-                                    'copies': user_detail.cantidad_copias
+                                    'copies': (user_detail.cantidad_bn or 0) + (user_detail.cantidad_color or 0)
+
                                 })
                             _logger.info("Datos de usuario del contador más reciente: %s usuarios", len(chart_user_data))
 
@@ -247,7 +251,8 @@ class CopierPortal(CustomerPortal):
                         mes = counter.mes_facturacion or counter.fecha.strftime('%B %Y') if counter.fecha else 'Sin fecha'
                         for detalle in counter.usuario_detalle_ids:
                             nombre = detalle.usuario_id.name or 'Sin nombre'
-                            monthly_user_data[mes][nombre] += detalle.cantidad_copias
+                            monthly_user_data[mes][nombre] += (detalle.cantidad_bn or 0) + (detalle.cantidad_color or 0)
+
 
                     labels = sorted(monthly_user_data.keys())
                     usuarios_unicos = sorted({u for datos in monthly_user_data.values() for u in datos})
