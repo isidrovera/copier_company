@@ -574,7 +574,7 @@ class CopierServiceRequest(models.Model):
                 vals_dict['correo'] = cliente.email
 
             # Teléfono (prioriza mobile sobre phone si existe)
-            telefono = cliente.mobile or cliente.phone
+            telefono = cliente.phone
             if not vals_dict.get('telefono_contacto') and telefono:
                 vals_dict['telefono_contacto'] = telefono
 
