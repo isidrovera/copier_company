@@ -6,6 +6,7 @@
       <t t-call="web.basic_layout">
 
         <style>
+        /* Página A4 */
         @page {
             size: A4;
             margin: 5mm;
@@ -17,20 +18,19 @@
             font-family: Arial, sans-serif;
         }
 
-        /* Grilla 2x4 = 8 stickers A7 por hoja */
+        /* Grilla 2 columnas x 4 filas = 8 stickers por hoja */
         .sheet {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            grid-template-rows: repeat(4, 1fr);
+            grid-template-columns: repeat(2, 105mm);
+            grid-template-rows: repeat(4, 74mm);
             gap: 6mm;
-            width: 100%;
-            height: 100%;
+            justify-content: center;
         }
 
-        /* Tamaño real A7 */
+        /* Sticker A7 horizontal (105 x 74 mm) */
         .sticker {
-            width: 74mm;
-            height: 105mm;
+            width: 105mm;
+            height: 74mm;
             border: 1px solid #999;
             padding: 4mm;
             box-sizing: border-box;
@@ -38,42 +38,71 @@
             background: #f9f9f4;
         }
 
-        .logo { color:#d40000; font-weight:bold; font-size:16px; }
-        .sublogo { font-size:9px; margin-bottom:3px; }
+        /* Encabezado */
+        .logo {
+            color: #d40000;
+            font-weight: bold;
+            font-size: 16px;
+        }
 
+        .sublogo {
+            font-size: 9px;
+            margin-bottom: 3px;
+        }
+
+        /* Bloque QR */
         .scan {
-            position:absolute;
-            top:4mm;
-            right:4mm;
-            border:2px solid #d40000;
-            padding:2mm;
-            text-align:center;
+            position: absolute;
+            top: 4mm;
+            right: 4mm;
+            border: 2px solid #d40000;
+            padding: 2mm;
+            text-align: center;
         }
 
         .scan-title {
-            background:#d40000;
-            color:white;
-            font-size:8px;
-            padding:2px;
-            margin-bottom:2px;
+            background: #d40000;
+            color: white;
+            font-size: 8px;
+            padding: 2px;
+            margin-bottom: 2px;
         }
 
-        .qr { width:40mm; height:40mm; }
+        .qr {
+            width: 32mm;
+            height: 32mm;
+        }
 
-        .text { margin-top:8mm; font-size:9px; }
+        /* Texto */
+        .text {
+            margin-top: 4mm;
+            font-size: 9px;
+        }
 
-        .serial { margin-top:5mm; font-size:10px; font-weight:bold; }
+        .serial {
+            margin-top: 3mm;
+            font-size: 10px;
+            font-weight: bold;
+        }
 
-        .contact { font-size:9px; }
+        .contact {
+            font-size: 9px;
+        }
 
+        /* Código de barras simulado */
         .barcode {
-            margin-top:4mm;
-            height:12mm;
+            margin-top: 4mm;
+            height: 12mm;
             background: repeating-linear-gradient(
-                90deg,#000 0px,#000 2px,#fff 2px,#fff 4px
+                90deg,
+                #000 0px,
+                #000 2px,
+                #fff 2px,
+                #fff 4px
             );
         }
 
+        /* Colores correctos al imprimir */
         @media print {
             * {
                 -webkit-print-color-adjust: exact !important;
@@ -84,6 +113,7 @@
 
         <div class="sheet">
 
+          <!-- Recorremos los equipos seleccionados -->
           <t t-foreach="docs" t-as="doc">
 
             <!-- Generar QR si no existe -->
@@ -93,9 +123,11 @@
 
             <div class="sticker">
 
+              <!-- Logo -->
               <div class="logo">Canon</div>
               <div class="sublogo">CANON SOLUTIONS AMERICA</div>
 
+              <!-- QR -->
               <div class="scan">
                 <div class="scan-title">SCAN ME</div>
                 <t t-if="doc.qr_code">
@@ -103,11 +135,13 @@
                 </t>
               </div>
 
+              <!-- Texto -->
               <div class="text">
                 For all your service needs,<br/>
                 please scan the QR code.
               </div>
 
+              <!-- Datos del equipo -->
               <div class="serial">
                 Modelo:
                 <t t-esc="doc.name.name if doc.name else 'N/D'"/>
@@ -118,9 +152,11 @@
                 <t t-esc="doc.serie_id or 'N/D'"/>
               </div>
 
+              <!-- Contacto -->
               <div class="contact">info@copiercompanysac.com</div>
               <div class="contact">+51 975 399 303</div>
 
+              <!-- Código de barras -->
               <div class="barcode"></div>
 
             </div>
