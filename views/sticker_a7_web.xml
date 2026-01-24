@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <template id="sticker_a7_web_template">
+
+    <t t-call="web.html_container">
+      <t t-call="web.basic_layout">
+
+        <style>
+        @page {
+            size: A4;
+            margin: 5mm;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Grilla 2x4 = 8 stickers A7 por hoja */
+        .sheet {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 6mm;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Tamaño real A7 */
+        .sticker {
+            width: 74mm;
+            height: 105mm;
+            border: 1px solid #999;
+            padding: 4mm;
+            box-sizing: border-box;
+            position: relative;
+            background: #f9f9f4;
+        }
+
+        .logo { color:#d40000; font-weight:bold; font-size:16px; }
+        .sublogo { font-size:9px; margin-bottom:3px; }
+
+        .scan {
+            position:absolute;
+            top:4mm;
+            right:4mm;
+            border:2px solid #d40000;
+            padding:2mm;
+            text-align:center;
+        }
+
+        .scan-title {
+            background:#d40000;
+            color:white;
+            font-size:8px;
+            padding:2px;
+            margin-bottom:2px;
+        }
+
+        .qr { width:40mm; height:40mm; }
+
+        .text { margin-top:8mm; font-size:9px; }
+
+        .serial { margin-top:5mm; font-size:10px; font-weight:bold; }
+
+        .contact { font-size:9px; }
+
+        .barcode {
+            margin-top:4mm;
+            height:12mm;
+            background: repeating-linear-gradient(
+                90deg,#000 0px,#000 2px,#fff 2px,#fff 4px
+            );
+        }
+
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+        </style>
+
+        <div class="sheet">
+
+          <t t-foreach="docs" t-as="doc">
+
+            <!-- Generar QR si no existe -->
+            <t t-if="not doc.qr_code">
+              <t t-set="dummy" t-value="doc.generar_qr_code()" />
+            </t>
+
+            <div class="sticker">
+
+              <div class="logo">Canon</div>
+              <div class="sublogo">CANON SOLUTIONS AMERICA</div>
+
+              <div class="scan">
+                <div class="scan-title">SCAN ME</div>
+                <t t-if="doc.qr_code">
+                  <img t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')" class="qr"/>
+                </t>
+              </div>
+
+              <div class="text">
+                For all your service needs,<br/>
+                please scan the QR code.
+              </div>
+
+              <div class="serial">
+                Modelo:
+                <t t-esc="doc.name.name if doc.name else 'N/D'"/>
+              </div>
+
+              <div class="serial">
+                Serie:
+                <t t-esc="doc.serie_id or 'N/D'"/>
+              </div>
+
+              <div class="contact">info@copiercompanysac.com</div>
+              <div class="contact">+51 975 399 303</div>
+
+              <div class="barcode"></div>
+
+            </div>
+
+          </t>
+
+        </div>
+
+      </t>
+    </t>
+
+  </template>
+</odoo>

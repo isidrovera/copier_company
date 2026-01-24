@@ -70,6 +70,7 @@
         'views/view_toner_request.xml',
         'views/homepage_template.xml',
         'views/copier_about_us_views.xml',
+        'views/sticker_a7_web.xml',
         'views/servicios_web.xml',
         'views/cotizaciones_multiples.xml',
         'views/template_cotizaciones.xml',       
