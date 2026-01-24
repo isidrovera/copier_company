@@ -356,81 +356,7 @@ class CopierCounter(models.Model):
         store=True,
         help="Porcentaje de descuento de la máquina"
     )
-    def debug_urgente_counter(self):
-        """Debug urgente para identificar el problema real en counter"""
-        _logger.info("🔍 === DEBUG URGENTE COPIER.COUNTER ===")
-        self.ensure_one()
-        
-        _logger.info("DATOS BÁSICOS COUNTER:")
-        _logger.info("- ID: %s", self.id)
-        _logger.info("- Serie: %s", self.serie)
-        
-        _logger.info("VOLÚMENES COUNTER:")
-        _logger.info("- Copias facturables B/N: %s", self.copias_facturables_bn)
-        _logger.info("- Copias facturables Color: %s", self.copias_facturables_color)
-        
-        _logger.info("PRECIOS COUNTER:")
-        _logger.info("- Precio B/N sin IGV: %s", self.precio_bn_sin_igv)
-        _logger.info("- Precio Color sin IGV: %s", self.precio_color_sin_igv)
-        
-        _logger.info("RESULTADOS COUNTER:")
-        _logger.info("- Subtotal B/N: %s", self.subtotal_bn)
-        _logger.info("- Subtotal Color: %s", self.subtotal_color)
-        _logger.info("- Subtotal total: %s", self.subtotal)
-        _logger.info("- IGV: %s", self.igv)
-        _logger.info("- Total: %s", self.total)
-        
-        # COMPARACIÓN DIRECTA
-        if self.maquina_id:
-            _logger.info("🔄 COMPARACIÓN DIRECTA:")
-            _logger.info("VOLÚMENES:")
-            _logger.info("- Company B/N: %s vs Counter B/N: %s", self.maquina_id.volumen_mensual_bn, self.copias_facturables_bn)
-            _logger.info("- Company Color: %s vs Counter Color: %s", self.maquina_id.volumen_mensual_color, self.copias_facturables_color)
-            
-            _logger.info("COSTOS:")
-            _logger.info("- Company B/N: %s vs Counter B/N: %s", self.maquina_id.costo_copia_bn, self.precio_bn_sin_igv)
-            _logger.info("- Company Color: %s vs Counter Color: %s", self.maquina_id.costo_copia_color, self.precio_color_sin_igv)
-            
-            _logger.info("TOTALES:")
-            _logger.info("- Company total: %s", self.maquina_id.total_facturar_mensual)
-            _logger.info("- Counter total: %s", self.total)
-            _logger.info("- Diferencia: %s", abs(self.maquina_id.total_facturar_mensual - self.total))
-            
-            # IDENTIFICAR POSIBLES CAUSAS
-            vol_diff_bn = abs(self.maquina_id.volumen_mensual_bn - self.copias_facturables_bn)
-            vol_diff_color = abs(self.maquina_id.volumen_mensual_color - self.copias_facturables_color)
-            cost_diff_bn = abs(self.maquina_id.costo_copia_bn - self.precio_bn_sin_igv)
-            cost_diff_color = abs(self.maquina_id.costo_copia_color - self.precio_color_sin_igv)
-            
-            _logger.info("🕵️ POSIBLES CAUSAS:")
-            if vol_diff_bn > 0:
-                _logger.warning("⚠️ DIFERENCIA EN VOLUMEN B/N: %s", vol_diff_bn)
-            if vol_diff_color > 0:
-                _logger.warning("⚠️ DIFERENCIA EN VOLUMEN COLOR: %s", vol_diff_color)
-            if cost_diff_bn > 0.001:
-                _logger.warning("⚠️ DIFERENCIA EN COSTO B/N: %s", cost_diff_bn)
-            if cost_diff_color > 0.001:
-                _logger.warning("⚠️ DIFERENCIA EN COSTO COLOR: %s", cost_diff_color)
-                
-            # VERIFICAR TIPO DE CÁLCULO
-            _logger.info("🎯 VERIFICACIÓN TIPO CÁLCULO:")
-            _logger.info("- Tipo de cálculo en company: %s", self.maquina_id.tipo_calculo)
-            if self.maquina_id.tipo_calculo != 'auto':
-                _logger.warning("⚠️ LA MÁQUINA USA CÁLCULO MANUAL, NO AUTOMÁTICO!")
-                _logger.info("- Monto manual B/N: %s", self.maquina_id.monto_mensual_bn)
-                _logger.info("- Monto manual Color: %s", self.maquina_id.monto_mensual_color)
-                _logger.info("- Monto manual Total: %s", self.maquina_id.monto_mensual_total)
-        
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': 'Debug Counter Completado',
-                'message': f'Total: {self.total}. Ver logs para análisis completo.',
-                'type': 'info',
-                'sticky': True,
-            }
-        }
+    
 # PASO 3: AGREGAR este método compute en copier.counter:
 
     @api.depends('maquina_id', 'maquina_id.descuento')
@@ -1413,7 +1339,46 @@ class CopierMachineUser(models.Model):
     name = fields.Char('Nombre Empresa/Usuario', required=True)
     clave = fields.Char('Clave')
     correo = fields.Char('Correo Electrónico')
-    maquina_id = fields.Many2one('copier.company', string='Máquina Asociada', required=True)
+
+    maquina_id = fields.Many2one(
+        'copier.company',
+        string='Máquina Asociada',
+        required=True,
+        tracking=True
+    )
+
+    # 🔹 CAMPOS RELACIONADOS (SOLO LECTURA)
+
+    cliente_id = fields.Many2one(
+        'res.partner',
+        string='Cliente',
+        related='maquina_id.cliente_id',
+        store=True,
+        readonly=True
+    )
+
+    serie_maquina = fields.Char(
+        string='Serie',
+        related='maquina_id.serie_id',
+        store=True,
+        readonly=True
+    )
+
+    modelo_maquina = fields.Many2one(
+        'modelos.maquinas',
+        string='Modelo',
+        related='maquina_id.name',
+        store=True,
+        readonly=True
+    )
+
+    ubicacion = fields.Char(
+        string='Ubicación',
+        related='maquina_id.ubicacion',
+        store=True,
+        readonly=True
+    )
+
 
 class CopierCounterUserDetail(models.Model):
     _name = 'copier.counter.user.detail'

@@ -251,6 +251,42 @@ class CopierCompany(models.Model):
         # ==========================
     # HELPERS PARA EL REPORTE
     # ==========================
+    def action_crear_servicio_tecnico(self):
+        """Crear una solicitud de servicio técnico desde la máquina"""
+        self.ensure_one()
+
+        # Validaciones mínimas
+        if not self.cliente_id:
+            raise UserError("Esta máquina no tiene cliente asignado.")
+
+        # Crear servicio con datos precargados
+        servicio = self.env['copier.service.request'].create({
+            'maquina_id': self.id,
+            'company_id': self.env.company.id,
+
+            # Datos del cliente / contacto
+            'contacto': self.contacto or self.cliente_id.name,
+            'correo': self.correo or self.cliente_id.email,
+            'telefono_contacto': self.celular or self.cliente_id.phone,
+
+            # Datos iniciales
+            'origen_solicitud': 'interno',
+            'prioridad': '1',
+            'problema_reportado': f'Servicio generado desde ficha de equipo {self.name.name}',
+        })
+
+        # Abrir el formulario del servicio creado
+        return {
+            'name': 'Nueva Solicitud de Servicio Técnico',
+            'type': 'ir.actions.act_window',
+            'res_model': 'copier.service.request',
+            'view_mode': 'form',
+            'res_id': servicio.id,
+            'target': 'current',
+            'context': {
+                'default_maquina_id': self.id,
+            }
+        }
 
     def has_volumen_mensual_bn(self):
         """Indica si hay volumen mensual B/N configurado."""
@@ -561,68 +597,7 @@ class CopierCompany(models.Model):
             record.monto_igv = igv_valor
             record.total_facturar_mensual = subtotal_con_descuento + igv_valor
 
-    def debug_urgente_company(self):
-        """Debug urgente para identificar el problema real"""
-        _logger.info("🔍 === DEBUG URGENTE COPIER.COMPANY ===")
-        self.ensure_one()
-        
-        # Forzar recálculo
-        self._compute_renta_mensual()
-        
-        _logger.info("DATOS BÁSICOS:")
-        _logger.info("- ID: %s", self.id)
-        _logger.info("- Secuencia: %s", self.secuencia)
-        _logger.info("- Tipo cálculo: %s", self.tipo_calculo)
-        
-        _logger.info("VOLÚMENES:")
-        _logger.info("- Volumen B/N: %s", self.volumen_mensual_bn)
-        _logger.info("- Volumen Color: %s", self.volumen_mensual_color)
-        
-        _logger.info("COSTOS:")
-        _logger.info("- Costo B/N: %s", self.costo_copia_bn)
-        _logger.info("- Costo Color: %s", self.costo_copia_color)
-        
-        _logger.info("CONFIGURACIÓN:")
-        _logger.info("- Descuento: %s%%", self.descuento)
-        _logger.info("- IGV: %s%%", self.igv)
-        
-        _logger.info("CAMPOS MANUALES:")
-        _logger.info("- Monto mensual B/N: %s", self.monto_mensual_bn)
-        _logger.info("- Monto mensual Color: %s", self.monto_mensual_color)
-        _logger.info("- Monto mensual Total: %s", self.monto_mensual_total)
-        
-        _logger.info("RESULTADOS COMPANY:")
-        _logger.info("- Renta mensual B/N: %s", self.renta_mensual_bn)
-        _logger.info("- Renta mensual Color: %s", self.renta_mensual_color)
-        _logger.info("- Subtotal sin IGV: %s", self.subtotal_sin_igv)
-        _logger.info("- Monto IGV: %s", self.monto_igv)
-        _logger.info("- Total facturar: %s", self.total_facturar_mensual)
-        
-        # CÁLCULO MANUAL PARA VERIFICAR
-        _logger.info("🧮 VERIFICACIÓN MANUAL:")
-        if self.tipo_calculo == 'auto':
-            calc_bn = self.volumen_mensual_bn * self.costo_copia_bn
-            calc_color = self.volumen_mensual_color * self.costo_copia_color
-            _logger.info("- Cálculo manual B/N: %s × %s = %s", self.volumen_mensual_bn, self.costo_copia_bn, calc_bn)
-            _logger.info("- Cálculo manual Color: %s × %s = %s", self.volumen_mensual_color, self.costo_copia_color, calc_color)
-            subtotal_manual = calc_bn + calc_color
-            igv_manual = subtotal_manual * (self.igv / 100.0)
-            total_manual = subtotal_manual + igv_manual
-            _logger.info("- Subtotal manual: %s", subtotal_manual)
-            _logger.info("- IGV manual: %s", igv_manual)
-            _logger.info("- Total manual: %s", total_manual)
-        
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': 'Debug Company Completado',
-                'message': f'Total: {self.total_facturar_mensual}. Ver logs para análisis completo.',
-                'type': 'info',
-                'sticky': True,
-            }
-        }
-
+    
     @api.depends('fecha_inicio_alquiler', 'duracion_alquiler_id')
     def _calcular_fecha_fin(self):
         for record in self:
@@ -639,26 +614,11 @@ class CopierCompany(models.Model):
             elif duracion == '2 Años':
                 record.fecha_fin_alquiler = start_date + relativedelta(years=+2)
 
-    def crear_ticket(self):
-        ticket = self.env['helpdesk.ticket'].create({
-            'partner_id': self.cliente_id.id,
-            'producto_id': self.id,
-            'name': f"Servicio técnico - {self.name.name}",
-            'description': f"Máquina: {self.name.name}\nSerie: {self.serie_id}\nUbicación: {self.ubicacion}"
-        })
-        
-        return {
-            'name': 'Ticket de Servicio',
-            'view_mode': 'form',
-            'res_model': 'helpdesk.ticket',
-            'res_id': ticket.id,
-            'type': 'ir.actions.act_window',
-            'target': 'current',
-        }
+   
     qr_code_filename = fields.Char(
-    string="Nombre archivo QR",
-    compute='_compute_qr_filename'
-)   
+            string="Nombre archivo QR",
+            compute='_compute_qr_filename'
+        )   
 
     
 
@@ -692,9 +652,35 @@ class CopierCompany(models.Model):
         }
         
 
+    def action_ver_usuarios_internos(self):
+        """Abrir usuarios internos asociados a esta máquina"""
+        self.ensure_one()
+
+        return {
+            'name': 'Usuarios Internos de la Máquina',
+            'type': 'ir.actions.act_window',
+            'res_model': 'copier.machine.user',
+            'view_mode': 'list,form',
+            'domain': [('maquina_id', '=', self.id)],
+            'context': {
+                # Para que al crear un nuevo usuario interno,
+                # ya venga cargada esta máquina automáticamente
+                'default_maquina_id': self.id,
+            },
+            'target': 'current',
+        }
 
 
+    user_count = fields.Integer(
+        string='Usuarios Internos',
+        compute='_compute_user_count'
+    )
 
+    def _compute_user_count(self):
+        for rec in self:
+            rec.user_count = self.env['copier.machine.user'].search_count([
+                ('maquina_id', '=', rec.id)
+            ])
 
 
 

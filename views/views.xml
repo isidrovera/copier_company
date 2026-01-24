@@ -57,7 +57,7 @@
                 <field name="qr_code" optional="hide"/>
                 
                 <!-- Botones de acción -->
-                <button name="crear_ticket" string="Servicio" type="object" icon="fa-wrench" class="btn-primary"/>
+                <button name="action_crear_servicio_tecnico" string="Servicio" type="object" icon="fa-wrench" class="btn-primary"/>
                 <button name="generar_qr_code" string="QR" type="object" icon="fa-qrcode" class="btn-info"/>
             </list>
         </field>
@@ -70,7 +70,7 @@
     <field name="arch" type="xml">
         <form>
             <header>
-                <button name="crear_ticket" string="Crear Ticket" type="object" class="btn-primary"/>
+                <button name="action_crear_servicio_tecnico" string="Crear Ticket" type="object" class="btn-primary"/>
                 <button name="generar_qr_code" string="Generar QR" type="object" class="btn-info"/>
                 <button name="action_print_report" string="Imprimir Cotización" type="object" class="btn-success"/>
                 <button name="send_whatsapp_report" 
@@ -81,11 +81,7 @@
                         data-hotkey="w"/>
                 <button name="enviar_correo_propuesta" string="Enviar Propuesta" type="object" class="oe_highlight"/>
                 <field name="estado_renovacion" widget="statusbar" statusbar_visible="vigente,por_vencer,renovado,finalizado"/>
-                <button name="debug_urgente_company" 
-        string="🔍 Debug Company" 
-        type="object" 
-        class="btn-warning"
-        help="Debug urgente para identificar discrepancia en totales"/>
+                
                 <button name="action_renovar_contrato" 
                         string="Renovar Contrato" 
                         type="object" 
@@ -97,6 +93,12 @@
         type="object" 
         class="btn-primary"
         icon="fa-qrcode"/>
+        <button name="action_ver_usuarios_internos"
+        type="object"
+        string="Usuarios Internos"
+        class="btn-secondary"
+        icon="fa-users"/>
+
                 <field name="estado_maquina_id" widget="statusbar" options="{'clickable': '1'}"/>
             </header>
             <sheet>
@@ -105,6 +107,13 @@
                             name="action_view_counters" icon="fa-calculator">
                         <field string="Lecturas" name="counter_count" widget="statinfo"/>
                     </button>
+                    <button type="object"
+                        name="action_ver_usuarios_internos"
+                        class="oe_stat_button"
+                        icon="fa-users">
+                <field name="user_count" widget="statinfo" string="Usuarios"/>
+                </button>
+
                 </div>
 
                 <div class="alert alert-info">
@@ -302,7 +311,7 @@
 
               <!-- Action Buttons -->
               <div class="d-flex gap-2">
-                <button name="crear_ticket" type="object" class="btn btn-primary btn-sm">
+                <button name="action_crear_servicio_tecnico" type="object" class="btn btn-primary btn-sm">
                   <i class="fa fa-wrench me-1"/> Servicio
                 </button>
                 <button name="generar_qr_code" type="object" class="btn btn-info btn-sm text-white">

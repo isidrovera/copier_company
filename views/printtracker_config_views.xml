@@ -133,7 +133,7 @@
     <field name="arch" type="xml">
 
       <!-- Botón en header, después de otro botón identificable -->
-      <xpath expr="//header//button[@name='debug_urgente_counter']" position="after">
+      <xpath expr="//header//button[@name='action_print_report']" position="after">
         <button name="action_update_from_printtracker"
                 string="Actualizar desde PrintTracker"
                 type="object"
