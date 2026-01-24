@@ -799,10 +799,14 @@
 
 
         <!-- Formato de papel Sticker Canon -->
+<!-- Formato de papel Sticker Canon 9x6 cm -->
 <record id="paperformat_sticker_canon" model="report.paperformat">
-    <field name="name">Sticker Canon 9x6</field>    
+    <field name="name">Sticker Canon 9x6</field>
+
+    <!-- NO usar format cuando es tamaño personalizado -->
     <field name="page_width">90</field>      <!-- mm -->
     <field name="page_height">60</field>     <!-- mm -->
+
     <field name="orientation">Portrait</field>
     <field name="margin_top">2</field>
     <field name="margin_bottom">2</field>
@@ -811,6 +815,7 @@
     <field name="header_line" eval="False"/>
     <field name="dpi">300</field>
 </record>
+
 <record id="action_report_sticker_canon" model="ir.actions.report">
     <field name="name">Sticker Tipo Canon</field>
     <field name="model">copier.company</field>
