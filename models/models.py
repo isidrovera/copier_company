@@ -274,7 +274,14 @@ class CopierCompany(models.Model):
                 'default_telefono_contacto': self.celular or self.cliente_id.phone,
             }
         }
+    def action_print_stickers(self):
+        ids = ",".join(str(x.id) for x in self)
 
+        return {
+            'type': 'ir.actions.act_url',
+            'url': '/stickers/print?ids=%s' % ids,
+            'target': 'new',
+        }
 
     def has_volumen_mensual_bn(self):
         """Indica si hay volumen mensual B/N configurado."""
