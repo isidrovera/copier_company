@@ -252,41 +252,29 @@ class CopierCompany(models.Model):
     # HELPERS PARA EL REPORTE
     # ==========================
     def action_crear_servicio_tecnico(self):
-        """Crear una solicitud de servicio técnico desde la máquina"""
+        """Abrir formulario de nuevo servicio con máquina precargada"""
         self.ensure_one()
 
-        # Validaciones mínimas
-        if not self.cliente_id:
-            raise UserError("Esta máquina no tiene cliente asignado.")
-
-        # Crear servicio con datos precargados
-        servicio = self.env['copier.service.request'].create({
-            'maquina_id': self.id,
-            'company_id': self.env.company.id,
-
-            # Datos del cliente / contacto
-            'contacto': self.contacto or self.cliente_id.name,
-            'correo': self.correo or self.cliente_id.email,
-            'telefono_contacto': self.celular or self.cliente_id.phone,
-
-            # Datos iniciales
-            'origen_solicitud': 'interno',
-            'prioridad': '1',
-            'problema_reportado': f'Servicio generado desde ficha de equipo {self.name.name}',
-        })
-
-        # Abrir el formulario del servicio creado
         return {
             'name': 'Nueva Solicitud de Servicio Técnico',
             'type': 'ir.actions.act_window',
             'res_model': 'copier.service.request',
             'view_mode': 'form',
-            'res_id': servicio.id,
             'target': 'current',
             'context': {
+                # precargar datos
                 'default_maquina_id': self.id,
+                'default_company_id': self.env.company.id,
+                'default_origen_solicitud': 'interno',
+                'default_prioridad': '1',
+
+                # precargar contacto desde la máquina
+                'default_contacto': self.contacto or self.cliente_id.name,
+                'default_correo': self.correo or self.cliente_id.email,
+                'default_telefono_contacto': self.celular or self.cliente_id.phone,
             }
         }
+
 
     def has_volumen_mensual_bn(self):
         """Indica si hay volumen mensual B/N configurado."""
