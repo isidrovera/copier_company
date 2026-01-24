@@ -47,27 +47,30 @@
             page-break-inside: avoid;
             break-inside: avoid;
 
-            /* Layout interno en dos columnas */
+            /* Layout interno */
             display: grid;
             grid-template-columns: 1fr 40mm;
             gap: 4mm;
         }
 
-        /* Columna izquierda (datos) */
+        /* Columna izquierda */
         .left {
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
         }
 
-        /* Logo */
+        /* LOGO — nunca se estira */
         .company-logo {
             max-height: 18mm;
             max-width: 40mm;
+            width: auto;
+            height: auto;
+            object-fit: contain;
             margin-bottom: 3mm;
         }
 
-        /* Texto principal */
+        /* Texto */
         .text {
             font-size: 9px;
             margin-bottom: 3mm;
@@ -84,7 +87,7 @@
             margin-bottom: 1mm;
         }
 
-        /* Columna derecha (QR) */
+        /* Columna derecha QR */
         .right {
             display: flex;
             justify-content: flex-start;
@@ -106,12 +109,15 @@
             margin-bottom: 2px;
         }
 
+        /* QR alta calidad, sin suavizado */
         .qr {
             width: 32mm;
             height: 32mm;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
         }
 
-        /* Control total de impresión */
+        /* Impresión perfecta */
         @media print {
 
             @page {
@@ -146,11 +152,14 @@
               <!-- COLUMNA IZQUIERDA -->
               <div class="left">
 
-                <!-- LOGO DE LA EMPRESA (sin nombre adicional) -->
+                <!-- LOGO REAL DE TU EMPRESA (sin deformar) -->
                 <t t-set="company" t-value="request.env.company"/>
 
                 <t t-if="company.logo">
-                  <img t-att-src="'data:image/png;base64,%s' % company.logo.decode('utf-8')" class="company-logo"/>
+                  <img
+                    t-att-src="'data:image/png;base64,%s' % company.logo.decode('utf-8')"
+                    class="company-logo"
+                    alt="Logo Empresa"/>
                 </t>
 
                 <!-- Texto corporativo -->
@@ -170,7 +179,7 @@
                   <t t-esc="doc.serie_id or 'No especificada'"/>
                 </div>
 
-                <!-- Contactos fijos -->
+                <!-- Contactos -->
                 <div class="contact">info@copiercompanysac.com</div>
                 <div class="contact">+51 975 399 303</div>
                 <div class="contact">https://copiercompanysac.com</div>
@@ -181,9 +190,15 @@
               <div class="right">
                 <div class="scan">
                   <div class="scan-title">ESCANEE AQUÍ</div>
+
+                  <!-- QR en alta resolución -->
                   <t t-if="doc.qr_code">
-                    <img t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')" class="qr"/>
+                    <img
+                      t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')"
+                      class="qr"
+                      alt="QR Soporte"/>
                   </t>
+
                 </div>
               </div>
 
