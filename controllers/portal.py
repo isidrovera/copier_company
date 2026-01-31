@@ -101,14 +101,24 @@ class CopierPortal(CustomerPortal):
 
         # ✅ NUEVO: Contar servicios por equipo
         service_counts = {}
+
         if equipments:
             equipment_ids = equipments.ids
-            service_data = request.env['copier.service.request'].sudo().read_group(
-                [('maquina_id', 'in', equipment_ids)],
-                ['maquina_id'],
-                ['maquina_id']
+
+            service_data = request.env['copier.service.request'].sudo()._read_group(
+                domain=[('maquina_id', 'in', equipment_ids)],
+                fields=['maquina_id'],
+                groupby=['maquina_id'],
             )
-            service_counts = {item['maquina_id'][0]: item['maquina_id_count'] for item in service_data}
+
+            # _read_group devuelve tuplas, no diccionarios
+            # formato típico: (maquina_id_record, count)
+            service_counts = {
+                rec[0].id: rec[1]   # rec[0] = record de maquina, rec[1] = cantidad
+                for rec in service_data
+                if rec[0]
+            }
+
 
         values = {
             'page_name': 'equipment',
