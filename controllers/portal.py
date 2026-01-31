@@ -106,16 +106,19 @@ class CopierPortal(CustomerPortal):
             equipment_ids = equipments.ids
 
             service_data = request.env['copier.service.request'].sudo()._read_group(
-                [('maquina_id', 'in', equipment_ids)],
-                ['maquina_id'],
-                ['maquina_id']
+                [('maquina_id', 'in', equipment_ids)],  # domain
+                ['maquina_id'],                         # groupby
+                ['maquina_id:count']                    # agregado explícito
             )
 
+            # cada fila viene como:
+            # (record_maquina, cantidad)
             service_counts = {
-                rec[0].id: rec[1]   # id de la máquina : cantidad de servicios
+                rec[0].id: rec[1]
                 for rec in service_data
                 if rec[0]
             }
+
 
 
 
