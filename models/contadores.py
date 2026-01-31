@@ -305,21 +305,22 @@ class CopierCounter(models.Model):
             
             # Configurar fecha de facturación
             if self.maquina_id.dia_facturacion:
-                fecha_base = fields.Date.today()
-                dia = min(self.maquina_id.dia_facturacion, calendar.monthrange(fecha_base.year, fecha_base.month)[1])
-                fecha_facturacion = fecha_base.replace(day=dia)
-                
-                if fecha_base > fecha_facturacion:
-                    if fecha_base.month == 12:
-                        fecha_facturacion = fecha_facturacion.replace(year=fecha_base.year + 1, month=1)
-                    else:
-                        fecha_facturacion = fecha_facturacion.replace(month=fecha_base.month + 1)
-                
-                if fecha_facturacion.weekday() == 6:  # domingo
-                    fecha_facturacion -= timedelta(days=1)
-                
-                self.fecha_facturacion = fecha_facturacion
+                echa_base = fields.Date.today()
 
+                # día de facturación válido en el mes actual
+                ultimo_dia_mes = calendar.monthrange(fecha_base.year, fecha_base.month)[1]
+                dia = min(self.maquina_id.dia_facturacion, ultimo_dia_mes)
+
+                fecha_facturacion = fecha_base.replace(day=dia)
+
+                # si ya pasó, mover al mes siguiente de forma segura
+                if fecha_base > fecha_facturacion:
+                    fecha_facturacion = fecha_facturacion + relativedelta(months=1)
+
+                    # volver a ajustar el día en el nuevo mes
+                    ultimo_dia_mes_sig = calendar.monthrange(fecha_facturacion.year, fecha_facturacion.month)[1]
+                    dia = min(self.maquina_id.dia_facturacion, ultimo_dia_mes_sig)
+                    fecha_facturacion = fecha_facturacion.replace(day=dia)
     @api.depends('contador_actual_bn', 'contador_anterior_bn',
                 'contador_actual_color', 'contador_anterior_color')
     def _compute_copias(self):
