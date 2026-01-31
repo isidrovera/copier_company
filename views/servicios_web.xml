@@ -354,7 +354,8 @@
                                 <i class="bi bi-check-circle-fill fs-1 text-success me-3"></i>
                                 <div class="flex-grow-1">
                                     <h4 class="text-success mb-3">¡Solicitud Creada Exitosamente!</h4>
-                                    <div t-raw="success_message"/>
+                                    <div t-out="success_message"/>
+
                                     
                                     <div class="mt-4 p-3 bg-white rounded">
                                         <h6 class="fw-bold mb-3">Detalles de su solicitud:</h6>
