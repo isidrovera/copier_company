@@ -75,23 +75,40 @@ class ServiceRequestPortal(CustomerPortal):
                 'tipo': 'Color' if equipment.tipo == 'color' else 'Blanco y Negro',
             }
             
-            # SI VIENE DE WEB: Pre-cargar datos de contacto (si existen)
-            # SI VIENE DE QR: Campos vacíos (usuario DEBE llenarlos)
-            contact_data = {}
-            if not from_qr and equipment.cliente_id:
+            # Detectar si el usuario está logueado (no es público)
+            user = request.env.user
+            is_logged = not user._is_public()
+            partner = user.partner_id if is_logged else False
+
+            # Prioridad de datos de contacto:
+            # 1) Usuario logueado
+            # 2) Datos del equipo (si no viene de QR)
+            # 3) Vacío (QR o visitante sin datos)
+
+            if is_logged and partner:
+                contact_data = {
+                    'contacto': self._safe_get_text(partner.name),
+                    'correo': self._safe_get_text(partner.email),
+                    'telefono_contacto': self._safe_get_text(partner.mobile or partner.phone),
+                }
+                _logger.info("Pre-cargando datos de contacto desde usuario logueado")
+
+            elif not from_qr and equipment.cliente_id:
                 contact_data = {
                     'contacto': self._safe_get_text(equipment.contacto) or '',
                     'correo': self._safe_get_text(equipment.correo) or '',
                     'telefono_contacto': self._safe_get_text(equipment.celular) or '',
                 }
                 _logger.info("Pre-cargando datos de contacto desde equipo (acceso web normal)")
+
             else:
                 contact_data = {
                     'contacto': '',
                     'correo': '',
                     'telefono_contacto': '',
                 }
-                _logger.info("Campos de contacto vacíos (acceso desde QR/Scanner)")
+                _logger.info("Campos de contacto vacíos (QR o visitante)")
+
             
             # Cargar tipos de problemas disponibles
             problem_types = request.env['copier.service.problem.type'].sudo().search([
@@ -104,8 +121,12 @@ class ServiceRequestPortal(CustomerPortal):
                 'contact_data': contact_data,
                 'problem_types': problem_types,
                 'from_qr': from_qr,
+                'is_logged': is_logged,
+                'partner': partner,
                 'page_title': _('Solicitar Servicio Técnico'),
             }
+
+
             
             # Si es una solicitud POST, procesar el formulario
             if request.httprequest.method == 'POST':

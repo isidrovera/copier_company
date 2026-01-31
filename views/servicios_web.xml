@@ -453,50 +453,90 @@
                                     </h5>
                                 </div>
                                 <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-4 mb-3">
-                                            <label class="form-label" for="contacto">
-                                                Nombre Completo <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="text" 
-                                                   class="form-control" 
-                                                   id="contacto" 
-                                                   name="contacto" 
-                                                   t-att-value="contact_data.get('contacto', '')"
-                                                   placeholder="Ej: Juan Pérez López"
-                                                   required="required"/>
-                                            <small class="text-muted">Persona que reporta el problema</small>
-                                        </div>
 
-                                        <div class="col-md-4 mb-3">
-                                            <label class="form-label" for="correo">
-                                                Email <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="email" 
-                                                   class="form-control" 
-                                                   id="correo" 
-                                                   name="correo" 
-                                                   t-att-value="contact_data.get('correo', '')"
-                                                   placeholder="ejemplo@empresa.com"
-                                                   required="required"/>
-                                            <small class="text-muted">Para notificaciones y seguimiento</small>
-                                        </div>
+                                    <!-- Si NO está logueado: mostrar campos normales -->
+                                    <t t-if="not is_logged">
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label" for="contacto">
+                                                    Nombre Completo <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="text"
+                                                    class="form-control"
+                                                    id="contacto"
+                                                    name="contacto"
+                                                    t-att-value="contact_data.get('contacto', '')"
+                                                    placeholder="Ej: Juan Pérez López"
+                                                    required="required"/>
+                                                <small class="text-muted">Persona que reporta el problema</small>
+                                            </div>
 
-                                        <div class="col-md-4 mb-3">
-                                            <label class="form-label" for="telefono_contacto">
-                                                Teléfono/Celular <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="tel" 
-                                                   class="form-control" 
-                                                   id="telefono_contacto" 
-                                                   name="telefono_contacto" 
-                                                   t-att-value="contact_data.get('telefono_contacto', '')"
-                                                   placeholder="987654321"
-                                                   pattern="[0-9]{9,15}"
-                                                   required="required"/>
-                                            <small class="text-muted">Mínimo 9 dígitos</small>
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label" for="correo">
+                                                    Email <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="email"
+                                                    class="form-control"
+                                                    id="correo"
+                                                    name="correo"
+                                                    t-att-value="contact_data.get('correo', '')"
+                                                    placeholder="ejemplo@empresa.com"
+                                                    required="required"/>
+                                                <small class="text-muted">Para notificaciones y seguimiento</small>
+                                            </div>
+
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label" for="telefono_contacto">
+                                                    Teléfono/Celular <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="tel"
+                                                    class="form-control"
+                                                    id="telefono_contacto"
+                                                    name="telefono_contacto"
+                                                    t-att-value="contact_data.get('telefono_contacto', '')"
+                                                    placeholder="987654321"
+                                                    pattern="[0-9]{9,15}"
+                                                    required="required"/>
+                                                <small class="text-muted">Mínimo 9 dígitos</small>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </t>
+
+                                    <!-- Si SÍ está logueado: no pedir datos, enviarlos ocultos -->
+                                    <t t-else="">
+                                        <!-- Inputs ocultos para que el POST tenga datos -->
+                                        <input type="hidden" name="contacto"
+                                            t-att-value="contact_data.get('contacto', '')"/>
+                                        <input type="hidden" name="correo"
+                                            t-att-value="contact_data.get('correo', '')"/>
+                                        <input type="hidden" name="telefono_contacto"
+                                            t-att-value="contact_data.get('telefono_contacto', '')"/>
+
+                                        <!-- Mostrar datos solo informativos -->
+                                        <div class="alert alert-info mb-0">
+                                            <h6 class="fw-bold mb-2">
+                                                <i class="bi bi-person-check me-2"></i>
+                                                Datos del usuario logueado
+                                            </h6>
+                                            <p class="mb-1">
+                                                <strong>Nombre:</strong>
+                                                <t t-esc="contact_data.get('contacto')"/>
+                                            </p>
+                                            <p class="mb-1">
+                                                <strong>Email:</strong>
+                                                <t t-esc="contact_data.get('correo')"/>
+                                            </p>
+                                            <p class="mb-0">
+                                                <strong>Teléfono:</strong>
+                                                <t t-esc="contact_data.get('telefono_contacto')"/>
+                                            </p>
+                                            <small class="text-muted">
+                                                Estos datos se enviarán automáticamente con la solicitud.
+                                            </small>
+                                        </div>
+                                    </t>
+
+                                </div>
                                 </div>
                             </div>
 
