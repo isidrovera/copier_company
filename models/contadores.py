@@ -298,19 +298,26 @@ class CopierCounter(models.Model):
                 ('maquina_id', '=', self.maquina_id.id),
                 ('state', 'in', ['confirmed', 'invoiced'])
             ], limit=1, order='fecha desc, id desc')
-            
-            # Asignar contadores anteriores
+
+            # Contadores anteriores
             self.contador_anterior_bn = ultima_lectura.contador_actual_bn if ultima_lectura else 0
             self.contador_anterior_color = ultima_lectura.contador_actual_color if ultima_lectura else 0
-            
-            # Configurar fecha de facturación
-            if self.maquina_id.dia_facturacion:
-                echa_base = fields.Date.today()
 
-                # día de facturación válido en el mes actual
+            # =============================
+            # CÁLCULO SEGURO DE FECHA
+            # =============================
+            if self.maquina_id.dia_facturacion:
+
+                # 👉 ESTA LÍNEA FALTABA O ESTABA MAL ESCRITA
+                fecha_base = fields.Date.today()
+
+                # último día del mes actual
                 ultimo_dia_mes = calendar.monthrange(fecha_base.year, fecha_base.month)[1]
+
+                # día válido dentro del mes
                 dia = min(self.maquina_id.dia_facturacion, ultimo_dia_mes)
 
+                # fecha tentativa en el mes actual
                 fecha_facturacion = fecha_base.replace(day=dia)
 
                 # si ya pasó, mover al mes siguiente de forma segura
@@ -318,9 +325,20 @@ class CopierCounter(models.Model):
                     fecha_facturacion = fecha_facturacion + relativedelta(months=1)
 
                     # volver a ajustar el día en el nuevo mes
-                    ultimo_dia_mes_sig = calendar.monthrange(fecha_facturacion.year, fecha_facturacion.month)[1]
+                    ultimo_dia_mes_sig = calendar.monthrange(
+                        fecha_facturacion.year,
+                        fecha_facturacion.month
+                    )[1]
+
                     dia = min(self.maquina_id.dia_facturacion, ultimo_dia_mes_sig)
                     fecha_facturacion = fecha_facturacion.replace(day=dia)
+
+                # si cae domingo, mover a sábado
+                if fecha_facturacion.weekday() == 6:
+                    fecha_facturacion -= timedelta(days=1)
+
+                self.fecha_facturacion = fecha_facturacion
+
     @api.depends('contador_actual_bn', 'contador_anterior_bn',
                 'contador_actual_color', 'contador_anterior_color')
     def _compute_copias(self):
