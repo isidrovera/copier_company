@@ -42,26 +42,24 @@ class ServiceRequestPortal(CustomerPortal):
         """Formulario público para solicitar servicio técnico"""
         _logger.info("=== INICIANDO public_service_request ===")
         _logger.info("Parámetros recibidos - copier_company_id: %s, kw: %s", copier_company_id, kw)
-        
+
         try:
             if not copier_company_id:
                 _logger.error("No se proporcionó ID de equipo")
                 return request.redirect('/')
-                
+
             # Buscar el equipo
             equipment = request.env['copier.company'].sudo().browse(int(copier_company_id))
             if not equipment.exists():
                 _logger.error("Equipo ID %s no encontrado", copier_company_id)
                 return request.redirect('/')
-            
-            # Detectar si viene de QR/Scanner
+
+            # Detectar si viene de QR
             from_qr = kw.get('from_qr', '0') == '1'
-            
-            _logger.info("Cargando formulario de servicio técnico para equipo: %s (Origen: %s)", 
-                        equipment.name.name if equipment.name else 'Sin nombre',
-                        'QR Scanner' if from_qr else 'Web Normal')
-            
-            # Preparar datos del equipo
+
+            # =========================
+            # DATOS DEL EQUIPO
+            # =========================
             equipment_data = {
                 'id': equipment.id,
                 'name': self._safe_get_text(equipment.name.name) if equipment.name else 'Equipo sin nombre',
@@ -74,24 +72,28 @@ class ServiceRequestPortal(CustomerPortal):
                 'ip': self._safe_get_text(equipment.ip_id) or '',
                 'tipo': 'Color' if equipment.tipo == 'color' else 'Blanco y Negro',
             }
-            
-            # Detectar si el usuario está logueado (no es público)
+
+            # =========================
+            # DETECTAR USUARIO LOGUEADO
+            # =========================
             user = request.env.user
-            is_logged = not user._is_public()
+            is_logged = bool(user and user.id and not user.has_group('base.group_public'))
             partner = user.partner_id if is_logged else False
 
-            # Prioridad de datos de contacto:
-            # 1) Usuario logueado
-            # 2) Datos del equipo (si no viene de QR)
-            # 3) Vacío (QR o visitante sin datos)
-
+            # =========================
+            # DATOS DE CONTACTO
+            # prioridad:
+            # 1) usuario logueado
+            # 2) datos guardados en el equipo (si no viene de QR)
+            # 3) vacío
+            # =========================
             if is_logged and partner:
                 contact_data = {
                     'contacto': self._safe_get_text(partner.name),
                     'correo': self._safe_get_text(partner.email),
                     'telefono_contacto': self._safe_get_text(partner.mobile or partner.phone),
                 }
-                _logger.info("Pre-cargando datos de contacto desde usuario logueado")
+                _logger.info("Pre-cargando contacto desde usuario logueado")
 
             elif not from_qr and equipment.cliente_id:
                 contact_data = {
@@ -99,7 +101,7 @@ class ServiceRequestPortal(CustomerPortal):
                     'correo': self._safe_get_text(equipment.correo) or '',
                     'telefono_contacto': self._safe_get_text(equipment.celular) or '',
                 }
-                _logger.info("Pre-cargando datos de contacto desde equipo (acceso web normal)")
+                _logger.info("Pre-cargando contacto desde datos del equipo")
 
             else:
                 contact_data = {
@@ -107,14 +109,14 @@ class ServiceRequestPortal(CustomerPortal):
                     'correo': '',
                     'telefono_contacto': '',
                 }
-                _logger.info("Campos de contacto vacíos (QR o visitante)")
+                _logger.info("Contacto vacío (QR o visitante)")
 
-            
-            # Cargar tipos de problemas disponibles
-            problem_types = request.env['copier.service.problem.type'].sudo().search([
-                ('active', '=', True)
-            ], order='sequence, name')
-            
+            # Tipos de problema
+            problem_types = request.env['copier.service.problem.type'].sudo().search(
+                [('active', '=', True)],
+                order='sequence, name'
+            )
+
             values = {
                 'equipment': equipment,
                 'equipment_data': equipment_data,
@@ -126,203 +128,98 @@ class ServiceRequestPortal(CustomerPortal):
                 'page_title': _('Solicitar Servicio Técnico'),
             }
 
-
-            
-            # Si es una solicitud POST, procesar el formulario
+            # =========================
+            # PROCESAR POST
+            # =========================
             if request.httprequest.method == 'POST':
-                _logger.info("Procesando formulario POST de servicio técnico")
-                
+                _logger.info("Procesando formulario POST")
+
                 try:
-                    # Capturar datos del formulario
-                    form_data = {
-                        'maquina_id': int(copier_company_id),
-                        'contacto': kw.get('contacto', '').strip(),
-                        'correo': kw.get('correo', '').strip(),
-                        'telefono_contacto': kw.get('telefono_contacto', '').strip(),
-                        'tipo_problema_id': int(kw.get('tipo_problema_id')) if kw.get('tipo_problema_id') else None,
-                        'problema_reportado': kw.get('problema_reportado', '').strip(),
-                        'prioridad': kw.get('prioridad', '1'),
-                        'origen_solicitud': 'whatsapp' if from_qr else 'portal',
-                        'foto_antes': kw.get('foto_antes'),
-                    }
-                    
-                    _logger.info("Datos del formulario capturados: %s", 
-                            {k: v for k, v in form_data.items() if k != 'foto_antes'})
-                    
-                    # VALIDACIONES
-                    if not form_data['contacto']:
-                        values['error_message'] = _("El nombre de la persona que reporta es OBLIGATORIO.")
+                    contacto = kw.get('contacto', '').strip()
+                    correo = kw.get('correo', '').strip()
+                    telefono = kw.get('telefono_contacto', '').strip()
+
+                    tipo_problema_id = int(kw.get('tipo_problema_id')) if kw.get('tipo_problema_id') else None
+                    descripcion = kw.get('problema_reportado', '').strip()
+                    prioridad = kw.get('prioridad', '1')
+
+                    # Validaciones
+                    if not contacto:
+                        values['error_message'] = _("El nombre es obligatorio.")
                         return request.render("copier_company.portal_service_request", values)
-                    
-                    if not form_data['correo']:
-                        values['error_message'] = _("El email de contacto es OBLIGATORIO.")
+
+                    if not correo:
+                        values['error_message'] = _("El email es obligatorio.")
                         return request.render("copier_company.portal_service_request", values)
-                    
-                    if not form_data['telefono_contacto']:
-                        values['error_message'] = _("El número de teléfono/celular es OBLIGATORIO para poder contactarte.")
+
+                    if not telefono:
+                        values['error_message'] = _("El teléfono es obligatorio.")
                         return request.render("copier_company.portal_service_request", values)
-                    
-                    if not form_data['tipo_problema_id']:
+
+                    if not tipo_problema_id:
                         values['error_message'] = _("Debe seleccionar el tipo de problema.")
                         return request.render("copier_company.portal_service_request", values)
-                    
-                    if not form_data['problema_reportado']:
-                        values['error_message'] = _("La descripción del problema es OBLIGATORIA.")
+
+                    if not descripcion:
+                        values['error_message'] = _("Debe escribir la descripción del problema.")
                         return request.render("copier_company.portal_service_request", values)
-                    
-                    # Validar email
-                    import re
-                    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-                    if not re.match(email_pattern, form_data['correo']):
-                        values['error_message'] = _("El formato del email no es válido.")
-                        return request.render("copier_company.portal_service_request", values)
-                    
-                    # Validar teléfono (mínimo 9 dígitos)
-                    phone_clean = re.sub(r'[^0-9]', '', form_data['telefono_contacto'])
-                    if len(phone_clean) < 9:
-                        values['error_message'] = _("El número de teléfono debe tener al menos 9 dígitos.")
-                        return request.render("copier_company.portal_service_request", values)
-                    
-                    # Procesar imagen si se envió
-                    if form_data['foto_antes'] and hasattr(form_data['foto_antes'], 'read'):
-                        try:
-                            photo_data = form_data['foto_antes'].read()
-                            form_data['foto_antes'] = base64.b64encode(photo_data)
-                            _logger.info("Imagen procesada exitosamente, tamaño: %s bytes", len(photo_data))
-                        except Exception as e:
-                            _logger.error("Error procesando imagen: %s", str(e))
-                            form_data['foto_antes'] = False
-                    else:
-                        form_data['foto_antes'] = False
-                    
-                    # Crear solicitud de servicio
-                    if 'copier.service.request' in request.env:
-                        try:
-                            _logger.info("Creando solicitud de servicio técnico (Origen: %s)", 
-                                        'QR Scanner' if from_qr else 'Web Portal')
-                            
-                            # Preparar valores para creación
-                            service_vals = {
-                                'maquina_id': form_data['maquina_id'],
-                                'tipo_problema_id': form_data['tipo_problema_id'],
-                                'problema_reportado': form_data['problema_reportado'],
-                                'prioridad': form_data['prioridad'],
-                                'origen_solicitud': form_data['origen_solicitud'],
-                                'estado': 'nuevo',
-                                
-                                # ✅ AGREGAR ESTOS TRES CAMPOS:
-                                'contacto': form_data['contacto'],
-                                'correo': form_data['correo'],
-                                'telefono_contacto': form_data['telefono_contacto'],
-                            }
-                            
-                            # Agregar foto si existe
-                            if form_data['foto_antes']:
-                                service_vals['foto_antes'] = form_data['foto_antes']
-                            
-                            # Crear la solicitud
-                            service_request = request.env['copier.service.request'].sudo().create(service_vals)
-                            _logger.info("Solicitud de servicio creada: ID=%s, Número=%s", 
-                                    service_request.id, service_request.name)
-                            
-                            # Registrar en el chatter quién reportó
-                            service_request.message_post(
-                                body=f'''
-                                    📱 Información del Reportante
-                                    
-                                    • Nombre: {form_data['contacto']}
-                                    • Email: {form_data['correo']}
-                                    • Teléfono: {form_data['telefono_contacto']}
-                                    • Origen: {'📱 Escáner QR' if from_qr else '🌐 Portal Web'}
-                                ''',
-                                message_type='notification'
-                            )
-                                                                                    
-                            # Obtener tipo de problema para mensaje
-                            tipo_problema = request.env['copier.service.problem.type'].sudo().browse(
-                                form_data['tipo_problema_id']
-                            )
-                            
-                            priority_names = {
-                                '0': 'Baja',
-                                '1': 'Normal',
-                                '2': 'Alta',
-                                '3': 'Crítica'
-                            }
-                            
-                            # Mensaje de éxito
-                            success_message = _(
-                                "¡Solicitud de servicio creada exitosamente!<br/><br/>"
-                                "<strong>Número de solicitud:</strong> {}<br/>"
-                                "<strong>Equipo:</strong> {} (Serie: {})<br/>"
-                                "<strong>Tipo de problema:</strong> {}<br/>"
-                                "<strong>Prioridad:</strong> {}<br/>"
-                                "<strong>Reportado por:</strong> {}<br/><br/>"
-                                "Nuestro equipo técnico se pondrá en contacto contigo pronto.<br/>"
-                                "📧 Recibirás actualizaciones en: {}<br/>"
-                                "📱 Te contactaremos al: {}"
-                            ).format(
-                                service_request.name,
-                                equipment_data['name'],
-                                equipment_data['serie'],
-                                tipo_problema.name if tipo_problema else 'Desconocido',
-                                priority_names.get(service_request.prioridad, 'Normal'),
-                                form_data['contacto'],
-                                form_data['correo'],
-                                form_data['telefono_contacto']
-                            )
-                            
-                            values['success_message'] = success_message
-                            values['service_request'] = service_request
-                            values['request_data'] = {
-                                'number': service_request.name,
-                                'tipo_problema': tipo_problema.name if tipo_problema else 'Desconocido',
-                                'prioridad': priority_names.get(service_request.prioridad, 'Normal'),
-                                'estado': 'Nuevo',
-                                'reportado_por': form_data['contacto'],
-                                'email': form_data['correo'],
-                                'telefono': form_data['telefono_contacto'],
-                            }
-                            
-                            # NOTIFICACIÓN (agregar después)
-                            # try:
-                            #     self._send_service_notification(service_request, form_data)
-                            # except Exception as e:
-                            #     _logger.error("Error enviando notificación: %s", str(e))
-                            
-                        except Exception as e:
-                            _logger.exception("Error al crear solicitud de servicio: %s", str(e))
-                            values['error_message'] = _(
-                                "Ocurrió un error al procesar la solicitud. "
-                                "Por favor intente nuevamente o contacte directamente con soporte."
-                            )
-                    else:
-                        _logger.warning("Modelo copier.service.request no disponible")
-                        values['error_message'] = _(
-                            "El servicio de solicitudes técnicas no está disponible en este momento. "
-                            "Por favor contacte directamente con soporte."
-                        )
-                    
+
+                    # Crear solicitud
+                    service_vals = {
+                        'maquina_id': equipment.id,
+                        'tipo_problema_id': tipo_problema_id,
+                        'problema_reportado': descripcion,
+                        'prioridad': prioridad,
+                        'estado': 'nuevo',
+                        'contacto': contacto,
+                        'correo': correo,
+                        'telefono_contacto': telefono,
+                        'origen_solicitud': 'portal',
+                    }
+
+                    # Imagen opcional
+                    foto = kw.get('foto_antes')
+                    if foto and hasattr(foto, 'read'):
+                        service_vals['foto_antes'] = base64.b64encode(foto.read())
+
+                    service_request = request.env['copier.service.request'].sudo().create(service_vals)
+
+                    success_message = _(
+                        "Solicitud creada correctamente.<br/>"
+                        "<strong>Número:</strong> {}<br/>"
+                        "Te contactaremos pronto."
+                    ).format(service_request.name)
+
+                    values.update({
+                        'success_message': success_message,
+                        'request_data': {
+                            'number': service_request.name,
+                            'tipo_problema': request.env['copier.service.problem.type'].sudo().browse(tipo_problema_id).name,
+                            'prioridad': prioridad,
+                            'estado': 'Nuevo',
+                            'reportado_por': contacto,
+                            'email': correo,
+                            'telefono': telefono,
+                        }
+                    })
+
                 except Exception as e:
-                    _logger.exception("Error procesando formulario de servicio: %s", str(e))
-                    values['error_message'] = _(
-                        "Error al procesar el formulario. "
-                        "Por favor verifique los datos e intente nuevamente."
-                    )
-            
-            # Verificar existencia del template
-            template = 'copier_company.portal_service_request'
-            if not request.env['ir.ui.view'].sudo().search([('key', '=', template)]):
-                _logger.error("¡ERROR! Template %s no encontrado", template)
-                return request.redirect(f'/public/equipment_menu?copier_company_id={copier_company_id}')
-            
-            _logger.info("Renderizando template de servicio técnico: %s", template)
-            _logger.info("=== FINALIZANDO public_service_request ===")
-            return request.render(template, values)
-            
+                    _logger.exception("Error procesando POST: %s", str(e))
+                    values['error_message'] = _("Ocurrió un error al procesar la solicitud.")
+
+            # =========================
+            # RENDER
+            # =========================
+            return request.render('copier_company.portal_service_request', values)
+
         except Exception as e:
-            _logger.exception("¡EXCEPCIÓN GENERAL en public_service_request!: %s", str(e))
+            _logger.exception("Error general en public_service_request: %s", str(e))
             return request.redirect('/')
+
+        
+    
+    
+    
     @http.route(['/public/service_request/scan'], type='http', auth="public", website=True)
     def public_service_request_scan(self, copier_company_id=None, **kw):
         """Ruta para acceso directo mediante escaneo de QR"""
