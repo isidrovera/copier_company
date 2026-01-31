@@ -39,69 +39,57 @@ class ServiceRequestPortal(CustomerPortal):
         
     @http.route(['/public/service_request'], type='http', auth="public", website=True)
     def public_service_request(self, copier_company_id=None, **kw):
-        """Formulario público para solicitar servicio técnico"""
         _logger.info("=== INICIANDO public_service_request ===")
         _logger.info("Parámetros recibidos - copier_company_id: %s, kw: %s", copier_company_id, kw)
 
         try:
             if not copier_company_id:
-                _logger.error("No se proporcionó ID de equipo")
                 return request.redirect('/')
 
-            # Buscar el equipo
             equipment = request.env['copier.company'].sudo().browse(int(copier_company_id))
             if not equipment.exists():
-                _logger.error("Equipo ID %s no encontrado", copier_company_id)
                 return request.redirect('/')
 
-            # Detectar si viene de QR
             from_qr = kw.get('from_qr', '0') == '1'
 
-            # =========================
-            # DATOS DEL EQUIPO
-            # =========================
             equipment_data = {
                 'id': equipment.id,
-                'name': self._safe_get_text(equipment.name.name) if equipment.name else 'Equipo sin nombre',
-                'serie': self._safe_get_text(equipment.serie_id) or 'Sin serie',
-                'marca': self._safe_get_text(equipment.marca_id.name) if equipment.marca_id else 'Sin marca',
-                'modelo': self._safe_get_text(equipment.name.name) if equipment.name else 'Sin modelo',
-                'cliente_name': self._safe_get_text(equipment.cliente_id.name) if equipment.cliente_id else 'Sin cliente',
-                'ubicacion': self._safe_get_text(equipment.ubicacion) or 'Sin ubicación',
-                'sede': self._safe_get_text(equipment.sede) or '',
-                'ip': self._safe_get_text(equipment.ip_id) or '',
+                'name': self._safe_get_text(equipment.name.name) if equipment.name else 'Equipo',
+                'serie': self._safe_get_text(equipment.serie_id),
+                'marca': self._safe_get_text(equipment.marca_id.name) if equipment.marca_id else '',
+                'cliente_name': self._safe_get_text(equipment.cliente_id.name) if equipment.cliente_id else '',
+                'ubicacion': self._safe_get_text(equipment.ubicacion),
                 'tipo': 'Color' if equipment.tipo == 'color' else 'Blanco y Negro',
             }
 
-            # =========================
-            # DETECTAR USUARIO LOGUEADO
-            # =========================
+            # Detectar usuario logueado real (no público)
             user = request.env.user
             is_logged = bool(user and user.id and not user.has_group('base.group_public'))
             partner = user.partner_id if is_logged else False
 
-            # =========================
-            # DATOS DE CONTACTO
-            # prioridad:
-            # 1) usuario logueado
-            # 2) datos guardados en el equipo (si no viene de QR)
-            # 3) vacío
-            # =========================
+            # Obtener teléfono de forma segura
+            def _partner_phone(p):
+                if not p:
+                    return ''
+                # usa solo campos que realmente existan
+                return getattr(p, 'phone', '') or getattr(p, 'mobile', '')
+
+            # Datos de contacto
             if is_logged and partner:
                 contact_data = {
                     'contacto': self._safe_get_text(partner.name),
                     'correo': self._safe_get_text(partner.email),
-                    'telefono_contacto': self._safe_get_text(partner.mobile or partner.phone),
+                    'telefono_contacto': self._safe_get_text(_partner_phone(partner)),
                 }
-                _logger.info("Pre-cargando contacto desde usuario logueado")
+                _logger.info("Contacto desde usuario logueado")
 
             elif not from_qr and equipment.cliente_id:
                 contact_data = {
-                    'contacto': self._safe_get_text(equipment.contacto) or '',
-                    'correo': self._safe_get_text(equipment.correo) or '',
-                    'telefono_contacto': self._safe_get_text(equipment.celular) or '',
+                    'contacto': self._safe_get_text(equipment.contacto),
+                    'correo': self._safe_get_text(equipment.correo),
+                    'telefono_contacto': self._safe_get_text(equipment.celular),
                 }
-                _logger.info("Pre-cargando contacto desde datos del equipo")
+                _logger.info("Contacto desde datos del equipo")
 
             else:
                 contact_data = {
@@ -109,12 +97,10 @@ class ServiceRequestPortal(CustomerPortal):
                     'correo': '',
                     'telefono_contacto': '',
                 }
-                _logger.info("Contacto vacío (QR o visitante)")
+                _logger.info("Contacto vacío")
 
-            # Tipos de problema
             problem_types = request.env['copier.service.problem.type'].sudo().search(
-                [('active', '=', True)],
-                order='sequence, name'
+                [('active', '=', True)], order='sequence, name'
             )
 
             values = {
@@ -124,99 +110,58 @@ class ServiceRequestPortal(CustomerPortal):
                 'problem_types': problem_types,
                 'from_qr': from_qr,
                 'is_logged': is_logged,
-                'partner': partner,
                 'page_title': _('Solicitar Servicio Técnico'),
             }
 
-            # =========================
-            # PROCESAR POST
-            # =========================
+            # ===== POST =====
             if request.httprequest.method == 'POST':
-                _logger.info("Procesando formulario POST")
+                contacto = kw.get('contacto', '').strip()
+                correo = kw.get('correo', '').strip()
+                telefono = kw.get('telefono_contacto', '').strip()
+                tipo_problema_id = int(kw.get('tipo_problema_id')) if kw.get('tipo_problema_id') else None
+                descripcion = kw.get('problema_reportado', '').strip()
+                prioridad = kw.get('prioridad', '1')
 
-                try:
-                    contacto = kw.get('contacto', '').strip()
-                    correo = kw.get('correo', '').strip()
-                    telefono = kw.get('telefono_contacto', '').strip()
+                if not all([contacto, correo, telefono, tipo_problema_id, descripcion]):
+                    values['error_message'] = _("Complete todos los campos obligatorios.")
+                    return request.render('copier_company.portal_service_request', values)
 
-                    tipo_problema_id = int(kw.get('tipo_problema_id')) if kw.get('tipo_problema_id') else None
-                    descripcion = kw.get('problema_reportado', '').strip()
-                    prioridad = kw.get('prioridad', '1')
+                service_vals = {
+                    'maquina_id': equipment.id,
+                    'tipo_problema_id': tipo_problema_id,
+                    'problema_reportado': descripcion,
+                    'prioridad': prioridad,
+                    'estado': 'nuevo',
+                    'contacto': contacto,
+                    'correo': correo,
+                    'telefono_contacto': telefono,
+                    'origen_solicitud': 'portal',
+                }
 
-                    # Validaciones
-                    if not contacto:
-                        values['error_message'] = _("El nombre es obligatorio.")
-                        return request.render("copier_company.portal_service_request", values)
+                foto = kw.get('foto_antes')
+                if foto and hasattr(foto, 'read'):
+                    service_vals['foto_antes'] = base64.b64encode(foto.read())
 
-                    if not correo:
-                        values['error_message'] = _("El email es obligatorio.")
-                        return request.render("copier_company.portal_service_request", values)
+                service = request.env['copier.service.request'].sudo().create(service_vals)
 
-                    if not telefono:
-                        values['error_message'] = _("El teléfono es obligatorio.")
-                        return request.render("copier_company.portal_service_request", values)
+                values['success_message'] = _("Solicitud creada correctamente.")
+                values['request_data'] = {
+                    'number': service.name,
+                    'tipo_problema': request.env['copier.service.problem.type'].sudo().browse(tipo_problema_id).name,
+                    'prioridad': prioridad,
+                    'estado': 'Nuevo',
+                    'reportado_por': contacto,
+                    'email': correo,
+                    'telefono': telefono,
+                }
 
-                    if not tipo_problema_id:
-                        values['error_message'] = _("Debe seleccionar el tipo de problema.")
-                        return request.render("copier_company.portal_service_request", values)
-
-                    if not descripcion:
-                        values['error_message'] = _("Debe escribir la descripción del problema.")
-                        return request.render("copier_company.portal_service_request", values)
-
-                    # Crear solicitud
-                    service_vals = {
-                        'maquina_id': equipment.id,
-                        'tipo_problema_id': tipo_problema_id,
-                        'problema_reportado': descripcion,
-                        'prioridad': prioridad,
-                        'estado': 'nuevo',
-                        'contacto': contacto,
-                        'correo': correo,
-                        'telefono_contacto': telefono,
-                        'origen_solicitud': 'portal',
-                    }
-
-                    # Imagen opcional
-                    foto = kw.get('foto_antes')
-                    if foto and hasattr(foto, 'read'):
-                        service_vals['foto_antes'] = base64.b64encode(foto.read())
-
-                    service_request = request.env['copier.service.request'].sudo().create(service_vals)
-
-                    success_message = _(
-                        "Solicitud creada correctamente.<br/>"
-                        "<strong>Número:</strong> {}<br/>"
-                        "Te contactaremos pronto."
-                    ).format(service_request.name)
-
-                    values.update({
-                        'success_message': success_message,
-                        'request_data': {
-                            'number': service_request.name,
-                            'tipo_problema': request.env['copier.service.problem.type'].sudo().browse(tipo_problema_id).name,
-                            'prioridad': prioridad,
-                            'estado': 'Nuevo',
-                            'reportado_por': contacto,
-                            'email': correo,
-                            'telefono': telefono,
-                        }
-                    })
-
-                except Exception as e:
-                    _logger.exception("Error procesando POST: %s", str(e))
-                    values['error_message'] = _("Ocurrió un error al procesar la solicitud.")
-
-            # =========================
-            # RENDER
-            # =========================
             return request.render('copier_company.portal_service_request', values)
 
         except Exception as e:
             _logger.exception("Error general en public_service_request: %s", str(e))
             return request.redirect('/')
 
-        
+            
     
     
     
