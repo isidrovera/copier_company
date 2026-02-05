@@ -1,13 +1,11 @@
 from odoo import http
 import requests
 from odoo.http import request
-import os
-import mimetypes
-import tempfile
-from werkzeug.utils import redirect
-from datetime import datetime
 import logging
 from datetime import datetime
+from werkzeug.wrappers import Response
+import mimetypes
+
 _logger = logging.getLogger(__name__)
 
 
@@ -18,12 +16,10 @@ class PCloudController(http.Controller):
         code = kwargs.get('code')
         state = kwargs.get('state')
 
-        # Encuentra la configuración de pCloud en la base de datos
         pcloud_config = request.env['pcloud.config'].search([], limit=1)
         if not pcloud_config:
             return "pCloud configuration not found."
 
-        # Intercambia el código de autorización por un token de acceso
         try:
             pcloud_config.get_access_token(code)
             return request.render('copier_company.pcloud_success', {})
@@ -34,7 +30,6 @@ class PCloudController(http.Controller):
 class PcloudController(http.Controller):
     @http.route('/soporte/descargas', type='http', auth='user', website=True)
     def list_files(self, folder_id=0, search='', **kwargs):
-        # Comprobar el booleano has_licence en el partner
         partner = request.env.user.partner_id
         if not partner.has_license:
             return request.render('copier_company.no_subscription_message')
@@ -51,29 +46,23 @@ class PcloudController(http.Controller):
             
             _logger.info('Contents: %s', contents)
             
-            # Lista de carpetas raíz permitidas
             allowed_root_folders = [
                 'Konica Minolta',
                 'Ricoh',
                 'Canon',
-                # Añade aquí más carpetas permitidas
             ]
             
             current_folder_id = int(folder_id)
             filtered_contents = []
     
-            # Si estamos en la raíz
             if current_folder_id == 0:
-                # Solo mostrar las carpetas permitidas
                 filtered_contents = [
                     item for item in contents 
                     if item.get('name', 'Unknown') in allowed_root_folders
                 ]
             else:
-                # Obtener la ruta de la carpeta actual hasta la raíz
                 folder_path = config.get_folder_path(current_folder_id)
                 
-                # Si alguna carpeta en la ruta está en allowed_root_folders, mostrar todo
                 if any(folder['name'] in allowed_root_folders for folder in folder_path):
                     filtered_contents = contents
                 else:
@@ -149,12 +138,10 @@ class PcloudController(http.Controller):
         return f"{size:.2f} PB"
 
     def _format_date(self, date_str):
-        # Intenta una lista de formatos de fecha hasta que uno funcione
         date_formats = [
-            '%a, %d %b %Y %H:%M:%S %z',  # Fri, 02 Feb 2024 14:26:10 +0000
-            '%Y-%m-%d %H:%M:%S',         # 2024-02-02 14:26:10
-            '%Y-%m-%dT%H:%M:%S',         # 2024-02-02T14:26:10
-            # Añade más formatos según lo que esperes recibir
+            '%a, %d %b %Y %H:%M:%S %z',
+            '%Y-%m-%d %H:%M:%S',
+            '%Y-%m-%dT%H:%M:%S',
         ]
         
         for fmt in date_formats:
@@ -165,40 +152,89 @@ class PcloudController(http.Controller):
         
         return date_str
 
-    @http.route('/soporte/descarga', type='http', auth='public')
+    @http.route('/soporte/descarga', type='http', auth='user')
     def download_file(self, file_id, **kwargs):
-        config = request.env['pcloud.config'].search([], limit=1)
+        """
+        Descarga un archivo mediante streaming directo desde pCloud.
+        No almacena el archivo en memoria ni disco, sino que lo transmite directamente.
+        Esto permite descargas concurrentes sin bloquear el servidor.
+        """
+        # Verificar licencia
+        partner = request.env.user.partner_id
+        if not partner.has_license:
+            return request.redirect('/soporte/descargas')
+        
+        config = request.env['pcloud.config'].sudo().search([], limit=1)
         if not config or not file_id:
             return request.redirect('/soporte/descargas')
         
         try:
             file_id = int(file_id)
+            
+            # Obtener la URL de descarga de pCloud
             download_url = config.download_pcloud_file(file_id)
             
             if not download_url.startswith(('http://', 'https://')):
                 download_url = 'https://' + download_url
             
-            with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-                response = requests.get(download_url, stream=True)
-                response.raise_for_status()
-
-                for chunk in response.iter_content(chunk_size=8192):
-                    if chunk:
-                        temp_file.write(chunk)
-                temp_file.flush()
+            _logger.info('Starting streaming download from: %s', download_url)
             
-            file_name = download_url.split('/')[-1]
+            # Hacer una solicitud de streaming a pCloud
+            # stream=True es crucial para no cargar todo en memoria
+            pcloud_response = requests.get(
+                download_url, 
+                stream=True,
+                timeout=(10, 300)  # 10 seg conexión, 300 seg lectura
+            )
+            pcloud_response.raise_for_status()
+            
+            # Obtener el nombre del archivo y tipo MIME
+            file_name = download_url.split('/')[-1].split('?')[0]
+            content_type = pcloud_response.headers.get('Content-Type', 'application/octet-stream')
+            content_length = pcloud_response.headers.get('Content-Length', '')
+            
+            # Si no hay Content-Type, intentar detectarlo por extensión
+            if content_type == 'application/octet-stream':
+                guessed_type = mimetypes.guess_type(file_name)[0]
+                if guessed_type:
+                    content_type = guessed_type
+            
+            # Crear un generador para el streaming
+            def generate():
+                try:
+                    # Leer en chunks de 64KB para balance entre memoria y rendimiento
+                    for chunk in pcloud_response.iter_content(chunk_size=65536):
+                        if chunk:
+                            yield chunk
+                except Exception as e:
+                    _logger.error('Error during file streaming: %s', str(e))
+                    raise
+                finally:
+                    pcloud_response.close()
+            
+            # Preparar headers para la descarga
             headers = [
-                ('Content-Type', 'application/octet-stream'),
-                ('Content-Disposition', f'attachment; filename={file_name}')
+                ('Content-Type', content_type),
+                ('Content-Disposition', f'attachment; filename="{file_name}"'),
             ]
-
-            with open(temp_file.name, 'rb') as f:
-                file_content = f.read()
-
-            os.remove(temp_file.name)
-
-            return request.make_response(file_content, headers)
+            
+            # Agregar Content-Length si está disponible
+            if content_length:
+                headers.append(('Content-Length', content_length))
+            
+            # Crear respuesta con streaming
+            response = Response(generate(), headers=headers, direct_passthrough=True)
+            
+            _logger.info('File streaming started for: %s (user: %s)', file_name, request.env.user.name)
+            
+            return response
+            
+        except requests.exceptions.Timeout:
+            _logger.error('Timeout downloading file %s', file_id)
+            return request.redirect('/soporte/descargas?error=timeout')
+        except requests.exceptions.RequestException as e:
+            _logger.error('Request error downloading file %s: %s', file_id, str(e))
+            return request.redirect('/soporte/descargas?error=download_failed')
         except Exception as e:
-            _logger.error('Failed to download file: %s', str(e))
-            return request.redirect('/soporte/descargas')
+            _logger.error('Unexpected error downloading file %s: %s', file_id, str(e))
+            return request.redirect('/soporte/descargas?error=unexpected')
