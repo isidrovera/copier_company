@@ -47,53 +47,46 @@
             page-break-inside: avoid;
             break-inside: avoid;
 
-            /* Layout interno */
+            /* Layout interno: ahora en filas */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Fila superior: logo + QR */
+        .top-row {
             display: grid;
             grid-template-columns: 1fr 36mm;
             gap: 4mm;
+            margin-bottom: 3mm;
         }
 
-        /* Columna izquierda */
-        .left {
+        /* Columna izquierda superior */
+        .left-top {
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            overflow: hidden;
         }
 
-        /* LOGO — 70% más grande: de 20mm a 34mm */
+        /* LOGO grande */
         .company-logo {
             max-height: 34mm;
             max-width: 55mm;
             width: auto;
             height: auto;
             object-fit: contain;
-            margin-bottom: 3mm;
-        }
-
-        /* Texto */
-        .text {
-            font-size: 9.5px;
-            margin-bottom: 3mm;
-            line-height: 1.3;
-            font-weight: 500;
-        }
-
-        .serial {
-            font-size: 10.5px;
-            font-weight: bold;
             margin-bottom: 2mm;
+        }
+
+        /* Datos del equipo */
+        .serial {
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 1.5mm;
             color: #000;
         }
 
-        .contact {
-            font-size: 9px;
-            margin-bottom: 1mm;
-            font-weight: 500;
-        }
-
         /* Columna derecha QR */
-        .right {
+        .right-top {
             display: flex;
             justify-content: center;
             align-items: flex-start;
@@ -119,12 +112,33 @@
             letter-spacing: 0.3px;
         }
 
-        /* QR alta calidad, sin suavizado */
+        /* QR alta calidad */
         .qr {
             width: 30mm;
             height: 30mm;
             image-rendering: pixelated;
             image-rendering: crisp-edges;
+        }
+
+        /* Fila inferior: texto + contactos */
+        .bottom-row {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Texto explicativo */
+        .text {
+            font-size: 9.5px;
+            margin-bottom: 2mm;
+            line-height: 1.3;
+            font-weight: 500;
+        }
+
+        /* Contactos */
+        .contact {
+            font-size: 9.5px;
+            margin-bottom: 1mm;
+            font-weight: 500;
         }
 
         /* Impresión perfecta */
@@ -159,34 +173,60 @@
 
             <div class="sticker">
 
-              <!-- COLUMNA IZQUIERDA -->
-              <div class="left">
+              <!-- FILA SUPERIOR: LOGO + QR -->
+              <div class="top-row">
 
-                <!-- LOGO REAL DE TU EMPRESA (sin deformar) -->
-                <t t-set="company" t-value="request.env.company"/>
+                <!-- Columna izquierda: Logo + Datos -->
+                <div class="left-top">
 
-                <t t-if="company.logo">
-                  <img
-                    t-att-src="'data:image/png;base64,%s' % company.logo.decode('utf-8')"
-                    class="company-logo"
-                    alt="Logo Empresa"/>
-                </t>
+                  <!-- LOGO -->
+                  <t t-set="company" t-value="request.env.company"/>
 
-                <!-- Texto corporativo -->
+                  <t t-if="company.logo">
+                    <img
+                      t-att-src="'data:image/png;base64,%s' % company.logo.decode('utf-8')"
+                      class="company-logo"
+                      alt="Logo Empresa"/>
+                  </t>
+
+                  <!-- Datos del equipo -->
+                  <div class="serial">
+                    Modelo:
+                    <t t-esc="doc.name.name if doc.name else 'No especificado'"/>
+                  </div>
+
+                  <div class="serial">
+                    Serie:
+                    <t t-esc="doc.serie_id or 'No especificada'"/>
+                  </div>
+
+                </div>
+
+                <!-- Columna derecha: QR -->
+                <div class="right-top">
+                  <div class="scan">
+                    <div class="scan-title">ESCANEE AQUÍ</div>
+
+                    <!-- QR en alta resolución -->
+                    <t t-if="doc.qr_code">
+                      <img
+                        t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')"
+                        class="qr"
+                        alt="QR Soporte"/>
+                    </t>
+
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- FILA INFERIOR: TEXTO + CONTACTOS -->
+              <div class="bottom-row">
+
+                <!-- Texto explicativo -->
                 <div class="text">
                   Para soporte técnico, asistencia remota o solicitud de tóner,<br/>
                   escanee el código QR.
-                </div>
-
-                <!-- Datos del equipo -->
-                <div class="serial">
-                  Modelo:
-                  <t t-esc="doc.name.name if doc.name else 'No especificado'"/>
-                </div>
-
-                <div class="serial">
-                  Serie:
-                  <t t-esc="doc.serie_id or 'No especificada'"/>
                 </div>
 
                 <!-- Contactos -->
@@ -194,22 +234,6 @@
                 <div class="contact">+51 975 399 303</div>
                 <div class="contact">https://copiercompanysac.com</div>
 
-              </div>
-
-              <!-- COLUMNA DERECHA (QR) -->
-              <div class="right">
-                <div class="scan">
-                  <div class="scan-title">ESCANEE AQUÍ</div>
-
-                  <!-- QR en alta resolución -->
-                  <t t-if="doc.qr_code">
-                    <img
-                      t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')"
-                      class="qr"
-                      alt="QR Soporte"/>
-                  </t>
-
-                </div>
               </div>
 
             </div>
