@@ -1,53 +1,58 @@
-// Función mejorada para obtener datos del cliente con efectos visuales
-function obtenerDatosCliente() {
+// ============================================================================
+// BÚSQUEDA DE CLIENTE CON BOTÓN
+// ============================================================================
+
+function buscarCliente() {
     const errorElement = document.getElementById('error_message');
     const successElement = document.getElementById('success_message');
+    const warningElement = document.getElementById('warning_message');
     const clienteName = document.getElementById('cliente_name');
     const telefono = document.getElementById('telefono');
     const correo = document.getElementById('correo');
     const clienteId = document.getElementById('cliente_id');
+    const contacto = document.getElementById('contacto');
     const loadingSpinner = document.getElementById('loading_spinner');
     const identificacionInput = document.getElementById('identificacion');
-
-    // Verificar que los elementos existen en el DOM
-    if (!errorElement || !clienteName || !telefono || !correo || !clienteId) {
-        console.error('Uno o más elementos del DOM no se encontraron.');
-        return;
-    }
+    const btnBuscar = document.getElementById('btn_buscar');
 
     // Limpiar mensajes previos
     errorElement.classList.add('d-none');
-    if (successElement) {
-        successElement.classList.add('d-none');
-    }
+    if (successElement) successElement.classList.add('d-none');
+    if (warningElement) warningElement.classList.add('d-none');
 
     const tipoIdentificacion = document.getElementById('tipo_identificacion').value;
     const identificacion = identificacionInput.value.trim();
-
-    console.log("Tipo de Identificación: ", tipoIdentificacion);
-    console.log("Identificación: ", identificacion);
 
     if (!identificacion) {
         mostrarError('Por favor, ingrese el número de identificación.');
         return;
     }
 
+    // Validar longitud según tipo
+    if (tipoIdentificacion === '6' && identificacion.length !== 11) {
+        mostrarError('El RUC debe tener 11 dígitos.');
+        return;
+    }
+    if (tipoIdentificacion === '1' && identificacion.length !== 8) {
+        mostrarError('El DNI debe tener 8 dígitos.');
+        return;
+    }
+
     // Mostrar indicador de carga
-    if (loadingSpinner) {
-        loadingSpinner.classList.remove('d-none');
+    if (loadingSpinner) loadingSpinner.classList.remove('d-none');
+    if (btnBuscar) {
+        btnBuscar.disabled = true;
+        btnBuscar.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Buscando...';
     }
     
-    // Deshabilitar campo durante la búsqueda
+    // Deshabilitar campos durante la búsqueda
     identificacionInput.disabled = true;
-    
-    // Agregar clase de loading al campo
-    identificacionInput.classList.add('loading');
+    document.getElementById('tipo_identificacion').disabled = true;
 
-    fetch('/copier_company/get_customer_data', {
+    fetch('/copier_company/buscar_cliente', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value // Agregar CSRF token
         },
         body: JSON.stringify({
             jsonrpc: "2.0",
@@ -66,49 +71,95 @@ function obtenerDatosCliente() {
         return response.json();
     })
     .then(data => {
-        console.log("Datos procesados: ", data);
+        console.log("Respuesta del servidor: ", data);
         
-        if (data.result && data.result.result && data.result.result.success) {
-            console.log("Cliente encontrado: ", data.result.result.name);
+        if (data.result && data.result.success) {
+            const result = data.result;
             
-            // Rellenar campos con animación
-            rellenarCamposConAnimacion({
-                name: data.result.result.name,
-                phone: data.result.result.phone || '',
-                email: data.result.result.email || '',
-                id: data.result.result.id
-            });
+            if (result.found) {
+                // Se encontraron datos
+                const clienteData = result.data;
+                
+                rellenarCamposConAnimacion({
+                    id: clienteData.id,
+                    name: clienteData.name,
+                    phone: clienteData.phone || clienteData.mobile || '',
+                    email: clienteData.email || ''
+                });
+                
+                // Mensaje según la fuente
+                if (result.source === 'database') {
+                    mostrarExito('✓ Cliente encontrado en la base de datos.');
+                } else if (result.source === 'api') {
+                    mostrarExito('✓ Cliente encontrado en SUNAT/RENIEC y guardado.');
+                }
+                
+                // Deshabilitar campos de cliente (ya están completos)
+                clienteName.readOnly = true;
+                
+            } else {
+                // No se encontró, permitir ingreso manual
+                limpiarCamposCliente();
+                mostrarAdvertencia(result.message || 'No se encontraron datos. Ingrese la información manualmente.');
+                
+                // Habilitar campos para ingreso manual
+                clienteName.readOnly = false;
+                clienteName.focus();
+            }
             
-            // Mostrar mensaje de éxito
-            mostrarExito('Cliente encontrado exitosamente.');
-            
-            // Actualizar progreso del formulario
+            // Actualizar progreso
             setTimeout(actualizarProgreso, 100);
             
         } else {
-            console.warn('No se encontraron datos:', data);
             limpiarCamposCliente();
-            mostrarError('No se encontraron datos para la identificación proporcionada.');
+            mostrarError(data.result?.message || 'Error al buscar cliente.');
+            clienteName.readOnly = false;
         }
     })
     .catch(error => {
         console.error('Error al procesar la solicitud:', error);
         limpiarCamposCliente();
-        mostrarError('Error al procesar la solicitud. Por favor, intente nuevamente.');
+        mostrarError('Error de conexión. Por favor, ingrese los datos manualmente.');
+        clienteName.readOnly = false;
     })
     .finally(() => {
         // Ocultar indicador de carga
-        if (loadingSpinner) {
-            loadingSpinner.classList.add('d-none');
+        if (loadingSpinner) loadingSpinner.classList.add('d-none');
+        if (btnBuscar) {
+            btnBuscar.disabled = false;
+            btnBuscar.innerHTML = '<i class="fas fa-search me-2"></i>Buscar';
         }
         
-        // Rehabilitar campo
+        // Rehabilitar campos
         identificacionInput.disabled = false;
-        identificacionInput.classList.remove('loading');
+        document.getElementById('tipo_identificacion').disabled = false;
     });
 }
 
-// Función para mostrar errores con estilo mejorado
+// ============================================================================
+// FUNCIONES DE MENSAJES
+// ============================================================================
+
+function mostrarAdvertencia(mensaje) {
+    const warningElement = document.getElementById('warning_message');
+    const warningText = document.getElementById('warning_text');
+    
+    if (warningElement) {
+        if (warningText) {
+            warningText.textContent = mensaje;
+        } else {
+            warningElement.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + mensaje;
+        }
+        
+        warningElement.classList.remove('d-none');
+        warningElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        setTimeout(() => {
+            warningElement.classList.add('d-none');
+        }, 8000);
+    }
+}
+
 function mostrarError(mensaje) {
     const errorElement = document.getElementById('error_message');
     const errorText = document.getElementById('error_text');
@@ -121,18 +172,14 @@ function mostrarError(mensaje) {
         }
         
         errorElement.classList.remove('d-none');
-        
-        // Scroll suave al error
         errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
         
-        // Auto-ocultar después de 8 segundos
         setTimeout(() => {
             errorElement.classList.add('d-none');
         }, 8000);
     }
 }
 
-// Función para mostrar mensajes de éxito mejorada
 function mostrarExito(mensaje) {
     const successElement = document.getElementById('success_message');
     const successText = document.getElementById('success_text');
@@ -146,25 +193,27 @@ function mostrarExito(mensaje) {
         
         successElement.classList.remove('d-none');
         
-        // Auto-ocultar después de 4 segundos
         setTimeout(() => {
             successElement.classList.add('d-none');
         }, 4000);
     }
 }
 
-// Función para rellenar campos con animación suave
+// ============================================================================
+// FUNCIONES DE UTILIDAD
+// ============================================================================
+
 function rellenarCamposConAnimacion(datos) {
     const campos = [
+        { element: document.getElementById('cliente_id'), value: datos.id },
         { element: document.getElementById('cliente_name'), value: datos.name },
         { element: document.getElementById('telefono'), value: datos.phone },
         { element: document.getElementById('correo'), value: datos.email },
-        { element: document.getElementById('cliente_id'), value: datos.id }
+        { element: document.getElementById('contacto'), value: datos.name }
     ];
 
     campos.forEach((campo, index) => {
         if (campo.element) {
-            // Efecto de aparición gradual
             setTimeout(() => {
                 campo.element.value = campo.value;
                 
@@ -181,27 +230,28 @@ function rellenarCamposConAnimacion(datos) {
                     campo.element.style.backgroundColor = '';
                 }, 1500);
                 
-            }, index * 150); // Delay progresivo para cada campo
+            }, index * 150);
         }
     });
 }
 
-// Función para limpiar campos del cliente
 function limpiarCamposCliente() {
-    const campos = ['cliente_name', 'telefono', 'correo', 'cliente_id'];
+    const campos = ['cliente_id', 'cliente_name', 'telefono', 'correo', 'contacto'];
     
     campos.forEach(campoId => {
         const campo = document.getElementById(campoId);
         if (campo) {
             campo.value = '';
-            // Trigger del evento change para actualizar validaciones
             campo.dispatchEvent(new Event('change', { bubbles: true }));
             campo.dispatchEvent(new Event('input', { bubbles: true }));
         }
     });
 }
 
-// Inicialización cuando el DOM está listo
+// ============================================================================
+// INICIALIZACIÓN DEL FORMULARIO
+// ============================================================================
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM cargado - Inicializando formulario...');
     
@@ -217,10 +267,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Inicializar progreso del formulario
     initFormProgress();
     
+    // Inicializar mejoras UX
+    setTimeout(mejorarExperienciaUsuario, 500);
+    
     console.log('Formulario inicializado correctamente');
 });
 
-// Función para inicializar validación del formulario
+// ============================================================================
+// VALIDACIÓN DEL FORMULARIO
+// ============================================================================
+
 function initFormValidation() {
     const form = document.getElementById('copier_form');
     if (!form) {
@@ -268,7 +324,10 @@ function initFormValidation() {
     }, false);
 }
 
-// Función para validaciones en tiempo real
+// ============================================================================
+// VALIDACIONES EN TIEMPO REAL
+// ============================================================================
+
 function initRealTimeValidation() {
     // Validación en tiempo real para email
     const emailInput = document.getElementById('correo');
@@ -344,7 +403,10 @@ function initRealTimeValidation() {
     });
 }
 
-// Función para inicializar tooltips
+// ============================================================================
+// TOOLTIPS
+// ============================================================================
+
 function initTooltips() {
     const tooltips = [
         {
@@ -386,10 +448,12 @@ function initTooltips() {
     }, 500);
 }
 
-// Variable global para la función de progreso
+// ============================================================================
+// PROGRESO DEL FORMULARIO
+// ============================================================================
+
 let actualizarProgreso;
 
-// Función para inicializar progreso del formulario
 function initFormProgress() {
     const formInputs = document.querySelectorAll('#copier_form input, #copier_form select, #copier_form textarea');
     const progressBar = document.getElementById('form_progress');
@@ -461,32 +525,10 @@ function initFormProgress() {
     setTimeout(actualizarProgreso, 100);
 }
 
-// Función para resetear el formulario con confirmación
-function resetearFormulario() {
-    if (confirm('¿Está seguro de que desea limpiar todo el formulario?')) {
-        const form = document.getElementById('copier_form');
-        if (form) {
-            form.reset();
-            form.classList.remove('was-validated');
-            
-            // Limpiar mensajes
-            const errorElement = document.getElementById('error_message');
-            const successElement = document.getElementById('success_message');
-            
-            if (errorElement) errorElement.classList.add('d-none');
-            if (successElement) successElement.classList.add('d-none');
-            
-            // Resetear progreso
-            if (typeof actualizarProgreso === 'function') {
-                setTimeout(actualizarProgreso, 100);
-            }
-            
-            mostrarExito('Formulario reiniciado correctamente.');
-        }
-    }
-}
+// ============================================================================
+// MEJORAS DE EXPERIENCIA DE USUARIO
+// ============================================================================
 
-// Función adicional para mejorar UX
 function mejorarExperienciaUsuario() {
     // Animación suave para las secciones del formulario
     const sections = document.querySelectorAll('.form-section');
@@ -500,30 +542,34 @@ function mejorarExperienciaUsuario() {
             section.style.transform = 'translateY(0)';
         }, index * 200);
     });
-    
-    // Efecto de typing para el título (opcional)
-    const title = document.querySelector('h1');
-    if (title) {
-        const text = title.textContent;
-        title.textContent = '';
-        title.style.borderRight = '2px solid white';
-        
-        let i = 0;
-        const typeWriter = () => {
-            if (i < text.length) {
-                title.textContent += text.charAt(i);
-                i++;
-                setTimeout(typeWriter, 100);
-            } else {
-                title.style.borderRight = 'none';
-            }
-        };
-        
-        setTimeout(typeWriter, 1000);
-    }
 }
 
-// Ejecutar mejoras UX después de la carga
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(mejorarExperienciaUsuario, 500);
-});
+// ============================================================================
+// FUNCIÓN PARA RESETEAR EL FORMULARIO
+// ============================================================================
+
+function resetearFormulario() {
+    if (confirm('¿Está seguro de que desea limpiar todo el formulario?')) {
+        const form = document.getElementById('copier_form');
+        if (form) {
+            form.reset();
+            form.classList.remove('was-validated');
+            
+            // Limpiar mensajes
+            const errorElement = document.getElementById('error_message');
+            const successElement = document.getElementById('success_message');
+            const warningElement = document.getElementById('warning_message');
+            
+            if (errorElement) errorElement.classList.add('d-none');
+            if (successElement) successElement.classList.add('d-none');
+            if (warningElement) warningElement.classList.add('d-none');
+            
+            // Resetear progreso
+            if (typeof actualizarProgreso === 'function') {
+                setTimeout(actualizarProgreso, 100);
+            }
+            
+            mostrarExito('Formulario reiniciado correctamente.');
+        }
+    }
+}
