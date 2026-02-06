@@ -102,7 +102,7 @@
             'copier_company/static/src/js/manuals.js',
             'copier_company/static/src/js/counter_charts.js',
             'copier_company/static/src/js/PcloudDescargas.js',
-            'copier_company/static/src/js/custom_script.js',            
+            'copier_company/static/src/js/cotizacion.js',            
             'copier_company/static/src/js/copier_homepage_scripts.js',
             'copier_company/static/src/js/copier_services_scripts.js',
 

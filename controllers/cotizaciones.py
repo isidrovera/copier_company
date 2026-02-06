@@ -10,12 +10,14 @@ class CopierCompany(http.Controller):
     def copier_company_form(self, **kwargs):
         try:
             marcas = request.env['marcas.maquinas'].sudo().search([])
-            modelos = request.env['modelos.maquinas'].sudo().search([])  # Agregado para el campo name
+            modelos = request.env['modelos.maquinas'].sudo().search([])
             tipos_identificacion = request.env['l10n_latam.identification.type'].sudo().search([])
+            
             _logger.info(
                 'Form loaded with %s marcas, %s modelos and %s tipos_identificacion',
                 len(marcas), len(modelos), len(tipos_identificacion)
             )
+            
             return request.render('copier_company.copier_company_form_template', {
                 'marcas': marcas,
                 'modelos': modelos,
@@ -28,7 +30,7 @@ class CopierCompany(http.Controller):
                 'status_message': str(e)
             })
 
-    @http.route('/copier_company/buscar_cliente', type='json', auth="public")
+    @http.route('/copier_company/buscar_cliente', type='jsonrpc', auth="public")  # ← CAMBIADO DE type='json'
     def buscar_cliente(self, tipo_identificacion, identificacion):
         """
         Busca cliente en BD y en APIs externas (SUNAT/RENIEC)
