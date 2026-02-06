@@ -55,9 +55,17 @@
         /* Fila superior: logo + QR */
         .top-row {
             display: grid;
-            grid-template-columns: 1fr 36mm;
+            grid-template-columns: 1fr 2px 36mm;
             gap: 4mm;
             margin-bottom: 3mm;
+        }
+
+        /* Línea divisoria vertical */
+        .divider {
+            width: 2px;
+            background: #d1d5db;
+            align-self: stretch;
+            border-radius: 1px;
         }
 
         /* Columna izquierda superior */
@@ -173,7 +181,7 @@
 
             <div class="sticker">
 
-              <!-- FILA SUPERIOR: LOGO + QR -->
+              <!-- FILA SUPERIOR: LOGO + DIVISOR + QR -->
               <div class="top-row">
 
                 <!-- Columna izquierda: Logo + Datos -->
@@ -201,6 +209,9 @@
                   </div>
 
                 </div>
+
+                <!-- LÍNEA DIVISORIA VERTICAL -->
+                <div class="divider"></div>
 
                 <!-- Columna derecha: QR -->
                 <div class="right-top">
