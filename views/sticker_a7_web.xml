@@ -47,17 +47,10 @@
             page-break-inside: avoid;
             break-inside: avoid;
 
-            /* Layout interno: ahora en filas */
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Fila superior: logo + QR */
-        .top-row {
+            /* Layout: 2 columnas con divisor */
             display: grid;
-            grid-template-columns: 1fr 2px 36mm;
+            grid-template-columns: 1fr 2px 40mm;
             gap: 4mm;
-            margin-bottom: 3mm;
         }
 
         /* Línea divisoria vertical */
@@ -68,11 +61,17 @@
             border-radius: 1px;
         }
 
-        /* Columna izquierda superior */
+        /* Columna izquierda */
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Sección superior izquierda */
         .left-top {
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
         }
 
         /* LOGO grande */
@@ -82,7 +81,7 @@
             width: auto;
             height: auto;
             object-fit: contain;
-            margin-bottom: 2mm;
+            margin-bottom: 3mm;
         }
 
         /* Datos del equipo */
@@ -93,11 +92,23 @@
             color: #000;
         }
 
-        /* Columna derecha QR */
-        .right-top {
+        /* Contactos en la parte inferior izquierda */
+        .left-bottom {
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .contact {
+            font-size: 9.5px;
+            margin-bottom: 1mm;
+            font-weight: 500;
+        }
+
+        /* Columna derecha: QR + Texto */
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .scan {
@@ -107,6 +118,7 @@
             text-align: center;
             background: white;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 3mm;
         }
 
         .scan-title {
@@ -122,30 +134,17 @@
 
         /* QR alta calidad */
         .qr {
-            width: 30mm;
-            height: 30mm;
+            width: 32mm;
+            height: 32mm;
             image-rendering: pixelated;
             image-rendering: crisp-edges;
         }
 
-        /* Fila inferior: texto + contactos */
-        .bottom-row {
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Texto explicativo */
-        .text {
-            font-size: 9.5px;
-            margin-bottom: 2mm;
+        /* Texto explicativo debajo del QR */
+        .qr-text {
+            font-size: 8.5px;
             line-height: 1.3;
-            font-weight: 500;
-        }
-
-        /* Contactos */
-        .contact {
-            font-size: 9.5px;
-            margin-bottom: 1mm;
+            text-align: center;
             font-weight: 500;
         }
 
@@ -181,10 +180,10 @@
 
             <div class="sticker">
 
-              <!-- FILA SUPERIOR: LOGO + DIVISOR + QR -->
-              <div class="top-row">
+              <!-- COLUMNA IZQUIERDA -->
+              <div class="left-column">
 
-                <!-- Columna izquierda: Logo + Datos -->
+                <!-- Parte superior: Logo + Datos -->
                 <div class="left-top">
 
                   <!-- LOGO -->
@@ -210,40 +209,42 @@
 
                 </div>
 
-                <!-- LÍNEA DIVISORIA VERTICAL -->
-                <div class="divider"></div>
-
-                <!-- Columna derecha: QR -->
-                <div class="right-top">
-                  <div class="scan">
-                    <div class="scan-title">ESCANEE AQUÍ</div>
-
-                    <!-- QR en alta resolución -->
-                    <t t-if="doc.qr_code">
-                      <img
-                        t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')"
-                        class="qr"
-                        alt="QR Soporte"/>
-                    </t>
-
-                  </div>
+                <!-- Parte inferior: Contactos -->
+                <div class="left-bottom">
+                  <div class="contact">info@copiercompanysac.com</div>
+                  <div class="contact">+51 975 399 303</div>
+                  <div class="contact">https://copiercompanysac.com</div>
                 </div>
 
               </div>
 
-              <!-- FILA INFERIOR: TEXTO + CONTACTOS -->
-              <div class="bottom-row">
+              <!-- LÍNEA DIVISORIA VERTICAL -->
+              <div class="divider"></div>
 
-                <!-- Texto explicativo -->
-                <div class="text">
-                  Para soporte técnico, asistencia remota o solicitud de tóner,<br/>
-                  escanee el código QR.
+              <!-- COLUMNA DERECHA: QR + TEXTO -->
+              <div class="right-column">
+
+                <!-- QR -->
+                <div class="scan">
+                  <div class="scan-title">ESCANEE AQUÍ</div>
+
+                  <!-- QR en alta resolución -->
+                  <t t-if="doc.qr_code">
+                    <img
+                      t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')"
+                      class="qr"
+                      alt="QR Soporte"/>
+                  </t>
+
                 </div>
 
-                <!-- Contactos -->
-                <div class="contact">info@copiercompanysac.com</div>
-                <div class="contact">+51 975 399 303</div>
-                <div class="contact">https://copiercompanysac.com</div>
+                <!-- Texto explicativo debajo del QR -->
+                <div class="qr-text">
+                  Para soporte técnico,<br/>
+                  asistencia remota o<br/>
+                  solicitud de tóner,<br/>
+                  escanee el código QR.
+                </div>
 
               </div>
 
