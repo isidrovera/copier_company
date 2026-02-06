@@ -30,7 +30,7 @@ class CopierCompany(http.Controller):
                 'status_message': str(e)
             })
 
-    @http.route('/copier_company/buscar_cliente', type='jsonrpc', auth="public")  # ← CAMBIADO DE type='json'
+    @http.route('/copier_company/buscar_cliente', type='jsonrpc', auth="public")
     def buscar_cliente(self, tipo_identificacion, identificacion):
         """
         Busca cliente en BD y en APIs externas (SUNAT/RENIEC)
@@ -47,6 +47,14 @@ class CopierCompany(http.Controller):
 
             if partner:
                 _logger.info(f'Cliente encontrado en BD: {partner.name}')
+                
+                # Obtener teléfono de forma segura
+                phone = ''
+                if hasattr(partner, 'mobile') and partner.mobile:
+                    phone = partner.mobile
+                elif hasattr(partner, 'phone') and partner.phone:
+                    phone = partner.phone
+                
                 return {
                     'success': True,
                     'found': True,
@@ -54,8 +62,7 @@ class CopierCompany(http.Controller):
                     'data': {
                         'id': partner.id,
                         'name': partner.name,
-                        'phone': partner.phone or '',
-                        'mobile': partner.mobile or '',
+                        'phone': phone,
                         'email': partner.email or ''
                     }
                 }
@@ -63,21 +70,46 @@ class CopierCompany(http.Controller):
             # 2. Si no existe en BD, intentar buscar en API externa
             _logger.info('Cliente no encontrado en BD, buscando en API externa...')
             
+            # Obtener el tipo de identificación
+            tipo_id = request.env['l10n_latam.identification.type'].sudo().search([
+                ('l10n_pe_vat_code', '=', tipo_identificacion)
+            ], limit=1)
+            
+            if not tipo_id:
+                _logger.warning(f'Tipo de identificación no encontrado: {tipo_identificacion}')
+                return {
+                    'success': True,
+                    'found': False,
+                    'source': 'none',
+                    'message': 'No se encontraron datos. Por favor ingrese manualmente.'
+                }
+            
             # Crear registro temporal para usar el método _doc_number_change
             temp_partner = request.env['res.partner'].sudo().create({
                 'vat': identificacion,
-                'l10n_latam_identification_type_id': request.env[
-                    'l10n_latam.identification.type'
-                ].sudo().search([('l10n_pe_vat_code', '=', tipo_identificacion)], limit=1).id,
+                'l10n_latam_identification_type_id': tipo_id.id,
                 'name': 'Temporal',
             })
 
             # Ejecutar búsqueda en API (SUNAT/RENIEC)
-            temp_partner._doc_number_change()
+            try:
+                temp_partner._doc_number_change()
+            except Exception as e:
+                _logger.warning(f'Error en _doc_number_change: {str(e)}')
+                # Continuar aunque falle la búsqueda en API
+                pass
 
             # Verificar si se obtuvo información
             if temp_partner.name and temp_partner.name != 'Temporal' and temp_partner.name != identificacion:
                 _logger.info(f'Cliente encontrado en API externa: {temp_partner.name}')
+                
+                # Obtener teléfono de forma segura
+                phone = ''
+                if hasattr(temp_partner, 'mobile') and temp_partner.mobile:
+                    phone = temp_partner.mobile
+                elif hasattr(temp_partner, 'phone') and temp_partner.phone:
+                    phone = temp_partner.phone
+                
                 result = {
                     'success': True,
                     'found': True,
@@ -85,8 +117,7 @@ class CopierCompany(http.Controller):
                     'data': {
                         'id': temp_partner.id,
                         'name': temp_partner.name,
-                        'phone': temp_partner.phone or '',
-                        'mobile': temp_partner.mobile or '',
+                        'phone': phone,
                         'email': temp_partner.email or ''
                     }
                 }
@@ -126,13 +157,21 @@ class CopierCompany(http.Controller):
                 cliente = request.env['res.partner'].sudo().browse(cliente_id)
                 
                 if cliente.exists():
-                    # Actualizar datos del cliente
-                    cliente.write({
-                        'phone': kwargs.get('telefono'),
-                        'mobile': kwargs.get('telefono'),
+                    # Preparar valores para actualizar
+                    update_vals = {
                         'email': kwargs.get('correo'),
                         'name': kwargs.get('cliente_name')
-                    })
+                    }
+                    
+                    # Actualizar teléfono de forma segura
+                    telefono = kwargs.get('telefono')
+                    if telefono:
+                        if hasattr(cliente, 'mobile'):
+                            update_vals['mobile'] = telefono
+                        if hasattr(cliente, 'phone'):
+                            update_vals['phone'] = telefono
+                    
+                    cliente.write(update_vals)
                 else:
                     raise Exception('Cliente no encontrado')
             else:
@@ -141,14 +180,25 @@ class CopierCompany(http.Controller):
                     ('l10n_pe_vat_code', '=', kwargs.get('tipo_identificacion'))
                 ], limit=1)
                 
-                cliente = request.env['res.partner'].sudo().create({
+                # Preparar valores para crear
+                create_vals = {
                     'name': kwargs.get('cliente_name'),
                     'vat': kwargs.get('identificacion'),
                     'l10n_latam_identification_type_id': tipo_id_obj.id if tipo_id_obj else False,
-                    'phone': kwargs.get('telefono'),
-                    'mobile': kwargs.get('telefono'),
                     'email': kwargs.get('correo'),
-                })
+                }
+                
+                # Agregar teléfono de forma segura
+                telefono = kwargs.get('telefono')
+                if telefono:
+                    # Verificar qué campos existen en el modelo
+                    partner_fields = request.env['res.partner'].fields_get()
+                    if 'mobile' in partner_fields:
+                        create_vals['mobile'] = telefono
+                    if 'phone' in partner_fields:
+                        create_vals['phone'] = telefono
+                
+                cliente = request.env['res.partner'].sudo().create(create_vals)
                 cliente_id = cliente.id
 
             # Crear registro en copier.company
@@ -156,18 +206,24 @@ class CopierCompany(http.Controller):
             if not modelo_id:
                 raise Exception('Debe seleccionar un modelo de máquina')
 
-            cotizacion = request.env['copier.company'].sudo().create({
+            # Preparar valores para la cotización
+            cotizacion_vals = {
                 'name': int(modelo_id),  # ID del modelo de máquina
                 'cliente_id': cliente_id,
                 'contacto': kwargs.get('contacto'),
-                'celular': kwargs.get('telefono'),
                 'correo': kwargs.get('correo'),
                 'tipo': kwargs.get('tipo'),
-                'detalles': kwargs.get('detalles'),
+                'detalles': kwargs.get('detalles') or '',
                 'formato': kwargs.get('formato'),
-                'volumen_mensual_color': int(kwargs.get('volumen_mensual_color', 0)),
-                'volumen_mensual_bn': int(kwargs.get('volumen_mensual_bn', 0))
-            })
+                'volumen_mensual_color': int(kwargs.get('volumen_mensual_color', 0) or 0),
+                'volumen_mensual_bn': int(kwargs.get('volumen_mensual_bn', 0) or 0)
+            }
+            
+            # Agregar celular si el campo existe
+            if hasattr(request.env['copier.company'], 'celular'):
+                cotizacion_vals['celular'] = kwargs.get('telefono')
+
+            cotizacion = request.env['copier.company'].sudo().create(cotizacion_vals)
 
             _logger.info(f'Cotización creada exitosamente: {cotizacion.secuencia}')
 
@@ -177,6 +233,8 @@ class CopierCompany(http.Controller):
 
         except Exception as e:
             _logger.error(f'Error processing form submission: {str(e)}')
+            import traceback
+            _logger.error(traceback.format_exc())
             return request.render('web.http_error', {
                 'status_code': 'Error',
                 'status_message': f'Error al procesar la cotización: {str(e)}'
