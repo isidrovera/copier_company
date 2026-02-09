@@ -425,14 +425,16 @@
                                                 <td style="color: #155724;"><t t-out="object.tecnico_id.name or 'N/A'"/></td>
                                             </tr>
                                             <tr>
-                                                <td style="font-weight: bold; color: #155724;">Fecha:</td>
-                                                <td style="color: #155724;">
-                                                    <t t-if="object.fecha_fin">
-    <t t-set="fecha_local" t-value="object.fecha_fin - timedelta(hours=5)"/>
-    <t t-out="fecha_local.strftime('%d/%m/%Y a las %I:%M %p')"/>
-</t>
-                                                </td>
-                                            </tr>
+    <td width="40%" style="font-weight: bold; color: #155724;">Fecha de Finalización:</td>
+    <td style="color: #155724;">
+        <t t-if="object.fecha_fin">
+            <t t-out="format_datetime(object.fecha_fin, dt_format='dd/MM/yyyy', tz='America/Lima')"/>
+            a las
+            <t t-out="format_datetime(object.fecha_fin, dt_format='hh:mm a', tz='America/Lima')"/>
+        </t>
+        <t t-else="">N/A</t>
+    </td>
+</tr>
                                             <tr>
                                                 <td style="font-weight: bold; color: #155724;">Equipo:</td>
                                                 <td style="color: #155724;">
