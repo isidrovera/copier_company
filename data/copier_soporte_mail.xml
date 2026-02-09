@@ -428,8 +428,9 @@
                                                 <td style="font-weight: bold; color: #155724;">Fecha:</td>
                                                 <td style="color: #155724;">
                                                     <t t-if="object.fecha_fin">
-                                                        <t t-out="object.fecha_fin.strftime('%d/%m/%Y %H:%M') if object.fecha_fin else 'N/A'"/>
-                                                    </t>
+    <t t-set="fecha_local" t-value="object.fecha_fin - timedelta(hours=5)"/>
+    <t t-out="fecha_local.strftime('%d/%m/%Y a las %I:%M %p')"/>
+</t>
                                                 </td>
                                             </tr>
                                             <tr>
