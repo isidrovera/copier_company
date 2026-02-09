@@ -188,18 +188,19 @@ class CopierServiceRequest(models.Model):
     # ========================================
     
     tecnico_id = fields.Many2one(
-        'res.partner',
-        string='Técnico Asignado',
-        tracking=True
-    )
-    
+    'res.partner',
+    string='Técnico Asignado',
+    tracking=True,
+    domain=[('is_company', '=', False)]  # ✅ Filtrar solo personas, no empresas
+)
+
     tecnico_respaldo_id = fields.Many2one(
-        'res.users',
+        'res.partner',  # ✅ Cambiar de res.users a res.partner
         string='Técnico Respaldo',
         tracking=True,
-        domain=[('share', '=', False)]
+        domain=[('is_company', '=', False)]
     )
-    
+        
     fecha_programada = fields.Datetime(
         string='Fecha Programada',
         tracking=True
@@ -681,15 +682,37 @@ class CopierServiceRequest(models.Model):
         
         self.write({'estado': 'asignado'})
         
-        # Crear actividad para el técnico
-        self.activity_schedule(
-            'mail.mail_activity_data_todo',
-            user_id=self.tecnico_id.id,
-            summary=f'Servicio técnico programado: {self.name}',
-            note=f'Problema: {self.tipo_problema_id.name}\nCliente: {self.cliente_id.name}\nUbicación: {self.ubicacion}'
-        )
+        # ✅ OPCIÓN 1: Crear actividad para el usuario que ejecuta la acción
+        # (el administrador o supervisor que asigna)
+        try:
+            self.activity_schedule(
+                'mail.mail_activity_data_todo',
+                user_id=self.env.user.id,  # ✅ Usuario actual, no el técnico
+                summary=f'Servicio técnico asignado a {self.tecnico_id.name}: {self.name}',
+                note=f'''
+                    Técnico: {self.tecnico_id.name}
+                    Problema: {self.tipo_problema_id.name}
+                    Cliente: {self.cliente_id.name}
+                    Ubicación: {self.ubicacion}
+                '''
+            )
+        except Exception as e:
+            _logger.warning(f"No se pudo crear actividad: {str(e)}")
         
-        # Notificar al técnico
+        # ✅ OPCIÓN 2: Si el técnico tiene usuario vinculado, crear actividad para él
+        # (solo si tiene cuenta de usuario)
+        if self.tecnico_id.user_ids:
+            try:
+                self.activity_schedule(
+                    'mail.mail_activity_data_todo',
+                    user_id=self.tecnico_id.user_ids[0].id,
+                    summary=f'Servicio técnico programado: {self.name}',
+                    note=f'Problema: {self.tipo_problema_id.name}\nCliente: {self.cliente_id.name}\nUbicación: {self.ubicacion}'
+                )
+            except Exception as e:
+                _logger.warning(f"No se pudo crear actividad para técnico: {str(e)}")
+        
+        # ✅ Notificar al técnico en el chatter (siempre funciona con res.partner)
         self.message_post(
             body=f'''
                 👨‍🔧 Técnico Asignado: {self.tecnico_id.name}
@@ -699,10 +722,11 @@ class CopierServiceRequest(models.Model):
                 • Ubicación: {self.ubicacion}
                 • Problema: {self.tipo_problema_id.name}
             ''',
-            partner_ids=[self.tecnico_id.partner_id.id] if self.tecnico_id.partner_id else []
+            partner_ids=[self.tecnico_id.id]  # ✅ Notificar al partner directamente
         )
         
         return True
+
     
     def action_confirmar_visita(self):
         """Confirmar fecha de visita del técnico"""
@@ -724,6 +748,10 @@ class CopierServiceRequest(models.Model):
     def action_iniciar_ruta(self):
         """Técnico indica que está en camino"""
         self.ensure_one()
+        
+        if not self.tecnico_id:
+            raise ValidationError(_("No hay técnico asignado a esta solicitud."))
+        
         self.write({'estado': 'en_ruta'})
         
         self.message_post(
@@ -736,10 +764,13 @@ class CopierServiceRequest(models.Model):
         )
         
         return True
-    
+        
     def action_iniciar_servicio(self):
         """Técnico hace check-in en el sitio"""
         self.ensure_one()
+        
+        if not self.tecnico_id:
+            raise ValidationError(_("No hay técnico asignado a esta solicitud."))
         
         self.write({
             'estado': 'en_sitio',
