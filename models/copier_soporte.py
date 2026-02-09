@@ -190,8 +190,7 @@ class CopierServiceRequest(models.Model):
     tecnico_id = fields.Many2one(
         'res.partner',
         string='Técnico Asignado',
-        tracking=True,
-        domain=[('share', '=', False)]
+        tracking=True
     )
     
     tecnico_respaldo_id = fields.Many2one(
