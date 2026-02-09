@@ -1250,7 +1250,7 @@ class CopierServiceRequest(models.Model):
     def _send_email_completado(self):
         """
         Envía email cuando se completa el servicio.
-        Incluye solicitud de evaluación.
+        Incluye solicitud de evaluación y reporte PDF.
         Se llama desde: action_completar_servicio()
         """
         self.ensure_one()
@@ -1264,7 +1264,7 @@ class CopierServiceRequest(models.Model):
             
             if self.estado != 'completado':
                 _logger.warning("No se puede enviar email: solicitud %s no está completada (estado: %s)", 
-                              self.name, self.estado)
+                            self.name, self.estado)
                 return False
             
             # Buscar la plantilla
@@ -1274,36 +1274,61 @@ class CopierServiceRequest(models.Model):
                 return False
             
             _logger.info("Plantilla encontrada: %s (ID: %s)", template.name, template.id)
-            report = self.env.ref('copier_company.action_report_service_request')
-            pdf_content, _ = report._render_qweb_pdf(self.id)
-
-            attachment = self.env['ir.attachment'].create({
-                'name': f'Reporte Servicio {self.name}.pdf',
-                'type': 'binary',
-                'datas': base64.b64encode(pdf_content),
-                'res_model': self._name,
-                'res_id': self.id,
-                'mimetype': 'application/pdf',
-            })
-
             
-            # Enviar el email
+            # ✅ GENERAR PDF CON MANEJO DE ERRORES
+            attachment_id = None
+            try:
+                # Buscar el reporte
+                report = self.env.ref('copier_company.action_report_service_request', raise_if_not_found=False)
+                
+                if report:
+                    _logger.info("Generando PDF del reporte ID: %s", report.id)
+                    
+                    # Generar PDF
+                    pdf_content, _ = report._render_qweb_pdf(self.id)
+                    
+                    # Crear adjunto
+                    attachment = self.env['ir.attachment'].create({
+                        'name': f'Reporte_Servicio_{self.name}.pdf',
+                        'type': 'binary',
+                        'datas': base64.b64encode(pdf_content),
+                        'res_model': self._name,
+                        'res_id': self.id,
+                        'mimetype': 'application/pdf',
+                    })
+                    attachment_id = attachment.id
+                    _logger.info("PDF generado y adjunto creado: ID %s", attachment_id)
+                else:
+                    _logger.warning("Reporte 'action_report_service_request' no encontrado, se enviará email sin PDF")
+                    
+            except Exception as e:
+                _logger.error("Error generando PDF del reporte: %s", str(e))
+                _logger.info("Continuando envío de email sin adjunto PDF")
+                # Continuamos sin el PDF
+            
+            # ✅ ENVIAR EMAIL (con o sin PDF)
+            email_values = {
+                'email_to': self.correo,
+                'email_from': 'info@copiercompanysac.com',
+            }
+            
+            # Agregar adjunto solo si se generó correctamente
+            if attachment_id:
+                email_values['attachment_ids'] = [(4, attachment_id)]
+            
             template.send_mail(
                 self.id,
                 force_send=True,
-                email_values={
-                    'email_to': self.correo,
-                    'email_from': 'info@copiercompanysac.com',
-                    'attachment_ids': [(4, attachment.id)],
-                }
+                email_values=email_values
             )
             
             _logger.info("✅ Email servicio completado enviado a: %s", self.correo)
             
             # Registrar en el chatter
+            mensaje_pdf = " (con reporte PDF adjunto)" if attachment_id else " (sin reporte PDF)"
             self.message_post(
                 body=f'''
-                    📧 Email de Servicio Completado Enviado
+                    📧 Email de Servicio Completado Enviado{mensaje_pdf}
                     
                     • Destinatario: {self.correo}
                     • Técnico: {self.tecnico_id.name if self.tecnico_id else 'N/A'}
