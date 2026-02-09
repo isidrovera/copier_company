@@ -143,65 +143,86 @@
     <!-- PLANTILLA 2: TÉCNICO ASIGNADO -->
     <!-- ========================================== -->
     <record id="email_template_service_tecnico_asignado" model="mail.template">
-        <field name="name">Servicio Técnico - Técnico Asignado</field>
-        <field name="model_id" ref="model_copier_service_request"/>
-        <field name="email_from">info@copiercompanysac.com</field>
-        <field name="email_to">{{ object.correo }}</field>
-        <field name="subject">👨‍🔧 Técnico Asignado - Solicitud {{ object.name }}</field>
-        <field name="auto_delete" eval="False"/>
-        <field name="body_html"><![CDATA[
-<div style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
-    <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; padding: 20px;">
+    <field name="name">Servicio Técnico - Técnico Asignado</field>
+    <field name="model_id" ref="model_copier_service_request"/>
+    <field name="email_from">info@copiercompanysac.com</field>
+    <field name="email_to">{{ object.correo }}</field>
+    <field name="subject">👨‍🔧 Técnico Asignado - Solicitud {{ object.name }}</field>
+    <field name="auto_delete" eval="False"/>
+    <field name="body_html"><![CDATA[
+<div style="margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; background-color: #f4f4f4;">
+    <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 20px 0;">
         <tr>
             <td align="center">
-                <table border="0" cellpadding="0" cellspacing="0" style="width: 600px; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <table width="600" border="0" cellpadding="0" cellspacing="0" style="background-color: #ffffff; max-width: 600px;">
                     
-                    <!-- Header -->
+                    <!-- Header con fondo sólido (más compatible) -->
                     <tr>
-                        <td style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); padding: 40px; text-align: center;">
-                            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">
+                        <td bgcolor="#28a745" style="padding: 30px 20px; text-align: center;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: bold;">
                                 👨‍🔧 Técnico Asignado
                             </h1>
-                            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">
+                            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 14px;">
                                 Tu servicio ha sido programado
                             </p>
                         </td>
                     </tr>
 
-                    <!-- Contenido -->
+                    <!-- Contenido Principal -->
                     <tr>
-                        <td style="padding: 40px 30px;">
-                            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 20px 0;">
+                        <td style="padding: 30px 20px;">
+                            
+                            <!-- Saludo -->
+                            <p style="font-size: 15px; color: #333333; line-height: 1.5; margin: 0 0 15px 0;">
                                 Hola <strong><t t-out="object.contacto or 'Cliente'"/></strong>,
                             </p>
                             
-                            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 30px 0;">
+                            <p style="font-size: 15px; color: #333333; line-height: 1.5; margin: 0 0 20px 0;">
                                 ¡Buenas noticias! Hemos asignado un técnico a tu solicitud 
                                 <strong><t t-out="object.name"/></strong>.
                             </p>
 
-                            <!-- Información del Técnico -->
-                            <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; background-color: #e7f3ff; border-radius: 8px; overflow: hidden; margin: 0 0 30px 0;">
+                            <!-- Tabla: Información del Técnico -->
+                            <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin: 0 0 20px 0;">
                                 <tr>
-                                    <td style="padding: 20px; border-left: 4px solid #28a745;">
-                                        <h3 style="color: #28a745; margin: 0 0 15px 0; font-size: 18px;">
+                                    <td bgcolor="#e7f3ff" style="padding: 20px; border-left: 4px solid #28a745;">
+                                        <h3 style="color: #28a745; margin: 0 0 15px 0; font-size: 16px;">
                                             👨‍🔧 Información del Técnico
                                         </h3>
                                         
-                                        <table border="0" cellpadding="8" cellspacing="0" style="width: 100%;">
+                                        <table width="100%" border="0" cellpadding="5" cellspacing="0">
                                             <tr>
-                                                <td style="font-weight: bold; color: #555555; width: 40%;">Técnico:</td>
-                                                <td style="color: #333333; font-size: 18px; font-weight: bold;">
+                                                <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0;">
+                                                    Técnico:
+                                                </td>
+                                                <td style="color: #333333; font-size: 16px; font-weight: bold; padding: 5px 0;">
                                                     <t t-out="object.tecnico_id.name or 'Por asignar'"/>
                                                 </td>
                                             </tr>
+                                            
+                                            <!-- ✅ DNI del técnico -->
+                                            <tr t-if="object.tecnico_id.vat">
+                                                <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0;">
+                                                    DNI:
+                                                </td>
+                                                <td style="color: #333333; font-size: 14px; padding: 5px 0;">
+                                                    <t t-out="object.tecnico_id.vat"/>
+                                                </td>
+                                            </tr>
+                                            
                                             <tr>
-                                                <td style="font-weight: bold; color: #555555;">Fecha Programada:</td>
-                                                <td style="color: #333333;">
+                                                <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0;">
+                                                    Fecha Programada:
+                                                </td>
+                                                <td style="color: #333333; font-size: 14px; padding: 5px 0;">
                                                     <t t-if="object.fecha_programada">
-                                                        <t t-out="object.fecha_programada.strftime('%d/%m/%Y %H:%M') if object.fecha_programada else 'Por confirmar'"/>
+                                                        <span style="color: #28a745; font-weight: bold;">
+                                                            <t t-out="object.fecha_programada.strftime('%d/%m/%Y a las %H:%M')"/>
+                                                        </span>
                                                     </t>
-                                                    <t t-else="">Por confirmar</t>
+                                                    <t t-else="">
+                                                        <span style="color: #ffc107;">Por confirmar</span>
+                                                    </t>
                                                 </td>
                                             </tr>
                                         </table>
@@ -209,44 +230,101 @@
                                 </tr>
                             </table>
 
-                            <!-- Detalles del Equipo -->
-                            <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; background-color: #f8f9fa; border-radius: 8px; overflow: hidden; margin: 0 0 30px 0;">
+                            <!-- Tabla: Detalles del Equipo -->
+                            <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin: 0 0 20px 0;">
                                 <tr>
-                                    <td style="padding: 20px;">
-                                        <h3 style="color: #667eea; margin: 0 0 15px 0; font-size: 18px;">
+                                    <td bgcolor="#f8f9fa" style="padding: 20px;">
+                                        <h3 style="color: #667eea; margin: 0 0 15px 0; font-size: 16px;">
                                             🖨️ Equipo a Atender
                                         </h3>
                                         
-                                        <table border="0" cellpadding="8" cellspacing="0" style="width: 100%;">
+                                        <table width="100%" border="0" cellpadding="5" cellspacing="0">
                                             <tr>
-                                                <td style="font-weight: bold; color: #555555; width: 40%;">Equipo:</td>
-                                                <td style="color: #333333;"><t t-out="object.modelo_maquina.name or 'N/A'"/></td>
+                                                <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0;">
+                                                    Cliente:
+                                                </td>
+                                                <td style="color: #333333; font-size: 14px; padding: 5px 0;">
+                                                    <t t-out="object.cliente_id.name or 'N/A'"/>
+                                                </td>
                                             </tr>
                                             <tr>
-                                                <td style="font-weight: bold; color: #555555;">Serie:</td>
-                                                <td style="color: #333333;"><t t-out="object.serie_maquina or 'N/A'"/></td>
+                                                <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0;">
+                                                    Equipo:
+                                                </td>
+                                                <td style="color: #333333; font-size: 14px; padding: 5px 0;">
+                                                    <t t-out="object.modelo_maquina.name or 'N/A'"/>
+                                                </td>
                                             </tr>
                                             <tr>
-                                                <td style="font-weight: bold; color: #555555;">Ubicación:</td>
-                                                <td style="color: #333333;"><t t-out="object.ubicacion or 'N/A'"/></td>
+                                                <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0;">
+                                                    Serie:
+                                                </td>
+                                                <td style="color: #333333; font-size: 14px; padding: 5px 0;">
+                                                    <t t-out="object.serie_maquina or 'N/A'"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0;">
+                                                    Ubicación:
+                                                </td>
+                                                <td style="color: #333333; font-size: 14px; padding: 5px 0;">
+                                                    <t t-out="object.ubicacion or 'N/A'"/>
+                                                </td>
                                             </tr>
                                             <tr t-if="object.sede">
-                                                <td style="font-weight: bold; color: #555555;">Sede:</td>
-                                                <td style="color: #333333;"><t t-out="object.sede"/></td>
+                                                <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0;">
+                                                    Sede:
+                                                </td>
+                                                <td style="color: #333333; font-size: 14px; padding: 5px 0;">
+                                                    <t t-out="object.sede"/>
+                                                </td>
+                                            </tr>
+                                            
+                                            <!-- Tipo de problema -->
+                                            <tr t-if="object.tipo_problema_id">
+                                                <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0;">
+                                                    Tipo de Problema:
+                                                </td>
+                                                <td style="color: #333333; font-size: 14px; padding: 5px 0;">
+                                                    <t t-out="object.tipo_problema_id.name"/>
+                                                </td>
+                                            </tr>
+                                            
+                                            <!-- Problema reportado -->
+                                            <tr t-if="object.problema_reportado">
+                                                <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0; vertical-align: top;">
+                                                    Problema:
+                                                </td>
+                                                <td style="color: #333333; font-size: 14px; padding: 5px 0;">
+                                                    <t t-out="object.problema_reportado"/>
+                                                </td>
                                             </tr>
                                         </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Botón para rastrear solicitud -->
+                            <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin: 0 0 20px 0;">
+                                <tr>
+                                    <td align="center" style="padding: 20px 0;">
+                                        <a t-if="object.tracking_url" 
+                                           t-att-href="object.tracking_url"
+                                           style="background-color: #28a745; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; font-size: 14px;">
+                                            🔍 Rastrear mi Solicitud
+                                        </a>
                                     </td>
                                 </tr>
                             </table>
 
                             <!-- Preparativos -->
-                            <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; background-color: #d1ecf1; border-radius: 8px; overflow: hidden; margin: 0 0 30px 0;">
+                            <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin: 0 0 20px 0;">
                                 <tr>
-                                    <td style="padding: 20px;">
-                                        <h3 style="color: #0c5460; margin: 0 0 15px 0; font-size: 18px;">
+                                    <td bgcolor="#d1ecf1" style="padding: 15px; border-left: 4px solid #17a2b8;">
+                                        <h3 style="color: #0c5460; margin: 0 0 10px 0; font-size: 16px;">
                                             ✅ Preparativos para la Visita
                                         </h3>
-                                        <p style="color: #0c5460; margin: 0; line-height: 1.6;">
+                                        <p style="color: #0c5460; margin: 0; line-height: 1.6; font-size: 14px;">
                                             • Asegúrate de que el equipo esté accesible<br/>
                                             • Mantén el área de trabajo despejada<br/>
                                             • Ten disponible alguna persona para recibir al técnico<br/>
@@ -256,22 +334,29 @@
                                 </tr>
                             </table>
 
-                            <p style="font-size: 14px; color: #666666; line-height: 1.6; margin: 0;">
-                                ¿Necesitas reprogramar? Llámanos al <strong>+51 975 399 303</strong>
+                            <!-- Contacto -->
+                            <p style="font-size: 14px; color: #666666; line-height: 1.5; margin: 0; text-align: center;">
+                                ¿Necesitas reprogramar?<br/>
+                                Llámanos al <strong style="color: #28a745;">+51 975 399 303</strong><br/>
+                                o escríbenos a <strong>info@copiercompanysac.com</strong>
                             </p>
                         </td>
                     </tr>
 
                     <!-- Footer -->
                     <tr>
-                        <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #dee2e6;">
-                            <p style="margin: 0 0 10px 0; color: #667eea; font-weight: bold; font-size: 18px;">
+                        <td bgcolor="#f8f9fa" style="padding: 20px; text-align: center; border-top: 1px solid #dee2e6;">
+                            <p style="margin: 0 0 10px 0; color: #667eea; font-weight: bold; font-size: 16px;">
                                 Copier Company
                             </p>
-                            <p style="margin: 0; color: #666666; font-size: 14px;">
+                            <p style="margin: 0; color: #666666; font-size: 13px; line-height: 1.5;">
                                 📧 info@copiercompanysac.com<br/>
                                 📱 +51 975 399 303<br/>
                                 🌐 www.copiercompanysac.com
+                            </p>
+                            <p style="margin: 15px 0 0 0; color: #999999; font-size: 11px;">
+                                Este es un correo automático, por favor no responder.<br/>
+                                Solicitud: <t t-out="object.name"/>
                             </p>
                         </td>
                     </tr>
@@ -280,8 +365,8 @@
         </tr>
     </table>
 </div>
-        ]]></field>
-    </record>
+    ]]></field>
+</record>
 
     <!-- ========================================== -->
     <!-- PLANTILLA 3: SERVICIO COMPLETADO -->
