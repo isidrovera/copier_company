@@ -211,20 +211,21 @@
                                             </tr>
                                             
                                             <tr>
-                                                <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0;">
-                                                    Fecha Programada:
-                                                </td>
-                                                <td style="color: #333333; font-size: 14px; padding: 5px 0;">
-                                                    <t t-if="object.fecha_programada">
-                                                        <span style="color: #28a745; font-weight: bold;">
-                                                            <t t-out="object.fecha_programada.strftime('%d/%m/%Y a las %H:%M')"/>
-                                                        </span>
-                                                    </t>
-                                                    <t t-else="">
-                                                        <span style="color: #ffc107;">Por confirmar</span>
-                                                    </t>
-                                                </td>
-                                            </tr>
+    <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0;">
+        Fecha Programada:
+    </td>
+    <td style="color: #333333; font-size: 14px; padding: 5px 0;">
+        <t t-if="object.fecha_programada">
+            <span style="color: #28a745; font-weight: bold;">
+                <!-- ✅ Convertir a zona horaria local -->
+                <t t-esc="object.fecha_programada.astimezone(object.env.user.tz and object.env.user.tz or 'America/Lima').strftime('%d/%m/%Y a las %I:%M %p')"/>
+            </span>
+        </t>
+        <t t-else="">
+            <span style="color: #ffc107;">Por confirmar</span>
+        </t>
+    </td>
+</tr>
                                         </table>
                                     </td>
                                 </tr>
@@ -334,12 +335,7 @@
                                 </tr>
                             </table>
 
-                            <!-- Contacto -->
-                            <p style="font-size: 14px; color: #666666; line-height: 1.5; margin: 0; text-align: center;">
-                                ¿Necesitas reprogramar?<br/>
-                                Llámanos al <strong style="color: #28a745;">+51 975 399 303</strong><br/>
-                                o escríbenos a <strong>info@copiercompanysac.com</strong>
-                            </p>
+                            
                         </td>
                     </tr>
 
