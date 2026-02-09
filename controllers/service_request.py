@@ -492,7 +492,7 @@ class ServiceRequestPortal(CustomerPortal):
                 _logger.info("Procesando evaluación POST para servicio %s", service.name)
                 
                 try:
-                    calificacion = kw.get('calificacion', '').strip()
+                    calificacion = kw.get('rating', '').strip()
                     comentario = kw.get('comentario', '').strip()
                     
                     # Validar calificación

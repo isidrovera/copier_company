@@ -1285,7 +1285,7 @@ class CopierServiceRequest(models.Model):
                     _logger.info("Generando PDF del reporte ID: %s", report.id)
                     
                     # Generar PDF
-                    pdf_content, _ = report._render_qweb_pdf(self.id)
+                    pdf_content, _ = report.render_qweb_pdf([self.id])
                     
                     # Crear adjunto
                     attachment = self.env['ir.attachment'].create({

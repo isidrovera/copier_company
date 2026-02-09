@@ -480,23 +480,50 @@
                             </t>
 
                             <!-- Calificación -->
-                            <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; background-color: #e7f3ff; border-radius: 8px; overflow: hidden; margin: 0 0 30px 0;">
-                                <tr>
-                                    <td style="padding: 30px; text-align: center;">
-                                        <h3 style="color: #004085; margin: 0 0 15px 0; font-size: 20px;">
-                                            ⭐ ¿Cómo fue nuestro servicio?
-                                        </h3>
-                                        <p style="color: #004085; margin: 0 0 20px 0; line-height: 1.6;">
-                                            Tu opinión es muy importante para nosotros.<br/>
-                                            Nos ayudaría mucho si pudieras calificar el servicio recibido.
-                                        </p>
-                                        <p style="color: #004085; font-size: 14px; margin: 0;">
-                                            Solo toma un minuto. Gracias por tu tiempo.
-                                        </p>
-                                    </td>
-                                </tr>
-                            </table>
+                            <!-- Botón de Evaluación -->
+<table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin: 0 0 30px 0;">
+    <tr>
+        <td bgcolor="#e7f3ff" style="padding: 30px; text-align: center;">
+            <h3 style="color: #004085; margin: 0 0 15px 0; font-size: 20px;">
+                &#11088; ¿Cómo fue nuestro servicio?
+            </h3>
+            <p style="color: #004085; margin: 0 0 20px 0; line-height: 1.6;">
+                Tu opinión es muy importante para nosotros.<br/>
+                Nos ayudaría mucho si pudieras calificar el servicio recibido.
+            </p>
+            
+            <!-- Botón para evaluar -->
+            <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td align="center" style="padding: 10px 0;">
+                        <a t-if="object.evaluation_url" 
+                           t-att-href="object.evaluation_url"
+                           style="background-color: #ffc107; color: #000000; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; font-size: 16px;">
+                            &#11088; Evaluar Servicio
+                        </a>
+                    </td>
+                </tr>
+            </table>
+            
+            <p style="color: #004085; font-size: 14px; margin: 15px 0 0 0;">
+                Solo toma un minuto. &#161;Gracias por tu tiempo!
+            </p>
+        </td>
+    </tr>
+</table>
 
+<!-- Botón para ver seguimiento -->
+<table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin: 0 0 30px 0;">
+    <tr>
+        <td align="center" style="padding: 20px 0;">
+            <a t-if="object.tracking_url" 
+               t-att-href="object.tracking_url"
+               style="background-color: #28a745; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; font-size: 14px;">
+                &#128269; Ver Detalles del Servicio
+            </a>
+        </td>
+    </tr>
+</table>
                             <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0; text-align: center;">
                                 <strong>¡Gracias por confiar en Copier Company!</strong>
                             </p>
@@ -592,6 +619,18 @@
                             </p>
                         </td>
                     </tr>
+                    <!-- Botón de Evaluación en Recordatorio -->
+<table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
+    <tr>
+        <td align="center" style="padding: 20px 0;">
+            <a t-if="object.evaluation_url" 
+               t-att-href="object.evaluation_url"
+               style="background-color: #ffc107; color: #000000; padding: 18px 50px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 18px; box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);">
+                &#11088; Evaluar Ahora
+            </a>
+        </td>
+    </tr>
+</table>
 
                     <!-- Footer -->
                     <tr>
