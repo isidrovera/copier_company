@@ -217,8 +217,10 @@
     <td style="color: #333333; font-size: 14px; padding: 5px 0;">
         <t t-if="object.fecha_programada">
             <span style="color: #28a745; font-weight: bold;">
-                <!-- ✅ Convertir a zona horaria local -->
-                <t t-esc="object.fecha_programada.astimezone(object.env.user.tz and object.env.user.tz or 'America/Lima').strftime('%d/%m/%Y a las %I:%M %p')"/>
+                <!-- ✅ Usar format_datetime con contexto de zona horaria -->
+                <t t-out="format_datetime(object.fecha_programada, dt_format='dd/MM/yyyy', tz=object.env.user.tz or 'America/Lima')"/>
+                a las
+                <t t-out="format_datetime(object.fecha_programada, dt_format='hh:mm a', tz=object.env.user.tz or 'America/Lima')"/>
             </span>
         </t>
         <t t-else="">
