@@ -210,6 +210,27 @@ class CopierServiceRequest(models.Model):
         string='Duración Estimada (horas)',
         default=2.0
     )
+    vehicle_id = fields.Many2one(
+        'l10n_pe_edi.vehicle',
+        string='Vehículo Asignado',
+        tracking=True,
+        help='Vehículo que usará el técnico para este servicio'
+    )
+
+    # Campos relacionados para mostrar info del vehículo
+    vehicle_plate = fields.Char(
+        string='Placa del Vehículo',
+        related='vehicle_id.license_plate',
+        readonly=True,
+        store=True
+    )
+
+    vehicle_name = fields.Char(
+        string='Modelo del Vehículo',
+        related='vehicle_id.name',
+        readonly=True,
+        store=True
+    )
     
     # ========================================
     # EJECUCIÓN DEL SERVICIO
@@ -999,7 +1020,7 @@ class CopierServiceRequest(models.Model):
         # Evento: Técnico asignado
         if self.tecnico_id:
             timeline.append({
-                'fecha': self.write_date,  # Aproximado
+                'fecha': self.write_date,
                 'titulo': 'Técnico Asignado',
                 'descripcion': f'Técnico: {self.tecnico_id.name}',
                 'icon': '👨‍🔧',
@@ -1026,6 +1047,13 @@ class CopierServiceRequest(models.Model):
                 'completed': True
             })
         
+        # ✅ Preparar info del vehículo desde la solicitud
+        tecnico_vehicle = None
+        if self.vehicle_plate:
+            tecnico_vehicle = f"Placa: {self.vehicle_plate}"
+            if self.vehicle_name:
+                tecnico_vehicle = f"{self.vehicle_name} - {tecnico_vehicle}"
+        
         return {
             'numero': self.name,
             'estado': dict(self._fields['estado'].selection).get(self.estado),
@@ -1040,6 +1068,7 @@ class CopierServiceRequest(models.Model):
             'problema': self.tipo_problema_id.name if self.tipo_problema_id else 'N/A',
             'tecnico': self.tecnico_id.name if self.tecnico_id else 'Por asignar',
             'tecnico_telefono': self.tecnico_id.phone if self.tecnico_id and self.tecnico_id.phone else None,
+            'tecnico_vehicle': tecnico_vehicle,  # ✅ Desde la solicitud
             'fecha_programada': self.fecha_programada,
             'trabajo_realizado': self.trabajo_realizado if self.estado == 'completado' else None,
             'timeline': sorted(timeline, key=lambda x: x['fecha']),

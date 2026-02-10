@@ -224,6 +224,8 @@
                                     <field name="duracion_estimada" 
                                            widget="float_time"
                                            readonly="estado in ('completado', 'cancelado')"/>
+                                    <field name="vehicle_id" options="{'no_create': True}"/>
+    <field name="vehicle_plate" readonly="1" />
                                 </group>
                             </group>
                         </page>

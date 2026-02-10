@@ -209,6 +209,15 @@
                                                     <t t-out="object.tecnico_id.vat"/>
                                                 </td>
                                             </tr>
+                                            <tr t-if="object.vehicle_plate">
+                                                <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0;">
+                                                    Vehículo:
+                                                </td>
+                                                <td style="color: #333333; font-size: 14px; padding: 5px 0;">
+                                                    🚗 <t t-out="object.vehicle_name or 'Vehículo'"/> 
+                                                    - Placa: <strong><t t-out="object.vehicle_plate"/></strong>
+                                                </td>
+                                            </tr>
                                             
                                             <tr>
     <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0;">
