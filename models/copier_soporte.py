@@ -210,28 +210,51 @@ class CopierServiceRequest(models.Model):
         string='Duración Estimada (horas)',
         default=2.0
     )
-    vehicle_id = fields.Many2one(
-        'l10n_pe_edi.vehicle',
-        string='Vehículo Asignado',
-        tracking=True,
-        help='Vehículo que usará el técnico para este servicio'
+    vehicle_brand = fields.Char(
+        string='Marca del Vehículo',
+        help='Marca del vehículo (ej: Mitsubishi, Toyota)'
     )
 
-    # Campos relacionados para mostrar info del vehículo
-    vehicle_plate = fields.Char(
-        string='Placa del Vehículo',
-        related='vehicle_id.license_plate',
-        readonly=True,
-        store=True
-    )
-
-    vehicle_name = fields.Char(
+    vehicle_model = fields.Char(
         string='Modelo del Vehículo',
-        related='vehicle_id.name',
-        readonly=True,
-        store=True
+        help='Modelo del vehículo (ej: L200, Hilux)'
     )
-    
+
+    vehicle_plate = fields.Char(
+        string='Placa',
+        tracking=True,
+        help='Placa del vehículo (ej: BTH677)'
+    )
+
+    vehicle_info = fields.Char(
+        string='Información del Vehículo',
+        compute='_compute_vehicle_info',
+        store=True,
+        help='Información completa del vehículo (marca, modelo y placa)'
+    )
+    @api.depends('vehicle_brand', 'vehicle_model', 'vehicle_plate')
+    def _compute_vehicle_info(self):
+        """Concatena la información del vehículo en un solo campo"""
+        for record in self:
+            parts = []
+            
+            # Agregar marca si existe
+            if record.vehicle_brand:
+                parts.append(record.vehicle_brand)
+            
+            # Agregar modelo si existe
+            if record.vehicle_model:
+                parts.append(record.vehicle_model)
+            
+            # Agregar placa si existe
+            if record.vehicle_plate:
+                parts.append(f"Placa: {record.vehicle_plate}")
+            
+            # Unir con guiones
+            if parts:
+                record.vehicle_info = " - ".join(parts)
+            else:
+                record.vehicle_info = False
     # ========================================
     # EJECUCIÓN DEL SERVICIO
     # ========================================
@@ -1047,13 +1070,6 @@ class CopierServiceRequest(models.Model):
                 'completed': True
             })
         
-        # ✅ Preparar info del vehículo desde la solicitud
-        tecnico_vehicle = None
-        if self.vehicle_plate:
-            tecnico_vehicle = f"Placa: {self.vehicle_plate}"
-            if self.vehicle_name:
-                tecnico_vehicle = f"{self.vehicle_name} - {tecnico_vehicle}"
-        
         return {
             'numero': self.name,
             'estado': dict(self._fields['estado'].selection).get(self.estado),
@@ -1068,7 +1084,7 @@ class CopierServiceRequest(models.Model):
             'problema': self.tipo_problema_id.name if self.tipo_problema_id else 'N/A',
             'tecnico': self.tecnico_id.name if self.tecnico_id else 'Por asignar',
             'tecnico_telefono': self.tecnico_id.phone if self.tecnico_id and self.tecnico_id.phone else None,
-            'tecnico_vehicle': tecnico_vehicle,  # ✅ Desde la solicitud
+            'vehicle_info': self.vehicle_info,  # ✅ Campo computado
             'fecha_programada': self.fecha_programada,
             'trabajo_realizado': self.trabajo_realizado if self.estado == 'completado' else None,
             'timeline': sorted(timeline, key=lambda x: x['fecha']),
