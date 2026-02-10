@@ -1054,9 +1054,7 @@
                                 <span class="tile-label">Fecha de Creación</span>
                             </div>
                             <div class="tile-val">
-                                <t t-esc="tracking_data['fecha_creacion'].strftime('%d/%m/%Y %I:%M')"/>
-                                <t t-if="tracking_data['fecha_creacion'].hour &lt; 12"> a.m.</t>
-                                <t t-else=""> p.m.</t>
+                                <span class="fecha-peru" t-att-data-utc="tracking_data['fecha_creacion'].strftime('%Y-%m-%dT%H:%M:%S')"></span>
                             </div>
                         </div>
                         
@@ -1110,9 +1108,7 @@
                                 <span class="tile-label">Fecha Programada</span>
                             </div>
                             <div class="tile-val">
-                                <t t-esc="tracking_data['fecha_programada'].strftime('%d/%m/%Y %I:%M')"/>
-                                <t t-if="tracking_data['fecha_programada'].hour &lt; 12"> a.m.</t>
-                                <t t-else=""> p.m.</t>
+                                <span class="fecha-peru" t-att-data-utc="tracking_data['fecha_programada'].strftime('%Y-%m-%dT%H:%M:%S')"></span>
                             </div>
                         </div>
                         
@@ -1145,9 +1141,7 @@
                                         <p class="tl-desc" t-esc="event['descripcion']"/>
                                         <div class="tl-date">
                                             <i class="bi bi-clock"></i>
-                                            <t t-esc="event['fecha'].strftime('%d/%m/%Y %I:%M')"/>
-                                            <t t-if="event['fecha'].hour &lt; 12"> a.m.</t>
-                                            <t t-else=""> p.m.</t>
+                                            <span class="fecha-peru" t-att-data-utc="event['fecha'].strftime('%Y-%m-%dT%H:%M:%S')"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -1194,6 +1188,43 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Conversión de fechas UTC a hora Perú -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('.fecha-peru').forEach(function(el) {
+                    var utcStr = el.getAttribute('data-utc');
+                    if (!utcStr) return;
+                    
+                    // Parsear como UTC
+                    var fecha = new Date(utcStr + 'Z');
+                    
+                    // Formatear en zona horaria America/Lima
+                    var opciones = {
+                        timeZone: 'America/Lima',
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                    };
+                    
+                    var formateada = fecha.toLocaleString('es-PE', opciones);
+                    
+                    // Reemplazar AM/PM por a.m./p.m.
+                    formateada = formateada
+                        .replace(' a. m.', ' a.m.')
+                        .replace(' p. m.', ' p.m.')
+                        .replace(' AM', ' a.m.')
+                        .replace(' PM', ' p.m.')
+                        .replace(' a.m.', ' a.m.')
+                        .replace(' p.m.', ' p.m.');
+                    
+                    el.textContent = formateada;
+                });
+            });
+        </script>
     </t>
 </template>
     
