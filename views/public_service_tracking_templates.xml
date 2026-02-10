@@ -1053,7 +1053,11 @@
                                 <div class="tile-ico blue"><i class="bi bi-calendar-event-fill"></i></div>
                                 <span class="tile-label">Fecha de Creación</span>
                             </div>
-                            <div class="tile-val" t-esc="tracking_data['fecha_creacion'].strftime('%d/%m/%Y %H:%M')"/>
+                            <div class="tile-val">
+                                <t t-esc="tracking_data['fecha_creacion'].strftime('%d/%m/%Y %I:%M')"/>
+                                <t t-if="tracking_data['fecha_creacion'].hour &lt; 12"> a.m.</t>
+                                <t t-else=""> p.m.</t>
+                            </div>
                         </div>
                         
                         <div class="info-tile">
@@ -1105,7 +1109,11 @@
                                 <div class="tile-ico blue"><i class="bi bi-clock-fill"></i></div>
                                 <span class="tile-label">Fecha Programada</span>
                             </div>
-                            <div class="tile-val" t-esc="tracking_data['fecha_programada'].strftime('%d/%m/%Y %H:%M')"/>
+                            <div class="tile-val">
+                                <t t-esc="tracking_data['fecha_programada'].strftime('%d/%m/%Y %I:%M')"/>
+                                <t t-if="tracking_data['fecha_programada'].hour &lt; 12"> a.m.</t>
+                                <t t-else=""> p.m.</t>
+                            </div>
                         </div>
                         
                         <div class="info-tile awaiting full-width"
@@ -1137,7 +1145,9 @@
                                         <p class="tl-desc" t-esc="event['descripcion']"/>
                                         <div class="tl-date">
                                             <i class="bi bi-clock"></i>
-                                            <t t-esc="event['fecha'].strftime('%d/%m/%Y %H:%M')"/>
+                                            <t t-esc="event['fecha'].strftime('%d/%m/%Y %I:%M')"/>
+                                            <t t-if="event['fecha'].hour &lt; 12"> a.m.</t>
+                                            <t t-else=""> p.m.</t>
                                         </div>
                                     </div>
                                 </div>
