@@ -633,7 +633,7 @@ class CopierServiceRequest(models.Model):
             # Datos del técnico
             tecnico = self.tecnico_id
             technician_name = tecnico.name if tecnico else 'Por asignar'
-            technician_phone = tecnico.mobile or tecnico.phone or 'No disponible' if tecnico else 'No disponible'
+            technician_phone = tecnico.phone or 'No disponible' if tecnico else 'No disponible'
             technician_dni = tecnico.vat or 'No registrado' if tecnico else 'No registrado'
             
             # Datos del vehículo
