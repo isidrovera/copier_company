@@ -1,9 +1,31 @@
 # -*- coding: utf-8 -*-
 import logging
+import pytz
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
+
+# Zona horaria de Perú
+PERU_TZ = pytz.timezone('America/Lima')
+
+
+def to_peru_time(dt_utc, fmt='%d/%m/%Y %H:%M'):
+    """
+    Convierte un datetime UTC a hora peruana formateada.
+    
+    Args:
+        dt_utc: datetime en UTC (puede ser naive o aware)
+        fmt: formato de salida
+    Returns:
+        str: fecha/hora formateada en hora peruana
+    """
+    if not dt_utc:
+        return 'No disponible'
+    if dt_utc.tzinfo is None:
+        dt_utc = pytz.utc.localize(dt_utc)
+    dt_peru = dt_utc.astimezone(PERU_TZ)
+    return dt_peru.strftime(fmt)
 
 
 class WhatsAppServiceNotification(models.Model):
@@ -113,7 +135,7 @@ class WhatsAppServiceNotification(models.Model):
                 if not connection.get('connected'):
                     raise ValidationError(_('WhatsApp no está conectado. Por favor escanea el código QR.'))
             
-            # ✅ LIMPIAR NÚMERO (forma recomendada)
+            # Limpiar número
             clean_phone = self.env['whatsapp.config'].clean_phone_number(self.phone_number)
             if not clean_phone:
                 raise ValidationError(_('Número de teléfono inválido: %s') % self.phone_number)
@@ -145,13 +167,14 @@ class WhatsAppServiceNotification(models.Model):
                             self.notification_type, self.phone_number)
                 
                 # Registrar en chatter de la solicitud
+                now_peru = to_peru_time(fields.Datetime.now())
                 self.service_request_id.message_post(
                     body=f"""
                         📱 Notificación WhatsApp Enviada
                         
                         • Tipo: {dict(self._fields['notification_type'].selection).get(self.notification_type)}
                         • Destinatario: {self.phone_number}
-                        • Fecha: {fields.Datetime.now().strftime('%d/%m/%Y %H:%M')}
+                        • Fecha: {now_peru}
                         • Estado: Enviado ✅
                     """,
                     message_type='notification'
@@ -166,7 +189,7 @@ class WhatsAppServiceNotification(models.Model):
                 
                 _logger.error("❌ Error enviando notificación WhatsApp: %s", result.get('error'))
                 
-                # Registrar error en chatter
+                now_peru = to_peru_time(fields.Datetime.now())
                 self.service_request_id.message_post(
                     body=f"""
                         ❌ Error Enviando Notificación WhatsApp
@@ -174,7 +197,7 @@ class WhatsAppServiceNotification(models.Model):
                         • Tipo: {dict(self._fields['notification_type'].selection).get(self.notification_type)}
                         • Destinatario: {self.phone_number}
                         • Error: {result.get('error')}
-                        • Fecha: {fields.Datetime.now().strftime('%d/%m/%Y %H:%M')}
+                        • Fecha: {now_peru}
                     """,
                     message_type='notification'
                 )
@@ -191,14 +214,14 @@ class WhatsAppServiceNotification(models.Model):
             
             _logger.exception("❌ Excepción enviando notificación WhatsApp: %s", error_msg)
             
-            # Registrar excepción en chatter
+            now_peru = to_peru_time(fields.Datetime.now())
             self.service_request_id.message_post(
                 body=f"""
                     ❌ Excepción Enviando Notificación WhatsApp
                     
                     • Tipo: {dict(self._fields['notification_type'].selection).get(self.notification_type)}
                     • Error: {error_msg}
-                    • Fecha: {fields.Datetime.now().strftime('%d/%m/%Y %H:%M')}
+                    • Fecha: {now_peru}
                 """,
                 message_type='notification'
             )
@@ -240,23 +263,29 @@ class WhatsAppServiceTemplate(models.Model):
                 record.preview_text = ''
                 continue
             
-            # Variables de ejemplo
+            # Variables de ejemplo (incluye TODAS las variables disponibles)
             sample_variables = {
                 'number': 'ST-2024-001',
                 'client': 'Empresa Demo S.A.C.',
                 'equipment': 'Ricoh MP C3004',
                 'serie': 'E1234567890',
                 'location': 'Av. Javier Prado 123, Piso 5, Oficina 501',
+                'sede': 'Sede Principal - San Isidro',
                 'problem': 'Atasco de papel',
                 'priority': 'Alta',
                 'technician': 'Juan Pérez',
+                'technician_phone': '+51 987 654 321',
+                'technician_dni': '12345678',
+                'vehicle': 'Mitsubishi L200 - Placa: BTH677',
                 'date': '15/01/2026 14:30',
                 'contact': 'María García',
                 'phone': '+51 987 654 321',
-                'work_done': 'Se realizó limpieza de rodillos, ajuste de sensores y pruebas de impresión. Equipo funcionando correctamente.',
+                'work_done': 'Se realizó limpieza de rodillos, ajuste de sensores y pruebas de impresión.',
                 'reason': 'Falta de repuestos en stock',
                 'time': '15/01/2026 16:45',
                 'time_remaining': '1.5 horas',
+                'tracking_url': 'https://copiercompanysac.com/service/track/abc123',
+                'evaluation_url': 'https://copiercompanysac.com/service/evaluate/xyz789',
             }
             
             try:
@@ -314,12 +343,22 @@ class WhatsAppServiceTemplate(models.Model):
         {equipment} - Modelo del equipo
         {serie} - Serie del equipo
         {location} - Ubicación
+        {sede} - Sede del equipo
         {problem} - Tipo de problema
         {priority} - Prioridad
         {technician} - Nombre del técnico
-        {date} - Fecha programada
+        {technician_phone} - Teléfono del técnico
+        {technician_dni} - DNI del técnico
+        {vehicle} - Información del vehículo (marca, modelo, placa)
+        {date} - Fecha programada (hora Perú)
         {contact} - Nombre del contacto
         {phone} - Teléfono de contacto
+        {work_done} - Trabajo realizado
+        {reason} - Motivo de pausa/cancelación
+        {time} - Fecha/hora actual (hora Perú)
+        {time_remaining} - Tiempo restante SLA
+        {tracking_url} - URL de seguimiento
+        {evaluation_url} - URL de evaluación
         """
     )
     
@@ -363,7 +402,7 @@ class WhatsAppServiceTemplate(models.Model):
     
     @api.model
     def _get_default_template(self, notification_type):
-        """Templates por defecto"""
+        """Templates por defecto con variables de vehículo, DNI y hora peruana"""
         templates = {
             'new_request_support': """🚨 *NUEVA SOLICITUD DE SERVICIO*
 
@@ -371,13 +410,14 @@ class WhatsAppServiceTemplate(models.Model):
 👤 Cliente: {client}
 🖨️ Equipo: {equipment} (Serie: {serie})
 📍 Ubicación: {location}
+🏢 Sede: {sede}
 🔧 Problema: {problem}
 ⚠️ Prioridad: {priority}
 
 📞 Contacto: {contact}
 📱 Teléfono: {phone}
 
-⏰ Hora: {time}""",
+⏰ Hora (Perú): {time}""",
 
             'new_request_client': """✅ *SOLICITUD RECIBIDA*
 
@@ -401,6 +441,9 @@ Hola {contact},
 Tu solicitud *{number}* ha sido asignada:
 
 👤 *Técnico:* {technician}
+🪪 *DNI:* {technician_dni}
+📱 *Teléfono:* {technician_phone}
+🚗 *Vehículo:* {vehicle}
 📅 *Fecha programada:* {date}
 🖨️ *Equipo:* {equipment}
 📍 *Ubicación:* {location}
@@ -416,8 +459,10 @@ Hola {contact},
 El técnico *{technician}* está en camino a tu ubicación.
 
 📋 Solicitud: {number}
+🪪 DNI: {technician_dni}
+🚗 Vehículo: {vehicle}
 📍 Destino: {location}
-⏰ Llegada estimada: Próximamente
+⏰ Hora de salida: {time}
 
 _Por favor mantente atento_ 📱""",
 
@@ -439,6 +484,7 @@ Tu solicitud *{number}* ha sido completada exitosamente.
 
 ✅ *Trabajo realizado:*
 {work_done}
+
 📄 *Ver detalles del servicio:*
 {tracking_url}
 
@@ -486,6 +532,7 @@ Hace unos días completamos el servicio de tu equipo (Solicitud *{number}*).
 
 📝 Evalúa aquí (toma menos de 1 minuto):
 {evaluation_url}
+
 Tu evaluación nos ayuda a mejorar nuestro servicio.
 
 _¡Gracias por tu tiempo!_ 🙏""",
@@ -535,14 +582,15 @@ class CopierServiceRequest(models.Model):
             record.whatsapp_notifications_count = len(record.whatsapp_notification_ids)
     
     # ============================================
-    # MÉTODOS DE NOTIFICACIÓN WHATSAPP
+    # MÉTODO CENTRAL DE NOTIFICACIÓN WHATSAPP
     # ============================================
     def _send_whatsapp_notification(self, notification_type, recipient_type, phone, work_done=None, reason=None):
         """
-        Método central para enviar notificaciones WhatsApp
+        Método central para enviar notificaciones WhatsApp.
+        Todas las fechas se convierten a hora peruana (America/Lima).
         
         Args:
-            notification_type (str): Tipo de notificación (new_request_support, etc.)
+            notification_type (str): Tipo de notificación
             recipient_type (str): Tipo de destinatario (support, client, technician)
             phone (str): Número de teléfono del destinatario
             work_done (str): Trabajo realizado (para service_completed)
@@ -570,10 +618,11 @@ class CopierServiceRequest(models.Model):
                 _logger.warning("Número inválido para notificación: %s", phone)
                 return False
             
-            # Preparar variables para la plantilla
-            from datetime import datetime
+            # ============================================
+            # PREPARAR VARIABLES CON HORA PERUANA
+            # ============================================
             
-            # Calcular URLs públicas
+            # URLs públicas
             base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
             tracking_url = f"{base_url}/service/track/{self.tracking_token}" if self.tracking_token else 'N/A'
             evaluation_url = f"{base_url}/service/evaluate/{self.evaluation_token}" if self.evaluation_token else 'N/A'
@@ -581,38 +630,79 @@ class CopierServiceRequest(models.Model):
             # Prioridad legible
             prioridad_map = {'0': 'Baja', '1': 'Normal', '2': 'Alta', '3': 'Crítica'}
             
+            # Datos del técnico
+            tecnico = self.tecnico_id
+            technician_name = tecnico.name if tecnico else 'Por asignar'
+            technician_phone = tecnico.mobile or tecnico.phone or 'No disponible' if tecnico else 'No disponible'
+            technician_dni = tecnico.vat or 'No registrado' if tecnico else 'No registrado'
+            
+            # Datos del vehículo
+            vehicle_info = self.vehicle_info or 'No asignado'
+            
+            # Hora actual en Perú
+            now_utc = fields.Datetime.now()
+            
             variables = {
+                # Solicitud
                 'number': self.name or 'N/A',
+                'priority': prioridad_map.get(self.prioridad, 'Normal'),
+                
+                # Cliente
                 'client': self.cliente_id.name if self.cliente_id else 'N/A',
+                'contact': self.contacto or 'N/A',
+                'phone': self.telefono_contacto or 'N/A',
+                
+                # Equipo
                 'equipment': self.modelo_maquina.name if self.modelo_maquina else 'N/A',
                 'serie': self.serie_maquina or 'N/A',
                 'location': self.ubicacion or 'N/A',
+                'sede': self.sede or 'N/A',
                 'problem': self.tipo_problema_id.name if self.tipo_problema_id else 'N/A',
-                'priority': prioridad_map.get(self.prioridad, 'Normal'),
-                'technician': self.tecnico_id.name if self.tecnico_id else 'Por asignar',
-                'date': self.fecha_programada.strftime('%d/%m/%Y %H:%M') if self.fecha_programada else 'Por confirmar',
-                'contact': self.contacto or 'N/A',
-                'phone': self.telefono_contacto or 'N/A',
+                
+                # Técnico
+                'technician': technician_name,
+                'technician_phone': technician_phone,
+                'technician_dni': technician_dni,
+                
+                # Vehículo
+                'vehicle': vehicle_info,
+                
+                # Fechas (HORA PERUANA)
+                'date': to_peru_time(self.fecha_programada),
+                'time': to_peru_time(now_utc),
+                
+                # Trabajo / Motivos
                 'work_done': work_done or self.trabajo_realizado or 'N/A',
                 'reason': reason or 'No especificado',
-                'time': fields.Datetime.now().strftime('%d/%m/%Y %H:%M'),
+                
+                # SLA
                 'time_remaining': 'N/A',
+                
+                # URLs
                 'tracking_url': tracking_url,
                 'evaluation_url': evaluation_url,
             }
             
             # Calcular tiempo restante para SLA
             if self.create_date and self.sla_limite_1:
-                tiempo_transcurrido = (fields.Datetime.now() - self.create_date).total_seconds() / 3600.0
+                tiempo_transcurrido = (now_utc - self.create_date).total_seconds() / 3600.0
                 tiempo_restante = self.sla_limite_1 - tiempo_transcurrido
-                variables['time_remaining'] = f"{tiempo_restante:.1f} horas"
+                if tiempo_restante > 0:
+                    variables['time_remaining'] = f"{tiempo_restante:.1f} horas"
+                else:
+                    variables['time_remaining'] = '⚠️ VENCIDO'
             
             # Renderizar plantilla
             try:
                 message = template_text.format(**variables)
             except KeyError as e:
                 _logger.error("Variable no encontrada en plantilla %s: %s", notification_type, str(e))
-                return False
+                # Intentar enviar con la variable faltante como N/A
+                try:
+                    variables[str(e).strip("'")] = 'N/A'
+                    message = template_text.format(**variables)
+                except Exception:
+                    return False
             
             # Crear registro de notificación
             notification = self.env['whatsapp.service.notification'].create({
@@ -630,11 +720,15 @@ class CopierServiceRequest(models.Model):
         except Exception as e:
             _logger.exception("Error en _send_whatsapp_notification: %s", str(e))
             return False
+    
+    # ============================================
+    # MÉTODOS DE NOTIFICACIÓN POR TIPO
+    # ============================================
+    
     def _notify_support_new_request(self):
         """Notificar a soporte sobre nueva solicitud"""
         self.ensure_one()
         
-        # Número de soporte (hardcoded o desde configuración)
         support_phone = self.env['ir.config_parameter'].sudo().get_param(
             'whatsapp.support_phone', '51975399303'
         )
@@ -867,6 +961,7 @@ class CopierServiceCancelWizard(models.TransientModel):
         
         return res
 
+
 class WhatsAppTemplateTestWizard(models.TransientModel):
     _name = 'whatsapp.template.test.wizard'
     _description = 'Wizard para Enviar Mensaje de Prueba de Plantilla'
@@ -895,7 +990,6 @@ class WhatsAppTemplateTestWizard(models.TransientModel):
         """Enviar mensaje de prueba"""
         self.ensure_one()
         
-        # ✅ LIMPIAR NÚMERO (forma recomendada)
         clean_phone = self.env['whatsapp.config'].clean_phone_number(self.phone)
         
         if not clean_phone:
@@ -905,16 +999,13 @@ class WhatsAppTemplateTestWizard(models.TransientModel):
             ))
         
         try:
-            # Obtener configuración activa
             config = self.env['whatsapp.config'].get_active_config()
             
-            # Verificar conexión
             if not config.is_connected:
                 connection = config.check_connection(silent=True)
                 if not connection.get('connected'):
                     raise ValidationError(_('WhatsApp no está conectado. Por favor escanea el código QR.'))
             
-            # Verificar número (opcional)
             if config.auto_verify_numbers:
                 exists = config.verify_number(clean_phone)
                 if not exists:
@@ -923,7 +1014,6 @@ class WhatsAppTemplateTestWizard(models.TransientModel):
                         'Verifica que el número sea correcto y tenga WhatsApp activo.'
                     ) % self.phone)
             
-            # Enviar mensaje
             result = config.send_message(clean_phone, self.template_text)
             
             if result['success']:
@@ -981,6 +1071,13 @@ class WhatsAppTemplateVariablesWizard(models.TransientModel):
                     <strong>Ejemplo:</strong> <code>Hola {contact}, tu solicitud {number} fue recibida.</code>
                 </p>
             </div>
+
+            <div style="background-color: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #25D366;">
+                <h4 style="color: #1b5e20; margin-top: 0;">🕐 Zona Horaria</h4>
+                <p style="color: #2e7d32; margin-bottom: 0;">
+                    Todas las fechas y horas se muestran en <strong>hora peruana (UTC-5)</strong> automáticamente.
+                </p>
+            </div>
             
             <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
                 <thead>
@@ -991,15 +1088,46 @@ class WhatsAppTemplateVariablesWizard(models.TransientModel):
                     </tr>
                 </thead>
                 <tbody>
+                    <tr style="background-color: #e8f5e9;">
+                        <td colspan="3" style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">📋 Solicitud</td>
+                    </tr>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #ddd;"><code>{number}</code></td>
                         <td style="padding: 10px; border: 1px solid #ddd;">Número de la solicitud</td>
                         <td style="padding: 10px; border: 1px solid #ddd;">ST-2024-001</td>
                     </tr>
                     <tr style="background-color: #f8f9fa;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{priority}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Prioridad</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Alta</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{problem}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Tipo de problema reportado</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Atasco de papel</td>
+                    </tr>
+
+                    <tr style="background-color: #e8f5e9;">
+                        <td colspan="3" style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">👤 Cliente</td>
+                    </tr>
+                    <tr>
                         <td style="padding: 10px; border: 1px solid #ddd;"><code>{client}</code></td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">Nombre del cliente</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Nombre del cliente (empresa)</td>
                         <td style="padding: 10px; border: 1px solid #ddd;">Empresa Demo S.A.C.</td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{contact}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Persona de contacto</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">María García</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{phone}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Teléfono de contacto</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">+51 987 654 321</td>
+                    </tr>
+
+                    <tr style="background-color: #e8f5e9;">
+                        <td colspan="3" style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">🖨️ Equipo</td>
                     </tr>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #ddd;"><code>{equipment}</code></td>
@@ -1014,22 +1142,44 @@ class WhatsAppTemplateVariablesWizard(models.TransientModel):
                     <tr>
                         <td style="padding: 10px; border: 1px solid #ddd;"><code>{location}</code></td>
                         <td style="padding: 10px; border: 1px solid #ddd;">Ubicación del equipo</td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">Av. Javier Prado 123, Piso 5</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Av. Javier Prado 123</td>
                     </tr>
                     <tr style="background-color: #f8f9fa;">
-                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{problem}</code></td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">Tipo de problema reportado</td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">Atasco de papel</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{sede}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Sede del equipo</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Sede Principal</td>
+                    </tr>
+
+                    <tr style="background-color: #e8f5e9;">
+                        <td colspan="3" style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">👨‍🔧 Técnico</td>
                     </tr>
                     <tr>
-                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{priority}</code></td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">Prioridad de la solicitud</td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">Alta / Normal / Baja / Crítica</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{technician}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Nombre del técnico</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Juan Pérez</td>
                     </tr>
                     <tr style="background-color: #f8f9fa;">
-                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{technician}</code></td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">Nombre del técnico asignado</td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">Juan Pérez</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{technician_phone}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Teléfono del técnico</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">+51 987 654 321</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{technician_dni}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">DNI del técnico (campo VAT)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">12345678</td>
+                    </tr>
+
+                    <tr style="background-color: #e8f5e9;">
+                        <td colspan="3" style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">🚗 Vehículo</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{vehicle}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Info completa (marca, modelo, placa)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Mitsubishi L200 - Placa: BTH677</td>
+                    </tr>
+
+                    <tr style="background-color: #e8f5e9;">
+                        <td colspan="3" style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">📅 Fechas (Hora Perú)</td>
                     </tr>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #ddd;"><code>{date}</code></td>
@@ -1037,34 +1187,42 @@ class WhatsAppTemplateVariablesWizard(models.TransientModel):
                         <td style="padding: 10px; border: 1px solid #ddd;">15/01/2026 14:30</td>
                     </tr>
                     <tr style="background-color: #f8f9fa;">
-                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{contact}</code></td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">Nombre de la persona de contacto</td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">María García</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{phone}</code></td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">Teléfono de contacto</td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">+51 987 654 321</td>
-                    </tr>
-                    <tr style="background-color: #f8f9fa;">
-                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{work_done}</code></td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">Descripción del trabajo realizado</td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">Se realizó limpieza de rodillos...</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{reason}</code></td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">Motivo de pausa o cancelación</td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">Falta de repuestos en stock</td>
-                    </tr>
-                    <tr style="background-color: #f8f9fa;">
                         <td style="padding: 10px; border: 1px solid #ddd;"><code>{time}</code></td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">Fecha y hora actual del envío</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Fecha/hora actual del envío</td>
                         <td style="padding: 10px; border: 1px solid #ddd;">15/01/2026 16:45</td>
                     </tr>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #ddd;"><code>{time_remaining}</code></td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">Tiempo restante para alertas SLA</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Tiempo restante SLA</td>
                         <td style="padding: 10px; border: 1px solid #ddd;">1.5 horas</td>
+                    </tr>
+
+                    <tr style="background-color: #e8f5e9;">
+                        <td colspan="3" style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">📝 Contenido</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{work_done}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Trabajo realizado</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Se realizó limpieza de rodillos...</td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{reason}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Motivo de pausa/cancelación</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Falta de repuestos</td>
+                    </tr>
+
+                    <tr style="background-color: #e8f5e9;">
+                        <td colspan="3" style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">🔗 URLs</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{tracking_url}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">URL de seguimiento público</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">https://...track/abc123</td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>{evaluation_url}</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">URL de evaluación pública</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">https://...evaluate/xyz789</td>
                     </tr>
                 </tbody>
             </table>
@@ -1074,15 +1232,16 @@ class WhatsAppTemplateVariablesWizard(models.TransientModel):
                 <ul style="color: #856404; margin-bottom: 0;">
                     <li>Las variables son <strong>case-sensitive</strong> (distinguen mayúsculas/minúsculas)</li>
                     <li>Usa exactamente el nombre mostrado en la tabla</li>
-                    <li>No todas las variables están disponibles en todos los tipos de notificación</li>
-                    <li>Si una variable no está disponible, se mostrará "N/A"</li>
+                    <li>Si una variable no está disponible, se mostrará "N/A" o "No disponible"</li>
+                    <li>Todas las fechas se muestran en <strong>hora peruana (UTC-5)</strong></li>
+                    <li>El DNI del técnico se obtiene del campo <strong>VAT</strong> de res.partner</li>
+                    <li>El vehículo muestra marca, modelo y placa combinados</li>
                 </ul>
             </div>
             
             <div style="background-color: #d1ecf1; padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #17a2b8;">
-                <h4 style="color: #0c5460; margin-top: 0;">💡 Consejos</h4>
+                <h4 style="color: #0c5460; margin-top: 0;">💡 Formato WhatsApp</h4>
                 <ul style="color: #0c5460; margin-bottom: 0;">
-                    <li>Usa emojis para hacer tus mensajes más atractivos 🎉</li>
                     <li>Usa <code>*texto*</code> para <strong>negritas</strong></li>
                     <li>Usa <code>_texto_</code> para <em>cursivas</em></li>
                     <li>Usa <code>~texto~</code> para <del>tachado</del></li>

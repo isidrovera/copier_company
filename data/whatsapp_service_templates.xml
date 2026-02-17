@@ -13,13 +13,14 @@
 👤 Cliente: {client}
 🖨️ Equipo: {equipment} (Serie: {serie})
 📍 Ubicación: {location}
+🏢 Sede: {sede}
 🔧 Problema: {problem}
 ⚠️ Prioridad: {priority}
 
 📞 Contacto: {contact}
 📱 Teléfono: {phone}
 
-⏰ Hora: {time}</field>
+⏰ Hora (Perú): {time}</field>
         </record>
         
         <!-- Template: Confirmación Cliente -->
@@ -55,9 +56,13 @@ Hola {contact},
 Tu solicitud *{number}* ha sido asignada:
 
 👤 *Técnico:* {technician}
+🪪 *DNI:* {technician_dni}
+📱 *Teléfono técnico:* {technician_phone}
+🚗 *Vehículo:* {vehicle}
 📅 *Fecha programada:* {date}
 🖨️ *Equipo:* {equipment}
 📍 *Ubicación:* {location}
+🏢 *Sede:* {sede}
 
 El técnico se pondrá en contacto contigo para confirmar la visita.
 
@@ -76,8 +81,10 @@ Hola {contact},
 El técnico *{technician}* está en camino a tu ubicación.
 
 📋 Solicitud: {number}
+🪪 DNI: {technician_dni}
+🚗 Vehículo: {vehicle}
 📍 Destino: {location}
-⏰ Llegada estimada: Próximamente
+⏰ Hora de salida (Perú): {time}
 
 _Por favor mantente atento_ 📱</field>
         </record>
@@ -93,7 +100,8 @@ El técnico *{technician}* ha iniciado el servicio en tu equipo.
 
 📋 Solicitud: {number}
 🖨️ Equipo: {equipment}
-⏰ Inicio: {time}
+📍 Ubicación: {location}
+⏰ Inicio (Perú): {time}
 
 _Trabajando en resolver el problema..._ 🔧</field>
         </record>
@@ -111,13 +119,14 @@ Tu solicitud *{number}* ha sido completada exitosamente.
 
 ✅ *Trabajo realizado:*
 {work_done}
+
 📄 *Ver detalles del servicio:*
 {tracking_url}
 
 ⭐ *Califica nuestro servicio aquí:*
 {evaluation_url}
 
-⏰ Finalizado: {time}
+⏰ Finalizado (Perú): {time}
 👨‍🔧 Técnico: {technician}
 
 📝 *¿Cómo calificas el servicio?*
@@ -138,6 +147,7 @@ Hola {contact},
 Tu solicitud *{number}* ha sido pausada temporalmente.
 
 📝 Motivo: {reason}
+⏰ Fecha (Perú): {time}
 
 Te contactaremos pronto para continuar.
 
@@ -156,7 +166,7 @@ Hola {contact},
 Tu solicitud *{number}* ha sido cancelada.
 
 📝 Motivo: {reason}
-⏰ Fecha: {time}
+⏰ Fecha (Perú): {time}
 
 Si necesitas más información, no dudes en contactarnos.
 
@@ -176,9 +186,28 @@ Hace unos días completamos el servicio de tu equipo (Solicitud *{number}*).
 
 📝 Evalúa aquí (toma menos de 1 minuto):
 {evaluation_url}
+
 Tu evaluación nos ayuda a mejorar nuestro servicio.
 
 _¡Gracias por tu tiempo!_ 🙏</field>
+        </record>
+        
+        <!-- Template: Alerta SLA -->
+        <record id="whatsapp_template_sla_alert" model="whatsapp.service.template">
+            <field name="name">Alerta SLA</field>
+            <field name="notification_type">sla_alert</field>
+            <field name="sequence">100</field>
+            <field name="template_text">⚠️ *ALERTA SLA - SOLICITUD {number}*
+
+🚨 Solicitud próxima a vencer
+
+👤 Cliente: {client}
+🖨️ Equipo: {equipment}
+📍 Ubicación: {location}
+🏢 Sede: {sede}
+⏰ Tiempo restante: {time_remaining}
+
+_ACCIÓN REQUERIDA_ ⚡</field>
         </record>
         
         <!-- Parámetro: Teléfono de Soporte -->
