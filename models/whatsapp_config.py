@@ -284,7 +284,7 @@ Error: {str(e)}"""
         return {
             'name': _('Notificaciones WhatsApp'),
             'type': 'ir.actions.act_window',
-            'res_model': 'whatsapp.notification',
+            'res_model': 'whatsapp.service.notification',
             'view_mode': 'list,form',
             'domain': [('config_id', '=', self.id)],
             'context': {'default_config_id': self.id}
