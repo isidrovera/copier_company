@@ -537,7 +537,99 @@ class CopierServiceRequest(models.Model):
     # ============================================
     # MÉTODOS DE NOTIFICACIÓN WHATSAPP
     # ============================================
-    
+    def _send_whatsapp_notification(self, notification_type, recipient_type, phone, work_done=None, reason=None):
+        """
+        Método central para enviar notificaciones WhatsApp
+        
+        Args:
+            notification_type (str): Tipo de notificación (new_request_support, etc.)
+            recipient_type (str): Tipo de destinatario (support, client, technician)
+            phone (str): Número de teléfono del destinatario
+            work_done (str): Trabajo realizado (para service_completed)
+            reason (str): Motivo (para pausas/cancelaciones)
+        
+        Returns:
+            bool: True si se envió correctamente
+        """
+        self.ensure_one()
+        
+        if not self.enable_whatsapp_notifications:
+            _logger.info("Notificaciones WhatsApp deshabilitadas para %s", self.name)
+            return False
+        
+        try:
+            # Obtener plantilla
+            template_text = self.env['whatsapp.service.template'].get_template(notification_type)
+            if not template_text:
+                _logger.warning("No hay plantilla para tipo: %s", notification_type)
+                return False
+            
+            # Limpiar número
+            clean_phone = self.env['whatsapp.config'].clean_phone_number(phone)
+            if not clean_phone:
+                _logger.warning("Número inválido para notificación: %s", phone)
+                return False
+            
+            # Preparar variables para la plantilla
+            from datetime import datetime
+            
+            # Calcular URLs públicas
+            base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+            tracking_url = f"{base_url}/service/track/{self.tracking_token}" if self.tracking_token else 'N/A'
+            evaluation_url = f"{base_url}/service/evaluate/{self.evaluation_token}" if self.evaluation_token else 'N/A'
+            
+            # Prioridad legible
+            prioridad_map = {'0': 'Baja', '1': 'Normal', '2': 'Alta', '3': 'Crítica'}
+            
+            variables = {
+                'number': self.name or 'N/A',
+                'client': self.cliente_id.name if self.cliente_id else 'N/A',
+                'equipment': self.modelo_maquina.name if self.modelo_maquina else 'N/A',
+                'serie': self.serie_maquina or 'N/A',
+                'location': self.ubicacion or 'N/A',
+                'problem': self.tipo_problema_id.name if self.tipo_problema_id else 'N/A',
+                'priority': prioridad_map.get(self.prioridad, 'Normal'),
+                'technician': self.tecnico_id.name if self.tecnico_id else 'Por asignar',
+                'date': self.fecha_programada.strftime('%d/%m/%Y %H:%M') if self.fecha_programada else 'Por confirmar',
+                'contact': self.contacto or 'N/A',
+                'phone': self.telefono_contacto or 'N/A',
+                'work_done': work_done or self.trabajo_realizado or 'N/A',
+                'reason': reason or 'No especificado',
+                'time': fields.Datetime.now().strftime('%d/%m/%Y %H:%M'),
+                'time_remaining': 'N/A',
+                'tracking_url': tracking_url,
+                'evaluation_url': evaluation_url,
+            }
+            
+            # Calcular tiempo restante para SLA
+            if self.create_date and self.sla_limite_1:
+                tiempo_transcurrido = (fields.Datetime.now() - self.create_date).total_seconds() / 3600.0
+                tiempo_restante = self.sla_limite_1 - tiempo_transcurrido
+                variables['time_remaining'] = f"{tiempo_restante:.1f} horas"
+            
+            # Renderizar plantilla
+            try:
+                message = template_text.format(**variables)
+            except KeyError as e:
+                _logger.error("Variable no encontrada en plantilla %s: %s", notification_type, str(e))
+                return False
+            
+            # Crear registro de notificación
+            notification = self.env['whatsapp.service.notification'].create({
+                'service_request_id': self.id,
+                'notification_type': notification_type,
+                'recipient_type': recipient_type,
+                'phone_number': clean_phone,
+                'message_text': message,
+                'state': 'pending',
+            })
+            
+            # Enviar
+            return notification.send_notification()
+            
+        except Exception as e:
+            _logger.exception("Error en _send_whatsapp_notification: %s", str(e))
+            return False
     def _notify_support_new_request(self):
         """Notificar a soporte sobre nueva solicitud"""
         self.ensure_one()
