@@ -791,8 +791,8 @@ class CopierCounter(models.Model):
                         'state': 'draft'
                     }
                     
-                    self.env['copier.counter'].create(vals)
-                    self.env.cr.commit()
+                    with self.env.cr.savepoint():          # ✅ Crea un punto de guardado interno
+                        self.env['copier.counter'].create(vals)
                     
                     _logger.info(
                         f"Creada nueva lectura para máquina {machine.serie_id} "
