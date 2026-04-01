@@ -82,7 +82,7 @@
         'views/public_service_tracking_templates.xml',
         'views/whatsapp_send_quotation_wizard_views.xml',
         'views/whatsapp_send_multi_quotation_wizard_views.xml',   
-        'views/report_invoice_modern.xml',                
+        #'views/report_invoice_modern.xml',                
         'views/copier_soporte.xml',
         # ❗️ No cargues QWeb de frontend aquí; mejor en assets_qweb (abajo)
         # 'static/src/xml/counter_charts_templates.xml',
@@ -126,7 +126,7 @@
             'copier_company/static/src/xml/counter_charts_templates.xml',
         ],
         'web.report_assets_common': [
-            'copier_company/static/src/css/invoice_style.css',
+            #'copier_company/static/src/css/invoice_style.css',
         ],
 
        
