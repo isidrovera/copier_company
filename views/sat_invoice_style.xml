@@ -2,29 +2,25 @@
 <odoo>
     <!--
         SAT - Estilo moderno para facturas electrónicas (Perú)
-        Hereda: web.external_layout_wave
-        Solo modifica CSS - no toca lógica ni campos de l10n_pe_edi / l10n_latam
-        Compatible con: QR SUNAT, detracciones SPOT, monto en letras, serie F001
+        Hereda: web.report_layout (inyecta CSS en el <head> real del PDF)
+        No toca lógica ni campos de l10n_pe_edi / l10n_latam
     -->
-    <template id="sat_external_layout_wave_style"
-              inherit_id="web.external_layout_wave"
+    <template id="sat_report_layout_style"
+              inherit_id="web.report_layout"
               name="SAT - Modern Invoice Style">
 
-        <xpath expr="//div[contains(@t-attf-class,'header')]" position="before">
-            <style t-if="report_type == 'pdf'">
+        <xpath expr="//head" position="inside">
+            <style>
                 /* =========================================================
-                   TIPOGRAFÍA Y RESET
+                   TIPOGRAFÍA BASE
                 ========================================================= */
                 .o_report_layout_wave,
                 .o_report_layout_wave * {
-                    font-family: 'DejaVu Sans', Arial, sans-serif;
-                    font-size: 8.5pt;
-                    color: #1c1c2e;
-                    box-sizing: border-box;
+                    font-family: 'DejaVu Sans', Arial, sans-serif !important;
                 }
 
                 /* =========================================================
-                   HEADER
+                   HEADER - borde inferior limpio
                 ========================================================= */
                 .header {
                     border-bottom: 2pt solid #1c1c2e !important;
@@ -52,7 +48,7 @@
                 }
 
                 /* =========================================================
-                   TÍTULO DEL DOCUMENTO
+                   TÍTULO DEL DOCUMENTO (Factura Electrónica F001-XXXXX)
                 ========================================================= */
                 .article h2 {
                     font-size: 13pt !important;
@@ -65,7 +61,7 @@
                 }
 
                 /* =========================================================
-                   #informations
+                   BLOQUE #informations (fechas, referencia, etc.)
                 ========================================================= */
                 #informations {
                     background-color: #f4f5f7 !important;
@@ -99,7 +95,7 @@
                 }
 
                 /* =========================================================
-                   TABLA DE LÍNEAS
+                   TABLA DE LÍNEAS (table.o_main_table)
                 ========================================================= */
                 table.o_main_table {
                     width: 100% !important;
@@ -144,7 +140,7 @@
                 }
 
                 /* =========================================================
-                   TOTALES
+                   TOTALES (table.o_total_table)
                 ========================================================= */
                 #right-elements {
                     margin-top: 10pt !important;
@@ -177,8 +173,8 @@
                 }
 
                 /* =========================================================
-                   MONTO EN LETRAS (SON: ...)
-                   Insertado por l10n_pe_edi antes del bloque narration
+                   MONTO EN LETRAS "SON: ..."
+                   (insertado por l10n_pe_edi antes del bloque narration)
                 ========================================================= */
                 #payment_term > p {
                     background-color: #f4f5f7 !important;
@@ -216,7 +212,6 @@
                     border-bottom: 0.3pt solid #e6c94a !important;
                     color: #3a2e00 !important;
                 }
-                /* QR SUNAT */
                 #l10n_pe_spot img.border {
                     border: 1pt solid #999 !important;
                     border-radius: 4pt !important;
@@ -241,7 +236,7 @@
                 }
 
                 /* =========================================================
-                   NOTAS / TÉRMINOS
+                   NOTAS / TÉRMINOS Y CONDICIONES
                 ========================================================= */
                 div[name="comment"] {
                     font-size: 7.5pt !important;
