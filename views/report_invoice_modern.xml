@@ -248,23 +248,19 @@
                         </div>
                         <div class="cc_client_col">
                             <span class="cc_field_label first">Fecha de emisión</span>
-                            <span class="cc_field_value">
-                                <t t-field="o.invoice_date"/>
-                            </span>
+                            <span class="cc_field_value" t-field="o.invoice_date"/>
                             <span class="cc_field_label">Fecha límite</span>
                             <span class="cc_field_value">
-                                <t t-if="o.invoice_date_due" t-field="o.invoice_date_due"/>
-                                <t t-else="">—</t>
+                                <span t-if="o.invoice_date_due" t-field="o.invoice_date_due"/>
+                                <span t-else="">—</span>
                             </span>
                             <span class="cc_field_label">Condición de pago</span>
                             <span class="cc_field_value">
-                                <t t-if="o.invoice_payment_term_id" t-field="o.invoice_payment_term_id"/>
-                                <t t-else="">—</t>
+                                <span t-if="o.invoice_payment_term_id" t-field="o.invoice_payment_term_id"/>
+                                <span t-else="">—</span>
                             </span>
                             <span class="cc_field_label">Moneda</span>
-                            <span class="cc_field_value">
-                                <t t-field="o.currency_id"/>
-                            </span>
+                            <span class="cc_field_value" t-field="o.currency_id"/>
                         </div>
                     </div>
                 </div>
