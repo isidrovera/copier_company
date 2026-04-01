@@ -1,8 +1,43 @@
 /* =========================================================
    COPIER COMPANY - Estilos modernos para facturas PDF
-   Bundle: web.report_assets_common
-   Compatible: Odoo 19, l10n_pe_edi, l10n_latam, wkhtmltopdf
+   Odoo 19 Enterprise | web.report_assets_common
 ========================================================= */
+
+/* ---------------------------------------------------------
+   FORZAR override de colores inline de Odoo
+   Odoo inyecta style="color: #rojo" via company.primary_color
+   Usamos especificidad máxima para ganarle
+--------------------------------------------------------- */
+body .o_report_layout_wave .o_total td,
+body .o_report_layout_wave table.o_total_table .o_total td,
+body table.o_total_table tr.o_total td,
+body .o_total td {
+    background-color: #1c1c2e !important;
+    color: #ffffff !important;
+    font-weight: bold !important;
+    font-size: 10pt !important;
+    padding: 6pt 8pt !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
+/* Subtotales - fondo gris */
+body table.o_total_table tr.o_subtotal td,
+body .o_subtotal td {
+    background-color: #f4f5f7 !important;
+    color: #1c1c2e !important;
+    border-top: 0.4pt solid #ddd !important;
+}
+
+/* Anular cualquier color inline en spans dentro de totales */
+body .o_total td span,
+body .o_total td strong {
+    color: #ffffff !important;
+}
+body .o_subtotal td span,
+body .o_subtotal td strong {
+    color: #1c1c2e !important;
+}
 
 /* ---------------------------------------------------------
    HEADER
@@ -33,54 +68,55 @@ div[name="company_address"] li {
 }
 
 /* ---------------------------------------------------------
-   TÍTULO DEL DOCUMENTO (Factura Electrónica F001-XXXXX)
+   TÍTULO DEL DOCUMENTO
 --------------------------------------------------------- */
 .article h2 {
     font-size: 13pt !important;
     font-weight: bold !important;
     color: #1c1c2e !important;
-    border-left: 3pt solid #1c1c2e;
-    padding-left: 8pt;
+    border-left: 3pt solid #1c1c2e !important;
+    padding-left: 8pt !important;
     margin-top: 10pt !important;
     margin-bottom: 8pt !important;
 }
 
 /* ---------------------------------------------------------
-   #informations (Fecha emisión, vencimiento, referencia)
+   #informations
 --------------------------------------------------------- */
 #informations {
     background-color: #f4f5f7 !important;
-    border-radius: 4pt;
+    border-radius: 4pt !important;
     padding: 8pt 10pt !important;
     margin-bottom: 12pt !important;
 }
 #informations .col strong {
-    display: block;
+    display: block !important;
     font-size: 7pt !important;
-    text-transform: uppercase;
-    letter-spacing: 0.8pt;
+    text-transform: uppercase !important;
+    letter-spacing: 0.8pt !important;
     color: #888 !important;
-    font-weight: 600;
-    margin-bottom: 2pt;
+    font-weight: 600 !important;
+    margin-bottom: 2pt !important;
 }
 #informations .col div,
 #informations .col span {
     font-size: 8.5pt !important;
-    font-weight: 600;
+    font-weight: 600 !important;
     color: #1c1c2e !important;
 }
 
 /* ---------------------------------------------------------
-   DIRECCIÓN CLIENTE
+   DIRECCIÓN CLIENTE - sin fondo, solo texto limpio
 --------------------------------------------------------- */
 address, .address {
     font-size: 8.5pt !important;
     line-height: 1.6 !important;
     color: #333 !important;
+    background: none !important;
 }
 
 /* ---------------------------------------------------------
-   TABLA DE LÍNEAS (table.o_main_table)
+   TABLA DE LÍNEAS
 --------------------------------------------------------- */
 table.o_main_table {
     width: 100% !important;
@@ -90,6 +126,8 @@ table.o_main_table {
 }
 table.o_main_table thead tr {
     background-color: #1c1c2e !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
 }
 table.o_main_table thead th {
     color: #ffffff !important;
@@ -99,6 +137,7 @@ table.o_main_table thead th {
     letter-spacing: 0.5pt !important;
     padding: 5pt 6pt !important;
     border: none !important;
+    background-color: #1c1c2e !important;
 }
 table.o_main_table tbody.invoice_tbody tr:nth-child(odd) td {
     background-color: #f9f9fb !important;
@@ -125,7 +164,7 @@ table.o_main_table .o_line_note td {
 }
 
 /* ---------------------------------------------------------
-   TOTALES (table.o_total_table)
+   TOTALES
 --------------------------------------------------------- */
 #right-elements {
     margin-top: 10pt !important;
@@ -140,17 +179,6 @@ table.o_total_table td {
     border: none !important;
     color: #1c1c2e !important;
 }
-table.o_total_table .o_subtotal td {
-    background-color: #f4f5f7 !important;
-    border-top: 0.4pt solid #ddd !important;
-}
-table.o_total_table .o_total td {
-    background-color: #1c1c2e !important;
-    color: #ffffff !important;
-    font-weight: bold !important;
-    font-size: 10pt !important;
-    padding: 6pt 8pt !important;
-}
 table.o_total_table tr.fw-bold td {
     font-weight: bold !important;
     border-top: 1pt solid #1c1c2e !important;
@@ -158,7 +186,7 @@ table.o_total_table tr.fw-bold td {
 }
 
 /* ---------------------------------------------------------
-   MONTO EN LETRAS "SON: ..." (l10n_pe_edi)
+   MONTO EN LETRAS "SON: ..."
 --------------------------------------------------------- */
 #payment_term > p {
     background-color: #f4f5f7 !important;
@@ -166,10 +194,12 @@ table.o_total_table tr.fw-bold td {
     padding: 5pt 8pt !important;
     margin-bottom: 8pt !important;
     font-size: 8pt !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
 }
 
 /* ---------------------------------------------------------
-   DETRACCIONES SPOT (#l10n_pe_spot)
+   DETRACCIONES SPOT
 --------------------------------------------------------- */
 #l10n_pe_spot {
     margin-top: 10pt !important;
@@ -177,6 +207,8 @@ table.o_total_table tr.fw-bold td {
     background-color: #fffbeb !important;
     border: 0.5pt solid #e6c94a !important;
     border-radius: 4pt !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
 }
 #l10n_pe_spot table.table {
     font-size: 7.5pt !important;
@@ -189,7 +221,7 @@ table.o_total_table tr.fw-bold td {
     font-size: 7pt !important;
     font-weight: bold !important;
     padding: 4pt 6pt !important;
-    text-transform: uppercase;
+    text-transform: uppercase !important;
 }
 #l10n_pe_spot table tbody td {
     padding: 3pt 6pt !important;
@@ -204,23 +236,22 @@ table.o_total_table tr.fw-bold td {
 }
 
 /* ---------------------------------------------------------
-   QR ODOO (pago bancario)
+   QR ODOO (pago bancario) - quitar fondo llamativo
 --------------------------------------------------------- */
 #qrcode {
     margin-top: 8pt !important;
-    padding: 6pt !important;
-    background-color: #f9f9fb !important;
-    border: 0.4pt solid #ddd !important;
-    border-radius: 4pt !important;
+    padding: 4pt !important;
+    background-color: transparent !important;
+    border: none !important;
 }
 #qrcode_info p {
     font-size: 7.5pt !important;
     color: #666 !important;
-    font-style: italic;
+    font-style: italic !important;
 }
 
 /* ---------------------------------------------------------
-   NOTAS / TÉRMINOS Y CONDICIONES
+   NOTAS / TÉRMINOS
 --------------------------------------------------------- */
 div[name="comment"] {
     font-size: 7.5pt !important;
