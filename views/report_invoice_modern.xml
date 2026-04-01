@@ -2,13 +2,28 @@
 <odoo>
     <template id="report_invoice_document_modern"
               inherit_id="account.report_invoice_document"
-              name="Copier Company - Modern Invoice Layout">
+              name="Copier Company - Modern Invoice Layout"
+              priority="50">
 
         <!-- ============================================================
-             1. CSS
+             ESTRATEGIA: NO tocar el DOM que l10n_pe_edi necesita.
+             Solo inyectamos CSS para ocultar los bloques originales
+             e insertamos nuestro header moderno antes de la tabla.
         ============================================================ -->
+
         <xpath expr="//div[@class='oe_structure'][1]" position="before">
             <style>
+                /* === OCULTAR bloques originales sin romper XPaths de l10n_pe_edi === */
+                div[name="no_shipping"],
+                div[name="address_same_as_shipping"],
+                div[name="address_not_same_as_shipping"],
+                div[name="shipping_address_block"],
+                div#informations,
+                div.oe_structure:first-of-type {
+                    display: none !important;
+                }
+
+                /* === BASE === */
                 .o_report_layout_wave, .article {
                     font-family: 'DejaVu Sans', Arial, sans-serif !important;
                     font-size: 8.5pt !important;
@@ -32,7 +47,7 @@
                 }
                 .article h2 { display: none !important; }
 
-                /* === DOC HEADER === */
+                /* === DOC HEADER MODERNO === */
                 .cc_doc_header {
                     display: table !important;
                     width: 100% !important;
@@ -210,30 +225,7 @@
         </xpath>
 
         <!-- ============================================================
-             2. OCULTAR dirección original — usar name= que es estable
-             Los 3 posibles divs según si hay shipping o no
-        ============================================================ -->
-        <xpath expr="//div[@name='no_shipping']" position="replace"><t/></xpath>
-        <xpath expr="//div[@name='address_same_as_shipping']" position="replace"><t/></xpath>
-        <xpath expr="//div[@name='address_not_same_as_shipping']" position="replace"><t/></xpath>
-        <xpath expr="//div[@name='shipping_address_block']" position="replace"><t/></xpath>
-
-        <!-- ============================================================
-             3. OCULTAR #informations original
-        ============================================================ -->
-        <xpath expr="//div[@id='informations']" position="replace">
-            <t/>
-        </xpath>
-
-        <!-- ============================================================
-             4. OCULTAR primer oe_structure vacío
-        ============================================================ -->
-        <xpath expr="//div[@class='oe_structure'][1]" position="replace">
-            <t/>
-        </xpath>
-
-        <!-- ============================================================
-             5. INSERTAR header moderno antes de la tabla
+             INSERTAR header moderno antes de la tabla de líneas
         ============================================================ -->
         <xpath expr="//table[contains(@class,'o_main_table')]" position="before">
             <div class="cc_doc_header">
