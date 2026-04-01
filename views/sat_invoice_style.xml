@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!--
+        SAT - Estilo moderno para facturas electrónicas (Perú)
+        Hereda: web.external_layout_wave
+        Solo modifica CSS - no toca lógica ni campos de l10n_pe_edi / l10n_latam
+        Compatible con: QR SUNAT, detracciones SPOT, monto en letras, serie F001
+    -->
+    <template id="sat_external_layout_wave_style"
+              inherit_id="web.external_layout_wave"
+              name="SAT - Modern Invoice Style">
+
+        <xpath expr="//div[contains(@t-attf-class,'header')]" position="before">
+            <style t-if="report_type == 'pdf'">
+                /* =========================================================
+                   TIPOGRAFÍA Y RESET
+                ========================================================= */
+                .o_report_layout_wave,
+                .o_report_layout_wave * {
+                    font-family: 'DejaVu Sans', Arial, sans-serif;
+                    font-size: 8.5pt;
+                    color: #1c1c2e;
+                    box-sizing: border-box;
+                }
+
+                /* =========================================================
+                   HEADER
+                ========================================================= */
+                .header {
+                    border-bottom: 2pt solid #1c1c2e !important;
+                    padding-bottom: 8pt !important;
+                    margin-bottom: 12pt !important;
+                }
+                .header svg path {
+                    fill-opacity: 0.04 !important;
+                }
+                .o_company_logo {
+                    max-height: 52pt !important;
+                    max-width: 160pt !important;
+                }
+                .o_company_tagline {
+                    font-size: 7pt !important;
+                    color: #777 !important;
+                    text-transform: uppercase;
+                    letter-spacing: 0.8pt;
+                }
+                div[name="company_address"] ul,
+                div[name="company_address"] li {
+                    font-size: 7.5pt !important;
+                    color: #555 !important;
+                    line-height: 1.65 !important;
+                }
+
+                /* =========================================================
+                   TÍTULO DEL DOCUMENTO
+                ========================================================= */
+                .article h2 {
+                    font-size: 13pt !important;
+                    font-weight: bold !important;
+                    color: #1c1c2e !important;
+                    border-left: 3pt solid #1c1c2e;
+                    padding-left: 8pt;
+                    margin-top: 10pt !important;
+                    margin-bottom: 8pt !important;
+                }
+
+                /* =========================================================
+                   #informations
+                ========================================================= */
+                #informations {
+                    background-color: #f4f5f7 !important;
+                    border-radius: 4pt;
+                    padding: 8pt 10pt !important;
+                    margin-bottom: 12pt !important;
+                }
+                #informations .col strong {
+                    display: block;
+                    font-size: 7pt !important;
+                    text-transform: uppercase;
+                    letter-spacing: 0.8pt;
+                    color: #888 !important;
+                    font-weight: 600;
+                    margin-bottom: 2pt;
+                }
+                #informations .col div,
+                #informations .col span {
+                    font-size: 8.5pt !important;
+                    font-weight: 600;
+                    color: #1c1c2e !important;
+                }
+
+                /* =========================================================
+                   DIRECCIÓN CLIENTE
+                ========================================================= */
+                address, .address {
+                    font-size: 8.5pt !important;
+                    line-height: 1.6 !important;
+                    color: #333 !important;
+                }
+
+                /* =========================================================
+                   TABLA DE LÍNEAS
+                ========================================================= */
+                table.o_main_table {
+                    width: 100% !important;
+                    border-collapse: collapse !important;
+                    margin-top: 6pt !important;
+                    font-size: 8pt !important;
+                }
+                table.o_main_table thead tr {
+                    background-color: #1c1c2e !important;
+                }
+                table.o_main_table thead th {
+                    color: #ffffff !important;
+                    font-size: 7pt !important;
+                    font-weight: 600 !important;
+                    text-transform: uppercase !important;
+                    letter-spacing: 0.5pt !important;
+                    padding: 5pt 6pt !important;
+                    border: none !important;
+                }
+                table.o_main_table tbody.invoice_tbody tr:nth-child(odd) td {
+                    background-color: #f9f9fb !important;
+                }
+                table.o_main_table tbody.invoice_tbody tr:nth-child(even) td {
+                    background-color: #ffffff !important;
+                }
+                table.o_main_table tbody td {
+                    padding: 5pt 6pt !important;
+                    border-bottom: 0.4pt solid #e2e3e8 !important;
+                    vertical-align: top !important;
+                    font-size: 8pt !important;
+                    color: #1c1c2e !important;
+                }
+                table.o_main_table .o_line_section td {
+                    background-color: #eef0f4 !important;
+                    font-weight: bold !important;
+                    border-bottom: 0.5pt solid #ccc !important;
+                }
+                table.o_main_table .o_line_note td {
+                    font-style: italic !important;
+                    color: #666 !important;
+                    font-size: 7.5pt !important;
+                }
+
+                /* =========================================================
+                   TOTALES
+                ========================================================= */
+                #right-elements {
+                    margin-top: 10pt !important;
+                }
+                table.o_total_table {
+                    width: 100% !important;
+                    border-collapse: collapse !important;
+                    font-size: 8.5pt !important;
+                }
+                table.o_total_table td {
+                    padding: 3pt 6pt !important;
+                    border: none !important;
+                    color: #1c1c2e !important;
+                }
+                table.o_total_table .o_subtotal td {
+                    background-color: #f4f5f7 !important;
+                    border-top: 0.4pt solid #ddd !important;
+                }
+                table.o_total_table .o_total td {
+                    background-color: #1c1c2e !important;
+                    color: #ffffff !important;
+                    font-weight: bold !important;
+                    font-size: 10pt !important;
+                    padding: 6pt 8pt !important;
+                }
+                table.o_total_table tr.fw-bold td {
+                    font-weight: bold !important;
+                    border-top: 1pt solid #1c1c2e !important;
+                    padding-top: 5pt !important;
+                }
+
+                /* =========================================================
+                   MONTO EN LETRAS (SON: ...)
+                   Insertado por l10n_pe_edi antes del bloque narration
+                ========================================================= */
+                #payment_term > p {
+                    background-color: #f4f5f7 !important;
+                    border-left: 2.5pt solid #1c1c2e !important;
+                    padding: 5pt 8pt !important;
+                    margin-bottom: 8pt !important;
+                    font-size: 8pt !important;
+                }
+
+                /* =========================================================
+                   DETRACCIONES SPOT (#l10n_pe_spot)
+                ========================================================= */
+                #l10n_pe_spot {
+                    margin-top: 10pt !important;
+                    padding: 8pt 10pt !important;
+                    background-color: #fffbeb !important;
+                    border: 0.5pt solid #e6c94a !important;
+                    border-radius: 4pt !important;
+                }
+                #l10n_pe_spot table.table {
+                    font-size: 7.5pt !important;
+                    margin-bottom: 6pt !important;
+                    border-collapse: collapse !important;
+                }
+                #l10n_pe_spot table thead th {
+                    background-color: #f5e17a !important;
+                    color: #5a4500 !important;
+                    font-size: 7pt !important;
+                    font-weight: bold !important;
+                    padding: 4pt 6pt !important;
+                    text-transform: uppercase;
+                }
+                #l10n_pe_spot table tbody td {
+                    padding: 3pt 6pt !important;
+                    border-bottom: 0.3pt solid #e6c94a !important;
+                    color: #3a2e00 !important;
+                }
+                /* QR SUNAT */
+                #l10n_pe_spot img.border {
+                    border: 1pt solid #999 !important;
+                    border-radius: 4pt !important;
+                    padding: 3pt !important;
+                    background: #ffffff !important;
+                }
+
+                /* =========================================================
+                   QR ODOO (pago bancario)
+                ========================================================= */
+                #qrcode {
+                    margin-top: 8pt !important;
+                    padding: 6pt !important;
+                    background-color: #f9f9fb !important;
+                    border: 0.4pt solid #ddd !important;
+                    border-radius: 4pt !important;
+                }
+                #qrcode_info p {
+                    font-size: 7.5pt !important;
+                    color: #666 !important;
+                    font-style: italic;
+                }
+
+                /* =========================================================
+                   NOTAS / TÉRMINOS
+                ========================================================= */
+                div[name="comment"] {
+                    font-size: 7.5pt !important;
+                    color: #777 !important;
+                    border-top: 0.4pt solid #ddd !important;
+                    padding-top: 6pt !important;
+                    margin-top: 6pt !important;
+                }
+                #payment_terms_note_id {
+                    font-size: 7.5pt !important;
+                    color: #555 !important;
+                }
+
+                /* =========================================================
+                   FOOTER
+                ========================================================= */
+                .footer svg path {
+                    fill-opacity: 0.04 !important;
+                }
+                .o_footer_content {
+                    font-size: 7pt !important;
+                    color: #999 !important;
+                    text-align: center !important;
+                    border-top: 0.4pt solid #ddd !important;
+                    padding-top: 4pt !important;
+                }
+            </style>
+        </xpath>
+
+    </template>
+</odoo>
