@@ -81,8 +81,7 @@
         'views/whatsapp_service_notification_views.xml',
         'views/public_service_tracking_templates.xml',
         'views/whatsapp_send_quotation_wizard_views.xml',
-        'views/whatsapp_send_multi_quotation_wizard_views.xml',
-        'views/sat_invoice_style.xml',            
+        'views/whatsapp_send_multi_quotation_wizard_views.xml',                   
         'views/copier_soporte.xml',
         # ❗️ No cargues QWeb de frontend aquí; mejor en assets_qweb (abajo)
         # 'static/src/xml/counter_charts_templates.xml',
@@ -124,6 +123,9 @@
         # QWeb de tus componentes/widgets (asegura que se carguen en frontend)
         'web.assets_qweb': [
             'copier_company/static/src/xml/counter_charts_templates.xml',
+        ],
+        'web.report_assets_common': [
+            'copier_company/static/src/css/invoice_style.css',
         ],
 
        
