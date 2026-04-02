@@ -87,9 +87,13 @@
                     table.o_main_table tbody tr:nth-child(even) td { background-color: #ffffff !important; }
                     table.o_main_table tbody td { padding: 5pt 6pt !important; border-bottom: 0.4pt solid #e2e3e8 !important; vertical-align: top !important; color: #1c1c2e !important; }
                     table.o_main_table .o_line_section td { background-color: #eef0f4 !important; font-weight: bold !important; -webkit-print-color-adjust: exact !important; }
+                    table.o_main_table th[name="th_subtotal"],
+                    table.o_main_table td[name="td_subtotal"] { width: 15% !important; }
                     #right-elements { margin-top: 8pt !important; margin-left: 0 !important; padding-left: 0 !important; }
                     #right-elements .ms-auto { width: 100% !important; }
                     table.o_total_table { border-collapse: collapse !important; width: 100% !important; font-size: 8.5pt !important; }
+                    table.o_total_table td:first-child { width: 60% !important; }
+                    table.o_total_table td:last-child { width: 40% !important; text-align: right !important; }
                     table.o_total_table td { padding: 3pt 6pt !important; border: none !important; color: #1c1c2e !important; }
                     table.o_total_table .o_subtotal td { background-color: #f4f5f7 !important; border-top: 0.4pt solid #ddd !important; -webkit-print-color-adjust: exact !important; }
                     table.o_total_table .o_total td, table.o_total_table .o_total td span, table.o_total_table .o_total td strong { background-color: #1c1c2e !important; color: #ffffff !important; font-weight: bold !important; font-size: 10pt !important; padding: 6pt 8pt !important; -webkit-print-color-adjust: exact !important; }
@@ -205,10 +209,10 @@
 
                 <!-- TOTALES: tabla alineada a la derecha, sin float que interfiera -->
                 <div style="display:table;width:100%;margin-top:8pt;">
-                    <div style="display:table-cell;width:55%;vertical-align:top;">
+                    <div style="display:table-cell;width:52%;vertical-align:top;">
                         <!-- celda izquierda vacía — empuja totales a la derecha -->
                     </div>
-                    <div style="display:table-cell;width:45%;vertical-align:top;" id="right-elements">
+                    <div style="display:table-cell;width:48%;vertical-align:top;" id="right-elements">
                         <div id="total">
                             <table class="o_total_table table table-borderless avoid-page-break-inside" style="width:100%">
                                 <t t-if="o.tax_totals" t-call="account.document_tax_totals">
