@@ -259,15 +259,8 @@
                                 <p>Escanea el QR para pagar</p>
                             </div>
                         </div>
-                        <!-- DEBUG TEMPORAL -->
-                        <p style="color:red;font-size:8pt;border:1pt solid red;padding:4pt;">
-                            <b>DEBUG:</b><br/>
-                            extra_edi_vals: <t t-out="str(extra_edi_vals)[:200]"/><br/>
-                            spot: <t t-out="str(spot)[:100]"/>
-                        </p>
-
                         <!-- QR SUNAT + Detracciones SPOT (l10n_pe_edi) -->
-                        <div t-if="spot or extra_edi_vals" id="l10n_pe_spot" t-attf-class="#{'col-6' if report_type != 'html' else 'col-12 col-md-6'} mb-3">
+                        <div t-if="extra_edi_vals.get('qr_str') or spot" id="l10n_pe_spot" t-attf-class="#{'col-6' if report_type != 'html' else 'col-12 col-md-6'} mb-3">
                             <table t-if="spot" class="table table-sm avoid-page-break-inside">
                                 <thead>
                                     <tr>
