@@ -203,44 +203,48 @@
                     </tbody>
                 </table>
 
-                <!-- TOTALES -->
-                <div class="overflow-hidden">
-                    <div id="right-elements" t-attf-class="#{'col-4' if report_type == 'pdf' else 'col-12 col-md-5'} d-inline-block float-end">
-                        <div id="total" class="clearfix row">
-                            <div class="ms-auto">
-                                <table class="o_total_table table table-borderless avoid-page-break-inside">
-                                    <t t-if="o.tax_totals" t-call="account.document_tax_totals">
-                                        <t t-set="tax_totals" t-value="o.tax_totals"/>
-                                        <t t-set="currency" t-value="o.currency_id"/>
-                                    </t>
-                                    <t t-if="print_with_payments">
-                                        <t t-if="o.payment_state != 'invoicing_legacy'">
-                                            <t t-set="payments_vals" t-value="o.sudo().invoice_payments_widget and o.sudo().invoice_payments_widget['content'] or []"/>
-                                            <t t-foreach="payments_vals" t-as="payment_vals">
-                                                <tr t-if="payment_vals['is_exchange'] == 0">
-                                                    <td><i class="oe_form_field text-end oe_payment_label">
-                                                        <t t-if="payment_vals['is_refund']">Revertido el </t>
-                                                        <t t-else="">Pagado el </t>
-                                                        <t t-out="payment_vals['date']" t-options="{'widget': 'date'}"/>
-                                                    </i></td>
-                                                    <td class="text-end">
-                                                        <span t-out="payment_vals['amount']" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
-                                                    </td>
-                                                </tr>
-                                            </t>
-                                            <t t-if="len(payments_vals) > 0">
-                                                <tr class="fw-bold">
-                                                    <td>Saldo pendiente</td>
-                                                    <td class="text-end"><span t-field="o.amount_residual"/></td>
-                                                </tr>
-                                            </t>
+                <!-- TOTALES: tabla alineada a la derecha, sin float que interfiera -->
+                <div style="display:table;width:100%;margin-top:8pt;">
+                    <div style="display:table-cell;width:55%;vertical-align:top;">
+                        <!-- celda izquierda vacía — empuja totales a la derecha -->
+                    </div>
+                    <div style="display:table-cell;width:45%;vertical-align:top;" id="right-elements">
+                        <div id="total">
+                            <table class="o_total_table table table-borderless avoid-page-break-inside" style="width:100%">
+                                <t t-if="o.tax_totals" t-call="account.document_tax_totals">
+                                    <t t-set="tax_totals" t-value="o.tax_totals"/>
+                                    <t t-set="currency" t-value="o.currency_id"/>
+                                </t>
+                                <t t-if="print_with_payments">
+                                    <t t-if="o.payment_state != 'invoicing_legacy'">
+                                        <t t-set="payments_vals" t-value="o.sudo().invoice_payments_widget and o.sudo().invoice_payments_widget['content'] or []"/>
+                                        <t t-foreach="payments_vals" t-as="payment_vals">
+                                            <tr t-if="payment_vals['is_exchange'] == 0">
+                                                <td><i class="oe_form_field text-end oe_payment_label">
+                                                    <t t-if="payment_vals['is_refund']">Revertido el </t>
+                                                    <t t-else="">Pagado el </t>
+                                                    <t t-out="payment_vals['date']" t-options="{'widget': 'date'}"/>
+                                                </i></td>
+                                                <td class="text-end">
+                                                    <span t-out="payment_vals['amount']" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                        <t t-if="len(payments_vals) > 0">
+                                            <tr class="fw-bold">
+                                                <td>Saldo pendiente</td>
+                                                <td class="text-end"><span t-field="o.amount_residual"/></td>
+                                            </tr>
                                         </t>
                                     </t>
-                                </table>
-                            </div>
+                                </t>
+                            </table>
                         </div>
                     </div>
-                    <div id="payment_term" class="clearfix mt-3">
+                </div>
+
+                <!-- SECCIÓN INFERIOR: comunicación pago, QR, SON, T&C -->
+                <div id="payment_term" class="clearfix mt-3" style="clear:both;">
                         <div class="mb-3" t-if="o.move_type in ('out_invoice', 'in_refund') and o.payment_reference">
                             <p name="payment_communication">
                                 Comunicación del pago: <span class="fw-bold" t-field="o.payment_reference"/>
@@ -311,7 +315,6 @@
                             <span t-field="o.narration"/>
                         </div>
                         <div class="oe_structure"/>
-                    </div>
                 </div>
             </div>
         </div>
