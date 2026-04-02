@@ -63,47 +63,262 @@
             <div class="page mb-4">
                 <div class="oe_structure"/>
                 <style>
-                    .o_report_layout_wave, .article { font-family: 'DejaVu Sans', Arial, sans-serif !important; font-size: 8.5pt !important; color: #1c1c2e !important; }
-                    .header { border-bottom: 2pt solid #1c1c2e !important; padding-bottom: 8pt !important; margin-bottom: 4pt !important; }
+                    .o_report_layout_wave, .article {
+                        font-family: 'DejaVu Sans', Arial, sans-serif !important;
+                        font-size: 8.5pt !important;
+                        color: #1c1c2e !important;
+                    }
+
+                    .header {
+                        border-bottom: 2pt solid #1c1c2e !important;
+                        padding-bottom: 8pt !important;
+                        margin-bottom: 4pt !important;
+                    }
+
                     .header svg path { fill-opacity: 0.03 !important; }
-                    .o_company_logo { max-height: 70pt !important; max-width: 200pt !important; }
-                    div[name="company_address"] li, div[name="company_address"] span { font-size: 7.5pt !important; color: #555 !important; line-height: 1.6 !important; }
+
+                    .o_company_logo {
+                        max-height: 70pt !important;
+                        max-width: 200pt !important;
+                    }
+
+                    div[name="company_address"] li,
+                    div[name="company_address"] span {
+                        font-size: 7.5pt !important;
+                        color: #555 !important;
+                        line-height: 1.6 !important;
+                    }
+
                     .article h2 { display: none !important; }
-                    .cc_doc_header { display: table !important; width: 100% !important; border-bottom: 0.5pt solid #e2e3e8 !important; margin-bottom: 10pt !important; padding-bottom: 10pt !important; -webkit-print-color-adjust: exact !important; }
-                    .cc_left { display: table-cell !important; width: 58% !important; vertical-align: top !important; padding-right: 12pt !important; }
-                    .cc_right { display: table-cell !important; width: 42% !important; vertical-align: middle !important; text-align: right !important; }
-                    .cc_doc_type { font-size: 7pt !important; text-transform: uppercase !important; letter-spacing: 1pt !important; color: #888 !important; font-weight: 600 !important; display: block !important; margin-bottom: 4pt !important; }
-                    .cc_doc_num { font-size: 15pt !important; font-weight: bold !important; color: #1c1c2e !important; border: 2pt solid #1c1c2e !important; display: inline-block !important; padding: 5pt 14pt !important; border-radius: 3pt !important; }
-                    .cc_grid { display: table !important; width: 100% !important; background-color: #f4f5f7 !important; border-radius: 4pt !important; padding: 8pt 10pt !important; -webkit-print-color-adjust: exact !important; }
-                    .cc_col { display: table-cell !important; width: 50% !important; vertical-align: top !important; padding-right: 10pt !important; }
-                    .cc_lbl { font-size: 7pt !important; text-transform: uppercase !important; letter-spacing: 0.8pt !important; color: #888 !important; font-weight: 600 !important; display: block !important; margin-top: 7pt !important; margin-bottom: 1pt !important; }
+
+                    /* HEADER */
+                    .cc_doc_header {
+                        display: table !important;
+                        width: 100% !important;
+                        border-bottom: 0.5pt solid #e2e3e8 !important;
+                        margin-bottom: 10pt !important;
+                        padding-bottom: 10pt !important;
+                        -webkit-print-color-adjust: exact !important;
+                    }
+
+                    .cc_left {
+                        display: table-cell !important;
+                        width: 58% !important;
+                        vertical-align: top !important;
+                        padding-right: 12pt !important;
+                    }
+
+                    .cc_right {
+                        display: table-cell !important;
+                        width: 42% !important;
+                        vertical-align: middle !important;
+                        text-align: right !important;
+                    }
+
+                    .cc_doc_type {
+                        font-size: 7pt !important;
+                        text-transform: uppercase !important;
+                        letter-spacing: 1pt !important;
+                        color: #888 !important;
+                        font-weight: 600 !important;
+                        display: block !important;
+                        margin-bottom: 4pt !important;
+                    }
+
+                    .cc_doc_num {
+                        font-size: 15pt !important;
+                        font-weight: bold !important;
+                        color: #1c1c2e !important;
+                        border: 2pt solid #1c1c2e !important;
+                        display: inline-block !important;
+                        padding: 5pt 14pt !important;
+                        border-radius: 3pt !important;
+                    }
+
+                    /* GRID */
+                    .cc_grid {
+                        display: table !important;
+                        width: 100% !important;
+                        background-color: #f4f5f7 !important;
+                        border-radius: 4pt !important;
+                        padding: 8pt 10pt !important;
+                        -webkit-print-color-adjust: exact !important;
+                    }
+
+                    .cc_col {
+                        display: table-cell !important;
+                        width: 50% !important;
+                        vertical-align: top !important;
+                        padding-right: 10pt !important;
+                    }
+
+                    .cc_lbl {
+                        font-size: 7pt !important;
+                        text-transform: uppercase !important;
+                        letter-spacing: 0.8pt !important;
+                        color: #888 !important;
+                        font-weight: 600 !important;
+                        display: block !important;
+                        margin-top: 7pt !important;
+                        margin-bottom: 1pt !important;
+                    }
+
                     .cc_lbl.first { margin-top: 0 !important; }
-                    .cc_val { font-size: 8.5pt !important; font-weight: 600 !important; color: #1c1c2e !important; line-height: 1.5 !important; display: block !important; }
-                    .cc_val.light { font-weight: 400 !important; color: #444 !important; font-size: 8pt !important; }
-                    table.o_main_table { border-collapse: collapse !important; width: 100% !important; font-size: 8pt !important; margin-top: 6pt !important; }
-                    table.o_main_table thead tr { background-color: #1c1c2e !important; -webkit-print-color-adjust: exact !important; }
-                    table.o_main_table thead th { color: #ffffff !important; font-size: 7pt !important; font-weight: 600 !important; text-transform: uppercase !important; padding: 5pt 6pt !important; border: none !important; background-color: #1c1c2e !important; }
-                    table.o_main_table tbody tr:nth-child(odd) td { background-color: #f9f9fb !important; }
-                    table.o_main_table tbody tr:nth-child(even) td { background-color: #ffffff !important; }
-                    table.o_main_table tbody td { padding: 5pt 6pt !important; border-bottom: 0.4pt solid #e2e3e8 !important; vertical-align: top !important; color: #1c1c2e !important; }
-                    table.o_main_table .o_line_section td { background-color: #eef0f4 !important; font-weight: bold !important; -webkit-print-color-adjust: exact !important; }
+
+                    .cc_val {
+                        font-size: 8.5pt !important;
+                        font-weight: 600 !important;
+                        color: #1c1c2e !important;
+                        line-height: 1.5 !important;
+                        display: block !important;
+                    }
+
+                    .cc_val.light {
+                        font-weight: 400 !important;
+                        color: #444 !important;
+                        font-size: 8pt !important;
+                    }
+
+                    /* TABLA PRINCIPAL */
+                    table.o_main_table {
+                        border-collapse: collapse !important;
+                        width: 100% !important;
+                        font-size: 8pt !important;
+                        margin-top: 6pt !important;
+                    }
+
+                    table.o_main_table thead tr {
+                        background-color: #1c1c2e !important;
+                        -webkit-print-color-adjust: exact !important;
+                    }
+
+                    table.o_main_table thead th {
+                        color: #ffffff !important;
+                        font-size: 7pt !important;
+                        font-weight: 600 !important;
+                        text-transform: uppercase !important;
+                        padding: 5pt 6pt !important;
+                        border: none !important;
+                    }
+
+                    table.o_main_table tbody tr:nth-child(odd) td {
+                        background-color: #f9f9fb !important;
+                    }
+
+                    table.o_main_table tbody tr:nth-child(even) td {
+                        background-color: #ffffff !important;
+                    }
+
+                    table.o_main_table tbody td {
+                        padding: 5pt 6pt !important;
+                        border-bottom: 0.4pt solid #e2e3e8 !important;
+                        vertical-align: top !important;
+                        color: #1c1c2e !important;
+                    }
+
+                    table.o_main_table .o_line_section td {
+                        background-color: #eef0f4 !important;
+                        font-weight: bold !important;
+                        -webkit-print-color-adjust: exact !important;
+                    }
+
                     table.o_main_table th[name="th_subtotal"],
-                    table.o_main_table td[name="td_subtotal"] { width: 15% !important; }
-                    #right-elements { margin-top: 8pt !important; margin-left: 0 !important; padding-left: 0 !important; }
-                    #right-elements .ms-auto { width: 100% !important; }
-                    table.o_total_table { border-collapse: collapse !important; width: 100% !important; font-size: 8.5pt !important; }
-                    table.o_total_table td:first-child { width: 60% !important; }
-                    table.o_total_table td:last-child { width: 40% !important; text-align: right !important; }
-                    table.o_total_table td { padding: 3pt 6pt !important; border: none !important; color: #1c1c2e !important; }
-                    table.o_total_table .o_subtotal td { background-color: #f4f5f7 !important; border-top: 0.4pt solid #ddd !important; -webkit-print-color-adjust: exact !important; }
-                    table.o_total_table .o_total td, table.o_total_table .o_total td span, table.o_total_table .o_total td strong { background-color: #1c1c2e !important; color: #ffffff !important; font-weight: bold !important; font-size: 10pt !important; padding: 3pt 6pt !important; -webkit-print-color-adjust: exact !important; }
-                    #payment_term > p { background-color: #f4f5f7 !important; border-left: 2.5pt solid #1c1c2e !important; padding: 5pt 8pt !important; margin-bottom: 6pt !important; font-size: 8pt !important; -webkit-print-color-adjust: exact !important; }
-                    #l10n_pe_spot { margin-top: 8pt !important; padding: 6pt 10pt !important; background-color: #fffbeb !important; border: 0.5pt solid #e6c94a !important; border-radius: 3pt !important; -webkit-print-color-adjust: exact !important; }
-                    #l10n_pe_spot table thead th { background-color: #f5e17a !important; color: #5a4500 !important; -webkit-print-color-adjust: exact !important; }
-                    #l10n_pe_spot table tbody td { color: #3a2e00 !important; font-size: 7.5pt !important; }
-                    #qrcode { background: transparent !important; border: none !important; padding: 0 !important; }
+                    table.o_main_table td[name="td_subtotal"] {
+                        width: 15% !important;
+                    }
+
+                    /* CONTENEDOR DERECHA */
+                    #right-elements {
+                        margin-top: 8pt !important;
+                        margin-left: 0 !important;
+                        padding-left: 0 !important;
+                    }
+
+                    #right-elements .ms-auto {
+                        width: 100% !important;
+                    }
+
+                    /* 🔥 TOTALES (CORREGIDO) */
+                    table.o_total_table {
+                        border-collapse: collapse !important;
+                        width: 100% !important;
+                        font-size: 8.5pt !important;
+                        table-layout: fixed !important;
+                    }
+
+                    table.o_total_table td:first-child {
+                        width: 60% !important;
+                    }
+
+                    table.o_total_table td:last-child {
+                        width: 40% !important;
+                        text-align: right !important;
+                        padding-right: 10pt !important; /* 👈 CLAVE */
+                    }
+
+                    table.o_total_table td {
+                        padding: 4pt 10pt !important; /* 👈 UNIFICADO */
+                        border: none !important;
+                        color: #1c1c2e !important;
+                    }
+
+                    table.o_total_table .o_subtotal td {
+                        background-color: #f4f5f7 !important;
+                        border-top: 0.4pt solid #ddd !important;
+                        -webkit-print-color-adjust: exact !important;
+                    }
+
+                    /* 🔴 FIX PRINCIPAL */
+                    table.o_total_table .o_total td {
+                        background-color: #1c1c2e !important;
+                        color: #ffffff !important;
+                        font-weight: bold !important;
+                        font-size: 10pt !important;
+                        padding: 4pt 10pt !important; /* 👈 MISMO padding */
+                        text-align: right !important;
+                    }
+
+                    /* RESTO */
+                    #payment_term > p {
+                        background-color: #f4f5f7 !important;
+                        border-left: 2.5pt solid #1c1c2e !important;
+                        padding: 5pt 8pt !important;
+                        margin-bottom: 6pt !important;
+                        font-size: 8pt !important;
+                    }
+
+                    #l10n_pe_spot {
+                        margin-top: 8pt !important;
+                        padding: 6pt 10pt !important;
+                        background-color: #fffbeb !important;
+                        border: 0.5pt solid #e6c94a !important;
+                        border-radius: 3pt !important;
+                    }
+
+                    #l10n_pe_spot table thead th {
+                        background-color: #f5e17a !important;
+                        color: #5a4500 !important;
+                    }
+
+                    #l10n_pe_spot table tbody td {
+                        color: #3a2e00 !important;
+                        font-size: 7.5pt !important;
+                    }
+
+                    #qrcode {
+                        background: transparent !important;
+                        border: none !important;
+                        padding: 0 !important;
+                    }
+
                     .footer svg path { fill-opacity: 0.03 !important; }
-                    .o_footer_content { font-size: 7pt !important; color: #999 !important; border-top: 0.4pt solid #ddd !important; padding-top: 4pt !important; }
+
+                    .o_footer_content {
+                        font-size: 7pt !important;
+                        color: #999 !important;
+                        border-top: 0.4pt solid #ddd !important;
+                        padding-top: 4pt !important;
+                    }
                 </style>
 
                 <!-- HEADER MODERNO -->
