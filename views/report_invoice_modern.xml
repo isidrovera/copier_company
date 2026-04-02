@@ -262,9 +262,8 @@
                         <!-- DEBUG TEMPORAL -->
                         <p style="color:red;font-size:8pt;border:1pt solid red;padding:4pt;">
                             <b>DEBUG:</b><br/>
-                            extra_edi_vals: <t t-out="str(extra_edi_vals)[:100]"/><br/>
-                            spot: <t t-out="str(spot)[:80]"/><br/>
-                            edi_status: <t t-out="o.l10n_pe_edi_status"/>
+                            extra_edi_vals: <t t-out="str(extra_edi_vals)[:200]"/><br/>
+                            spot: <t t-out="str(spot)[:100]"/>
                         </p>
 
                         <!-- QR SUNAT + Detracciones SPOT (l10n_pe_edi) -->
