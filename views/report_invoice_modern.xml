@@ -262,11 +262,9 @@
                         <!-- DEBUG TEMPORAL -->
                         <p style="color:red;font-size:8pt;border:1pt solid red;padding:4pt;">
                             <b>DEBUG:</b><br/>
-                            extra_edi_vals keys: <t t-out="str(list(extra_edi_vals.keys()) if extra_edi_vals else 'VACIO')"/><br/>
-                            qr_str: <t t-out="str(extra_edi_vals.get('qr_str', 'NO QR'))[:50] if extra_edi_vals else 'N/A'"/><br/>
-                            amount_to_text: <t t-out="str(extra_edi_vals.get('amount_to_text', 'NO TEXT')) if extra_edi_vals else 'N/A'"/><br/>
-                            spot: <t t-out="str(spot)[:80] if spot else 'SIN SPOT'"/><br/>
-                            l10n_pe_edi_status: <t t-out="str(o.l10n_pe_edi_status if hasattr(o, 'l10n_pe_edi_status') else 'N/A')"/>
+                            extra_edi_vals: <t t-out="str(extra_edi_vals)[:100]"/><br/>
+                            spot: <t t-out="str(spot)[:80]"/><br/>
+                            edi_status: <t t-out="o.l10n_pe_edi_status"/>
                         </p>
 
                         <!-- QR SUNAT + Detracciones SPOT (l10n_pe_edi) -->
