@@ -126,7 +126,7 @@
             'copier_company/static/src/xml/counter_charts_templates.xml',
         ],
         'web.report_assets_common': [
-            #'copier_company/static/src/css/invoice_style.css',
+            'copier_company/static/src/css/invoice_style.css',
         ],
 
        
