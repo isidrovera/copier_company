@@ -14,12 +14,16 @@
         <t t-set="o" t-value="o.with_context(lang=lang)"/>
         <t t-set="forced_vat" t-value="o.fiscal_position_id.foreign_vat"/>
 
+        <!-- Variables l10n_pe_edi incluidas directamente (no hereda sobre primary) -->
+        <t t-set="extra_edi_vals" t-value="o._l10n_pe_edi_get_extra_report_values()"/>
+        <t t-set="spot" t-value="o._l10n_pe_edi_get_spot()"/>
+
         <!-- HOOK: layout_document_title requerido por web.external_layout_wave
              l10n_pe_edi modifica invoice_title, credit_note_title y span t-field=o.name -->
         <t t-set="layout_document_title">
             <t t-if="not proforma">
                 <span t-if="o.move_type == 'out_invoice' and o.state == 'posted'">
-                    <t name="invoice_title">Invoice</t>
+                    <t name="invoice_title" t-out="o.l10n_latam_document_type_id.report_name if o.l10n_latam_document_type_id else 'Factura Electrónica'"/>
                 </span>
                 <span t-elif="o.move_type == 'out_invoice' and o.state == 'draft'">
                     <t name="draft_invoice_title">Draft Invoice</t>
@@ -28,7 +32,7 @@
                     <t name="cancelled_invoice_title">Cancelled Invoice</t>
                 </span>
                 <span t-elif="o.move_type == 'out_refund' and o.state == 'posted'">
-                    <t name="credit_note_title">Credit Note</t>
+                    <t name="credit_note_title" t-out="o.l10n_latam_document_type_id.report_name if o.l10n_latam_document_type_id else 'Nota de Crédito'"/>
                 </span>
                 <span t-elif="o.move_type == 'out_refund' and o.state == 'draft'">
                     <t name="draft_credit_note_title">Draft Credit Note</t>
@@ -43,7 +47,7 @@
                     <t name="vendor_bill_title">Vendor Bill</t>
                 </span>
             </t>
-            <span t-if="o.name and o.name != '/'" t-field="o.name">INV/2023/0001</span>
+            <span t-if="o.name and o.name != '/'" t-out="o.name.replace(' ', '')">INV/2023/0001</span>
         </t>
 
         <!-- HOOK: div requerido por l10n_pe_edi para reemplazar inv_tax_id_label
@@ -255,8 +259,60 @@
                                 <p>Escanea el QR para pagar</p>
                             </div>
                         </div>
-                        <!-- l10n_pe_edi inserta #l10n_pe_spot aquí (after #qrcode) -->
-                        <!-- l10n_pe_edi inserta SON: aquí (before narration) -->
+                        <!-- DEBUG TEMPORAL -->
+                        <p style="color:red;font-size:8pt;border:1pt solid red;padding:4pt;">
+                            <b>DEBUG:</b><br/>
+                            extra_edi_vals keys: <t t-out="str(list(extra_edi_vals.keys()) if extra_edi_vals else 'VACIO')"/><br/>
+                            qr_str: <t t-out="str(extra_edi_vals.get('qr_str', 'NO QR'))[:50] if extra_edi_vals else 'N/A'"/><br/>
+                            amount_to_text: <t t-out="str(extra_edi_vals.get('amount_to_text', 'NO TEXT')) if extra_edi_vals else 'N/A'"/><br/>
+                            spot: <t t-out="str(spot)[:80] if spot else 'SIN SPOT'"/><br/>
+                            l10n_pe_edi_status: <t t-out="str(o.l10n_pe_edi_status if hasattr(o, 'l10n_pe_edi_status') else 'N/A')"/>
+                        </p>
+
+                        <!-- QR SUNAT + Detracciones SPOT (l10n_pe_edi) -->
+                        <div t-if="spot or extra_edi_vals" id="l10n_pe_spot" t-attf-class="#{'col-6' if report_type != 'html' else 'col-12 col-md-6'} mb-3">
+                            <table t-if="spot" class="table table-sm avoid-page-break-inside">
+                                <thead>
+                                    <tr>
+                                        <th colspan="2" class="text-start">
+                                            <span class="lh-sm">Operación sujeta al Sistema de Pago de Obligaciones Tributarias - SPOT</span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span>Código del bien o servicio:</span></td>
+                                        <td class="ps-2"><span t-out="spot['payment_means_id']"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span>N° cuenta Banco de la Nación:</span></td>
+                                        <td class="ps-2"><span t-out="spot['payee_financial_account']"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span>Porcentaje de detracción:</span></td>
+                                        <td class="ps-2"><span><t t-out="spot['payment_percent']"/> %</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span>Monto de detracción:</span></td>
+                                        <td class="ps-2">
+                                            <span t-out="spot['amount']" t-options="{'widget': 'monetary', 'display_currency': spot['currency']}"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p t-if="spot and spot.get('has_installments')">La detracción debe pagarse en la primera cuota.</p>
+                            <p>
+                                <img t-if="extra_edi_vals" class="border border-dark rounded"
+                                     t-att-src="'/report/barcode/?barcode_type=%s&amp;value=%s&amp;width=%s&amp;height=%s&amp;quiet=%s' % ('QR', extra_edi_vals['qr_str'], 120, 120, 0)"/>
+                            </p>
+                        </div>
+
+                        <!-- SON: monto en letras (l10n_pe_edi) -->
+                        <p t-if="o.l10n_pe_edi_legend_value" t-out="o.l10n_pe_edi_legend_value"/>
+                        <p>
+                            <span><b>SON:</b> <t t-out="extra_edi_vals.get('amount_to_text')"/></span>
+                        </p>
+
                         <div class="text-muted mb-3"
                              t-attf-style="#{'text-align:justify;' if o.company_id.terms_type != 'html' else ''}"
                              t-if="not is_html_empty(o.narration)"
