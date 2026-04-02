@@ -281,21 +281,12 @@
     <template id="report_invoice_redirect"
               inherit_id="account.report_invoice"
               name="Copier Company - Redirect Invoice Report">
-        <xpath expr="//t[@t-call='account.report_invoice_document']" position="replace">
-            <t t-call="copier_company.report_invoice_document_modern"
-               t-lang="o.partner_id.lang"/>
+        <xpath expr="//t[@t-call='l10n_pe_edi.report_invoice_document']" position="replace">
+            <t t-elif="o._get_name_invoice_report() == 'l10n_pe_edi.report_invoice_document'"
+               t-call="copier_company.report_invoice_document_modern"
+               t-lang="lang"/>
         </xpath>
     </template>
 
-    <!-- Mismo redirect para el reporte con pagos -->
-    <template id="report_invoice_with_payments_redirect"
-              inherit_id="account.report_invoice_with_payments"
-              name="Copier Company - Redirect Invoice With Payments">
-        <xpath expr="//t[@t-call='account.report_invoice']" position="replace">
-            <t t-call="account.report_invoice">
-                <t t-set="print_with_payments" t-value="True"/>
-            </t>
-        </xpath>
-    </template>
 
 </odoo>
