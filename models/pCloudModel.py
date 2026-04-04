@@ -1,8 +1,10 @@
 from odoo import models, fields, api
+from odoo.exceptions import UserError
 import requests
 import logging
 
 _logger = logging.getLogger(__name__)
+
 
 class PCloudConfig(models.Model):
     _name = 'pcloud.config'
@@ -13,239 +15,202 @@ class PCloudConfig(models.Model):
     client_secret = fields.Char(string='Client Secret', required=True)
     access_token = fields.Char(string='Access Token')
     redirect_uri = fields.Char(string='Redirect URI', required=True)
-    hostname = fields.Char(string='Hostname', readonly=False)
+    hostname = fields.Char(string='Hostname')
+
+    def _get_api_url(self):
+        """
+        Retorna el hostname normalizado.
+        pCloud no devuelve hostname en oauth2_token,
+        así que usamos el valor guardado o el default.
+        """
+        self.ensure_one()
+        hostname = self.hostname or 'api.pcloud.com'
+        if not hostname.startswith('http'):
+            hostname = 'https://' + hostname
+        return hostname.rstrip('/')
 
     def get_authorization_url(self):
-        for record in self:
-            url = "https://my.pcloud.com/oauth2/authorize"
-            params = {
-                'client_id': record.client_id,
-                'response_type': 'code',
-                'redirect_uri': record.redirect_uri,
-                'state': 'random_state'
-            }
-            return requests.Request('GET', url, params=params).prepare().url
+        self.ensure_one()
+        url = "https://my.pcloud.com/oauth2/authorize"
+        params = {
+            'client_id': self.client_id,
+            'response_type': 'code',
+            'redirect_uri': self.redirect_uri,
+            'state': 'random_state',
+        }
+        return requests.Request('GET', url, params=params).prepare().url
 
     def get_access_token(self, code):
-        for record in self:
-            url = "https://api.pcloud.com/oauth2_token"
-            params = {
-                'client_id': record.client_id,
-                'client_secret': record.client_secret,
-                'code': code,
-                'redirect_uri': record.redirect_uri
-            }
+        self.ensure_one()
+        url = "https://api.pcloud.com/oauth2_token"
+        params = {
+            'client_id': self.client_id,
+            'client_secret': self.client_secret,
+            'code': code,
+        }
+        try:
             response = requests.get(url, params=params, timeout=30)
-            if response.status_code == 200:
-                data = response.json()
-                if data.get('result', 0) != 0:
-                    raise Exception(f"pCloud error: {data.get('error', 'desconocido')}")
-                
-                access_token = data.get('access_token')
-                if not access_token:
-                    raise Exception("pCloud no devolvió access_token")
-                
-                # Normalizar hostname — pCloud devuelve solo el dominio sin esquema
-                hostname = data.get('hostname', 'api.pcloud.com')
-                if not hostname.startswith('http'):
-                    hostname = 'https://' + hostname
-                
-                record.access_token = access_token
-                record.hostname = hostname
-            else:
-                raise Exception(f"HTTP {response.status_code} al obtener token")
+            _logger.info('pCloud oauth2_token status: %s body: %s',
+                         response.status_code, response.text)
+        except requests.exceptions.RequestException as e:
+            raise UserError(f"Error de conexión con pCloud: {str(e)}")
 
-    def create_pcloud_folder(self, folder_name):
-        for record in self:
-            if not record.access_token:
-                raise Exception("No access token found. Please connect to pCloud first.")
-            
-            url = f"{record.hostname}/createfolder"
-            params = {
-                'access_token': record.access_token,
-                'name': folder_name,
-                'folderid': 0  # 0 para crear en la raíz
-            }
-            response = requests.get(url, params=params)
-            if response.status_code == 200:
-                return response.json()['metadata']['folderid']
-            else:
-                raise Exception("Failed to create folder")
+        if response.status_code != 200:
+            raise UserError(f"pCloud HTTP {response.status_code}: {response.text}")
+
+        data = response.json()
+        if data.get('result', 0) != 0:
+            raise UserError(f"pCloud error {data.get('result')}: {data.get('error', 'desconocido')}")
+
+        access_token = data.get('access_token')
+        if not access_token:
+            raise UserError(f"pCloud no devolvió access_token. Respuesta: {data}")
+
+        # pCloud oauth2_token NO devuelve hostname — se deja el valor
+        # configurado manualmente o el default api.pcloud.com
+        self.write({
+            'access_token': access_token,
+            'hostname': self.hostname or 'api.pcloud.com',
+        })
+        _logger.info('pCloud token guardado correctamente para config ID %s', self.id)
+
+    def create_pcloud_folder(self, folder_name, parent_folder_id=0):
+        self.ensure_one()
+        if not self.access_token:
+            raise UserError("No hay token. Conéctate a pCloud primero.")
+        url = f"{self._get_api_url()}/createfolder"
+        response = requests.get(url, params={
+            'access_token': self.access_token,
+            'name': folder_name,
+            'folderid': parent_folder_id,
+        }, timeout=30)
+        if response.status_code == 200:
+            data = response.json()
+            if data.get('result') != 0:
+                raise UserError(f"pCloud error: {data.get('error')}")
+            return data['metadata']['folderid']
+        raise UserError("Error al crear carpeta en pCloud")
 
     def upload_file_to_pcloud(self, file_path, folder_id):
-        for record in self:
-            if not record.access_token:
-                raise Exception("No access token found. Please connect to pCloud first.")
-            
-            url = f"{record.hostname}/uploadfile"
-            params = {
-                'access_token': record.access_token,
+        self.ensure_one()
+        if not self.access_token:
+            raise UserError("No hay token. Conéctate a pCloud primero.")
+        url = f"{self._get_api_url()}/uploadfile"
+        with open(file_path, 'rb') as f:
+            response = requests.post(url, params={
+                'access_token': self.access_token,
                 'folderid': folder_id,
-            }
-            files = {'file': open(file_path, 'rb')}
-            response = requests.post(url, params=params, files=files)
-            if response.status_code == 200:
-                return response.json()['metadata'][0]['fileid']
-            else:
-                raise Exception("Failed to upload file")
-
-    def list_pcloud_folders(self, folder_id=0):
-        for record in self:
-            if not record.access_token:
-                raise Exception("No access token found. Please connect to pCloud first.")
-            
-            url = f"{record.hostname}/listfolder"
-            params = {
-                'access_token': record.access_token,
-                'folderid': folder_id,
-            }
-            response = requests.get(url, params=params)
-            if response.status_code == 200:
-                return response.json()['metadata']['contents']
-            else:
-                raise Exception("Failed to list folders")
+            }, files={'file': f}, timeout=120)
+        if response.status_code == 200:
+            data = response.json()
+            if data.get('result') != 0:
+                raise UserError(f"pCloud error: {data.get('error')}")
+            return data['metadata'][0]['fileid']
+        raise UserError("Error al subir archivo a pCloud")
 
     def list_pcloud_contents(self, folder_id=0):
-        for record in self:
-            if not record.access_token:
-                raise Exception("No access token found. Please connect to pCloud first.")
-            
-            url = f"{record.hostname}/listfolder"
-            params = {
-                'access_token': record.access_token,
-                'folderid': folder_id,
-            }
-            response = requests.get(url, params=params)
-            if response.status_code == 200:
-                return response.json()['metadata']['contents']
-            else:
-                raise Exception("Failed to list folders")
+        self.ensure_one()
+        if not self.access_token:
+            raise UserError("No hay token. Conéctate a pCloud primero.")
+        url = f"{self._get_api_url()}/listfolder"
+        response = requests.get(url, params={
+            'access_token': self.access_token,
+            'folderid': folder_id,
+        }, timeout=30)
+        if response.status_code == 200:
+            data = response.json()
+            if data.get('result') != 0:
+                raise UserError(f"pCloud error: {data.get('error')}")
+            return data['metadata']['contents']
+        raise UserError("Error al listar contenido de pCloud")
 
-    def action_connect_to_pcloud(self):
-        for record in self:
-            authorization_url = record.get_authorization_url()
-            return {
-                'type': 'ir.actions.act_url',
-                'url': authorization_url,
-                'target': 'new',
-            }
+    # Alias para compatibilidad con código existente
+    def list_pcloud_folders(self, folder_id=0):
+        return self.list_pcloud_contents(folder_id)
 
-    def action_disconnect_from_pcloud(self):
-        for record in self:
-            record.access_token = False
-            record.hostname = False
-
-    def action_list_folders(self):
-        for record in self:
-            # Limpiar los registros anteriores
-            self.env['pcloud.folder.file'].search([]).unlink()
-            folders = record.list_pcloud_folders()
-            for folder in folders:
-                self.env['pcloud.folder.file'].create({
-                    'name': folder['name'],
-                    'is_folder': folder['isfolder'],
-                    'pcloud_config_id': record.id
-                })
-            return {
-                'type': 'ir.actions.act_window',
-                'name': 'pCloud Folders and Files',
-                'res_model': 'pcloud.folder.file',
-                'view_mode': 'list,form',
-                'target': 'current',
-            }
-
-    def action_list_files(self):
-        for record in self:
-            # Limpiar los registros anteriores
-            self.env['pcloud.folder.file'].search([]).unlink()
-            files = record.list_pcloud_files()
-            for file in files:
-                self.env['pcloud.folder.file'].create({
-                    'name': file['name'],
-                    'is_folder': file['isfolder'],
-                    'pcloud_config_id': record.id
-                })
-            return {
-                'type': 'ir.actions.act_window',
-                'name': 'pCloud Folders and Files',
-                'res_model': 'pcloud.folder.file',
-                'view_mode': 'list,form',
-                'target': 'current',
-            }
     def get_pcloud_file_info(self, file_id):
-        for record in self:
-            if not record.access_token:
-                raise Exception("No access token found. Please connect to pCloud first.")
-            
-            url = f"{record.hostname}/getfilelink"
-            params = {
-                'access_token': record.access_token,
-                'fileid': file_id,
-            }
-            response = requests.get(url, params=params)
-            if response.status_code == 200:
-                return response.json()
-            else:
-                raise Exception("Failed to get file info")
+        self.ensure_one()
+        if not self.access_token:
+            raise UserError("No hay token. Conéctate a pCloud primero.")
+        url = f"{self._get_api_url()}/getfilelink"
+        response = requests.get(url, params={
+            'access_token': self.access_token,
+            'fileid': file_id,
+        }, timeout=30)
+        if response.status_code == 200:
+            return response.json()
+        raise UserError("Error al obtener info del archivo")
 
     def download_pcloud_file(self, file_id):
-        for record in self:
-            if not record.access_token:
-                raise Exception("No access token found. Please connect to pCloud first.")
-
-            url = f"{record.hostname}/getfilelink"
-            params = {
-                'access_token': record.access_token,
-                'fileid': file_id,
-            }
-            response = requests.get(url, params=params)
-            if response.status_code == 200:
-                data = response.json()
-                _logger.info('API Response: %s', data)  # Log the API response for debugging
-                download_url = data.get('hosts')[0] + data.get('path')
-                if not download_url:
-                    raise Exception("Failed to get file download link")
-                return download_url
-            else:
-                raise Exception("Failed to get file download link")
-
+        self.ensure_one()
+        if not self.access_token:
+            raise UserError("No hay token. Conéctate a pCloud primero.")
+        url = f"{self._get_api_url()}/getfilelink"
+        response = requests.get(url, params={
+            'access_token': self.access_token,
+            'fileid': file_id,
+        }, timeout=30)
+        if response.status_code == 200:
+            data = response.json()
+            _logger.info('pCloud getfilelink response: %s', data)
+            if data.get('result') != 0:
+                raise UserError(f"pCloud error: {data.get('error')}")
+            hosts = data.get('hosts', [])
+            path = data.get('path', '')
+            if not hosts or not path:
+                raise UserError("pCloud no devolvió hosts/path para descarga")
+            download_url = hosts[0] + path
+            if not download_url.startswith('http'):
+                download_url = 'https://' + download_url
+            return download_url
+        raise UserError("Error al obtener link de descarga")
 
     def get_folder_path(self, folder_id):
-        """
-        Obtiene la ruta completa de una carpeta hasta la raíz
-        """
+        """Obtiene la ruta completa de una carpeta hasta la raíz"""
+        self.ensure_one()
         if not self.access_token:
-            raise Exception("No access token found. Please connect to pCloud first.")
-        
+            raise UserError("No hay token. Conéctate a pCloud primero.")
+
         folder_path = []
         current_id = folder_id
-        
-        while current_id != 0:
-            url = f"{self.hostname}/listfolder"
-            params = {
-                'access_token': self.access_token,
-                'folderid': current_id,
-            }
-            
+        max_depth = 20
+
+        while current_id != 0 and len(folder_path) < max_depth:
+            url = f"{self._get_api_url()}/listfolder"
             try:
-                response = requests.get(url, params=params)
+                response = requests.get(url, params={
+                    'access_token': self.access_token,
+                    'folderid': current_id,
+                }, timeout=30)
                 if response.status_code == 200:
-                    folder_info = response.json()['metadata']
+                    folder_info = response.json().get('metadata', {})
                     folder_path.insert(0, {
                         'id': current_id,
                         'name': folder_info.get('name', 'Unknown'),
-                        'parentfolderid': folder_info.get('parentfolderid', 0)
+                        'parentfolderid': folder_info.get('parentfolderid', 0),
                     })
                     current_id = folder_info.get('parentfolderid', 0)
                 else:
                     break
             except Exception as e:
-                _logger.error('Error getting folder info: %s', str(e))
+                _logger.error('Error getting folder path: %s', str(e))
                 break
-                
+
         return folder_path
 
+    def action_connect_to_pcloud(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_url',
+            'url': self.get_authorization_url(),
+            'target': 'new',
+        }
 
+    def action_disconnect_from_pcloud(self):
+        self.ensure_one()
+        self.write({
+            'access_token': False,
+        })
 
     def action_open_explorer(self):
         self.ensure_one()
