@@ -9,6 +9,11 @@
                 <form string="pCloud Configuration">
                     <header>
                         <button string="Connect" type="object" name="action_connect_to_pcloud"  class="btn-primary"/>
+                        <button string="📂 Explorador de Archivos"
+                            type="object"
+                            name="action_open_explorer"
+                            class="btn-primary"
+                            invisible="not access_token"/>
                         <button string="Disconnect" type="object"  name="action_disconnect_from_pcloud" class="btn-secondary"/>
                     </header>                     
                     <sheet>

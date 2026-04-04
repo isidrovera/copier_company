@@ -232,3 +232,22 @@ class PCloudConfig(models.Model):
                 break
                 
         return folder_path
+
+
+
+    def action_open_explorer(self):
+        self.ensure_one()
+        if not self.access_token:
+            raise UserError('Conéctate a pCloud primero.')
+        wizard = self.env['pcloud.explorer'].create({
+            'config_id': self.id,
+        })
+        wizard._load_contents()
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'pcloud.explorer',
+            'res_id': wizard.id,
+            'view_mode': 'form',
+            'target': 'new',
+            'flags': {'mode': 'edit'},
+        }
