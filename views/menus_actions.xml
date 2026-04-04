@@ -83,7 +83,6 @@
                 a todas las sesiones de soporte técnico remoto para tus equipos.
             </p>
         </field>
-       
     </record>
 
     <!-- Acción para Solicitudes de Toner -->
@@ -101,7 +100,6 @@
                 a todas las solicitudes de consumibles para tus equipos.
             </p>
         </field>
-        
     </record>
 
     <!-- Acción para Cotizaciones -->
@@ -136,7 +134,6 @@
                 las lecturas mensuales enviadas por tus clientes para la facturación.
             </p>
         </field>
-        
     </record>
 
     <!-- Acción para Duraciones de Alquiler -->
@@ -151,7 +148,6 @@
         <field name="name">Alertas WhatsApp</field>
         <field name="res_model">copier.whatsapp.alert</field>
         <field name="view_mode">list,kanban,form</field>
-        
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 ¡No hay alertas WhatsApp!
@@ -169,25 +165,20 @@
     </record>
 
     <record id="action_copier_whatsapp_alert_pending" model="ir.actions.act_window">
-    <field name="name">Alertas Pendientes</field>
-    <field name="res_model">copier.whatsapp.alert</field>
-    <field name="view_mode">list,form</field>
-    
-</record>
+        <field name="name">Alertas Pendientes</field>
+        <field name="res_model">copier.whatsapp.alert</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
     <record id="action_copier_whatsapp_alert_failed" model="ir.actions.act_window">
-    <field name="name">Alertas Fallidas</field>
-    <field name="res_model">copier.whatsapp.alert</field>
-    <field name="view_mode">list,form</field>
-    
-</record>
+        <field name="name">Alertas Fallidas</field>
+        <field name="res_model">copier.whatsapp.alert</field>
+        <field name="view_mode">list,form</field>
+    </record>
 
     <!-- Acciones pCloud -->
-    <record id="action_pcloud_folder_file" model="ir.actions.act_window">
-        <field name="name">pCloud Folders and Files</field>
-        <field name="res_model">pcloud.folder.file</field>
-        <field name="view_mode">list,form</field>
-        <field name="target">current</field>
-    </record>
+    <!-- action_pcloud_folder_file eliminado: modelo pcloud.folder.file ya no existe -->
+    <!-- El explorador se accede desde pCloud Configuration → botón Explorador de Archivos -->
 
     <!-- Acción para Manuales PDF -->
     <record id="action_manual" model="ir.actions.act_window">
@@ -208,13 +199,13 @@
     <!-- Acciones de Ajustes -->
     <record id="accion_ajustes" model="ir.actions.act_window">
         <field name="name">Ajustes</field>
-        <field name="res_model">marcas.maquinas</field>                     
+        <field name="res_model">marcas.maquinas</field>
     </record>
 
     <record id="accion_marcas_maquinas" model="ir.actions.act_window">
         <field name="name">Marcas de Maquinas</field>
         <field name="res_model">marcas.maquinas</field>
-        <field name="view_mode">list,form,kanban</field>            
+        <field name="view_mode">list,form,kanban</field>
     </record>
 
     <record id="accion_modelos_maquinas" model="ir.actions.act_window">
@@ -274,7 +265,7 @@
     <record id="view_pcloud_config_form_action" model="ir.actions.act_window">
         <field name="name">pCloud Configuration</field>
         <field name="res_model">pcloud.config</field>
-        <field name="view_mode">list,form</field>            
+        <field name="view_mode">list,form</field>
     </record>
 
     <record id="copier_payment_mode_action" model="ir.actions.act_window">
@@ -395,7 +386,7 @@ action = records.action_create_multiple_invoices()
               action="action_copier_counter"
               sequence="30"/>
 
-    <!-- 3.5 Estados (NUEVO - entre Contadores y Solicitudes) -->
+    <!-- 3.5 Estados -->
     <menuitem id="menu_copier_estados" 
               name="Estados de Copiadoras" 
               parent="copier_company.menu_root"  
@@ -483,10 +474,12 @@ action = records.action_create_multiple_invoices()
               parent="copier_company.menu_root" 
               sequence="90"/>
 
+    <!-- menu_pcloud_folder_file ahora apunta a pcloud.config -->
+    <!-- El explorador de archivos se abre desde el formulario de configuración -->
     <menuitem id="menu_pcloud_folder_file" 
-              name="Folders and Files" 
+              name="Explorador de Archivos" 
               parent="menu_pcloud_root" 
-              action="action_pcloud_folder_file" 
+              action="view_pcloud_config_form_action"
               sequence="10"/>
 
     <!-- 10. Manuales PDF -->
@@ -558,7 +551,6 @@ action = records.action_create_multiple_invoices()
               parent="menu_ajustes"
               groups="base.group_system"
               sequence="90"/>
-
 
     <!-- ========================================= -->
     <!-- ACCIONES DE VENTANA - SERVICIO TÉCNICO -->
@@ -649,7 +641,6 @@ action = records.action_create_multiple_invoices()
     <!-- MENÚS - SERVICIO TÉCNICO -->
     <!-- ========================================= -->
 
-    <!-- Agregar en Solicitudes (después de Toner) -->
     <menuitem id="menu_service_requests" 
               name="Servicio Técnico" 
               parent="menu_solicitudes" 
@@ -674,7 +665,6 @@ action = records.action_create_multiple_invoices()
               action="action_copier_service_request_urgent" 
               sequence="33"/>
 
-    <!-- Agregar en Ajustes (después de PrintTracker Config) -->
     <menuitem id="menu_service_problem_types"
               name="Tipos de Problemas"
               action="action_copier_service_problem_type"
@@ -682,7 +672,7 @@ action = records.action_create_multiple_invoices()
               sequence="95"/>
 
     <!-- ========================================= -->
-    <!-- ACCIÓN DE VENTANA -->
+    <!-- ACCIÓN DE VENTANA - WHATSAPP CONFIG -->
     <!-- ========================================= -->
     <record id="action_whatsapp_config" model="ir.actions.act_window">
         <field name="name">WhatsApp API</field>
@@ -700,15 +690,13 @@ action = records.action_create_multiple_invoices()
         </field>
     </record>
 
-    <!-- ========================================= -->
-    <!-- MENÚ -->
-    <!-- ========================================= -->
     <menuitem id="menu_whatsapp_config"
               name="WhatsApp API Config"
               action="action_whatsapp_config"
               parent="menu_ajustes"
               groups="base.group_system"
               sequence="91"/>
+
     <!-- Acción: Notificaciones WhatsApp -->
     <record id="action_whatsapp_service_notification" model="ir.actions.act_window">
         <field name="name">Notificaciones WhatsApp</field>
@@ -724,7 +712,7 @@ action = records.action_create_multiple_invoices()
             </p>
         </field>
     </record>
-    
+
     <!-- Acción: Plantillas WhatsApp -->
     <record id="action_whatsapp_service_template" model="ir.actions.act_window">
         <field name="name">Plantillas de Mensajes</field>
@@ -741,37 +729,36 @@ action = records.action_create_multiple_invoices()
             </p>
         </field>
     </record>
-    
+
     <!-- ========================================== -->
     <!-- MENÚS - NOTIFICACIONES WHATSAPP -->
     <!-- ========================================== -->
-    
-    <!-- Menú: Notificaciones WhatsApp (bajo Solicitudes → Servicio Técnico) -->
+
     <menuitem id="menu_whatsapp_service_notification"
               name="Notificaciones WhatsApp"
               parent="menu_solicitudes"
               action="action_whatsapp_service_notification"
               sequence="34"/>
-    
-    <!-- Menú: Plantillas WhatsApp (bajo Ajustes) -->
+
     <menuitem id="menu_whatsapp_service_template"
               name="Plantillas WhatsApp Servicio"
               action="action_whatsapp_service_template"
               parent="menu_ajustes"
               sequence="96"/>
 
-    <!-- Action para envío masivo desde tree view -->
-<record id="action_send_whatsapp_multi" model="ir.actions.server">
-    <field name="name">Enviar por WhatsApp</field>
-    <field name="model_id" ref="model_copier_company"/>
-    <field name="binding_model_id" ref="model_copier_company"/>
-    <field name="binding_view_types">list</field>
-    <field name="state">code</field>
-    <field name="code">
+    <!-- Acciones de servidor - envío masivo y stickers -->
+    <record id="action_send_whatsapp_multi" model="ir.actions.server">
+        <field name="name">Enviar por WhatsApp</field>
+        <field name="model_id" ref="model_copier_company"/>
+        <field name="binding_model_id" ref="model_copier_company"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
 action = records.action_send_whatsapp_multi()
-    </field>
-</record>
-<record id="action_send_whatsapp_multi_quotation" model="ir.actions.server">
+        </field>
+    </record>
+
+    <record id="action_send_whatsapp_multi_quotation" model="ir.actions.server">
         <field name="name">Enviar por WhatsApp</field>
         <field name="model_id" ref="model_copier_quotation"/>
         <field name="binding_model_id" ref="model_copier_quotation"/>
@@ -781,15 +768,16 @@ action = records.action_send_whatsapp_multi()
 action = records.action_send_whatsapp_multi()
         </field>
     </record>
+
     <record id="action_multi_print_stickers" model="ir.actions.server">
-    <field name="name">Imprimir Stickers</field>
-    <field name="model_id" ref="model_copier_company"/>
-    <field name="binding_model_id" ref="model_copier_company"/>
-    <field name="binding_view_types">list</field>
-    <field name="state">code</field>
-    <field name="code">
+        <field name="name">Imprimir Stickers</field>
+        <field name="model_id" ref="model_copier_company"/>
+        <field name="binding_model_id" ref="model_copier_company"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
 action = records.action_print_stickers()
-    </field>
-</record>
-    
+        </field>
+    </record>
+
 </odoo>
