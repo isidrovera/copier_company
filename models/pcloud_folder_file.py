@@ -146,12 +146,11 @@ class PCloudExplorer(models.TransientModel):
             _logger.error('Error loading pCloud contents: %s', str(e))
             return
 
-        lines = []
         for item in items:
             is_folder = item.get('isfolder', False)
             size_bytes = item.get('size', 0)
             raw_id = item.get('folderid') if is_folder else item.get('fileid')
-            lines.append({
+            self.env['pcloud.explorer.line'].create({
                 'explorer_id': self.id,
                 'name': item.get('name', 'Sin nombre'),
                 'is_folder': is_folder,
@@ -159,9 +158,6 @@ class PCloudExplorer(models.TransientModel):
                 'size': self._format_size(size_bytes) if not is_folder else '',
                 'modified': item.get('modified', ''),
             })
-
-        if lines:
-            self.env['pcloud.explorer.line'].create(lines)
 
     def _format_size(self, size):
         if not size:
