@@ -1,51 +1,162 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Definición de la vista de formulario -->
+
+        <!-- Vista formulario pcloud.config -->
         <record id="view_pcloud_config_form" model="ir.ui.view">
             <field name="name">pcloud.config.form</field>
             <field name="model">pcloud.config</field>
             <field name="arch" type="xml">
                 <form string="pCloud Configuration">
                     <header>
-                        <button string="Connect" type="object" name="action_connect_to_pcloud"  class="btn-primary"/>
+                        <button string="Conectar"
+                                type="object"
+                                name="action_connect_to_pcloud"
+                                class="btn-primary"/>
+                        <button string="Desconectar"
+                                type="object"
+                                name="action_disconnect_from_pcloud"
+                                class="btn-secondary"
+                                invisible="not access_token"/>
                         <button string="📂 Explorador de Archivos"
-                            type="object"
-                            name="action_open_explorer"
-                            class="btn-primary"
-                            invisible="not access_token"/>
-                        <button string="Disconnect" type="object"  name="action_disconnect_from_pcloud" class="btn-secondary"/>
-                    </header>                     
+                                type="object"
+                                name="action_open_explorer"
+                                class="btn-primary"
+                                invisible="not access_token"/>
+                    </header>
                     <sheet>
-                        <!-- Campos a mostrar en el formulario -->
                         <group>
                             <field name="name"/>
                             <field name="client_id"/>
                             <field name="client_secret"/>
                             <field name="redirect_uri"/>
-                            <field name="access_token"/>
                             <field name="hostname"/>
-                        </group>                        
+                            <field name="access_token" readonly="1"/>
+                        </group>
                     </sheet>
                 </form>
             </field>
         </record>
-        <!-- Definición de la vista de árbol -->
+
+        <!-- Vista lista pcloud.config -->
         <record id="view_pcloud_config_tree" model="ir.ui.view">
             <field name="name">pcloud.config.tree</field>
             <field name="model">pcloud.config</field>
             <field name="arch" type="xml">
                 <list string="pCloud Configurations">
                     <field name="name"/>
-                    <field name="client_id"/>
-                    <field name="client_secret"/>
-                    <field name="redirect_uri"/>
-                    <field name="access_token"/>
                     <field name="hostname"/>
+                    <field name="access_token"/>
                 </list>
             </field>
         </record>
 
-      
+        <!-- Vista formulario pcloud.explorer -->
+        <record id="view_pcloud_explorer_form" model="ir.ui.view">
+            <field name="name">pcloud.explorer.form</field>
+            <field name="model">pcloud.explorer</field>
+            <field name="arch" type="xml">
+                <form string="pCloud Explorer">
+                    <sheet>
+
+                        <!-- Cabecera: ubicación actual y botón raíz -->
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                                <button string="🏠 Raíz"
+                                        type="object"
+                                        name="action_go_root"
+                                        class="btn btn-sm btn-secondary"/>
+                                <strong>📁 <field name="current_folder_name" readonly="1" nolabel="1"/></strong>
+                            </div>
+                            <!-- Breadcrumbs -->
+                            <field name="breadcrumb_ids" nolabel="1">
+                                <list editable="bottom" create="false" delete="false">
+                                    <field name="sequence" column_invisible="True"/>
+                                    <field name="name"/>
+                                    <button string="↩ Ir aquí"
+                                            type="object"
+                                            name="action_navigate_breadcrumb"
+                                            class="btn btn-sm btn-link"/>
+                                </list>
+                            </field>
+                        </div>
+
+                        <separator string="Contenido"/>
+
+                        <!-- Listado de archivos y carpetas -->
+                        <field name="line_ids" nolabel="1">
+                            <list create="false" delete="false" editable="false">
+                                <field name="is_folder" column_invisible="True"/>
+                                <field name="name" string="Nombre"/>
+                                <field name="size" string="Tamaño"/>
+                                <field name="modified_date" string="Modificado"/>
+                                <button string="📂 Abrir"
+                                        type="object"
+                                        name="action_navigate"
+                                        invisible="not is_folder"
+                                        class="btn btn-sm btn-primary"/>
+                                <button string="✏️ Renombrar"
+                                        type="object"
+                                        name="action_open_rename"
+                                        class="btn btn-sm btn-warning"/>
+                                <button string="🗑️ Eliminar"
+                                        type="object"
+                                        name="action_delete"
+                                        confirm="¿Estás seguro? Esta acción no se puede deshacer."
+                                        class="btn btn-sm btn-danger"/>
+                            </list>
+                        </field>
+
+                        <!-- Panel renombrar — visible solo si hay item seleccionado -->
+                        <group string="Renombrar" invisible="not rename_item_id">
+                            <field name="rename_item_name" string="Nuevo nombre"/>
+                            <div>
+                                <button string="Guardar nombre"
+                                        type="object"
+                                        name="action_rename_item"
+                                        class="btn btn-primary me-2"/>
+                                <button string="Cancelar"
+                                        type="object"
+                                        name="action_cancel_rename"
+                                        class="btn btn-secondary"/>
+                            </div>
+                        </group>
+
+                        <separator string="Nueva carpeta"/>
+                        <group>
+                            <field name="new_folder_name" string="Nombre"/>
+                            <div>
+                                <button string="📁 Crear carpeta"
+                                        type="object"
+                                        name="action_create_folder"
+                                        class="btn btn-success"/>
+                            </div>
+                        </group>
+
+                        <separator string="Subir archivo"/>
+                        <group>
+                            <field name="upload_file"
+                                   string="Archivo"
+                                   widget="binary"
+                                   filename="upload_filename"/>
+                            <field name="upload_filename" invisible="1"/>
+                            <div>
+                                <button string="⬆️ Subir"
+                                        type="object"
+                                        name="action_upload_file"
+                                        class="btn btn-primary"/>
+                            </div>
+                        </group>
+
+                        <!-- Campos ocultos de estado -->
+                        <field name="current_folder_id" invisible="1"/>
+                        <field name="rename_item_id" invisible="1"/>
+                        <field name="rename_is_folder" invisible="1"/>
+
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
     </data>
 </odoo>
