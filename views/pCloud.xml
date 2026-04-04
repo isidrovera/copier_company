@@ -85,8 +85,8 @@
 
                         <!-- Listado de archivos y carpetas -->
                         <field name="line_ids" nolabel="1">
-                            <list create="false" delete="false" editable="false">
-                                <field name="is_folder" column_invisible="True"/>
+                            <list >
+                                <field name="is_folder"/>
                                 <field name="name" string="Nombre"/>
                                 <field name="size" string="Tamaño"/>
                                 <field name="modified_date" string="Modificado"/>
