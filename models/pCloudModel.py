@@ -11,9 +11,9 @@ class PCloudConfig(models.Model):
     name = fields.Char(string='Name', required=True)
     client_id = fields.Char(string='Client ID', required=True)
     client_secret = fields.Char(string='Client Secret', required=True)
-    access_token = fields.Char(string='Access Token', readonly=True)
+    access_token = fields.Char(string='Access Token')
     redirect_uri = fields.Char(string='Redirect URI', required=True)
-    hostname = fields.Char(string='Hostname', readonly=True)
+    hostname = fields.Char(string='Hostname', readonly=False)
 
     def get_authorization_url(self):
         for record in self:
