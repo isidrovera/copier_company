@@ -35,13 +35,25 @@ class PCloudConfig(models.Model):
                 'code': code,
                 'redirect_uri': record.redirect_uri
             }
-            response = requests.get(url, params=params)
+            response = requests.get(url, params=params, timeout=30)
             if response.status_code == 200:
                 data = response.json()
-                record.access_token = data['access_token']
-                record.hostname = data.get('hostname', 'https://api.pcloud.com')
+                if data.get('result', 0) != 0:
+                    raise Exception(f"pCloud error: {data.get('error', 'desconocido')}")
+                
+                access_token = data.get('access_token')
+                if not access_token:
+                    raise Exception("pCloud no devolvió access_token")
+                
+                # Normalizar hostname — pCloud devuelve solo el dominio sin esquema
+                hostname = data.get('hostname', 'api.pcloud.com')
+                if not hostname.startswith('http'):
+                    hostname = 'https://' + hostname
+                
+                record.access_token = access_token
+                record.hostname = hostname
             else:
-                raise Exception("Failed to get access token")
+                raise Exception(f"HTTP {response.status_code} al obtener token")
 
     def create_pcloud_folder(self, folder_name):
         for record in self:
