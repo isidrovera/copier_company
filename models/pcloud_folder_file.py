@@ -3,6 +3,7 @@ from odoo.exceptions import UserError
 import requests
 import base64
 import logging
+from datetime import datetime
 
 _logger = logging.getLogger(__name__)
 
@@ -15,18 +16,16 @@ class PCloudExplorerLine(models.TransientModel):
     explorer_id = fields.Many2one('pcloud.explorer', ondelete='cascade')
     name = fields.Char(string='Nombre', readonly=True)
     is_folder = fields.Boolean(string='Es carpeta', readonly=True)
-    item_id = fields.Char(string='ID pCloud', readonly=True)  # Char: IDs de pCloud superan Integer de PG
+    item_id = fields.Char(string='ID pCloud', readonly=True)
     size = fields.Char(string='Tamaño', readonly=True)
-    modified = fields.Char(string='Modificado', readonly=True)
+    modified_date = fields.Datetime(string='Modificado', readonly=True)
 
     def action_navigate(self):
-        """Entrar a una carpeta"""
         self.ensure_one()
         if not self.is_folder:
             return
         explorer = self.explorer_id
 
-        # Agregar carpeta actual al breadcrumb antes de navegar
         next_sequence = len(explorer.breadcrumb_ids) + 1
         self.env['pcloud.explorer.breadcrumb'].create({
             'explorer_id': explorer.id,
@@ -43,7 +42,6 @@ class PCloudExplorerLine(models.TransientModel):
         return explorer._reload()
 
     def action_delete(self):
-        """Eliminar archivo o carpeta"""
         self.ensure_one()
         explorer = self.explorer_id
         config = explorer.config_id
@@ -73,7 +71,6 @@ class PCloudExplorerLine(models.TransientModel):
         return explorer._reload()
 
     def action_open_rename(self):
-        """Abrir diálogo de renombrado"""
         self.ensure_one()
         explorer = self.explorer_id
         explorer.write({
@@ -91,16 +88,17 @@ class PCloudExplorerBreadcrumb(models.TransientModel):
 
     explorer_id = fields.Many2one('pcloud.explorer', ondelete='cascade')
     sequence = fields.Integer()
-    folder_id = fields.Char(string='Folder ID')  # Char: mismo motivo que item_id
+    folder_id = fields.Char(string='Folder ID')
     name = fields.Char(string='Nombre')
 
     def action_navigate_breadcrumb(self):
         self.ensure_one()
         explorer = self.explorer_id
-        # Eliminar breadcrumbs posteriores a este
+
         explorer.breadcrumb_ids.filtered(
             lambda b: b.sequence > self.sequence
         ).unlink()
+
         explorer.write({
             'current_folder_id': self.folder_id,
             'current_folder_name': self.name,
@@ -114,7 +112,7 @@ class PCloudExplorer(models.TransientModel):
     _description = 'pCloud File Explorer'
 
     config_id = fields.Many2one('pcloud.config', string='Config', required=True)
-    current_folder_id = fields.Char(default='0')  # Char: IDs de pCloud superan Integer de PG
+    current_folder_id = fields.Char(default='0')
     current_folder_name = fields.Char(string='Ubicación', default='Raíz')
 
     line_ids = fields.One2many('pcloud.explorer.line', 'explorer_id', string='Contenido')
@@ -122,20 +120,25 @@ class PCloudExplorer(models.TransientModel):
         'pcloud.explorer.breadcrumb', 'explorer_id', string='Ruta'
     )
 
-    # Campos para crear carpeta
     new_folder_name = fields.Char(string='Nombre de carpeta')
 
-    # Campos para subir archivo
     upload_file = fields.Binary(string='Archivo')
     upload_filename = fields.Char(string='Nombre')
 
-    # Campos para renombrar
-    rename_item_id = fields.Char()       # Char: mismo motivo
+    rename_item_id = fields.Char()
     rename_item_name = fields.Char(string='Nuevo nombre')
     rename_is_folder = fields.Boolean()
 
+    def _parse_datetime(self, value):
+        """Convierte string de pCloud a datetime"""
+        if not value:
+            return False
+        try:
+            return datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+        except Exception:
+            return False
+
     def _load_contents(self):
-        """Recarga las líneas con el contenido de la carpeta actual"""
         self.ensure_one()
         self.line_ids.unlink()
 
@@ -150,13 +153,14 @@ class PCloudExplorer(models.TransientModel):
             is_folder = item.get('isfolder', False)
             size_bytes = item.get('size', 0)
             raw_id = item.get('folderid') if is_folder else item.get('fileid')
+
             self.env['pcloud.explorer.line'].create({
                 'explorer_id': self.id,
                 'name': item.get('name', 'Sin nombre'),
                 'is_folder': is_folder,
                 'item_id': str(raw_id) if raw_id is not None else '0',
                 'size': self._format_size(size_bytes) if not is_folder else '',
-                'modified': item.get('modified', ''),
+                'modified_date': self._parse_datetime(item.get('modified')),
             })
 
     def _format_size(self, size):
