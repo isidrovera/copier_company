@@ -440,9 +440,9 @@ class PCloudConfig(models.Model):
             product_name = f"Firmware {folder_name}"
             _logger.info('[pCloud] Processing folder: %s -> %s', folder_id, product_name)
 
-            # ─────────────────────────────────────────────
-            # 1. BUSCAR O CREAR PRODUCTO (IDEMPOTENTE)
-            # ─────────────────────────────────────────────
+            # ─────────────────────────────
+            # 1. PRODUCTO (IDEMPOTENTE)
+            # ─────────────────────────────
             product = self.env['product.template'].sudo().search([
                 ('pcloud_folder_id', '=', folder_id),
             ], limit=1)
@@ -466,15 +466,15 @@ class PCloudConfig(models.Model):
             else:
                 _logger.info('[pCloud] Product EXISTS: %s', product.id)
 
-            # ─────────────────────────────────────────────
+            # ─────────────────────────────
             # 2. LINK PÚBLICO
-            # ─────────────────────────────────────────────
+            # ─────────────────────────────
             share = config._get_or_create_folder_publink(int(folder_id))
             public_link = share['link']
 
-            # ─────────────────────────────────────────────
-            # 3. PRECIOS (EVITA DUPLICADOS)
-            # ─────────────────────────────────────────────
+            # ─────────────────────────────
+            # 3. PRECIOS (UPSERT)
+            # ─────────────────────────────
             def upsert_pricelist(pricelist, price):
                 if not pricelist:
                     return
@@ -497,9 +497,9 @@ class PCloudConfig(models.Model):
             upsert_pricelist(pricelist_pen, price_pen)
             upsert_pricelist(pricelist_usd, price_usd)
 
-            # ─────────────────────────────────────────────
-            # 4. ATTACHMENT (SIN DUPLICADOS)
-            # ─────────────────────────────────────────────
+            # ─────────────────────────────
+            # 4. ATTACHMENT (SIN DUPLICAR)
+            # ─────────────────────────────
             attachment = self.env['ir.attachment'].sudo().search([
                 ('res_model', '=', 'product.template'),
                 ('res_id', '=', product.id),
@@ -519,22 +519,27 @@ class PCloudConfig(models.Model):
             else:
                 _logger.info('[pCloud] Attachment EXISTS: %s', attachment.id)
 
-            # ─────────────────────────────────────────────
-            # 5. PRODUCT DOCUMENT (SIN DUPLICADOS)
-            # ─────────────────────────────────────────────
+            # ─────────────────────────────
+            # 5. DOCUMENTO (FORZADO SIN DUPLICAR)
+            # ─────────────────────────────
             document = self.env['product.document'].sudo().search([
                 ('ir_attachment_id', '=', attachment.id),
             ], limit=1)
 
             if not document:
-                self.env['product.document'].sudo().create({
+                document = self.env['product.document'].sudo().create({
                     'ir_attachment_id': attachment.id,
-                    'attached_on_sale': 'sale_order',
+                    'attached_on_sale': 'sale_order',  # ✅ correcto en tu sistema
                     'shown_on_product_page': False,
                 })
                 _logger.info('[pCloud] Document CREATED')
             else:
                 _logger.info('[pCloud] Document EXISTS')
+
+            # 🔥 FORZAR VALOR (evita que otros módulos lo cambien)
+            document.sudo().write({
+                'attached_on_sale': 'sale_order'
+            })
 
             results.append({
                 'folder_id': folder_id,
