@@ -166,7 +166,7 @@
                             <button class="pce_modal_close" t-on-click="closeModal">✕</button>
                         </div>
                         <div class="pce_modal_body">
-                            <input type="text" class="pce_input" placeholder="Nombre de la carpeta" t-model="state.modalData.name" t-on-keydown="(ev) => ev.key === 'Enter' && this.confirmNewFolder()"/>
+                            <input type="text" class="pce_input" placeholder="Nombre de la carpeta" t-model="state.modalData.name" t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; this.confirmNewFolder()"/>
                         </div>
                         <div class="pce_modal_footer">
                             <button class="pce_btn pce_btn_secondary" t-on-click="closeModal">Cancelar</button>
@@ -186,7 +186,7 @@
                             <button class="pce_modal_close" t-on-click="closeModal">✕</button>
                         </div>
                         <div class="pce_modal_body">
-                            <input type="text" class="pce_input" t-model="state.modalData.newName" t-on-keydown="(ev) => ev.key === 'Enter' && this.confirmRename()"/>
+                            <input type="text" class="pce_input" t-model="state.modalData.newName" t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; this.confirmRename()"/>
                         </div>
                         <div class="pce_modal_footer">
                             <button class="pce_btn pce_btn_secondary" t-on-click="closeModal">Cancelar</button>
@@ -283,7 +283,7 @@ archivo(s) seleccionado(s)
                         <div class="pce_modal_body">
                             <p class="pce_move_hint"> Ingresa el ID de la carpeta destino en pCloud: </p>
                             <input type="text" class="pce_input" placeholder="ID de carpeta destino" t-model="state.modalData.targetFolderId"/>
-                            <p class="pce_move_note"> 💡 Usa drag & drop directamente sobre la carpeta destino para mover sin necesidad del ID. </p>
+                            <p class="pce_move_note"> 💡 Usa drag &amp; drop directamente sobre la carpeta destino para mover sin necesidad del ID. </p>
                         </div>
                         <div class="pce_modal_footer">
                             <button class="pce_btn pce_btn_secondary" t-on-click="closeModal">Cancelar</button>
