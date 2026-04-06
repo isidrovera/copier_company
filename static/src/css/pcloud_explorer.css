@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   pCloud Explorer — CSS v2  (Bootstrap Icons edition)
+   pCloud Explorer — CSS v3  (Bootstrap Icons edition)
    Archivo: static/src/css/pcloud_explorer.css
 ═══════════════════════════════════════════════════════════════ */
 
@@ -38,34 +38,10 @@
 }
 
 /* ── Bootstrap Icons — tamaños específicos ───────────────────── */
-
-/* Icono grande en el card del grid */
-.pce_file_bi {
-    font-size: 36px;
-    line-height: 1;
-    display: block;
-}
-
-/* Icono pequeño en lista / header preview */
-.pce_file_bi_sm {
-    font-size: 20px;
-    line-height: 1;
-    display: block;
-}
-
-/* Icono gigante en pantalla de descarga */
-.pce_download_bi {
-    font-size: 52px;
-    line-height: 1;
-    display: block;
-}
-
-/* Icono de audio */
-.pce_audio_icon {
-    font-size: 64px;
-    color: rgba(255,255,255,0.7);
-    line-height: 1;
-}
+.pce_file_bi      { font-size: 36px; line-height: 1; display: block; }
+.pce_file_bi_sm   { font-size: 20px; line-height: 1; display: block; }
+.pce_download_bi  { font-size: 52px; line-height: 1; display: block; }
+.pce_audio_icon   { font-size: 64px; color: rgba(255,255,255,0.7); line-height: 1; }
 
 /* ── Layout ─────────────────────────────────────────────────── */
 .pce_main {
@@ -187,11 +163,7 @@
     background: var(--pce-surface);
 }
 
-.pce_search_icon {
-    font-size: 13px;
-    color: var(--pce-text-3);
-    flex-shrink: 0;
-}
+.pce_search_icon  { font-size: 13px; color: var(--pce-text-3); flex-shrink: 0; }
 
 .pce_search_input {
     border: none;
@@ -304,10 +276,7 @@
 
 @keyframes pce_spin { to { transform: rotate(360deg); } }
 
-/* ── Checkbox ─────────────────────────────────────────────────
-   .pce_item_checkbox = zona clicable (stopPropagation)
-   Solo visible en hover del card; en lista, siempre visible.
-─────────────────────────────────────────────────────────────── */
+/* ── Checkbox ─────────────────────────────────────────────────── */
 .pce_item_checkbox {
     position: absolute;
     top: 7px; left: 7px;
@@ -317,7 +286,6 @@
     opacity: 0;
     transition: opacity 0.15s;
     cursor: pointer;
-    /* zona clicable ampliada */
     min-width: 26px;
     min-height: 26px;
     display: flex;
@@ -378,7 +346,6 @@
     transform: translateY(-1px);
 }
 
-/* Carpetas: cursor pointer explícito */
 .pce_card_is_folder { cursor: pointer; }
 
 .pce_card_selected {
@@ -393,7 +360,6 @@
     border-style: dashed !important;
 }
 
-/* Badge "Producto" */
 .pce_card_badge {
     position: absolute;
     top: 7px; right: 7px;
@@ -409,7 +375,6 @@
     gap: 3px;
 }
 
-/* ── Icono del card ──────────────────────────────────────────── */
 .pce_card_icon {
     width: 64px; height: 64px;
     border-radius: 14px;
@@ -422,7 +387,6 @@
 
 .pce_card:hover .pce_card_icon { transform: scale(1.06); }
 
-/* Badge de extensión */
 .pce_ext_badge {
     font-size: 9px;
     font-weight: 700;
@@ -452,7 +416,6 @@
     color: var(--pce-text-3);
 }
 
-/* Hover actions */
 .pce_card_actions {
     position: absolute;
     bottom: 5px; right: 5px;
@@ -536,7 +499,6 @@
 .pce_row_selected td { background: var(--pce-blue-light) !important; }
 .pce_row_drag_over td { background: #dbeafe !important; }
 
-/* Checkbox en lista: siempre visible */
 .pce_td_check { width: 44px; }
 
 .pce_td_check .pce_item_checkbox {
@@ -751,7 +713,7 @@
 .pce_ctx_danger:hover { background: var(--pce-red-light); }
 .pce_ctx_divider      { height: 1px; background: var(--pce-border); margin: 3px 0; }
 
-/* ── Modales ─────────────────────────────────────────────────── */
+/* ── Overlay base ────────────────────────────────────────────── */
 .pce_overlay {
     position: fixed; inset: 0;
     background: rgba(0,0,0,0.45);
@@ -761,6 +723,7 @@
     backdrop-filter: blur(2px);
 }
 
+/* ── Modales comunes ─────────────────────────────────────────── */
 .pce_modal {
     background: var(--pce-surface);
     border-radius: 14px;
@@ -921,7 +884,6 @@
 
 .pce_preview_close:hover { background: var(--pce-red-light); color: var(--pce-red); }
 
-/* Body del preview — fondo oscuro para archivos */
 .pce_preview_body {
     flex: 1; min-height: 0;
     overflow: auto;
@@ -964,7 +926,6 @@
     background: #111827;
 }
 
-/* Panel central para abrir PDF en nueva pestaña */
 .pce_pdf_open_wrap {
     display: flex;
     flex-direction: column;
@@ -1039,6 +1000,212 @@
 .pce_download_name  { font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.9); }
 .pce_download_hint  { font-size: 13px; margin: 0; color: rgba(255,255,255,0.45); }
 
+
+/* ════════════════════════════════════════════════════════════════
+   MODAL DE CONFIRMACIÓN PERSONALIZADO
+   Reemplaza al confirm() nativo del navegador.
+   Variantes: danger (rojo), warning (amarillo), info (azul)
+════════════════════════════════════════════════════════════════ */
+
+.pce_confirm_overlay {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(6px);
+    z-index: 900;   /* por encima del resto de modales */
+}
+
+/* Tarjeta del modal */
+.pce_confirm_modal {
+    background: var(--pce-surface);
+    border-radius: 20px;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.28), 0 0 0 1px rgba(0,0,0,0.06);
+    width: 380px;
+    max-width: calc(100vw - 32px);
+    overflow: hidden;
+    animation: pce_confirm_in 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 28px 24px;
+    gap: 0;
+}
+
+@keyframes pce_confirm_in {
+    from { transform: scale(0.88) translateY(12px); opacity: 0; }
+    to   { transform: scale(1)    translateY(0);    opacity: 1; }
+}
+
+/* ── Círculo del icono ─────────────────────────────────────── */
+.pce_confirm_icon_wrap {
+    margin-bottom: 20px;
+}
+
+.pce_confirm_icon_circle {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+/* Pulso animado detrás del círculo */
+.pce_confirm_icon_circle::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    opacity: 0.15;
+    animation: pce_pulse 2s ease-in-out infinite;
+}
+
+@keyframes pce_pulse {
+    0%, 100% { transform: scale(1);    opacity: 0.15; }
+    50%       { transform: scale(1.12); opacity: 0.25; }
+}
+
+.pce_confirm_icon {
+    font-size: 30px;
+    line-height: 1;
+    display: block;
+}
+
+/* ── Variante DANGER (eliminar) ──────────────────────────────── */
+.pce_confirm_danger .pce_confirm_icon_circle {
+    background: #fef2f2;
+    color: #dc2626;
+    box-shadow: 0 0 0 8px #fee2e2;
+}
+
+.pce_confirm_danger .pce_confirm_icon_circle::before {
+    background: #ef4444;
+}
+
+.pce_confirm_danger .pce_confirm_accept_btn {
+    background: #dc2626;
+    color: #fff;
+}
+
+.pce_confirm_danger .pce_confirm_accept_btn:hover {
+    background: #b91c1c;
+}
+
+/* ── Variante WARNING (revocar, acción reversible pero impactante) ── */
+.pce_confirm_warning .pce_confirm_icon_circle {
+    background: #fffbeb;
+    color: #d97706;
+    box-shadow: 0 0 0 8px #fef3c7;
+}
+
+.pce_confirm_warning .pce_confirm_icon_circle::before {
+    background: #f59e0b;
+}
+
+.pce_confirm_warning .pce_confirm_accept_btn {
+    background: #d97706;
+    color: #fff;
+}
+
+.pce_confirm_warning .pce_confirm_accept_btn:hover {
+    background: #b45309;
+}
+
+/* ── Variante INFO ─────────────────────────────────────────── */
+.pce_confirm_info .pce_confirm_icon_circle {
+    background: #eff6ff;
+    color: #2563eb;
+    box-shadow: 0 0 0 8px #dbeafe;
+}
+
+.pce_confirm_info .pce_confirm_icon_circle::before {
+    background: #3b82f6;
+}
+
+.pce_confirm_info .pce_confirm_accept_btn {
+    background: #2563eb;
+    color: #fff;
+}
+
+.pce_confirm_info .pce_confirm_accept_btn:hover {
+    background: #1d4ed8;
+}
+
+/* ── Textos ────────────────────────────────────────────────── */
+.pce_confirm_body {
+    text-align: center;
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 4px;
+}
+
+.pce_confirm_title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--pce-text);
+    margin: 0;
+    line-height: 1.3;
+}
+
+.pce_confirm_msg {
+    font-size: 13px;
+    color: var(--pce-text-2);
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* ── Botones ───────────────────────────────────────────────── */
+.pce_confirm_footer {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.pce_btn_confirm_cancel {
+    flex: 1;
+    justify-content: center;
+    background: var(--pce-bg);
+    border: 1px solid var(--pce-border);
+    color: var(--pce-text-2);
+    font-size: 13px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    transition: all 0.15s;
+}
+
+.pce_btn_confirm_cancel:hover {
+    background: var(--pce-border);
+    color: var(--pce-text);
+}
+
+.pce_confirm_accept_btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.pce_confirm_accept_btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+}
+
+.pce_confirm_accept_btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+
+
 /* ── Responsive ──────────────────────────────────────────────── */
 @media (max-width: 900px) {
     .pce_sidebar { width: 260px; }
@@ -1054,4 +1221,6 @@
     .pce_th_date, .pce_td_date,
     .pce_th_size, .pce_td_size { display: none; }
     .pce_preview_pdf_wrap { height: 60vh; }
+    .pce_confirm_modal { padding: 24px 20px 20px; }
+    .pce_confirm_footer { flex-direction: column-reverse; }
 }
