@@ -73,8 +73,7 @@
         'views/sticker_a7_web.xml',
         'views/servicios_web.xml',
         'views/cotizaciones_multiples.xml',
-        'views/template_cotizaciones.xml',       
-        'views/menus_actions.xml',
+        'views/template_cotizaciones.xml',   
         'views/printtracker_config_views.xml',
         'views/portal_servicios_cliente.xml',
         'views/whatsapp_config_views.xml', 
@@ -84,6 +83,7 @@
         'views/whatsapp_send_multi_quotation_wizard_views.xml',   
         'views/report_invoice_modern.xml',                
         'views/copier_soporte.xml',
+        'views/menus_actions.xml',
         # ❗️ No cargues QWeb de frontend aquí; mejor en assets_qweb (abajo)
         # 'static/src/xml/counter_charts_templates.xml',
     ],

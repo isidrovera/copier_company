@@ -23,6 +23,11 @@
             </p>
         </field>
     </record>
+      <!-- Client Action que carga el componente OWL pcloud_explorer_action -->
+    <record id="action_pcloud_owl_explorer" model="ir.actions.client">
+            <field name="name">Explorador pCloud</field>
+            <field name="tag">pcloud_explorer_action</field>
+    </record>
 
     <!-- Acción para Stock -->
     <record id="action_copier_stock" model="ir.actions.act_window">
@@ -479,11 +484,7 @@ action = records.action_create_multiple_invoices()
           parent="menu_pcloud_root"
           action="action_pcloud_owl_explorer"
           sequence="10"/>
-    <!-- Client Action que carga el componente OWL pcloud_explorer_action -->
-    <record id="action_pcloud_owl_explorer" model="ir.actions.client">
-            <field name="name">Explorador pCloud</field>
-            <field name="tag">pcloud_explorer_action</field>
-    </record>
+  
 
     <!-- 10. Manuales PDF -->
     <menuitem id="menu_manual"
