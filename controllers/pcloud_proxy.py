@@ -1,18 +1,3 @@
-"""
-controllers/pcloud_proxy.py
-===========================
-Proxy de streaming para archivos de pCloud.
-
-Resuelve el problema de IP binding de getfilelink:
-  - El browser llama a /pcloud/stream/<file_id>/<filename>
-  - Odoo hace la petición a pCloud desde el servidor (IP del VPS)
-  - Odoo hace streaming de los bytes al browser
-  - El browser recibe el archivo directamente sin redirecciones externas
-
-Para previsualizacion de imagenes y archivos pequeños esto es ideal.
-Para archivos grandes (>50MB) se usa publink directamente.
-"""
-
 from odoo import http
 from odoo.http import request, Response
 import requests
@@ -20,7 +5,6 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
-# Límite para streaming directo vs publink (bytes)
 STREAM_SIZE_LIMIT = 50 * 1024 * 1024  # 50 MB
 
 
@@ -34,19 +18,6 @@ class PCloudProxyController(http.Controller):
         csrf=False,
     )
     def stream_file(self, file_id, filename, **kwargs):
-        """
-        Proxy de streaming para archivos de pCloud.
-        Hace el request a pCloud desde el servidor (sin IP binding para el browser)
-        y sirve el contenido al browser.
-
-        URL: /pcloud/stream/{file_id}/{filename}
-
-        Headers pasados al browser:
-          - Content-Type     (del archivo original)
-          - Content-Length   (para progress bar)
-          - Content-Disposition: inline (para que el browser lo muestre, no descargue)
-          - Cache-Control: max-age=3600 (cacheo en browser por 1h)
-        """
         try:
             config = request.env['pcloud.config'].sudo().search(
                 [('access_token', '!=', False)], limit=1
@@ -54,7 +25,6 @@ class PCloudProxyController(http.Controller):
             if not config:
                 return Response("No pCloud config", status=503)
 
-            # 1. Obtener URL de descarga real desde el servidor (IP del VPS = OK)
             api_url = config._get_api_url()
             resp = requests.get(
                 f"{api_url}/getfilelink",
@@ -66,37 +36,52 @@ class PCloudProxyController(http.Controller):
             )
             data = resp.json()
 
+            # ★ DIAGNÓSTICO — ver respuesta completa de pCloud
+            _logger.info('[pCloud proxy] getfilelink raw: %s', data)
+
             if data.get('result') != 0:
                 _logger.error('[pCloud proxy] getfilelink failed: %s', data)
                 return Response(f"pCloud error: {data.get('error')}", status=502)
 
             hosts = data.get('hosts', [])
             path  = data.get('path', '')
+
+            _logger.info('[pCloud proxy] hosts=%s path=%s', hosts, path)
+
             if not hosts or not path:
                 return Response("pCloud no devolvió URL", status=502)
 
-            download_url = hosts[0] + path
-            if not download_url.startswith('http'):
-                download_url = 'https://' + download_url
+            # ★ FIX — construcción robusta de URL
+            host = hosts[0]
+            if not host.startswith('http'):
+                host = 'https://' + host
+            host = host.rstrip('/')
+            path = path if path.startswith('/') else '/' + path
+            download_url = host + path
 
-            # 2. Hacer streaming desde pCloud al browser
-            # stream=True para no cargar todo en memoria
+            _logger.info('[pCloud proxy] download_url=%s', download_url)
+
+            # Streaming desde pCloud
             file_resp = requests.get(download_url, stream=True, timeout=30)
+
+            _logger.info('[pCloud proxy] file_resp status=%s headers=%s',
+                         file_resp.status_code, dict(file_resp.headers))
 
             if file_resp.status_code != 200:
                 _logger.error('[pCloud proxy] download failed: %s', file_resp.status_code)
                 return Response("Error al obtener archivo", status=502)
 
             content_type = file_resp.headers.get('Content-Type', 'application/octet-stream')
-
-            # Leer contenido completo en memoria
-            # (funciona para documentos/imágenes; para archivos >200MB considerar publink)
             content = file_resp.content
 
-            # Inline para tipos previewables, attachment para el resto
+            _logger.info('[pCloud proxy] content length=%d', len(content))
+
+            # ★ FIX — Content-Disposition correcto
             inline_types = ('image/', 'video/', 'audio/', 'application/pdf', 'text/')
-            disposition = 'inline' if any(content_type.startswith(t) for t in inline_types) \
-                          else f'attachment; filename="{filename}"'
+            if any(content_type.startswith(t) for t in inline_types):
+                disposition_header = f'inline; filename="{filename}"'
+            else:
+                disposition_header = f'attachment; filename="{filename}"'
 
             _logger.info('[pCloud proxy] Serving file_id=%s name=%s type=%s size=%d',
                          file_id, filename, content_type, len(content))
@@ -106,7 +91,7 @@ class PCloudProxyController(http.Controller):
                 status=200,
                 headers={
                     'Content-Type':        content_type,
-                    'Content-Disposition': f'{disposition}; filename="{filename}"',
+                    'Content-Disposition': disposition_header,
                     'Content-Length':      str(len(content)),
                     'Cache-Control':       'max-age=3600, private',
                 },
@@ -124,10 +109,6 @@ class PCloudProxyController(http.Controller):
         csrf=False,
     )
     def get_file_info(self, file_id, **kwargs):
-        """
-        Retorna metadatos del archivo y la URL de proxy para usarla en el frontend.
-        Llamado via JSON-RPC desde el explorador OWL.
-        """
         try:
             config = request.env['pcloud.config'].sudo().search(
                 [('access_token', '!=', False)], limit=1
@@ -154,9 +135,9 @@ class PCloudProxyController(http.Controller):
             name = meta.get('name', f'file_{file_id}')
 
             return {
-                'file_id': file_id,
-                'name': name,
-                'size': size,
+                'file_id':   file_id,
+                'name':      name,
+                'size':      size,
                 'proxy_url': f'/pcloud/stream/{file_id}/{name}',
                 'use_proxy': size < STREAM_SIZE_LIMIT,
             }
