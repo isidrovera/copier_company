@@ -4,23 +4,18 @@
 <t t-name="copier_company.PCloudExplorer">
 <div class="pce_root" t-on-click="closeContextMenu">
 
-    <!-- ══════════════════════════════════════════════════════
-         SIDEBAR: Panel crear productos
-    ══════════════════════════════════════════════════════ -->
+    <!-- ══ SIDEBAR ══════════════════════════════════════════════ -->
     <t t-if="state.showCreatePanel and selectedFolderItems.length > 0">
     <div class="pce_sidebar">
         <div class="pce_sidebar_header">
             <span class="pce_sidebar_title">🛒 Crear Productos</span>
             <button class="pce_sidebar_close" t-on-click="toggleCreatePanel">✕</button>
         </div>
-
         <div class="pce_sidebar_body">
             <p class="pce_sidebar_hint">
                 Se crearán <strong><t t-esc="selectedFolderItems.length"/></strong> producto(s) digital(es)
                 con el link público de cada carpeta seleccionada.
             </p>
-
-            <!-- Lista de carpetas seleccionadas -->
             <div class="pce_sidebar_folders">
                 <t t-foreach="selectedFolderItems" t-as="sf" t-key="sf.id">
                     <div class="pce_sidebar_folder_item">
@@ -32,94 +27,68 @@
                     </div>
                 </t>
             </div>
-
-            <!-- Configuración de precios -->
             <div class="pce_sidebar_prices">
                 <div class="pce_price_field">
                     <label>Precio PEN (S/)</label>
-                    <input type="number" class="pce_input_sm"
-                           t-model="state.createPricePen" min="0" step="0.01"/>
+                    <input type="number" class="pce_input_sm" t-model="state.createPricePen" min="0" step="0.01"/>
                 </div>
                 <div class="pce_price_field">
                     <label>Precio USD ($)</label>
-                    <input type="number" class="pce_input_sm"
-                           t-model="state.createPriceUsd" min="0" step="0.01"/>
+                    <input type="number" class="pce_input_sm" t-model="state.createPriceUsd" min="0" step="0.01"/>
                 </div>
             </div>
-
-            <!-- Resultados -->
             <t t-if="state.createResults.length > 0">
                 <div class="pce_create_results">
                     <t t-foreach="state.createResults" t-as="res" t-key="res.folder_id">
-                        <div class="pce_result_item"
-                             t-att-class="'pce_result_' + res.status">
-                            <span class="pce_result_icon">
-                                <t t-esc="getCreateResultIcon(res.status)"/>
-                            </span>
+                        <div class="pce_result_item" t-att-class="'pce_result_' + res.status">
+                            <span class="pce_result_icon"><t t-esc="getCreateResultIcon(res.status)"/></span>
                             <div class="pce_result_info">
                                 <span class="pce_result_name" t-esc="res.folder_name"/>
-                                <span class="pce_result_msg" t-esc="res.message"/>
+                                <span class="pce_result_msg"  t-esc="res.message"/>
                             </div>
                         </div>
                     </t>
                 </div>
             </t>
         </div>
-
         <div class="pce_sidebar_footer">
-            <button class="pce_btn pce_btn_secondary pce_btn_sm" t-on-click="toggleCreatePanel">
-                Cancelar
-            </button>
+            <button class="pce_btn pce_btn_secondary pce_btn_sm" t-on-click="toggleCreatePanel">Cancelar</button>
             <button class="pce_btn pce_btn_success pce_btn_sm"
                     t-on-click="confirmCreateProducts"
                     t-att-disabled="state.creatingProducts">
-                <t t-if="state.creatingProducts">
-                    <span class="pce_spinner_sm"/> Creando...
-                </t>
-                <t t-else="">
-                    🛒 Crear productos
-                </t>
+                <t t-if="state.creatingProducts"><span class="pce_spinner_sm"/> Creando...</t>
+                <t t-else="">🛒 Crear productos</t>
             </button>
         </div>
     </div>
     </t>
 
-    <!-- ══════════════════════════════════════════════════════
-         MAIN
-    ══════════════════════════════════════════════════════ -->
+    <!-- ══ MAIN ═════════════════════════════════════════════════ -->
     <div class="pce_main">
 
-        <!-- ── Toolbar ─────────────────────────────────────── -->
+        <!-- ── Toolbar ───────────────────────────────────────── -->
         <div class="pce_toolbar">
-
             <!-- Breadcrumb -->
             <div class="pce_breadcrumb">
                 <t t-foreach="state.breadcrumbs" t-as="crumb" t-key="crumb.id">
                     <span class="pce_crumb"
                           t-att-class="{ pce_crumb_active: crumb_last }"
                           t-on-click="() => this.onBreadcrumbClick(crumb, crumb_index)">
-                        <t t-if="crumb_index === 0">🏠</t>
-                        <t t-esc="crumb.name"/>
+                        <t t-if="crumb_index === 0">🏠 </t><t t-esc="crumb.name"/>
                     </span>
-                    <t t-if="!crumb_last">
-                        <span class="pce_crumb_sep">/</span>
-                    </t>
+                    <t t-if="!crumb_last"><span class="pce_crumb_sep">/</span></t>
                 </t>
             </div>
 
-            <!-- Acciones derecha -->
             <div class="pce_toolbar_right">
                 <!-- Búsqueda -->
                 <div class="pce_search">
                     <svg class="pce_search_icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
                     </svg>
-                    <input type="text" class="pce_search_input"
-                           placeholder="Buscar..."
-                           t-model="state.searchQuery"/>
+                    <input type="text" class="pce_search_input" placeholder="Buscar..." t-model="state.searchQuery"/>
                 </div>
 
-                <!-- Botones principales -->
                 <button class="pce_btn pce_btn_primary" t-on-click="openUploadModal">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="pce_btn_icon_svg">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -136,16 +105,13 @@
                     Nueva carpeta
                 </button>
 
-                <!-- Acciones sobre selección -->
                 <t t-if="state.selectedIds.size > 0">
                     <t t-if="selectedFolderItems.length > 0">
                         <button class="pce_btn pce_btn_success" t-on-click="toggleCreatePanel">
                             🛒 Crear productos (<t t-esc="selectedFolderItems.length"/>)
                         </button>
                     </t>
-                    <button class="pce_btn pce_btn_ghost" t-on-click="openMoveModal">
-                        ✂️
-                    </button>
+                    <button class="pce_btn pce_btn_ghost" t-on-click="openMoveModal">✂️</button>
                     <button class="pce_btn pce_btn_danger_ghost" t-on-click="deleteSelected">
                         🗑️ (<t t-esc="state.selectedIds.size"/>)
                     </button>
@@ -153,16 +119,14 @@
 
                 <!-- Toggle vista -->
                 <div class="pce_view_toggle">
-                    <button class="pce_toggle_btn"
-                            t-att-class="{ pce_toggle_active: state.viewMode === 'grid' }"
+                    <button class="pce_toggle_btn" t-att-class="{ pce_toggle_active: state.viewMode === 'grid' }"
                             t-on-click="() => { this.state.viewMode = 'grid'; }">
                         <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
                             <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
                             <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
                         </svg>
                     </button>
-                    <button class="pce_toggle_btn"
-                            t-att-class="{ pce_toggle_active: state.viewMode === 'list' }"
+                    <button class="pce_toggle_btn" t-att-class="{ pce_toggle_active: state.viewMode === 'list' }"
                             t-on-click="() => { this.state.viewMode = 'list'; }">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                             <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/>
@@ -173,7 +137,23 @@
             </div>
         </div>
 
-        <!-- ── Contenido ────────────────────────────────────── -->
+        <!-- ── Hint de selección ──────────────────────────────── -->
+        <t t-if="state.selectedIds.size > 0">
+            <div class="pce_selection_bar">
+                <span class="pce_selection_count">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    <t t-esc="state.selectedIds.size"/> elemento(s) seleccionado(s)
+                </span>
+                <button class="pce_deselect_btn" t-on-click="() => { this.state.selectedIds = new Set(); this.state.showCreatePanel = false; }">
+                    ✕ Deseleccionar
+                </button>
+            </div>
+        </t>
+
+        <!-- ── Contenido ─────────────────────────────────────── -->
         <div class="pce_content">
 
             <!-- Cargando -->
@@ -190,9 +170,7 @@
                     <div class="pce_state_icon pce_error_icon">⚠️</div>
                     <span class="pce_state_text pce_error_text" t-esc="state.error"/>
                     <button class="pce_btn pce_btn_primary"
-                            t-on-click="() => this._loadContents(state.currentFolderId)">
-                        Reintentar
-                    </button>
+                            t-on-click="() => this._loadContents(state.currentFolderId)">Reintentar</button>
                 </div>
             </t>
 
@@ -201,24 +179,22 @@
                 <div class="pce_state_center">
                     <div class="pce_state_icon">📂</div>
                     <span class="pce_state_text">Esta carpeta está vacía</span>
-                    <button class="pce_btn pce_btn_primary" t-on-click="openUploadModal">
-                        Subir archivo
-                    </button>
+                    <button class="pce_btn pce_btn_primary" t-on-click="openUploadModal">Subir archivo</button>
                 </div>
             </t>
 
-            <!-- GRID -->
+            <!-- ════ GRID ════ -->
             <t t-elif="state.viewMode === 'grid'">
                 <div class="pce_grid">
                     <t t-foreach="filteredItems" t-as="item" t-key="item.id">
-                        <t t-set="fi" t-value="getFileInfo(item)"/>
+                        <t t-set="ft" t-value="getFileType(item)"/>
                         <div class="pce_card"
                              t-att-class="{
                                  pce_card_selected: isSelected(item),
                                  pce_card_drag_over: state.dragOverId === item.id,
+                                 pce_card_folder: item.is_folder,
                              }"
                              t-on-click="(ev) => this.onItemClick(item, ev)"
-                             t-on-dblclick="() => this.onItemDblClick(item)"
                              t-on-contextmenu="(ev) => this.onContextMenu(item, ev)"
                              draggable="true"
                              t-on-dragstart="(ev) => this.onDragStart(item, ev)"
@@ -226,12 +202,16 @@
                              t-on-dragleave="onDragLeave"
                              t-on-drop="(ev) => this.onDrop(item, ev)">
 
-                            <!-- Checkbox -->
-                            <div class="pce_card_check"
-                                 t-att-class="{ pce_card_check_visible: isSelected(item) }">
+                            <!-- Checkbox independiente — NO propaga al card -->
+                            <div class="pce_item_checkbox"
+                                 t-on-click="(ev) => this.onCheckboxClick(item, ev)">
                                 <div class="pce_checkbox"
                                      t-att-class="{ pce_checkbox_checked: isSelected(item) }">
-                                    <t t-if="isSelected(item)">✓</t>
+                                    <t t-if="isSelected(item)">
+                                        <svg viewBox="0 0 12 12" fill="none" width="10" height="10">
+                                            <polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </t>
                                 </div>
                             </div>
 
@@ -240,11 +220,17 @@
                                 <div class="pce_card_badge">✓ Producto</div>
                             </t>
 
-                            <!-- Icono -->
+                            <!-- Icono SVG del tipo de archivo -->
                             <div class="pce_card_icon"
-                                 t-att-style="'background:' + fi.bg + '; color:' + fi.color">
-                                <t t-esc="fi.icon"/>
-                            </div>
+                                 t-att-style="'background:' + ft.bg + '; color:' + ft.color"
+                                 t-out="ft.svg"/>
+
+                            <!-- Badge de extensión -->
+                            <t t-if="!item.is_folder">
+                                <span class="pce_ext_badge" t-att-style="'background:' + ft.color">
+                                    <t t-esc="ft.label"/>
+                                </span>
+                            </t>
 
                             <!-- Nombre -->
                             <div class="pce_card_name" t-att-title="item.name">
@@ -260,21 +246,47 @@
                             <div class="pce_card_actions">
                                 <t t-if="item.is_folder">
                                     <button class="pce_card_action_btn" title="Compartir"
-                                            t-on-click.stop="() => this.openShareModal(item)">🔗</button>
+                                            t-on-click.stop="() => this.openShareModal(item)">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                                            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                                        </svg>
+                                    </button>
                                 </t>
                                 <t t-else="">
+                                    <t t-if="ft.previewable">
+                                        <button class="pce_card_action_btn pce_action_preview" title="Vista previa"
+                                                t-on-click.stop="() => this.openFilePreview(item)">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                                <circle cx="12" cy="12" r="3"/>
+                                            </svg>
+                                        </button>
+                                    </t>
                                     <button class="pce_card_action_btn" title="Descargar"
-                                            t-on-click.stop="() => this.downloadFile(item)">⬇️</button>
+                                            t-on-click.stop="() => this.downloadFile(item)">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                            <polyline points="7 10 12 15 17 10"/>
+                                            <line x1="12" y1="15" x2="12" y2="3"/>
+                                        </svg>
+                                    </button>
                                 </t>
                                 <button class="pce_card_action_btn" title="Renombrar"
-                                        t-on-click.stop="() => this.openRenameModal(item)">✏️</button>
+                                        t-on-click.stop="() => this.openRenameModal(item)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                    </svg>
+                                </button>
                             </div>
                         </div>
                     </t>
                 </div>
             </t>
 
-            <!-- LISTA -->
+            <!-- ════ LISTA ════ -->
             <t t-else="">
                 <div class="pce_list_wrap">
                     <table class="pce_table">
@@ -284,7 +296,11 @@
                                     <div class="pce_checkbox"
                                          t-att-class="{ pce_checkbox_checked: allSelected }"
                                          t-on-click="toggleSelectAll">
-                                        <t t-if="allSelected">✓</t>
+                                        <t t-if="allSelected">
+                                            <svg viewBox="0 0 12 12" fill="none" width="10" height="10">
+                                                <polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </t>
                                     </div>
                                 </th>
                                 <th>Nombre</th>
@@ -296,14 +312,13 @@
                         </thead>
                         <tbody>
                             <t t-foreach="filteredItems" t-as="item" t-key="item.id">
-                                <t t-set="fi" t-value="getFileInfo(item)"/>
+                                <t t-set="ft" t-value="getFileType(item)"/>
                                 <tr class="pce_row"
                                     t-att-class="{
                                         pce_row_selected: isSelected(item),
                                         pce_row_drag_over: state.dragOverId === item.id,
                                     }"
                                     t-on-click="(ev) => this.onItemClick(item, ev)"
-                                    t-on-dblclick="() => this.onItemDblClick(item)"
                                     t-on-contextmenu="(ev) => this.onContextMenu(item, ev)"
                                     draggable="true"
                                     t-on-dragstart="(ev) => this.onDragStart(item, ev)"
@@ -312,18 +327,29 @@
                                     t-on-drop="(ev) => this.onDrop(item, ev)">
 
                                     <td class="pce_td_check">
-                                        <div class="pce_checkbox"
-                                             t-att-class="{ pce_checkbox_checked: isSelected(item) }">
-                                            <t t-if="isSelected(item)">✓</t>
+                                        <div class="pce_item_checkbox"
+                                             t-on-click="(ev) => this.onCheckboxClick(item, ev)">
+                                            <div class="pce_checkbox"
+                                                 t-att-class="{ pce_checkbox_checked: isSelected(item) }">
+                                                <t t-if="isSelected(item)">
+                                                    <svg viewBox="0 0 12 12" fill="none" width="10" height="10">
+                                                        <polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    </svg>
+                                                </t>
+                                            </div>
                                         </div>
                                     </td>
 
                                     <td class="pce_td_name">
                                         <div class="pce_row_icon"
-                                             t-att-style="'background:' + fi.bg + '; color:' + fi.color">
-                                            <t t-esc="fi.icon"/>
-                                        </div>
+                                             t-att-style="'background:' + ft.bg + '; color:' + ft.color"
+                                             t-out="ft.svg"/>
                                         <span class="pce_row_name" t-esc="item.name"/>
+                                        <t t-if="!item.is_folder">
+                                            <span class="pce_row_ext" t-att-style="'background:' + ft.color">
+                                                <t t-esc="ft.label"/>
+                                            </span>
+                                        </t>
                                     </td>
 
                                     <td class="pce_td_size"><t t-esc="getFormattedSize(item)"/></td>
@@ -344,6 +370,10 @@
                                                     t-on-click.stop="() => this.openShareModal(item)">🔗</button>
                                         </t>
                                         <t t-else="">
+                                            <t t-if="ft.previewable">
+                                                <button class="pce_row_btn pce_row_btn_preview" title="Vista previa"
+                                                        t-on-click.stop="() => this.openFilePreview(item)">👁</button>
+                                            </t>
                                             <button class="pce_row_btn" title="Descargar"
                                                     t-on-click.stop="() => this.downloadFile(item)">⬇️</button>
                                         </t>
@@ -362,17 +392,15 @@
         </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════
-         CONTEXT MENU
-    ══════════════════════════════════════════════════════ -->
+    <!-- ══ CONTEXT MENU ═════════════════════════════════════════ -->
     <t t-if="state.contextMenu">
         <div class="pce_ctx_menu"
              t-att-style="'left:' + state.contextMenu.x + 'px; top:' + state.contextMenu.y + 'px'">
             <t t-set="ctx" t-value="state.contextMenu.item"/>
             <t t-if="ctx.is_folder">
                 <div class="pce_ctx_item"
-                     t-on-click="() => { this.onItemDblClick(ctx); this.closeContextMenu(); }">
-                    📂 Abrir
+                     t-on-click="() => { this.state.breadcrumbs.push({id: ctx.id, name: ctx.name}); this._loadContents(ctx.id); this.closeContextMenu(); }">
+                    📂 Abrir carpeta
                 </div>
                 <div class="pce_ctx_item"
                      t-on-click="() => { this.openShareModal(ctx); this.closeContextMenu(); }">
@@ -380,6 +408,13 @@
                 </div>
             </t>
             <t t-else="">
+                <t t-set="ctxFt" t-value="getFileType(ctx)"/>
+                <t t-if="ctxFt.previewable">
+                    <div class="pce_ctx_item"
+                         t-on-click="() => { this.openFilePreview(ctx); this.closeContextMenu(); }">
+                        👁 Vista previa
+                    </div>
+                </t>
                 <div class="pce_ctx_item"
                      t-on-click="() => { this.downloadFile(ctx); this.closeContextMenu(); }">
                     ⬇️ Descargar
@@ -391,7 +426,7 @@
             </div>
             <div class="pce_ctx_item"
                  t-on-click="() => { this.openMoveModal(); this.closeContextMenu(); }">
-                ✂️ Mover
+                ✂️ Mover a...
             </div>
             <div class="pce_ctx_divider"/>
             <div class="pce_ctx_item pce_ctx_danger"
@@ -401,9 +436,107 @@
         </div>
     </t>
 
-    <!-- ══════════════════════════════════════════════════════
-         MODAL: NUEVA CARPETA
-    ══════════════════════════════════════════════════════ -->
+    <!-- ══ MODAL: PREVISUALIZACIÓN ══════════════════════════════ -->
+    <t t-if="state.modal === 'preview' and state.previewItem">
+        <div class="pce_overlay pce_preview_overlay" t-on-click.self="closeModal">
+            <div class="pce_preview_modal">
+
+                <!-- Header -->
+                <div class="pce_preview_hd">
+                    <t t-set="pvFt" t-value="getFileType(state.previewItem)"/>
+                    <div class="pce_preview_icon_sm"
+                         t-att-style="'background:' + pvFt.bg + '; color:' + pvFt.color"
+                         t-out="pvFt.svg"/>
+                    <div class="pce_preview_title_wrap">
+                        <span class="pce_preview_filename" t-esc="state.previewItem.name"/>
+                        <span class="pce_preview_filesize" t-esc="getFormattedSize(state.previewItem)"/>
+                    </div>
+                    <div class="pce_preview_hd_actions">
+                        <button class="pce_btn pce_btn_ghost pce_btn_sm"
+                                t-on-click="() => this.downloadFile(state.previewItem)">
+                            ⬇️ Descargar
+                        </button>
+                        <button class="pce_preview_close" t-on-click="closeModal">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
+                                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Body -->
+                <div class="pce_preview_body">
+                    <!-- Cargando URL -->
+                    <t t-if="state.previewLoading">
+                        <div class="pce_preview_loading">
+                            <div class="pce_spinner_lg"/>
+                            <span>Cargando archivo...</span>
+                        </div>
+                    </t>
+
+                    <!-- Imagen -->
+                    <t t-elif="getPreviewType(state.previewItem) === 'image'">
+                        <div class="pce_preview_img_wrap">
+                            <img t-att-src="state.previewUrl"
+                                 t-att-alt="state.previewItem.name"
+                                 class="pce_preview_img"
+                                 t-on-error="(ev) => ev.target.style.display='none'"/>
+                        </div>
+                    </t>
+
+                    <!-- PDF -->
+                    <t t-elif="getPreviewType(state.previewItem) === 'pdf'">
+                        <div class="pce_preview_pdf_wrap">
+                            <iframe t-att-src="state.previewUrl"
+                                    class="pce_preview_pdf"
+                                    frameborder="0"
+                                    allowfullscreen="true"/>
+                        </div>
+                    </t>
+
+                    <!-- Video -->
+                    <t t-elif="getPreviewType(state.previewItem) === 'video'">
+                        <div class="pce_preview_media_wrap">
+                            <video controls="controls" class="pce_preview_video" t-att-src="state.previewUrl">
+                                Tu navegador no soporta la reproducción de video.
+                            </video>
+                        </div>
+                    </t>
+
+                    <!-- Audio -->
+                    <t t-elif="getPreviewType(state.previewItem) === 'audio'">
+                        <div class="pce_preview_audio_wrap">
+                            <div class="pce_audio_icon">🎵</div>
+                            <span class="pce_audio_name" t-esc="state.previewItem.name"/>
+                            <audio controls="controls" class="pce_preview_audio" t-att-src="state.previewUrl">
+                                Tu navegador no soporta la reproducción de audio.
+                            </audio>
+                        </div>
+                    </t>
+
+                    <!-- Descarga directa (no previewable o tipo desconocido) -->
+                    <t t-else="">
+                        <div class="pce_preview_download_wrap">
+                            <div class="pce_download_icon"
+                                 t-att-style="'background:' + pvFt.bg + '; color:' + pvFt.color"
+                                 t-out="pvFt.svg"/>
+                            <span class="pce_download_name" t-esc="state.previewItem.name"/>
+                            <p class="pce_download_hint">Este tipo de archivo no tiene vista previa disponible.</p>
+                            <a t-att-href="state.previewUrl"
+                               t-att-download="state.previewItem.name"
+                               target="_blank"
+                               class="pce_btn pce_btn_primary">
+                                ⬇️ Descargar archivo
+                            </a>
+                        </div>
+                    </t>
+                </div>
+
+            </div>
+        </div>
+    </t>
+
+    <!-- ══ MODAL: NUEVA CARPETA ═════════════════════════════════ -->
     <t t-if="state.modal === 'newFolder'">
         <div class="pce_overlay" t-on-click.self="closeModal">
             <div class="pce_modal">
@@ -424,9 +557,7 @@
         </div>
     </t>
 
-    <!-- ══════════════════════════════════════════════════════
-         MODAL: RENOMBRAR
-    ══════════════════════════════════════════════════════ -->
+    <!-- ══ MODAL: RENOMBRAR ═════════════════════════════════════ -->
     <t t-if="state.modal === 'rename'">
         <div class="pce_overlay" t-on-click.self="closeModal">
             <div class="pce_modal">
@@ -447,9 +578,7 @@
         </div>
     </t>
 
-    <!-- ══════════════════════════════════════════════════════
-         MODAL: SUBIR
-    ══════════════════════════════════════════════════════ -->
+    <!-- ══ MODAL: SUBIR ═════════════════════════════════════════ -->
     <t t-if="state.modal === 'upload'">
         <div class="pce_overlay" t-on-click.self="closeModal">
             <div class="pce_modal">
@@ -466,7 +595,7 @@
                             <span>Haz clic o arrastra archivos aquí</span>
                             <t t-if="state.modalData.files and state.modalData.files.length">
                                 <span class="pce_dropzone_count">
-                                    <t t-esc="state.modalData.files.length"/> archivo(s)
+                                    <t t-esc="state.modalData.files.length"/> archivo(s) seleccionado(s)
                                 </span>
                             </t>
                         </label>
@@ -474,8 +603,7 @@
                 </div>
                 <div class="pce_modal_ft">
                     <button class="pce_btn pce_btn_ghost" t-on-click="closeModal">Cancelar</button>
-                    <button class="pce_btn pce_btn_primary"
-                            t-on-click="confirmUpload"
+                    <button class="pce_btn pce_btn_primary" t-on-click="confirmUpload"
                             t-att-disabled="state.modalData.uploading">
                         <t t-if="state.modalData.uploading">Subiendo...</t>
                         <t t-else="">Subir</t>
@@ -485,9 +613,7 @@
         </div>
     </t>
 
-    <!-- ══════════════════════════════════════════════════════
-         MODAL: COMPARTIR
-    ══════════════════════════════════════════════════════ -->
+    <!-- ══ MODAL: COMPARTIR ═════════════════════════════════════ -->
     <t t-if="state.modal === 'share'">
         <div class="pce_overlay" t-on-click.self="closeModal">
             <div class="pce_modal">
@@ -497,10 +623,7 @@
                 </div>
                 <div class="pce_modal_bd">
                     <t t-if="state.modalData.loading">
-                        <div class="pce_modal_loading">
-                            <div class="pce_spinner_lg"/>
-                            <span>Generando link...</span>
-                        </div>
+                        <div class="pce_modal_loading"><div class="pce_spinner_lg"/><span>Generando link...</span></div>
                     </t>
                     <t t-elif="state.modalData.error">
                         <p class="pce_error_text" t-esc="state.modalData.error"/>
@@ -510,20 +633,14 @@
                         <div class="pce_share_row">
                             <input type="text" class="pce_input pce_share_inp"
                                    t-att-value="state.modalData.link" readonly="true"/>
-                            <button class="pce_btn pce_btn_primary" t-on-click="copyShareLink">
-                                📋
-                            </button>
+                            <button class="pce_btn pce_btn_primary" t-on-click="copyShareLink">📋</button>
                         </div>
-                        <p class="pce_share_note">
-                            ✅ Este link no consume cuota de descarga de tu cuenta pCloud.
-                        </p>
+                        <p class="pce_share_note">✅ Este link no consume cuota de descarga de tu cuenta pCloud.</p>
                     </t>
                 </div>
                 <div class="pce_modal_ft">
                     <t t-if="state.modalData.code">
-                        <button class="pce_btn pce_btn_danger_ghost" t-on-click="deleteShareLink">
-                            Revocar link
-                        </button>
+                        <button class="pce_btn pce_btn_danger_ghost" t-on-click="deleteShareLink">Revocar link</button>
                     </t>
                     <button class="pce_btn pce_btn_ghost" t-on-click="closeModal">Cerrar</button>
                 </div>
@@ -531,9 +648,7 @@
         </div>
     </t>
 
-    <!-- ══════════════════════════════════════════════════════
-         MODAL: MOVER
-    ══════════════════════════════════════════════════════ -->
+    <!-- ══ MODAL: MOVER ═════════════════════════════════════════ -->
     <t t-if="state.modal === 'move'">
         <div class="pce_overlay" t-on-click.self="closeModal">
             <div class="pce_modal">
@@ -543,12 +658,9 @@
                 </div>
                 <div class="pce_modal_bd">
                     <p class="pce_modal_hint">ID de la carpeta destino:</p>
-                    <input type="text" class="pce_input"
-                           placeholder="Ej: 1234567890"
+                    <input type="text" class="pce_input" placeholder="Ej: 1234567890"
                            t-model="state.modalData.targetFolderId"/>
-                    <p class="pce_modal_note">
-                        💡 También puedes arrastrar y soltar directamente sobre la carpeta destino.
-                    </p>
+                    <p class="pce_modal_note">💡 También puedes arrastrar y soltar directamente sobre la carpeta destino.</p>
                 </div>
                 <div class="pce_modal_ft">
                     <button class="pce_btn pce_btn_ghost" t-on-click="closeModal">Cancelar</button>

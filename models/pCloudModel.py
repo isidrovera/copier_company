@@ -395,7 +395,7 @@ class PCloudConfig(models.Model):
         if not config:
             raise UserError('No hay configuración de pCloud activa.')
         return config.download_pcloud_file(int(file_id))
-
+    
     @api.model
     def pcloud_create_products_from_folders(self, folders, price_pen=100.0, price_usd=25.0):
         _logger.info('[pCloud] Creating products from %s folders', len(folders))
