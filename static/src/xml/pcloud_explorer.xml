@@ -200,7 +200,6 @@
                              t-on-dragleave="onDragLeave"
                              t-on-drop="(ev) => this.onDrop(item, ev)">
 
-                            <!-- Checkbox (no propaga click al card) -->
                             <div class="pce_item_checkbox"
                                  t-on-click="(ev) => this.onCheckboxClick(item, ev)">
                                 <div class="pce_checkbox"
@@ -209,20 +208,17 @@
                                 </div>
                             </div>
 
-                            <!-- Badge ya creado -->
                             <t t-if="item.is_folder and item.has_product">
                                 <div class="pce_card_badge">
                                     <i class="bi bi-check-circle-fill me-1"/>Producto
                                 </div>
                             </t>
 
-                            <!-- Icono del tipo de archivo (Bootstrap Icon) -->
                             <div class="pce_card_icon"
                                  t-att-style="'background:' + ft.bg + '; color:' + ft.color">
                                 <i t-att-class="'bi ' + ft.icon + ' pce_file_bi'"/>
                             </div>
 
-                            <!-- Badge extensión -->
                             <t t-if="!item.is_folder">
                                 <span class="pce_ext_badge" t-att-style="'background:' + ft.color">
                                     <t t-esc="ft.label"/>
@@ -237,7 +233,6 @@
                                 <t t-esc="getFormattedSize(item)"/>
                             </div>
 
-                            <!-- Hover actions -->
                             <div class="pce_card_actions">
                                 <t t-if="item.is_folder">
                                     <button class="pce_card_action_btn" title="Compartir"
@@ -467,8 +462,6 @@
                     </t>
 
                     <t t-elif="getPreviewType(state.previewItem) === 'pdf'">
-                        <!-- PDFs se abren en nueva pestaña directamente (ver openFilePreview).
-                             Este bloque es solo fallback por si state.previewUrl está seteado. -->
                         <div class="pce_preview_pdf_wrap">
                             <div class="pce_pdf_open_wrap">
                                 <i class="bi bi-file-earmark-pdf-fill pce_pdf_big_icon"/>
@@ -683,6 +676,46 @@
                     <button class="pce_btn pce_btn_ghost"   t-on-click="closeModal">Cancelar</button>
                     <button class="pce_btn pce_btn_primary" t-on-click="confirmMove">
                         <i class="bi bi-arrow-right-square-fill"/> Mover
+                    </button>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <!-- ══ MODAL: CONFIRMACIÓN PERSONALIZADA ════════════════════
+         Reemplaza al confirm() nativo del navegador.
+         Soporta variantes: danger, warning, info
+    ════════════════════════════════════════════════════════════ -->
+    <t t-if="state.confirmModal">
+        <div class="pce_overlay pce_confirm_overlay"
+             t-on-click.self="_onConfirmModalCancel">
+            <div class="pce_confirm_modal"
+                 t-att-class="'pce_confirm_' + state.confirmModal.variant">
+
+                <!-- Icono grande decorativo -->
+                <div class="pce_confirm_icon_wrap">
+                    <div class="pce_confirm_icon_circle">
+                        <i t-att-class="'bi ' + state.confirmModal.icon + ' pce_confirm_icon'"/>
+                    </div>
+                </div>
+
+                <!-- Contenido -->
+                <div class="pce_confirm_body">
+                    <h3 class="pce_confirm_title" t-esc="state.confirmModal.title"/>
+                    <p  class="pce_confirm_msg"   t-esc="state.confirmModal.message"/>
+                </div>
+
+                <!-- Botones -->
+                <div class="pce_confirm_footer">
+                    <button class="pce_btn pce_btn_ghost pce_btn_confirm_cancel"
+                            t-on-click="_onConfirmModalCancel">
+                        <i class="bi bi-x-lg"/>
+                        <t t-esc="state.confirmModal.cancelLabel"/>
+                    </button>
+                    <button class="pce_btn pce_confirm_accept_btn"
+                            t-on-click="_onConfirmModalAccept">
+                        <i t-att-class="'bi ' + state.confirmModal.icon"/>
+                        <t t-esc="state.confirmModal.confirmLabel"/>
                     </button>
                 </div>
             </div>

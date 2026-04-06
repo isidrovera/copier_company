@@ -168,9 +168,70 @@ class PCloudExplorer extends Component {
             previewItem:    null,
             previewUrl:     null,
             previewLoading: false,
+
+            // ── Modal de confirmación personalizado ──────────────────
+            confirmModal: null,
+            // confirmModal = {
+            //   title:      string,
+            //   message:    string,
+            //   variant:    "danger" | "warning" | "info",
+            //   icon:       string (clase bi-*),
+            //   confirmLabel: string,
+            //   cancelLabel:  string,
+            //   resolve:    Function,   // interna
+            // }
         });
 
         onWillStart(() => this._loadContents("0"));
+    }
+
+    // ─── Modal de confirmación genérico ──────────────────────────────────────
+    /**
+     * Muestra un modal de confirmación elegante.
+     * @param {Object} opts
+     * @param {string} opts.title          - Título del modal
+     * @param {string} opts.message        - Cuerpo / descripción
+     * @param {"danger"|"warning"|"info"}  [opts.variant="danger"]
+     * @param {string} [opts.icon]         - Clase Bootstrap Icon (sin "bi ")
+     * @param {string} [opts.confirmLabel] - Texto botón confirmar
+     * @param {string} [opts.cancelLabel]  - Texto botón cancelar
+     * @returns {Promise<boolean>}
+     */
+    _showConfirm({
+        title         = "¿Estás seguro?",
+        message       = "",
+        variant       = "danger",
+        icon          = null,
+        confirmLabel  = "Confirmar",
+        cancelLabel   = "Cancelar",
+    } = {}) {
+        // Icono por defecto según variante
+        if (!icon) {
+            icon = {
+                danger:  "bi-trash3-fill",
+                warning: "bi-exclamation-triangle-fill",
+                info:    "bi-info-circle-fill",
+            }[variant] || "bi-question-circle-fill";
+        }
+        return new Promise((resolve) => {
+            this.state.confirmModal = {
+                title, message, variant, icon,
+                confirmLabel, cancelLabel,
+                resolve,
+            };
+        });
+    }
+
+    _onConfirmModalAccept() {
+        const resolve = this.state.confirmModal?.resolve;
+        this.state.confirmModal = null;
+        resolve?.(true);
+    }
+
+    _onConfirmModalCancel() {
+        const resolve = this.state.confirmModal?.resolve;
+        this.state.confirmModal = null;
+        resolve?.(false);
     }
 
     // ─── Navegación ───────────────────────────────────────────────────────────
@@ -198,9 +259,7 @@ class PCloudExplorer extends Component {
 
     // Click principal: navega carpeta o previsualiza archivo
     async onItemClick(item, ev) {
-        // Si el click viene del checkbox, ignorar
         if (ev.target.closest(".pce_item_checkbox")) return;
-
         if (item.is_folder) {
             this.state.breadcrumbs.push({ id: item.id, name: item.name });
             await this._loadContents(item.id);
@@ -209,7 +268,6 @@ class PCloudExplorer extends Component {
         }
     }
 
-    // Click en checkbox: solo toggle selección
     onCheckboxClick(item, ev) {
         ev.stopPropagation();
         ev.preventDefault();
@@ -230,7 +288,6 @@ class PCloudExplorer extends Component {
         if (item.is_folder) return;
         const type = this.getPreviewType(item);
 
-        // PDFs: abrir en nueva pestaña via proxy de Odoo (sin IP binding, sin CORS)
         if (type === "pdf") {
             const proxyUrl = `/pcloud/stream/${item.id}/${encodeURIComponent(item.name)}`;
             window.open(proxyUrl, "_blank");
@@ -252,19 +309,6 @@ class PCloudExplorer extends Component {
         }
     }
 
-    /**
-     * Construye la URL del proxy de Odoo para un archivo.
-     *
-     * El proxy (/pcloud/stream/<id>/<name>) resuelve todos los problemas:
-     *   ✅ Sin IP binding  — el servidor hace el request a pCloud
-     *   ✅ Sin CORS        — misma origin que Odoo
-     *   ✅ Sin límite de tamaño en Google Docs Viewer
-     *   ✅ Content-Type correcto para imágenes, video, audio
-     *   ✅ Inline disposition para preview en browser
-     *
-     * Para publinks (carpetas/productos) se siguen usando las URLs directas
-     * de u.pcloud.link ya que esas sí son públicas sin IP binding.
-     */
     _getProxyUrl(item) {
         const safeName = encodeURIComponent(item.name);
         return Promise.resolve(`/pcloud/stream/${item.id}/${safeName}`);
@@ -354,8 +398,22 @@ class PCloudExplorer extends Component {
     async deleteSelected() {
         const items = this.selectedItems;
         if (!items.length) return;
-        const label = items.length > 1 ? `${items.length} elementos` : `"${items[0].name}"`;
-        if (!confirm(`¿Eliminar ${label}? Esta acción no se puede deshacer.`)) return;
+
+        const label = items.length > 1
+            ? `${items.length} elementos`
+            : `"${items[0].name}"`;
+
+        const ok = await this._showConfirm({
+            title:        "Eliminar " + (items.length > 1 ? "elementos" : "archivo"),
+            message:      `¿Eliminar ${label}? Esta acción no se puede deshacer.`,
+            variant:      "danger",
+            icon:         "bi-trash3-fill",
+            confirmLabel: "Sí, eliminar",
+            cancelLabel:  "Cancelar",
+        });
+
+        if (!ok) return;
+
         try {
             for (const item of items) {
                 await this.orm.call("pcloud.config", "pcloud_delete", [item.id, item.is_folder]);
@@ -438,6 +496,16 @@ class PCloudExplorer extends Component {
     }
 
     async deleteShareLink() {
+        const ok = await this._showConfirm({
+            title:        "Revocar link público",
+            message:      "El link dejará de funcionar para quienes lo tengan. ¿Deseas continuar?",
+            variant:      "warning",
+            icon:         "bi-link-45deg",
+            confirmLabel: "Sí, revocar",
+            cancelLabel:  "Cancelar",
+        });
+        if (!ok) return;
+
         try {
             await this.orm.call(
                 "pcloud.config", "pcloud_delete_share_link", [this.state.modalData.code]
@@ -478,13 +546,11 @@ class PCloudExplorer extends Component {
     async downloadFile(item) {
         if (item.is_folder) return;
         try {
-            // Proxy de Odoo: mismo origen → sin CORS, sin IP binding
             const safeName = encodeURIComponent(item.name);
             const proxyUrl = `/pcloud/stream/${item.id}/${safeName}`;
             const a = document.createElement("a");
             a.href     = proxyUrl;
             a.download = item.name;
-            // No usamos _blank aquí — queremos que el browser descargue, no abra
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
