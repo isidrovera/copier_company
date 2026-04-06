@@ -87,37 +87,29 @@ class PCloudProxyController(http.Controller):
                 _logger.error('[pCloud proxy] download failed: %s', file_resp.status_code)
                 return Response("Error al obtener archivo", status=502)
 
-            content_type   = file_resp.headers.get('Content-Type', 'application/octet-stream')
-            content_length = file_resp.headers.get('Content-Length', '')
+            content_type = file_resp.headers.get('Content-Type', 'application/octet-stream')
 
-            # Determinar si mostrar inline o forzar descarga
-            inline_types = ['image/', 'video/', 'audio/', 'application/pdf', 'text/']
-            disposition = 'inline'
-            if not any(content_type.startswith(t) for t in inline_types):
-                disposition = f'attachment; filename="{filename}"'
+            # Leer contenido completo en memoria
+            # (funciona para documentos/imágenes; para archivos >200MB considerar publink)
+            content = file_resp.content
 
-            headers = {
-                'Content-Type': content_type,
-                'Content-Disposition': f'{disposition}; filename="{filename}"',
-                'Cache-Control': 'max-age=3600, private',
-                'X-Content-Type-Options': 'nosniff',
-            }
-            if content_length:
-                headers['Content-Length'] = content_length
+            # Inline para tipos previewables, attachment para el resto
+            inline_types = ('image/', 'video/', 'audio/', 'application/pdf', 'text/')
+            disposition = 'inline' if any(content_type.startswith(t) for t in inline_types) \
+                          else f'attachment; filename="{filename}"'
 
-            def generate():
-                for chunk in file_resp.iter_content(chunk_size=65536):
-                    if chunk:
-                        yield chunk
-
-            _logger.info('[pCloud proxy] Streaming file_id=%s name=%s type=%s',
-                         file_id, filename, content_type)
+            _logger.info('[pCloud proxy] Serving file_id=%s name=%s type=%s size=%d',
+                         file_id, filename, content_type, len(content))
 
             return Response(
-                generate(),
+                content,
                 status=200,
-                headers=headers,
-                direct_passthrough=True,
+                headers={
+                    'Content-Type':        content_type,
+                    'Content-Disposition': f'{disposition}; filename="{filename}"',
+                    'Content-Length':      str(len(content)),
+                    'Cache-Control':       'max-age=3600, private',
+                },
             )
 
         except Exception as e:
@@ -126,7 +118,7 @@ class PCloudProxyController(http.Controller):
 
     @http.route(
         '/pcloud/info/<int:file_id>',
-        type='json',
+        type='jsonrpc',
         auth='user',
         methods=['POST'],
         csrf=False,
