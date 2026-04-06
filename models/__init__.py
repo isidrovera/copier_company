@@ -26,3 +26,4 @@ from . import whatsapp_send_quotation_wizard
 from . import whatsapp_quotation_phone_line
 from . import whatsapp_send_multi_quotation_wizard
 from . import whatsapp_multi_quotation_phone_line
+from . import pcloud_product_extension
