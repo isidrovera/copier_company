@@ -398,43 +398,27 @@ class PCloudConfig(models.Model):
 
     @api.model
     def pcloud_create_products_from_folders(self, folders, price_pen=100.0, price_usd=25.0):
-        """
-        Crea productos digitales en Odoo a partir de carpetas de pCloud.
-
-        Parámetros:
-        - folders: lista de {id, name} de carpetas seleccionadas
-        - price_pen: precio en soles (default 100)
-        - price_usd: precio en dólares (default 25)
-
-        Retorna lista de resultados por carpeta:
-        {folder_id, folder_name, status, product_id, product_name, message}
-        """
         _logger.info('[pCloud] Creating products from %s folders', len(folders))
 
         config = self.search([('access_token', '!=', False)], limit=1)
         if not config:
             raise UserError('No hay configuración de pCloud activa.')
 
-        # Buscar IDs de listas de precios
+        # Pricelists
         pricelist_pen = self.env['product.pricelist'].sudo().search([
             ('currency_id.name', '=', 'PEN'),
         ], limit=1)
+
         pricelist_usd = self.env['product.pricelist'].sudo().search([
             ('currency_id.name', '=', 'USD'),
         ], limit=1)
 
-        _logger.info('[pCloud] Pricelists — PEN: %s, USD: %s',
-                     pricelist_pen.id if pricelist_pen else None,
-                     pricelist_usd.id if pricelist_usd else None)
-
-        # Buscar impuesto IGV 18% para ventas
+        # IGV
         tax_igv = self.env['account.tax'].sudo().search([
             ('name', 'ilike', 'IGV'),
             ('type_tax_use', '=', 'sale'),
             ('amount', '=', 18.0),
         ], limit=1)
-
-        _logger.info('[pCloud] Tax IGV: %s', tax_igv.id if tax_igv else None)
 
         results = []
 
@@ -447,43 +431,24 @@ class PCloudConfig(models.Model):
                     'folder_id': folder_id,
                     'folder_name': folder_name,
                     'status': 'error',
-                    'message': 'Carpeta inválida — sin ID o nombre',
+                    'message': 'Carpeta inválida',
                     'product_id': None,
                     'product_name': None,
                 })
                 continue
 
             product_name = f"Firmware {folder_name}"
-            _logger.info('[pCloud] Processing folder: %s -> product: %s',
-                         folder_id, product_name)
+            _logger.info('[pCloud] Processing folder: %s -> %s', folder_id, product_name)
 
-            # Verificar si ya existe producto con este folder_id
-            existing = self.env['product.template'].sudo().search([
+            # ─────────────────────────────────────────────
+            # 1. BUSCAR O CREAR PRODUCTO (IDEMPOTENTE)
+            # ─────────────────────────────────────────────
+            product = self.env['product.template'].sudo().search([
                 ('pcloud_folder_id', '=', folder_id),
             ], limit=1)
 
-            if existing:
-                _logger.info('[pCloud] Product already exists: %s (ID: %s)',
-                             existing.name, existing.id)
-                results.append({
-                    'folder_id': folder_id,
-                    'folder_name': folder_name,
-                    'status': 'already_exists',
-                    'message': f'Ya existe: {existing.name}',
-                    'product_id': existing.id,
-                    'product_name': existing.name,
-                })
-                continue
-
-            try:
-                # 1. Obtener link público de pCloud
-                _logger.info('[pCloud] Getting public link for folder: %s', folder_id)
-                share_url_result = config._get_or_create_folder_publink(int(folder_id))
-                public_link = share_url_result['link']
-                _logger.info('[pCloud] Public link: %s', public_link)
-
-                # 2. Crear el producto
-                product_vals = {
+            if not product:
+                vals = {
                     'name': product_name,
                     'type': 'service',
                     'sale_ok': True,
@@ -494,34 +459,54 @@ class PCloudConfig(models.Model):
                 }
 
                 if tax_igv:
-                    product_vals['taxes_id'] = [(6, 0, [tax_igv.id])]
+                    vals['taxes_id'] = [(6, 0, [tax_igv.id])]
 
-                product = self.env['product.template'].sudo().create(product_vals)
-                _logger.info('[pCloud] Product created: ID=%s name=%s',
-                             product.id, product.name)
+                product = self.env['product.template'].sudo().create(vals)
+                _logger.info('[pCloud] Product CREATED: %s', product.id)
+            else:
+                _logger.info('[pCloud] Product EXISTS: %s', product.id)
 
-                # 3. Crear precios en listas de precios
-                if pricelist_pen:
+            # ─────────────────────────────────────────────
+            # 2. LINK PÚBLICO
+            # ─────────────────────────────────────────────
+            share = config._get_or_create_folder_publink(int(folder_id))
+            public_link = share['link']
+
+            # ─────────────────────────────────────────────
+            # 3. PRECIOS (EVITA DUPLICADOS)
+            # ─────────────────────────────────────────────
+            def upsert_pricelist(pricelist, price):
+                if not pricelist:
+                    return
+                item = self.env['product.pricelist.item'].sudo().search([
+                    ('pricelist_id', '=', pricelist.id),
+                    ('product_tmpl_id', '=', product.id),
+                ], limit=1)
+
+                if item:
+                    item.write({'fixed_price': float(price)})
+                else:
                     self.env['product.pricelist.item'].sudo().create({
-                        'pricelist_id': pricelist_pen.id,
+                        'pricelist_id': pricelist.id,
                         'product_tmpl_id': product.id,
                         'compute_price': 'fixed',
-                        'fixed_price': float(price_pen),
+                        'fixed_price': float(price),
                         'applied_on': '1_product',
                     })
-                    _logger.info('[pCloud] PEN pricelist item created: %s', price_pen)
 
-                if pricelist_usd:
-                    self.env['product.pricelist.item'].sudo().create({
-                        'pricelist_id': pricelist_usd.id,
-                        'product_tmpl_id': product.id,
-                        'compute_price': 'fixed',
-                        'fixed_price': float(price_usd),
-                        'applied_on': '1_product',
-                    })
-                    _logger.info('[pCloud] USD pricelist item created: %s', price_usd)
+            upsert_pricelist(pricelist_pen, price_pen)
+            upsert_pricelist(pricelist_usd, price_usd)
 
-                # 4. Crear ir.attachment con la URL
+            # ─────────────────────────────────────────────
+            # 4. ATTACHMENT (SIN DUPLICADOS)
+            # ─────────────────────────────────────────────
+            attachment = self.env['ir.attachment'].sudo().search([
+                ('res_model', '=', 'product.template'),
+                ('res_id', '=', product.id),
+                ('url', '=', public_link),
+            ], limit=1)
+
+            if not attachment:
                 attachment = self.env['ir.attachment'].sudo().create({
                     'name': 'Descarga',
                     'type': 'url',
@@ -530,38 +515,37 @@ class PCloudConfig(models.Model):
                     'res_id': product.id,
                     'mimetype': 'text/html',
                 })
-                _logger.info('[pCloud] Attachment created: ID=%s', attachment.id)
+                _logger.info('[pCloud] Attachment CREATED: %s', attachment.id)
+            else:
+                _logger.info('[pCloud] Attachment EXISTS: %s', attachment.id)
 
-                # 5. Crear product.document
+            # ─────────────────────────────────────────────
+            # 5. PRODUCT DOCUMENT (SIN DUPLICADOS)
+            # ─────────────────────────────────────────────
+            document = self.env['product.document'].sudo().search([
+                ('ir_attachment_id', '=', attachment.id),
+            ], limit=1)
+
+            if not document:
                 self.env['product.document'].sudo().create({
                     'ir_attachment_id': attachment.id,
                     'attached_on_sale': 'sale_order',
                     'shown_on_product_page': False,
                 })
-                _logger.info('[pCloud] product.document created for product %s', product.id)
+                _logger.info('[pCloud] Document CREATED')
+            else:
+                _logger.info('[pCloud] Document EXISTS')
 
-                results.append({
-                    'folder_id': folder_id,
-                    'folder_name': folder_name,
-                    'status': 'created',
-                    'message': f'Producto creado exitosamente',
-                    'product_id': product.id,
-                    'product_name': product_name,
-                })
+            results.append({
+                'folder_id': folder_id,
+                'folder_name': folder_name,
+                'status': 'ok',
+                'message': 'Procesado correctamente',
+                'product_id': product.id,
+                'product_name': product.name,
+            })
 
-            except Exception as e:
-                _logger.error('[pCloud] Error creating product for folder %s: %s',
-                              folder_id, str(e))
-                results.append({
-                    'folder_id': folder_id,
-                    'folder_name': folder_name,
-                    'status': 'error',
-                    'message': str(e),
-                    'product_id': None,
-                    'product_name': None,
-                })
-
-        _logger.info('[pCloud] Products creation complete. Results: %s', len(results))
+        _logger.info('[pCloud] DONE. Total: %s', len(results))
         return results
 
     def _get_or_create_folder_publink(self, folder_id):
