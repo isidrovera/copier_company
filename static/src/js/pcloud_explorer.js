@@ -250,10 +250,17 @@ class PCloudExplorer extends Component {
         const ext = item.name.split(".").pop().toLowerCase();
         if (["jpg","jpeg","png","gif","webp","svg","bmp"].includes(ext)) return "image";
         if (ext === "pdf") return "pdf";
-        if (["mp4","webm","ogg"].includes(ext)) return "video";
+        if (["mp4","webm"].includes(ext)) return "video";
         if (["mp3","wav","ogg","flac"].includes(ext)) return "audio";
         return "download";
     }
+
+    getPdfViewerUrl(rawUrl) {
+        if (!rawUrl) return "";
+        return `https://docs.google.com/viewer?url=${encodeURIComponent(rawUrl)}&embedded=true`;
+    }
+
+    onPdfIframeLoad() {}
 
     // ─── Selección ────────────────────────────────────────────────────────────
 

@@ -468,10 +468,25 @@
 
                     <t t-elif="getPreviewType(state.previewItem) === 'pdf'">
                         <div class="pce_preview_pdf_wrap">
-                            <iframe t-att-src="state.previewUrl"
+                            <!-- Google Docs Viewer como proxy — evita CORS del iframe directo -->
+                            <iframe t-att-src="getPdfViewerUrl(state.previewUrl)"
                                     class="pce_preview_pdf"
                                     frameborder="0"
-                                    allowfullscreen="true"/>
+                                    allowfullscreen="true"
+                                    t-on-load="onPdfIframeLoad"
+                                    t-ref="pdfIframe"/>
+                            <!-- Barra inferior con botón abrir en nueva pestaña -->
+                            <div class="pce_pdf_toolbar">
+                                <span class="pce_pdf_hint">
+                                    <i class="bi bi-info-circle me-1"/>
+                                    Si el PDF no carga, ábrelo en una nueva pestaña
+                                </span>
+                                <a t-att-href="state.previewUrl"
+                                   target="_blank"
+                                   class="pce_btn pce_btn_primary pce_btn_sm">
+                                    <i class="bi bi-box-arrow-up-right"/> Abrir en nueva pestaña
+                                </a>
+                            </div>
                         </div>
                     </t>
 
