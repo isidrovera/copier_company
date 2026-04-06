@@ -228,26 +228,24 @@ class PCloudExplorer extends Component {
 
     async openFilePreview(item) {
         if (item.is_folder) return;
+        const type = this.getPreviewType(item);
+
+        // PDFs: abrir en nueva pestaña via proxy de Odoo (sin IP binding, sin CORS)
+        if (type === "pdf") {
+            const proxyUrl = `/pcloud/stream/${item.id}/${encodeURIComponent(item.name)}`;
+            window.open(proxyUrl, "_blank");
+            return;
+        }
+
         this.state.previewItem    = item;
         this.state.previewUrl     = null;
         this.state.previewLoading = true;
         this.state.modal          = "preview";
         try {
-            // El browser llama directamente a pCloud con su propia IP
-            // para evitar el problema de IP binding del servidor
-            const directUrl = await this._getDirectFileUrl(item.id);
-            const type = this.getPreviewType(item);
-
-            if (type === "pdf") {
-                // PDFs: abrir directo en nueva pestaña (browser nativo es mejor visor)
-                // No usar Google Docs Viewer (límite 25MB), no usar iframe (CORS)
-                this.closeModal();
-                window.open(directUrl, "_blank");
-            } else {
-                this.state.previewUrl = directUrl;
-            }
+            const proxyUrl = await this._getProxyUrl(item);
+            this.state.previewUrl = proxyUrl;
         } catch (e) {
-            this.notification.add(e.data?.message || "Error al obtener archivo", { type: "danger" });
+            this.notification.add(e.data?.message || e.message || "Error al obtener archivo", { type: "danger" });
             this.closeModal();
         } finally {
             this.state.previewLoading = false;
@@ -255,39 +253,21 @@ class PCloudExplorer extends Component {
     }
 
     /**
-     * Obtiene una URL de descarga directa construida DESDE EL BROWSER.
+     * Construye la URL del proxy de Odoo para un archivo.
      *
-     * Estrategia:
-     *   1. El servidor devuelve {access_token, hostname, file_id}
-     *   2. El browser hace fetch a pCloud getfilelink con su propia IP
-     *   3. pCloud genera una URL para la IP del BROWSER → sin IP mismatch
+     * El proxy (/pcloud/stream/<id>/<name>) resuelve todos los problemas:
+     *   ✅ Sin IP binding  — el servidor hace el request a pCloud
+     *   ✅ Sin CORS        — misma origin que Odoo
+     *   ✅ Sin límite de tamaño en Google Docs Viewer
+     *   ✅ Content-Type correcto para imágenes, video, audio
+     *   ✅ Inline disposition para preview en browser
      *
-     * Esto resuelve "This link was generated for another IP address".
+     * Para publinks (carpetas/productos) se siguen usando las URLs directas
+     * de u.pcloud.link ya que esas sí son públicas sin IP binding.
      */
-    async _getDirectFileUrl(fileId) {
-        // Obtener credenciales del servidor (sin generar URL allá)
-        const creds = await this.orm.call(
-            "pcloud.config", "pcloud_get_credentials", []
-        );
-        const apiBase = creds.hostname.startsWith("http")
-            ? creds.hostname.replace(/\/$/, "")
-            : "https://" + creds.hostname.replace(/\/$/, "");
-
-        // El BROWSER llama directamente a pCloud → URL vinculada a la IP del browser
-        const resp = await fetch(
-            `${apiBase}/getfilelink?access_token=${encodeURIComponent(creds.access_token)}&fileid=${fileId}`
-        );
-        if (!resp.ok) throw new Error(`pCloud HTTP ${resp.status}`);
-        const data = await resp.json();
-        if (data.result !== 0) throw new Error(`pCloud error: ${data.error || data.result}`);
-
-        const hosts = data.hosts || [];
-        const path  = data.path  || "";
-        if (!hosts.length || !path) throw new Error("pCloud no devolvió URL de descarga");
-
-        let url = hosts[0] + path;
-        if (!url.startsWith("http")) url = "https://" + url;
-        return url;
+    _getProxyUrl(item) {
+        const safeName = encodeURIComponent(item.name);
+        return Promise.resolve(`/pcloud/stream/${item.id}/${safeName}`);
     }
 
     getPreviewType(item) {
@@ -300,7 +280,6 @@ class PCloudExplorer extends Component {
         return "download";
     }
 
-    // PDF ya no usa iframe — se abre en nueva pestaña directamente desde openFilePreview
     getPdfViewerUrl(rawUrl) { return rawUrl || ""; }
     onPdfIframeLoad() {}
 
@@ -499,12 +478,13 @@ class PCloudExplorer extends Component {
     async downloadFile(item) {
         if (item.is_folder) return;
         try {
-            // URL construida desde el browser → sin IP binding
-            const url = await this._getDirectFileUrl(item.id);
+            // Proxy de Odoo: mismo origen → sin CORS, sin IP binding
+            const safeName = encodeURIComponent(item.name);
+            const proxyUrl = `/pcloud/stream/${item.id}/${safeName}`;
             const a = document.createElement("a");
-            a.href     = url;
+            a.href     = proxyUrl;
             a.download = item.name;
-            a.target   = "_blank";
+            // No usamos _blank aquí — queremos que el browser descargue, no abra
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
