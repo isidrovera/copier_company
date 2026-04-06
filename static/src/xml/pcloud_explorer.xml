@@ -1,410 +1,299 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<templates xml:space="preserve">
-
-<t t-name="copier_company.PCloudExplorer">
-    <div class="o_pcloud_explorer" t-on-click="closeContextMenu">
-
-        <!-- ═══════════════════════════════════════════════════════════════════
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <templates xml:space="preserve">
+    <t t-name="copier_company.PCloudExplorer">
+        <div class="o_pcloud_explorer" t-on-click="closeContextMenu">
+            <!--  ═══════════════════════════════════════════════════════════════════
              TOOLBAR
-        ════════════════════════════════════════════════════════════════════ -->
-        <div class="pce_toolbar">
-
-            <!-- Breadcrumb -->
-            <div class="pce_breadcrumb">
-                <t t-foreach="state.breadcrumbs" t-as="crumb" t-key="crumb.id">
-                    <span
-                        class="pce_crumb"
-                        t-att-class="{ pce_crumb_active: crumb_last }"
-                        t-on-click="() => this.onBreadcrumbClick(crumb, crumb_index)"
-                    >
-                        <t t-if="crumb_index === 0">🏠</t>
-                        <t t-esc="crumb.name"/>
-                    </span>
-                    <t t-if="!crumb_last">
-                        <span class="pce_crumb_sep">›</span>
+        ════════════════════════════════════════════════════════════════════  -->
+            <div class="pce_toolbar">
+                <!--  Breadcrumb  -->
+                <div class="pce_breadcrumb">
+                    <t t-foreach="state.breadcrumbs" t-as="crumb" t-key="crumb.id">
+                        <span class="pce_crumb" t-att-class="{ pce_crumb_active: crumb_last }" t-on-click="() => this.onBreadcrumbClick(crumb, crumb_index)">
+                            <t t-if="crumb_index === 0">🏠</t>
+                            <t t-esc="crumb.name"/>
+                        </span>
+                        <t t-if="!crumb_last">
+                            <span class="pce_crumb_sep">›</span>
+                        </t>
                     </t>
-                </t>
-            </div>
-
-            <!-- Acciones -->
-            <div class="pce_toolbar_actions">
-                <!-- Búsqueda -->
-                <div class="pce_search_box">
-                    <span class="pce_search_icon">🔍</span>
-                    <input
-                        type="text"
-                        placeholder="Buscar en esta carpeta..."
-                        t-model="state.searchQuery"
-                        class="pce_search_input"
-                    />
                 </div>
-
-                <!-- Botones principales -->
-                <button class="pce_btn pce_btn_primary" t-on-click="openUploadModal">
-                    ⬆️ Subir
-                </button>
-                <button class="pce_btn pce_btn_secondary" t-on-click="openNewFolderModal">
-                    📁 Nueva carpeta
-                </button>
-
-                <!-- Acciones sobre selección -->
-                <t t-if="state.selectedIds.size > 0">
-                    <button class="pce_btn pce_btn_secondary" t-on-click="openMoveModal">
-                        ✂️ Mover
-                    </button>
-                    <button class="pce_btn pce_btn_danger" t-on-click="deleteSelected">
-                        🗑️ Eliminar (<t t-esc="state.selectedIds.size"/>)
-                    </button>
-                </t>
-
-                <!-- Toggle vista -->
-                <button class="pce_btn pce_btn_icon" t-on-click="toggleViewMode">
-                    <t t-if="state.viewMode === 'grid'">☰</t>
-                    <t t-else="">⊞</t>
-                </button>
-            </div>
-        </div>
-
-        <!-- ═══════════════════════════════════════════════════════════════════
-             ESTADO: CARGANDO
-        ════════════════════════════════════════════════════════════════════ -->
-        <t t-if="state.loading">
-            <div class="pce_loading">
-                <div class="pce_spinner"/>
-                <span>Cargando...</span>
-            </div>
-        </t>
-
-        <!-- ═══════════════════════════════════════════════════════════════════
-             ESTADO: ERROR
-        ════════════════════════════════════════════════════════════════════ -->
-        <t t-elif="state.error">
-            <div class="pce_error">
-                <span>⚠️ <t t-esc="state.error"/></span>
-                <button class="pce_btn pce_btn_primary" t-on-click="() => this._loadContents(state.currentFolderId)">
-                    Reintentar
-                </button>
-            </div>
-        </t>
-
-        <!-- ═══════════════════════════════════════════════════════════════════
-             ESTADO: VACÍO
-        ════════════════════════════════════════════════════════════════════ -->
-        <t t-elif="filteredItems.length === 0">
-            <div class="pce_empty">
-                <div class="pce_empty_icon">📂</div>
-                <p>Esta carpeta está vacía</p>
-                <button class="pce_btn pce_btn_primary" t-on-click="openUploadModal">
-                    Subir archivo
-                </button>
-            </div>
-        </t>
-
-        <!-- ═══════════════════════════════════════════════════════════════════
-             VISTA GRID
-        ════════════════════════════════════════════════════════════════════ -->
-        <t t-elif="state.viewMode === 'grid'">
-            <div class="pce_grid">
-                <t t-foreach="filteredItems" t-as="item" t-key="item.id">
-                    <div
-                        class="pce_item"
-                        t-att-class="{
-                            pce_item_selected: isSelected(item),
-                            pce_item_folder: item.is_folder,
-                            pce_item_drag_over: state.dragOverId === item.id,
-                        }"
-                        t-on-click="(ev) => this.onItemClick(item, ev)"
-                        t-on-dblclick="() => this.onItemDblClick(item)"
-                        t-on-contextmenu="(ev) => this.onContextMenu(item, ev)"
-                        draggable="true"
-                        t-on-dragstart="(ev) => this.onDragStart(item, ev)"
-                        t-on-dragover="(ev) => this.onDragOver(item, ev)"
-                        t-on-dragleave="onDragLeave"
-                        t-on-drop="(ev) => this.onDrop(item, ev)"
-                    >
-                        <div class="pce_item_icon">
-                            <t t-esc="getIcon(item)"/>
-                        </div>
-                        <div class="pce_item_name" t-att-title="item.name">
-                            <t t-esc="item.name"/>
-                        </div>
-                        <div class="pce_item_meta">
-                            <t t-esc="getFormattedSize(item)"/>
-                        </div>
+                <!--  Acciones  -->
+                <div class="pce_toolbar_actions">
+                    <div class="pce_search_box">
+                        <span class="pce_search_icon">🔍</span>
+                        <input type="text" placeholder="Buscar en esta carpeta..." t-model="state.searchQuery" class="pce_search_input"/>
                     </div>
-                </t>
-            </div>
-        </t>
-
-        <!-- ═══════════════════════════════════════════════════════════════════
-             VISTA LISTA
-        ════════════════════════════════════════════════════════════════════ -->
-        <t t-else="">
-            <table class="pce_table">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Tamaño</th>
-                        <th>Modificado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <t t-foreach="filteredItems" t-as="item" t-key="item.id">
-                        <tr
-                            t-att-class="{
-                                pce_row_selected: isSelected(item),
-                                pce_row_drag_over: state.dragOverId === item.id,
-                            }"
-                            t-on-click="(ev) => this.onItemClick(item, ev)"
-                            t-on-dblclick="() => this.onItemDblClick(item)"
-                            t-on-contextmenu="(ev) => this.onContextMenu(item, ev)"
-                            draggable="true"
-                            t-on-dragstart="(ev) => this.onDragStart(item, ev)"
-                            t-on-dragover="(ev) => this.onDragOver(item, ev)"
-                            t-on-dragleave="onDragLeave"
-                            t-on-drop="(ev) => this.onDrop(item, ev)"
-                        >
-                            <td class="pce_td_name">
-                                <span class="pce_list_icon"><t t-esc="getIcon(item)"/></span>
-                                <span t-esc="item.name"/>
-                            </td>
-                            <td><t t-esc="getFormattedSize(item)"/></td>
-                            <td><t t-esc="item.modified"/></td>
-                            <td class="pce_td_actions">
-                                <t t-if="item.is_folder">
-                                    <button class="pce_action_btn" t-on-click.stop="() => this.openShareModal(item)" title="Compartir">🔗</button>
-                                </t>
-                                <t t-else="">
-                                    <button class="pce_action_btn" t-on-click.stop="() => this.downloadFile(item)" title="Descargar">⬇️</button>
-                                </t>
-                                <button class="pce_action_btn" t-on-click.stop="() => this.openRenameModal(item)" title="Renombrar">✏️</button>
-                                <button class="pce_action_btn pce_action_danger" t-on-click.stop="async (ev) => { this.onItemClick(item, ev); await this.deleteSelected(); }" title="Eliminar">🗑️</button>
-                            </td>
-                        </tr>
-                    </t>
-                </tbody>
-            </table>
-        </t>
-
-        <!-- ═══════════════════════════════════════════════════════════════════
-             CONTEXT MENU
-        ════════════════════════════════════════════════════════════════════ -->
-        <t t-if="state.contextMenu">
-            <div
-                class="pce_context_menu"
-                t-att-style="'left:' + state.contextMenu.x + 'px; top:' + state.contextMenu.y + 'px'"
-            >
-                <t t-set="ctxItem" t-value="state.contextMenu.item"/>
-                <t t-if="ctxItem.is_folder">
-                    <div class="pce_ctx_item" t-on-click="() => { this.onItemDblClick(ctxItem); this.closeContextMenu(); }">
-                        📂 Abrir
-                    </div>
-                    <div class="pce_ctx_item" t-on-click="() => { this.openShareModal(ctxItem); this.closeContextMenu(); }">
-                        🔗 Compartir
-                    </div>
-                </t>
-                <t t-else="">
-                    <div class="pce_ctx_item" t-on-click="() => { this.downloadFile(ctxItem); this.closeContextMenu(); }">
-                        ⬇️ Descargar
-                    </div>
-                </t>
-                <div class="pce_ctx_item" t-on-click="() => { this.openRenameModal(ctxItem); this.closeContextMenu(); }">
-                    ✏️ Renombrar
-                </div>
-                <div class="pce_ctx_item" t-on-click="() => { this.openMoveModal(); this.closeContextMenu(); }">
-                    ✂️ Mover
-                </div>
-                <div class="pce_ctx_divider"/>
-                <div class="pce_ctx_item pce_ctx_danger" t-on-click="() => { this.deleteSelected(); this.closeContextMenu(); }">
-                    🗑️ Eliminar
-                </div>
-            </div>
-        </t>
-
-        <!-- ═══════════════════════════════════════════════════════════════════
-             MODAL: NUEVA CARPETA
-        ════════════════════════════════════════════════════════════════════ -->
-        <t t-if="state.modal === 'newFolder'">
-            <div class="pce_modal_overlay" t-on-click.self="closeModal">
-                <div class="pce_modal">
-                    <div class="pce_modal_header">
-                        <h3>📁 Nueva carpeta</h3>
-                        <button class="pce_modal_close" t-on-click="closeModal">✕</button>
-                    </div>
-                    <div class="pce_modal_body">
-                        <input
-                            type="text"
-                            class="pce_input"
-                            placeholder="Nombre de la carpeta"
-                            t-model="state.modalData.name"
-                            t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; this.confirmNewFolder()"
-                            autofocus="true"
-                        />
-                    </div>
-                    <div class="pce_modal_footer">
-                        <button class="pce_btn pce_btn_secondary" t-on-click="closeModal">Cancelar</button>
-                        <button class="pce_btn pce_btn_primary" t-on-click="confirmNewFolder">Crear</button>
-                    </div>
-                </div>
-            </div>
-        </t>
-
-        <!-- ═══════════════════════════════════════════════════════════════════
-             MODAL: RENOMBRAR
-        ════════════════════════════════════════════════════════════════════ -->
-        <t t-if="state.modal === 'rename'">
-            <div class="pce_modal_overlay" t-on-click.self="closeModal">
-                <div class="pce_modal">
-                    <div class="pce_modal_header">
-                        <h3>✏️ Renombrar</h3>
-                        <button class="pce_modal_close" t-on-click="closeModal">✕</button>
-                    </div>
-                    <div class="pce_modal_body">
-                        <input
-                            type="text"
-                            class="pce_input"
-                            t-model="state.modalData.newName"
-                            t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; this.confirmRename()"
-                        />
-                    </div>
-                    <div class="pce_modal_footer">
-                        <button class="pce_btn pce_btn_secondary" t-on-click="closeModal">Cancelar</button>
-                        <button class="pce_btn pce_btn_primary" t-on-click="confirmRename">Guardar</button>
-                    </div>
-                </div>
-            </div>
-        </t>
-
-        <!-- ═══════════════════════════════════════════════════════════════════
-             MODAL: SUBIR ARCHIVOS
-        ════════════════════════════════════════════════════════════════════ -->
-        <t t-if="state.modal === 'upload'">
-            <div class="pce_modal_overlay" t-on-click.self="closeModal">
-                <div class="pce_modal">
-                    <div class="pce_modal_header">
-                        <h3>⬆️ Subir archivos</h3>
-                        <button class="pce_modal_close" t-on-click="closeModal">✕</button>
-                    </div>
-                    <div class="pce_modal_body">
-                        <div class="pce_upload_drop_zone">
-                            <input
-                                type="file"
-                                multiple="multiple"
-                                class="pce_file_input"
-                                id="pce_file_input"
-                                t-on-change="onFileInputChange"
-                            />
-                            <label for="pce_file_input" class="pce_upload_label">
-                                <span class="pce_upload_icon">☁️</span>
-                                <span>Haz clic o arrastra archivos aquí</span>
-                                <t t-if="state.modalData.files and state.modalData.files.length">
-                                    <span class="pce_upload_count">
-                                        <t t-esc="state.modalData.files.length"/> archivo(s) seleccionado(s)
-                                    </span>
-                                </t>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="pce_modal_footer">
-                        <button class="pce_btn pce_btn_secondary" t-on-click="closeModal">Cancelar</button>
-                        <button
-                            class="pce_btn pce_btn_primary"
-                            t-on-click="confirmUpload"
-                            t-att-disabled="state.modalData.uploading"
-                        >
-                            <t t-if="state.modalData.uploading">Subiendo...</t>
-                            <t t-else="">Subir</t>
+                    <button class="pce_btn pce_btn_primary" t-on-click="openUploadModal"> ⬆️ Subir </button>
+                    <button class="pce_btn pce_btn_secondary" t-on-click="openNewFolderModal"> 📁 Nueva carpeta </button>
+                    <t t-if="state.selectedIds.size > 0">
+                        <button class="pce_btn pce_btn_secondary" t-on-click="openMoveModal"> ✂️ Mover </button>
+                        <button class="pce_btn pce_btn_danger" t-on-click="deleteSelected">
+🗑️ Eliminar (
+                            <t t-esc="state.selectedIds.size"/>
+)
                         </button>
-                    </div>
+                    </t>
+                    <button class="pce_btn pce_btn_icon" t-on-click="toggleViewMode">
+                        <t t-if="state.viewMode === 'grid'">☰</t>
+                        <t t-else="">⊞</t>
+                    </button>
                 </div>
             </div>
-        </t>
-
-        <!-- ═══════════════════════════════════════════════════════════════════
-             MODAL: COMPARTIR
-        ════════════════════════════════════════════════════════════════════ -->
-        <t t-if="state.modal === 'share'">
-            <div class="pce_modal_overlay" t-on-click.self="closeModal">
-                <div class="pce_modal">
-                    <div class="pce_modal_header">
-                        <h3>🔗 Compartir carpeta</h3>
-                        <button class="pce_modal_close" t-on-click="closeModal">✕</button>
-                    </div>
-                    <div class="pce_modal_body">
-                        <t t-if="state.modalData.loading">
-                            <div class="pce_modal_loading">
-                                <div class="pce_spinner"/>
-                                <span>Generando link...</span>
+            <!--  ═══════════════════════════════════════════════════════════════════
+             CARGANDO
+        ════════════════════════════════════════════════════════════════════  -->
+            <t t-if="state.loading">
+                <div class="pce_loading">
+                    <div class="pce_spinner"/>
+                    <span>Cargando...</span>
+                </div>
+            </t>
+            <!--  ═══════════════════════════════════════════════════════════════════
+             ERROR
+        ════════════════════════════════════════════════════════════════════  -->
+            <t t-elif="state.error">
+                <div class="pce_error">
+                    <span>
+⚠️
+                        <t t-esc="state.error"/>
+                    </span>
+                    <button class="pce_btn pce_btn_primary" t-on-click="() => this._loadContents(state.currentFolderId)"> Reintentar </button>
+                </div>
+            </t>
+            <!--  ═══════════════════════════════════════════════════════════════════
+             VACÍO
+        ════════════════════════════════════════════════════════════════════  -->
+            <t t-elif="filteredItems.length === 0">
+                <div class="pce_empty">
+                    <div class="pce_empty_icon">📂</div>
+                    <p>Esta carpeta está vacía</p>
+                    <button class="pce_btn pce_btn_primary" t-on-click="openUploadModal"> Subir archivo </button>
+                </div>
+            </t>
+            <!--  ═══════════════════════════════════════════════════════════════════
+             GRID
+        ════════════════════════════════════════════════════════════════════  -->
+            <t t-elif="state.viewMode === 'grid'">
+                <div class="pce_grid">
+                    <t t-foreach="filteredItems" t-as="item" t-key="item.id">
+                        <div class="pce_item" t-att-class="{ pce_item_selected: isSelected(item), pce_item_folder: item.is_folder, pce_item_drag_over: state.dragOverId === item.id, }" t-on-click="(ev) => this.onItemClick(item, ev)" t-on-dblclick="() => this.onItemDblClick(item)" t-on-contextmenu="(ev) => this.onContextMenu(item, ev)" draggable="true" t-on-dragstart="(ev) => this.onDragStart(item, ev)" t-on-dragover="(ev) => this.onDragOver(item, ev)" t-on-dragleave="onDragLeave" t-on-drop="(ev) => this.onDrop(item, ev)">
+                            <div class="pce_item_icon">
+                                <t t-esc="getIcon(item)"/>
                             </div>
-                        </t>
-                        <t t-elif="state.modalData.error">
-                            <p class="pce_error_text"><t t-esc="state.modalData.error"/></p>
-                        </t>
-                        <t t-else="">
-                            <p class="pce_share_label">Link público permanente:</p>
-                            <div class="pce_share_link_box">
-                                <input
-                                    type="text"
-                                    class="pce_input pce_share_input"
-                                    t-att-value="state.modalData.link"
-                                    readonly="true"
-                                />
-                                <button class="pce_btn pce_btn_primary" t-on-click="copyShareLink">
-                                    📋 Copiar
-                                </button>
+                            <div class="pce_item_name" t-att-title="item.name">
+                                <t t-esc="item.name"/>
                             </div>
-                            <p class="pce_share_note">
-                                Este link no consume cuota de descarga de tu cuenta pCloud.
-                            </p>
+                            <div class="pce_item_meta">
+                                <t t-esc="getFormattedSize(item)"/>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </t>
+            <!--  ═══════════════════════════════════════════════════════════════════
+             LISTA
+        ════════════════════════════════════════════════════════════════════  -->
+            <t t-else="">
+                <table class="pce_table">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Tamaño</th>
+                            <th>Modificado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="filteredItems" t-as="item" t-key="item.id">
+                            <tr t-att-class="{ pce_row_selected: isSelected(item), pce_row_drag_over: state.dragOverId === item.id, }" t-on-click="(ev) => this.onItemClick(item, ev)" t-on-dblclick="() => this.onItemDblClick(item)" t-on-contextmenu="(ev) => this.onContextMenu(item, ev)" draggable="true" t-on-dragstart="(ev) => this.onDragStart(item, ev)" t-on-dragover="(ev) => this.onDragOver(item, ev)" t-on-dragleave="onDragLeave" t-on-drop="(ev) => this.onDrop(item, ev)">
+                                <td class="pce_td_name">
+                                    <span class="pce_list_icon">
+                                        <t t-esc="getIcon(item)"/>
+                                    </span>
+                                    <span t-esc="item.name"/>
+                                </td>
+                                <td>
+                                    <t t-esc="getFormattedSize(item)"/>
+                                </td>
+                                <td>
+                                    <t t-esc="item.modified"/>
+                                </td>
+                                <td class="pce_td_actions">
+                                    <t t-if="item.is_folder">
+                                        <button class="pce_action_btn" title="Compartir" t-on-click.stop="() => this.openShareModal(item)">🔗</button>
+                                    </t>
+                                    <t t-else="">
+                                        <button class="pce_action_btn" title="Descargar" t-on-click.stop="() => this.downloadFile(item)">⬇️</button>
+                                    </t>
+                                    <button class="pce_action_btn" title="Renombrar" t-on-click.stop="() => this.openRenameModal(item)">✏️</button>
+                                    <!--  FIX: sin async/await inline — OWL no lo soporta en templates  -->
+                                    <button class="pce_action_btn pce_action_danger" title="Eliminar" t-on-click.stop="(ev) => this.onDeleteRowClick(item, ev)">🗑️</button>
+                                </td>
+                            </tr>
                         </t>
+                    </tbody>
+                </table>
+            </t>
+            <!--  ═══════════════════════════════════════════════════════════════════
+             CONTEXT MENU
+        ════════════════════════════════════════════════════════════════════  -->
+            <t t-if="state.contextMenu">
+                <div class="pce_context_menu" t-att-style="'left:' + state.contextMenu.x + 'px; top:' + state.contextMenu.y + 'px'">
+                    <t t-set="ctxItem" t-value="state.contextMenu.item"/>
+                    <t t-if="ctxItem.is_folder">
+                        <div class="pce_ctx_item" t-on-click="() => { this.onItemDblClick(ctxItem); this.closeContextMenu(); }"> 📂 Abrir </div>
+                        <div class="pce_ctx_item" t-on-click="() => { this.openShareModal(ctxItem); this.closeContextMenu(); }"> 🔗 Compartir </div>
+                    </t>
+                    <t t-else="">
+                        <div class="pce_ctx_item" t-on-click="() => { this.downloadFile(ctxItem); this.closeContextMenu(); }"> ⬇️ Descargar </div>
+                    </t>
+                    <div class="pce_ctx_item" t-on-click="() => { this.openRenameModal(ctxItem); this.closeContextMenu(); }"> ✏️ Renombrar </div>
+                    <div class="pce_ctx_item" t-on-click="() => { this.openMoveModal(); this.closeContextMenu(); }"> ✂️ Mover </div>
+                    <div class="pce_ctx_divider"/>
+                    <div class="pce_ctx_item pce_ctx_danger" t-on-click="() => { this.deleteSelected(); this.closeContextMenu(); }"> 🗑️ Eliminar </div>
+                </div>
+            </t>
+            <!--  ═══════════════════════════════════════════════════════════════════
+             MODAL: NUEVA CARPETA
+        ════════════════════════════════════════════════════════════════════  -->
+            <t t-if="state.modal === 'newFolder'">
+                <div class="pce_modal_overlay" t-on-click.self="closeModal">
+                    <div class="pce_modal">
+                        <div class="pce_modal_header">
+                            <h3>📁 Nueva carpeta</h3>
+                            <button class="pce_modal_close" t-on-click="closeModal">✕</button>
+                        </div>
+                        <div class="pce_modal_body">
+                            <input type="text" class="pce_input" placeholder="Nombre de la carpeta" t-model="state.modalData.name" t-on-keydown="(ev) => ev.key === 'Enter' && this.confirmNewFolder()"/>
+                        </div>
+                        <div class="pce_modal_footer">
+                            <button class="pce_btn pce_btn_secondary" t-on-click="closeModal">Cancelar</button>
+                            <button class="pce_btn pce_btn_primary" t-on-click="confirmNewFolder">Crear</button>
+                        </div>
                     </div>
-                    <div class="pce_modal_footer">
-                        <t t-if="state.modalData.code">
-                            <button class="pce_btn pce_btn_danger" t-on-click="deleteShareLink">
-                                Revocar link
+                </div>
+            </t>
+            <!--  ═══════════════════════════════════════════════════════════════════
+             MODAL: RENOMBRAR
+        ════════════════════════════════════════════════════════════════════  -->
+            <t t-if="state.modal === 'rename'">
+                <div class="pce_modal_overlay" t-on-click.self="closeModal">
+                    <div class="pce_modal">
+                        <div class="pce_modal_header">
+                            <h3>✏️ Renombrar</h3>
+                            <button class="pce_modal_close" t-on-click="closeModal">✕</button>
+                        </div>
+                        <div class="pce_modal_body">
+                            <input type="text" class="pce_input" t-model="state.modalData.newName" t-on-keydown="(ev) => ev.key === 'Enter' && this.confirmRename()"/>
+                        </div>
+                        <div class="pce_modal_footer">
+                            <button class="pce_btn pce_btn_secondary" t-on-click="closeModal">Cancelar</button>
+                            <button class="pce_btn pce_btn_primary" t-on-click="confirmRename">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </t>
+            <!--  ═══════════════════════════════════════════════════════════════════
+             MODAL: SUBIR
+        ════════════════════════════════════════════════════════════════════  -->
+            <t t-if="state.modal === 'upload'">
+                <div class="pce_modal_overlay" t-on-click.self="closeModal">
+                    <div class="pce_modal">
+                        <div class="pce_modal_header">
+                            <h3>⬆️ Subir archivos</h3>
+                            <button class="pce_modal_close" t-on-click="closeModal">✕</button>
+                        </div>
+                        <div class="pce_modal_body">
+                            <div class="pce_upload_drop_zone">
+                                <input type="file" multiple="multiple" class="pce_file_input" id="pce_file_input" t-on-change="onFileInputChange"/>
+                                <label for="pce_file_input" class="pce_upload_label">
+                                    <span class="pce_upload_icon">☁️</span>
+                                    <span>Haz clic o arrastra archivos aquí</span>
+                                    <t t-if="state.modalData.files and state.modalData.files.length">
+                                        <span class="pce_upload_count">
+                                            <t t-esc="state.modalData.files.length"/>
+archivo(s) seleccionado(s)
+                                        </span>
+                                    </t>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="pce_modal_footer">
+                            <button class="pce_btn pce_btn_secondary" t-on-click="closeModal">Cancelar</button>
+                            <button class="pce_btn pce_btn_primary" t-on-click="confirmUpload" t-att-disabled="state.modalData.uploading">
+                                <t t-if="state.modalData.uploading">Subiendo...</t>
+                                <t t-else="">Subir</t>
                             </button>
-                        </t>
-                        <button class="pce_btn pce_btn_secondary" t-on-click="closeModal">Cerrar</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </t>
-
-        <!-- ═══════════════════════════════════════════════════════════════════
+            </t>
+            <!--  ═══════════════════════════════════════════════════════════════════
+             MODAL: COMPARTIR
+        ════════════════════════════════════════════════════════════════════  -->
+            <t t-if="state.modal === 'share'">
+                <div class="pce_modal_overlay" t-on-click.self="closeModal">
+                    <div class="pce_modal">
+                        <div class="pce_modal_header">
+                            <h3>🔗 Compartir carpeta</h3>
+                            <button class="pce_modal_close" t-on-click="closeModal">✕</button>
+                        </div>
+                        <div class="pce_modal_body">
+                            <t t-if="state.modalData.loading">
+                                <div class="pce_modal_loading">
+                                    <div class="pce_spinner"/>
+                                    <span>Generando link...</span>
+                                </div>
+                            </t>
+                            <t t-elif="state.modalData.error">
+                                <p class="pce_error_text">
+                                    <t t-esc="state.modalData.error"/>
+                                </p>
+                            </t>
+                            <t t-else="">
+                                <p class="pce_share_label">Link público permanente:</p>
+                                <div class="pce_share_link_box">
+                                    <input type="text" class="pce_input pce_share_input" t-att-value="state.modalData.link" readonly="true"/>
+                                    <button class="pce_btn pce_btn_primary" t-on-click="copyShareLink"> 📋 Copiar </button>
+                                </div>
+                                <p class="pce_share_note"> Este link no consume cuota de tu cuenta pCloud. </p>
+                            </t>
+                        </div>
+                        <div class="pce_modal_footer">
+                            <t t-if="state.modalData.code">
+                                <button class="pce_btn pce_btn_danger" t-on-click="deleteShareLink"> Revocar link </button>
+                            </t>
+                            <button class="pce_btn pce_btn_secondary" t-on-click="closeModal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </t>
+            <!--  ═══════════════════════════════════════════════════════════════════
              MODAL: MOVER
-        ════════════════════════════════════════════════════════════════════ -->
-        <t t-if="state.modal === 'move'">
-            <div class="pce_modal_overlay" t-on-click.self="closeModal">
-                <div class="pce_modal">
-                    <div class="pce_modal_header">
-                        <h3>✂️ Mover a carpeta</h3>
-                        <button class="pce_modal_close" t-on-click="closeModal">✕</button>
-                    </div>
-                    <div class="pce_modal_body">
-                        <p class="pce_move_hint">
-                            Ingresa el ID de la carpeta destino en pCloud:
-                        </p>
-                        <input
-                            type="text"
-                            class="pce_input"
-                            placeholder="ID de carpeta destino"
-                            t-model="state.modalData.targetFolderId"
-                        />
-                        <p class="pce_move_note">
-                            💡 Navega a la carpeta destino y copia su ID desde la barra de dirección,
-                            o usa drag &amp; drop directamente sobre la carpeta.
-                        </p>
-                    </div>
-                    <div class="pce_modal_footer">
-                        <button class="pce_btn pce_btn_secondary" t-on-click="closeModal">Cancelar</button>
-                        <button class="pce_btn pce_btn_primary" t-on-click="confirmMove">Mover</button>
+        ════════════════════════════════════════════════════════════════════  -->
+            <t t-if="state.modal === 'move'">
+                <div class="pce_modal_overlay" t-on-click.self="closeModal">
+                    <div class="pce_modal">
+                        <div class="pce_modal_header">
+                            <h3>✂️ Mover a carpeta</h3>
+                            <button class="pce_modal_close" t-on-click="closeModal">✕</button>
+                        </div>
+                        <div class="pce_modal_body">
+                            <p class="pce_move_hint"> Ingresa el ID de la carpeta destino en pCloud: </p>
+                            <input type="text" class="pce_input" placeholder="ID de carpeta destino" t-model="state.modalData.targetFolderId"/>
+                            <p class="pce_move_note"> 💡 Usa drag & drop directamente sobre la carpeta destino para mover sin necesidad del ID. </p>
+                        </div>
+                        <div class="pce_modal_footer">
+                            <button class="pce_btn pce_btn_secondary" t-on-click="closeModal">Cancelar</button>
+                            <button class="pce_btn pce_btn_primary" t-on-click="confirmMove">Mover</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </t>
-
-    </div>
-</t>
-
+            </t>
+        </div>
+    </t>
 </templates>
+    
+</odoo>
