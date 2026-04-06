@@ -233,16 +233,61 @@ class PCloudExplorer extends Component {
         this.state.previewLoading = true;
         this.state.modal          = "preview";
         try {
-            const url = await this.orm.call(
-                "pcloud.config", "pcloud_get_file_download_url", [item.id]
-            );
-            this.state.previewUrl = url;
+            // El browser llama directamente a pCloud con su propia IP
+            // para evitar el problema de IP binding del servidor
+            const directUrl = await this._getDirectFileUrl(item.id);
+            const type = this.getPreviewType(item);
+
+            if (type === "pdf") {
+                // PDFs: abrir directo en nueva pestaña (browser nativo es mejor visor)
+                // No usar Google Docs Viewer (límite 25MB), no usar iframe (CORS)
+                this.closeModal();
+                window.open(directUrl, "_blank");
+            } else {
+                this.state.previewUrl = directUrl;
+            }
         } catch (e) {
             this.notification.add(e.data?.message || "Error al obtener archivo", { type: "danger" });
             this.closeModal();
         } finally {
             this.state.previewLoading = false;
         }
+    }
+
+    /**
+     * Obtiene una URL de descarga directa construida DESDE EL BROWSER.
+     *
+     * Estrategia:
+     *   1. El servidor devuelve {access_token, hostname, file_id}
+     *   2. El browser hace fetch a pCloud getfilelink con su propia IP
+     *   3. pCloud genera una URL para la IP del BROWSER → sin IP mismatch
+     *
+     * Esto resuelve "This link was generated for another IP address".
+     */
+    async _getDirectFileUrl(fileId) {
+        // Obtener credenciales del servidor (sin generar URL allá)
+        const creds = await this.orm.call(
+            "pcloud.config", "pcloud_get_credentials", []
+        );
+        const apiBase = creds.hostname.startsWith("http")
+            ? creds.hostname.replace(/\/$/, "")
+            : "https://" + creds.hostname.replace(/\/$/, "");
+
+        // El BROWSER llama directamente a pCloud → URL vinculada a la IP del browser
+        const resp = await fetch(
+            `${apiBase}/getfilelink?access_token=${encodeURIComponent(creds.access_token)}&fileid=${fileId}`
+        );
+        if (!resp.ok) throw new Error(`pCloud HTTP ${resp.status}`);
+        const data = await resp.json();
+        if (data.result !== 0) throw new Error(`pCloud error: ${data.error || data.result}`);
+
+        const hosts = data.hosts || [];
+        const path  = data.path  || "";
+        if (!hosts.length || !path) throw new Error("pCloud no devolvió URL de descarga");
+
+        let url = hosts[0] + path;
+        if (!url.startsWith("http")) url = "https://" + url;
+        return url;
     }
 
     getPreviewType(item) {
@@ -255,11 +300,8 @@ class PCloudExplorer extends Component {
         return "download";
     }
 
-    getPdfViewerUrl(rawUrl) {
-        if (!rawUrl) return "";
-        return `https://docs.google.com/viewer?url=${encodeURIComponent(rawUrl)}&embedded=true`;
-    }
-
+    // PDF ya no usa iframe — se abre en nueva pestaña directamente desde openFilePreview
+    getPdfViewerUrl(rawUrl) { return rawUrl || ""; }
     onPdfIframeLoad() {}
 
     // ─── Selección ────────────────────────────────────────────────────────────
@@ -457,9 +499,8 @@ class PCloudExplorer extends Component {
     async downloadFile(item) {
         if (item.is_folder) return;
         try {
-            const url = await this.orm.call(
-                "pcloud.config", "pcloud_get_file_download_url", [item.id]
-            );
+            // URL construida desde el browser → sin IP binding
+            const url = await this._getDirectFileUrl(item.id);
             const a = document.createElement("a");
             a.href     = url;
             a.download = item.name;

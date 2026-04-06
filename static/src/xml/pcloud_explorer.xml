@@ -467,24 +467,20 @@
                     </t>
 
                     <t t-elif="getPreviewType(state.previewItem) === 'pdf'">
+                        <!-- PDFs se abren en nueva pestaña directamente (ver openFilePreview).
+                             Este bloque es solo fallback por si state.previewUrl está seteado. -->
                         <div class="pce_preview_pdf_wrap">
-                            <!-- Google Docs Viewer como proxy — evita CORS del iframe directo -->
-                            <iframe t-att-src="getPdfViewerUrl(state.previewUrl)"
-                                    class="pce_preview_pdf"
-                                    frameborder="0"
-                                    allowfullscreen="true"
-                                    t-on-load="onPdfIframeLoad"
-                                    t-ref="pdfIframe"/>
-                            <!-- Barra inferior con botón abrir en nueva pestaña -->
-                            <div class="pce_pdf_toolbar">
-                                <span class="pce_pdf_hint">
-                                    <i class="bi bi-info-circle me-1"/>
-                                    Si el PDF no carga, ábrelo en una nueva pestaña
-                                </span>
+                            <div class="pce_pdf_open_wrap">
+                                <i class="bi bi-file-earmark-pdf-fill pce_pdf_big_icon"/>
+                                <span class="pce_pdf_open_name" t-esc="state.previewItem.name"/>
+                                <p class="pce_pdf_open_hint">
+                                    Los PDFs se abren en el visor nativo del navegador
+                                    para soportar archivos de cualquier tamaño.
+                                </p>
                                 <a t-att-href="state.previewUrl"
                                    target="_blank"
-                                   class="pce_btn pce_btn_primary pce_btn_sm">
-                                    <i class="bi bi-box-arrow-up-right"/> Abrir en nueva pestaña
+                                   class="pce_btn pce_btn_primary">
+                                    <i class="bi bi-box-arrow-up-right"/> Abrir PDF en nueva pestaña
                                 </a>
                             </div>
                         </div>
