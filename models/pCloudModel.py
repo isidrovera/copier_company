@@ -1,6 +1,7 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError
 import requests
+import base64
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -18,11 +19,6 @@ class PCloudConfig(models.Model):
     hostname = fields.Char(string='Hostname')
 
     def _get_api_url(self):
-        """
-        Retorna el hostname normalizado.
-        pCloud no devuelve hostname en oauth2_token,
-        así que usamos el valor guardado o el default.
-        """
         self.ensure_one()
         hostname = self.hostname or 'api.pcloud.com'
         if not hostname.startswith('http'):
@@ -66,8 +62,6 @@ class PCloudConfig(models.Model):
         if not access_token:
             raise UserError(f"pCloud no devolvió access_token. Respuesta: {data}")
 
-        # pCloud oauth2_token NO devuelve hostname — se deja el valor
-        # configurado manualmente o el default api.pcloud.com
         self.write({
             'access_token': access_token,
             'hostname': self.hostname or 'api.pcloud.com',
@@ -124,7 +118,6 @@ class PCloudConfig(models.Model):
             return data['metadata']['contents']
         raise UserError("Error al listar contenido de pCloud")
 
-    # Alias para compatibilidad con código existente
     def list_pcloud_folders(self, folder_id=0):
         return self.list_pcloud_contents(folder_id)
 
@@ -166,15 +159,12 @@ class PCloudConfig(models.Model):
         raise UserError("Error al obtener link de descarga")
 
     def get_folder_path(self, folder_id):
-        """Obtiene la ruta completa de una carpeta hasta la raíz"""
         self.ensure_one()
         if not self.access_token:
             raise UserError("No hay token. Conéctate a pCloud primero.")
-
         folder_path = []
         current_id = folder_id
         max_depth = 20
-
         while current_id != 0 and len(folder_path) < max_depth:
             url = f"{self._get_api_url()}/listfolder"
             try:
@@ -195,7 +185,6 @@ class PCloudConfig(models.Model):
             except Exception as e:
                 _logger.error('Error getting folder path: %s', str(e))
                 break
-
         return folder_path
 
     def action_connect_to_pcloud(self):
@@ -208,9 +197,7 @@ class PCloudConfig(models.Model):
 
     def action_disconnect_from_pcloud(self):
         self.ensure_one()
-        self.write({
-            'access_token': False,
-        })
+        self.write({'access_token': False})
 
     def action_open_explorer(self):
         self.ensure_one()
@@ -219,6 +206,7 @@ class PCloudConfig(models.Model):
         wizard = self.env['pcloud.explorer'].create({
             'config_id': self.id,
         })
+        self.env.cr.flush()
         wizard._load_contents()
         return {
             'type': 'ir.actions.act_window',
@@ -226,5 +214,163 @@ class PCloudConfig(models.Model):
             'res_id': wizard.id,
             'view_mode': 'form',
             'target': 'new',
-            'flags': {'mode': 'edit'},
+            'context': {'mode': 'edit'},
         }
+
+    # ─── MÉTODOS RPC PARA EL EXPLORADOR OWL ───────────────────────────────────
+
+    @api.model
+    def pcloud_get_config(self):
+        """Retorna el config activo con token"""
+        config = self.search([('access_token', '!=', False)], limit=1)
+        if not config:
+            raise UserError('No hay configuración de pCloud con token activo.')
+        return {'config_id': config.id, 'name': config.name}
+
+    @api.model
+    def pcloud_list_contents(self, folder_id=0):
+        """Lista contenido de una carpeta — llamado desde OWL via RPC"""
+        config = self.search([('access_token', '!=', False)], limit=1)
+        if not config:
+            raise UserError('No hay configuración de pCloud activa.')
+        items = config.list_pcloud_contents(int(folder_id))
+        result = []
+        for item in items:
+            is_folder = item.get('isfolder', False)
+            result.append({
+                'id': str(item.get('folderid') if is_folder else item.get('fileid')),
+                'name': item.get('name', ''),
+                'is_folder': is_folder,
+                'size': item.get('size', 0),
+                'modified': item.get('modified', ''),
+            })
+        # Carpetas primero, luego archivos, ambos alfabéticamente
+        result.sort(key=lambda x: (not x['is_folder'], x['name'].lower()))
+        return result
+
+    @api.model
+    def pcloud_create_folder(self, name, folder_id=0):
+        """Crea una carpeta"""
+        config = self.search([('access_token', '!=', False)], limit=1)
+        if not config:
+            raise UserError('No hay configuración de pCloud activa.')
+        new_id = config.create_pcloud_folder(name, int(folder_id))
+        return {'id': str(new_id), 'name': name}
+
+    @api.model
+    def pcloud_delete(self, item_id, is_folder):
+        """Elimina archivo o carpeta"""
+        config = self.search([('access_token', '!=', False)], limit=1)
+        if not config:
+            raise UserError('No hay configuración de pCloud activa.')
+        endpoint = '/deletefolderrecursive' if is_folder else '/deletefile'
+        param_key = 'folderid' if is_folder else 'fileid'
+        url = f"{config._get_api_url()}{endpoint}"
+        response = requests.get(url, params={
+            'access_token': config.access_token,
+            param_key: int(item_id),
+        }, timeout=30)
+        data = response.json()
+        if data.get('result') != 0:
+            raise UserError(f"pCloud error: {data.get('error', 'desconocido')}")
+        return True
+
+    @api.model
+    def pcloud_rename(self, item_id, new_name, is_folder):
+        """Renombra archivo o carpeta"""
+        config = self.search([('access_token', '!=', False)], limit=1)
+        if not config:
+            raise UserError('No hay configuración de pCloud activa.')
+        endpoint = '/renamefolder' if is_folder else '/renamefile'
+        param_key = 'folderid' if is_folder else 'fileid'
+        url = f"{config._get_api_url()}{endpoint}"
+        response = requests.get(url, params={
+            'access_token': config.access_token,
+            param_key: int(item_id),
+            'toname': new_name,
+        }, timeout=30)
+        data = response.json()
+        if data.get('result') != 0:
+            raise UserError(f"pCloud error: {data.get('error', 'desconocido')}")
+        return True
+
+    @api.model
+    def pcloud_upload(self, filename, file_b64, folder_id=0):
+        """Sube un archivo codificado en base64"""
+        config = self.search([('access_token', '!=', False)], limit=1)
+        if not config:
+            raise UserError('No hay configuración de pCloud activa.')
+        file_content = base64.b64decode(file_b64)
+        url = f"{config._get_api_url()}/uploadfile"
+        response = requests.post(url, params={
+            'access_token': config.access_token,
+            'folderid': int(folder_id),
+        }, files={'file': (filename, file_content)}, timeout=120)
+        data = response.json()
+        if data.get('result') != 0:
+            raise UserError(f"pCloud error: {data.get('error', 'desconocido')}")
+        file_id = str(data['metadata'][0]['fileid'])
+        return {'id': file_id, 'name': filename}
+
+    @api.model
+    def pcloud_get_share_link(self, folder_id):
+        """Obtiene o crea link público permanente de una carpeta"""
+        config = self.search([('access_token', '!=', False)], limit=1)
+        if not config:
+            raise UserError('No hay configuración de pCloud activa.')
+        url = f"{config._get_api_url()}/getfolderpublink"
+        response = requests.get(url, params={
+            'access_token': config.access_token,
+            'folderid': int(folder_id),
+        }, timeout=30)
+        data = response.json()
+        if data.get('result') != 0:
+            raise UserError(f"pCloud error: {data.get('error', 'desconocido')}")
+        code = data.get('code', '')
+        return {
+            'link': f"https://u.pcloud.link/publink/show?code={code}",
+            'code': code,
+        }
+
+    @api.model
+    def pcloud_delete_share_link(self, code):
+        """Elimina un link público por su código"""
+        config = self.search([('access_token', '!=', False)], limit=1)
+        if not config:
+            raise UserError('No hay configuración de pCloud activa.')
+        url = f"{config._get_api_url()}/deletepublink"
+        response = requests.get(url, params={
+            'access_token': config.access_token,
+            'code': code,
+        }, timeout=30)
+        data = response.json()
+        if data.get('result') != 0:
+            raise UserError(f"pCloud error: {data.get('error', 'desconocido')}")
+        return True
+
+    @api.model
+    def pcloud_move(self, item_id, target_folder_id, is_folder):
+        """Mueve archivo o carpeta a otra carpeta"""
+        config = self.search([('access_token', '!=', False)], limit=1)
+        if not config:
+            raise UserError('No hay configuración de pCloud activa.')
+        endpoint = '/renamefolder' if is_folder else '/renamefile'
+        param_key = 'folderid' if is_folder else 'fileid'
+        url = f"{config._get_api_url()}{endpoint}"
+        response = requests.get(url, params={
+            'access_token': config.access_token,
+            param_key: int(item_id),
+            'tofolderid': int(target_folder_id),
+        }, timeout=30)
+        data = response.json()
+        if data.get('result') != 0:
+            raise UserError(f"pCloud error: {data.get('error', 'desconocido')}")
+        return True
+
+    @api.model
+    def pcloud_get_file_download_url(self, file_id):
+        """Obtiene URL de descarga directa de un archivo"""
+        config = self.search([('access_token', '!=', False)], limit=1)
+        if not config:
+            raise UserError('No hay configuración de pCloud activa.')
+        return config.download_pcloud_file(int(file_id))

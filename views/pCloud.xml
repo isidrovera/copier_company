@@ -2,7 +2,10 @@
 <odoo>
     <data>
 
-        <!-- Vista formulario pcloud.config -->
+        <!-- ═══════════════════════════════════════════════════════════════
+             pcloud.config — formulario y lista
+        ════════════════════════════════════════════════════════════════ -->
+
         <record id="view_pcloud_config_form" model="ir.ui.view">
             <field name="name">pcloud.config.form</field>
             <field name="model">pcloud.config</field>
@@ -17,11 +20,6 @@
                                 type="object"
                                 name="action_disconnect_from_pcloud"
                                 class="btn-secondary"
-                                invisible="not access_token"/>
-                        <button string="📂 Explorador de Archivos"
-                                type="object"
-                                name="action_open_explorer"
-                                class="btn-primary"
                                 invisible="not access_token"/>
                     </header>
                     <sheet>
@@ -38,7 +36,6 @@
             </field>
         </record>
 
-        <!-- Vista lista pcloud.config -->
         <record id="view_pcloud_config_tree" model="ir.ui.view">
             <field name="name">pcloud.config.tree</field>
             <field name="model">pcloud.config</field>
@@ -51,7 +48,10 @@
             </field>
         </record>
 
-        <!-- Vista formulario pcloud.explorer -->
+        <!-- ═══════════════════════════════════════════════════════════════
+             pcloud.explorer — wizard (sigue funcionando como fallback)
+        ════════════════════════════════════════════════════════════════ -->
+
         <record id="view_pcloud_explorer_form" model="ir.ui.view">
             <field name="name">pcloud.explorer.form</field>
             <field name="model">pcloud.explorer</field>
@@ -59,7 +59,6 @@
                 <form string="pCloud Explorer">
                     <sheet>
 
-                        <!-- Cabecera: ubicación actual y botón raíz -->
                         <div class="mb-3">
                             <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
                                 <button string="🏠 Raíz"
@@ -68,9 +67,8 @@
                                         class="btn btn-sm btn-secondary"/>
                                 <strong>📁 <field name="current_folder_name" readonly="1" nolabel="1"/></strong>
                             </div>
-                            <!-- Breadcrumbs -->
                             <field name="breadcrumb_ids" nolabel="1">
-                                <list editable="bottom" create="false" delete="false">
+                                <list create="false" delete="false">
                                     <field name="sequence" column_invisible="True"/>
                                     <field name="name"/>
                                     <button string="↩ Ir aquí"
@@ -83,10 +81,9 @@
 
                         <separator string="Contenido"/>
 
-                        <!-- Listado de archivos y carpetas -->
                         <field name="line_ids" nolabel="1">
-                            <list >
-                                <field name="is_folder"/>
+                            <list create="false" delete="false">
+                                <field name="is_folder" column_invisible="True"/>
                                 <field name="name" string="Nombre"/>
                                 <field name="size" string="Tamaño"/>
                                 <field name="modified_date" string="Modificado"/>
@@ -107,8 +104,7 @@
                             </list>
                         </field>
 
-                        <!-- Panel renombrar — visible solo si hay item seleccionado -->
-                        <group string="Renombrar" invisible="not rename_item_id">
+                        <group string="Renombrar" invisible="rename_item_id == False">
                             <field name="rename_item_name" string="Nuevo nombre"/>
                             <div>
                                 <button string="Guardar nombre"
@@ -148,7 +144,6 @@
                             </div>
                         </group>
 
-                        <!-- Campos ocultos de estado -->
                         <field name="current_folder_id" invisible="1"/>
                         <field name="rename_item_id" invisible="1"/>
                         <field name="rename_is_folder" invisible="1"/>

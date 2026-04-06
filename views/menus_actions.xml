@@ -474,13 +474,16 @@ action = records.action_create_multiple_invoices()
               parent="copier_company.menu_root" 
               sequence="90"/>
 
-    <!-- menu_pcloud_folder_file ahora apunta a pcloud.config -->
-    <!-- El explorador de archivos se abre desde el formulario de configuración -->
-    <menuitem id="menu_pcloud_folder_file" 
-              name="Explorador de Archivos" 
-              parent="menu_pcloud_root" 
-              action="view_pcloud_config_form_action"
-              sequence="10"/>
+    <menuitem id="menu_pcloud_folder_file"
+          name="Explorador de Archivos"
+          parent="menu_pcloud_root"
+          action="action_pcloud_owl_explorer"
+          sequence="10"/>
+    <!-- Client Action que carga el componente OWL pcloud_explorer_action -->
+    <record id="action_pcloud_owl_explorer" model="ir.actions.client">
+            <field name="name">Explorador pCloud</field>
+            <field name="tag">pcloud_explorer_action</field>
+    </record>
 
     <!-- 10. Manuales PDF -->
     <menuitem id="menu_manual"
