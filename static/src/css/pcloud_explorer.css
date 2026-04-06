@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   pCloud Explorer — CSS v2
+   pCloud Explorer — CSS v2  (Bootstrap Icons edition)
    Archivo: static/src/css/pcloud_explorer.css
 ═══════════════════════════════════════════════════════════════ */
 
@@ -21,7 +21,7 @@
     --pce-red-light:    #fef2f2;
     --pce-yellow:       #f59e0b;
     --pce-shadow-sm:    0 1px 3px rgba(0,0,0,0.08);
-    --pce-shadow-md:    0 4px 16px rgba(0,0,0,0.1);
+    --pce-shadow-md:    0 4px 16px rgba(0,0,0,0.10);
     --pce-shadow-lg:    0 8px 40px rgba(0,0,0,0.18);
     --pce-radius:       10px;
     --pce-radius-sm:    6px;
@@ -35,6 +35,36 @@
     color: var(--pce-text);
     position: relative;
     overflow: hidden;
+}
+
+/* ── Bootstrap Icons — tamaños específicos ───────────────────── */
+
+/* Icono grande en el card del grid */
+.pce_file_bi {
+    font-size: 36px;
+    line-height: 1;
+    display: block;
+}
+
+/* Icono pequeño en lista / header preview */
+.pce_file_bi_sm {
+    font-size: 20px;
+    line-height: 1;
+    display: block;
+}
+
+/* Icono gigante en pantalla de descarga */
+.pce_download_bi {
+    font-size: 52px;
+    line-height: 1;
+    display: block;
+}
+
+/* Icono de audio */
+.pce_audio_icon {
+    font-size: 64px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1;
 }
 
 /* ── Layout ─────────────────────────────────────────────────── */
@@ -51,7 +81,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 20px;
+    padding: 10px 20px;
     background: var(--pce-surface);
     border-bottom: 1px solid var(--pce-border);
     flex-shrink: 0;
@@ -71,7 +101,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 6px 20px;
+    padding: 5px 20px;
     background: var(--pce-blue-light);
     border-bottom: 1px solid #d0d9ff;
     font-size: 13px;
@@ -95,11 +125,12 @@
     padding: 3px 8px;
     border-radius: 4px;
     transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
-.pce_deselect_btn:hover {
-    background: rgba(0,0,0,0.06);
-}
+.pce_deselect_btn:hover { background: rgba(0,0,0,0.06); }
 
 /* ── Breadcrumb ──────────────────────────────────────────────── */
 .pce_breadcrumb {
@@ -107,7 +138,7 @@
     align-items: center;
     gap: 2px;
     flex-wrap: wrap;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
 }
 
@@ -118,6 +149,9 @@
     border-radius: var(--pce-radius-sm);
     transition: background 0.15s;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .pce_crumb:hover { background: var(--pce-blue-light); }
@@ -130,7 +164,8 @@
 
 .pce_crumb_sep {
     color: var(--pce-text-3);
-    padding: 0 2px;
+    padding: 0;
+    font-size: 10px;
     user-select: none;
 }
 
@@ -152,7 +187,11 @@
     background: var(--pce-surface);
 }
 
-.pce_search_icon { width: 15px; height: 15px; color: var(--pce-text-3); flex-shrink: 0; }
+.pce_search_icon {
+    font-size: 13px;
+    color: var(--pce-text-3);
+    flex-shrink: 0;
+}
 
 .pce_search_input {
     border: none;
@@ -180,20 +219,19 @@
     text-decoration: none;
 }
 
-.pce_btn:active { transform: translateY(1px); }
+.pce_btn:active  { transform: translateY(1px); }
 .pce_btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-.pce_btn_icon_svg { width: 14px; height: 14px; flex-shrink: 0; }
 
-.pce_btn_primary { background: var(--pce-blue); color: #fff; }
+.pce_btn_primary       { background: var(--pce-blue);  color: #fff; }
 .pce_btn_primary:hover { background: var(--pce-blue-hover); }
 
-.pce_btn_success { background: var(--pce-green); color: #fff; }
+.pce_btn_success       { background: var(--pce-green); color: #fff; }
 .pce_btn_success:hover { background: #059669; }
 
-.pce_btn_ghost { background: transparent; color: var(--pce-text); border: 1px solid var(--pce-border); }
-.pce_btn_ghost:hover { background: var(--pce-bg); }
+.pce_btn_ghost         { background: transparent; color: var(--pce-text); border: 1px solid var(--pce-border); }
+.pce_btn_ghost:hover   { background: var(--pce-bg); }
 
-.pce_btn_danger_ghost { background: transparent; color: var(--pce-red); border: 1px solid transparent; }
+.pce_btn_danger_ghost       { background: transparent; color: var(--pce-red); border: 1px solid transparent; }
 .pce_btn_danger_ghost:hover { background: var(--pce-red-light); }
 
 .pce_btn_sm { padding: 5px 10px; font-size: 12px; }
@@ -210,15 +248,16 @@
     background: var(--pce-surface);
     border: none;
     cursor: pointer;
-    padding: 6px 9px;
+    padding: 7px 10px;
     color: var(--pce-text-2);
     transition: background 0.15s;
+    font-size: 14px;
     display: flex;
     align-items: center;
 }
 
-.pce_toggle_btn:hover { background: var(--pce-bg); }
-.pce_toggle_active { background: var(--pce-blue-light) !important; color: var(--pce-blue) !important; }
+.pce_toggle_btn:hover  { background: var(--pce-bg); }
+.pce_toggle_active     { background: var(--pce-blue-light) !important; color: var(--pce-blue) !important; }
 
 /* ── Contenido ───────────────────────────────────────────────── */
 .pce_content {
@@ -241,7 +280,7 @@
 
 .pce_state_icon  { font-size: 56px; opacity: 0.4; }
 .pce_state_text  { font-size: 15px; }
-.pce_error_icon  { opacity: 1; }
+.pce_error_icon  { opacity: 1 !important; color: var(--pce-red); }
 .pce_error_text  { color: var(--pce-red); }
 
 /* ── Spinner ─────────────────────────────────────────────────── */
@@ -260,29 +299,32 @@
     border-top-color: #fff;
     border-radius: 50%;
     animation: pce_spin 0.7s linear infinite;
+    vertical-align: middle;
 }
 
 @keyframes pce_spin { to { transform: rotate(360deg); } }
 
 /* ── Checkbox ─────────────────────────────────────────────────
-   El checkbox está envuelto en .pce_item_checkbox que captura
-   el click y llama a onCheckboxClick (stopPropagation).
-   Solo aparece visible al hover del card/row.
+   .pce_item_checkbox = zona clicable (stopPropagation)
+   Solo visible en hover del card; en lista, siempre visible.
 ─────────────────────────────────────────────────────────────── */
-
 .pce_item_checkbox {
     position: absolute;
-    top: 8px;
-    left: 8px;
-    z-index: 2;
-    padding: 4px;           /* zona de click más amplia */
+    top: 7px; left: 7px;
+    z-index: 3;
+    padding: 3px;
     border-radius: 4px;
     opacity: 0;
     transition: opacity 0.15s;
     cursor: pointer;
+    /* zona clicable ampliada */
+    min-width: 26px;
+    min-height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* Visible cuando el card está seleccionado o en hover */
 .pce_card:hover .pce_item_checkbox,
 .pce_card_selected .pce_item_checkbox { opacity: 1; }
 
@@ -295,7 +337,9 @@
     transition: all 0.15s;
     background: var(--pce-surface);
     flex-shrink: 0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    font-size: 11px;
+    color: #fff;
 }
 
 .pce_checkbox_checked {
@@ -306,8 +350,8 @@
 /* ── GRID ────────────────────────────────────────────────────── */
 .pce_grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 8px;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 6px;
     padding: 16px;
     align-content: start;
 }
@@ -318,13 +362,14 @@
     flex-direction: column;
     align-items: center;
     gap: 6px;
-    padding: 20px 10px 10px;
+    padding: 22px 10px 10px;
     border-radius: var(--pce-radius);
     border: 2px solid transparent;
     cursor: pointer;
     transition: all 0.15s;
     user-select: none;
     background: transparent;
+    min-height: 120px;
 }
 
 .pce_card:hover {
@@ -332,6 +377,9 @@
     box-shadow: var(--pce-shadow-sm);
     transform: translateY(-1px);
 }
+
+/* Carpetas: cursor pointer explícito */
+.pce_card_is_folder { cursor: pointer; }
 
 .pce_card_selected {
     background: var(--pce-blue-light) !important;
@@ -345,14 +393,10 @@
     border-style: dashed !important;
 }
 
-/* Carpeta: cursor "pointer" más abierto */
-.pce_card_folder { cursor: default; }
-.pce_card_folder:hover { cursor: pointer; }
-
-/* Badge ya creado */
+/* Badge "Producto" */
 .pce_card_badge {
     position: absolute;
-    top: 8px; right: 8px;
+    top: 7px; right: 7px;
     background: var(--pce-green);
     color: #fff;
     font-size: 10px;
@@ -360,36 +404,35 @@
     padding: 2px 6px;
     border-radius: 10px;
     white-space: nowrap;
-    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 3px;
 }
 
-/* ── Icono del card — SVG inline ─────────────────────────────── */
+/* ── Icono del card ──────────────────────────────────────────── */
 .pce_card_icon {
-    width: 60px; height: 60px;
+    width: 64px; height: 64px;
     border-radius: 14px;
-    display: flex; align-items: center; justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: transform 0.15s;
-    overflow: hidden;
     flex-shrink: 0;
-}
-
-.pce_card_icon svg {
-    width: 34px;
-    height: 34px;
 }
 
 .pce_card:hover .pce_card_icon { transform: scale(1.06); }
 
-/* Badge de extensión debajo del icono */
+/* Badge de extensión */
 .pce_ext_badge {
     font-size: 9px;
     font-weight: 700;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.4px;
     color: #fff;
     padding: 1px 5px;
     border-radius: 3px;
     opacity: 0.85;
     margin-top: -2px;
+    line-height: 1.5;
 }
 
 .pce_card_name {
@@ -409,7 +452,7 @@
     color: var(--pce-text-3);
 }
 
-/* Hover actions (esquina inferior derecha del card) */
+/* Hover actions */
 .pce_card_actions {
     position: absolute;
     bottom: 5px; right: 5px;
@@ -425,9 +468,12 @@
     border: 1px solid var(--pce-border);
     border-radius: 4px;
     cursor: pointer;
-    padding: 4px 5px;
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s, border-color 0.15s;
+    padding: 4px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: all 0.15s;
     box-shadow: var(--pce-shadow-sm);
     color: var(--pce-text-2);
 }
@@ -477,27 +523,28 @@
 .pce_th_size    { width: 100px; }
 .pce_th_date    { width: 160px; }
 .pce_th_status  { width: 120px; }
-.pce_th_actions { width: 120px; }
+.pce_th_actions { width: 130px; }
 
 .pce_table td {
-    padding: 9px 14px;
+    padding: 8px 14px;
     border-bottom: 1px solid var(--pce-border-light);
-    color: var(--pce-text);
     vertical-align: middle;
 }
 
-.pce_row { transition: background 0.1s; cursor: pointer; }
-.pce_row:hover td { background: var(--pce-bg); }
+.pce_row            { transition: background 0.1s; cursor: pointer; }
+.pce_row:hover td   { background: var(--pce-bg); }
 .pce_row_selected td { background: var(--pce-blue-light) !important; }
 .pce_row_drag_over td { background: #dbeafe !important; }
 
-/* En lista el checkbox siempre visible en celda dedicada */
+/* Checkbox en lista: siempre visible */
 .pce_td_check { width: 44px; }
 
 .pce_td_check .pce_item_checkbox {
     position: static;
-    opacity: 1;
+    opacity: 1 !important;
     padding: 0;
+    min-width: unset;
+    min-height: unset;
 }
 
 .pce_td_name {
@@ -507,18 +554,11 @@
     min-width: 0;
 }
 
-/* Icono en lista */
 .pce_row_icon {
     width: 34px; height: 34px;
     border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
-    overflow: hidden;
-}
-
-.pce_row_icon svg {
-    width: 20px;
-    height: 20px;
 }
 
 .pce_row_name {
@@ -529,7 +569,6 @@
     flex: 1;
 }
 
-/* Badge de extensión en lista */
 .pce_row_ext {
     font-size: 9px;
     font-weight: 700;
@@ -559,16 +598,17 @@
 
 .pce_row_btn {
     background: none; border: none;
-    cursor: pointer; padding: 4px 6px;
+    cursor: pointer; padding: 5px 7px;
     border-radius: 4px; font-size: 14px;
-    transition: background 0.1s;
+    transition: background 0.1s, color 0.1s;
+    color: var(--pce-text-2);
+    display: flex; align-items: center;
 }
 
-.pce_row_btn:hover        { background: var(--pce-border); }
-.pce_row_btn_danger:hover { background: var(--pce-red-light); }
-.pce_row_btn_preview:hover { background: var(--pce-green-light); }
+.pce_row_btn:hover        { background: var(--pce-border); color: var(--pce-text); }
+.pce_row_btn_danger:hover { background: var(--pce-red-light); color: var(--pce-red); }
+.pce_row_btn_preview:hover { background: var(--pce-green-light); color: var(--pce-green); }
 
-/* Badges estado */
 .pce_badge_ok {
     display: inline-flex; align-items: center; gap: 4px;
     background: var(--pce-green-light);
@@ -580,7 +620,7 @@
 
 .pce_badge_none { color: var(--pce-text-3); font-size: 11px; }
 
-/* ── SIDEBAR crear productos ─────────────────────────────────── */
+/* ── SIDEBAR ─────────────────────────────────────────────────── */
 .pce_sidebar {
     width: 300px;
     flex-shrink: 0;
@@ -604,13 +644,13 @@
     flex-shrink: 0;
 }
 
-.pce_sidebar_title { font-size: 14px; font-weight: 600; }
+.pce_sidebar_title { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
 
 .pce_sidebar_close {
     background: none; border: none; cursor: pointer;
-    color: var(--pce-text-2); font-size: 16px;
-    padding: 2px 6px; border-radius: 4px;
-    transition: background 0.15s;
+    color: var(--pce-text-2); font-size: 15px;
+    padding: 4px 7px; border-radius: 4px;
+    transition: background 0.15s; display: flex; align-items: center;
 }
 
 .pce_sidebar_close:hover { background: var(--pce-bg); }
@@ -633,15 +673,14 @@
 }
 
 .pce_sidebar_folder_item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
-.pce_sf_icon { font-size: 16px; flex-shrink: 0; }
-.pce_sf_name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pce_sf_icon             { font-size: 16px; flex-shrink: 0; }
+.pce_sf_name             { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .pce_sf_badge { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 8px; white-space: nowrap; flex-shrink: 0; }
 .pce_sf_badge_exists { background: var(--pce-green-light); color: var(--pce-green); }
 
-.pce_sidebar_prices { display: flex; flex-direction: column; gap: 10px; }
-
-.pce_price_field { display: flex; flex-direction: column; gap: 4px; }
+.pce_sidebar_prices  { display: flex; flex-direction: column; gap: 10px; }
+.pce_price_field     { display: flex; flex-direction: column; gap: 4px; }
 .pce_price_field label { font-size: 12px; font-weight: 500; color: var(--pce-text-2); }
 
 .pce_input_sm {
@@ -666,9 +705,9 @@
     font-size: 12px;
 }
 
-.pce_result_created       { background: var(--pce-green-light); }
+.pce_result_created        { background: var(--pce-green-light); }
 .pce_result_already_exists { background: #fffbeb; }
-.pce_result_error         { background: var(--pce-red-light); }
+.pce_result_error          { background: var(--pce-red-light); }
 
 .pce_result_icon  { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
 .pce_result_info  { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -690,7 +729,7 @@
     border-radius: var(--pce-radius);
     box-shadow: var(--pce-shadow-md);
     padding: 4px 0;
-    min-width: 180px;
+    min-width: 185px;
     font-size: 13px;
     animation: pce_fade 0.1s ease;
 }
@@ -703,16 +742,16 @@
 .pce_ctx_item {
     padding: 8px 14px; cursor: pointer;
     color: var(--pce-text);
-    display: flex; align-items: center; gap: 8px;
+    display: flex; align-items: center; gap: 9px;
     transition: background 0.1s;
 }
 
-.pce_ctx_item:hover { background: var(--pce-bg); }
-.pce_ctx_danger { color: var(--pce-red); }
+.pce_ctx_item:hover   { background: var(--pce-bg); }
+.pce_ctx_danger       { color: var(--pce-red); }
 .pce_ctx_danger:hover { background: var(--pce-red-light); }
-.pce_ctx_divider { height: 1px; background: var(--pce-border); margin: 3px 0; }
+.pce_ctx_divider      { height: 1px; background: var(--pce-border); margin: 3px 0; }
 
-/* ── Modales generales ───────────────────────────────────────── */
+/* ── Modales ─────────────────────────────────────────────────── */
 .pce_overlay {
     position: fixed; inset: 0;
     background: rgba(0,0,0,0.45);
@@ -745,9 +784,9 @@
 
 .pce_modal_x {
     background: none; border: none; cursor: pointer;
-    font-size: 17px; color: var(--pce-text-2);
-    padding: 3px 7px; border-radius: 4px;
-    transition: background 0.15s;
+    font-size: 15px; color: var(--pce-text-2);
+    padding: 5px 8px; border-radius: 4px;
+    transition: background 0.15s; display: flex; align-items: center;
 }
 
 .pce_modal_x:hover { background: var(--pce-bg); }
@@ -764,7 +803,7 @@
 }
 
 .pce_modal_loading { display: flex; align-items: center; gap: 12px; color: var(--pce-text-2); }
-.pce_modal_hint { font-size: 13px; color: var(--pce-text-2); margin: 0; }
+.pce_modal_hint    { font-size: 13px; color: var(--pce-text-2); margin: 0; }
 
 .pce_modal_note {
     font-size: 12px; color: var(--pce-text-2);
@@ -772,6 +811,7 @@
     border-left: 3px solid var(--pce-yellow);
     padding: 8px 12px;
     border-radius: 0 6px 6px 0; margin: 0;
+    display: flex; align-items: flex-start; gap: 6px;
 }
 
 /* ── Input ───────────────────────────────────────────────────── */
@@ -807,8 +847,8 @@
     cursor: pointer; color: var(--pce-text-2); font-size: 13px;
 }
 
-.pce_dropzone_icon   { font-size: 36px; opacity: 0.7; }
-.pce_dropzone_count  { color: var(--pce-blue); font-weight: 500; font-size: 12px; }
+.pce_dropzone_icon  { font-size: 40px; opacity: 0.6; color: var(--pce-blue); }
+.pce_dropzone_count { color: var(--pce-blue); font-weight: 500; font-size: 12px; display: flex; align-items: center; gap: 4px; }
 
 /* ── Share modal ─────────────────────────────────────────────── */
 .pce_share_label { font-size: 12px; color: var(--pce-text-2); margin: 0; }
@@ -820,11 +860,12 @@
     background: var(--pce-green-light);
     border-left: 3px solid var(--pce-green);
     border-radius: 0 6px 6px 0;
+    display: flex; align-items: center; gap: 6px;
 }
 
-/* ── MODAL DE PREVISUALIZACIÓN ───────────────────────────────── */
+/* ── PREVIEW modal ───────────────────────────────────────────── */
 .pce_preview_overlay {
-    background: rgba(0,0,0,0.7);
+    background: rgba(0,0,0,0.72);
     backdrop-filter: blur(4px);
 }
 
@@ -840,7 +881,6 @@
     animation: pce_modal_in 0.22s ease;
 }
 
-/* Header del preview */
 .pce_preview_hd {
     display: flex;
     align-items: center;
@@ -848,74 +888,50 @@
     padding: 14px 18px;
     border-bottom: 1px solid var(--pce-border);
     flex-shrink: 0;
-    background: var(--pce-surface);
 }
 
 .pce_preview_icon_sm {
-    width: 36px; height: 36px;
-    border-radius: 8px;
+    width: 38px; height: 38px;
+    border-radius: 9px;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
-    overflow: hidden;
 }
 
-.pce_preview_icon_sm svg { width: 20px; height: 20px; }
-
 .pce_preview_title_wrap {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+    flex: 1; min-width: 0;
+    display: flex; flex-direction: column; gap: 2px;
 }
 
 .pce_preview_filename {
-    font-weight: 600;
-    font-size: 14px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-weight: 600; font-size: 14px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
 .pce_preview_filesize { font-size: 12px; color: var(--pce-text-3); }
 
-.pce_preview_hd_actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-}
+.pce_preview_hd_actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
 .pce_preview_close {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--pce-text-2);
-    padding: 6px;
-    border-radius: 6px;
-    display: flex;
+    background: none; border: none; cursor: pointer;
+    color: var(--pce-text-2); padding: 7px;
+    border-radius: 6px; display: flex;
     transition: background 0.15s, color 0.15s;
+    font-size: 15px;
 }
 
 .pce_preview_close:hover { background: var(--pce-red-light); color: var(--pce-red); }
 
-/* Body del preview */
+/* Body del preview — fondo oscuro para archivos */
 .pce_preview_body {
-    flex: 1;
-    min-height: 0;
+    flex: 1; min-height: 0;
     overflow: auto;
-    background: #1a1a2e;  /* fondo oscuro neutro para archivos */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: #111827;
+    display: flex; align-items: center; justify-content: center;
 }
 
-/* Cargando */
 .pce_preview_loading {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 16px;
     color: rgba(255,255,255,0.6);
     padding: 60px;
 }
@@ -925,120 +941,75 @@
     border-top-color: var(--pce-blue);
 }
 
-/* Imagen */
 .pce_preview_img_wrap {
-    width: 100%;
-    height: 100%;
-    min-height: 400px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    box-sizing: border-box;
+    width: 100%; height: 100%;
+    min-height: 380px;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px; box-sizing: border-box;
 }
 
 .pce_preview_img {
-    max-width: 100%;
-    max-height: 70vh;
+    max-width: 100%; max-height: 70vh;
     object-fit: contain;
     border-radius: 6px;
     box-shadow: 0 4px 30px rgba(0,0,0,0.5);
 }
 
-/* PDF */
-.pce_preview_pdf_wrap {
-    width: 100%;
-    height: 75vh;
-    display: flex;
-}
+.pce_preview_pdf_wrap { width: 100%; height: 75vh; display: flex; }
 
-.pce_preview_pdf {
-    width: 100%;
-    height: 100%;
-    border: none;
-    background: #fff;
-}
+.pce_preview_pdf { width: 100%; height: 100%; border: none; background: #fff; }
 
-/* Video */
 .pce_preview_media_wrap {
-    width: 100%;
-    min-height: 360px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    box-sizing: border-box;
+    width: 100%; min-height: 360px;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px; box-sizing: border-box;
 }
 
 .pce_preview_video {
-    max-width: 100%;
-    max-height: 65vh;
+    max-width: 100%; max-height: 65vh;
     border-radius: 8px;
     box-shadow: 0 4px 24px rgba(0,0,0,0.4);
 }
 
-/* Audio */
 .pce_preview_audio_wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 20px;
     padding: 60px 40px;
-    color: rgba(255,255,255,0.8);
+    color: rgba(255,255,255,0.85);
 }
 
-.pce_audio_icon  { font-size: 64px; opacity: 0.7; }
 .pce_audio_name  { font-size: 15px; font-weight: 500; text-align: center; }
 
-.pce_preview_audio {
-    width: 340px;
-    max-width: 100%;
-}
+.pce_preview_audio { width: 340px; max-width: 100%; }
 
-/* Descarga directa */
 .pce_preview_download_wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 14px;
     padding: 60px 40px;
-    color: rgba(255,255,255,0.7);
     text-align: center;
 }
 
 .pce_download_icon {
-    width: 80px; height: 80px;
-    border-radius: 18px;
+    width: 88px; height: 88px;
+    border-radius: 20px;
     display: flex; align-items: center; justify-content: center;
-    opacity: 0.9;
 }
 
-.pce_download_icon svg { width: 48px; height: 48px; }
-
-.pce_download_name {
-    font-size: 16px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.9);
-}
-
-.pce_download_hint {
-    font-size: 13px;
-    margin: 0;
-    color: rgba(255,255,255,0.5);
-}
+.pce_download_name  { font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.9); }
+.pce_download_hint  { font-size: 13px; margin: 0; color: rgba(255,255,255,0.45); }
 
 /* ── Responsive ──────────────────────────────────────────────── */
 @media (max-width: 900px) {
     .pce_sidebar { width: 260px; }
-    .pce_grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+    .pce_grid    { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
     .pce_preview_modal { width: 96vw; }
 }
 
 @media (max-width: 640px) {
-    .pce_root { flex-direction: column; }
-    .pce_sidebar { width: 100%; border-left: none; border-top: 1px solid var(--pce-border); }
+    .pce_root       { flex-direction: column; }
+    .pce_sidebar    { width: 100%; border-left: none; border-top: 1px solid var(--pce-border); }
     .pce_search_input { width: 120px; }
-    .pce_modal { min-width: unset; margin: 12px; }
+    .pce_modal      { min-width: unset; margin: 12px; }
     .pce_th_date, .pce_td_date,
     .pce_th_size, .pce_td_size { display: none; }
     .pce_preview_pdf_wrap { height: 60vh; }
