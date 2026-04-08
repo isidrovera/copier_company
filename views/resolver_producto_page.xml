@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Página principal de resolución -->
+    <template id="resolver_producto_page" name="Resolver Producto Desconocido">
+        <t t-call="web.layout">
+            <t t-set="head_custom">
+                <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&amp;family=DM+Mono&amp;display=swap" rel="stylesheet"/>
+                <style>
+                    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+                    body {
+                        font-family: 'DM Sans', sans-serif;
+                        background: #0f0f0f;
+                        color: #e8e8e8;
+                        min-height: 100vh;
+                        padding: 40px 20px;
+                    }
+
+                    .container {
+                        max-width: 680px;
+                        margin: 0 auto;
+                    }
+
+                    .header {
+                        margin-bottom: 40px;
+                    }
+
+                    .badge {
+                        display: inline-block;
+                        background: #ff4d4d22;
+                        color: #ff6b6b;
+                        border: 1px solid #ff4d4d44;
+                        padding: 4px 12px;
+                        border-radius: 20px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        letter-spacing: 0.05em;
+                        text-transform: uppercase;
+                        margin-bottom: 16px;
+                    }
+
+                    h1 {
+                        font-size: 28px;
+                        font-weight: 600;
+                        color: #ffffff;
+                        line-height: 1.2;
+                        margin-bottom: 8px;
+                    }
+
+                    .subtitle {
+                        color: #888;
+                        font-size: 15px;
+                    }
+
+                    .invoice-card {
+                        background: #1a1a1a;
+                        border: 1px solid #2a2a2a;
+                        border-radius: 12px;
+                        padding: 24px;
+                        margin-bottom: 32px;
+                    }
+
+                    .invoice-card h2 {
+                        font-size: 13px;
+                        font-weight: 500;
+                        color: #666;
+                        text-transform: uppercase;
+                        letter-spacing: 0.08em;
+                        margin-bottom: 16px;
+                    }
+
+                    .invoice-grid {
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 12px;
+                    }
+
+                    .invoice-field label {
+                        display: block;
+                        font-size: 11px;
+                        color: #555;
+                        text-transform: uppercase;
+                        letter-spacing: 0.06em;
+                        margin-bottom: 4px;
+                    }
+
+                    .invoice-field span {
+                        font-size: 14px;
+                        color: #ccc;
+                        font-family: 'DM Mono', monospace;
+                    }
+
+                    .product-highlight {
+                        grid-column: 1 / -1;
+                        background: #ff4d4d11;
+                        border: 1px solid #ff4d4d33;
+                        border-radius: 8px;
+                        padding: 12px 16px;
+                    }
+
+                    .product-highlight label { color: #ff6b6b !important; }
+                    .product-highlight span { color: #ffffff !important; font-size: 15px !important; font-weight: 500; }
+
+                    .options-section h2 {
+                        font-size: 16px;
+                        font-weight: 600;
+                        color: #fff;
+                        margin-bottom: 6px;
+                    }
+
+                    .options-section p {
+                        color: #666;
+                        font-size: 14px;
+                        margin-bottom: 24px;
+                    }
+
+                    .option-card {
+                        background: #1a1a1a;
+                        border: 1px solid #2a2a2a;
+                        border-radius: 12px;
+                        padding: 24px;
+                        margin-bottom: 16px;
+                        transition: border-color 0.2s;
+                    }
+
+                    .option-card:hover { border-color: #444; }
+
+                    .option-card h3 {
+                        font-size: 15px;
+                        font-weight: 600;
+                        color: #fff;
+                        margin-bottom: 4px;
+                    }
+
+                    .option-card p {
+                        font-size: 13px;
+                        color: #666;
+                        margin-bottom: 16px !important;
+                    }
+
+                    input[type="text"] {
+                        width: 100%;
+                        background: #111;
+                        border: 1px solid #333;
+                        border-radius: 8px;
+                        color: #e8e8e8;
+                        padding: 10px 14px;
+                        font-size: 14px;
+                        font-family: 'DM Sans', sans-serif;
+                        outline: none;
+                        transition: border-color 0.2s;
+                    }
+
+                    input[type="text"]:focus { border-color: #555; }
+
+                    .search-wrapper { position: relative; }
+
+                    .autocomplete-list {
+                        position: absolute;
+                        top: 100%;
+                        left: 0; right: 0;
+                        background: #1e1e1e;
+                        border: 1px solid #333;
+                        border-top: none;
+                        border-radius: 0 0 8px 8px;
+                        max-height: 220px;
+                        overflow-y: auto;
+                        z-index: 100;
+                        display: none;
+                    }
+
+                    .autocomplete-list.show { display: block; }
+
+                    .autocomplete-item {
+                        padding: 10px 14px;
+                        font-size: 13px;
+                        color: #ccc;
+                        cursor: pointer;
+                        transition: background 0.15s;
+                    }
+
+                    .autocomplete-item:hover, .autocomplete-item.selected {
+                        background: #2a2a2a;
+                        color: #fff;
+                    }
+
+                    .btn {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 8px;
+                        padding: 10px 20px;
+                        border-radius: 8px;
+                        font-size: 14px;
+                        font-weight: 500;
+                        cursor: pointer;
+                        border: none;
+                        font-family: 'DM Sans', sans-serif;
+                        transition: opacity 0.2s;
+                        text-decoration: none;
+                    }
+
+                    .btn:hover { opacity: 0.85; }
+
+                    .btn-primary {
+                        background: #ffffff;
+                        color: #000000;
+                        width: 100%;
+                        justify-content: center;
+                        margin-top: 12px;
+                    }
+
+                    .btn-secondary {
+                        background: #2a2a2a;
+                        color: #ccc;
+                        width: 100%;
+                        justify-content: center;
+                        margin-top: 12px;
+                    }
+
+                    .selected-product {
+                        background: #1a2a1a;
+                        border: 1px solid #2a4a2a;
+                        border-radius: 6px;
+                        padding: 8px 12px;
+                        font-size: 13px;
+                        color: #6fcf6f;
+                        margin-top: 8px;
+                        display: none;
+                    }
+
+                    .divider {
+                        text-align: center;
+                        color: #444;
+                        font-size: 12px;
+                        margin: 8px 0;
+                        position: relative;
+                    }
+                </style>
+            </t>
+
+            <div class="container">
+                <div class="header">
+                    <div class="badge">⚠ Acción requerida</div>
+                    <h1>Producto desconocido en factura</h1>
+                    <p class="subtitle">El siguiente producto no existe en Odoo ni tiene aliases registrados.</p>
+                </div>
+
+                <div class="invoice-card">
+                    <h2>Datos de la factura</h2>
+                    <div class="invoice-grid">
+                        <div class="invoice-field product-highlight">
+                            <label>Producto en factura</label>
+                            <span t-esc="pending.description_proveedor"/>
+                        </div>
+                        <div class="invoice-field">
+                            <label>N° Factura</label>
+                            <span t-esc="pending.invoice_id"/>
+                        </div>
+                        <div class="invoice-field">
+                            <label>Proveedor</label>
+                            <span t-esc="pending.supplier_name"/>
+                        </div>
+                        <div class="invoice-field">
+                            <label>Cantidad</label>
+                            <span t-esc="payload.get('quantity', '')"/>
+                        </div>
+                        <div class="invoice-field">
+                            <label>Precio unitario</label>
+                            <span><t t-esc="payload.get('currency', 'USD')"/> <t t-esc="payload.get('unit_price', '')"/></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="options-section">
+                    <h2>¿Cómo deseas resolver esto?</h2>
+                    <p>Elige una opción. Se guardará un alias automáticamente para futuras facturas con este producto.</p>
+
+                    <!-- Opción A: Producto existente -->
+                    <div class="option-card">
+                        <h3>Usar un producto existente</h3>
+                        <p>El producto ya existe en Odoo pero con otro nombre.</p>
+                        <div class="search-wrapper">
+                            <input type="text" id="product-search" placeholder="Escribe para buscar..." autocomplete="off"/>
+                            <div class="autocomplete-list" id="autocomplete-list"></div>
+                        </div>
+                        <div class="selected-product" id="selected-display"></div>
+                        <form method="POST" action="/copier/resolver-producto/confirmar" id="form-existing">
+                            <input type="hidden" name="token" t-att-value="token"/>
+                            <input type="hidden" name="accion" value="existing"/>
+                            <input type="hidden" name="product_id" id="selected-product-id" value=""/>
+                            <button type="submit" class="btn btn-primary" id="btn-existing" disabled="disabled"
+                                style="opacity:0.4; cursor:not-allowed;">
+                                Confirmar producto existente
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="divider">— o —</div>
+
+                    <!-- Opción B: Crear nuevo -->
+                    <div class="option-card">
+                        <h3>Crear producto nuevo</h3>
+                        <p>Se creará un nuevo producto en Odoo con el nombre que indiques.</p>
+                        <form method="POST" action="/copier/resolver-producto/confirmar">
+                            <input type="hidden" name="token" t-att-value="token"/>
+                            <input type="hidden" name="accion" value="new"/>
+                            <input type="text" name="nuevo_nombre"
+                                t-att-placeholder="pending.description_proveedor"
+                                t-att-value="pending.description_proveedor"/>
+                            <button type="submit" class="btn btn-secondary">
+                                Crear producto nuevo
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                const searchInput = document.getElementById('product-search');
+                const autocompleteList = document.getElementById('autocomplete-list');
+                const selectedDisplay = document.getElementById('selected-display');
+                const selectedProductId = document.getElementById('selected-product-id');
+                const btnExisting = document.getElementById('btn-existing');
+                let debounceTimer;
+
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(debounceTimer);
+                    const q = this.value.trim();
+                    if (q.length &lt; 2) {
+                        autocompleteList.classList.remove('show');
+                        return;
+                    }
+                    debounceTimer = setTimeout(() => {
+                        fetch('/copier/resolver-producto/buscar-productos?q=' + encodeURIComponent(q))
+                            .then(r => r.json())
+                            .then(items => {
+                                autocompleteList.innerHTML = '';
+                                if (!items.length) {
+                                    autocompleteList.innerHTML = '<div class="autocomplete-item" style="color:#555;">Sin resultados</div>';
+                                } else {
+                                    items.forEach(item => {
+                                        const div = document.createElement('div');
+                                        div.className = 'autocomplete-item';
+                                        div.textContent = item.name;
+                                        div.dataset.id = item.id;
+                                        div.addEventListener('click', () => selectProduct(item));
+                                        autocompleteList.appendChild(div);
+                                    });
+                                }
+                                autocompleteList.classList.add('show');
+                            });
+                    }, 250);
+                });
+
+                function selectProduct(item) {
+                    searchInput.value = item.name;
+                    selectedProductId.value = item.id;
+                    selectedDisplay.textContent = '✓ Seleccionado: ' + item.name;
+                    selectedDisplay.style.display = 'block';
+                    autocompleteList.classList.remove('show');
+                    btnExisting.removeAttribute('disabled');
+                    btnExisting.style.opacity = '1';
+                    btnExisting.style.cursor = 'pointer';
+                }
+
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.search-wrapper')) {
+                        autocompleteList.classList.remove('show');
+                    }
+                });
+            </script>
+        </t>
+    </template>
+
+    <!-- Página de éxito -->
+    <template id="resolver_producto_success" name="Resolver Producto - Éxito">
+        <t t-call="web.layout">
+            <t t-set="head_custom">
+                <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+                <style>
+                    body { font-family: 'DM Sans', sans-serif; background: #0f0f0f; color: #e8e8e8; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+                    .card { max-width: 480px; width: 100%; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 16px; padding: 40px; text-align: center; }
+                    .icon { font-size: 48px; margin-bottom: 20px; }
+                    h1 { font-size: 22px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+                    p { color: #888; font-size: 14px; margin-bottom: 6px; }
+                    .po-name { font-size: 28px; font-weight: 600; color: #6fcf6f; margin: 16px 0; font-family: monospace; }
+                    .detail { background: #111; border-radius: 8px; padding: 12px 16px; margin: 16px 0; text-align: left; font-size: 13px; color: #aaa; }
+                    .detail strong { color: #ddd; }
+                    .btn { display: inline-block; margin-top: 20px; padding: 10px 24px; background: #fff; color: #000; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 14px; }
+                </style>
+            </t>
+            <div class="card">
+                <div class="icon">✅</div>
+                <h1>¡Orden de compra creada!</h1>
+                <div class="po-name" t-esc="po_name"/>
+                <div class="detail">
+                    <p><strong>Factura:</strong> <t t-esc="invoice_id"/></p>
+                    <p><strong>Producto:</strong> <t t-esc="product_name"/></p>
+                    <p><strong>Resolución:</strong>
+                        <t t-if="resolution_type == 'new'">Producto nuevo creado</t>
+                        <t t-if="resolution_type == 'existing'">Producto existente usado</t>
+                    </p>
+                    <p><strong>Alias guardado:</strong> "<t t-esc="alias_saved"/>"</p>
+                </div>
+                <a t-att-href="po_url" class="btn">Ver orden de compra en Odoo</a>
+            </div>
+        </t>
+    </template>
+
+    <!-- Página de token inválido o ya resuelto -->
+    <template id="resolver_producto_invalid" name="Resolver Producto - Inválido">
+        <t t-call="web.layout">
+            <t t-set="head_custom">
+                <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&amp;display=swap" rel="stylesheet"/>
+                <style>
+                    body { font-family: 'DM Sans', sans-serif; background: #0f0f0f; color: #e8e8e8; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+                    .card { max-width: 400px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 16px; padding: 40px; text-align: center; }
+                    .icon { font-size: 48px; margin-bottom: 16px; }
+                    h1 { font-size: 20px; color: #fff; margin-bottom: 8px; }
+                    p { color: #666; font-size: 14px; }
+                </style>
+            </t>
+            <div class="card">
+                <div class="icon">🔒</div>
+                <h1>Enlace no válido</h1>
+                <p>Este enlace ya fue usado, no existe, o la solicitud fue resuelta anteriormente.</p>
+            </div>
+        </t>
+    </template>
+
+    <!-- Página de error -->
+    <template id="resolver_producto_error" name="Resolver Producto - Error">
+        <t t-call="web.layout">
+            <t t-set="head_custom">
+                <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&amp;display=swap" rel="stylesheet"/>
+                <style>
+                    body { font-family: 'DM Sans', sans-serif; background: #0f0f0f; color: #e8e8e8; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+                    .card { max-width: 400px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 16px; padding: 40px; text-align: center; }
+                    .icon { font-size: 48px; margin-bottom: 16px; }
+                    h1 { font-size: 20px; color: #fff; margin-bottom: 8px; }
+                    p { color: #888; font-size: 14px; margin-bottom: 20px; }
+                    .error-msg { background: #2a1a1a; border: 1px solid #4a2a2a; border-radius: 8px; padding: 12px; font-size: 13px; color: #ff8888; margin-bottom: 20px; }
+                    .btn { display: inline-block; padding: 10px 24px; background: #2a2a2a; color: #ccc; border-radius: 8px; text-decoration: none; font-size: 14px; }
+                </style>
+            </t>
+            <div class="card">
+                <div class="icon">❌</div>
+                <h1>Ocurrió un error</h1>
+                <div class="error-msg" t-esc="error"/>
+                <a t-att-href="'/copier/resolver-producto/' + token" class="btn">Volver a intentar</a>
+            </div>
+        </t>
+    </template>
+</odoo>

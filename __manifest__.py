@@ -83,6 +83,8 @@
         'views/whatsapp_send_multi_quotation_wizard_views.xml',   
         'views/report_invoice_modern.xml',                
         'views/copier_soporte.xml',
+        'views/resolver_producto_page.xml',
+        'views/view_product_name_alias.xml',
         'views/menus_actions.xml',
         # ❗️ No cargues QWeb de frontend aquí; mejor en assets_qweb (abajo)
         # 'static/src/xml/counter_charts_templates.xml',
