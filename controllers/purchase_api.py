@@ -64,11 +64,10 @@ class PurchaseApiController(http.Controller):
             if not product:
                 template = request.env['product.template'].sudo().create({
                     'name': description,
-                    'type': 'product',
+                    'type': 'consu',
                     'purchase_ok': True,
                     'sale_ok': False,
-                    'uom_id': request.env.ref('uom.product_uom_unit').id,
-                    'uom_po_id': request.env.ref('uom.product_uom_unit').id,
+                    'uom_id': request.env.ref('uom.product_uom_unit').id,  # solo este
                 })
                 product = Product.search([('product_tmpl_id', '=', template.id)], limit=1)
                 _logger.info('Producto creado: %s', description[:60])
