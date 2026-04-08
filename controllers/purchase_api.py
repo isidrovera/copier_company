@@ -12,7 +12,7 @@ _logger = logging.getLogger(__name__)
 
 class PurchaseApiController(http.Controller):
 
-    @http.route('/copier/crear_compra', type='json', auth='api_key', methods=['POST'], csrf=False)
+    @http.route('/copier/crear_compra', type='json', auth='bearer', methods=['POST'], csrf=False)
     def crear_compra(self, **kwargs):
         """
         Crea una Orden de Compra desde n8n a partir de datos de factura electrónica.
