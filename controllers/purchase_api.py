@@ -10,7 +10,7 @@ _logger = logging.getLogger(__name__)
 
 class PurchaseApiController(http.Controller):
 
-    @http.route('/copier/crear_compra', type='json', auth='bearer', methods=['POST'], csrf=False)
+    @http.route('/copier/crear_compra', type='jsonrpc', auth='bearer', methods=['POST'], csrf=False)
     def crear_compra(self, **kwargs):
         """
         Crea una Orden de Compra desde n8n a partir de datos de factura electrónica.
@@ -36,7 +36,12 @@ class PurchaseApiController(http.Controller):
         _logger.info('=== [crear_compra] Inicio de request ===')
 
         try:
-            data = request.get_json_data()
+            raw = request.get_json_data()
+            # Soporta payload plano o envuelto en jsonrpc {params: {...}}
+            if isinstance(raw, dict) and 'params' in raw:
+                data = raw['params']
+            else:
+                data = raw
             _logger.info('[crear_compra] Payload recibido: invoice_id=%s, supplier_ruc=%s, currency=%s, qty=%s, unit_price=%s',
                 data.get('invoice_id'), data.get('supplier_ruc'), data.get('currency'),
                 data.get('quantity'), data.get('unit_price'))
@@ -110,8 +115,19 @@ class PurchaseApiController(http.Controller):
             due_date = data.get('due_date', issue_date)
             _logger.info('[crear_compra] Fechas — emisión: %s | vencimiento: %s', issue_date, due_date)
 
-            date_order_str = issue_date + ' 00:00:00' if issue_date else False
-            date_planned_str = due_date + ' 00:00:00' if due_date else False
+            from odoo.fields import Datetime as OdooDatetime
+            from datetime import datetime
+
+            def parse_date(date_str):
+                if not date_str:
+                    return datetime.now()
+                try:
+                    return datetime.strptime(date_str.strip(), '%Y-%m-%d')
+                except Exception:
+                    return datetime.now()
+
+            date_order_str = parse_date(issue_date)
+            date_planned_str = parse_date(due_date)
 
             # 6. Crear Purchase Order
             _logger.info('[crear_compra] Creando Purchase Order...')
