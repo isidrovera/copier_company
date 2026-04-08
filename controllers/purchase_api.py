@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 # Archivo: copier_company/controllers/purchase_api.py
-# Agregar en __manifest__.py: 'controllers/purchase_api.py' en data o importar en __init__.py
 
-import json
 import logging
 from odoo import http
-from odoo.http import request, Response
+from odoo.http import request
 
 _logger = logging.getLogger(__name__)
 
@@ -35,10 +33,16 @@ class PurchaseApiController(http.Controller):
             "xml_base64":    "..."
         }
         """
+        _logger.info('=== [crear_compra] Inicio de request ===')
+
         try:
             data = request.get_json_data()
+            _logger.info('[crear_compra] Payload recibido: invoice_id=%s, supplier_ruc=%s, currency=%s, qty=%s, unit_price=%s',
+                data.get('invoice_id'), data.get('supplier_ruc'), data.get('currency'),
+                data.get('quantity'), data.get('unit_price'))
 
             # 1. Buscar o crear proveedor por RUC (campo vat)
+            _logger.info('[crear_compra] Buscando proveedor por RUC: %s', data.get('supplier_ruc'))
             Partner = request.env['res.partner'].sudo()
             partner = Partner.search([('vat', '=', data.get('supplier_ruc'))], limit=1)
             if not partner:
@@ -48,54 +52,77 @@ class PurchaseApiController(http.Controller):
                     'supplier_rank': 1,
                     'country_id': request.env.ref('base.pe').id,
                 })
-                _logger.info('Proveedor creado: %s (RUC: %s)', partner.name, partner.vat)
+                _logger.info('[crear_compra] Proveedor CREADO: %s (ID: %s, RUC: %s)',
+                    partner.name, partner.id, partner.vat)
             else:
-                _logger.info('Proveedor encontrado: %s (ID: %s)', partner.name, partner.id)
+                _logger.info('[crear_compra] Proveedor ENCONTRADO: %s (ID: %s)',
+                    partner.name, partner.id)
 
             # 2. Buscar moneda
+            currency_name = data.get('currency', 'USD')
+            _logger.info('[crear_compra] Buscando moneda: %s', currency_name)
             Currency = request.env['res.currency'].sudo()
-            currency = Currency.search([('name', '=', data.get('currency', 'USD'))], limit=1)
+            currency = Currency.search([('name', '=', currency_name)], limit=1)
+            if currency:
+                _logger.info('[crear_compra] Moneda encontrada: %s (ID: %s)', currency.name, currency.id)
+            else:
+                _logger.warning('[crear_compra] Moneda NO encontrada: %s — se usará la moneda por defecto', currency_name)
             currency_id = currency.id if currency else False
 
             # 3. Buscar o crear producto
-            Product = request.env['product.product'].sudo()
             description = data.get('description', '')
+            _logger.info('[crear_compra] Buscando producto por descripción: "%s"', description[:60])
+            Product = request.env['product.product'].sudo()
             product = Product.search([('name', 'ilike', description[:40])], limit=1)
             if not product:
+                _logger.info('[crear_compra] Producto no encontrado, creando nuevo...')
+                # uom_po_id NO existe en este Odoo — solo uom_id
                 template = request.env['product.template'].sudo().create({
                     'name': description,
-                    'type': 'consu',
+                    'type': 'consu',        # consu = consumible, no requiere config de stock
                     'purchase_ok': True,
                     'sale_ok': False,
-                    'uom_id': request.env.ref('uom.product_uom_unit').id,  # solo este
+                    'uom_id': request.env.ref('uom.product_uom_unit').id,
                 })
                 product = Product.search([('product_tmpl_id', '=', template.id)], limit=1)
-                _logger.info('Producto creado: %s', description[:60])
+                _logger.info('[crear_compra] Producto CREADO: "%s" (template_id: %s, product_id: %s)',
+                    description[:60], template.id, product.id)
             else:
-                _logger.info('Producto encontrado: %s (ID: %s)', product.name, product.id)
+                _logger.info('[crear_compra] Producto ENCONTRADO: %s (ID: %s)', product.name, product.id)
 
             # 4. Buscar impuesto IGV 18% compras
+            _logger.info('[crear_compra] Buscando impuesto IGV 18%% compras...')
             Tax = request.env['account.tax'].sudo()
             igv = Tax.search([
                 ('amount', '=', 18),
                 ('type_tax_use', '=', 'purchase'),
                 ('active', '=', True),
             ], limit=1)
+            if igv:
+                _logger.info('[crear_compra] IGV encontrado: %s (ID: %s)', igv.name, igv.id)
+            else:
+                _logger.warning('[crear_compra] IGV 18%% NO encontrado — línea se creará sin impuesto')
+            # En Odoo 17+: tax_ids (no taxes_id)
             tax_ids = [(4, igv.id)] if igv else []
 
-            # 5. Preparar fecha
+            # 5. Preparar fechas
             issue_date = data.get('issue_date', '')
             due_date = data.get('due_date', issue_date)
+            _logger.info('[crear_compra] Fechas — emisión: %s | vencimiento: %s', issue_date, due_date)
+
+            date_order_str = issue_date + ' 00:00:00' if issue_date else False
+            date_planned_str = due_date + ' 00:00:00' if due_date else False
 
             # 6. Crear Purchase Order
+            _logger.info('[crear_compra] Creando Purchase Order...')
             PO = request.env['purchase.order'].sudo()
             po = PO.create({
                 'partner_id': partner.id,
                 'currency_id': currency_id or False,
-                'date_order': issue_date + ' 00:00:00' if issue_date else False,
-                'date_planned': due_date + ' 00:00:00' if due_date else False,
+                'date_order': date_order_str,
+                'date_planned': date_planned_str,
                 'partner_ref': data.get('invoice_id', ''),
-                'note': 'Factura: %s | Vencimiento: %s' % (
+                'note': 'Factura: %s | Vencimiento: %s' % (        # campo validado: 'note' existe
                     data.get('invoice_id', ''), due_date
                 ),
                 'order_line': [(0, 0, {
@@ -103,16 +130,16 @@ class PurchaseApiController(http.Controller):
                     'name': description,
                     'product_qty': float(data.get('quantity', 1)),
                     'price_unit': float(data.get('unit_price', 0)),
-                    'taxes_id': tax_ids,
-                    'date_planned': due_date + ' 00:00:00' if due_date else False,
+                    'tax_ids': tax_ids,                             # corregido: tax_ids (no taxes_id)
+                    'date_planned': date_planned_str,
                 })],
             })
-            _logger.info('PO creada: %s (ID: %s)', po.name, po.id)
+            _logger.info('[crear_compra] PO CREADA: %s (ID: %s)', po.name, po.id)
 
             # 7. Adjuntar PDF
             Attachment = request.env['ir.attachment'].sudo()
             if data.get('pdf_base64'):
-                Attachment.create({
+                att = Attachment.create({
                     'name': data.get('invoice_id', 'factura') + '.pdf',
                     'type': 'binary',
                     'datas': data.get('pdf_base64'),
@@ -120,10 +147,13 @@ class PurchaseApiController(http.Controller):
                     'res_id': po.id,
                     'mimetype': 'application/pdf',
                 })
+                _logger.info('[crear_compra] PDF adjuntado (attachment ID: %s)', att.id)
+            else:
+                _logger.info('[crear_compra] Sin PDF en payload, omitiendo adjunto')
 
             # 8. Adjuntar XML
             if data.get('xml_base64'):
-                Attachment.create({
+                att = Attachment.create({
                     'name': data.get('invoice_id', 'factura') + '.xml',
                     'type': 'binary',
                     'datas': data.get('xml_base64'),
@@ -131,8 +161,11 @@ class PurchaseApiController(http.Controller):
                     'res_id': po.id,
                     'mimetype': 'application/xml',
                 })
+                _logger.info('[crear_compra] XML adjuntado (attachment ID: %s)', att.id)
+            else:
+                _logger.info('[crear_compra] Sin XML en payload, omitiendo adjunto')
 
-            return {
+            result = {
                 'success': True,
                 'po_id': po.id,
                 'po_name': po.name,
@@ -142,9 +175,11 @@ class PurchaseApiController(http.Controller):
                 'product_id': product.id,
                 'invoice_id': data.get('invoice_id'),
             }
+            _logger.info('=== [crear_compra] Fin exitoso: %s ===', result)
+            return result
 
         except Exception as e:
-            _logger.error('Error creando PO desde API: %s', str(e), exc_info=True)
+            _logger.error('=== [crear_compra] ERROR: %s ===', str(e), exc_info=True)
             return {
                 'success': False,
                 'error': str(e),
