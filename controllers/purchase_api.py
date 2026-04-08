@@ -95,7 +95,7 @@ class PurchaseApiController(http.Controller):
                 'date_order': issue_date + ' 00:00:00' if issue_date else False,
                 'date_planned': due_date + ' 00:00:00' if due_date else False,
                 'partner_ref': data.get('invoice_id', ''),
-                'notes': 'Factura: %s | Vencimiento: %s' % (
+                'note': 'Factura: %s | Vencimiento: %s' % (
                     data.get('invoice_id', ''), due_date
                 ),
                 'order_line': [(0, 0, {
