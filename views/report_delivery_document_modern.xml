@@ -326,7 +326,7 @@
                     <img t-att-src="image_data_uri(o.signature)" style="max-height: 4cm; max-width: 8cm;"/>
                 </div>
                 <div t-if="o.partner_id.name" class="offset-8 text-center">
-                    <p t-field="o.partner_id.name"/>
+                    <p t-out="o.partner_id.name"/>
                 </div>
             </div>
 
@@ -384,11 +384,11 @@
                         </span>
                         <t t-if="o.l10n_pe_edi_vehicle_id.authorization_issuing_entity">
                             <span class="cc_lbl">Entidad autorizadora</span>
-                            <span class="cc_val light" t-field="o.l10n_pe_edi_vehicle_id.authorization_issuing_entity"/>
+                            <span class="cc_val light" t-out="o.l10n_pe_edi_vehicle_id.authorization_issuing_entity"/>
                         </t>
                         <t t-if="o.l10n_pe_edi_vehicle_id.authorization_issuing_entity_number">
                             <span class="cc_lbl">Nro. autorización especial</span>
-                            <span class="cc_val light" t-field="o.l10n_pe_edi_vehicle_id.authorization_issuing_entity_number"/>
+                            <span class="cc_val light" t-out="o.l10n_pe_edi_vehicle_id.authorization_issuing_entity_number"/>
                         </t>
                     </div>
                 </div>
@@ -404,17 +404,17 @@
                         </div>
                     </div>
                     <div class="cc_col cc_col-8">
-                        <t t-if="o.l10n_pe_edi_related_document_type">
+                        <div t-if="o.l10n_pe_edi_related_document_type">
                             <span class="cc_lbl first">Documentos relacionados</span>
                             <span class="cc_val light">
                                 <span t-field="o.l10n_pe_edi_related_document_type"/> -
                                 <span t-field="o.l10n_pe_edi_document_number"/>
                             </span>
-                        </t>
-                        <t t-if="o.l10n_pe_edi_observation">
+                        </div>
+                        <div t-if="o.l10n_pe_edi_observation">
                             <span class="cc_lbl">Observaciones</span>
                             <span class="cc_val light" t-out="o.l10n_pe_edi_observation"/>
-                        </t>
+                        </div>
                     </div>
                 </div>
 
