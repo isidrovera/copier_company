@@ -173,6 +173,10 @@
             <t t-set="partner" t-value="o.partner_id"/>
             <t t-set="warehouse_partner" t-value="o.picking_type_id.warehouse_id.partner_id"/>
 
+            <!-- Obtener QR SUNAT de forma segura -->
+            <t t-set="qr_url" t-value="False"/>
+            <t t-set="qr_url" t-value="o._l10n_pe_edi_get_qr()"/>
+
             <!-- ======= CABECERA ======= -->
             <table class="cc_header_tbl">
                 <tr>
@@ -386,7 +390,6 @@
             <table class="cc_bottom">
                 <tr>
                     <td class="cc_qr_cell">
-                        <t t-set="qr_url" t-value="o._l10n_pe_edi_get_qr() if hasattr(o, '_l10n_pe_edi_get_qr') else False"/>
                         <img t-if="qr_url" class="cc_qr_img" alt="QR"
                              t-att-src="'/report/barcode/?barcode_type=QR&amp;value=%s&amp;width=180&amp;height=180&amp;quiet=0' % quote_plus(qr_url)"/>
                         <div t-else="" style="width: 120pt; height: 120pt; border: 0.5pt dashed #999; text-align: center; line-height: 120pt; font-size: 7pt; color: #999;">
