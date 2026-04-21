@@ -38,15 +38,18 @@
         <field name="name">purchase.product.pending.tree</field>
         <field name="model">purchase.product.pending</field>
         <field name="arch" type="xml">
-            <list string="Facturas pendientes" decoration-warning="state == 'pending'" decoration-success="state == 'resolved'">
+            <list string="Facturas pendientes"
+                  decoration-warning="state == 'pending'"
+                  decoration-success="state == 'resolved'"
+                  decoration-muted="state == 'cancelled'">
                 <field name="create_date" string="Fecha"/>
                 <field name="invoice_id" string="N° Factura"/>
                 <field name="description_proveedor" string="Producto en factura"/>
                 <field name="supplier_name" string="Proveedor"/>
                 <field name="state" string="Estado" widget="badge"
-                    decoration-warning="state == 'pending'"
-                    decoration-success="state == 'resolved'"
-                    decoration-muted="state == 'cancelled'"/>
+                       decoration-warning="state == 'pending'"
+                       decoration-success="state == 'resolved'"
+                       decoration-muted="state == 'cancelled'"/>
                 <field name="resolved_product_id" string="Producto resuelto"/>
                 <field name="resolved_po_id" string="Orden creada"/>
             </list>
@@ -60,7 +63,7 @@
             <form string="Factura pendiente">
                 <header>
                     <field name="state" widget="statusbar"
-                        statusbar_visible="pending,resolved,cancelled"/>
+                           statusbar_visible="pending,resolved,cancelled"/>
                 </header>
                 <sheet>
                     <group string="Datos de la factura">
@@ -98,26 +101,24 @@
         <field name="view_mode">list,form</field>
     </record>
 
-    <!-- ===================== MENU ===================== -->
-    <menuitem id="menu_copier_company_root"
-        name="Copier Company"
-        sequence="90"/>
+    <!-- ===================== MENÚS ===================== -->
+    <!-- Se agregan bajo el menú "Ajustes" existente del módulo copier_company -->
 
     <menuitem id="menu_copier_company_aliases"
-        name="Aliases de Productos"
-        parent="menu_copier_company_root"
-        action="action_product_name_alias"
-        sequence="10"/>
+              name="Aliases de Productos"
+              parent="copier_company.menu_ajustes"
+              action="action_product_name_alias"
+              sequence="100"/>
 
     <menuitem id="menu_copier_company_pending"
-        name="Facturas Pendientes"
-        parent="menu_copier_company_root"
-        action="action_purchase_product_pending"
-        sequence="20"/>
+              name="Facturas Pendientes"
+              parent="copier_company.menu_ajustes"
+              action="action_purchase_product_pending"
+              sequence="110"/>
 
     <menuitem id="menu_copier_company_pending_all"
-        name="Historial de Pendientes"
-        parent="menu_copier_company_root"
-        action="action_purchase_product_pending_all"
-        sequence="30"/>
+              name="Historial de Pendientes"
+              parent="copier_company.menu_ajustes"
+              action="action_purchase_product_pending_all"
+              sequence="120"/>
 </odoo>
