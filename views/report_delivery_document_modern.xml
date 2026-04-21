@@ -3,13 +3,15 @@
 
     <!-- ============================================================
          PARTE 1: Hereda stock.report_delivery_document
-         Agrega estilos y sección Origen/Destino
+         - Agrega estilos personalizados
+         - Reemplaza el bloque "informations" (Dirección de entrega)
+           por la nueva sección "Origen y Destino"
     ============================================================ -->
     <template id="report_delivery_document_copier"
               inherit_id="stock.report_delivery_document"
               name="Copier Company - Delivery Document">
 
-        <!-- Estilos -->
+        <!-- ============ ESTILOS ============ -->
         <xpath expr="//div[hasclass('page')]" position="before">
             <style>
                 .cc_grid {
@@ -65,11 +67,13 @@
             </style>
         </xpath>
 
-        <!-- Sección Origen y Destino después del bloque de informaciones -->
-        <xpath expr="//div[@id='informations']" position="after">
+        <!-- ============ REEMPLAZAR BLOQUE "DIRECCIÓN DE ENTREGA" ============ -->
+        <!-- Se reemplaza el div "informations" por nuestra sección Origen y Destino -->
+        <xpath expr="//div[@id='informations']" position="replace">
             <div id="cc_origin_dest" class="mb-3">
                 <span class="cc_section_title">Origen y Destino</span>
                 <div class="cc_grid">
+                    <!-- Columna Origen -->
                     <div class="cc_col cc_col-6">
                         <span class="cc_lbl first">Punto de Partida</span>
                         <span class="cc_val light">
@@ -87,6 +91,7 @@
                         <span class="cc_lbl">Ubicación de origen</span>
                         <span class="cc_val light" t-out="o.location_id.complete_name or ''"/>
                     </div>
+                    <!-- Columna Destino -->
                     <div class="cc_col cc_col-6">
                         <t t-set="dest_partner" t-value="o.partner_id or (o.move_ids and o.move_ids[0].partner_id) or False"/>
                         <span class="cc_lbl first">Punto de Llegada</span>
@@ -106,14 +111,16 @@
     </template>
 
     <!-- ============================================================
-         PARTE 2: Hereda la vista de l10n_pe_edi_stock
-         Mejora la presentación de las secciones de la guía electrónica
+         PARTE 2: Hereda l10n_pe_edi_stock.l10n_pe_edi_guiaremision_report_delivery_document
+         - Reemplaza la sección de datos de la guía electrónica
+         - Reemplaza la sección de Operador y Vehículo
+         - Oculta la sección delivery_guide_20 (ya integrada arriba)
     ============================================================ -->
     <template id="report_delivery_guia_copier"
               inherit_id="l10n_pe_edi_stock.l10n_pe_edi_guiaremision_report_delivery_document"
               name="Copier Company - Guia Remision">
 
-        <!-- Reemplazar sección datos de guía -->
+        <!-- ============ SECCIÓN: DATOS DE LA GUÍA ============ -->
         <xpath expr="//div[@id='delivery_guide_details']" position="replace">
             <div class="mt-3" t-if="o.l10n_pe_edi_transport_type" id="delivery_guide_details">
                 <span class="cc_section_title">Guía de Remisión Electrónica</span>
@@ -134,21 +141,23 @@
             </div>
         </xpath>
 
-        <!-- Reemplazar sección Operador y Vehículo -->
+        <!-- ============ SECCIÓN: OPERADOR Y VEHÍCULO ============ -->
         <xpath expr="//div[@id='delivery_guide_details2']" position="replace">
             <div class="mt-3" t-if="o.l10n_pe_edi_transport_type" id="delivery_guide_details2">
                 <span class="cc_section_title">Operador y Vehículo</span>
                 <div class="cc_grid">
+                    <!-- Columna Operador -->
                     <div class="cc_col cc_col-6" t-if="o.l10n_pe_edi_operator_id">
                         <span class="cc_lbl first">Operador</span>
                         <span class="cc_val" t-field="o.l10n_pe_edi_operator_id"/>
                         <span class="cc_lbl">
-                            <t t-out="o.l10n_pe_edi_operator_id.l10n_latam_identification_type_id.name or 'DNI'"
-                               t-if="o.l10n_pe_edi_operator_id.l10n_latam_identification_type_id"/>
+                            <t t-if="o.l10n_pe_edi_operator_id.l10n_latam_identification_type_id"
+                               t-out="o.l10n_pe_edi_operator_id.l10n_latam_identification_type_id.name"/>
                             <t t-else="">DNI</t>
                         </span>
                         <span class="cc_val light" t-out="o.l10n_pe_edi_operator_id.vat or ''"/>
                     </div>
+                    <!-- Columna Vehículo -->
                     <div class="cc_col cc_col-6" t-if="o.l10n_pe_edi_vehicle_id">
                         <span class="cc_lbl first">Licencia / Placa</span>
                         <span class="cc_val" t-out="o.l10n_pe_edi_vehicle_id.license_plate or ''"/>
@@ -162,10 +171,9 @@
             </div>
         </xpath>
 
-        <!-- Ocultar sección delivery_guide_20 ya integrada arriba -->
-        <xpath expr="//div[@id='delivery_guide_20']" position="replace">
-            <div id="delivery_guide_20"/>
-        </xpath>
+        <!-- ============ OCULTAR SECCIÓN delivery_guide_20 ============ -->
+        <!-- Ya integrada en las secciones anteriores -->
+        <xpath expr="//div[@id='delivery_guide_20']" position="replace"/>
 
     </template>
 
