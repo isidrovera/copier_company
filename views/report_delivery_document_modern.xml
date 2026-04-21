@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-    <!-- ============================================================
-         PASO 1: Template primario que REEMPLAZA stock.report_delivery_document
-         primary="True" crea un template nuevo basado en el original
-    ============================================================ -->
     <template id="report_delivery_guia_modern"
               inherit_id="stock.report_delivery_document"
               primary="True"
@@ -20,7 +16,6 @@
             <t t-set="qr_url" t-value="o._l10n_pe_edi_get_qr()"/>
             <t t-set="reason_code" t-value="o.l10n_pe_edi_reason_for_transfer or ''"/>
 
-            <!-- HOOK: layout_document_title requerido por external_layout -->
             <t t-set="layout_document_title">
                 <span>GUÍA DE REMISIÓN ELECTRÓNICA REMITENTE</span>
                 <span t-if="o.l10n_latam_document_number" t-out="o.l10n_latam_document_number"/>
@@ -35,67 +30,22 @@
                         color: #1c1c2e !important;
                     }
 
-                    .header { display: none !important; }
-                    .footer { display: none !important; }
                     .article h2 { display: none !important; }
 
-                    /* ============ HEADER ============ */
-                    .cc_top {
-                        display: table !important;
+                    /* ============ CAJA RUC / GUIA (flotante a la derecha) ============ */
+                    .cc_ruc_wrapper {
                         width: 100% !important;
                         margin-bottom: 10pt !important;
-                        border-bottom: 0.5pt solid #e2e3e8 !important;
-                        padding-bottom: 10pt !important;
-                    }
-                    .cc_logo_cell {
-                        display: table-cell !important;
-                        width: 100pt !important;
-                        vertical-align: middle !important;
-                        text-align: center !important;
-                    }
-                    .cc_logo_circle {
-                        width: 80pt !important; height: 80pt !important;
-                        border: 2pt solid #1c1c2e !important;
-                        border-radius: 50% !important;
-                        display: inline-block !important;
-                        overflow: hidden !important;
-                        background: #fff !important;
-                        text-align: center !important;
-                        vertical-align: middle !important;
-                    }
-                    .cc_logo_circle img {
-                        max-width: 76pt !important;
-                        max-height: 76pt !important;
-                        border-radius: 50% !important;
-                    }
-                    .cc_company_cell {
-                        display: table-cell !important;
-                        vertical-align: middle !important;
-                        text-align: center !important;
-                        padding: 0 10pt !important;
-                    }
-                    .cc_company_name {
-                        font-size: 16pt !important;
-                        font-weight: bold !important;
-                        color: #1c1c2e !important;
-                        line-height: 1.1 !important;
-                    }
-                    .cc_company_addr {
-                        font-size: 7.5pt !important;
-                        color: #555 !important;
-                        line-height: 1.4 !important;
-                        margin-top: 3pt !important;
-                    }
-                    .cc_ruc_cell {
-                        display: table-cell !important;
-                        width: 190pt !important;
-                        vertical-align: middle !important;
+                        padding-top: 4pt !important;
+                        text-align: right !important;
                     }
                     .cc_ruc_box {
+                        display: inline-block !important;
                         border: 2pt solid #1c1c2e !important;
                         border-radius: 4pt !important;
-                        padding: 8pt !important;
+                        padding: 8pt 14pt !important;
                         text-align: center !important;
+                        min-width: 200pt !important;
                     }
                     .cc_ruc_box .cc_ruc {
                         font-size: 10pt !important;
@@ -307,29 +257,12 @@
                     }
                 </style>
 
-                <!-- ============ CABECERA ============ -->
-                <div class="cc_top">
-                    <div class="cc_logo_cell">
-                        <div class="cc_logo_circle">
-                            <img t-if="company.logo" t-att-src="image_data_uri(company.logo)"/>
-                        </div>
-                    </div>
-                    <div class="cc_company_cell">
-                        <div class="cc_company_name"><span t-out="company.name or ''"/></div>
-                        <div class="cc_company_addr">
-                            <strong>Dirección fiscal:</strong>
-                            <span t-out="company.street or ''"/>
-                            <t t-if="company.street2"> <span t-out="company.street2"/></t>
-                            <t t-if="company.city"> - <span t-out="company.city"/></t>
-                            <t t-if="company.state_id"> - <span t-out="company.state_id.name"/></t>
-                        </div>
-                    </div>
-                    <div class="cc_ruc_cell">
-                        <div class="cc_ruc_box">
-                            <div class="cc_ruc">R.U.C. <span t-out="company.vat or ''"/></div>
-                            <div class="cc_title">GUÍA DE REMISIÓN<br/>ELECTRÓNICA REMITENTE</div>
-                            <div class="cc_nro">N° <span t-out="o.l10n_latam_document_number or o.name or ''"/></div>
-                        </div>
+                <!-- ============ CAJA RUC / GUIA (sin duplicar header Odoo) ============ -->
+                <div class="cc_ruc_wrapper">
+                    <div class="cc_ruc_box">
+                        <div class="cc_ruc">R.U.C. <span t-out="company.vat or ''"/></div>
+                        <div class="cc_title">GUÍA DE REMISIÓN<br/>ELECTRÓNICA REMITENTE</div>
+                        <div class="cc_nro">N° <span t-out="o.l10n_latam_document_number or o.name or ''"/></div>
                     </div>
                 </div>
 
@@ -571,10 +504,6 @@
         </xpath>
     </template>
 
-    <!-- ============================================================
-         PASO 2: Redirigir stock.report_deliveryslip para que use
-         nuestro template moderno en lugar del original
-    ============================================================ -->
     <template id="report_deliveryslip_redirect"
               inherit_id="stock.report_deliveryslip"
               name="Copier Company - Redirect Delivery Slip">
