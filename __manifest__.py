@@ -82,7 +82,7 @@
         'views/whatsapp_send_quotation_wizard_views.xml',
         'views/whatsapp_send_multi_quotation_wizard_views.xml',   
         'views/report_invoice_modern.xml',
-        #'views/report_delivery_document_modern.xml',                
+        'views/report_delivery_document_modern.xml',                
         'views/copier_soporte.xml',
         'views/resolver_producto_page.xml',
         'views/view_product_name_alias.xml',
