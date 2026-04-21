@@ -2,177 +2,414 @@
 <odoo>
 
     <!-- ============================================================
-         PARTE 1: Hereda stock.report_delivery_document
-         - Agrega estilos personalizados
-         - Reemplaza el bloque "informations" (Dirección de entrega)
-           por la nueva sección "Origen y Destino"
+         TEMPLATE PRINCIPAL: Guía de Remisión Electrónica Remitente
+         Formato tipo SUNAT (similar a MULTIDISTRIBUCIONES)
     ============================================================ -->
     <template id="report_delivery_document_copier"
               inherit_id="stock.report_delivery_document"
-              name="Copier Company - Delivery Document">
+              name="Copier Company - Guía de Remisión Formato SUNAT">
 
         <!-- ============ ESTILOS ============ -->
         <xpath expr="//div[hasclass('page')]" position="before">
             <style>
-                .cc_grid {
-                    display: table !important;
-                    width: 100% !important;
-                    background-color: #f4f5f7 !important;
-                    border-radius: 4pt !important;
-                    padding: 8pt 10pt !important;
+                /* Reset del reporte base */
+                .page { font-family: Arial, Helvetica, sans-serif !important; font-size: 8pt !important; color: #000 !important; }
+
+                /* Encabezado de empresa */
+                .gr_header { width: 100%; border-collapse: collapse; margin-bottom: 6pt; }
+                .gr_header td { vertical-align: top; padding: 4pt; }
+                .gr_logo_box {
+                    width: 90pt; height: 90pt;
+                    border: 1pt solid #000; border-radius: 50%;
+                    text-align: center; vertical-align: middle;
+                    font-size: 10pt; font-weight: bold;
+                }
+                .gr_company_name { font-size: 16pt; font-weight: bold; text-align: center; }
+                .gr_company_sub { font-size: 10pt; font-weight: bold; text-align: center; }
+                .gr_company_addr { font-size: 8pt; text-align: center; line-height: 1.3; }
+
+                .gr_ruc_box {
+                    border: 1pt solid #000; border-radius: 6pt;
+                    padding: 8pt; text-align: center;
+                    width: 180pt;
+                }
+                .gr_ruc_box .ruc { font-size: 10pt; font-weight: bold; }
+                .gr_ruc_box .title { font-size: 11pt; font-weight: bold; margin: 6pt 0; }
+                .gr_ruc_box .nro { font-size: 11pt; font-weight: bold; }
+
+                /* Secciones con borde */
+                .gr_section {
+                    border: 0.75pt solid #000;
+                    margin-bottom: 4pt;
+                    padding: 0;
+                }
+                .gr_section_title {
+                    background-color: #e8e8e8 !important;
                     -webkit-print-color-adjust: exact !important;
-                    margin-bottom: 8pt !important;
+                    font-size: 7.5pt;
+                    font-weight: bold;
+                    padding: 2pt 4pt;
+                    border-bottom: 0.5pt solid #000;
                 }
-                .cc_col {
-                    display: table-cell !important;
-                    vertical-align: top !important;
-                    padding-right: 10pt !important;
+                .gr_section_body { padding: 4pt 6pt; }
+
+                /* Grids de datos */
+                .gr_data_table { width: 100%; border-collapse: collapse; font-size: 8pt; }
+                .gr_data_table td { padding: 2pt 4pt; vertical-align: top; }
+                .gr_lbl { font-weight: bold; font-size: 8pt; white-space: nowrap; }
+
+                /* Checkboxes motivo */
+                .gr_check_table { width: 100%; border-collapse: collapse; font-size: 7.5pt; }
+                .gr_check_table td { padding: 2pt 4pt; }
+                .gr_chk {
+                    display: inline-block;
+                    width: 8pt; height: 8pt;
+                    border: 0.75pt solid #000;
+                    text-align: center;
+                    margin-right: 3pt;
+                    font-size: 7pt;
+                    line-height: 8pt;
+                    vertical-align: middle;
                 }
-                .cc_col-6 { width: 50% !important; }
-                .cc_lbl {
-                    font-size: 7pt !important;
-                    text-transform: uppercase !important;
-                    letter-spacing: 0.8pt !important;
-                    color: #888 !important;
-                    font-weight: 600 !important;
-                    display: block !important;
-                    margin-top: 6pt !important;
-                    margin-bottom: 1pt !important;
+
+                /* Tabla productos */
+                .gr_products {
+                    width: 100%;
+                    border-collapse: collapse;
+                    font-size: 8pt;
                 }
-                .cc_lbl.first { margin-top: 0 !important; }
-                .cc_val {
-                    font-size: 8.5pt !important;
-                    font-weight: 600 !important;
-                    color: #1c1c2e !important;
-                    line-height: 1.5 !important;
-                    display: block !important;
+                .gr_products th {
+                    background-color: #e8e8e8 !important;
+                    -webkit-print-color-adjust: exact !important;
+                    border: 0.5pt solid #000;
+                    padding: 3pt;
+                    font-weight: bold;
+                    text-align: center;
+                    font-size: 8pt;
                 }
-                .cc_val.light {
-                    font-weight: 400 !important;
-                    color: #444 !important;
-                    font-size: 8pt !important;
+                .gr_products td {
+                    border-left: 0.5pt solid #000;
+                    border-right: 0.5pt solid #000;
+                    padding: 3pt;
+                    vertical-align: top;
                 }
-                .cc_section_title {
-                    font-size: 7pt !important;
-                    text-transform: uppercase !important;
-                    letter-spacing: 1pt !important;
-                    color: #888 !important;
-                    font-weight: 700 !important;
-                    border-bottom: 0.5pt solid #e2e3e8 !important;
-                    padding-bottom: 3pt !important;
-                    margin-bottom: 6pt !important;
-                    margin-top: 10pt !important;
-                    display: block !important;
+                .gr_products tr.gr_last td { border-bottom: 0.5pt solid #000; }
+                .gr_products .c { text-align: center; }
+                .gr_products .r { text-align: right; }
+
+                /* Transporte/Observaciones */
+                .gr_transport_table { width: 100%; border-collapse: collapse; font-size: 7.5pt; margin-bottom: 4pt; }
+                .gr_transport_table td { border: 0.5pt solid #000; padding: 3pt 5pt; vertical-align: top; }
+                .gr_transport_table .gr_th {
+                    background-color: #e8e8e8 !important;
+                    -webkit-print-color-adjust: exact !important;
+                    font-weight: bold;
+                    font-size: 7.5pt;
+                }
+
+                /* Pie */
+                .gr_footer_note { font-size: 7pt; text-align: center; margin-top: 6pt; }
+                .gr_footer_note b { font-size: 8pt; }
+                .gr_conformidad {
+                    border: 0.5pt solid #000;
+                    padding: 20pt 8pt 4pt 8pt;
+                    min-height: 60pt;
+                    font-size: 7.5pt;
+                }
+                .gr_bottom_legal {
+                    border-top: 0.5pt solid #000;
+                    font-size: 6.5pt;
+                    text-align: center;
+                    padding-top: 3pt;
+                    margin-top: 4pt;
+                }
+
+                /* Ocultar elementos innecesarios del template base */
+                .gr_hide { display: none !important; }
+            </style>
+        </xpath>
+
+        <!-- ============ REEMPLAZAR TODO EL CONTENIDO DE LA PÁGINA ============ -->
+        <xpath expr="//div[@id='informations']" position="replace">
+            <!-- Vacío: reemplazado por nuestro template completo abajo -->
+        </xpath>
+
+        <!-- Insertar nuestro contenido al inicio de la página -->
+        <xpath expr="//div[hasclass('page')]" position="inside">
+            <t t-set="company" t-value="o.company_id or res_company"/>
+            <t t-set="partner" t-value="o.partner_id"/>
+            <t t-set="warehouse_partner" t-value="o.picking_type_id.warehouse_id.partner_id"/>
+
+            <!-- ============ ENCABEZADO EMPRESA + RUC ============ -->
+            <table class="gr_header">
+                <tr>
+                    <td style="width: 100pt;">
+                        <div class="gr_logo_box">
+                            <img t-if="company.logo" t-att-src="image_data_uri(company.logo)"
+                                 style="max-width: 80pt; max-height: 80pt; border-radius: 50%;"/>
+                            <span t-else="">TU LOGO AQUÍ</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="gr_company_name" t-out="company.name or ''"/>
+                        <div class="gr_company_sub" t-if="company.partner_id.commercial_company_name"
+                             t-out="company.partner_id.commercial_company_name"/>
+                        <div class="gr_company_addr">
+                            <b>Dirección fiscal:</b>
+                            <t t-out="company.street or ''"/>
+                            <t t-if="company.street2"> <t t-out="company.street2"/></t>
+                            <t t-if="company.city"> - <t t-out="company.city"/></t>
+                            <t t-if="company.state_id"> - <t t-out="company.state_id.name"/></t>
+                        </div>
+                    </td>
+                    <td style="width: 190pt;">
+                        <div class="gr_ruc_box">
+                            <div class="ruc">R.U.C. <t t-out="company.vat or ''"/></div>
+                            <div class="title">GUÍA DE REMISIÓN<br/>ELECTRÓNICA REMITENTE</div>
+                            <div class="nro">N° <t t-field="o.l10n_latam_document_number"/></div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- ============ DATOS GENERALES ============ -->
+            <div class="gr_section">
+                <div class="gr_section_body">
+                    <table class="gr_data_table">
+                        <tr>
+                            <td style="width: 50%;">
+                                <span class="gr_lbl">Fecha de inicio de traslado:</span>
+                                <span t-field="o.l10n_pe_edi_departure_start_date"/>
+                            </td>
+                            <td style="width: 50%;">
+                                <span class="gr_lbl">Punto de partida:</span>
+                                <t t-if="warehouse_partner">
+                                    <t t-out="warehouse_partner.zip or ''"/> -
+                                    <t t-out="warehouse_partner.street or ''"/>
+                                </t>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="gr_lbl">Destinatario:</span>
+                                <t t-out="partner.name or ''"/>
+                            </td>
+                            <td>
+                                <span class="gr_lbl">Punto de llegada:</span>
+                                <t t-if="partner">
+                                    <t t-out="partner.zip or ''"/> -
+                                    <t t-out="partner.street or ''"/>
+                                    <t t-if="partner.street2"> <t t-out="partner.street2"/></t>
+                                    <t t-if="partner.city"> - <t t-out="partner.city"/></t>
+                                </t>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="gr_lbl">RUC:</span>
+                                <t t-out="partner.vat or ''"/>
+                            </td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ============ MOTIVO DE TRASLADO ============ -->
+            <div class="gr_section">
+                <div class="gr_section_title">Motivo de traslado</div>
+                <div class="gr_section_body">
+                    <t t-set="reason" t-value="o.l10n_pe_edi_reason_for_transfer or ''"/>
+                    <table class="gr_check_table">
+                        <tr>
+                            <td style="width: 20%;">
+                                <span class="gr_chk"><t t-if="reason == '01'">X</t></span>Venta
+                            </td>
+                            <td style="width: 30%;">
+                                <span class="gr_chk"><t t-if="reason == '14'">X</t></span>Venta sujeta a confirmación del comprador
+                            </td>
+                            <td style="width: 15%;">
+                                <span class="gr_chk"><t t-if="reason == '02'">X</t></span>Compra
+                            </td>
+                            <td style="width: 35%;">
+                                <span class="gr_chk"><t t-if="reason == '04'">X</t></span>Traslado entre establecimientos de la misma empresa
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="gr_chk"><t t-if="reason == '08'">X</t></span>Importación
+                            </td>
+                            <td>
+                                <span class="gr_chk"><t t-if="reason == '18'">X</t></span>Traslado emisor itinerante CP
+                            </td>
+                            <td>
+                                <span class="gr_chk"><t t-if="reason == '09'">X</t></span>Exportación
+                            </td>
+                            <td>
+                                <span class="gr_chk"><t t-if="reason == '19'">X</t></span>Traslado a zona primaria
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="gr_chk"><t t-if="reason not in ['01','02','04','08','09','14','18','19']">X</t></span>Otros
+                            </td>
+                            <td colspan="3"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ============ DATOS DEL BIEN TRANSPORTADO ============ -->
+            <div class="gr_section" style="border: none;">
+                <div class="gr_section_title" style="border: 0.75pt solid #000; border-bottom: none;">
+                    Datos del bien transportado
+                </div>
+                <table class="gr_products">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">N°</th>
+                            <th style="width: 15%;">CÓDIGO</th>
+                            <th>DESCRIPCIÓN</th>
+                            <th style="width: 10%;">CANTIDAD</th>
+                            <th style="width: 12%;">UNIDAD DE DESPACHO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-set="line_index" t-value="0"/>
+                        <t t-foreach="o.move_ids_without_package" t-as="move">
+                            <t t-set="line_index" t-value="line_index + 1"/>
+                            <tr>
+                                <td class="c"><t t-out="line_index"/></td>
+                                <td><t t-out="move.product_id.default_code or ''"/></td>
+                                <td>
+                                    <t t-out="move.product_id.name or move.description_picking or ''"/>
+                                    <t t-if="move.lot_ids">
+                                        <br/><small>Serie: <t t-out="', '.join(move.lot_ids.mapped('name'))"/></small>
+                                    </t>
+                                </td>
+                                <td class="c">
+                                    <span t-out="'%.0f' % move.quantity_done if move.quantity_done else '%.0f' % move.product_uom_qty"/>
+                                </td>
+                                <td class="c"><t t-out="move.product_uom.name or ''"/></td>
+                            </tr>
+                        </t>
+                        <!-- Filas vacías para completar espacio -->
+                        <tr class="gr_last">
+                            <td style="height: 200pt;"></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ============ UNIDAD DE TRANSPORTE Y CONDUCTOR ============ -->
+            <table class="gr_transport_table">
+                <tr>
+                    <td colspan="2" class="gr_th">UNIDAD DE TRANSPORTE Y CONDUCTOR</td>
+                    <td class="gr_th" style="width: 30%;">Modalidad de transporte</td>
+                    <td style="width: 20%;">
+                        <t t-out="(o.l10n_pe_edi_transport_type and dict(o._fields['l10n_pe_edi_transport_type'].selection).get(o.l10n_pe_edi_transport_type)) or 'TRANSPORTE PRIVADO'"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width: 50%;">
+                        <span class="gr_lbl">Placa del vehículo:</span>
+                        <t t-if="o.l10n_pe_edi_vehicle_id" t-out="o.l10n_pe_edi_vehicle_id.license_plate or ''"/>
+                    </td>
+                    <td>
+                        <span class="gr_lbl">DNI del Conductor:</span>
+                        <t t-if="o.l10n_pe_edi_operator_id" t-out="o.l10n_pe_edi_operator_id.vat or ''"/>
+                    </td>
+                    <td class="gr_th">Peso Total Aprox. (KGM):</td>
+                    <td>
+                        <t t-out="'%.0f' % (o.weight or 0)"/>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- ============ OBSERVACIONES ============ -->
+            <table class="gr_transport_table">
+                <tr>
+                    <td class="gr_th" style="width: 100%;">Observaciones</td>
+                </tr>
+                <tr>
+                    <td>
+                        <span class="gr_lbl">Doc. Referencia:</span>
+                        <t t-if="o.origin" t-out="o.origin"/>
+                        <t t-if="o.note"><br/><t t-out="o.note"/></t>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- ============ QR + CONFORMIDAD ============ -->
+            <table style="width: 100%; border-collapse: collapse; margin-top: 6pt;">
+                <tr>
+                    <td style="width: 120pt; vertical-align: top;">
+                        <img t-if="o.l10n_pe_edi_qr_code_url"
+                             t-att-src="'/report/barcode/?barcode_type=QR&amp;value=%s&amp;width=120&amp;height=120' % o.l10n_pe_edi_qr_code_url"
+                             style="width: 110pt; height: 110pt;"/>
+                        <div t-else="" style="width: 110pt; height: 110pt; border: 0.5pt dashed #999; text-align: center; line-height: 110pt; font-size: 7pt; color: #999;">
+                            QR
+                        </div>
+                    </td>
+                    <td style="vertical-align: top; padding-left: 10pt;">
+                        <div class="gr_conformidad">
+                            <div style="border-bottom: 0.5pt solid #000; height: 30pt;"></div>
+                            <div style="float: right; text-align: left; margin-top: 4pt;">
+                                Conformidad del cliente:<br/>
+                                Nombre:<br/>
+                                DNI:
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- ============ PIE LEGAL ============ -->
+            <div class="gr_footer_note">
+                Representación Impresa de la <b>GUÍA DE REMISIÓN ELECTRÓNICA</b><br/>
+                <t t-if="company.l10n_pe_edi_address_type_code">
+                    Autorizado mediante Resolución <t t-out="company.l10n_pe_edi_address_type_code"/>
+                </t>
+                <div style="margin-top: 6pt;">
+                    <b>GRACIAS POR SU COMPRA!</b><br/>
+                    <b>** NOTA IMPORTANTE **</b><br/>
+                    <b>NO SE ACEPTAN DEVOLUCIONES</b>
+                </div>
+            </div>
+
+            <div class="gr_bottom_legal">
+                LA MERCADERÍA VIAJA POR CUENTA Y RIESGO DEL COMPRADOR. NO ADMITIMOS RECLAMO POR ROBO O AVERÍA
+            </div>
+
+            <!-- Ocultar el resto del template original -->
+            <style>
+                .page > *:not([id='informations']):not(table):not(div.gr_section):not(.gr_header):not(.gr_transport_table):not(.gr_footer_note):not(.gr_bottom_legal) {
+                    /* no-op, control manual */
                 }
             </style>
         </xpath>
 
-        <!-- ============ REEMPLAZAR BLOQUE "DIRECCIÓN DE ENTREGA" ============ -->
-        <!-- Se reemplaza el div "informations" por nuestra sección Origen y Destino -->
-        <xpath expr="//div[@id='informations']" position="replace">
-            <div id="cc_origin_dest" class="mb-3">
-                <span class="cc_section_title">Origen y Destino</span>
-                <div class="cc_grid">
-                    <!-- Columna Origen -->
-                    <div class="cc_col cc_col-6">
-                        <span class="cc_lbl first">Punto de Partida</span>
-                        <span class="cc_val light">
-                            <t t-if="o.picking_type_id.warehouse_id.partner_id">
-                                <t t-out="o.picking_type_id.warehouse_id.partner_id.street or ''"/>
-                                <t t-if="o.picking_type_id.warehouse_id.partner_id.city">
-                                    - <t t-out="o.picking_type_id.warehouse_id.partner_id.city"/>
-                                </t>
-                                <t t-if="o.picking_type_id.warehouse_id.partner_id.state_id">
-                                    - <t t-out="o.picking_type_id.warehouse_id.partner_id.state_id.name"/>
-                                </t>
-                            </t>
-                            <t t-else="">—</t>
-                        </span>
-                        <span class="cc_lbl">Ubicación de origen</span>
-                        <span class="cc_val light" t-out="o.location_id.complete_name or ''"/>
-                    </div>
-                    <!-- Columna Destino -->
-                    <div class="cc_col cc_col-6">
-                        <t t-set="dest_partner" t-value="o.partner_id or (o.move_ids and o.move_ids[0].partner_id) or False"/>
-                        <span class="cc_lbl first">Punto de Llegada</span>
-                        <span class="cc_val light" t-if="dest_partner">
-                            <t t-out="dest_partner.street or ''"/>
-                            <t t-if="dest_partner.city"> - <t t-out="dest_partner.city"/></t>
-                            <t t-if="dest_partner.state_id"> - <t t-out="dest_partner.state_id.name"/></t>
-                        </span>
-                        <span class="cc_val light" t-else="">—</span>
-                        <span class="cc_lbl">Ubicación de destino</span>
-                        <span class="cc_val light" t-out="o.location_dest_id.complete_name or ''"/>
-                    </div>
-                </div>
-            </div>
+        <!-- Ocultar los bloques originales del reporte base que no queremos mostrar -->
+        <xpath expr="//table[@name='stock_move_table']" position="attributes">
+            <attribute name="class">gr_hide</attribute>
         </xpath>
 
     </template>
 
     <!-- ============================================================
-         PARTE 2: Hereda l10n_pe_edi_stock.l10n_pe_edi_guiaremision_report_delivery_document
-         - Reemplaza la sección de datos de la guía electrónica
-         - Reemplaza la sección de Operador y Vehículo
-         - Oculta la sección delivery_guide_20 (ya integrada arriba)
+         DESACTIVAR las herencias del módulo l10n_pe_edi_stock
+         porque ya integramos todo en el template principal
     ============================================================ -->
-    <template id="report_delivery_guia_copier"
+    <template id="report_delivery_guia_copier_disable"
               inherit_id="l10n_pe_edi_stock.l10n_pe_edi_guiaremision_report_delivery_document"
-              name="Copier Company - Guia Remision">
+              name="Copier Company - Desactivar bloques l10n_pe_edi_stock">
 
-        <!-- ============ SECCIÓN: DATOS DE LA GUÍA ============ -->
-        <xpath expr="//div[@id='delivery_guide_details']" position="replace">
-            <div class="mt-3" t-if="o.l10n_pe_edi_transport_type" id="delivery_guide_details">
-                <span class="cc_section_title">Guía de Remisión Electrónica</span>
-                <div class="cc_grid">
-                    <div class="cc_col cc_col-6">
-                        <span class="cc_lbl first">Número de Guía</span>
-                        <span class="cc_val" t-field="o.l10n_latam_document_number"/>
-                        <span class="cc_lbl">Motivo de traslado</span>
-                        <span class="cc_val light" t-field="o.l10n_pe_edi_reason_for_transfer"/>
-                    </div>
-                    <div class="cc_col cc_col-6">
-                        <span class="cc_lbl first">Tipo de transporte</span>
-                        <span class="cc_val light" t-field="o.l10n_pe_edi_transport_type"/>
-                        <span class="cc_lbl">Fecha inicio traslado</span>
-                        <span class="cc_val light" t-field="o.l10n_pe_edi_departure_start_date"/>
-                    </div>
-                </div>
-            </div>
-        </xpath>
-
-        <!-- ============ SECCIÓN: OPERADOR Y VEHÍCULO ============ -->
-        <xpath expr="//div[@id='delivery_guide_details2']" position="replace">
-            <div class="mt-3" t-if="o.l10n_pe_edi_transport_type" id="delivery_guide_details2">
-                <span class="cc_section_title">Operador y Vehículo</span>
-                <div class="cc_grid">
-                    <!-- Columna Operador -->
-                    <div class="cc_col cc_col-6" t-if="o.l10n_pe_edi_operator_id">
-                        <span class="cc_lbl first">Operador</span>
-                        <span class="cc_val" t-field="o.l10n_pe_edi_operator_id"/>
-                        <span class="cc_lbl">
-                            <t t-if="o.l10n_pe_edi_operator_id.l10n_latam_identification_type_id"
-                               t-out="o.l10n_pe_edi_operator_id.l10n_latam_identification_type_id.name"/>
-                            <t t-else="">DNI</t>
-                        </span>
-                        <span class="cc_val light" t-out="o.l10n_pe_edi_operator_id.vat or ''"/>
-                    </div>
-                    <!-- Columna Vehículo -->
-                    <div class="cc_col cc_col-6" t-if="o.l10n_pe_edi_vehicle_id">
-                        <span class="cc_lbl first">Licencia / Placa</span>
-                        <span class="cc_val" t-out="o.l10n_pe_edi_vehicle_id.license_plate or ''"/>
-                        <span class="cc_lbl">Indicador M1 o L</span>
-                        <span class="cc_val light">
-                            <t t-if="o.l10n_pe_edi_vehicle_id.is_m1l">Sí</t>
-                            <t t-else="">No</t>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </xpath>
-
-        <!-- ============ OCULTAR SECCIÓN delivery_guide_20 ============ -->
-        <!-- Ya integrada en las secciones anteriores -->
+        <xpath expr="//div[@id='delivery_guide_details']" position="replace"/>
+        <xpath expr="//div[@id='delivery_guide_details2']" position="replace"/>
         <xpath expr="//div[@id='delivery_guide_20']" position="replace"/>
 
     </template>
