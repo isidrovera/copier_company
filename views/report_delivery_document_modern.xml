@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
+    <!-- ============================================================
+         PASO 1: Template primario que REEMPLAZA stock.report_delivery_document
+    ============================================================ -->
     <template id="report_delivery_guia_modern"
               inherit_id="stock.report_delivery_document"
               primary="True"
@@ -16,6 +19,21 @@
             <t t-set="qr_url" t-value="o._l10n_pe_edi_get_qr()"/>
             <t t-set="reason_code" t-value="o.l10n_pe_edi_reason_for_transfer or ''"/>
 
+            <!-- Diccionario de motivos de traslado (código SUNAT -> etiqueta) -->
+            <t t-set="reason_labels" t-value="{
+                '01': 'Venta',
+                '14': 'Venta sujeta a confirmación del comprador',
+                '02': 'Compra',
+                '04': 'Traslado entre establecimientos de la misma empresa',
+                '08': 'Importación',
+                '18': 'Traslado emisor itinerante CP',
+                '09': 'Exportación',
+                '19': 'Traslado a zona primaria',
+                '13': 'Otros',
+            }"/>
+            <t t-set="reason_label" t-value="reason_labels.get(reason_code, 'Otros')"/>
+
+            <!-- HOOK: Título requerido por web.external_layout -->
             <t t-set="layout_document_title">
                 <span>GUÍA DE REMISIÓN ELECTRÓNICA REMITENTE</span>
                 <span t-if="o.l10n_latam_document_number" t-out="o.l10n_latam_document_number"/>
@@ -32,7 +50,7 @@
 
                     .article h2 { display: none !important; }
 
-                    /* ============ CAJA RUC / GUIA (flotante a la derecha) ============ */
+                    /* ============ CAJA RUC / GUIA ============ */
                     .cc_ruc_wrapper {
                         width: 100% !important;
                         margin-bottom: 10pt !important;
@@ -65,7 +83,7 @@
                         color: #1c1c2e !important;
                     }
 
-                    /* ============ DATOS GENERALES (GRID MODERNO) ============ */
+                    /* ============ DATOS GENERALES (GRID) ============ */
                     .cc_grid {
                         display: table !important;
                         width: 100% !important;
@@ -89,7 +107,7 @@
                         font-weight: 600 !important;
                         display: block !important;
                         margin-top: 7pt !important;
-                        margin-bottom: 1pt !important;
+                        margin-bottom: 3pt !important;
                     }
                     .cc_lbl.first { margin-top: 0 !important; }
                     .cc_val {
@@ -105,7 +123,20 @@
                         font-size: 8pt !important;
                     }
 
-                    /* ============ MOTIVO TRASLADO ============ */
+                    /* ============ MOTIVO BADGE (DINÁMICO) ============ */
+                    .cc_motivo_badge {
+                        display: inline-block !important;
+                        padding: 4pt 12pt !important;
+                        background-color: #1c1c2e !important;
+                        color: #fff !important;
+                        font-size: 9pt !important;
+                        font-weight: 600 !important;
+                        border-radius: 3pt !important;
+                        letter-spacing: 0.5pt !important;
+                        -webkit-print-color-adjust: exact !important;
+                    }
+
+                    /* ============ SECCIONES ============ */
                     .cc_section_title {
                         font-size: 7pt !important;
                         text-transform: uppercase !important;
@@ -117,33 +148,6 @@
                         margin-top: 10pt !important;
                         margin-bottom: 6pt !important;
                         display: block !important;
-                    }
-                    .cc_motivo {
-                        width: 100% !important;
-                        border-collapse: collapse !important;
-                        font-size: 7.5pt !important;
-                    }
-                    .cc_motivo td {
-                        padding: 3pt 4pt !important;
-                        vertical-align: middle !important;
-                        color: #1c1c2e !important;
-                    }
-                    .cc_chk {
-                        display: inline-block !important;
-                        width: 9pt !important; height: 9pt !important;
-                        border: 0.8pt solid #1c1c2e !important;
-                        border-radius: 1pt !important;
-                        text-align: center !important;
-                        line-height: 9pt !important;
-                        font-size: 8pt !important;
-                        font-weight: bold !important;
-                        margin-right: 4pt !important;
-                        vertical-align: middle !important;
-                    }
-                    .cc_chk_active {
-                        background-color: #1c1c2e !important;
-                        color: #fff !important;
-                        -webkit-print-color-adjust: exact !important;
                     }
 
                     /* ============ TABLA PRODUCTOS ============ */
@@ -180,28 +184,19 @@
                     }
                     table.cc_prod .cc_c { text-align: center !important; }
 
-                    /* ============ TRANSPORTE ============ */
-                    .cc_trans_grid {
-                        display: table !important;
-                        width: 100% !important;
-                        background-color: #f4f5f7 !important;
-                        border-radius: 4pt !important;
-                        padding: 8pt 10pt !important;
-                        margin-top: 10pt !important;
-                        -webkit-print-color-adjust: exact !important;
-                    }
-
                     /* ============ QR + CONFORMIDAD ============ */
                     .cc_bottom_grid {
                         display: table !important;
                         width: 100% !important;
-                        margin-top: 10pt !important;
+                        margin-top: 12pt !important;
+                        border-collapse: separate !important;
+                        border-spacing: 12pt 0 !important;
                     }
                     .cc_qr_cell {
                         display: table-cell !important;
-                        width: 130pt !important;
-                        vertical-align: top !important;
-                        padding-right: 12pt !important;
+                        width: 135pt !important;
+                        vertical-align: middle !important;
+                        text-align: center !important;
                     }
                     .cc_qr_img {
                         width: 120pt !important;
@@ -211,26 +206,65 @@
                         padding: 4pt !important;
                         background: #fff !important;
                     }
+                    .cc_qr_caption {
+                        font-size: 6.5pt !important;
+                        color: #888 !important;
+                        text-transform: uppercase !important;
+                        letter-spacing: 0.8pt !important;
+                        margin-top: 4pt !important;
+                        text-align: center !important;
+                    }
                     .cc_conf_cell {
                         display: table-cell !important;
-                        vertical-align: top !important;
+                        vertical-align: middle !important;
                     }
                     .cc_conf_box {
-                        border: 0.5pt solid #1c1c2e !important;
-                        border-radius: 3pt !important;
-                        padding: 8pt !important;
-                        height: 120pt !important;
-                        position: relative !important;
+                        background-color: #f4f5f7 !important;
+                        border-radius: 4pt !important;
+                        padding: 14pt !important;
+                        height: 135pt !important;
+                        -webkit-print-color-adjust: exact !important;
                     }
-                    .cc_conf_line {
-                        border-bottom: 0.6pt solid #1c1c2e !important;
-                        height: 55pt !important;
+                    .cc_conf_title {
+                        font-size: 7pt !important;
+                        text-transform: uppercase !important;
+                        letter-spacing: 1pt !important;
+                        color: #888 !important;
+                        font-weight: 700 !important;
+                        margin-bottom: 10pt !important;
+                        display: block !important;
                     }
-                    .cc_conf_text {
-                        margin-top: 6pt !important;
+                    .cc_conf_sign_area {
+                        border-bottom: 0.8pt solid #1c1c2e !important;
+                        height: 38pt !important;
+                        margin-bottom: 3pt !important;
+                    }
+                    .cc_conf_sign_label {
+                        font-size: 7pt !important;
+                        text-transform: uppercase !important;
+                        letter-spacing: 0.8pt !important;
+                        color: #888 !important;
+                        text-align: center !important;
+                        margin-bottom: 10pt !important;
+                        display: block !important;
+                    }
+                    .cc_conf_field {
                         font-size: 8pt !important;
-                        line-height: 1.6 !important;
-                        color: #555 !important;
+                        color: #1c1c2e !important;
+                        margin-bottom: 5pt !important;
+                        display: block !important;
+                    }
+                    .cc_conf_field_lbl {
+                        font-weight: 600 !important;
+                        display: inline-block !important;
+                        width: 45pt !important;
+                    }
+                    .cc_conf_field_line {
+                        border-bottom: 0.5pt solid #999 !important;
+                        display: inline-block !important;
+                        width: 70% !important;
+                        height: 10pt !important;
+                        vertical-align: bottom !important;
                     }
 
                     /* ============ PIE ============ */
@@ -257,7 +291,7 @@
                     }
                 </style>
 
-                <!-- ============ CAJA RUC / GUIA (sin duplicar header Odoo) ============ -->
+                <!-- ============ CAJA RUC / GUIA ============ -->
                 <div class="cc_ruc_wrapper">
                     <div class="cc_ruc_box">
                         <div class="cc_ruc">R.U.C. <span t-out="company.vat or ''"/></div>
@@ -308,62 +342,42 @@
                     </div>
                 </div>
 
-                <!-- ============ MOTIVO TRASLADO ============ -->
-                <span class="cc_section_title">Motivo de traslado</span>
-                <table class="cc_motivo">
-                    <tr>
-                        <td style="width: 18%;">
-                            <span t-attf-class="cc_chk #{'cc_chk_active' if reason_code == '01' else ''}">
-                                <t t-if="reason_code == '01'">✓</t>
-                            </span>Venta
-                        </td>
-                        <td style="width: 32%;">
-                            <span t-attf-class="cc_chk #{'cc_chk_active' if reason_code == '14' else ''}">
-                                <t t-if="reason_code == '14'">✓</t>
-                            </span>Venta sujeta a confirmación
-                        </td>
-                        <td style="width: 15%;">
-                            <span t-attf-class="cc_chk #{'cc_chk_active' if reason_code == '02' else ''}">
-                                <t t-if="reason_code == '02'">✓</t>
-                            </span>Compra
-                        </td>
-                        <td style="width: 35%;">
-                            <span t-attf-class="cc_chk #{'cc_chk_active' if reason_code == '04' else ''}">
-                                <t t-if="reason_code == '04'">✓</t>
-                            </span>Traslado entre establecimientos
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <span t-attf-class="cc_chk #{'cc_chk_active' if reason_code == '08' else ''}">
-                                <t t-if="reason_code == '08'">✓</t>
-                            </span>Importación
-                        </td>
-                        <td>
-                            <span t-attf-class="cc_chk #{'cc_chk_active' if reason_code == '18' else ''}">
-                                <t t-if="reason_code == '18'">✓</t>
-                            </span>Traslado emisor itinerante CP
-                        </td>
-                        <td>
-                            <span t-attf-class="cc_chk #{'cc_chk_active' if reason_code == '09' else ''}">
-                                <t t-if="reason_code == '09'">✓</t>
-                            </span>Exportación
-                        </td>
-                        <td>
-                            <span t-attf-class="cc_chk #{'cc_chk_active' if reason_code == '19' else ''}">
-                                <t t-if="reason_code == '19'">✓</t>
-                            </span>Traslado a zona primaria
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <span t-attf-class="cc_chk #{'cc_chk_active' if reason_code and reason_code not in ['01','02','04','08','09','14','18','19'] else ''}">
-                                <t t-if="reason_code and reason_code not in ['01','02','04','08','09','14','18','19']">✓</t>
-                            </span>Otros
-                        </td>
-                        <td colspan="3"></td>
-                    </tr>
-                </table>
+                <!-- ============ MOTIVO + DOC REFERENCIA (DINÁMICO) ============ -->
+                <div class="cc_grid">
+                    <div class="cc_col">
+                        <span class="cc_lbl first">Motivo de traslado</span>
+                        <span class="cc_motivo_badge" t-out="reason_label"/>
+                    </div>
+                    <div class="cc_col">
+                        <span class="cc_lbl first">Documento de referencia</span>
+                        <span class="cc_val light">
+                            <!-- 1) Si hay doc PE EDI relacionado explícito -->
+                            <t t-if="o.l10n_pe_edi_related_document_type and o.l10n_pe_edi_document_number">
+                                <span t-field="o.l10n_pe_edi_related_document_type"/>:
+                                <span t-field="o.l10n_pe_edi_document_number"/>
+                            </t>
+                            <!-- 2) Si es venta, buscar factura desde sale_order -->
+                            <t t-elif="reason_code == '01' and o.sale_id">
+                                <t t-set="invoices" t-value="o.sale_id.invoice_ids.filtered(lambda i: i.state == 'posted' and i.move_type == 'out_invoice')"/>
+                                <t t-if="invoices">
+                                    <t t-foreach="invoices" t-as="inv">
+                                        <span t-out="inv.l10n_latam_document_type_id.name or 'Factura'"/>:
+                                        <strong t-out="inv.name"/>
+                                        <br/>
+                                    </t>
+                                </t>
+                                <t t-else="">
+                                    <span t-out="o.origin or '—'"/>
+                                </t>
+                            </t>
+                            <!-- 3) Fallback: mostrar origen -->
+                            <t t-elif="o.origin">
+                                <span t-out="o.origin"/>
+                            </t>
+                            <t t-else="">—</t>
+                        </span>
+                    </div>
+                </div>
 
                 <!-- ============ PRODUCTOS ============ -->
                 <span class="cc_section_title">Datos del bien transportado</span>
@@ -403,7 +417,7 @@
 
                 <!-- ============ TRANSPORTE ============ -->
                 <span class="cc_section_title">Unidad de transporte y conductor</span>
-                <div class="cc_trans_grid">
+                <div class="cc_grid">
                     <div class="cc_col">
                         <span class="cc_lbl first">Modalidad de transporte</span>
                         <span class="cc_val">
@@ -438,31 +452,17 @@
                     </div>
                 </div>
 
-                <!-- ============ OBSERVACIONES ============ -->
-                <t t-if="o.l10n_pe_edi_related_document_type or o.origin or o.l10n_pe_edi_observation">
-                    <span class="cc_section_title">Observaciones</span>
+                <!-- ============ NOTAS / OBSERVACIONES (opcional) ============ -->
+                <t t-if="o.l10n_pe_edi_observation">
+                    <span class="cc_section_title">Notas</span>
                     <div class="cc_grid">
                         <div style="display:block;">
-                            <t t-if="o.l10n_pe_edi_related_document_type">
-                                <span class="cc_lbl first">Doc. Referencia</span>
-                                <span class="cc_val light">
-                                    <span t-field="o.l10n_pe_edi_related_document_type"/>:
-                                    <span t-field="o.l10n_pe_edi_document_number"/>
-                                </span>
-                            </t>
-                            <t t-elif="o.origin">
-                                <span class="cc_lbl first">Doc. Referencia</span>
-                                <span class="cc_val light" t-out="o.origin"/>
-                            </t>
-                            <t t-if="o.l10n_pe_edi_observation">
-                                <span class="cc_lbl">Notas</span>
-                                <span class="cc_val light" t-out="o.l10n_pe_edi_observation"/>
-                            </t>
+                            <span class="cc_val light" t-out="o.l10n_pe_edi_observation"/>
                         </div>
                     </div>
                 </t>
 
-                <!-- ============ QR + CONFORMIDAD ============ -->
+                <!-- ============ QR + CONFORMIDAD DEL CLIENTE ============ -->
                 <div class="cc_bottom_grid">
                     <div class="cc_qr_cell">
                         <img t-if="qr_url" class="cc_qr_img" alt="QR SUNAT"
@@ -470,15 +470,25 @@
                         <div t-else="" class="cc_qr_img" style="text-align:center;line-height:120pt;color:#bbb;">
                             QR SUNAT
                         </div>
+                        <div class="cc_qr_caption">Verificar en sunat.gob.pe</div>
                     </div>
                     <div class="cc_conf_cell">
                         <div class="cc_conf_box">
-                            <div class="cc_conf_line"></div>
-                            <div class="cc_conf_text">
-                                <strong>Conformidad del cliente</strong><br/>
-                                Nombre: _______________________________<br/>
-                                DNI: _______________________________
-                            </div>
+                            <span class="cc_conf_title">Conformidad del cliente</span>
+                            <div class="cc_conf_sign_area"></div>
+                            <span class="cc_conf_sign_label">Firma</span>
+                            <span class="cc_conf_field">
+                                <span class="cc_conf_field_lbl">Nombre:</span>
+                                <span class="cc_conf_field_line"></span>
+                            </span>
+                            <span class="cc_conf_field">
+                                <span class="cc_conf_field_lbl">DNI:</span>
+                                <span class="cc_conf_field_line"></span>
+                            </span>
+                            <span class="cc_conf_field">
+                                <span class="cc_conf_field_lbl">Fecha:</span>
+                                <span class="cc_conf_field_line"></span>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -504,6 +514,10 @@
         </xpath>
     </template>
 
+    <!-- ============================================================
+         PASO 2: Redirigir stock.report_deliveryslip para que use
+         nuestro template moderno en lugar del original
+    ============================================================ -->
     <template id="report_deliveryslip_redirect"
               inherit_id="stock.report_deliveryslip"
               name="Copier Company - Redirect Delivery Slip">
