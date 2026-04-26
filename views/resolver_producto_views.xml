@@ -1,0 +1,526 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- =================================================================== -->
+    <!-- PÁGINA PRINCIPAL: resolver productos desconocidos (mobile-first)     -->
+    <!-- =================================================================== -->
+    <template id="resolver_producto_page" name="Resolver Producto">
+        <t t-call="web.frontend_layout">
+            <t t-set="head">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+                <meta name="theme-color" content="#875A7B"/>
+                <title>Resolver productos — Factura <t t-esc="invoice_id"/></title>
+                <style>
+                    /* ===== Reset / base ===== */
+                    body { background: #f4f5f7; margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+                    .rp-wrap { max-width: 720px; margin: 0 auto; padding: 16px; }
+                    .rp-wrap * { box-sizing: border-box; }
+
+                    /* ===== Header ===== */
+                    .rp-header {
+                        background: linear-gradient(135deg, #875A7B 0%, #6f4866 100%);
+                        color: white; padding: 24px 20px; border-radius: 12px;
+                        margin-bottom: 16px; box-shadow: 0 4px 12px rgba(135, 90, 123, 0.25);
+                    }
+                    .rp-header h1 { margin: 0 0 6px 0; font-size: 22px; font-weight: 700; }
+                    .rp-header .rp-subtitle { font-size: 14px; opacity: 0.9; margin: 0; }
+                    .rp-header .rp-meta { margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 13px; line-height: 1.7; }
+                    .rp-header .rp-meta strong { font-weight: 600; }
+
+                    /* ===== Progress badge ===== */
+                    .rp-progress {
+                        display: flex; gap: 8px; margin-bottom: 16px;
+                    }
+                    .rp-stat {
+                        flex: 1; background: white; padding: 12px 8px; border-radius: 10px;
+                        text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+                    }
+                    .rp-stat-num { font-size: 22px; font-weight: 700; color: #875A7B; line-height: 1; }
+                    .rp-stat-label { font-size: 11px; color: #888; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+                    .rp-stat.danger .rp-stat-num { color: #c0392b; }
+                    .rp-stat.success .rp-stat-num { color: #27ae60; }
+
+                    /* ===== Card por línea ===== */
+                    .rp-card {
+                        background: white; border-radius: 12px; padding: 20px;
+                        margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+                        border-left: 4px solid #c0392b;
+                    }
+                    .rp-card.resolved { border-left-color: #27ae60; opacity: 0.6; }
+                    .rp-card-header { margin-bottom: 16px; }
+                    .rp-card-num {
+                        display: inline-block; background: #c0392b; color: white;
+                        font-size: 12px; font-weight: 700; padding: 3px 10px;
+                        border-radius: 12px; margin-bottom: 8px;
+                    }
+                    .rp-card.resolved .rp-card-num { background: #27ae60; }
+                    .rp-card-desc { font-size: 16px; font-weight: 600; color: #222; line-height: 1.4; word-break: break-word; }
+                    .rp-card-meta { font-size: 13px; color: #666; margin-top: 6px; }
+
+                    /* ===== Tabs Nuevo/Existente ===== */
+                    .rp-tabs {
+                        display: flex; gap: 4px; background: #f0f0f0;
+                        padding: 4px; border-radius: 10px; margin-bottom: 16px;
+                    }
+                    .rp-tab {
+                        flex: 1; padding: 12px 8px; border: none; background: transparent;
+                        border-radius: 8px; font-size: 14px; font-weight: 600;
+                        color: #666; cursor: pointer; transition: all 0.2s;
+                    }
+                    .rp-tab.active { background: white; color: #875A7B; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+                    /* ===== Inputs ===== */
+                    .rp-field { margin-bottom: 12px; }
+                    .rp-label { font-size: 13px; font-weight: 600; color: #555; margin-bottom: 6px; display: block; }
+                    .rp-input {
+                        width: 100%; padding: 14px 16px; border: 2px solid #e1e1e1;
+                        border-radius: 8px; font-size: 16px; background: white;
+                        -webkit-appearance: none; transition: border-color 0.2s;
+                    }
+                    .rp-input:focus { outline: none; border-color: #875A7B; }
+
+                    /* ===== Autocomplete ===== */
+                    .rp-autocomplete-wrap { position: relative; }
+                    .rp-autocomplete-results {
+                        position: absolute; top: 100%; left: 0; right: 0;
+                        background: white; border: 1px solid #ddd; border-radius: 8px;
+                        max-height: 280px; overflow-y: auto; z-index: 10;
+                        box-shadow: 0 6px 16px rgba(0,0,0,0.12); margin-top: 4px;
+                        display: none;
+                    }
+                    .rp-autocomplete-results.show { display: block; }
+                    .rp-autocomplete-item {
+                        padding: 14px 16px; cursor: pointer; border-bottom: 1px solid #f0f0f0;
+                        font-size: 14px; line-height: 1.4;
+                    }
+                    .rp-autocomplete-item:last-child { border-bottom: none; }
+                    .rp-autocomplete-item:hover, .rp-autocomplete-item:active { background: #f8f4f7; }
+                    .rp-autocomplete-item .rp-ac-code { color: #888; font-size: 12px; margin-left: 6px; }
+                    .rp-autocomplete-empty { padding: 16px; color: #999; text-align: center; font-size: 13px; }
+                    .rp-selected-product {
+                        padding: 12px 14px; background: #f0f9f0; border: 2px solid #27ae60;
+                        border-radius: 8px; font-size: 14px; color: #1e6e3a; font-weight: 600;
+                        display: none;
+                    }
+                    .rp-selected-product.show { display: block; }
+                    .rp-selected-product .rp-clear {
+                        float: right; cursor: pointer; color: #c0392b; font-weight: bold;
+                    }
+
+                    /* ===== Botón principal ===== */
+                    .rp-submit {
+                        width: 100%; padding: 18px; background: #875A7B; color: white;
+                        border: none; border-radius: 12px; font-size: 17px; font-weight: 700;
+                        cursor: pointer; box-shadow: 0 4px 12px rgba(135,90,123,0.3);
+                        transition: all 0.2s; -webkit-appearance: none;
+                    }
+                    .rp-submit:active { transform: translateY(1px); }
+                    .rp-submit:disabled { background: #b8a0b0; cursor: not-allowed; box-shadow: none; }
+
+                    /* ===== Producto ya resuelto (visual) ===== */
+                    .rp-resolved-info { color: #27ae60; font-size: 14px; font-weight: 600; }
+
+                    /* ===== Helpers ===== */
+                    .rp-help { font-size: 12px; color: #888; margin-top: 6px; line-height: 1.4; }
+                </style>
+            </t>
+
+            <div class="rp-wrap">
+
+                <!-- HEADER -->
+                <div class="rp-header">
+                    <h1>Resolver productos</h1>
+                    <p class="rp-subtitle">Factura <t t-esc="invoice_id"/></p>
+                    <div class="rp-meta">
+                        <strong>Proveedor:</strong> <t t-esc="supplier_name"/><br/>
+                        <strong>RUC:</strong> <t t-esc="supplier_ruc"/><br/>
+                        <strong>Moneda:</strong> <t t-esc="currency_name"/>
+                    </div>
+                </div>
+
+                <!-- STATS -->
+                <div class="rp-progress">
+                    <div class="rp-stat">
+                        <div class="rp-stat-num"><t t-esc="lines_total"/></div>
+                        <div class="rp-stat-label">Total</div>
+                    </div>
+                    <div class="rp-stat success">
+                        <div class="rp-stat-num"><t t-esc="lines_resolved"/></div>
+                        <div class="rp-stat-label">Conocidos</div>
+                    </div>
+                    <div class="rp-stat danger">
+                        <div class="rp-stat-num"><t t-esc="lines_pending"/></div>
+                        <div class="rp-stat-label">A resolver</div>
+                    </div>
+                </div>
+
+                <!-- FORM -->
+                <form method="post" action="/copier/resolver-producto/confirmar" id="rp-form">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <input type="hidden" name="group_token" t-att-value="group_token"/>
+
+                    <!-- Una card por cada pendiente abierto -->
+                    <t t-foreach="pending_open" t-as="pending">
+                        <div class="rp-card" t-attf-id="card-{{pending.token}}">
+                            <div class="rp-card-header">
+                                <span class="rp-card-num">Producto #<t t-esc="pending_index + 1"/></span>
+                                <div class="rp-card-desc"><t t-esc="pending.description_proveedor"/></div>
+                                <div class="rp-card-meta">
+                                    Cantidad: <strong t-esc="pending.line_quantity"/>
+                                    &amp;nbsp;|&amp;nbsp;
+                                    Precio unitario: <strong t-esc="pending.line_unit_price"/> <t t-esc="currency_name"/>
+                                </div>
+                            </div>
+
+                            <!-- Tabs -->
+                            <div class="rp-tabs" t-attf-data-token="{{pending.token}}">
+                                <button type="button" class="rp-tab active" data-action="new">Crear nuevo</button>
+                                <button type="button" class="rp-tab" data-action="existing">Buscar existente</button>
+                            </div>
+
+                            <input type="hidden" t-attf-name="accion_{{pending.token}}" value="new"/>
+
+                            <!-- Panel: Crear nuevo -->
+                            <div t-attf-id="panel-new-{{pending.token}}" class="rp-panel rp-panel-new">
+                                <div class="rp-field">
+                                    <label class="rp-label">Nombre del nuevo producto</label>
+                                    <input type="text" class="rp-input"
+                                           t-attf-name="nuevo_nombre_{{pending.token}}"
+                                           t-att-value="pending.description_proveedor"
+                                           placeholder="Ej: Toner negro HP 85A"/>
+                                    <div class="rp-help">Por defecto se usa el nombre del proveedor. Puedes editarlo.</div>
+                                </div>
+                            </div>
+
+                            <!-- Panel: Buscar existente -->
+                            <div t-attf-id="panel-existing-{{pending.token}}" class="rp-panel rp-panel-existing" style="display:none;">
+                                <div class="rp-field">
+                                    <label class="rp-label">Buscar producto existente</label>
+                                    <div class="rp-autocomplete-wrap">
+                                        <input type="text" class="rp-input rp-search"
+                                               t-attf-data-token="{{pending.token}}"
+                                               placeholder="Escribe al menos 2 letras..."
+                                               autocomplete="off"/>
+                                        <div t-attf-id="results-{{pending.token}}" class="rp-autocomplete-results"></div>
+                                    </div>
+                                    <div t-attf-id="selected-{{pending.token}}" class="rp-selected-product" style="margin-top:8px;">
+                                        <span class="rp-clear" t-attf-data-token="{{pending.token}}">✕</span>
+                                        <span class="rp-selected-name"></span>
+                                    </div>
+                                    <input type="hidden" t-attf-name="product_id_{{pending.token}}" value=""/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+
+                    <button type="submit" class="rp-submit" id="rp-submit-btn">
+                        Confirmar y crear orden de compra
+                    </button>
+                </form>
+
+            </div>
+
+            <!-- ============ JS ============ -->
+            <script>
+                (function() {
+                    'use strict';
+
+                    // ===== Tabs (Crear nuevo / Buscar existente) =====
+                    document.querySelectorAll('.rp-tabs').forEach(function(tabs) {
+                        var token = tabs.dataset.token;
+                        var buttons = tabs.querySelectorAll('.rp-tab');
+                        var panelNew = document.getElementById('panel-new-' + token);
+                        var panelExisting = document.getElementById('panel-existing-' + token);
+                        var hiddenAccion = document.querySelector('input[name="accion_' + token + '"]');
+
+                        buttons.forEach(function(btn) {
+                            btn.addEventListener('click', function() {
+                                buttons.forEach(function(b) { b.classList.remove('active'); });
+                                btn.classList.add('active');
+                                var action = btn.dataset.action;
+                                hiddenAccion.value = action;
+                                if (action === 'new') {
+                                    panelNew.style.display = 'block';
+                                    panelExisting.style.display = 'none';
+                                } else {
+                                    panelNew.style.display = 'none';
+                                    panelExisting.style.display = 'block';
+                                }
+                            });
+                        });
+                    });
+
+                    // ===== Autocompletado =====
+                    var debounceTimers = {};
+
+                    document.querySelectorAll('.rp-search').forEach(function(input) {
+                        var token = input.dataset.token;
+                        var resultsBox = document.getElementById('results-' + token);
+                        var selectedBox = document.getElementById('selected-' + token);
+                        var hiddenId = document.querySelector('input[name="product_id_' + token + '"]');
+
+                        input.addEventListener('input', function() {
+                            var q = input.value.trim();
+                            if (debounceTimers[token]) clearTimeout(debounceTimers[token]);
+
+                            if (q.length &lt; 2) {
+                                resultsBox.classList.remove('show');
+                                resultsBox.innerHTML = '';
+                                return;
+                            }
+
+                            debounceTimers[token] = setTimeout(function() {
+                                fetch('/copier/resolver-producto/buscar-productos?q=' + encodeURIComponent(q))
+                                    .then(function(r) { return r.json(); })
+                                    .then(function(data) {
+                                        if (!data.length) {
+                                            resultsBox.innerHTML = '&lt;div class="rp-autocomplete-empty"&gt;Sin resultados&lt;/div&gt;';
+                                        } else {
+                                            resultsBox.innerHTML = data.map(function(p) {
+                                                var code = p.default_code ? '&lt;span class="rp-ac-code"&gt;[' + p.default_code + ']&lt;/span&gt;' : '';
+                                                return '&lt;div class="rp-autocomplete-item" data-id="' + p.id + '" data-name="' + p.name.replace(/"/g, '&amp;quot;') + '"&gt;' + p.name + code + '&lt;/div&gt;';
+                                            }).join('');
+                                            resultsBox.querySelectorAll('.rp-autocomplete-item').forEach(function(item) {
+                                                item.addEventListener('click', function() {
+                                                    hiddenId.value = item.dataset.id;
+                                                    selectedBox.querySelector('.rp-selected-name').textContent = '✓ ' + item.dataset.name;
+                                                    selectedBox.classList.add('show');
+                                                    input.value = '';
+                                                    resultsBox.classList.remove('show');
+                                                    resultsBox.innerHTML = '';
+                                                });
+                                            });
+                                        }
+                                        resultsBox.classList.add('show');
+                                    })
+                                    .catch(function(e) { console.error(e); });
+                            }, 250);
+                        });
+
+                        // Cerrar autocompletado al hacer click afuera
+                        document.addEventListener('click', function(e) {
+                            if (!input.contains(e.target) &amp;&amp; !resultsBox.contains(e.target)) {
+                                resultsBox.classList.remove('show');
+                            }
+                        });
+                    });
+
+                    // ===== Botón quitar selección =====
+                    document.querySelectorAll('.rp-clear').forEach(function(btn) {
+                        btn.addEventListener('click', function() {
+                            var token = btn.dataset.token;
+                            document.querySelector('input[name="product_id_' + token + '"]').value = '';
+                            document.getElementById('selected-' + token).classList.remove('show');
+                        });
+                    });
+
+                    // ===== Validación al enviar =====
+                    document.getElementById('rp-form').addEventListener('submit', function(e) {
+                        var errors = [];
+                        document.querySelectorAll('.rp-card').forEach(function(card) {
+                            var tabs = card.querySelector('.rp-tabs');
+                            if (!tabs) return;
+                            var token = tabs.dataset.token;
+                            var accion = document.querySelector('input[name="accion_' + token + '"]').value;
+
+                            if (accion === 'new') {
+                                var nombre = document.querySelector('input[name="nuevo_nombre_' + token + '"]').value.trim();
+                                if (!nombre) errors.push('Falta nombre para uno de los productos.');
+                            } else if (accion === 'existing') {
+                                var pid = document.querySelector('input[name="product_id_' + token + '"]').value;
+                                if (!pid) errors.push('Falta seleccionar producto existente para uno de los items.');
+                            }
+                        });
+
+                        if (errors.length) {
+                            e.preventDefault();
+                            alert(errors.join('\n'));
+                            return;
+                        }
+
+                        var btn = document.getElementById('rp-submit-btn');
+                        btn.disabled = true;
+                        btn.textContent = 'Creando orden de compra...';
+                    });
+                })();
+            </script>
+        </t>
+    </template>
+
+
+    <!-- =================================================================== -->
+    <!-- ÉXITO                                                                -->
+    <!-- =================================================================== -->
+    <template id="resolver_producto_success" name="Resolver Producto - Éxito">
+        <t t-call="web.frontend_layout">
+            <t t-set="head">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+                <title>Orden creada</title>
+                <style>
+                    body { background: #f4f5f7; margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+                    .rp-wrap { max-width: 520px; margin: 40px auto; padding: 16px; }
+                    .rp-success-card {
+                        background: white; border-radius: 16px; padding: 32px 24px;
+                        text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+                    }
+                    .rp-icon {
+                        width: 80px; height: 80px; background: #27ae60; border-radius: 50%;
+                        margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;
+                        color: white; font-size: 44px; font-weight: bold;
+                    }
+                    .rp-success-card h1 { color: #222; font-size: 24px; margin: 0 0 8px; }
+                    .rp-success-card p { color: #666; line-height: 1.6; margin: 8px 0; }
+                    .rp-info-box {
+                        background: #f8f4f7; padding: 16px; border-radius: 10px;
+                        margin: 20px 0; text-align: left; font-size: 14px;
+                    }
+                    .rp-info-box strong { color: #875A7B; }
+                    .rp-btn {
+                        display: inline-block; padding: 14px 28px; background: #875A7B;
+                        color: white; text-decoration: none; border-radius: 10px;
+                        font-weight: 600; margin-top: 12px;
+                    }
+                </style>
+            </t>
+            <div class="rp-wrap">
+                <div class="rp-success-card">
+                    <div class="rp-icon">✓</div>
+                    <h1>Orden de compra creada</h1>
+                    <p>Se procesaron <strong t-esc="pendings_resolved"/> producto(s) pendiente(s) y se creó la orden con <strong t-esc="lines_count"/> línea(s).</p>
+                    <div class="rp-info-box">
+                        <strong>Factura:</strong> <t t-esc="invoice_id"/><br/>
+                        <strong>Orden:</strong> <t t-esc="po_name"/>
+                    </div>
+                    <a t-att-href="po_url" class="rp-btn">Ver orden en Odoo</a>
+                </div>
+            </div>
+        </t>
+    </template>
+
+
+    <!-- =================================================================== -->
+    <!-- ERROR                                                                -->
+    <!-- =================================================================== -->
+    <template id="resolver_producto_error" name="Resolver Producto - Error">
+        <t t-call="web.frontend_layout">
+            <t t-set="head">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+                <title>Error</title>
+                <style>
+                    body { background: #f4f5f7; margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+                    .rp-wrap { max-width: 520px; margin: 40px auto; padding: 16px; }
+                    .rp-error-card {
+                        background: white; border-radius: 16px; padding: 32px 24px;
+                        text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+                    }
+                    .rp-icon {
+                        width: 80px; height: 80px; background: #c0392b; border-radius: 50%;
+                        margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;
+                        color: white; font-size: 44px; font-weight: bold;
+                    }
+                    .rp-error-card h1 { color: #222; font-size: 24px; margin: 0 0 8px; }
+                    .rp-error-msg {
+                        background: #fdf2f0; padding: 16px; border-radius: 10px;
+                        margin: 20px 0; color: #c0392b; text-align: left; font-size: 14px;
+                        word-break: break-word;
+                    }
+                    .rp-btn {
+                        display: inline-block; padding: 14px 28px; background: #875A7B;
+                        color: white; text-decoration: none; border-radius: 10px;
+                        font-weight: 600; margin-top: 12px;
+                    }
+                </style>
+            </t>
+            <div class="rp-wrap">
+                <div class="rp-error-card">
+                    <div class="rp-icon">✕</div>
+                    <h1>Ocurrió un error</h1>
+                    <div class="rp-error-msg"><t t-esc="error"/></div>
+                    <t t-if="token">
+                        <a t-attf-href="/copier/resolver-producto/{{token}}" class="rp-btn">Volver a intentar</a>
+                    </t>
+                </div>
+            </div>
+        </t>
+    </template>
+
+
+    <!-- =================================================================== -->
+    <!-- TOKEN INVÁLIDO                                                       -->
+    <!-- =================================================================== -->
+    <template id="resolver_producto_invalid" name="Resolver Producto - Inválido">
+        <t t-call="web.frontend_layout">
+            <t t-set="head">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+                <title>Link inválido</title>
+                <style>
+                    body { background: #f4f5f7; margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+                    .rp-wrap { max-width: 520px; margin: 40px auto; padding: 16px; }
+                    .rp-card {
+                        background: white; border-radius: 16px; padding: 32px 24px;
+                        text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+                    }
+                    .rp-icon {
+                        width: 80px; height: 80px; background: #f39c12; border-radius: 50%;
+                        margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;
+                        color: white; font-size: 44px; font-weight: bold;
+                    }
+                    .rp-card h1 { color: #222; font-size: 22px; margin: 0 0 8px; }
+                    .rp-card p { color: #666; line-height: 1.6; }
+                </style>
+            </t>
+            <div class="rp-wrap">
+                <div class="rp-card">
+                    <div class="rp-icon">!</div>
+                    <h1>Link no válido</h1>
+                    <p>Este link expiró o ya fue procesado. Si necesitas resolver una factura, revisa tu correo o contacta al administrador.</p>
+                </div>
+            </div>
+        </t>
+    </template>
+
+
+    <!-- =================================================================== -->
+    <!-- YA RESUELTO (link viejo, todo listo)                                 -->
+    <!-- =================================================================== -->
+    <template id="resolver_producto_already_resolved" name="Resolver Producto - Ya resuelto">
+        <t t-call="web.frontend_layout">
+            <t t-set="head">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+                <title>Ya resuelto</title>
+                <style>
+                    body { background: #f4f5f7; margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+                    .rp-wrap { max-width: 520px; margin: 40px auto; padding: 16px; }
+                    .rp-card {
+                        background: white; border-radius: 16px; padding: 32px 24px;
+                        text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+                    }
+                    .rp-icon {
+                        width: 80px; height: 80px; background: #3498db; border-radius: 50%;
+                        margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;
+                        color: white; font-size: 44px;
+                    }
+                    .rp-card h1 { color: #222; font-size: 22px; margin: 0 0 8px; }
+                    .rp-card p { color: #666; line-height: 1.6; }
+                    .rp-btn {
+                        display: inline-block; padding: 14px 28px; background: #875A7B;
+                        color: white; text-decoration: none; border-radius: 10px;
+                        font-weight: 600; margin-top: 12px;
+                    }
+                </style>
+            </t>
+            <div class="rp-wrap">
+                <div class="rp-card">
+                    <div class="rp-icon">✓</div>
+                    <h1>Esta factura ya fue resuelta</h1>
+                    <p>Los productos pendientes de la factura <strong t-esc="invoice_id"/> ya fueron procesados.</p>
+                    <t t-if="po_name">
+                        <p>Orden creada: <strong t-esc="po_name"/></p>
+                        <a t-att-href="po_url" class="rp-btn">Ver orden en Odoo</a>
+                    </t>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>
