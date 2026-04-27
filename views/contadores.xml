@@ -165,6 +165,12 @@
                         class="oe_highlight"
                         
                 />
+                <button name="action_open_add_copies_wizard"
+        string="Sumar copias del periodo"
+        type="object"
+        class="btn-secondary"
+        invisible="state != 'draft'"
+        help="Use este asistente cuando la máquina reporta cantidad de copias del periodo en lugar del contador acumulado."/>
 
                 <field name="state" widget="statusbar"
                     options="{'clickable': '1'}" />
@@ -401,5 +407,49 @@
         </field>
     </record>
 
+<record id="view_copier_counter_add_wizard_form" model="ir.ui.view">
+        <field name="name">copier.counter.add.wizard.form</field>
+        <field name="model">copier.counter.add.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Sumar Copias al Contador">
+                <sheet>
+                    <div class="alert alert-info" role="alert">
+                        Ingrese la <b>cantidad de copias del periodo</b>. El sistema sumará esta cantidad al contador anterior y actualizará el contador actual automáticamente.
+                    </div>
 
+                    <group>
+                        <group string="Información actual">
+                            <field name="counter_id" invisible="1"/>
+                            <field name="tipo_maquina" invisible="1"/>
+                            <field name="contador_anterior_bn"/>
+                            <field name="contador_anterior_color"
+                                   invisible="tipo_maquina != 'color'"/>
+                        </group>
+
+                        <group string="Copias del periodo">
+                            <field name="cantidad_bn"/>
+                            <field name="cantidad_color"
+                                   invisible="tipo_maquina != 'color'"/>
+                        </group>
+                    </group>
+
+                    <group string="Vista previa">
+                        <field name="nuevo_contador_bn" readonly="1"/>
+                        <field name="nuevo_contador_color"
+                               readonly="1"
+                               invisible="tipo_maquina != 'color'"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_aplicar"
+                            string="Aplicar"
+                            type="object"
+                            class="btn-primary"/>
+                    <button string="Cancelar"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
 </odoo>

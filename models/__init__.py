@@ -29,3 +29,4 @@ from . import whatsapp_multi_quotation_phone_line
 from . import pcloud_product_extension
 from . import purchase_product_pending
 from . import product_name_alias
+from . import copier_counter_add_wizard

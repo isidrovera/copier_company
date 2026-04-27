@@ -689,7 +689,26 @@ class CopierCounter(models.Model):
         self.subtotal = 0.0
         self.igv = 0.0
         self.total = 0.0
+    def action_open_add_copies_wizard(self):
+        """Abre el wizard para sumar cantidad de copias al contador anterior"""
+        self.ensure_one()
 
+        if self.state != 'draft':
+            raise UserError('Solo se puede usar este asistente en lecturas en borrador.')
+
+        if not self.maquina_id:
+            raise UserError('Primero seleccione una máquina.')
+
+        return {
+            'name': 'Sumar Copias al Contador',
+            'type': 'ir.actions.act_window',
+            'res_model': 'copier.counter.add.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_counter_id': self.id,
+            },
+        }
     def action_confirm(self):
         self.ensure_one()
         if self.contador_actual_bn < self.contador_anterior_bn:
