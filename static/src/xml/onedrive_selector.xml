@@ -1,0 +1,38 @@
+<templates>
+    <t t-name="onedrive_selector.Template">
+        <Dialog title="'OneDrive'" size="'lg'">
+
+            <div class="p-2">
+
+                <button class="btn btn-secondary mb-2"
+                        t-if="state.stack.length"
+                        t-on-click="goBack">
+                    ← Volver
+                </button>
+
+                <div class="list-group">
+                    <t t-foreach="state.files" t-as="file" t-key="file.id">
+
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+
+                            <span>
+                                <t t-if="file.folder">📁</t>
+                                <t t-else="">📄</t>
+                                <t t-esc="file.name"/>
+                            </span>
+
+                            <button class="btn btn-sm btn-primary"
+                                    t-on-click="() => selectFile(file)">
+                                Seleccionar
+                            </button>
+
+                        </div>
+
+                    </t>
+                </div>
+
+            </div>
+
+        </Dialog>
+    </t>
+</templates>

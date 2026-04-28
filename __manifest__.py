@@ -98,6 +98,8 @@
             'copier_company/static/src/css/pcloud_explorer.css',
             'copier_company/static/src/xml/pcloud_explorer.xml',
             'copier_company/static/src/js/pcloud_explorer.js',
+            "copier_company/static/src/js/onedrive_selector.js",
+            "copier_company/static/src/xml/onedrive_selector.xml",
         ],
         # ✅ Website: mete aquí tus JS/CSS de frontend (NO en web.assets_frontend)
         'website.assets_frontend': [

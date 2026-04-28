@@ -5,22 +5,14 @@
         <field name="inherit_id" ref="account.account_move_send_wizard_form"/>
 
         <field name="arch" type="xml">
-
-            <!-- 👇 JUSTO ANTES DE LOS ADJUNTOS -->
             <xpath expr="//field[@name='mail_attachments_widget']" position="before">
-
                 <group string="OneDrive">
-                    <field name="onedrive_item_id"
-                           placeholder="ID archivo OneDrive"/>
-
-                    <button name="action_load_onedrive_file"
+                    <button name="action_open_onedrive_browser"
                             type="object"
-                            string="Cargar archivo"
-                            class="btn-secondary"/>
+                            string="📁 Seleccionar desde OneDrive"
+                            class="btn-primary"/>
                 </group>
-
             </xpath>
-
         </field>
     </record>
 </odoo>
