@@ -84,3 +84,30 @@ class AccountMoveSendWizard(models.TransientModel):
                     result[res_id]['attachment_ids'] = result[res_id].get('attachment_ids', []) + [(4, attachment.id)]
 
         return result
+
+
+    def action_load_onedrive_file(self):
+        self.ensure_one()
+
+        file_data = self._fetch_onedrive_file()
+
+        if not file_data:
+            return
+
+        filename, data = file_data
+
+        attachment = self.env['ir.attachment'].create({
+            'name': filename,
+            'datas': data,
+            'res_model': 'account.move',
+            'res_id': self.move_id.id,
+            'type': 'binary',
+        })
+
+        # 🔥 esto lo agrega al widget de adjuntos en vivo
+        self.message_main_attachment_id = attachment.id
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'reload',
+        }

@@ -2,15 +2,23 @@
     <record id="view_account_move_send_wizard_onedrive" model="ir.ui.view">
         <field name="name">account.move.send.wizard.onedrive</field>
         <field name="model">account.move.send.wizard</field>
-
-        <!-- 👇 ESTE ERA EL ERROR -->
         <field name="inherit_id" ref="account.account_move_send_wizard_form"/>
 
         <field name="arch" type="xml">
 
-            <xpath expr="//field[@name='subject']" position="after">
-                <field name="onedrive_item_id"
-                       placeholder="Pega aquí el ID del archivo OneDrive"/>
+            <!-- 👇 JUSTO ANTES DE LOS ADJUNTOS -->
+            <xpath expr="//field[@name='mail_attachments_widget']" position="before">
+
+                <group string="OneDrive">
+                    <field name="onedrive_item_id"
+                           placeholder="ID archivo OneDrive"/>
+
+                    <button name="action_load_onedrive_file"
+                            type="object"
+                            string="Cargar archivo"
+                            class="btn-secondary"/>
+                </group>
+
             </xpath>
 
         </field>
