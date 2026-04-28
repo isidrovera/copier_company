@@ -30,3 +30,4 @@ from . import pcloud_product_extension
 from . import purchase_product_pending
 from . import product_name_alias
 from . import copier_counter_add_wizard
+from . import account_move_send_wizard

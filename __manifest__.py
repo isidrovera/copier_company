@@ -87,6 +87,7 @@
         'views/resolver_producto_page.xml',
         'views/view_product_name_alias.xml',
         'views/resolver_producto_views.xml',
+        "views/account_move_send_wizard.xml",
         'views/menus_actions.xml',
         # ❗️ No cargues QWeb de frontend aquí; mejor en assets_qweb (abajo)
         # 'static/src/xml/counter_charts_templates.xml',

@@ -1,0 +1,14 @@
+<odoo>
+    <record id="view_account_move_send_wizard_onedrive" model="ir.ui.view">
+        <field name="name">account.move.send.wizard.onedrive</field>
+        <field name="model">account.move.send.wizard</field>
+        <field name="inherit_id" ref="account.view_account_move_send_wizard"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='subject']" position="after">
+                <field name="onedrive_item_id" placeholder="Pega aquí el ID del archivo OneDrive"/>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>
