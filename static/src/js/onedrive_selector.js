@@ -6,8 +6,12 @@ import { Component, useState, onMounted } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 
 class OneDriveSelector extends Component {
+
+    static components = { Dialog };  // 🔥 FIX
+
     setup() {
         this.orm = useService("orm");
+
         this.state = useState({
             files: [],
             stack: [],
@@ -42,9 +46,11 @@ class OneDriveSelector extends Component {
 
     async goBack() {
         this.state.stack.pop();
+
         if (this.state.stack.length === 0) {
             return this.loadRoot();
         }
+
         const last = this.state.stack[this.state.stack.length - 1];
         return this.openFolder(last);
     }
