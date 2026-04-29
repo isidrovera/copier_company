@@ -17,16 +17,19 @@
         'bin': ['wkhtmltoimage'],
     },
 
-    # 👉 Añadimos módulos de Website que usas (snippets/event/form/dynamic)
+    # 👉 Añadimos odoo_onedrive_integration porque el wizard de envío
+    # de facturas reutiliza el componente OneDriveApp.
     'depends': [
         'base', 'web', 'mail', 'contacts', 'helpdesk',
         'sale_management', 'portal', 'sale_subscription',
-        'website'
+        'website',
+        'account',
+        'odoo_onedrive_integration',
     ],
 
     'data': [
         # VISTAS / DATOS / REPORTES
-        'views/views.xml',        
+        'views/views.xml',
         'views/marcas.xml',
         'views/modelos.xml',
         'views/portal_suscripcion.xml',
@@ -73,76 +76,74 @@
         'views/sticker_a7_web.xml',
         'views/servicios_web.xml',
         'views/cotizaciones_multiples.xml',
-        'views/template_cotizaciones.xml',   
+        'views/template_cotizaciones.xml',
         'views/printtracker_config_views.xml',
         'views/portal_servicios_cliente.xml',
-        'views/whatsapp_config_views.xml', 
+        'views/whatsapp_config_views.xml',
         'views/whatsapp_service_notification_views.xml',
         'views/public_service_tracking_templates.xml',
         'views/whatsapp_send_quotation_wizard_views.xml',
-        'views/whatsapp_send_multi_quotation_wizard_views.xml',   
+        'views/whatsapp_send_multi_quotation_wizard_views.xml',
         'views/report_invoice_modern.xml',
-        'views/report_delivery_document_modern.xml',                
+        'views/report_delivery_document_modern.xml',
         'views/copier_soporte.xml',
         'views/resolver_producto_page.xml',
         'views/view_product_name_alias.xml',
         'views/resolver_producto_views.xml',
-        "views/account_move_send_wizard.xml",
+        'views/account_move_send_wizard.xml',
         'views/menus_actions.xml',
-        # ❗️ No cargues QWeb de frontend aquí; mejor en assets_qweb (abajo)
-        # 'static/src/xml/counter_charts_templates.xml',
     ],
 
     'assets': {
         'web.assets_backend': [
+            # pCloud explorer
             'copier_company/static/src/css/pcloud_explorer.css',
             'copier_company/static/src/xml/pcloud_explorer.xml',
             'copier_company/static/src/js/pcloud_explorer.js',
-            "copier_company/static/src/js/onedrive_selector_dialog.js",
-            "copier_company/static/src/xml/onedrive_selector_dialog.xml",
+
+            # OneDrive selector (wizard envío facturas) — TODO en backend
+            'copier_company/static/src/css/onedrive_selector.css',
+            'copier_company/static/src/js/onedrive_selector_dialog.js',
+            'copier_company/static/src/xml/onedrive_selector_dialog.xml',
         ],
-        # ✅ Website: mete aquí tus JS/CSS de frontend (NO en web.assets_frontend)
+
+        # ✅ Website / frontend
         'website.assets_frontend': [
             # Estilos propios
             'copier_company/static/src/css/counter_charts.css',
             'copier_company/static/src/css/cotizacion_styles.css',
             'copier_company/static/src/css/PcloudDescargas.css',
             'copier_company/static/src/css/copier_list.css',
-            "copier_company/static/src/css/onedrive_selector.css",
-            
-         
 
             # Scripts propios
             'copier_company/static/src/js/manuals.js',
             'copier_company/static/src/js/counter_charts.js',
             'copier_company/static/src/js/PcloudDescargas.js',
-            'copier_company/static/src/js/cotizacion.js',            
+            'copier_company/static/src/js/cotizacion.js',
             'copier_company/static/src/js/copier_homepage_scripts.js',
             'copier_company/static/src/js/copier_services_scripts.js',
 
-            # 📄 PDF.js: usa una sola variante; elimina los .mjs locales para evitar conflictos AMD
-            # Si prefieres CDN UMD (suficiente para visor):
+            # 📄 Templates QWeb del frontend
+            # (En Odoo 17+ los XML van directo aquí, no en assets_qweb)
+            'copier_company/static/src/xml/counter_charts_templates.xml',
+
+            # 📄 PDF.js
             ('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js', {'type': 'external'}),
             ('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js', {'type': 'external'}),
 
-            # 🔎 Lucide: fija versión para evitar SourceMap 404; si no quieres sourcemaps, usa .min sin mapa
+            # 🔎 Lucide
             ('https://unpkg.com/lucide@0.451.0/dist/umd/lucide.min.js', {'type': 'external'}),
         ],
 
-        # Librerías externas adicionales (si de verdad las quieres separadas)
+        # Librerías externas adicionales
         'website.assets_frontend_lib': [
             ('https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js', {'type': 'external'}),
         ],
 
-        # QWeb de tus componentes/widgets (asegura que se carguen en frontend)
-        'web.assets_qweb': [
-            'copier_company/static/src/xml/counter_charts_templates.xml',
-        ],
+        # Assets de reportes
         'web.report_assets_common': [
             'copier_company/static/src/css/invoice_style.css',
         ],
-
-       
     },
 
     'application': True,

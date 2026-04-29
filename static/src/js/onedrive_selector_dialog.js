@@ -6,7 +6,8 @@ import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
 
-import { OneDriveApp } from "@odoo_onedrive_integration/onedrive_app/onedrive_app";
+// Ruta real: odoo_onedrive_integration/static/src/js/onedrive_app.js
+import { OneDriveApp } from "@odoo_onedrive_integration/js/onedrive_app";
 
 
 export class OneDriveSelectorDialog extends Component {
@@ -21,7 +22,6 @@ export class OneDriveSelectorDialog extends Component {
     setup() {
         this.orm = useService("orm");
         this.notification = useService("notification");
-        this.action = useService("action");
 
         this.state = useState({
             selectedFiles: [],   // [{id, name}] acumulado entre carpetas
@@ -40,7 +40,6 @@ export class OneDriveSelectorDialog extends Component {
     }
 
     onSelectionChange(files) {
-        // files: array de objetos {id, name, ...} ya filtrados (sin carpetas)
         this.state.selectedFiles = files;
     }
 
@@ -83,35 +82,20 @@ export class OneDriveSelectorDialog extends Component {
                 );
             }
 
-            // Cerramos el diálogo. El wizard sigue abierto y, al
-            // haber invalidado mail_attachments_widget en el backend,
-            // los nuevos adjuntos aparecerán al re-renderizar el campo.
+            // Cerramos el diálogo. El wizard sigue abierto.
             this.props.close();
 
-            // Forzamos un soft-reload del wizard recargando la acción
-            // en curso. Esto refresca mail_attachments_widget sin
-            // cerrar el wizard.
-            this._softReloadWizard();
+            // Notificación global para que el wizard refresque adjuntos.
+            const ev = new CustomEvent("onedrive:attachments_added", {
+                detail: { wizardId: this.props.wizard_id },
+            });
+            document.dispatchEvent(ev);
         } catch (e) {
             console.error("attach error:", e);
             this.notification.add(_t("Error al adjuntar"), { type: "danger" });
         } finally {
             this.state.attaching = false;
         }
-    }
-
-    /**
-     * Refresca el wizard sin cerrarlo: dispara un evento global
-     * que el widget mail_attachments_widget escucha para releer.
-     */
-    _softReloadWizard() {
-        // Disparamos un evento en el bus para que el wizard
-        // recargue su record. Si el módulo de adjuntos no responde,
-        // al menos el siguiente click del usuario hará el refresco.
-        const ev = new CustomEvent("onedrive:attachments_added", {
-            detail: { wizardId: this.props.wizard_id },
-        });
-        document.dispatchEvent(ev);
     }
 }
 
