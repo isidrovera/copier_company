@@ -1,0 +1,72 @@
+/* ============================================================
+   Botón OneDrive en footer del wizard de envío de facturas
+   ============================================================ */
+.o_dialog .od_attach_btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 0 !important;
+    background: transparent !important;
+    border-radius: 6px;
+    padding: 4px !important;
+    margin: 0 2px;
+    transition: background .12s;
+    box-shadow: none !important;
+}
+.o_dialog .od_attach_btn:hover {
+    background: rgba(0, 120, 212, .1) !important;
+}
+.o_dialog .od_attach_btn:focus {
+    outline: 0;
+    box-shadow: 0 0 0 2px rgba(0, 120, 212, .25) !important;
+}
+.o_dialog .od_attach_btn .od_btn_icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+.o_dialog .od_attach_btn .od_btn_icon svg {
+    display: block;
+}
+
+/* ============================================================
+   Footer del selector OneDrive (modo selección)
+   ============================================================ */
+.o_dialog .od_selector_footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 16px;
+    background: #f8fafc;
+    border-top: 1px solid #e5e7eb;
+    flex-shrink: 0;
+}
+.o_dialog .od_selector_footer .od_sel_info {
+    font-size: 13px;
+    color: #475569;
+}
+.o_dialog .od_selector_footer .od_sel_info strong {
+    color: #0078d4;
+}
+.o_dialog .od_selector_footer .od_sel_actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Modo selector: el OneDriveApp ocupa todo el dialogo */
+.od_selector_dialog .modal-body {
+    padding: 0 !important;
+    height: 75vh;
+    min-height: 500px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.od_selector_dialog .o_onedrive_app {
+    flex: 1 1 auto;
+    min-height: 0;
+}

@@ -1,38 +1,44 @@
-<templates>
-    <t t-name="onedrive_selector.Template">
-        <Dialog title="'OneDrive'" size="'lg'">
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
 
-            <div class="p-2">
+<t t-name="odoo_onedrive_integration.OneDriveSelectorDialog">
+    <Dialog title="'Adjuntar desde OneDrive'"
+            size="'xl'"
+            contentClass="'od_selector_dialog'"
+            footer="false">
 
-                <button class="btn btn-secondary mb-2"
-                        t-if="state.stack.length"
-                        t-on-click="goBack">
-                    ← Volver
-                </button>
+        <!-- Reutilizamos el componente principal en modo selector -->
+        <OneDriveApp/>
 
-                <div class="list-group">
-                    <t t-foreach="state.files" t-as="file" t-key="file.id">
-
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-
-                            <span>
-                                <t t-if="file.folder">📁</t>
-                                <t t-else="">📄</t>
-                                <t t-esc="file.name"/>
-                            </span>
-
-                            <button class="btn btn-sm btn-primary"
-                                    t-on-click="() => selectFile(file)">
-                                Seleccionar
-                            </button>
-
-                        </div>
-
-                    </t>
-                </div>
-
+        <!-- Footer propio del selector -->
+        <div class="od_selector_footer">
+            <div class="od_sel_info">
+                <t t-if="selectionCount === 0">
+                    Selecciona uno o más archivos
+                </t>
+                <t t-else="">
+                    <strong><t t-esc="selectionCount"/></strong>
+                    archivo(s) seleccionado(s)
+                </t>
             </div>
+            <div class="od_sel_actions">
+                <button class="btn btn-light"
+                        t-on-click="() => this.cancel()"
+                        t-att-disabled="state.attaching">
+                    Cancelar
+                </button>
+                <button class="btn btn-primary"
+                        t-on-click="() => this.attach()"
+                        t-att-disabled="!canAttach">
+                    <i t-if="!state.attaching" class="bi bi-paperclip"/>
+                    <i t-else="" class="bi bi-arrow-repeat" style="animation: od_spin 0.8s linear infinite;"/>
+                    <t t-if="state.attaching"> Adjuntando...</t>
+                    <t t-elif="selectionCount > 0"> Adjuntar (<t t-esc="selectionCount"/>)</t>
+                    <t t-else=""> Adjuntar</t>
+                </button>
+            </div>
+        </div>
+    </Dialog>
+</t>
 
-        </Dialog>
-    </t>
 </templates>
