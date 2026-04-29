@@ -30,11 +30,9 @@ class CopierCounterPortal(http.Controller):
         # Si es usuario portal, solo puede ver sus propias máquinas
         if user.has_group('base.group_portal'):
             partner = user.partner_id
-            if equipment.cliente_id.id != partner.id:
-                _logger.warning(
-                    "Acceso denegado: partner %s intenta ver equipo %s de cliente %s",
-                    partner.id, equipment.id, equipment.cliente_id.id
-                )
+            commercial_partner = partner.commercial_partner_id
+
+            if equipment.cliente_id.id != commercial_partner.id:
                 raise AccessError("No tiene permisos para acceder a este equipo.")
 
         # Usuarios internos pueden ver todo
@@ -63,11 +61,9 @@ class CopierCounterPortal(http.Controller):
         # Portal solo puede ver lo que pertenece a su partner
         if user.has_group('base.group_portal'):
             partner = user.partner_id
-            if counter.cliente_id.id != partner.id:
-                _logger.warning(
-                    "Acceso denegado: partner %s intenta ver lectura %s de cliente %s",
-                    partner.id, counter.id, counter.cliente_id.id
-                )
+            commercial_partner = partner.commercial_partner_id
+
+            if counter.cliente_id.id != commercial_partner.id:
                 return False
 
         return True

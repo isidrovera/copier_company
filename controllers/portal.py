@@ -34,9 +34,10 @@ class CopierPortal(CustomerPortal):
         values = super()._prepare_portal_layout_values()
         try:
             partner = request.env.user.partner_id
+            commercial_partner = partner.commercial_partner_id
             # ✅ Solo contar equipos alquilados
             equipment_count = request.env['copier.company'].sudo().search_count([
-                ('cliente_id', '=', partner.id),
+                ('cliente_id', '=', commercial_partner.id),
                 ('estado_maquina_id.name', '=', 'Alquilada')
             ])
         except Exception:
@@ -51,6 +52,7 @@ class CopierPortal(CustomerPortal):
         _logger.info("=== INICIANDO portal_my_equipment ===")
         page = int(kwargs.get('page', 1))
         partner = request.env.user.partner_id
+        commercial_partner = partner.commercial_partner_id
 
         # --- ORDENAMIENTOS ---
         searchbar_sortings = {
@@ -61,7 +63,7 @@ class CopierPortal(CustomerPortal):
 
         # --- FILTROS (✅ Base con Alquilada) ---
         domain_base = [
-            ('cliente_id', '=', partner.id),
+            ('cliente_id', '=', commercial_partner.id),
             ('estado_maquina_id.name', '=', 'Alquilada')  # ✅ Solo equipos alquilados
         ]
         
@@ -138,8 +140,17 @@ class CopierPortal(CustomerPortal):
     @http.route(['/my/copier/equipment/<int:equipment_id>'], type='http', auth='user', website=True)
     def portal_equipment_detail(self, equipment_id, **kwargs):
         Equip = request.env['copier.company'].sudo()
+        Equip = request.env['copier.company'].sudo()
         equipment = Equip.browse(equipment_id)
-        if not equipment or equipment.cliente_id.id != request.env.user.partner_id.id:
+
+        partner = request.env.user.partner_id
+        commercial_partner = partner.commercial_partner_id
+
+        if (
+            not equipment.exists()
+            or not equipment.cliente_id
+            or equipment.cliente_id.id != commercial_partner.id
+        ):
             return request.redirect('/my')
 
         values = {

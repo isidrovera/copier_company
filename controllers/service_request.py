@@ -315,13 +315,14 @@ class ServiceRequestPortal(CustomerPortal):
         
         try:
             partner = request.env.user.partner_id
+            commercial_partner = partner.commercial_partner_id
             page = int(kwargs.get('page', 1))
             step = 20
             
             # Filtro por estado
             filterby = kwargs.get('filterby', 'all')
             
-            domain = [('cliente_id', '=', partner.id)]
+            domain = [('cliente_id', '=', commercial_partner.id)]
             
             if filterby == 'pending':
                 domain.append(('estado', 'not in', ['completado', 'cancelado']))
@@ -352,7 +353,7 @@ class ServiceRequestPortal(CustomerPortal):
             searchbar_filters = {
                 'all': {
                     'label': _('Todos'), 
-                    'count': ServiceRequest.search_count([('cliente_id', '=', partner.id)])
+                    'count': ServiceRequest.search_count([('cliente_id', '=', commercial_partner.id)])
                 },
                 'pending': {
                     'label': _('Pendientes'), 
