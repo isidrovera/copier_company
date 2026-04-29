@@ -28,8 +28,6 @@ export class OneDriveSelectorDialog extends Component {
             attaching: false,
         });
 
-        // Exponemos un "bus" sencillo para que OneDriveApp,
-        // al estar en modo selector, nos avise de los cambios.
         useSubEnv({
             onedriveSelector: {
                 mode: "select",
@@ -85,16 +83,56 @@ export class OneDriveSelectorDialog extends Component {
             // Cerramos el diálogo. El wizard sigue abierto.
             this.props.close();
 
-            // Notificación global para que el wizard refresque adjuntos.
-            const ev = new CustomEvent("onedrive:attachments_added", {
-                detail: { wizardId: this.props.wizard_id },
-            });
-            document.dispatchEvent(ev);
+            // Disparamos evento global para que el wizard recargue
+            // su record y muestre los nuevos adjuntos en
+            // mail_attachments_widget.
+            this._reloadWizardRecord();
         } catch (e) {
             console.error("attach error:", e);
             this.notification.add(_t("Error al adjuntar"), { type: "danger" });
         } finally {
             this.state.attaching = false;
+        }
+    }
+
+    /**
+     * Fuerza un reload del record del wizard buscando el form
+     * abierto en el DOM y llamando a su método de reload via
+     * el evento estándar de Odoo.
+     *
+     * Como alternativa más robusta, disparamos un CustomEvent
+     * que el wizard puede escuchar.
+     */
+    _reloadWizardRecord() {
+        // 1) CustomEvent global por si algún listener lo recoge
+        const ev = new CustomEvent("onedrive:attachments_added", {
+            detail: { wizardId: this.props.wizard_id },
+        });
+        document.dispatchEvent(ev);
+
+        // 2) Forzamos un reload del view actual buscando el botón
+        //    interno de Odoo. En Odoo 19 los wizards tipo Dialog
+        //    se refrescan automáticamente cuando se hace una
+        //    escritura en su record desde el servidor, pero en
+        //    nuestro caso el ORM se hizo desde otro contexto,
+        //    así que pedimos un reload del modelo abierto.
+        const dialogRoot = document.querySelector(
+            ".o_dialog .modal-dialog .o_form_view"
+        );
+        if (dialogRoot) {
+            // Disparamos un click invisible en cualquier campo para
+            // que Odoo recompute el render. Esto fuerza una lectura
+            // del record y mail_attachments_widget aparece.
+            //
+            // Forma más limpia: emitir un evento que el form view
+            // intercepta. Odoo escucha "RELOAD_FORM_VIEW" en algunos
+            // contextos.
+            dialogRoot.dispatchEvent(
+                new CustomEvent("RELOAD_FORM_VIEW", {
+                    bubbles: true,
+                    detail: { resId: this.props.wizard_id },
+                })
+            );
         }
     }
 }

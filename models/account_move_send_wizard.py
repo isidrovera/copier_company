@@ -14,7 +14,7 @@ class AccountMoveSendWizard(models.TransientModel):
     _inherit = "account.move.send.wizard"
 
     # ---------------------------------------------------------
-    # ABRIR SELECTOR (lanza el dialogo OWL)
+    # ABRIR SELECTOR
     # ---------------------------------------------------------
     def action_open_onedrive_browser(self):
         self.ensure_one()
@@ -32,20 +32,29 @@ class AccountMoveSendWizard(models.TransientModel):
     # ---------------------------------------------------------
     def action_attach_onedrive_files(self, item_ids):
         """
-        Recibe una lista de item_ids de OneDrive, descarga cada archivo,
-        crea los ir.attachment ligados al account.move y devuelve la
-        info necesaria para que el wizard refresque su lista de adjuntos.
+        Descarga archivos de OneDrive, crea ir.attachment y los liga al
+        wizard escribiendo en `mail_attachments_widget` con el formato
+        que Odoo 19 espera para que el correo los envíe realmente.
+
+        Estructura de cada item del Json (según account_move_send.py):
+            {
+                'id': int,            # ID del ir.attachment (NO string)
+                'name': str,
+                'mimetype': str,
+                'placeholder': False, # es archivo real
+                'manual': True,       # preservado por _compute
+            }
         """
         self.ensure_one()
         if not item_ids:
-            return {"attachment_ids": []}
+            return {"attachment_ids": [], "mail_attachments_widget": self.mail_attachments_widget}
 
         account = self.env["onedrive.account"].search([], limit=1)
         if not account:
             raise UserError(_("No hay cuenta OneDrive configurada"))
 
         service = GraphService(account)
-        created_ids = []
+        created_attachments = self.env["ir.attachment"]
         errors = []
 
         for item_id in item_ids:
@@ -73,18 +82,46 @@ class AccountMoveSendWizard(models.TransientModel):
                     "mimetype": (item.get("file") or {}).get("mimeType")
                                 or "application/octet-stream",
                 })
-                created_ids.append(attachment.id)
+                created_attachments |= attachment
             except Exception as e:
                 _logger.exception("Error adjuntando item %s", item_id)
                 errors.append(str(e))
 
-        # Recalcular el widget de adjuntos del wizard.
-        # En Odoo 19 el wizard arma mail_attachments_widget a partir
-        # de los attachments del move + plantilla; basta con invalidar
-        # el cache del campo computado para que se refresque.
-        self.invalidate_recordset(["mail_attachments_widget"])
+        # ---------------------------------------------------------
+        # Inyectar en mail_attachments_widget con el formato correcto
+        # ---------------------------------------------------------
+        if created_attachments:
+            current = list(self.mail_attachments_widget or [])
+
+            # Evitar duplicar si ya estaba ligado
+            existing_ids = set()
+            for item in current:
+                try:
+                    existing_ids.add(int(item.get("id")))
+                except (TypeError, ValueError):
+                    continue
+
+            for att in created_attachments:
+                if att.id in existing_ids:
+                    continue
+                current.append({
+                    "id": att.id,
+                    "name": att.name,
+                    "mimetype": att.mimetype or "application/octet-stream",
+                    "placeholder": False,
+                    "manual": True,
+                })
+
+            self.mail_attachments_widget = current
+            _logger.info(
+                "OneDrive: %s attachment(s) añadidos a mail_attachments_widget del wizard %s",
+                len(created_attachments), self.id,
+            )
 
         return {
-            "attachment_ids": created_ids,
+            "attachment_ids": created_attachments.ids,
             "errors": errors,
+            # Devolvemos el widget actualizado para que el front
+            # pueda refrescar el wizard sin recargar.
+            "mail_attachments_widget": self.mail_attachments_widget or [],
         }
