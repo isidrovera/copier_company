@@ -31,3 +31,7 @@ from . import purchase_product_pending
 from . import product_name_alias
 from . import copier_counter_add_wizard
 from . import account_move_send_wizard
+from . import copier_invoice_helper
+from . import copier_billing_group
+from . import copier_company_billing_group
+from . import copier_counter_billing_group

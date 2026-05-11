@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ========================================= -->
+    <!-- VISTA LISTA - GRUPOS DE FACTURACIÓN -->
+    <!-- ========================================= -->
+
+    <record id="view_copier_billing_group_list" model="ir.ui.view">
+        <field name="name">copier.billing.group.list</field>
+        <field name="model">copier.billing.group</field>
+        <field name="arch" type="xml">
+            <list string="Grupos de Facturación">
+                <field name="name"/>
+                <field name="cliente_id"/>
+                <field name="machine_count"/>
+                <field name="volumen_mensual_bn"/>
+                <field name="volumen_mensual_color"/>
+                <field name="cobrar_color_real"/>
+                <field name="costo_copia_bn"/>
+                <field name="costo_copia_color"/>
+                <field name="monto_minimo_detraccion"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ========================================= -->
+    <!-- VISTA FORMULARIO - GRUPOS DE FACTURACIÓN -->
+    <!-- ========================================= -->
+
+    <record id="view_copier_billing_group_form" model="ir.ui.view">
+        <field name="name">copier.billing.group.form</field>
+        <field name="model">copier.billing.group</field>
+        <field name="arch" type="xml">
+            <form string="Grupo de Facturación">
+                <header>
+                    <button name="action_create_group_invoice"
+                            type="object"
+                            string="Crear Factura del Grupo"
+                            class="btn-primary"/>
+
+                    <button name="action_view_confirmed_readings"
+                            type="object"
+                            string="Ver Lecturas Confirmadas"
+                            class="btn-secondary"/>
+
+                    <button name="action_view_machines"
+                            type="object"
+                            string="Ver Máquinas"
+                            class="btn-secondary"/>
+                </header>
+
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_machines"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-print">
+                            <field name="machine_count"
+                                   widget="statinfo"
+                                   string="Máquinas"/>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Ejemplo: Cliente ABC - Oficina Principal"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group string="Datos principales">
+                            <field name="active"/>
+                            <field name="cliente_id"/>
+                            <field name="currency_id"/>
+                            <field name="payment_term_id"/>
+                            <field name="dia_facturacion"/>
+                        </group>
+
+                        <group string="Detracción">
+                            <field name="aplicar_detraccion_auto"/>
+                            <field name="monto_minimo_detraccion"
+                                   invisible="not aplicar_detraccion_auto"/>
+                            <field name="operation_type_detraccion"
+                                   invisible="not aplicar_detraccion_auto"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+
+                        <page string="Máquinas">
+                            <field name="machine_ids"
+                                   context="{
+                                       'default_billing_group_id': id,
+                                       'default_cliente_id': cliente_id
+                                   }">
+                                <list editable="bottom">
+                                    <field name="secuencia"/>
+                                    <field name="name"/>
+                                    <field name="serie_id"/>
+                                    <field name="tipo"/>
+                                    <field name="cliente_id"/>
+                                    <field name="estado_maquina_id"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Reglas de Facturación">
+                            <group>
+                                <group string="Volumen compartido">
+                                    <field name="volumen_mensual_bn"/>
+                                    <field name="volumen_mensual_color"/>
+                                    <field name="cobrar_color_real"/>
+                                </group>
+
+                                <group string="Precios">
+                                    <field name="costo_copia_bn"/>
+                                    <field name="precio_bn_incluye_igv"/>
+                                    <field name="costo_copia_color"/>
+                                    <field name="precio_color_incluye_igv"/>
+                                    <field name="igv"/>
+                                    <field name="descuento"/>
+                                </group>
+                            </group>
+
+                            <group string="Productos de facturación">
+                                <group>
+                                    <field name="producto_facturable_bn_id"/>
+                                </group>
+                                <group>
+                                    <field name="producto_facturable_color_id"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Notas">
+                            <field name="note"
+                                   placeholder="Notas internas del contrato, bolsa compartida o condiciones especiales..."/>
+                        </page>
+
+                    </notebook>
+                </sheet>
+
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ========================================= -->
+    <!-- VISTA BÚSQUEDA - GRUPOS DE FACTURACIÓN -->
+    <!-- ========================================= -->
+
+    <record id="view_copier_billing_group_search" model="ir.ui.view">
+        <field name="name">copier.billing.group.search</field>
+        <field name="model">copier.billing.group</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Grupos de Facturación">
+                <field name="name"/>
+                <field name="cliente_id"/>
+                <field name="machine_ids"/>
+
+                <filter name="active"
+                        string="Activos"
+                        domain="[('active', '=', True)]"/>
+
+                <filter name="inactive"
+                        string="Archivados"
+                        domain="[('active', '=', False)]"/>
+
+                <separator/>
+
+                <filter name="color_real"
+                        string="Color por consumo real"
+                        domain="[('cobrar_color_real', '=', True)]"/>
+
+                <filter name="detraccion_auto"
+                        string="Detracción automática"
+                        domain="[('aplicar_detraccion_auto', '=', True)]"/>
+
+                <group expand="0" string="Agrupar por">
+                    <filter name="group_by_cliente"
+                            string="Cliente"
+                            context="{'group_by': 'cliente_id'}"/>
+
+                    <filter name="group_by_color_real"
+                            string="Color por consumo real"
+                            context="{'group_by': 'cobrar_color_real'}"/>
+
+                    <filter name="group_by_active"
+                            string="Activo"
+                            context="{'group_by': 'active'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ========================================= -->
+    <!-- ACCIÓN DE VENTANA -->
+    <!-- ========================================= -->
+
+    <record id="action_copier_billing_group" model="ir.actions.act_window">
+        <field name="name">Grupos de Facturación</field>
+        <field name="res_model">copier.billing.group</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_copier_billing_group_search"/>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crea tu primer grupo de facturación
+            </p>
+            <p>
+                Usa los grupos para vincular varias máquinas de un mismo cliente
+                y compartir una bolsa de volumen mensual, por ejemplo 8000 copias B/N
+                entre dos o más equipos.
+            </p>
+        </field>
+    </record>
+
+    
+
+</odoo>

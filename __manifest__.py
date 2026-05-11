@@ -91,6 +91,9 @@
         'views/view_product_name_alias.xml',
         'views/resolver_producto_views.xml',
         'views/account_move_send_wizard.xml',
+        'views/copier_billing_group_views.xml',
+        'views/copier_company_billing_group_views.xml',
+        'views/copier_counter_billing_group_views.xml',
         'views/menus_actions.xml',
     ],
 

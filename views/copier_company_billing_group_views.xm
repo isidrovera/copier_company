@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Agregar grupo de facturación en formulario de máquina -->
+    <record id="view_maquinas_form_billing_group_inherit" model="ir.ui.view">
+        <field name="name">copier.company.form.billing.group.inherit</field>
+        <field name="model">copier.company</field>
+        <field name="inherit_id" ref="copier_company.view_maquinas_form"/>
+        <field name="arch" type="xml">
+
+            <!-- En Datos del Cliente, después del cliente -->
+            <xpath expr="//field[@name='cliente_id']" position="after">
+                <field name="billing_group_id"
+                       domain="[('cliente_id', '=', cliente_id), ('active', '=', True)]"
+                       context="{'default_cliente_id': cliente_id}"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- Agregar grupo de facturación en lista de máquinas -->
+    <record id="copier_company_list_billing_group_inherit" model="ir.ui.view">
+        <field name="name">copier.company.list.billing.group.inherit</field>
+        <field name="model">copier.company</field>
+        <field name="inherit_id" ref="copier_company.copier_company.list"/>
+        <field name="arch" type="xml">
+
+            <!-- Después del cliente -->
+            <xpath expr="//field[@name='cliente_id']" position="after">
+                <field name="billing_group_id" optional="show"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- Agregar grupo de facturación en búsqueda de máquinas -->
+    <record id="copier_company_search_billing_group_inherit" model="ir.ui.view">
+        <field name="name">copier.company.search.billing.group.inherit</field>
+        <field name="model">copier.company</field>
+        <field name="inherit_id" ref="copier_company.copier_company_search"/>
+        <field name="arch" type="xml">
+
+            <!-- Campo buscable -->
+            <xpath expr="//field[@name='cliente_id']" position="after">
+                <field name="billing_group_id" string="Grupo de Facturación"/>
+            </xpath>
+
+            <!-- Agrupar por grupo -->
+            <xpath expr="//group[@name='groupby']/filter[@name='group_by_cliente']" position="after">
+                <filter name="group_by_billing_group"
+                        string="Grupo de Facturación"
+                        context="{'group_by': 'billing_group_id'}"/>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

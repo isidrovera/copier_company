@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Agregar grupo de facturación en formulario de contador -->
+    <record id="view_copier_counter_form_billing_group_inherit" model="ir.ui.view">
+        <field name="name">copier.counter.form.billing.group.inherit</field>
+        <field name="model">copier.counter</field>
+        <field name="inherit_id" ref="copier_company.view_copier_counter_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Después de máquina -->
+            <xpath expr="//field[@name='maquina_id']" position="after">
+                <field name="billing_group_id" readonly="1"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- Agregar grupo de facturación en lista de contadores -->
+    <record id="view_copier_counter_tree_billing_group_inherit" model="ir.ui.view">
+        <field name="name">copier.counter.tree.billing.group.inherit</field>
+        <field name="model">copier.counter</field>
+        <field name="inherit_id" ref="copier_company.view_copier_counter_tree"/>
+        <field name="arch" type="xml">
+
+            <!-- Después de máquina -->
+            <xpath expr="//field[@name='maquina_id']" position="after">
+                <field name="billing_group_id" optional="show"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- Agregar grupo de facturación en búsqueda de contadores -->
+    <record id="copier_counter_search_billing_group_inherit" model="ir.ui.view">
+        <field name="name">copier.counter.search.billing.group.inherit</field>
+        <field name="model">copier.counter</field>
+        <field name="inherit_id" ref="copier_company.copier_counter_view_search"/>
+        <field name="arch" type="xml">
+
+            <!-- Campo buscable -->
+            <xpath expr="//field[@name='maquina_id']" position="after">
+                <field name="billing_group_id" string="Grupo de Facturación"/>
+            </xpath>
+
+            <!-- Agrupar por grupo -->
+            <xpath expr="//group[@name='groupby']/filter[@name='group_by_cliente']" position="after">
+                <filter name="group_by_billing_group"
+                        string="Grupo de Facturación"
+                        context="{'group_by': 'billing_group_id'}"/>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>
