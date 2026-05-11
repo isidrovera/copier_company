@@ -147,54 +147,7 @@
         </field>
     </record>
 
-    <!-- ========================================= -->
-    <!-- VISTA BÚSQUEDA - GRUPOS DE FACTURACIÓN -->
-    <!-- ========================================= -->
-
-    <record id="view_copier_billing_group_search" model="ir.ui.view">
-        <field name="name">copier.billing.group.search</field>
-        <field name="model">copier.billing.group</field>
-        <field name="arch" type="xml">
-            <search string="Buscar Grupos de Facturación">
-                <field name="name"/>
-                <field name="cliente_id"/>
-                <field name="machine_ids"/>
-
-                <filter name="active"
-                        string="Activos"
-                        domain="[('active', '=', True)]"/>
-
-                <filter name="inactive"
-                        string="Archivados"
-                        domain="[('active', '=', False)]"/>
-
-                <separator/>
-
-                <filter name="color_real"
-                        string="Color por consumo real"
-                        domain="[('cobrar_color_real', '=', True)]"/>
-
-                <filter name="detraccion_auto"
-                        string="Detracción automática"
-                        domain="[('aplicar_detraccion_auto', '=', True)]"/>
-
-                <group expand="0" string="Agrupar por">
-                    <filter name="group_by_cliente"
-                            string="Cliente"
-                            context="{'group_by': 'cliente_id'}"/>
-
-                    <filter name="group_by_color_real"
-                            string="Color por consumo real"
-                            context="{'group_by': 'cobrar_color_real'}"/>
-
-                    <filter name="group_by_active"
-                            string="Activo"
-                            context="{'group_by': 'active'}"/>
-                </group>
-            </search>
-        </field>
-    </record>
-
+    
     <!-- ========================================= -->
     <!-- ACCIÓN DE VENTANA -->
     <!-- ========================================= -->
@@ -203,8 +156,7 @@
         <field name="name">Grupos de Facturación</field>
         <field name="res_model">copier.billing.group</field>
         <field name="view_mode">list,form</field>
-        <field name="search_view_id" ref="view_copier_billing_group_search"/>
-        <field name="context">{'search_default_active': 1}</field>
+     
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Crea tu primer grupo de facturación
