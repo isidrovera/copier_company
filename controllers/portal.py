@@ -47,10 +47,14 @@ class CopierPortal(CustomerPortal):
         })
         return values
 
-    @http.route(['/my/copier/equipments'], type='http', auth='user', website=True)
-    def portal_my_equipment(self, **kwargs):
-        _logger.info("=== INICIANDO portal_my_equipment ===")
-        page = int(kwargs.get('page', 1))
+    @@http.route([
+        '/my/copier/equipments',
+        '/my/copier/equipments/page/<int:page>',
+    ], type='http', auth='user', website=True)
+    def portal_my_equipment(self, page=1, **kwargs):
+        _logger.info("=== INICIANDO portal_my_equipment EXTENDIDO ===")
+
+        page = int(page or 1)
         partner = request.env.user.partner_id
         commercial_partner = partner.commercial_partner_id
 

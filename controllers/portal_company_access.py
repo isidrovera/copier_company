@@ -163,20 +163,14 @@ class CopierPortalCompanyAccess(BaseCopierPortal):
     # LISTADO DE EQUIPOS
     # -------------------------------------------------------------------------
 
-    @http.route(['/my/copier/equipments'], type='http', auth='user', website=True)
-    def portal_my_equipment(self, **kwargs):
-        """
-        Lista equipos visibles del contacto portal.
-
-        Antes:
-            cliente_id = commercial_partner.id
-
-        Ahora:
-            cliente_id.commercial_partner_id in empresas permitidas
-        """
+    @http.route([
+        '/my/copier/equipments',
+        '/my/copier/equipments/page/<int:page>',
+    ], type='http', auth='user', website=True)
+    def portal_my_equipment(self, page=1, **kwargs):
         _logger.info("=== INICIANDO portal_my_equipment EXTENDIDO ===")
 
-        page = int(kwargs.get('page', 1))
+        page = int(page or 1)
 
         # --- ORDENAMIENTOS ---
         searchbar_sortings = {
