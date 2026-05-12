@@ -32,30 +32,65 @@
         </xpath>
     </template>
 
-    <!-- Integración con el home del portal -->
-        <!-- Integración con el home del portal -->
-    <template id="portal_my_home_copier_equipment"
-              inherit_id="portal.portal_my_home"
-              name="Mis Equipos en el Portal"
-              priority="50">
+   <!-- ============================================================
+     INTEGRACIÓN CON EL HOME DEL PORTAL
+     Mis Equipos = alquiler
+     Stock de Máquinas = modelo independiente copier.stock
+     ============================================================ -->
+<template id="portal_my_home_copier_equipment"
+          inherit_id="portal.portal_my_home"
+          name="Mis Equipos y Stock de Máquinas en el Portal"
+          priority="50">
 
-        <xpath expr="//div[@id='oe_structure_portal_my_home_2']" position="before">
-            <!-- ✅ TARJETA DE EQUIPOS (YA EXISTE) -->
-            <div class="o_portal_category row g-2 mt-3">
-                <t t-call="portal.portal_docs_entry">
-                    <t t-set="icon" t-value="'/copier_company/static/src/img/printer.svg'"/>
-                    <t t-set="title">Mis Equipos</t>
-                    <t t-set="text">Consulta los equipos que tienes en alquiler</t>
-                    <t t-set="url" t-value="'/my/copier/equipments'"/>
-                    <t t-set="config_card" t-value="True"/>
-                    <t t-set="placeholder_count" t-value="'equipment_count'"/>
-                </t>
-            </div>            
-         
-                    
-        </xpath>
+    <xpath expr="//div[@id='oe_structure_portal_my_home_2']" position="before">
 
-    </template>
+        <!-- ✅ CATEGORÍA ÚNICA PARA EQUIPOS Y STOCK -->
+        <div class="o_portal_category row g-2 mt-3">
+
+            <!-- ✅ TARJETA: MIS EQUIPOS EN ALQUILER -->
+            <!-- Modelo de alquiler / equipos asignados al cliente.
+                 No pertenece al flujo de copier.stock. -->
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/copier_company/static/src/img/printer.svg'"/>
+                <t t-set="title">Mis Equipos</t>
+                <t t-set="text">Consulta los equipos que tienes en alquiler</t>
+                <t t-set="url" t-value="'/my/copier/equipments'"/>
+                <t t-set="config_card" t-value="True"/>
+                <t t-set="placeholder_count" t-value="'equipment_count'"/>
+            </t>
+
+            <!-- ✅ TARJETA: STOCK DE MÁQUINAS -->
+            <!-- Modelo independiente: copier.stock.
+                 Cliente normal: ve disponibles.
+                 Distribuidor: ve importación, descarga y disponibles,
+                 según la lógica del controlador. -->
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/copier_company/static/src/img/printer.svg'"/>
+                <t t-set="title">Stock de Máquinas</t>
+                <t t-set="text">Consulta máquinas disponibles para reserva o compra</t>
+                <t t-set="url" t-value="'/stock-maquinas'"/>
+                <t t-set="config_card" t-value="True"/>
+                <t t-set="placeholder_count" t-value="'stock_machine_count'"/>
+            </t>
+
+            <!-- ✅ TARJETA: MIS RESERVAS / COMPRAS -->
+            <!-- Modelo independiente: copier.stock.
+                 Muestra máquinas reservadas, pendientes de pago o compradas
+                 por el usuario logueado. -->
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/copier_company/static/src/img/printer.svg'"/>
+                <t t-set="title">Mis Reservas / Compras</t>
+                <t t-set="text">Revisa tus máquinas reservadas o compradas</t>
+                <t t-set="url" t-value="'/mis-maquinas'"/>
+                <t t-set="config_card" t-value="True"/>
+                <t t-set="placeholder_count" t-value="'my_stock_machine_count'"/>
+            </t>
+
+        </div>
+
+    </xpath>
+
+</template>
 
 
 
