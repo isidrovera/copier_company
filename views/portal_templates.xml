@@ -51,7 +51,7 @@
             <!-- Modelo de alquiler / equipos asignados al cliente.
                  No pertenece al flujo de copier.stock. -->
             <t t-call="portal.portal_docs_entry">
-                <t t-set="icon" t-value="'/copier_company/static/src/img/printer.svg'"/>
+                <t t-set="icon" t-value="'/copier_company/static/src/img/portal_copier_equipment.svg'"/>
                 <t t-set="title">Mis Equipos</t>
                 <t t-set="text">Consulta los equipos que tienes en alquiler</t>
                 <t t-set="url" t-value="'/my/copier/equipments'"/>
@@ -65,7 +65,7 @@
                  Distribuidor: ve importación, descarga y disponibles,
                  según la lógica del controlador. -->
             <t t-call="portal.portal_docs_entry">
-                <t t-set="icon" t-value="'/copier_company/static/src/img/printer.svg'"/>
+                <t t-set="icon" t-value="'/copier_company/static/src/img/portal_copier_stock.svg'"/>
                 <t t-set="title">Stock de Máquinas</t>
                 <t t-set="text">Consulta máquinas disponibles para reserva o compra</t>
                 <t t-set="url" t-value="'/stock-maquinas'"/>
@@ -78,7 +78,7 @@
                  Muestra máquinas reservadas, pendientes de pago o compradas
                  por el usuario logueado. -->
             <t t-call="portal.portal_docs_entry">
-                <t t-set="icon" t-value="'/copier_company/static/src/img/printer.svg'"/>
+                <t t-set="icon" t-value="'/copier_company/static/src/img/portal_copier_reserve.svg'"/>
                 <t t-set="title">Mis Reservas / Compras</t>
                 <t t-set="text">Revisa tus máquinas reservadas o compradas</t>
                 <t t-set="url" t-value="'/mis-maquinas'"/>
