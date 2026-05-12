@@ -281,7 +281,7 @@
                     <div class="col-md-4 text-end">
                         <div class="status-badge bg-light text-dark">
                             <i class="bi bi-collection me-2"></i>
-                            <span t-esc="len(equipments)"/> Equipos
+                            <span t-esc="equipment_count"/> Equipos
                         </div>
                     </div>
                 </div>
@@ -422,6 +422,9 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="mt-4 d-flex justify-content-center">
+                    <t t-call="portal.pager"/>
                 </div>
             </t>
         </div>

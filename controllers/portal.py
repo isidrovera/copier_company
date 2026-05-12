@@ -128,11 +128,12 @@ class CopierPortal(CustomerPortal):
             'page_name': 'equipment',
             'equipments': equipments,
             'pager': pager,
+            'equipment_count': total,
             'searchbar_sortings': searchbar_sortings,
             'sortby': sortby,
             'filters': searchbar_filters,
             'filterby': filterby,
-            'service_counts': service_counts,  # ✅ Pasar contadores al template
+            'service_counts': service_counts,
         }
         return request.render('copier_company.portal_my_copier_equipments', values)
 

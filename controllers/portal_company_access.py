@@ -297,6 +297,7 @@ class CopierPortalCompanyAccess(BaseCopierPortal):
             'page_name': 'equipment',
             'equipments': equipments,
             'pager': pager,
+            'equipment_count': total,
             'searchbar_sortings': searchbar_sortings,
             'sortby': sortby,
             'filters': searchbar_filters,
