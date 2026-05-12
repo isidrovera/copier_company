@@ -79,7 +79,6 @@
         'views/template_cotizaciones.xml',
         'views/printtracker_config_views.xml',
         'views/portal_servicios_cliente.xml',
-        'views/res_partner_views.xml',
         'views/whatsapp_config_views.xml',
         'views/whatsapp_service_notification_views.xml',
         'views/public_service_tracking_templates.xml',
