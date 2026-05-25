@@ -3,161 +3,372 @@
     <template id="sticker_a7_web_template">
 
         <t t-call="web.html_container">
-            <t t-call="web.basic_layout">
 
-                <style id="dynamicPrintPageStyle">
+            <style id="dynamicPrintPageStyle">
+                @page {
+                    size: A4 landscape;
+                    margin: 0;
+                }
+
+                @media print {
                     @page {
                         size: A4 landscape;
                         margin: 0;
                     }
+                }
+            </style>
 
-                    @media print {
-                        @page {
-                            size: A4 landscape;
-                            margin: 0;
-                        }
-                    }
-                </style>
+            <style>
+                :root {
+                    /* Hoja */
+                    --sheet-width: 297mm;
+                    --sheet-height: 210mm;
+                    --sheet-padding: 2mm;
+                    --sheet-gap: 2mm;
 
-                <style>
-                    :root {
-                        --sheet-width: 297mm;
-                        --sheet-height: 210mm;
+                    /* Vista */
+                    --screen-scale: 0.90;
 
-                        --sheet-padding: 5mm;
-                        --sheet-gap: 5mm;
+                    /* Sticker */
+                    --sticker-border: 2px;
+                    --sticker-radius: 3mm;
 
-                        --grid-cols: 2;
-                        --grid-rows: 3;
+                    /* Bloque LOGO */
+                    --logo-x: 6%;
+                    --logo-y: 7%;
+                    --logo-w: 42%;
+                    --logo-h: 28%;
 
-                        --sticker-border: 2.2px;
-                        --sticker-radius: 3mm;
-                        --sticker-padding: 4mm;
+                    /* Bloque DATOS */
+                    --data-x: 5%;
+                    --data-y: 38%;
+                    --data-w: 50%;
+                    --data-h: 20%;
+                    --data-font: 12px;
 
-                        --right-width: 48mm;
-                        --column-gap: 4mm;
+                    /* Bloque CONTACTO */
+                    --contact-x: 5%;
+                    --contact-y: 68%;
+                    --contact-w: 50%;
+                    --contact-h: 25%;
+                    --contact-font: 10px;
 
-                        --logo-max-width: 72mm;
-                        --logo-max-height: 28mm;
+                    /* Bloque DIVISOR */
+                    --divider-x: 59%;
+                    --divider-y: 8%;
+                    --divider-w: 1px;
+                    --divider-h: 84%;
 
-                        --qr-size: 36mm;
+                    /* Bloque QR */
+                    --qr-x: 66%;
+                    --qr-y: 7%;
+                    --qr-w: 29%;
+                    --qr-h: 55%;
+                    --qr-size: 38mm;
+                    --qr-title-font: 8.5px;
 
-                        --model-font: 12px;
-                        --contact-font: 9.5px;
-                        --qr-text-font: 8.5px;
-                        --scan-title-font: 8.5px;
+                    /* Bloque TEXTO QR */
+                    --qrtext-x: 65%;
+                    --qrtext-y: 66%;
+                    --qrtext-w: 31%;
+                    --qrtext-h: 28%;
+                    --qrtext-font: 9px;
+                }
 
-                        --screen-scale: 0.80;
-                    }
+                html,
+                body {
+                    margin: 0;
+                    padding: 0;
+                    width: 100%;
+                    min-height: 100%;
+                    font-family: Arial, sans-serif;
+                    background: #f3f4f6;
+                    overflow-x: auto;
+                }
 
+                .no-print {
+                    position: sticky;
+                    top: 0;
+                    z-index: 99999;
+                    background: #111827;
+                    color: #ffffff;
+                    padding: 10px 14px;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+                    font-family: Arial, sans-serif;
+                }
+
+                .toolbar {
+                    display: flex;
+                    flex-wrap: wrap;
+                    align-items: center;
+                    gap: 10px 12px;
+                }
+
+                .toolbar-title {
+                    font-size: 14px;
+                    font-weight: 700;
+                    margin-right: 8px;
+                    white-space: nowrap;
+                }
+
+                .toolbar-group {
+                    display: flex;
+                    align-items: center;
+                    gap: 5px;
+                    font-size: 12px;
+                    white-space: nowrap;
+                }
+
+                .toolbar-group label {
+                    color: #e5e7eb;
+                }
+
+                .toolbar-group input,
+                .toolbar-group select {
+                    height: 28px;
+                    border-radius: 6px;
+                    border: 1px solid #374151;
+                    padding: 2px 6px;
+                    font-size: 12px;
+                    background: #ffffff;
+                    color: #111827;
+                }
+
+                .toolbar-group input {
+                    width: 58px;
+                }
+
+                .toolbar button {
+                    height: 30px;
+                    padding: 0 12px;
+                    border-radius: 6px;
+                    border: 1px solid #2563eb;
+                    background: #2563eb;
+                    color: #ffffff;
+                    font-weight: 700;
+                    cursor: pointer;
+                }
+
+                .toolbar button.secondary {
+                    border-color: #6b7280;
+                    background: #374151;
+                }
+
+                .toolbar button.success {
+                    border-color: #16a34a;
+                    background: #16a34a;
+                }
+
+                .hint {
+                    margin-top: 6px;
+                    font-size: 11px;
+                    color: #d1d5db;
+                }
+
+                .screen-wrapper {
+                    width: var(--sheet-width);
+                    margin: 12px auto;
+                    transform: scale(var(--screen-scale));
+                    transform-origin: top center;
+                }
+
+                .sheet {
+                    width: var(--sheet-width);
+                    height: var(--sheet-height);
+                    box-sizing: border-box;
+                    padding: var(--sheet-padding);
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    grid-template-rows: repeat(3, 1fr);
+                    gap: var(--sheet-gap);
+                    background: #ffffff;
+                    page-break-after: always;
+                    break-after: page;
+                }
+
+                .sheet:last-child {
+                    page-break-after: auto;
+                    break-after: auto;
+                }
+
+                .sticker {
+                    width: 100%;
+                    height: 100%;
+                    min-width: 0;
+                    min-height: 0;
+                    position: relative;
+                    box-sizing: border-box;
+                    background: #ffffff;
+                    border: var(--sticker-border) solid #000000;
+                    border-radius: var(--sticker-radius);
+                    overflow: hidden;
+                    page-break-inside: avoid;
+                    break-inside: avoid;
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                }
+
+                .block {
+                    position: absolute;
+                    box-sizing: border-box;
+                    overflow: hidden;
+                }
+
+                .block-logo {
+                    left: var(--logo-x);
+                    top: var(--logo-y);
+                    width: var(--logo-w);
+                    height: var(--logo-h);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .company-logo {
+                    max-width: 100%;
+                    max-height: 100%;
+                    width: auto;
+                    height: auto;
+                    object-fit: contain;
+                }
+
+                .block-data {
+                    left: var(--data-x);
+                    top: var(--data-y);
+                    width: var(--data-w);
+                    height: var(--data-h);
+                    font-size: var(--data-font);
+                    font-weight: bold;
+                    line-height: 1.35;
+                    color: #000000;
+                    overflow-wrap: anywhere;
+                }
+
+                .block-contact {
+                    left: var(--contact-x);
+                    top: var(--contact-y);
+                    width: var(--contact-w);
+                    height: var(--contact-h);
+                    font-size: var(--contact-font);
+                    font-weight: 500;
+                    line-height: 1.45;
+                    color: #111827;
+                    overflow-wrap: anywhere;
+                }
+
+                .block-divider {
+                    left: var(--divider-x);
+                    top: var(--divider-y);
+                    width: var(--divider-w);
+                    height: var(--divider-h);
+                    background: #d1d5db;
+                    border-radius: 1px;
+                }
+
+                .block-qr {
+                    left: var(--qr-x);
+                    top: var(--qr-y);
+                    width: var(--qr-w);
+                    height: var(--qr-h);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .qr-box {
+                    max-width: 100%;
+                    max-height: 100%;
+                    border: 2px solid #1e293b;
+                    border-radius: 2mm;
+                    padding: 2mm;
+                    background: #ffffff;
+                    box-sizing: border-box;
+                    text-align: center;
+                }
+
+                .scan-title {
+                    background: #1e293b;
+                    color: #ffffff;
+                    font-size: var(--qr-title-font);
+                    font-weight: bold;
+                    padding: 2px 4px;
+                    margin-bottom: 1.6mm;
+                    border-radius: 1mm;
+                    line-height: 1.1;
+                    letter-spacing: 0.3px;
+                }
+
+                .qr {
+                    width: var(--qr-size);
+                    height: var(--qr-size);
+                    max-width: 100%;
+                    max-height: calc(100% - 8mm);
+                    image-rendering: pixelated;
+                    image-rendering: crisp-edges;
+                    display: block;
+                }
+
+                .block-qrtext {
+                    left: var(--qrtext-x);
+                    top: var(--qrtext-y);
+                    width: var(--qrtext-w);
+                    height: var(--qrtext-h);
+                    font-size: var(--qrtext-font);
+                    line-height: 1.25;
+                    text-align: center;
+                    font-weight: 500;
+                    color: #111827;
+                    overflow-wrap: anywhere;
+                }
+
+                .selected-block {
+                    outline: 2px dashed #2563eb;
+                    outline-offset: -2px;
+                    cursor: move;
+                }
+
+                .resize-dot {
+                    display: none;
+                    position: absolute;
+                    right: 0;
+                    bottom: 0;
+                    width: 9px;
+                    height: 9px;
+                    background: #2563eb;
+                    border-radius: 50%;
+                    cursor: nwse-resize;
+                    z-index: 10;
+                }
+
+                .selected-block .resize-dot {
+                    display: block;
+                }
+
+                @media print {
                     html,
                     body {
+                        width: var(--sheet-width);
+                        height: auto;
                         margin: 0;
                         padding: 0;
-                        width: 100%;
-                        min-height: 100%;
-                        font-family: Arial, sans-serif;
-                        background: #f3f4f6;
-                    }
-
-                    body {
-                        overflow-x: auto;
+                        background: #ffffff;
+                        overflow: visible;
                     }
 
                     .no-print {
-                        position: sticky;
-                        top: 0;
-                        z-index: 9999;
-                        background: #111827;
-                        color: #ffffff;
-                        padding: 10px 14px;
-                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
-                        font-family: Arial, sans-serif;
-                    }
-
-                    .toolbar {
-                        display: flex;
-                        flex-wrap: wrap;
-                        align-items: center;
-                        gap: 10px 14px;
-                    }
-
-                    .toolbar-title {
-                        font-size: 14px;
-                        font-weight: 700;
-                        white-space: nowrap;
-                        margin-right: 8px;
-                    }
-
-                    .toolbar-group {
-                        display: flex;
-                        align-items: center;
-                        gap: 5px;
-                        font-size: 12px;
-                        white-space: nowrap;
-                    }
-
-                    .toolbar-group label {
-                        color: #e5e7eb;
-                    }
-
-                    .toolbar-group input,
-                    .toolbar-group select {
-                        height: 28px;
-                        border-radius: 6px;
-                        border: 1px solid #374151;
-                        padding: 2px 6px;
-                        font-size: 12px;
-                        background: #ffffff;
-                        color: #111827;
-                    }
-
-                    .toolbar-group input {
-                        width: 58px;
-                    }
-
-                    .toolbar button {
-                        height: 30px;
-                        padding: 0 12px;
-                        border-radius: 6px;
-                        border: 1px solid #2563eb;
-                        background: #2563eb;
-                        color: #ffffff;
-                        font-weight: 700;
-                        cursor: pointer;
-                    }
-
-                    .toolbar button.secondary {
-                        border-color: #6b7280;
-                        background: #374151;
-                    }
-
-                    .hint {
-                        margin-top: 6px;
-                        font-size: 11px;
-                        color: #d1d5db;
+                        display: none !important;
                     }
 
                     .screen-wrapper {
                         width: var(--sheet-width);
-                        margin: 14px auto;
-                        transform: scale(var(--screen-scale));
-                        transform-origin: top center;
+                        margin: 0;
+                        transform: none !important;
                     }
 
                     .sheet {
                         width: var(--sheet-width);
                         height: var(--sheet-height);
-                        box-sizing: border-box;
-                        padding: var(--sheet-padding);
-
-                        display: grid;
-                        grid-template-columns: repeat(var(--grid-cols), 1fr);
-                        grid-template-rows: repeat(var(--grid-rows), 1fr);
-                        gap: var(--sheet-gap);
-
-                        background: #ffffff;
-
+                        margin: 0;
                         page-break-after: always;
                         break-after: page;
                     }
@@ -167,622 +378,690 @@
                         break-after: auto;
                     }
 
-                    .sticker {
-                        width: 100%;
-                        height: 100%;
-                        min-width: 0;
-                        min-height: 0;
+                    .selected-block {
+                        outline: none !important;
+                    }
 
-                        border: var(--sticker-border) solid #000000;
-                        border-radius: var(--sticker-radius);
+                    .resize-dot {
+                        display: none !important;
+                    }
 
-                        padding: var(--sticker-padding);
-                        box-sizing: border-box;
-                        position: relative;
-                        background: #ffffff;
-
+                    * {
                         -webkit-print-color-adjust: exact !important;
                         print-color-adjust: exact !important;
-
-                        page-break-inside: avoid;
-                        break-inside: avoid;
-
-                        display: grid;
-                        grid-template-columns: 1fr 2px var(--right-width);
-                        gap: var(--column-gap);
-
-                        overflow: hidden;
                     }
+                }
+            </style>
 
-                    .divider {
-                        width: 2px;
-                        background: #d1d5db;
-                        align-self: stretch;
-                        border-radius: 1px;
-                    }
+            <div class="no-print">
+                <div class="toolbar">
 
-                    .left-column {
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: space-between;
-                        min-width: 0;
-                        overflow: hidden;
-                    }
-
-                    .left-top {
-                        display: flex;
-                        flex-direction: column;
-                        min-width: 0;
-                        overflow: hidden;
-                    }
-
-                    .company-logo {
-                        max-height: var(--logo-max-height);
-                        max-width: var(--logo-max-width);
-                        width: auto;
-                        height: auto;
-                        object-fit: contain;
-                        margin-bottom: 3mm;
-                    }
-
-                    .serial {
-                        font-size: var(--model-font);
-                        font-weight: bold;
-                        margin-bottom: 1.4mm;
-                        color: #000000;
-                        overflow-wrap: anywhere;
-                        line-height: 1.22;
-                    }
-
-                    .left-bottom {
-                        display: flex;
-                        flex-direction: column;
-                        min-width: 0;
-                        overflow: hidden;
-                    }
-
-                    .contact {
-                        font-size: var(--contact-font);
-                        margin-bottom: 0.8mm;
-                        font-weight: 500;
-                        overflow-wrap: anywhere;
-                        line-height: 1.2;
-                        color: #111827;
-                    }
-
-                    .right-column {
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: center;
-                        min-width: 0;
-                        overflow: hidden;
-                    }
-
-                    .scan {
-                        border: 2.2px solid #1e293b;
-                        border-radius: 2mm;
-                        padding: 2mm;
-                        text-align: center;
-                        background: #ffffff;
-                        margin-bottom: 2mm;
-                        max-width: 100%;
-                        box-sizing: border-box;
-                    }
-
-                    .scan-title {
-                        background: #1e293b;
-                        color: #ffffff;
-                        font-size: var(--scan-title-font);
-                        font-weight: bold;
-                        padding: 2px 4px;
-                        margin-bottom: 1.8mm;
-                        border-radius: 1mm;
-                        letter-spacing: 0.3px;
-                        line-height: 1.1;
-                    }
-
-                    .qr {
-                        width: var(--qr-size);
-                        height: var(--qr-size);
-                        image-rendering: pixelated;
-                        image-rendering: crisp-edges;
-                        display: block;
-                    }
-
-                    .qr-text {
-                        font-size: var(--qr-text-font);
-                        line-height: 1.25;
-                        text-align: center;
-                        font-weight: 500;
-                        color: #111827;
-                    }
-
-                    @media print {
-                        html,
-                        body {
-                            width: var(--sheet-width);
-                            height: auto;
-                            margin: 0;
-                            padding: 0;
-                            background: #ffffff;
-                            overflow: visible;
-                        }
-
-                        .no-print {
-                            display: none !important;
-                        }
-
-                        .screen-wrapper {
-                            width: var(--sheet-width);
-                            margin: 0;
-                            transform: none !important;
-                        }
-
-                        .sheet {
-                            width: var(--sheet-width);
-                            height: var(--sheet-height);
-                            margin: 0;
-                            page-break-after: always;
-                            break-after: page;
-                        }
-
-                        .sheet:last-child {
-                            page-break-after: auto;
-                            break-after: auto;
-                        }
-
-                        * {
-                            -webkit-print-color-adjust: exact !important;
-                            print-color-adjust: exact !important;
-                        }
-                    }
-                </style>
-
-                <div class="no-print">
-                    <div class="toolbar">
-
-                        <div class="toolbar-title">
-                            Stickers A4 - 6 por hoja
-                        </div>
-
-                        <div class="toolbar-group">
-                            <label>Orientación</label>
-                            <select id="orientationInput" onchange="applyOrientation(this.value)">
-                                <option value="landscape" selected="selected">Horizontal</option>
-                                <option value="portrait">Vertical</option>
-                            </select>
-                        </div>
-
-                        <div class="toolbar-group">
-                            <label>Tamaño</label>
-                            <select id="presetSize" onchange="applyPresetSize(this.value)">
-                                <option value="mediano" selected="selected">Mediano</option>
-                                <option value="grande">Grande</option>
-                                <option value="compacto">Compacto</option>
-                                <option value="manual">Manual</option>
-                            </select>
-                        </div>
-
-                        <div class="toolbar-group">
-                            <label>Vista</label>
-                            <select id="scaleInput">
-                                <option value="0.55">55%</option>
-                                <option value="0.60">60%</option>
-                                <option value="0.70">70%</option>
-                                <option value="0.80" selected="selected">80%</option>
-                                <option value="0.90">90%</option>
-                                <option value="1">100%</option>
-                            </select>
-                        </div>
-
-                        <div class="toolbar-group">
-                            <label>Separación</label>
-                            <input id="gapInput" type="number" value="5" min="2" max="10" step="0.5"/>
-                            <span>mm</span>
-                        </div>
-
-                        <div class="toolbar-group">
-                            <label>Padding</label>
-                            <input id="paddingInput" type="number" value="4" min="2" max="8" step="0.5"/>
-                            <span>mm</span>
-                        </div>
-
-                        <div class="toolbar-group">
-                            <label>QR</label>
-                            <input id="qrInput" type="number" value="36" min="24" max="50" step="1"/>
-                            <span>mm</span>
-                        </div>
-
-                        <div class="toolbar-group">
-                            <label>Columna QR</label>
-                            <input id="rightInput" type="number" value="48" min="34" max="70" step="1"/>
-                            <span>mm</span>
-                        </div>
-
-                        <div class="toolbar-group">
-                            <label>Logo</label>
-                            <input id="logoInput" type="number" value="72" min="35" max="100" step="1"/>
-                            <span>mm</span>
-                        </div>
-
-                        <div class="toolbar-group">
-                            <label>Letra</label>
-                            <input id="fontInput" type="number" value="12" min="8" max="16" step="0.5"/>
-                            <span>px</span>
-                        </div>
-
-                        <button type="button" onclick="exportPdf()">
-                            Exportar PDF
-                        </button>
-
-                        <button type="button" class="secondary" onclick="resetStickerConfig()">
-                            Restaurar
-                        </button>
-
+                    <div class="toolbar-title">
+                        Diseñador de stickers A4
                     </div>
 
-                    <div class="hint">
-                        Cambia orientación, tamaño y medidas. Luego presiona “Exportar PDF”. La hoja se genera según la configuración elegida.
+                    <div class="toolbar-group">
+                        <label>Orientación</label>
+                        <select id="orientationInput" onchange="applyOrientation(this.value)">
+                            <option value="landscape" selected="selected">Horizontal</option>
+                            <option value="portrait">Vertical</option>
+                        </select>
                     </div>
+
+                    <div class="toolbar-group">
+                        <label>Tamaño</label>
+                        <select id="presetInput" onchange="applyPreset(this.value)">
+                            <option value="maximo" selected="selected">Máximo hoja</option>
+                            <option value="grande">Grande</option>
+                            <option value="mediano">Mediano</option>
+                            <option value="compacto">Compacto</option>
+                            <option value="manual">Manual</option>
+                        </select>
+                    </div>
+
+                    <div class="toolbar-group">
+                        <label>Vista</label>
+                        <select id="scaleInput" onchange="applyConfig()">
+                            <option value="0.60">60%</option>
+                            <option value="0.70">70%</option>
+                            <option value="0.80">80%</option>
+                            <option value="0.90" selected="selected">90%</option>
+                            <option value="1">100%</option>
+                        </select>
+                    </div>
+
+                    <div class="toolbar-group">
+                        <label>Margen hoja</label>
+                        <input id="sheetPaddingInput" type="number" value="2" min="0" max="10" step="0.5" onchange="manualConfig()"/>
+                        <span>mm</span>
+                    </div>
+
+                    <div class="toolbar-group">
+                        <label>Separación</label>
+                        <input id="sheetGapInput" type="number" value="2" min="0" max="10" step="0.5" onchange="manualConfig()"/>
+                        <span>mm</span>
+                    </div>
+
+                    <div class="toolbar-group">
+                        <label>Bloque</label>
+                        <select id="blockInput" onchange="selectBlock(this.value)">
+                            <option value="logo">Logo</option>
+                            <option value="data">Modelo / Serie</option>
+                            <option value="contact">Contactos</option>
+                            <option value="qr">QR</option>
+                            <option value="qrtext">Texto QR</option>
+                            <option value="divider">Divisor</option>
+                        </select>
+                    </div>
+
+                    <div class="toolbar-group">
+                        <label>X</label>
+                        <input id="xInput" type="number" value="0" min="0" max="100" step="0.5" onchange="updateSelectedFromInputs()"/>
+                        <span>%</span>
+                    </div>
+
+                    <div class="toolbar-group">
+                        <label>Y</label>
+                        <input id="yInput" type="number" value="0" min="0" max="100" step="0.5" onchange="updateSelectedFromInputs()"/>
+                        <span>%</span>
+                    </div>
+
+                    <div class="toolbar-group">
+                        <label>Ancho</label>
+                        <input id="wInput" type="number" value="0" min="1" max="100" step="0.5" onchange="updateSelectedFromInputs()"/>
+                        <span>%</span>
+                    </div>
+
+                    <div class="toolbar-group">
+                        <label>Alto</label>
+                        <input id="hInput" type="number" value="0" min="1" max="100" step="0.5" onchange="updateSelectedFromInputs()"/>
+                        <span>%</span>
+                    </div>
+
+                    <div class="toolbar-group">
+                        <label>Letra</label>
+                        <input id="fontInput" type="number" value="12" min="6" max="24" step="0.5" onchange="updateSelectedFont()"/>
+                        <span>px</span>
+                    </div>
+
+                    <div class="toolbar-group">
+                        <label>QR</label>
+                        <input id="qrSizeInput" type="number" value="42" min="20" max="70" step="1" onchange="manualConfig()"/>
+                        <span>mm</span>
+                    </div>
+
+                    <button type="button" class="success" onclick="exportPdf()">
+                        Exportar PDF
+                    </button>
+
+                    <button type="button" class="secondary" onclick="resetDesigner()">
+                        Restaurar
+                    </button>
+
                 </div>
 
-                <div class="screen-wrapper">
+                <div class="hint">
+                    Selecciona un bloque y muévelo con el mouse. También puedes modificar X, Y, ancho, alto y letra. El PDF se genera con la misma distribución.
+                </div>
+            </div>
 
-                    <t t-foreach="range(0, len(docs), 6)" t-as="start">
+            <div class="screen-wrapper">
 
-                        <div class="sheet">
+                <t t-foreach="range(0, len(docs), 6)" t-as="start">
 
-                            <t t-foreach="docs[start:start + 6]" t-as="doc">
+                    <div class="sheet">
 
-                                <t t-if="not doc.qr_code">
-                                    <t t-set="dummy" t-value="doc.generar_qr_code()" />
-                                </t>
+                        <t t-foreach="docs[start:start + 6]" t-as="doc">
 
-                                <div class="sticker">
-
-                                    <div class="left-column">
-
-                                        <div class="left-top">
-
-                                            <t t-set="company" t-value="request.env.company"/>
-
-                                            <t t-if="company.logo">
-                                                <img
-                                                    t-att-src="'data:image/png;base64,%s' % company.logo.decode('utf-8')"
-                                                    class="company-logo"
-                                                    alt="Logo Empresa"/>
-                                            </t>
-
-                                            <div class="serial">
-                                                Modelo:
-                                                <t t-esc="doc.name.name if doc.name else 'No especificado'"/>
-                                            </div>
-
-                                            <div class="serial">
-                                                Serie:
-                                                <t t-esc="doc.serie_id or 'No especificada'"/>
-                                            </div>
-
-                                        </div>
-
-                                        <div class="left-bottom">
-                                            <div class="contact">info@copiercompanysac.com</div>
-                                            <div class="contact">+51 975 399 303</div>
-                                            <div class="contact">https://copiercompanysac.com</div>
-                                        </div>
-
-                                    </div>
-
-                                    <div class="divider"></div>
-
-                                    <div class="right-column">
-
-                                        <div class="scan">
-                                            <div class="scan-title">ESCANEE AQUÍ</div>
-
-                                            <t t-if="doc.qr_code">
-                                                <img
-                                                    t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')"
-                                                    class="qr"
-                                                    alt="QR Soporte"/>
-                                            </t>
-                                        </div>
-
-                                        <div class="qr-text">
-                                            Para soporte técnico,<br/>
-                                            asistencia remota o<br/>
-                                            solicitud de tóner,<br/>
-                                            escanee el código QR.
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
+                            <t t-if="not doc.qr_code">
+                                <t t-set="dummy" t-value="doc.generar_qr_code()" />
                             </t>
 
-                        </div>
+                            <div class="sticker">
 
-                    </t>
+                                <div class="block block-logo" data-block="logo">
+                                    <span class="resize-dot"></span>
+                                    <t t-set="company" t-value="request.env.company"/>
+                                    <t t-if="company.logo">
+                                        <img
+                                            t-att-src="'data:image/png;base64,%s' % company.logo.decode('utf-8')"
+                                            class="company-logo"
+                                            alt="Logo Empresa"/>
+                                    </t>
+                                </div>
 
-                </div>
+                                <div class="block block-data" data-block="data">
+                                    <span class="resize-dot"></span>
+                                    <div>
+                                        Modelo:
+                                        <t t-esc="doc.name.name if doc.name else 'No especificado'"/>
+                                    </div>
+                                    <div>
+                                        Serie:
+                                        <t t-esc="doc.serie_id or 'No especificada'"/>
+                                    </div>
+                                </div>
 
-                <script type="text/javascript">
-                    <![CDATA[
-                    function setCssVar(name, value) {
-                        document.documentElement.style.setProperty(name, value);
+                                <div class="block block-contact" data-block="contact">
+                                    <span class="resize-dot"></span>
+                                    <div>info@copiercompanysac.com</div>
+                                    <div>+51 975 399 303</div>
+                                    <div>https://copiercompanysac.com</div>
+                                </div>
+
+                                <div class="block block-divider" data-block="divider">
+                                    <span class="resize-dot"></span>
+                                </div>
+
+                                <div class="block block-qr" data-block="qr">
+                                    <span class="resize-dot"></span>
+                                    <div class="qr-box">
+                                        <div class="scan-title">ESCANEE AQUÍ</div>
+
+                                        <t t-if="doc.qr_code">
+                                            <img
+                                                t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')"
+                                                class="qr"
+                                                alt="QR Soporte"/>
+                                        </t>
+                                    </div>
+                                </div>
+
+                                <div class="block block-qrtext" data-block="qrtext">
+                                    <span class="resize-dot"></span>
+                                    Para soporte técnico,<br/>
+                                    asistencia remota o<br/>
+                                    solicitud de tóner,<br/>
+                                    escanee el código QR.
+                                </div>
+
+                            </div>
+
+                        </t>
+
+                    </div>
+
+                </t>
+
+            </div>
+
+            <script type="text/javascript">
+                <![CDATA[
+                var selectedBlock = "logo";
+                var dragging = null;
+
+                var varsByBlock = {
+                    logo: {
+                        x: "--logo-x",
+                        y: "--logo-y",
+                        w: "--logo-w",
+                        h: "--logo-h",
+                        font: null
+                    },
+                    data: {
+                        x: "--data-x",
+                        y: "--data-y",
+                        w: "--data-w",
+                        h: "--data-h",
+                        font: "--data-font"
+                    },
+                    contact: {
+                        x: "--contact-x",
+                        y: "--contact-y",
+                        w: "--contact-w",
+                        h: "--contact-h",
+                        font: "--contact-font"
+                    },
+                    qr: {
+                        x: "--qr-x",
+                        y: "--qr-y",
+                        w: "--qr-w",
+                        h: "--qr-h",
+                        font: "--qr-title-font"
+                    },
+                    qrtext: {
+                        x: "--qrtext-x",
+                        y: "--qrtext-y",
+                        w: "--qrtext-w",
+                        h: "--qrtext-h",
+                        font: "--qrtext-font"
+                    },
+                    divider: {
+                        x: "--divider-x",
+                        y: "--divider-y",
+                        w: "--divider-w",
+                        h: "--divider-h",
+                        font: null
+                    }
+                };
+
+                function rootStyle() {
+                    return getComputedStyle(document.documentElement);
+                }
+
+                function setCssVar(name, value) {
+                    document.documentElement.style.setProperty(name, value);
+                }
+
+                function getCssVarNumber(name) {
+                    var value = rootStyle().getPropertyValue(name).trim();
+                    return parseFloat(value.replace("%", "").replace("px", "").replace("mm", ""));
+                }
+
+                function getValue(id, fallback) {
+                    var el = document.getElementById(id);
+                    if (!el) {
+                        return fallback;
+                    }
+                    return el.value || fallback;
+                }
+
+                function setValue(id, value) {
+                    var el = document.getElementById(id);
+                    if (el) {
+                        el.value = value;
+                    }
+                }
+
+                function setDynamicPageStyle(orientation) {
+                    var style = document.getElementById("dynamicPrintPageStyle");
+                    if (!style) {
+                        return;
                     }
 
-                    function getValue(id, fallback) {
-                        var el = document.getElementById(id);
-                        if (!el) {
-                            return fallback;
+                    if (orientation === "portrait") {
+                        style.textContent =
+                            "@page { size: A4 portrait; margin: 0; }" +
+                            "@media print { @page { size: A4 portrait; margin: 0; } }";
+                    } else {
+                        style.textContent =
+                            "@page { size: A4 landscape; margin: 0; }" +
+                            "@media print { @page { size: A4 landscape; margin: 0; } }";
+                    }
+                }
+
+                function markManual() {
+                    setValue("presetInput", "manual");
+                }
+
+                function manualConfig() {
+                    markManual();
+                    applyConfig();
+                }
+
+                function applyOrientation(orientation) {
+                    setDynamicPageStyle(orientation);
+
+                    if (orientation === "portrait") {
+                        setCssVar("--sheet-width", "210mm");
+                        setCssVar("--sheet-height", "297mm");
+                        setValue("scaleInput", "0.80");
+                    } else {
+                        setCssVar("--sheet-width", "297mm");
+                        setCssVar("--sheet-height", "210mm");
+                        setValue("scaleInput", "0.90");
+                    }
+
+                    applyPreset("maximo");
+                }
+
+                function applyPreset(preset) {
+                    var orientation = getValue("orientationInput", "landscape");
+
+                    if (preset === "maximo") {
+                        setValue("sheetPaddingInput", "1");
+                        setValue("sheetGapInput", "1.5");
+
+                        if (orientation === "landscape") {
+                            setValue("qrSizeInput", "42");
+                            setLayoutLandscapeMax();
+                        } else {
+                            setValue("qrSizeInput", "35");
+                            setLayoutPortraitMax();
                         }
-                        return el.value || fallback;
                     }
 
-                    function setValue(id, value) {
-                        var el = document.getElementById(id);
-                        if (el) {
-                            el.value = value;
+                    if (preset === "grande") {
+                        setValue("sheetPaddingInput", "2");
+                        setValue("sheetGapInput", "2");
+
+                        if (orientation === "landscape") {
+                            setValue("qrSizeInput", "40");
+                            setLayoutLandscapeLarge();
+                        } else {
+                            setValue("qrSizeInput", "33");
+                            setLayoutPortraitLarge();
                         }
                     }
 
-                    function setDynamicPageStyle(orientation) {
-                        var style = document.getElementById("dynamicPrintPageStyle");
-                        if (!style) {
+                    if (preset === "mediano") {
+                        setValue("sheetPaddingInput", "4");
+                        setValue("sheetGapInput", "4");
+
+                        if (orientation === "landscape") {
+                            setValue("qrSizeInput", "36");
+                            setLayoutLandscapeMedium();
+                        } else {
+                            setValue("qrSizeInput", "31");
+                            setLayoutPortraitMedium();
+                        }
+                    }
+
+                    if (preset === "compacto") {
+                        setValue("sheetPaddingInput", "5");
+                        setValue("sheetGapInput", "5");
+
+                        if (orientation === "landscape") {
+                            setValue("qrSizeInput", "32");
+                            setLayoutLandscapeCompact();
+                        } else {
+                            setValue("qrSizeInput", "28");
+                            setLayoutPortraitCompact();
+                        }
+                    }
+
+                    applyConfig();
+                    selectBlock(selectedBlock);
+                }
+
+                function applyConfig() {
+                    var scale = getValue("scaleInput", "0.90");
+                    var pad = getValue("sheetPaddingInput", "1");
+                    var gap = getValue("sheetGapInput", "1.5");
+                    var qrSize = getValue("qrSizeInput", "42");
+
+                    setCssVar("--screen-scale", scale);
+                    setCssVar("--sheet-padding", pad + "mm");
+                    setCssVar("--sheet-gap", gap + "mm");
+                    setCssVar("--qr-size", qrSize + "mm");
+                }
+
+                function setLayoutLandscapeMax() {
+                    setBlock("logo", 5, 7, 44, 30);
+                    setBlock("data", 5, 39, 50, 20);
+                    setBlock("contact", 5, 70, 50, 24);
+                    setBlock("divider", 59, 7, 0.2, 86);
+                    setBlock("qr", 65, 6, 30, 58);
+                    setBlock("qrtext", 64, 66, 32, 28);
+                    setCssVar("--data-font", "13px");
+                    setCssVar("--contact-font", "10.5px");
+                    setCssVar("--qrtext-font", "9.5px");
+                    setCssVar("--qr-title-font", "9px");
+                }
+
+                function setLayoutLandscapeLarge() {
+                    setBlock("logo", 6, 8, 42, 28);
+                    setBlock("data", 5, 40, 50, 19);
+                    setBlock("contact", 5, 70, 50, 23);
+                    setBlock("divider", 59, 8, 0.2, 84);
+                    setBlock("qr", 66, 7, 29, 56);
+                    setBlock("qrtext", 65, 66, 31, 27);
+                    setCssVar("--data-font", "12px");
+                    setCssVar("--contact-font", "10px");
+                    setCssVar("--qrtext-font", "9px");
+                    setCssVar("--qr-title-font", "8.5px");
+                }
+
+                function setLayoutLandscapeMedium() {
+                    setBlock("logo", 8, 9, 38, 25);
+                    setBlock("data", 5, 39, 50, 20);
+                    setBlock("contact", 5, 69, 50, 24);
+                    setBlock("divider", 59, 9, 0.2, 82);
+                    setBlock("qr", 67, 8, 27, 53);
+                    setBlock("qrtext", 66, 66, 29, 26);
+                    setCssVar("--data-font", "11px");
+                    setCssVar("--contact-font", "9px");
+                    setCssVar("--qrtext-font", "8px");
+                    setCssVar("--qr-title-font", "8px");
+                }
+
+                function setLayoutLandscapeCompact() {
+                    setBlock("logo", 10, 10, 34, 22);
+                    setBlock("data", 5, 39, 48, 18);
+                    setBlock("contact", 5, 69, 48, 22);
+                    setBlock("divider", 59, 10, 0.2, 80);
+                    setBlock("qr", 68, 10, 25, 49);
+                    setBlock("qrtext", 66, 66, 29, 24);
+                    setCssVar("--data-font", "10px");
+                    setCssVar("--contact-font", "8px");
+                    setCssVar("--qrtext-font", "7.5px");
+                    setCssVar("--qr-title-font", "7.5px");
+                }
+
+                function setLayoutPortraitMax() {
+                    setBlock("logo", 7, 8, 42, 25);
+                    setBlock("data", 5, 38, 50, 18);
+                    setBlock("contact", 5, 69, 50, 23);
+                    setBlock("divider", 59, 8, 0.2, 84);
+                    setBlock("qr", 66, 8, 28, 50);
+                    setBlock("qrtext", 65, 63, 30, 30);
+                    setCssVar("--data-font", "11px");
+                    setCssVar("--contact-font", "9px");
+                    setCssVar("--qrtext-font", "8px");
+                    setCssVar("--qr-title-font", "8px");
+                }
+
+                function setLayoutPortraitLarge() {
+                    setBlock("logo", 8, 9, 40, 24);
+                    setBlock("data", 5, 39, 50, 17);
+                    setBlock("contact", 5, 69, 50, 23);
+                    setBlock("divider", 59, 9, 0.2, 82);
+                    setBlock("qr", 66, 9, 28, 49);
+                    setBlock("qrtext", 65, 64, 30, 28);
+                    setCssVar("--data-font", "10.5px");
+                    setCssVar("--contact-font", "8.5px");
+                    setCssVar("--qrtext-font", "7.8px");
+                    setCssVar("--qr-title-font", "7.8px");
+                }
+
+                function setLayoutPortraitMedium() {
+                    setBlock("logo", 10, 10, 36, 22);
+                    setBlock("data", 5, 39, 49, 17);
+                    setBlock("contact", 5, 69, 49, 22);
+                    setBlock("divider", 59, 10, 0.2, 80);
+                    setBlock("qr", 67, 10, 26, 47);
+                    setBlock("qrtext", 65, 64, 30, 27);
+                    setCssVar("--data-font", "10px");
+                    setCssVar("--contact-font", "8px");
+                    setCssVar("--qrtext-font", "7.5px");
+                    setCssVar("--qr-title-font", "7.5px");
+                }
+
+                function setLayoutPortraitCompact() {
+                    setBlock("logo", 11, 11, 34, 20);
+                    setBlock("data", 5, 39, 48, 16);
+                    setBlock("contact", 5, 69, 48, 21);
+                    setBlock("divider", 59, 11, 0.2, 78);
+                    setBlock("qr", 68, 11, 24, 44);
+                    setBlock("qrtext", 65, 64, 30, 26);
+                    setCssVar("--data-font", "9px");
+                    setCssVar("--contact-font", "7.5px");
+                    setCssVar("--qrtext-font", "7px");
+                    setCssVar("--qr-title-font", "7px");
+                }
+
+                function setBlock(block, x, y, w, h) {
+                    var cfg = varsByBlock[block];
+                    if (!cfg) {
+                        return;
+                    }
+
+                    if (block === "divider") {
+                        setCssVar(cfg.x, x + "%");
+                        setCssVar(cfg.y, y + "%");
+                        setCssVar(cfg.w, Math.max(1, w) + "px");
+                        setCssVar(cfg.h, h + "%");
+                    } else {
+                        setCssVar(cfg.x, x + "%");
+                        setCssVar(cfg.y, y + "%");
+                        setCssVar(cfg.w, w + "%");
+                        setCssVar(cfg.h, h + "%");
+                    }
+                }
+
+                function selectBlock(block) {
+                    selectedBlock = block;
+                    setValue("blockInput", block);
+
+                    document.querySelectorAll(".block").forEach(function (el) {
+                        if (el.getAttribute("data-block") === block) {
+                            el.classList.add("selected-block");
+                        } else {
+                            el.classList.remove("selected-block");
+                        }
+                    });
+
+                    loadSelectedToInputs();
+                }
+
+                function loadSelectedToInputs() {
+                    var cfg = varsByBlock[selectedBlock];
+                    if (!cfg) {
+                        return;
+                    }
+
+                    setValue("xInput", getCssVarNumber(cfg.x));
+                    setValue("yInput", getCssVarNumber(cfg.y));
+                    setValue("wInput", getCssVarNumber(cfg.w));
+                    setValue("hInput", getCssVarNumber(cfg.h));
+
+                    if (cfg.font) {
+                        setValue("fontInput", getCssVarNumber(cfg.font));
+                    }
+                }
+
+                function updateSelectedFromInputs() {
+                    markManual();
+
+                    var x = parseFloat(getValue("xInput", "0"));
+                    var y = parseFloat(getValue("yInput", "0"));
+                    var w = parseFloat(getValue("wInput", "10"));
+                    var h = parseFloat(getValue("hInput", "10"));
+
+                    if (isNaN(x)) { x = 0; }
+                    if (isNaN(y)) { y = 0; }
+                    if (isNaN(w)) { w = 10; }
+                    if (isNaN(h)) { h = 10; }
+
+                    x = Math.max(0, Math.min(99, x));
+                    y = Math.max(0, Math.min(99, y));
+                    w = Math.max(1, Math.min(100 - x, w));
+                    h = Math.max(1, Math.min(100 - y, h));
+
+                    setBlock(selectedBlock, x, y, w, h);
+                    loadSelectedToInputs();
+                }
+
+                function updateSelectedFont() {
+                    markManual();
+
+                    var cfg = varsByBlock[selectedBlock];
+                    if (!cfg || !cfg.font) {
+                        return;
+                    }
+
+                    var font = parseFloat(getValue("fontInput", "12"));
+                    if (isNaN(font)) {
+                        font = 12;
+                    }
+
+                    setCssVar(cfg.font, font + "px");
+                }
+
+                function resetDesigner() {
+                    setValue("orientationInput", "landscape");
+                    setDynamicPageStyle("landscape");
+                    setCssVar("--sheet-width", "297mm");
+                    setCssVar("--sheet-height", "210mm");
+                    setValue("presetInput", "maximo");
+                    setValue("scaleInput", "0.90");
+                    applyPreset("maximo");
+                    selectBlock("logo");
+                }
+
+                function exportPdf() {
+                    var orientation = getValue("orientationInput", "landscape");
+                    setDynamicPageStyle(orientation);
+                    applyConfig();
+
+                    setTimeout(function () {
+                        window.print();
+                    }, 250);
+                }
+
+                function initDragging() {
+                    document.querySelectorAll(".block").forEach(function (el) {
+                        el.addEventListener("mousedown", function (ev) {
+                            var block = el.getAttribute("data-block");
+                            selectBlock(block);
+
+                            var isResize = ev.target.classList.contains("resize-dot");
+                            var sticker = el.closest(".sticker");
+                            var rect = sticker.getBoundingClientRect();
+                            var cfg = varsByBlock[block];
+
+                            dragging = {
+                                block: block,
+                                mode: isResize ? "resize" : "move",
+                                startX: ev.clientX,
+                                startY: ev.clientY,
+                                rect: rect,
+                                x: getCssVarNumber(cfg.x),
+                                y: getCssVarNumber(cfg.y),
+                                w: getCssVarNumber(cfg.w),
+                                h: getCssVarNumber(cfg.h)
+                            };
+
+                            ev.preventDefault();
+                            ev.stopPropagation();
+                        });
+                    });
+
+                    document.addEventListener("mousemove", function (ev) {
+                        if (!dragging) {
                             return;
                         }
 
-                        if (orientation === "portrait") {
-                            style.textContent =
-                                "@page { size: A4 portrait; margin: 0; }" +
-                                "@media print { @page { size: A4 portrait; margin: 0; } }";
+                        var dx = ((ev.clientX - dragging.startX) / dragging.rect.width) * 100;
+                        var dy = ((ev.clientY - dragging.startY) / dragging.rect.height) * 100;
+
+                        var x = dragging.x;
+                        var y = dragging.y;
+                        var w = dragging.w;
+                        var h = dragging.h;
+
+                        if (dragging.mode === "move") {
+                            x = dragging.x + dx;
+                            y = dragging.y + dy;
                         } else {
-                            style.textContent =
-                                "@page { size: A4 landscape; margin: 0; }" +
-                                "@media print { @page { size: A4 landscape; margin: 0; } }";
-                        }
-                    }
-
-                    function applyOrientation(orientation) {
-                        setDynamicPageStyle(orientation);
-
-                        if (orientation === "portrait") {
-                            setCssVar("--sheet-width", "210mm");
-                            setCssVar("--sheet-height", "297mm");
-
-                            /*
-                               Vertical:
-                               2 columnas x 3 filas.
-                               El sticker queda más alto.
-                            */
-                            setCssVar("--grid-cols", "2");
-                            setCssVar("--grid-rows", "3");
-
-                            setValue("scaleInput", "0.80");
-                            setValue("rightInput", "38");
-                            setValue("qrInput", "31");
-                            setValue("logoInput", "55");
-                            setValue("fontInput", "11");
-                        } else {
-                            setCssVar("--sheet-width", "297mm");
-                            setCssVar("--sheet-height", "210mm");
-
-                            /*
-                               Horizontal:
-                               2 columnas x 3 filas.
-                               El sticker queda más largo.
-                            */
-                            setCssVar("--grid-cols", "2");
-                            setCssVar("--grid-rows", "3");
-
-                            setValue("scaleInput", "0.80");
-                            setValue("rightInput", "48");
-                            setValue("qrInput", "36");
-                            setValue("logoInput", "72");
-                            setValue("fontInput", "12");
+                            w = dragging.w + dx;
+                            h = dragging.h + dy;
                         }
 
-                        var preset = document.getElementById("presetSize");
-                        if (preset) {
-                            preset.value = "mediano";
-                        }
+                        x = Math.max(0, Math.min(99, x));
+                        y = Math.max(0, Math.min(99, y));
+                        w = Math.max(1, Math.min(100 - x, w));
+                        h = Math.max(1, Math.min(100 - y, h));
 
-                        applyPresetSize("mediano");
-                    }
-
-                    function markManual() {
-                        var preset = document.getElementById("presetSize");
-                        if (preset && preset.value !== "manual") {
-                            preset.value = "manual";
-                        }
-                    }
-
-                    function applyStickerConfig() {
-                        var orientation = getValue("orientationInput", "landscape");
-
-                        var scale = parseFloat(getValue("scaleInput", "0.80"));
-                        var gap = parseFloat(getValue("gapInput", "5"));
-                        var padding = parseFloat(getValue("paddingInput", "4"));
-                        var qr = parseFloat(getValue("qrInput", "36"));
-                        var right = parseFloat(getValue("rightInput", "48"));
-                        var logo = parseFloat(getValue("logoInput", "72"));
-                        var font = parseFloat(getValue("fontInput", "12"));
-
-                        if (isNaN(scale)) { scale = 0.80; }
-                        if (isNaN(gap)) { gap = 5; }
-                        if (isNaN(padding)) { padding = 4; }
-                        if (isNaN(qr)) { qr = 36; }
-                        if (isNaN(right)) { right = 48; }
-                        if (isNaN(logo)) { logo = 72; }
-                        if (isNaN(font)) { font = 12; }
-
-                        var maxRight = orientation === "portrait" ? 48 : 70;
-                        var minRight = qr + 8;
-
-                        if (right < minRight) {
-                            right = minRight;
-                            setValue("rightInput", right.toFixed(0));
-                        }
-
-                        if (right > maxRight) {
-                            right = maxRight;
-                            setValue("rightInput", String(maxRight));
-                        }
-
-                        setCssVar("--screen-scale", scale);
-                        setCssVar("--sheet-gap", gap + "mm");
-                        setCssVar("--sticker-padding", padding + "mm");
-                        setCssVar("--qr-size", qr + "mm");
-                        setCssVar("--right-width", right + "mm");
-                        setCssVar("--logo-max-width", logo + "mm");
-
-                        if (orientation === "portrait") {
-                            setCssVar("--logo-max-height", Math.max(22, logo * 0.58) + "mm");
-                        } else {
-                            setCssVar("--logo-max-height", Math.max(22, logo * 0.40) + "mm");
-                        }
-
-                        setCssVar("--model-font", font + "px");
-                        setCssVar("--contact-font", Math.max(7, font - 2.5) + "px");
-                        setCssVar("--qr-text-font", Math.max(7, font - 3.5) + "px");
-                        setCssVar("--scan-title-font", Math.max(7, font - 3.5) + "px");
-                    }
-
-                    function applyPresetSize(size) {
-                        var orientation = getValue("orientationInput", "landscape");
-
-                        if (orientation === "landscape") {
-                            if (size === "grande") {
-                                setValue("scaleInput", "0.80");
-                                setValue("gapInput", "4");
-                                setValue("paddingInput", "4.5");
-                                setValue("qrInput", "40");
-                                setValue("rightInput", "52");
-                                setValue("logoInput", "82");
-                                setValue("fontInput", "13");
-                            }
-
-                            if (size === "mediano") {
-                                setValue("scaleInput", "0.80");
-                                setValue("gapInput", "5");
-                                setValue("paddingInput", "4");
-                                setValue("qrInput", "36");
-                                setValue("rightInput", "48");
-                                setValue("logoInput", "72");
-                                setValue("fontInput", "12");
-                            }
-
-                            if (size === "compacto") {
-                                setValue("scaleInput", "0.80");
-                                setValue("gapInput", "6");
-                                setValue("paddingInput", "3.5");
-                                setValue("qrInput", "32");
-                                setValue("rightInput", "42");
-                                setValue("logoInput", "60");
-                                setValue("fontInput", "10.5");
-                            }
-                        }
-
-                        if (orientation === "portrait") {
-                            if (size === "grande") {
-                                setValue("scaleInput", "0.80");
-                                setValue("gapInput", "4");
-                                setValue("paddingInput", "4.5");
-                                setValue("qrInput", "34");
-                                setValue("rightInput", "43");
-                                setValue("logoInput", "62");
-                                setValue("fontInput", "12");
-                            }
-
-                            if (size === "mediano") {
-                                setValue("scaleInput", "0.80");
-                                setValue("gapInput", "5");
-                                setValue("paddingInput", "4");
-                                setValue("qrInput", "31");
-                                setValue("rightInput", "38");
-                                setValue("logoInput", "55");
-                                setValue("fontInput", "11");
-                            }
-
-                            if (size === "compacto") {
-                                setValue("scaleInput", "0.80");
-                                setValue("gapInput", "6");
-                                setValue("paddingInput", "3.5");
-                                setValue("qrInput", "28");
-                                setValue("rightInput", "36");
-                                setValue("logoInput", "48");
-                                setValue("fontInput", "10");
-                            }
-                        }
-
-                        applyStickerConfig();
-                    }
-
-                    function resetStickerConfig() {
-                        setValue("orientationInput", "landscape");
-                        setDynamicPageStyle("landscape");
-
-                        setCssVar("--sheet-width", "297mm");
-                        setCssVar("--sheet-height", "210mm");
-                        setCssVar("--grid-cols", "2");
-                        setCssVar("--grid-rows", "3");
-
-                        var preset = document.getElementById("presetSize");
-                        if (preset) {
-                            preset.value = "mediano";
-                        }
-
-                        applyPresetSize("mediano");
-                    }
-
-                    function exportPdf() {
-                        var orientation = getValue("orientationInput", "landscape");
-
-                        setDynamicPageStyle(orientation);
-                        applyStickerConfig();
-
-                        setTimeout(function () {
-                            window.print();
-                        }, 200);
-                    }
-
-                    document.addEventListener("DOMContentLoaded", function () {
-                        var orientation = getValue("orientationInput", "landscape");
-                        setDynamicPageStyle(orientation);
-
-                        var manualInputs = [
-                            "scaleInput",
-                            "gapInput",
-                            "paddingInput",
-                            "qrInput",
-                            "rightInput",
-                            "logoInput",
-                            "fontInput"
-                        ];
-
-                        manualInputs.forEach(function (id) {
-                            var el = document.getElementById(id);
-                            if (el) {
-                                el.addEventListener("input", function () {
-                                    markManual();
-                                    applyStickerConfig();
-                                });
-                                el.addEventListener("change", function () {
-                                    markManual();
-                                    applyStickerConfig();
-                                });
-                            }
-                        });
-
-                        applyOrientation("landscape");
+                        setBlock(dragging.block, x, y, w, h);
+                        loadSelectedToInputs();
+                        markManual();
                     });
-                    ]]>
-                </script>
 
-            </t>
+                    document.addEventListener("mouseup", function () {
+                        dragging = null;
+                    });
+                }
+
+                document.addEventListener("DOMContentLoaded", function () {
+                    setDynamicPageStyle("landscape");
+                    applyPreset("maximo");
+                    selectBlock("logo");
+                    initDragging();
+                });
+                ]]>
+            </script>
+
         </t>
 
     </template>
