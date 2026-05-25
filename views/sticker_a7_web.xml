@@ -5,37 +5,49 @@
         <t t-call="web.html_container">
             <t t-call="web.basic_layout">
 
-                <style>
+                <style id="dynamicPrintPageStyle">
                     @page {
-                        size: A4;
+                        size: A4 landscape;
                         margin: 0;
                     }
 
+                    @media print {
+                        @page {
+                            size: A4 landscape;
+                            margin: 0;
+                        }
+                    }
+                </style>
+
+                <style>
                     :root {
-                        --sheet-width: 210mm;
-                        --sheet-height: 297mm;
+                        --sheet-width: 297mm;
+                        --sheet-height: 210mm;
 
                         --sheet-padding: 5mm;
                         --sheet-gap: 5mm;
+
+                        --grid-cols: 2;
+                        --grid-rows: 3;
 
                         --sticker-border: 2.2px;
                         --sticker-radius: 3mm;
                         --sticker-padding: 4mm;
 
-                        --right-width: 38mm;
-                        --column-gap: 3.5mm;
+                        --right-width: 48mm;
+                        --column-gap: 4mm;
 
-                        --logo-max-width: 52mm;
-                        --logo-max-height: 32mm;
+                        --logo-max-width: 72mm;
+                        --logo-max-height: 28mm;
 
-                        --qr-size: 32mm;
+                        --qr-size: 36mm;
 
-                        --model-font: 11px;
-                        --contact-font: 9px;
-                        --qr-text-font: 8px;
-                        --scan-title-font: 8px;
+                        --model-font: 12px;
+                        --contact-font: 9.5px;
+                        --qr-text-font: 8.5px;
+                        --scan-title-font: 8.5px;
 
-                        --screen-scale: 1;
+                        --screen-scale: 0.80;
                     }
 
                     html,
@@ -52,9 +64,6 @@
                         overflow-x: auto;
                     }
 
-                    /* ===============================
-                       PANEL DE CONFIGURACIÓN
-                       =============================== */
                     .no-print {
                         position: sticky;
                         top: 0;
@@ -123,20 +132,12 @@
                         background: #374151;
                     }
 
-                    .toolbar button.danger {
-                        border-color: #dc2626;
-                        background: #dc2626;
-                    }
-
                     .hint {
                         margin-top: 6px;
                         font-size: 11px;
                         color: #d1d5db;
                     }
 
-                    /* ===============================
-                       CONTENEDOR DE VISTA WEB
-                       =============================== */
                     .screen-wrapper {
                         width: var(--sheet-width);
                         margin: 14px auto;
@@ -144,9 +145,6 @@
                         transform-origin: top center;
                     }
 
-                    /* ===============================
-                       HOJA A4
-                       =============================== */
                     .sheet {
                         width: var(--sheet-width);
                         height: var(--sheet-height);
@@ -154,8 +152,8 @@
                         padding: var(--sheet-padding);
 
                         display: grid;
-                        grid-template-columns: repeat(2, 1fr);
-                        grid-template-rows: repeat(3, 1fr);
+                        grid-template-columns: repeat(var(--grid-cols), 1fr);
+                        grid-template-rows: repeat(var(--grid-rows), 1fr);
                         gap: var(--sheet-gap);
 
                         background: #ffffff;
@@ -169,9 +167,6 @@
                         break-after: auto;
                     }
 
-                    /* ===============================
-                       STICKER
-                       =============================== */
                     .sticker {
                         width: 100%;
                         height: 100%;
@@ -227,16 +222,16 @@
                         width: auto;
                         height: auto;
                         object-fit: contain;
-                        margin-bottom: 4mm;
+                        margin-bottom: 3mm;
                     }
 
                     .serial {
                         font-size: var(--model-font);
                         font-weight: bold;
-                        margin-bottom: 1.6mm;
+                        margin-bottom: 1.4mm;
                         color: #000000;
                         overflow-wrap: anywhere;
-                        line-height: 1.25;
+                        line-height: 1.22;
                     }
 
                     .left-bottom {
@@ -248,7 +243,7 @@
 
                     .contact {
                         font-size: var(--contact-font);
-                        margin-bottom: 1mm;
+                        margin-bottom: 0.8mm;
                         font-weight: 500;
                         overflow-wrap: anywhere;
                         line-height: 1.2;
@@ -270,7 +265,7 @@
                         padding: 2mm;
                         text-align: center;
                         background: #ffffff;
-                        margin-bottom: 3mm;
+                        margin-bottom: 2mm;
                         max-width: 100%;
                         box-sizing: border-box;
                     }
@@ -281,7 +276,7 @@
                         font-size: var(--scan-title-font);
                         font-weight: bold;
                         padding: 2px 4px;
-                        margin-bottom: 2mm;
+                        margin-bottom: 1.8mm;
                         border-radius: 1mm;
                         letter-spacing: 0.3px;
                         line-height: 1.1;
@@ -297,24 +292,16 @@
 
                     .qr-text {
                         font-size: var(--qr-text-font);
-                        line-height: 1.3;
+                        line-height: 1.25;
                         text-align: center;
                         font-weight: 500;
                         color: #111827;
                     }
 
-                    /* ===============================
-                       IMPRESIÓN / EXPORTAR PDF
-                       =============================== */
                     @media print {
-                        @page {
-                            size: A4;
-                            margin: 0;
-                        }
-
                         html,
                         body {
-                            width: 210mm;
+                            width: var(--sheet-width);
                             height: auto;
                             margin: 0;
                             padding: 0;
@@ -327,14 +314,14 @@
                         }
 
                         .screen-wrapper {
-                            width: 210mm;
+                            width: var(--sheet-width);
                             margin: 0;
                             transform: none !important;
                         }
 
                         .sheet {
-                            width: 210mm;
-                            height: 297mm;
+                            width: var(--sheet-width);
+                            height: var(--sheet-height);
                             margin: 0;
                             page-break-after: always;
                             break-after: page;
@@ -352,12 +339,19 @@
                     }
                 </style>
 
-                <!-- PANEL WEB: NO SE IMPRIME -->
                 <div class="no-print">
                     <div class="toolbar">
 
                         <div class="toolbar-title">
                             Stickers A4 - 6 por hoja
+                        </div>
+
+                        <div class="toolbar-group">
+                            <label>Orientación</label>
+                            <select id="orientationInput" onchange="applyOrientation(this.value)">
+                                <option value="landscape" selected="selected">Horizontal</option>
+                                <option value="portrait">Vertical</option>
+                            </select>
                         </div>
 
                         <div class="toolbar-group">
@@ -373,11 +367,12 @@
                         <div class="toolbar-group">
                             <label>Vista</label>
                             <select id="scaleInput">
+                                <option value="0.55">55%</option>
+                                <option value="0.60">60%</option>
                                 <option value="0.70">70%</option>
-                                <option value="0.80">80%</option>
+                                <option value="0.80" selected="selected">80%</option>
                                 <option value="0.90">90%</option>
-                                <option value="1" selected="selected">100%</option>
-                                <option value="1.10">110%</option>
+                                <option value="1">100%</option>
                             </select>
                         </div>
 
@@ -395,30 +390,30 @@
 
                         <div class="toolbar-group">
                             <label>QR</label>
-                            <input id="qrInput" type="number" value="32" min="24" max="42" step="1"/>
+                            <input id="qrInput" type="number" value="36" min="24" max="50" step="1"/>
                             <span>mm</span>
                         </div>
 
                         <div class="toolbar-group">
                             <label>Columna QR</label>
-                            <input id="rightInput" type="number" value="38" min="32" max="50" step="1"/>
+                            <input id="rightInput" type="number" value="48" min="34" max="70" step="1"/>
                             <span>mm</span>
                         </div>
 
                         <div class="toolbar-group">
                             <label>Logo</label>
-                            <input id="logoInput" type="number" value="52" min="35" max="68" step="1"/>
+                            <input id="logoInput" type="number" value="72" min="35" max="100" step="1"/>
                             <span>mm</span>
                         </div>
 
                         <div class="toolbar-group">
                             <label>Letra</label>
-                            <input id="fontInput" type="number" value="11" min="8" max="14" step="0.5"/>
+                            <input id="fontInput" type="number" value="12" min="8" max="16" step="0.5"/>
                             <span>px</span>
                         </div>
 
                         <button type="button" onclick="exportPdf()">
-                            Exportar / Imprimir PDF
+                            Exportar PDF
                         </button>
 
                         <button type="button" class="secondary" onclick="resetStickerConfig()">
@@ -428,33 +423,28 @@
                     </div>
 
                     <div class="hint">
-                        Cambia el tamaño y luego usa “Exportar / Imprimir PDF”. El PDF conservará el tamaño configurado en esta vista.
+                        Cambia orientación, tamaño y medidas. Luego presiona “Exportar PDF”. La hoja se genera según la configuración elegida.
                     </div>
                 </div>
 
-                <!-- VISTA DE IMPRESIÓN -->
                 <div class="screen-wrapper">
 
-                    <!-- Hojas automáticas de 6 stickers -->
                     <t t-foreach="range(0, len(docs), 6)" t-as="start">
 
                         <div class="sheet">
 
                             <t t-foreach="docs[start:start + 6]" t-as="doc">
 
-                                <!-- Generar QR si no existe -->
                                 <t t-if="not doc.qr_code">
                                     <t t-set="dummy" t-value="doc.generar_qr_code()" />
                                 </t>
 
                                 <div class="sticker">
 
-                                    <!-- COLUMNA IZQUIERDA -->
                                     <div class="left-column">
 
                                         <div class="left-top">
 
-                                            <!-- LOGO -->
                                             <t t-set="company" t-value="request.env.company"/>
 
                                             <t t-if="company.logo">
@@ -486,7 +476,6 @@
 
                                     <div class="divider"></div>
 
-                                    <!-- COLUMNA DERECHA -->
                                     <div class="right-column">
 
                                         <div class="scan">
@@ -540,6 +529,70 @@
                         }
                     }
 
+                    function setDynamicPageStyle(orientation) {
+                        var style = document.getElementById("dynamicPrintPageStyle");
+                        if (!style) {
+                            return;
+                        }
+
+                        if (orientation === "portrait") {
+                            style.textContent =
+                                "@page { size: A4 portrait; margin: 0; }" +
+                                "@media print { @page { size: A4 portrait; margin: 0; } }";
+                        } else {
+                            style.textContent =
+                                "@page { size: A4 landscape; margin: 0; }" +
+                                "@media print { @page { size: A4 landscape; margin: 0; } }";
+                        }
+                    }
+
+                    function applyOrientation(orientation) {
+                        setDynamicPageStyle(orientation);
+
+                        if (orientation === "portrait") {
+                            setCssVar("--sheet-width", "210mm");
+                            setCssVar("--sheet-height", "297mm");
+
+                            /*
+                               Vertical:
+                               2 columnas x 3 filas.
+                               El sticker queda más alto.
+                            */
+                            setCssVar("--grid-cols", "2");
+                            setCssVar("--grid-rows", "3");
+
+                            setValue("scaleInput", "0.80");
+                            setValue("rightInput", "38");
+                            setValue("qrInput", "31");
+                            setValue("logoInput", "55");
+                            setValue("fontInput", "11");
+                        } else {
+                            setCssVar("--sheet-width", "297mm");
+                            setCssVar("--sheet-height", "210mm");
+
+                            /*
+                               Horizontal:
+                               2 columnas x 3 filas.
+                               El sticker queda más largo.
+                            */
+                            setCssVar("--grid-cols", "2");
+                            setCssVar("--grid-rows", "3");
+
+                            setValue("scaleInput", "0.80");
+                            setValue("rightInput", "48");
+                            setValue("qrInput", "36");
+                            setValue("logoInput", "72");
+                            setValue("fontInput", "12");
+                        }
+
+                        var preset = document.getElementById("presetSize");
+                        if (preset) {
+                            preset.value = "mediano";
+                        }
+
+                        applyPresetSize("mediano");
+                    }
+
                     function markManual() {
                         var preset = document.getElementById("presetSize");
                         if (preset && preset.value !== "manual") {
@@ -548,39 +601,35 @@
                     }
 
                     function applyStickerConfig() {
-                        var scale = parseFloat(getValue("scaleInput", "1"));
+                        var orientation = getValue("orientationInput", "landscape");
+
+                        var scale = parseFloat(getValue("scaleInput", "0.80"));
                         var gap = parseFloat(getValue("gapInput", "5"));
                         var padding = parseFloat(getValue("paddingInput", "4"));
-                        var qr = parseFloat(getValue("qrInput", "32"));
-                        var right = parseFloat(getValue("rightInput", "38"));
-                        var logo = parseFloat(getValue("logoInput", "52"));
-                        var font = parseFloat(getValue("fontInput", "11"));
+                        var qr = parseFloat(getValue("qrInput", "36"));
+                        var right = parseFloat(getValue("rightInput", "48"));
+                        var logo = parseFloat(getValue("logoInput", "72"));
+                        var font = parseFloat(getValue("fontInput", "12"));
 
-                        if (isNaN(scale)) { scale = 1; }
+                        if (isNaN(scale)) { scale = 0.80; }
                         if (isNaN(gap)) { gap = 5; }
                         if (isNaN(padding)) { padding = 4; }
-                        if (isNaN(qr)) { qr = 32; }
-                        if (isNaN(right)) { right = 38; }
-                        if (isNaN(logo)) { logo = 52; }
-                        if (isNaN(font)) { font = 11; }
+                        if (isNaN(qr)) { qr = 36; }
+                        if (isNaN(right)) { right = 48; }
+                        if (isNaN(logo)) { logo = 72; }
+                        if (isNaN(font)) { font = 12; }
 
-                        /*
-                           Protección:
-                           La columna QR debe ser un poco más grande que el QR.
-                           Así evitamos que el QR se corte cuando se aumenta.
-                        */
-                        var minRight = qr + 6;
+                        var maxRight = orientation === "portrait" ? 48 : 70;
+                        var minRight = qr + 8;
+
                         if (right < minRight) {
                             right = minRight;
                             setValue("rightInput", right.toFixed(0));
                         }
 
-                        /*
-                           Límite para que no quite demasiado espacio a la columna izquierda.
-                        */
-                        if (right > 50) {
-                            right = 50;
-                            setValue("rightInput", "50");
+                        if (right > maxRight) {
+                            right = maxRight;
+                            setValue("rightInput", String(maxRight));
                         }
 
                         setCssVar("--screen-scale", scale);
@@ -589,71 +638,121 @@
                         setCssVar("--qr-size", qr + "mm");
                         setCssVar("--right-width", right + "mm");
                         setCssVar("--logo-max-width", logo + "mm");
-                        setCssVar("--logo-max-height", Math.max(24, logo * 0.62) + "mm");
+
+                        if (orientation === "portrait") {
+                            setCssVar("--logo-max-height", Math.max(22, logo * 0.58) + "mm");
+                        } else {
+                            setCssVar("--logo-max-height", Math.max(22, logo * 0.40) + "mm");
+                        }
+
                         setCssVar("--model-font", font + "px");
-                        setCssVar("--contact-font", Math.max(7, font - 2) + "px");
-                        setCssVar("--qr-text-font", Math.max(7, font - 3) + "px");
-                        setCssVar("--scan-title-font", Math.max(7, font - 3) + "px");
+                        setCssVar("--contact-font", Math.max(7, font - 2.5) + "px");
+                        setCssVar("--qr-text-font", Math.max(7, font - 3.5) + "px");
+                        setCssVar("--scan-title-font", Math.max(7, font - 3.5) + "px");
                     }
 
                     function applyPresetSize(size) {
-                        if (size === "grande") {
-                            setValue("scaleInput", "1");
-                            setValue("gapInput", "4");
-                            setValue("paddingInput", "4.5");
-                            setValue("qrInput", "36");
-                            setValue("rightInput", "43");
-                            setValue("logoInput", "60");
-                            setValue("fontInput", "12");
+                        var orientation = getValue("orientationInput", "landscape");
+
+                        if (orientation === "landscape") {
+                            if (size === "grande") {
+                                setValue("scaleInput", "0.80");
+                                setValue("gapInput", "4");
+                                setValue("paddingInput", "4.5");
+                                setValue("qrInput", "40");
+                                setValue("rightInput", "52");
+                                setValue("logoInput", "82");
+                                setValue("fontInput", "13");
+                            }
+
+                            if (size === "mediano") {
+                                setValue("scaleInput", "0.80");
+                                setValue("gapInput", "5");
+                                setValue("paddingInput", "4");
+                                setValue("qrInput", "36");
+                                setValue("rightInput", "48");
+                                setValue("logoInput", "72");
+                                setValue("fontInput", "12");
+                            }
+
+                            if (size === "compacto") {
+                                setValue("scaleInput", "0.80");
+                                setValue("gapInput", "6");
+                                setValue("paddingInput", "3.5");
+                                setValue("qrInput", "32");
+                                setValue("rightInput", "42");
+                                setValue("logoInput", "60");
+                                setValue("fontInput", "10.5");
+                            }
                         }
 
-                        if (size === "mediano") {
-                            setValue("scaleInput", "1");
-                            setValue("gapInput", "5");
-                            setValue("paddingInput", "4");
-                            setValue("qrInput", "32");
-                            setValue("rightInput", "38");
-                            setValue("logoInput", "52");
-                            setValue("fontInput", "11");
-                        }
+                        if (orientation === "portrait") {
+                            if (size === "grande") {
+                                setValue("scaleInput", "0.80");
+                                setValue("gapInput", "4");
+                                setValue("paddingInput", "4.5");
+                                setValue("qrInput", "34");
+                                setValue("rightInput", "43");
+                                setValue("logoInput", "62");
+                                setValue("fontInput", "12");
+                            }
 
-                        if (size === "compacto") {
-                            setValue("scaleInput", "1");
-                            setValue("gapInput", "6");
-                            setValue("paddingInput", "3.5");
-                            setValue("qrInput", "29");
-                            setValue("rightInput", "35");
-                            setValue("logoInput", "46");
-                            setValue("fontInput", "10");
+                            if (size === "mediano") {
+                                setValue("scaleInput", "0.80");
+                                setValue("gapInput", "5");
+                                setValue("paddingInput", "4");
+                                setValue("qrInput", "31");
+                                setValue("rightInput", "38");
+                                setValue("logoInput", "55");
+                                setValue("fontInput", "11");
+                            }
+
+                            if (size === "compacto") {
+                                setValue("scaleInput", "0.80");
+                                setValue("gapInput", "6");
+                                setValue("paddingInput", "3.5");
+                                setValue("qrInput", "28");
+                                setValue("rightInput", "36");
+                                setValue("logoInput", "48");
+                                setValue("fontInput", "10");
+                            }
                         }
 
                         applyStickerConfig();
                     }
 
                     function resetStickerConfig() {
+                        setValue("orientationInput", "landscape");
+                        setDynamicPageStyle("landscape");
+
+                        setCssVar("--sheet-width", "297mm");
+                        setCssVar("--sheet-height", "210mm");
+                        setCssVar("--grid-cols", "2");
+                        setCssVar("--grid-rows", "3");
+
                         var preset = document.getElementById("presetSize");
                         if (preset) {
                             preset.value = "mediano";
                         }
+
                         applyPresetSize("mediano");
                     }
 
                     function exportPdf() {
-                        /*
-                           La impresión usa los mismos tamaños configurados por variables CSS.
-                           En la ventana del navegador seleccionar:
-                           Destino: Guardar como PDF
-                           Tamaño: A4
-                           Márgenes: Ninguno
-                           Escala: Predeterminado o 100%
-                        */
+                        var orientation = getValue("orientationInput", "landscape");
+
+                        setDynamicPageStyle(orientation);
                         applyStickerConfig();
+
                         setTimeout(function () {
                             window.print();
-                        }, 150);
+                        }, 200);
                     }
 
                     document.addEventListener("DOMContentLoaded", function () {
+                        var orientation = getValue("orientationInput", "landscape");
+                        setDynamicPageStyle(orientation);
+
                         var manualInputs = [
                             "scaleInput",
                             "gapInput",
@@ -678,7 +777,7 @@
                             }
                         });
 
-                        applyPresetSize("mediano");
+                        applyOrientation("landscape");
                     });
                     ]]>
                 </script>
