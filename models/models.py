@@ -279,7 +279,7 @@ class CopierCompany(models.Model):
 
         return {
             'type': 'ir.actions.act_url',
-            'url': '/stickers/print?ids=%s' % ids,
+            'url': '/stickers/print?ids=%s&per_page=6&auto_print=1' % ids,
             'target': 'new',
         }
 

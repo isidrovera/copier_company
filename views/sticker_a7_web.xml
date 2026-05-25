@@ -1,261 +1,690 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-  <template id="sticker_a7_web_template">
+    <template id="sticker_a7_web_template">
 
-    <t t-call="web.html_container">
-      <t t-call="web.basic_layout">
+        <t t-call="web.html_container">
+            <t t-call="web.basic_layout">
 
-        <style>
-        /* Página A4 */
-        @page {
-            size: A4;
-            margin: 0;
-        }
+                <style>
+                    @page {
+                        size: A4;
+                        margin: 0;
+                    }
 
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-        }
+                    :root {
+                        --sheet-width: 210mm;
+                        --sheet-height: 297mm;
 
-        /* Grilla 2 columnas x 4 filas = 8 stickers por hoja */
-        .sheet {
-            display: grid;
-            grid-template-columns: repeat(2, 105mm);
-            grid-template-rows: repeat(4, 74mm);
-            gap: 6mm;
-            justify-content: center;
-            margin: 5mm;
-        }
+                        --sheet-padding: 5mm;
+                        --sheet-gap: 5mm;
 
-        /* Sticker A7 horizontal */
-        .sticker {
-            width: 105mm;
-            height: 74mm;
+                        --sticker-border: 2.2px;
+                        --sticker-radius: 3mm;
+                        --sticker-padding: 4mm;
 
-            border: 2.5px solid #000;
-            border-radius: 3mm;
+                        --right-width: 38mm;
+                        --column-gap: 3.5mm;
 
-            padding: 4mm;
-            box-sizing: border-box;
-            position: relative;
-            background: transparent;
+                        --logo-max-width: 52mm;
+                        --logo-max-height: 32mm;
 
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
+                        --qr-size: 32mm;
 
-            page-break-inside: avoid;
-            break-inside: avoid;
+                        --model-font: 11px;
+                        --contact-font: 9px;
+                        --qr-text-font: 8px;
+                        --scan-title-font: 8px;
 
-            /* Layout: 2 columnas con divisor */
-            display: grid;
-            grid-template-columns: 1fr 2px 40mm;
-            gap: 4mm;
-        }
+                        --screen-scale: 1;
+                    }
 
-        /* Línea divisoria vertical */
-        .divider {
-            width: 2px;
-            background: #d1d5db;
-            align-self: stretch;
-            border-radius: 1px;
-        }
+                    html,
+                    body {
+                        margin: 0;
+                        padding: 0;
+                        width: 100%;
+                        min-height: 100%;
+                        font-family: Arial, sans-serif;
+                        background: #f3f4f6;
+                    }
 
-        /* Columna izquierda */
-        .left-column {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
+                    body {
+                        overflow-x: auto;
+                    }
 
-        /* Sección superior izquierda */
-        .left-top {
-            display: flex;
-            flex-direction: column;
-        }
+                    /* ===============================
+                       PANEL DE CONFIGURACIÓN
+                       =============================== */
+                    .no-print {
+                        position: sticky;
+                        top: 0;
+                        z-index: 9999;
+                        background: #111827;
+                        color: #ffffff;
+                        padding: 10px 14px;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+                        font-family: Arial, sans-serif;
+                    }
 
-        /* LOGO grande */
-        .company-logo {
-            max-height: 34mm;
-            max-width: 55mm;
-            width: auto;
-            height: auto;
-            object-fit: contain;
-            margin-bottom: 3mm;
-        }
+                    .toolbar {
+                        display: flex;
+                        flex-wrap: wrap;
+                        align-items: center;
+                        gap: 10px 14px;
+                    }
 
-        /* Datos del equipo */
-        .serial {
-            font-size: 11px;
-            font-weight: bold;
-            margin-bottom: 1.5mm;
-            color: #000;
-        }
+                    .toolbar-title {
+                        font-size: 14px;
+                        font-weight: 700;
+                        white-space: nowrap;
+                        margin-right: 8px;
+                    }
 
-        /* Contactos en la parte inferior izquierda */
-        .left-bottom {
-            display: flex;
-            flex-direction: column;
-        }
+                    .toolbar-group {
+                        display: flex;
+                        align-items: center;
+                        gap: 5px;
+                        font-size: 12px;
+                        white-space: nowrap;
+                    }
 
-        .contact {
-            font-size: 9.5px;
-            margin-bottom: 1mm;
-            font-weight: 500;
-        }
+                    .toolbar-group label {
+                        color: #e5e7eb;
+                    }
 
-        /* Columna derecha: QR + Texto */
-        .right-column {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+                    .toolbar-group input,
+                    .toolbar-group select {
+                        height: 28px;
+                        border-radius: 6px;
+                        border: 1px solid #374151;
+                        padding: 2px 6px;
+                        font-size: 12px;
+                        background: #ffffff;
+                        color: #111827;
+                    }
 
-        .scan {
-            border: 2.5px solid #1e293b;
-            border-radius: 2mm;
-            padding: 2mm;
-            text-align: center;
-            background: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin-bottom: 3mm;
-        }
+                    .toolbar-group input {
+                        width: 58px;
+                    }
 
-        .scan-title {
-            background: #1e293b;
-            color: white;
-            font-size: 8.5px;
-            font-weight: bold;
-            padding: 2px 4px;
-            margin-bottom: 2mm;
-            border-radius: 1mm;
-            letter-spacing: 0.3px;
-        }
+                    .toolbar button {
+                        height: 30px;
+                        padding: 0 12px;
+                        border-radius: 6px;
+                        border: 1px solid #2563eb;
+                        background: #2563eb;
+                        color: #ffffff;
+                        font-weight: 700;
+                        cursor: pointer;
+                    }
 
-        /* QR alta calidad */
-        .qr {
-            width: 32mm;
-            height: 32mm;
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
-        }
+                    .toolbar button.secondary {
+                        border-color: #6b7280;
+                        background: #374151;
+                    }
 
-        /* Texto explicativo debajo del QR */
-        .qr-text {
-            font-size: 8.5px;
-            line-height: 1.3;
-            text-align: center;
-            font-weight: 500;
-        }
+                    .toolbar button.danger {
+                        border-color: #dc2626;
+                        background: #dc2626;
+                    }
 
-        /* Impresión perfecta */
-        @media print {
+                    .hint {
+                        margin-top: 6px;
+                        font-size: 11px;
+                        color: #d1d5db;
+                    }
 
-            @page {
-                size: A4;
-                margin: 0;
-            }
+                    /* ===============================
+                       CONTENEDOR DE VISTA WEB
+                       =============================== */
+                    .screen-wrapper {
+                        width: var(--sheet-width);
+                        margin: 14px auto;
+                        transform: scale(var(--screen-scale));
+                        transform-origin: top center;
+                    }
 
-            body, .sheet {
-                margin: 0;
-                padding: 0;
-            }
+                    /* ===============================
+                       HOJA A4
+                       =============================== */
+                    .sheet {
+                        width: var(--sheet-width);
+                        height: var(--sheet-height);
+                        box-sizing: border-box;
+                        padding: var(--sheet-padding);
 
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-        }
-        </style>
+                        display: grid;
+                        grid-template-columns: repeat(2, 1fr);
+                        grid-template-rows: repeat(3, 1fr);
+                        gap: var(--sheet-gap);
 
-        <div class="sheet">
+                        background: #ffffff;
 
-          <!-- Recorremos los equipos seleccionados -->
-          <t t-foreach="docs" t-as="doc">
+                        page-break-after: always;
+                        break-after: page;
+                    }
 
-            <!-- Generar QR si no existe -->
-            <t t-if="not doc.qr_code">
-              <t t-set="dummy" t-value="doc.generar_qr_code()" />
+                    .sheet:last-child {
+                        page-break-after: auto;
+                        break-after: auto;
+                    }
+
+                    /* ===============================
+                       STICKER
+                       =============================== */
+                    .sticker {
+                        width: 100%;
+                        height: 100%;
+                        min-width: 0;
+                        min-height: 0;
+
+                        border: var(--sticker-border) solid #000000;
+                        border-radius: var(--sticker-radius);
+
+                        padding: var(--sticker-padding);
+                        box-sizing: border-box;
+                        position: relative;
+                        background: #ffffff;
+
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+
+                        page-break-inside: avoid;
+                        break-inside: avoid;
+
+                        display: grid;
+                        grid-template-columns: 1fr 2px var(--right-width);
+                        gap: var(--column-gap);
+
+                        overflow: hidden;
+                    }
+
+                    .divider {
+                        width: 2px;
+                        background: #d1d5db;
+                        align-self: stretch;
+                        border-radius: 1px;
+                    }
+
+                    .left-column {
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: space-between;
+                        min-width: 0;
+                        overflow: hidden;
+                    }
+
+                    .left-top {
+                        display: flex;
+                        flex-direction: column;
+                        min-width: 0;
+                        overflow: hidden;
+                    }
+
+                    .company-logo {
+                        max-height: var(--logo-max-height);
+                        max-width: var(--logo-max-width);
+                        width: auto;
+                        height: auto;
+                        object-fit: contain;
+                        margin-bottom: 4mm;
+                    }
+
+                    .serial {
+                        font-size: var(--model-font);
+                        font-weight: bold;
+                        margin-bottom: 1.6mm;
+                        color: #000000;
+                        overflow-wrap: anywhere;
+                        line-height: 1.25;
+                    }
+
+                    .left-bottom {
+                        display: flex;
+                        flex-direction: column;
+                        min-width: 0;
+                        overflow: hidden;
+                    }
+
+                    .contact {
+                        font-size: var(--contact-font);
+                        margin-bottom: 1mm;
+                        font-weight: 500;
+                        overflow-wrap: anywhere;
+                        line-height: 1.2;
+                        color: #111827;
+                    }
+
+                    .right-column {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        min-width: 0;
+                        overflow: hidden;
+                    }
+
+                    .scan {
+                        border: 2.2px solid #1e293b;
+                        border-radius: 2mm;
+                        padding: 2mm;
+                        text-align: center;
+                        background: #ffffff;
+                        margin-bottom: 3mm;
+                        max-width: 100%;
+                        box-sizing: border-box;
+                    }
+
+                    .scan-title {
+                        background: #1e293b;
+                        color: #ffffff;
+                        font-size: var(--scan-title-font);
+                        font-weight: bold;
+                        padding: 2px 4px;
+                        margin-bottom: 2mm;
+                        border-radius: 1mm;
+                        letter-spacing: 0.3px;
+                        line-height: 1.1;
+                    }
+
+                    .qr {
+                        width: var(--qr-size);
+                        height: var(--qr-size);
+                        image-rendering: pixelated;
+                        image-rendering: crisp-edges;
+                        display: block;
+                    }
+
+                    .qr-text {
+                        font-size: var(--qr-text-font);
+                        line-height: 1.3;
+                        text-align: center;
+                        font-weight: 500;
+                        color: #111827;
+                    }
+
+                    /* ===============================
+                       IMPRESIÓN / EXPORTAR PDF
+                       =============================== */
+                    @media print {
+                        @page {
+                            size: A4;
+                            margin: 0;
+                        }
+
+                        html,
+                        body {
+                            width: 210mm;
+                            height: auto;
+                            margin: 0;
+                            padding: 0;
+                            background: #ffffff;
+                            overflow: visible;
+                        }
+
+                        .no-print {
+                            display: none !important;
+                        }
+
+                        .screen-wrapper {
+                            width: 210mm;
+                            margin: 0;
+                            transform: none !important;
+                        }
+
+                        .sheet {
+                            width: 210mm;
+                            height: 297mm;
+                            margin: 0;
+                            page-break-after: always;
+                            break-after: page;
+                        }
+
+                        .sheet:last-child {
+                            page-break-after: auto;
+                            break-after: auto;
+                        }
+
+                        * {
+                            -webkit-print-color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                        }
+                    }
+                </style>
+
+                <!-- PANEL WEB: NO SE IMPRIME -->
+                <div class="no-print">
+                    <div class="toolbar">
+
+                        <div class="toolbar-title">
+                            Stickers A4 - 6 por hoja
+                        </div>
+
+                        <div class="toolbar-group">
+                            <label>Tamaño</label>
+                            <select id="presetSize" onchange="applyPresetSize(this.value)">
+                                <option value="mediano" selected="selected">Mediano</option>
+                                <option value="grande">Grande</option>
+                                <option value="compacto">Compacto</option>
+                                <option value="manual">Manual</option>
+                            </select>
+                        </div>
+
+                        <div class="toolbar-group">
+                            <label>Vista</label>
+                            <select id="scaleInput">
+                                <option value="0.70">70%</option>
+                                <option value="0.80">80%</option>
+                                <option value="0.90">90%</option>
+                                <option value="1" selected="selected">100%</option>
+                                <option value="1.10">110%</option>
+                            </select>
+                        </div>
+
+                        <div class="toolbar-group">
+                            <label>Separación</label>
+                            <input id="gapInput" type="number" value="5" min="2" max="10" step="0.5"/>
+                            <span>mm</span>
+                        </div>
+
+                        <div class="toolbar-group">
+                            <label>Padding</label>
+                            <input id="paddingInput" type="number" value="4" min="2" max="8" step="0.5"/>
+                            <span>mm</span>
+                        </div>
+
+                        <div class="toolbar-group">
+                            <label>QR</label>
+                            <input id="qrInput" type="number" value="32" min="24" max="42" step="1"/>
+                            <span>mm</span>
+                        </div>
+
+                        <div class="toolbar-group">
+                            <label>Columna QR</label>
+                            <input id="rightInput" type="number" value="38" min="32" max="50" step="1"/>
+                            <span>mm</span>
+                        </div>
+
+                        <div class="toolbar-group">
+                            <label>Logo</label>
+                            <input id="logoInput" type="number" value="52" min="35" max="68" step="1"/>
+                            <span>mm</span>
+                        </div>
+
+                        <div class="toolbar-group">
+                            <label>Letra</label>
+                            <input id="fontInput" type="number" value="11" min="8" max="14" step="0.5"/>
+                            <span>px</span>
+                        </div>
+
+                        <button type="button" onclick="exportPdf()">
+                            Exportar / Imprimir PDF
+                        </button>
+
+                        <button type="button" class="secondary" onclick="resetStickerConfig()">
+                            Restaurar
+                        </button>
+
+                    </div>
+
+                    <div class="hint">
+                        Cambia el tamaño y luego usa “Exportar / Imprimir PDF”. El PDF conservará el tamaño configurado en esta vista.
+                    </div>
+                </div>
+
+                <!-- VISTA DE IMPRESIÓN -->
+                <div class="screen-wrapper">
+
+                    <!-- Hojas automáticas de 6 stickers -->
+                    <t t-foreach="range(0, len(docs), 6)" t-as="start">
+
+                        <div class="sheet">
+
+                            <t t-foreach="docs[start:start + 6]" t-as="doc">
+
+                                <!-- Generar QR si no existe -->
+                                <t t-if="not doc.qr_code">
+                                    <t t-set="dummy" t-value="doc.generar_qr_code()" />
+                                </t>
+
+                                <div class="sticker">
+
+                                    <!-- COLUMNA IZQUIERDA -->
+                                    <div class="left-column">
+
+                                        <div class="left-top">
+
+                                            <!-- LOGO -->
+                                            <t t-set="company" t-value="request.env.company"/>
+
+                                            <t t-if="company.logo">
+                                                <img
+                                                    t-att-src="'data:image/png;base64,%s' % company.logo.decode('utf-8')"
+                                                    class="company-logo"
+                                                    alt="Logo Empresa"/>
+                                            </t>
+
+                                            <div class="serial">
+                                                Modelo:
+                                                <t t-esc="doc.name.name if doc.name else 'No especificado'"/>
+                                            </div>
+
+                                            <div class="serial">
+                                                Serie:
+                                                <t t-esc="doc.serie_id or 'No especificada'"/>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="left-bottom">
+                                            <div class="contact">info@copiercompanysac.com</div>
+                                            <div class="contact">+51 975 399 303</div>
+                                            <div class="contact">https://copiercompanysac.com</div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="divider"></div>
+
+                                    <!-- COLUMNA DERECHA -->
+                                    <div class="right-column">
+
+                                        <div class="scan">
+                                            <div class="scan-title">ESCANEE AQUÍ</div>
+
+                                            <t t-if="doc.qr_code">
+                                                <img
+                                                    t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')"
+                                                    class="qr"
+                                                    alt="QR Soporte"/>
+                                            </t>
+                                        </div>
+
+                                        <div class="qr-text">
+                                            Para soporte técnico,<br/>
+                                            asistencia remota o<br/>
+                                            solicitud de tóner,<br/>
+                                            escanee el código QR.
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </t>
+
+                        </div>
+
+                    </t>
+
+                </div>
+
+                <script type="text/javascript">
+                    <![CDATA[
+                    function setCssVar(name, value) {
+                        document.documentElement.style.setProperty(name, value);
+                    }
+
+                    function getValue(id, fallback) {
+                        var el = document.getElementById(id);
+                        if (!el) {
+                            return fallback;
+                        }
+                        return el.value || fallback;
+                    }
+
+                    function setValue(id, value) {
+                        var el = document.getElementById(id);
+                        if (el) {
+                            el.value = value;
+                        }
+                    }
+
+                    function markManual() {
+                        var preset = document.getElementById("presetSize");
+                        if (preset && preset.value !== "manual") {
+                            preset.value = "manual";
+                        }
+                    }
+
+                    function applyStickerConfig() {
+                        var scale = parseFloat(getValue("scaleInput", "1"));
+                        var gap = parseFloat(getValue("gapInput", "5"));
+                        var padding = parseFloat(getValue("paddingInput", "4"));
+                        var qr = parseFloat(getValue("qrInput", "32"));
+                        var right = parseFloat(getValue("rightInput", "38"));
+                        var logo = parseFloat(getValue("logoInput", "52"));
+                        var font = parseFloat(getValue("fontInput", "11"));
+
+                        if (isNaN(scale)) { scale = 1; }
+                        if (isNaN(gap)) { gap = 5; }
+                        if (isNaN(padding)) { padding = 4; }
+                        if (isNaN(qr)) { qr = 32; }
+                        if (isNaN(right)) { right = 38; }
+                        if (isNaN(logo)) { logo = 52; }
+                        if (isNaN(font)) { font = 11; }
+
+                        /*
+                           Protección:
+                           La columna QR debe ser un poco más grande que el QR.
+                           Así evitamos que el QR se corte cuando se aumenta.
+                        */
+                        var minRight = qr + 6;
+                        if (right < minRight) {
+                            right = minRight;
+                            setValue("rightInput", right.toFixed(0));
+                        }
+
+                        /*
+                           Límite para que no quite demasiado espacio a la columna izquierda.
+                        */
+                        if (right > 50) {
+                            right = 50;
+                            setValue("rightInput", "50");
+                        }
+
+                        setCssVar("--screen-scale", scale);
+                        setCssVar("--sheet-gap", gap + "mm");
+                        setCssVar("--sticker-padding", padding + "mm");
+                        setCssVar("--qr-size", qr + "mm");
+                        setCssVar("--right-width", right + "mm");
+                        setCssVar("--logo-max-width", logo + "mm");
+                        setCssVar("--logo-max-height", Math.max(24, logo * 0.62) + "mm");
+                        setCssVar("--model-font", font + "px");
+                        setCssVar("--contact-font", Math.max(7, font - 2) + "px");
+                        setCssVar("--qr-text-font", Math.max(7, font - 3) + "px");
+                        setCssVar("--scan-title-font", Math.max(7, font - 3) + "px");
+                    }
+
+                    function applyPresetSize(size) {
+                        if (size === "grande") {
+                            setValue("scaleInput", "1");
+                            setValue("gapInput", "4");
+                            setValue("paddingInput", "4.5");
+                            setValue("qrInput", "36");
+                            setValue("rightInput", "43");
+                            setValue("logoInput", "60");
+                            setValue("fontInput", "12");
+                        }
+
+                        if (size === "mediano") {
+                            setValue("scaleInput", "1");
+                            setValue("gapInput", "5");
+                            setValue("paddingInput", "4");
+                            setValue("qrInput", "32");
+                            setValue("rightInput", "38");
+                            setValue("logoInput", "52");
+                            setValue("fontInput", "11");
+                        }
+
+                        if (size === "compacto") {
+                            setValue("scaleInput", "1");
+                            setValue("gapInput", "6");
+                            setValue("paddingInput", "3.5");
+                            setValue("qrInput", "29");
+                            setValue("rightInput", "35");
+                            setValue("logoInput", "46");
+                            setValue("fontInput", "10");
+                        }
+
+                        applyStickerConfig();
+                    }
+
+                    function resetStickerConfig() {
+                        var preset = document.getElementById("presetSize");
+                        if (preset) {
+                            preset.value = "mediano";
+                        }
+                        applyPresetSize("mediano");
+                    }
+
+                    function exportPdf() {
+                        /*
+                           La impresión usa los mismos tamaños configurados por variables CSS.
+                           En la ventana del navegador seleccionar:
+                           Destino: Guardar como PDF
+                           Tamaño: A4
+                           Márgenes: Ninguno
+                           Escala: Predeterminado o 100%
+                        */
+                        applyStickerConfig();
+                        setTimeout(function () {
+                            window.print();
+                        }, 150);
+                    }
+
+                    document.addEventListener("DOMContentLoaded", function () {
+                        var manualInputs = [
+                            "scaleInput",
+                            "gapInput",
+                            "paddingInput",
+                            "qrInput",
+                            "rightInput",
+                            "logoInput",
+                            "fontInput"
+                        ];
+
+                        manualInputs.forEach(function (id) {
+                            var el = document.getElementById(id);
+                            if (el) {
+                                el.addEventListener("input", function () {
+                                    markManual();
+                                    applyStickerConfig();
+                                });
+                                el.addEventListener("change", function () {
+                                    markManual();
+                                    applyStickerConfig();
+                                });
+                            }
+                        });
+
+                        applyPresetSize("mediano");
+                    });
+                    ]]>
+                </script>
+
             </t>
+        </t>
 
-            <div class="sticker">
-
-              <!-- COLUMNA IZQUIERDA -->
-              <div class="left-column">
-
-                <!-- Parte superior: Logo + Datos -->
-                <div class="left-top">
-
-                  <!-- LOGO -->
-                  <t t-set="company" t-value="request.env.company"/>
-
-                  <t t-if="company.logo">
-                    <img
-                      t-att-src="'data:image/png;base64,%s' % company.logo.decode('utf-8')"
-                      class="company-logo"
-                      alt="Logo Empresa"/>
-                  </t>
-
-                  <!-- Datos del equipo -->
-                  <div class="serial">
-                    Modelo:
-                    <t t-esc="doc.name.name if doc.name else 'No especificado'"/>
-                  </div>
-
-                  <div class="serial">
-                    Serie:
-                    <t t-esc="doc.serie_id or 'No especificada'"/>
-                  </div>
-
-                </div>
-
-                <!-- Parte inferior: Contactos -->
-                <div class="left-bottom">
-                  <div class="contact">info@copiercompanysac.com</div>
-                  <div class="contact">+51 975 399 303</div>
-                  <div class="contact">https://copiercompanysac.com</div>
-                </div>
-
-              </div>
-
-              <!-- LÍNEA DIVISORIA VERTICAL -->
-              <div class="divider"></div>
-
-              <!-- COLUMNA DERECHA: QR + TEXTO -->
-              <div class="right-column">
-
-                <!-- QR -->
-                <div class="scan">
-                  <div class="scan-title">ESCANEE AQUÍ</div>
-
-                  <!-- QR en alta resolución -->
-                  <t t-if="doc.qr_code">
-                    <img
-                      t-att-src="'data:image/png;base64,%s' % doc.qr_code.decode('utf-8')"
-                      class="qr"
-                      alt="QR Soporte"/>
-                  </t>
-
-                </div>
-
-                <!-- Texto explicativo debajo del QR -->
-                <div class="qr-text">
-                  Para soporte técnico,<br/>
-                  asistencia remota o<br/>
-                  solicitud de tóner,<br/>
-                  escanee el código QR.
-                </div>
-
-              </div>
-
-            </div>
-
-          </t>
-
-        </div>
-
-      </t>
-    </t>
-
-  </template>
+    </template>
 </odoo>
