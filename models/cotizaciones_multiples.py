@@ -45,60 +45,6 @@ class CopierQuotation(models.Model):
         ('rechazado', 'Rechazado'),
         ('convertido', 'Convertido a Contrato'),
     ], string='Estado', default='borrador', tracking=True)
-        # ==========================================================
-    # CAMPOS PARA MOSTRAR PRECIO UNITARIO + IGV EN COTIZACIÓN
-    # No alteran la lógica actual de subtotal_linea ni totales.
-    # Solo sirven para impresión / PDF / vista.
-    # ==========================================================
-
-    tiempo_meses_cotizacion = fields.Integer(
-        string='Tiempo Meses',
-        compute='_compute_importes_con_igv',
-        store=True,
-        help='Cantidad de meses tomada desde la modalidad de pago.'
-    )
-
-    precio_unitario_sin_igv = fields.Monetary(
-        string='P. Unit. sin IGV',
-        compute='_compute_importes_con_igv',
-        store=True,
-        currency_field='currency_id'
-    )
-
-    igv_unitario = fields.Monetary(
-        string='IGV Unit.',
-        compute='_compute_importes_con_igv',
-        store=True,
-        currency_field='currency_id'
-    )
-
-    precio_unitario_con_igv = fields.Monetary(
-        string='P. Unit. con IGV',
-        compute='_compute_importes_con_igv',
-        store=True,
-        currency_field='currency_id'
-    )
-
-    parcial_modalidad_sin_igv = fields.Monetary(
-        string='Parcial sin IGV',
-        compute='_compute_importes_con_igv',
-        store=True,
-        currency_field='currency_id'
-    )
-
-    igv_modalidad_linea = fields.Monetary(
-        string='IGV Línea',
-        compute='_compute_importes_con_igv',
-        store=True,
-        currency_field='currency_id'
-    )
-
-    total_modalidad_linea_con_igv = fields.Monetary(
-        string='Total Línea con IGV',
-        compute='_compute_importes_con_igv',
-        store=True,
-        currency_field='currency_id'
-    )
 
     # Líneas de equipos
     linea_equipos_ids = fields.One2many(
@@ -353,6 +299,60 @@ class CopierQuotationLine(models.Model):
     currency_id = fields.Many2one(
         related='quotation_id.currency_id', string='Moneda', readonly=True)
 
+    # ==========================================================
+    # CAMPOS DE PRESENTACIÓN PARA PDF / COTIZACIÓN
+    # Representan: precio por cada equipo + IGV.
+    # No modifican la lógica actual de subtotal_linea ni totales.
+    # ==========================================================
+    tiempo_meses_cotizacion = fields.Integer(
+        string='Tiempo Meses',
+        compute='_compute_importes_pdf_igv',
+        store=True,
+        help='Meses usados para representar la cotización según la modalidad de pago.'
+    )
+
+    precio_unitario_sin_igv = fields.Monetary(
+        string='P. Unit. sin IGV',
+        compute='_compute_importes_pdf_igv',
+        store=True,
+        currency_field='currency_id'
+    )
+
+    igv_unitario = fields.Monetary(
+        string='IGV Unitario',
+        compute='_compute_importes_pdf_igv',
+        store=True,
+        currency_field='currency_id'
+    )
+
+    precio_unitario_con_igv = fields.Monetary(
+        string='P. Unit. + IGV',
+        compute='_compute_importes_pdf_igv',
+        store=True,
+        currency_field='currency_id'
+    )
+
+    parcial_sin_igv_pdf = fields.Monetary(
+        string='Parcial sin IGV',
+        compute='_compute_importes_pdf_igv',
+        store=True,
+        currency_field='currency_id'
+    )
+
+    igv_parcial_pdf = fields.Monetary(
+        string='IGV Parcial',
+        compute='_compute_importes_pdf_igv',
+        store=True,
+        currency_field='currency_id'
+    )
+
+    parcial_con_igv_pdf = fields.Monetary(
+        string='Parcial con IGV',
+        compute='_compute_importes_pdf_igv',
+        store=True,
+        currency_field='currency_id'
+    )
+
     @api.depends('cantidad', 'volumen_mensual_bn', 'volumen_mensual_color', 'precio_bn', 'precio_color')
     def _compute_subtotales(self):
         for line in self:
@@ -362,6 +362,7 @@ class CopierQuotationLine(models.Model):
             line.subtotal_bn = subtotal_bn
             line.subtotal_color = subtotal_color
             line.subtotal_linea = subtotal_bn + subtotal_color
+
     @api.depends(
         'cantidad',
         'subtotal_linea',
@@ -369,33 +370,31 @@ class CopierQuotationLine(models.Model):
         'quotation_id.modalidad_pago_id',
         'quotation_id.modalidad_pago_id.frecuencia_meses',
     )
-    def _compute_importes_con_igv(self):
+    def _compute_importes_pdf_igv(self):
         """
-        Calcula importes para mostrar en la cotización/PDF:
+        Calcula importes solo para representar en PDF:
 
-        - Precio unitario sin IGV
-        - IGV unitario
-        - Precio unitario con IGV
-        - Tiempo en meses según modalidad de pago
-        - Parcial por modalidad sin IGV
-        - IGV por línea
-        - Total por línea con IGV
+        Ejemplo:
+        P. UNIT.      = 1,350.00
+        IGV UNIT.     =   243.00
+        P. UNIT. + IGV= 1,593.00
+        CANTIDAD      = 6
+        MESES         = 6
+        SUBTOTAL      = 48,600.00
+        IGV           = 8,748.00
+        TOTAL         = 57,348.00
 
-        IMPORTANTE:
-        No modifica la lógica actual de subtotal_linea.
-        No modifica los totales generales.
-        Solo agrega valores de presentación.
+        No altera la lógica actual de subtotal_linea ni de _compute_totales.
         """
         for line in self:
             cantidad = line.cantidad or 0
+            subtotal_mensual_linea = line.subtotal_linea or 0.0
             igv_porcentaje = line.quotation_id.igv or 0.0
 
             modalidad = line.quotation_id.modalidad_pago_id
-            tiempo_meses = modalidad.frecuencia_meses if modalidad else 1
+            tiempo_meses = modalidad.frecuencia_meses if modalidad and modalidad.frecuencia_meses else 1
 
-            subtotal_mensual_linea = line.subtotal_linea or 0.0
-
-            if cantidad > 0:
+            if cantidad:
                 precio_unitario_sin_igv = subtotal_mensual_linea / cantidad
             else:
                 precio_unitario_sin_igv = 0.0
@@ -403,17 +402,18 @@ class CopierQuotationLine(models.Model):
             igv_unitario = precio_unitario_sin_igv * (igv_porcentaje / 100.0)
             precio_unitario_con_igv = precio_unitario_sin_igv + igv_unitario
 
-            parcial_modalidad_sin_igv = subtotal_mensual_linea * tiempo_meses
-            igv_modalidad_linea = parcial_modalidad_sin_igv * (igv_porcentaje / 100.0)
-            total_modalidad_linea_con_igv = parcial_modalidad_sin_igv + igv_modalidad_linea
+            parcial_sin_igv = precio_unitario_sin_igv * cantidad * tiempo_meses
+            igv_parcial = parcial_sin_igv * (igv_porcentaje / 100.0)
+            parcial_con_igv = parcial_sin_igv + igv_parcial
 
             line.tiempo_meses_cotizacion = tiempo_meses
             line.precio_unitario_sin_igv = precio_unitario_sin_igv
             line.igv_unitario = igv_unitario
             line.precio_unitario_con_igv = precio_unitario_con_igv
-            line.parcial_modalidad_sin_igv = parcial_modalidad_sin_igv
-            line.igv_modalidad_linea = igv_modalidad_linea
-            line.total_modalidad_linea_con_igv = total_modalidad_linea_con_igv
+            line.parcial_sin_igv_pdf = parcial_sin_igv
+            line.igv_parcial_pdf = igv_parcial
+            line.parcial_con_igv_pdf = parcial_con_igv
+
     # Observaciones específicas de la línea
     observaciones = fields.Text('Observaciones del Equipo')
 
