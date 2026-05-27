@@ -306,49 +306,49 @@ class CopierQuotationLine(models.Model):
     # ==========================================================
     tiempo_meses_cotizacion = fields.Integer(
         string='Tiempo Meses',
-        compute='_compute_importes_pdf_igv',
+        compute='_compute_importes_con_igv',
         store=True,
         help='Meses usados para representar la cotización según la modalidad de pago.'
     )
 
     precio_unitario_sin_igv = fields.Monetary(
         string='P. Unit. sin IGV',
-        compute='_compute_importes_pdf_igv',
+        compute='_compute_importes_con_igv',
         store=True,
         currency_field='currency_id'
     )
 
     igv_unitario = fields.Monetary(
         string='IGV Unitario',
-        compute='_compute_importes_pdf_igv',
+        compute='_compute_importes_con_igv',
         store=True,
         currency_field='currency_id'
     )
 
     precio_unitario_con_igv = fields.Monetary(
         string='P. Unit. + IGV',
-        compute='_compute_importes_pdf_igv',
+        compute='_compute_importes_con_igv',
         store=True,
         currency_field='currency_id'
     )
 
     parcial_sin_igv_pdf = fields.Monetary(
         string='Parcial sin IGV',
-        compute='_compute_importes_pdf_igv',
+        compute='_compute_importes_con_igv',
         store=True,
         currency_field='currency_id'
     )
 
     igv_parcial_pdf = fields.Monetary(
         string='IGV Parcial',
-        compute='_compute_importes_pdf_igv',
+        compute='_compute_importes_con_igv',
         store=True,
         currency_field='currency_id'
     )
 
     parcial_con_igv_pdf = fields.Monetary(
         string='Parcial con IGV',
-        compute='_compute_importes_pdf_igv',
+        compute='_compute_importes_con_igv',
         store=True,
         currency_field='currency_id'
     )
