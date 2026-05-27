@@ -42,7 +42,7 @@
         'report/cotizacion_multiples.xml',
         'report/report_counter_portal.xml',
         'report/report_service_request.xml',
-        'reports/quotation_simple_report.xml',
+        'report/quotation_simple_report.xml',
         'views/copier_company_form_template.xml',
         'views/security_control_views.xml',
         'data/plantillas_mail.xml',
