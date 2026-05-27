@@ -370,7 +370,7 @@ class CopierQuotationLine(models.Model):
         'quotation_id.modalidad_pago_id',
         'quotation_id.modalidad_pago_id.frecuencia_meses',
     )
-    def _compute_importes_pdf_igv(self):
+    def _compute_importes_con_igv(self):
         """
         Calcula importes solo para representar en PDF:
 
