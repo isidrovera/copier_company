@@ -27,28 +27,23 @@
                                 color: #111;
                             }
 
-                            .simple-title {
-                                text-align: center;
-                                font-size: 20px;
-                                font-weight: bold;
-                                margin-bottom: 20px;
-                                letter-spacing: 1px;
-                            }
-
                             .simple-info-table {
                                 width: 100%;
                                 border-collapse: collapse;
-                                margin-bottom: 18px;
+                                margin-bottom: 16px;
+                                font-size: 11px;
                             }
 
                             .simple-info-table td {
+                                border: 1px solid #777;
                                 padding: 4px 6px;
-                                vertical-align: top;
+                                vertical-align: middle;
                             }
 
                             .simple-label {
                                 font-weight: bold;
-                                width: 120px;
+                                width: 100px;
+                                background: #f5f5f5;
                             }
 
                             .equipment-title {
@@ -62,6 +57,7 @@
                             .equipment-subtitle {
                                 text-align: center;
                                 margin-bottom: 18px;
+                                font-size: 12px;
                             }
 
                             .quote-table {
@@ -93,10 +89,6 @@
 
                             .text-right {
                                 text-align: right;
-                            }
-
-                            .text-center {
-                                text-align: center;
                             }
 
                             .money-cell {
@@ -145,6 +137,7 @@
                             .bank-table {
                                 width: 100%;
                                 border-collapse: collapse;
+                                font-size: 11px;
                             }
 
                             .bank-table td {
@@ -165,11 +158,6 @@
 
                         <div class="simple-quote-page">
 
-                            <!-- Título -->
-                            <div class="simple-title">
-                                COTIZACIÓN
-                            </div>
-
                             <!-- Datos principales -->
                             <table class="simple-info-table">
                                 <tr>
@@ -182,13 +170,14 @@
                                         <t t-if="doc.fecha_cotizacion">
                                             <t t-esc="doc.fecha_cotizacion.strftime('%d/%m/%Y')"/>
                                         </t>
+                                        <t t-else="">-</t>
                                     </td>
                                 </tr>
 
                                 <tr>
                                     <td class="simple-label">Cliente:</td>
                                     <td>
-                                        <t t-esc="doc.cliente_id.name"/>
+                                        <t t-esc="doc.cliente_id.name or '-'"/>
                                     </td>
                                     <td class="simple-label">RUC/DNI:</td>
                                     <td>
@@ -232,6 +221,27 @@
                             <!-- Líneas de equipos -->
                             <t t-foreach="doc.linea_equipos_ids" t-as="linea">
 
+                                <!-- Meses calculados directo desde duración del contrato -->
+                                <t t-set="duracion_nombre" t-value="doc.duracion_contrato_id.name if doc.duracion_contrato_id else ''"/>
+
+                                <t t-set="meses_cotizacion"
+                                   t-value="6 if duracion_nombre == '6 Meses'
+                                            else 12 if duracion_nombre == '1 Año'
+                                            else 24 if duracion_nombre == '2 Años'
+                                            else 1"/>
+
+                                <t t-set="precio_unitario"
+                                   t-value="(linea.subtotal_linea / linea.cantidad) if linea.cantidad else 0.0"/>
+
+                                <t t-set="parcial_sin_igv"
+                                   t-value="precio_unitario * (linea.cantidad or 0.0) * meses_cotizacion"/>
+
+                                <t t-set="igv_parcial"
+                                   t-value="parcial_sin_igv * ((doc.igv or 0.0) / 100.0)"/>
+
+                                <t t-set="total_con_igv"
+                                   t-value="parcial_sin_igv + igv_parcial"/>
+
                                 <div class="equipment-title">
                                     <t t-esc="linea.equipo_id.name"/>
                                     <t t-if="linea.cantidad">
@@ -272,7 +282,7 @@
                                         <tr>
                                             <td class="money-cell">
                                                 <span class="money-symbol">S/</span>
-                                                <span t-esc="'{:,.2f}'.format(linea.precio_unitario_sin_igv or 0.0)"/>
+                                                <span t-esc="'{:,.2f}'.format(precio_unitario or 0.0)"/>
                                             </td>
 
                                             <td class="text-right">
@@ -280,12 +290,12 @@
                                             </td>
 
                                             <td class="text-right">
-                                                <span t-esc="'{:,.2f}'.format(linea.tiempo_meses_cotizacion or 0.0)"/>
+                                                <span t-esc="'{:,.2f}'.format(meses_cotizacion or 0.0)"/>
                                             </td>
 
                                             <td class="money-cell">
                                                 <span class="money-symbol">S/</span>
-                                                <span t-esc="'{:,.2f}'.format(linea.parcial_sin_igv_pdf or 0.0)"/>
+                                                <span t-esc="'{:,.2f}'.format(parcial_sin_igv or 0.0)"/>
                                             </td>
                                         </tr>
 
@@ -295,7 +305,7 @@
                                             </td>
                                             <td class="money-cell">
                                                 <span class="money-symbol">S/</span>
-                                                <span t-esc="'{:,.2f}'.format(linea.parcial_sin_igv_pdf or 0.0)"/>
+                                                <span t-esc="'{:,.2f}'.format(parcial_sin_igv or 0.0)"/>
                                             </td>
                                         </tr>
 
@@ -305,7 +315,7 @@
                                             </td>
                                             <td class="money-cell">
                                                 <span class="money-symbol">S/</span>
-                                                <span t-esc="'{:,.2f}'.format(linea.igv_parcial_pdf or 0.0)"/>
+                                                <span t-esc="'{:,.2f}'.format(igv_parcial or 0.0)"/>
                                             </td>
                                         </tr>
 
@@ -315,7 +325,7 @@
                                             </td>
                                             <td class="money-cell">
                                                 <span class="money-symbol">S/</span>
-                                                <span t-esc="'{:,.2f}'.format(linea.parcial_con_igv_pdf or 0.0)"/>
+                                                <span t-esc="'{:,.2f}'.format(total_con_igv or 0.0)"/>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -373,8 +383,10 @@
                                             <strong>BCP</strong>
                                         </td>
                                         <td>
-                                            Cuenta Corriente Soles: <strong>191-2334609-0-07</strong><br/>
-                                            CCI: <strong>002-19100233460900751</strong>
+                                            Cuenta Corriente Soles:
+                                            <strong>191-2334609-0-07</strong><br/>
+                                            CCI:
+                                            <strong>002-19100233460900751</strong>
                                         </td>
                                     </tr>
 
@@ -383,7 +395,8 @@
                                             <strong>Banco de la Nación</strong>
                                         </td>
                                         <td>
-                                            Cuenta de Detracción: <strong>00802007582</strong>
+                                            Cuenta de Detracción:
+                                            <strong>00802007582</strong>
                                         </td>
                                     </tr>
 
