@@ -20,17 +20,19 @@
                     <t t-call="web.external_layout">
                         <!-- Enlazamos el archivo CSS -->
                         <link rel="stylesheet" href="/copier_company/static/src/css/cotizacion_styles.css"/>
-                        
+
                         <!-- Header Principal -->
                         <div class="main-header">
                             <div class="flex-between">
                                 <h1 style="font-size: 1.75rem; margin: 0;">
                                     Cotización N° <t t-esc="doc.name" />
-                                </h1>                                
+                                </h1>
                             </div>
+
                             <p style="margin-top: 1rem;">
                                 <t t-esc="doc.fecha_cotizacion.strftime('%d de %B %Y')" />
                             </p>
+
                             <p style="margin: 0; font-weight: bold; color: #2E86AB;">
                                 Modalidad de Pago: <t t-esc="doc.modalidad_pago_id.name" />
                                 <t t-if="doc.modalidad_pago_id.descuento_porcentaje > 0">
@@ -45,6 +47,7 @@
                                 <i class="fa fa-user-circle"></i>
                                 <span>Información del Cliente</span>
                             </div>
+
                             <div class="data-grid">
                                 <div class="data-row">
                                     <span class="label">Atención:</span>
@@ -52,30 +55,35 @@
                                         <t t-esc="doc.cliente_id.name" />
                                     </span>
                                 </div>
+
                                 <div class="data-row">
                                     <span class="label">RUC/DNI:</span>
                                     <span class="value">
                                         <t t-esc="doc.identificacion or 'No especificado'" />
                                     </span>
                                 </div>
+
                                 <div class="data-row">
                                     <span class="label">Contacto:</span>
                                     <span class="value">
                                         <t t-esc="doc.contacto or 'No especificado'" />
                                     </span>
                                 </div>
+
                                 <div class="data-row">
                                     <span class="label">Teléfono:</span>
                                     <span class="value">
                                         <t t-esc="doc.telefono or 'No especificado'" />
                                     </span>
                                 </div>
+
                                 <div class="data-row">
                                     <span class="label">Dirección:</span>
                                     <span class="value">
                                         <t t-esc="doc.direccion or doc.cliente_id.street or 'No especificada'" />
                                     </span>
                                 </div>
+
                                 <t t-if="doc.sede">
                                     <div class="data-row">
                                         <span class="label">Sede:</span>
@@ -85,6 +93,7 @@
                                     </div>
                                 </t>
                             </div>
+
                             <p style="margin-top: 1rem;" class="intro-text">
                                 Nos complace presentar nuestra <strong>COTIZACIÓN MÚLTIPLE</strong> detallando las especificaciones y condiciones para el arrendamiento de los siguientes equipos multifuncionales de última generación:
                             </p>
@@ -96,10 +105,11 @@
                                 <i class="fa fa-print"></i>
                                 <span>Equipos Multifuncionales Cotizados</span>
                             </div>
-                            
+
                             <!-- Iteramos por cada línea de equipo -->
                             <t t-foreach="doc.linea_equipos_ids" t-as="linea">
-                                <div class="equipment-item" style="margin-bottom: 2rem; border: 1px solid #ddd; padding: 1rem; border-radius: 8px;">
+                                <div class="equipment-item" style="margin-bottom: 2rem; border: 1px solid #ddd; padding: 1rem; border-radius: 8px; page-break-inside: avoid;">
+
                                     <div style="text-align: center;">
                                         <h3 style="color: var(--primary-blue); margin-bottom: 1rem;">
                                             <t t-esc="linea.equipo_id.name" />
@@ -107,19 +117,21 @@
                                                 (Cantidad: <t t-esc="linea.cantidad"/>)
                                             </t>
                                         </h3>
+
                                         <p style="margin: 0.5rem 0;">
-                                            <strong>Marca:</strong> <t t-esc="linea.marca_id.name" /> | 
-                                            <strong>Tipo:</strong> <t t-esc="dict(linea._fields['tipo_equipo'].selection)[linea.tipo_equipo]" /> | 
+                                            <strong>Marca:</strong> <t t-esc="linea.marca_id.name" /> |
+                                            <strong>Tipo:</strong> <t t-esc="dict(linea._fields['tipo_equipo'].selection)[linea.tipo_equipo]" /> |
                                             <strong>Formato:</strong> <t t-esc="linea.formato.upper()" />
                                         </p>
-                                        
+
                                         <t t-if="linea.imagen_equipo">
                                             <img
                                                 t-att-src="'data:image/png;base64,%s' % linea.imagen_equipo.decode('utf-8')"
-                                                class="machine-image" style="max-height: 200px; margin: 1rem 0;" />
+                                                class="machine-image"
+                                                style="max-height: 200px; margin: 1rem 0;" />
                                         </t>
                                     </div>
-                                    
+
                                     <!-- Especificaciones del equipo -->
                                     <t t-if="linea.especificaciones">
                                         <div class="specs-section" style="margin-top: 1rem;">
@@ -127,6 +139,95 @@
                                             <t t-raw="linea.especificaciones" />
                                         </div>
                                     </t>
+
+                                    <!-- Tabla solicitada por cliente: precio por equipo + IGV -->
+                                    <div style="margin-top: 1.5rem;">
+                                        <table style="width: 100%; border-collapse: collapse; font-size: 12px; border: 1px solid #000;">
+                                            <thead>
+                                                <tr>
+                                                    <th colspan="6"
+                                                        style="background: #ffff00; color: #000; text-align: center; padding: 12px; border: 1px solid #000; font-weight: bold;">
+                                                        COPIER COMPANY SAC
+                                                    </th>
+                                                </tr>
+                                                <tr>
+                                                    <th style="background: #d9e2f3; color: #000; text-align: center; padding: 8px; border: 1px solid #000; font-weight: bold;">
+                                                        P. UNIT.
+                                                    </th>
+                                                    <th style="background: #d9e2f3; color: #000; text-align: center; padding: 8px; border: 1px solid #000; font-weight: bold;">
+                                                        IGV UNIT.
+                                                    </th>
+                                                    <th style="background: #d9e2f3; color: #000; text-align: center; padding: 8px; border: 1px solid #000; font-weight: bold;">
+                                                        P. UNIT.<br/>+ IGV
+                                                    </th>
+                                                    <th style="background: #d9e2f3; color: #000; text-align: center; padding: 8px; border: 1px solid #000; font-weight: bold;">
+                                                        CANTIDAD
+                                                    </th>
+                                                    <th style="background: #d9e2f3; color: #000; text-align: center; padding: 8px; border: 1px solid #000; font-weight: bold;">
+                                                        TIEMPO<br/>MESES
+                                                    </th>
+                                                    <th style="background: #d9e2f3; color: #000; text-align: center; padding: 8px; border: 1px solid #000; font-weight: bold;">
+                                                        PARCIAL<br/>C/IGV
+                                                    </th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+                                                <tr>
+                                                    <td style="padding: 10px; border: 1px solid #000; text-align: right;">
+                                                        S/. <t t-esc="'{:,.2f}'.format(linea.precio_unitario_sin_igv)"/>
+                                                    </td>
+
+                                                    <td style="padding: 10px; border: 1px solid #000; text-align: right;">
+                                                        S/. <t t-esc="'{:,.2f}'.format(linea.igv_unitario)"/>
+                                                    </td>
+
+                                                    <td style="padding: 10px; border: 1px solid #000; text-align: right;">
+                                                        S/. <t t-esc="'{:,.2f}'.format(linea.precio_unitario_con_igv)"/>
+                                                    </td>
+
+                                                    <td style="padding: 10px; border: 1px solid #000; text-align: right;">
+                                                        <t t-esc="'{:,.2f}'.format(linea.cantidad or 0)"/>
+                                                    </td>
+
+                                                    <td style="padding: 10px; border: 1px solid #000; text-align: right;">
+                                                        <t t-esc="'{:,.2f}'.format(linea.tiempo_meses_cotizacion or 0)"/>
+                                                    </td>
+
+                                                    <td style="padding: 10px; border: 1px solid #000; text-align: right;">
+                                                        S/. <t t-esc="'{:,.2f}'.format(linea.parcial_con_igv_pdf)"/>
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <td colspan="5" style="padding: 6px; border-left: 1px solid #000; border-right: 1px solid #000; text-align: right; font-weight: bold;">
+                                                        SUBTOTAL
+                                                    </td>
+                                                    <td style="padding: 6px; border-right: 1px solid #000; text-align: right;">
+                                                        S/. <t t-esc="'{:,.2f}'.format(linea.parcial_sin_igv_pdf)"/>
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <td colspan="5" style="padding: 6px; border-left: 1px solid #000; border-right: 1px solid #000; text-align: right; font-weight: bold;">
+                                                        IGV
+                                                    </td>
+                                                    <td style="padding: 6px; border-right: 1px solid #000; text-align: right;">
+                                                        S/. <t t-esc="'{:,.2f}'.format(linea.igv_parcial_pdf)"/>
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <td colspan="5" style="padding: 8px; border: 1px solid #000; text-align: right; font-weight: bold; background: #d9d9d9;">
+                                                        TOTAL
+                                                    </td>
+                                                    <td style="padding: 8px; border: 1px solid #000; text-align: right; font-weight: bold; background: #d9d9d9;">
+                                                        S/. <t t-esc="'{:,.2f}'.format(linea.parcial_con_igv_pdf)"/>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
 
                                     <!-- Detalles de tarifa por equipo -->
                                     <div class="pricing-details" style="margin-top: 1.5rem;">
@@ -148,7 +249,7 @@
                                             </t>
 
                                             <div style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; margin-top: 1rem;">
-                                                <strong>Subtotal por Equipo: S/. <t t-esc="'%.2f' % linea.subtotal_linea"/> Sin IGV</strong>
+                                                <strong>Subtotal mensual de la línea: S/. <t t-esc="'%.2f' % linea.subtotal_linea"/> Sin IGV</strong>
                                             </div>
 
                                             <t t-if="linea.observaciones">
@@ -168,16 +269,18 @@
                                 <i class="fa fa-calculator"></i>
                                 <span>Resumen de Totales</span>
                             </div>
-                            
+
                             <div class="pricing-details">
                                 <!-- Totales Mensuales -->
                                 <div class="tariff-section">
                                     <h4><i class="fa fa-calendar"></i> TOTALES MENSUALES BASE</h4>
                                     <ul class="benefits-list">
                                         <li>Subtotal mensual: <strong>S/. <t t-esc="'%.2f' % doc.subtotal_mensual"/></strong></li>
+
                                         <t t-if="doc.descuento_general > 0">
                                             <li>Descuento general (<t t-esc="doc.descuento_general"/>%): <strong>-S/. <t t-esc="'%.2f' % doc.descuento_mensual"/></strong></li>
                                         </t>
+
                                         <li>Subtotal con descuento: <strong>S/. <t t-esc="'%.2f' % doc.subtotal_con_descuento_mensual"/></strong></li>
                                         <li>IGV (<t t-esc="doc.igv"/>%): <strong>S/. <t t-esc="'%.2f' % doc.igv_mensual"/></strong></li>
                                         <li class="highlight"><strong>Total mensual: S/. <t t-esc="'%.2f' % doc.total_mensual"/></strong></li>
@@ -189,9 +292,11 @@
                                     <h4><i class="fa fa-credit-card"></i> TOTALES POR MODALIDAD: <t t-esc="doc.modalidad_pago_id.name.upper()"/></h4>
                                     <ul class="benefits-list">
                                         <li>Subtotal por <t t-esc="doc.modalidad_pago_id.frecuencia_meses"/> mes(es): <strong>S/. <t t-esc="'%.2f' % doc.subtotal_modalidad"/></strong></li>
+
                                         <t t-if="doc.modalidad_pago_id.descuento_porcentaje > 0">
                                             <li>Descuento por modalidad (<t t-esc="doc.modalidad_pago_id.descuento_porcentaje"/>%): <strong>-S/. <t t-esc="'%.2f' % doc.descuento_modalidad"/></strong></li>
                                         </t>
+
                                         <li>Subtotal final: <strong>S/. <t t-esc="'%.2f' % doc.subtotal_final"/></strong></li>
                                         <li>IGV (<t t-esc="doc.igv"/>%): <strong>S/. <t t-esc="'%.2f' % doc.igv_final"/></strong></li>
                                     </ul>
@@ -224,11 +329,11 @@
                                 <i class="fa fa-info-circle"></i>
                                 <span>Condiciones Generales</span>
                             </div>
-                            
+
                             <div class="additional-info">
                                 <h4>INFORMACIÓN ADICIONAL</h4>
                                 <ul class="benefits-list">
-                                    <li>Tarifas en nuevos soles incluyen IGV (18%)</li>
+                                    <li>Tarifas en nuevos soles incluyen IGV (<t t-esc="doc.igv"/>%)</li>
                                     <li>Facturación según modalidad seleccionada: <strong><t t-esc="doc.modalidad_pago_id.name"/></strong></li>
                                     <li>Incluye instalación y capacitación para todos los equipos</li>
                                     <li>Incluye renovación de maquinaria, insumos, repuestos y servicio técnico</li>
@@ -244,6 +349,7 @@
                                     <li>Mantenimiento preventivo cada 2 meses para todos los equipos</li>
                                     <li>Contrato marco mínimo de <t t-esc="doc.duracion_contrato_id.name"/></li>
                                     <li>Ubicación de instalación: <t t-esc="doc.direccion or 'Por definir'"/></li>
+
                                     <t t-if="doc.sede">
                                         <li>Sede: <t t-esc="doc.sede"/></li>
                                     </t>
@@ -267,7 +373,7 @@
                                 <i class="fa fa-credit-card"></i>
                                 <span>Información de Pago</span>
                             </div>
-                            
+
                             <div class="bank-accounts">
                                 <!-- BCP -->
                                 <div class="bank-account">
@@ -275,6 +381,7 @@
                                         <i class="fa fa-university"></i>
                                         <span class="bank-name">BCP</span>
                                     </div>
+
                                     <div class="account-details">
                                         <div class="account-type">Cuenta Corriente - Soles</div>
                                         <div class="account-number">191-2334609-0-07</div>
@@ -288,6 +395,7 @@
                                         <i class="fa fa-university"></i>
                                         <span class="bank-name">Banco de la Nación</span>
                                     </div>
+
                                     <div class="account-details">
                                         <div class="account-type">Cuenta de Detracción</div>
                                         <div class="account-number">00802007582</div>
@@ -304,8 +412,10 @@
                         <!-- Firma -->
                         <div style="margin-top: 3rem;">
                             <p>Sin otro particular, quedamos a su disposición para cualquier consulta.</p>
+
                             <div style="margin-top: 2rem;">
                                 <p>Atentamente,</p>
+
                                 <div style="margin-top: 4rem;">
                                     <div style="width: 200px; border-top: 1px solid #000;"></div>
                                     <p>Ejecutivo Comercial</p>
