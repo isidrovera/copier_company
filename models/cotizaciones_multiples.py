@@ -367,32 +367,40 @@ class CopierQuotationLine(models.Model):
         'cantidad',
         'subtotal_linea',
         'quotation_id.igv',
-        'quotation_id.modalidad_pago_id',
-        'quotation_id.modalidad_pago_id.frecuencia_meses',
+        'quotation_id.duracion_contrato_id',
+        'quotation_id.duracion_contrato_id.name',
     )
     def _compute_importes_con_igv(self):
         """
-        Calcula importes solo para representar en PDF:
+        Calcula importes para representar en PDF.
 
-        Ejemplo:
-        P. UNIT.      = 1,350.00
-        IGV UNIT.     =   243.00
-        P. UNIT. + IGV= 1,593.00
-        CANTIDAD      = 6
-        MESES         = 6
-        SUBTOTAL      = 48,600.00
-        IGV           = 8,748.00
-        TOTAL         = 57,348.00
+        El tiempo de meses se toma desde la duración del contrato,
+        no desde la modalidad de pago.
 
-        No altera la lógica actual de subtotal_linea ni de _compute_totales.
+        Ejemplo correcto:
+        P. UNIT. = 1,350.00
+        CANTIDAD = 6
+        TIEMPO MESES = 6
+        PARCIAL = 1,350.00 x 6 x 6 = 48,600.00
+        IGV = 8,748.00
+        TOTAL = 57,348.00
         """
         for line in self:
             cantidad = line.cantidad or 0
             subtotal_mensual_linea = line.subtotal_linea or 0.0
             igv_porcentaje = line.quotation_id.igv or 0.0
 
-            modalidad = line.quotation_id.modalidad_pago_id
-            tiempo_meses = modalidad.frecuencia_meses if modalidad and modalidad.frecuencia_meses else 1
+            # Tomar meses desde duración del contrato
+            duracion = line.quotation_id.duracion_contrato_id.name if line.quotation_id.duracion_contrato_id else ''
+
+            if duracion == '6 Meses':
+                tiempo_meses = 6
+            elif duracion == '1 Año':
+                tiempo_meses = 12
+            elif duracion == '2 Años':
+                tiempo_meses = 24
+            else:
+                tiempo_meses = 1
 
             if cantidad:
                 precio_unitario_sin_igv = subtotal_mensual_linea / cantidad

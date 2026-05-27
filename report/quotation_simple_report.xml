@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <!-- Acción del nuevo reporte simple -->
+        <record id="action_report_copier_quotation_simple" model="ir.actions.report">
+            <field name="name">Cotización Simple Cliente</field>
+            <field name="model">copier.quotation</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">copier_company.quotation_simple_view</field>
+            <field name="report_file">copier_company.quotation_simple_view</field>
+            <field name="print_report_name">'Cotización Simple - %s' % object.name</field>
+            <field name="binding_model_id" ref="model_copier_quotation"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <!-- Template del reporte simple -->
+        <template id="quotation_simple_view">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.external_layout">
+
+                        <style>
+                            .simple-quote-page {
+                                font-family: Arial, sans-serif;
+                                font-size: 12px;
+                                color: #111;
+                            }
+
+                            .simple-title {
+                                text-align: center;
+                                font-size: 20px;
+                                font-weight: bold;
+                                margin-bottom: 20px;
+                                letter-spacing: 1px;
+                            }
+
+                            .simple-info-table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                margin-bottom: 18px;
+                            }
+
+                            .simple-info-table td {
+                                padding: 4px 6px;
+                                vertical-align: top;
+                            }
+
+                            .simple-label {
+                                font-weight: bold;
+                                width: 120px;
+                            }
+
+                            .equipment-title {
+                                text-align: center;
+                                font-size: 18px;
+                                font-weight: bold;
+                                margin: 16px 0 8px 0;
+                                letter-spacing: 1px;
+                            }
+
+                            .equipment-subtitle {
+                                text-align: center;
+                                margin-bottom: 18px;
+                            }
+
+                            .quote-table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                table-layout: fixed;
+                                margin-top: 10px;
+                                margin-bottom: 20px;
+                                font-size: 12px;
+                            }
+
+                            .quote-table th {
+                                background: #d9dee7;
+                                border: 1px solid #222;
+                                padding: 9px 8px;
+                                text-align: center;
+                                font-weight: bold;
+                            }
+
+                            .quote-table td {
+                                border: 1px solid #222;
+                                padding: 8px 10px;
+                                vertical-align: middle;
+                            }
+
+                            .quote-empty-row td {
+                                height: 34px;
+                            }
+
+                            .text-right {
+                                text-align: right;
+                            }
+
+                            .text-center {
+                                text-align: center;
+                            }
+
+                            .money-cell {
+                                text-align: right;
+                            }
+
+                            .money-symbol {
+                                float: left;
+                            }
+
+                            .summary-label {
+                                text-align: center;
+                                font-weight: normal;
+                            }
+
+                            .total-row td {
+                                border-top: 2px solid #111;
+                                font-weight: bold;
+                            }
+
+                            .section-title {
+                                margin-top: 20px;
+                                margin-bottom: 8px;
+                                font-weight: bold;
+                                color: #1f4e79;
+                                font-size: 13px;
+                                text-transform: uppercase;
+                            }
+
+                            .conditions-list {
+                                margin: 0;
+                                padding-left: 18px;
+                            }
+
+                            .conditions-list li {
+                                margin-bottom: 4px;
+                            }
+
+                            .bank-box {
+                                margin-top: 14px;
+                                border: 1px solid #ddd;
+                                padding: 10px;
+                                border-radius: 4px;
+                            }
+
+                            .bank-table {
+                                width: 100%;
+                                border-collapse: collapse;
+                            }
+
+                            .bank-table td {
+                                padding: 4px 6px;
+                                vertical-align: top;
+                            }
+
+                            .signature-box {
+                                margin-top: 45px;
+                            }
+
+                            .signature-line {
+                                width: 220px;
+                                border-top: 1px solid #111;
+                                margin-top: 55px;
+                            }
+                        </style>
+
+                        <div class="simple-quote-page">
+
+                            <!-- Título -->
+                            <div class="simple-title">
+                                COTIZACIÓN
+                            </div>
+
+                            <!-- Datos principales -->
+                            <table class="simple-info-table">
+                                <tr>
+                                    <td class="simple-label">Cotización N°:</td>
+                                    <td>
+                                        <t t-esc="doc.name"/>
+                                    </td>
+                                    <td class="simple-label">Fecha:</td>
+                                    <td>
+                                        <t t-if="doc.fecha_cotizacion">
+                                            <t t-esc="doc.fecha_cotizacion.strftime('%d/%m/%Y')"/>
+                                        </t>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="simple-label">Cliente:</td>
+                                    <td>
+                                        <t t-esc="doc.cliente_id.name"/>
+                                    </td>
+                                    <td class="simple-label">RUC/DNI:</td>
+                                    <td>
+                                        <t t-esc="doc.identificacion or '-'"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="simple-label">Contacto:</td>
+                                    <td>
+                                        <t t-esc="doc.contacto or '-'"/>
+                                    </td>
+                                    <td class="simple-label">Teléfono:</td>
+                                    <td>
+                                        <t t-esc="doc.telefono or '-'"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="simple-label">Dirección:</td>
+                                    <td colspan="3">
+                                        <t t-esc="doc.direccion or doc.cliente_id.street or '-'"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="simple-label">Duración:</td>
+                                    <td>
+                                        <t t-if="doc.duracion_contrato_id">
+                                            <t t-esc="doc.duracion_contrato_id.name"/>
+                                        </t>
+                                        <t t-else="">-</t>
+                                    </td>
+                                    <td class="simple-label">Validez:</td>
+                                    <td>
+                                        <t t-esc="doc.validez_dias or 0"/> días
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Líneas de equipos -->
+                            <t t-foreach="doc.linea_equipos_ids" t-as="linea">
+
+                                <div class="equipment-title">
+                                    <t t-esc="linea.equipo_id.name"/>
+                                    <t t-if="linea.cantidad">
+                                        (Cantidad: <t t-esc="linea.cantidad"/>)
+                                    </t>
+                                </div>
+
+                                <div class="equipment-subtitle">
+                                    <strong>Marca:</strong>
+                                    <t t-esc="linea.marca_id.name or ''"/>
+                                    |
+                                    <strong>Tipo:</strong>
+                                    <t t-esc="dict(linea._fields['tipo_equipo'].selection).get(linea.tipo_equipo, '')"/>
+                                    |
+                                    <strong>Formato:</strong>
+                                    <t t-esc="(linea.formato or '').upper()"/>
+                                </div>
+
+                                <!-- Tabla como la solicitó el cliente -->
+                                <table class="quote-table">
+                                    <thead>
+                                        <tr>
+                                            <th>P.UNIT.</th>
+                                            <th>CANTIDAD</th>
+                                            <th>TIEMPO<br/>MESES</th>
+                                            <th>PARCIAL</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <tr class="quote-empty-row">
+                                            <td>&#160;</td>
+                                            <td>&#160;</td>
+                                            <td>&#160;</td>
+                                            <td>&#160;</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td class="money-cell">
+                                                <span class="money-symbol">S/</span>
+                                                <span t-esc="'{:,.2f}'.format(linea.precio_unitario_sin_igv or 0.0)"/>
+                                            </td>
+
+                                            <td class="text-right">
+                                                <span t-esc="'{:,.2f}'.format(linea.cantidad or 0.0)"/>
+                                            </td>
+
+                                            <td class="text-right">
+                                                <span t-esc="'{:,.2f}'.format(linea.tiempo_meses_cotizacion or 0.0)"/>
+                                            </td>
+
+                                            <td class="money-cell">
+                                                <span class="money-symbol">S/</span>
+                                                <span t-esc="'{:,.2f}'.format(linea.parcial_sin_igv_pdf or 0.0)"/>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td colspan="3" class="summary-label">
+                                                SUBTOTAL
+                                            </td>
+                                            <td class="money-cell">
+                                                <span class="money-symbol">S/</span>
+                                                <span t-esc="'{:,.2f}'.format(linea.parcial_sin_igv_pdf or 0.0)"/>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td colspan="3" class="summary-label">
+                                                IGV
+                                            </td>
+                                            <td class="money-cell">
+                                                <span class="money-symbol">S/</span>
+                                                <span t-esc="'{:,.2f}'.format(linea.igv_parcial_pdf or 0.0)"/>
+                                            </td>
+                                        </tr>
+
+                                        <tr class="total-row">
+                                            <td colspan="3" class="summary-label">
+                                                TOTAL
+                                            </td>
+                                            <td class="money-cell">
+                                                <span class="money-symbol">S/</span>
+                                                <span t-esc="'{:,.2f}'.format(linea.parcial_con_igv_pdf or 0.0)"/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <t t-if="linea.observaciones">
+                                    <p>
+                                        <strong>Observaciones:</strong>
+                                        <t t-esc="linea.observaciones"/>
+                                    </p>
+                                </t>
+
+                            </t>
+
+                            <!-- Condiciones -->
+                            <div class="section-title">
+                                Condiciones generales
+                            </div>
+
+                            <ul class="conditions-list">
+                                <li>Precios expresados en soles.</li>
+                                <li>Los importes no incluyen papel.</li>
+                                <li>Incluye instalación y capacitación del equipo.</li>
+                                <li>Incluye servicio técnico, insumos y repuestos, según condiciones del alquiler.</li>
+                                <li>
+                                    Validez de la cotización:
+                                    <strong><t t-esc="doc.validez_dias or 0"/> días</strong>
+                                    <t t-if="doc.fecha_vencimiento">
+                                        , hasta el <t t-esc="doc.fecha_vencimiento.strftime('%d/%m/%Y')"/>
+                                    </t>.
+                                </li>
+                                <li>
+                                    Disponibilidad: <strong>5 días presentada la orden de compra</strong>.
+                                </li>
+                            </ul>
+
+                            <t t-if="doc.observaciones">
+                                <div class="section-title">
+                                    Observaciones adicionales
+                                </div>
+                                <div>
+                                    <t t-raw="doc.observaciones"/>
+                                </div>
+                            </t>
+
+                            <!-- Información bancaria -->
+                            <div class="section-title">
+                                Información de pago
+                            </div>
+
+                            <div class="bank-box">
+                                <table class="bank-table">
+                                    <tr>
+                                        <td style="width: 160px;">
+                                            <strong>BCP</strong>
+                                        </td>
+                                        <td>
+                                            Cuenta Corriente Soles: <strong>191-2334609-0-07</strong><br/>
+                                            CCI: <strong>002-19100233460900751</strong>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>
+                                            <strong>Banco de la Nación</strong>
+                                        </td>
+                                        <td>
+                                            Cuenta de Detracción: <strong>00802007582</strong>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>
+                                            <strong>Titular</strong>
+                                        </td>
+                                        <td>
+                                            <strong>COPIER COMPANY SAC</strong>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!-- Firma -->
+                            <div class="signature-box">
+                                <p>Sin otro particular, quedamos a su disposición para cualquier consulta.</p>
+
+                                <p style="margin-top: 22px;">Atentamente,</p>
+
+                                <div class="signature-line"></div>
+                                <p>
+                                    Ejecutivo Comercial<br/>
+                                    COPIER COMPANY SAC
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </t>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>
