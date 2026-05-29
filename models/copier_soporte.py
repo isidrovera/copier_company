@@ -80,11 +80,14 @@ class CopierServiceRequest(models.Model):
     cliente_id = fields.Many2one(
         'res.partner',
         string='Cliente',
-        related='maquina_id.cliente_id',
         store=True,
-        readonly=True
+        tracking=True,
+        readonly=True,
+        index=True,
+        copy=False,
+        help="Cliente congelado al momento de crear el servicio. No cambia si la máquina cambia de cliente."
     )
-    
+        
     serie_maquina = fields.Char(
         string='Serie',
         related='maquina_id.serie_id',
@@ -102,25 +105,28 @@ class CopierServiceRequest(models.Model):
         
     ubicacion = fields.Char(
         string='Ubicación',
-        related='maquina_id.ubicacion',
         store=True,
-        readonly=True
+        readonly=True,
+        copy=False,
+        help="Ubicación congelada al momento de crear el servicio."
     )
-    
+        
     sede = fields.Char(
         string='Sede',
-        related='maquina_id.sede',
         store=True,
-        readonly=True
+        readonly=True,
+        copy=False,
+        help="Sede congelada al momento de crear el servicio."
     )
     
     ip_maquina = fields.Char(
         string='IP',
-        related='maquina_id.ip_id',
         store=True,
-        readonly=True
+        readonly=True,
+        copy=False,
+        help="IP congelada al momento de crear el servicio."
     )
-    
+        
     # ========================================
     # INFORMACIÓN DE LA SOLICITUD
     # ========================================
@@ -597,37 +603,73 @@ class CopierServiceRequest(models.Model):
     
     @api.model
     def create(self, vals):
-        """Override create para asignar secuencia, autocompletar contacto,
-        generar tokens y enviar notificaciones"""
+        """
+        Override create para asignar secuencia, congelar datos históricos,
+        generar tokens y enviar notificaciones.
 
-        def _autocompletar_contacto_desde_partner(vals_dict):
-            """Rellena correo, teléfono y contacto desde el cliente de la máquina
-            SOLO si vienen vacíos en vals"""
+        Importante:
+        - cliente_id se guarda como snapshot del cliente actual de la máquina.
+        - ubicación, sede e IP también se congelan.
+        - Si luego la máquina retorna y se asigna a otro cliente,
+        este servicio no cambia de cliente ni ubicación histórica.
+        """
+
+        def _autocompletar_snapshot_desde_maquina(vals_dict):
+            """
+            Rellena datos desde la máquina SOLO si vienen vacíos en vals.
+
+            Esto evita que el servicio dependa del cliente actual de la máquina
+            después de creado.
+            """
             maquina_id = vals_dict.get('maquina_id')
             if not maquina_id:
                 return vals_dict
 
-            maquina = self.env['copier.company'].browse(maquina_id)
-            cliente = maquina.cliente_id if maquina else False
-
-            if not cliente:
+            maquina = self.env['copier.company'].browse(maquina_id).exists()
+            if not maquina:
                 return vals_dict
 
-            # Correo
-            if not vals_dict.get('correo') and cliente.email:
-                vals_dict['correo'] = cliente.email
+            cliente = maquina.cliente_id
 
-            # Teléfono (prioriza mobile sobre phone si existe)
-            telefono = cliente.phone
-            if not vals_dict.get('telefono_contacto') and telefono:
-                vals_dict['telefono_contacto'] = telefono
+            # ==============================
+            # SNAPSHOT DEL CLIENTE
+            # ==============================
+            if cliente and not vals_dict.get('cliente_id'):
+                vals_dict['cliente_id'] = cliente.id
 
-            # Contacto (nombre)
+            # ==============================
+            # SNAPSHOT DE CONTACTO
+            # ==============================
+            if not vals_dict.get('correo'):
+                vals_dict['correo'] = maquina.correo or cliente.email or False
+
+            if not vals_dict.get('telefono_contacto'):
+                vals_dict['telefono_contacto'] = (
+                    maquina.celular
+                    or cliente.mobile
+                    or cliente.phone
+                    or False
+                )
+
             if not vals_dict.get('contacto'):
-                if cliente.complete_name:
-                    vals_dict['contacto'] = cliente.complete_name
-                elif cliente.name:
-                    vals_dict['contacto'] = cliente.name
+                vals_dict['contacto'] = (
+                    maquina.contacto
+                    or cliente.complete_name
+                    or cliente.name
+                    or False
+                )
+
+            # ==============================
+            # SNAPSHOT DE UBICACIÓN
+            # ==============================
+            if not vals_dict.get('ubicacion'):
+                vals_dict['ubicacion'] = maquina.ubicacion or False
+
+            if not vals_dict.get('sede'):
+                vals_dict['sede'] = maquina.sede or False
+
+            if not vals_dict.get('ip_maquina'):
+                vals_dict['ip_maquina'] = maquina.ip_id or False
 
             return vals_dict
 
@@ -638,70 +680,106 @@ class CopierServiceRequest(models.Model):
             records = self.env['copier.service.request']
 
             for val in vals:
-                # Autocompletar datos de contacto si vienen vacíos
-                val = _autocompletar_contacto_desde_partner(val)
+                val = _autocompletar_snapshot_desde_maquina(val)
 
-                # Asignar secuencia si es nuevo
                 if val.get('name', _('Nuevo')) == _('Nuevo'):
                     val['name'] = self.env['ir.sequence'].next_by_code(
                         'copier.service.request'
                     ) or _('Nuevo')
 
-                # Crear registro
                 record = super(CopierServiceRequest, self).create(val)
                 records |= record
 
-                # Generar tokens
                 record._generate_tokens()
 
-                # Enviar confirmación
                 try:
                     record._send_email_confirmacion()
                 except Exception as e:
                     _logger.error(
                         "Error enviando confirmación para %s: %s",
-                        record.name, str(e)
+                        record.name,
+                        str(e)
                     )
 
-                # Notificar creación en chatter
                 record._notificar_nueva_solicitud()
 
             return records
 
         # =========================================================
-        # SOPORTE PARA create() NORMAL (dict)
+        # SOPORTE PARA create() NORMAL
         # =========================================================
-        else:
-            # Autocompletar datos de contacto si vienen vacíos
-            vals = _autocompletar_contacto_desde_partner(vals)
+        vals = _autocompletar_snapshot_desde_maquina(vals)
 
-            # Asignar secuencia
-            if vals.get('name', _('Nuevo')) == _('Nuevo'):
-                vals['name'] = self.env['ir.sequence'].next_by_code(
-                    'copier.service.request'
-                ) or _('Nuevo')
+        if vals.get('name', _('Nuevo')) == _('Nuevo'):
+            vals['name'] = self.env['ir.sequence'].next_by_code(
+                'copier.service.request'
+            ) or _('Nuevo')
 
-            # Crear el registro
-            record = super(CopierServiceRequest, self).create(vals)
+        record = super(CopierServiceRequest, self).create(vals)
 
-            # Generar tokens
-            record._generate_tokens()
+        record._generate_tokens()
 
-            # Enviar email de confirmación
-            try:
-                record._send_email_confirmacion()
-            except Exception as e:
-                _logger.error(
-                    "Error enviando email de confirmación: %s",
-                    str(e)
-                )
+        try:
+            record._send_email_confirmacion()
+        except Exception as e:
+            _logger.error(
+                "Error enviando email de confirmación: %s",
+                str(e)
+            )
 
-            # Notificar en chatter
-            record._notificar_nueva_solicitud()
+        record._notificar_nueva_solicitud()
 
-            return record
+        return record
 
-    
+    @api.onchange('maquina_id')
+    def _onchange_maquina_id(self):
+        """
+        Al seleccionar una máquina en el formulario:
+        - Copia el cliente actual.
+        - Copia contacto, correo, teléfono.
+        - Copia ubicación, sede e IP.
+
+        Estos datos quedan guardados en el servicio como historial.
+        """
+        for rec in self:
+            if not rec.maquina_id:
+                rec.cliente_id = False
+                rec.contacto = False
+                rec.correo = False
+                rec.telefono_contacto = False
+                rec.ubicacion = False
+                rec.sede = False
+                rec.ip_maquina = False
+                continue
+
+            maquina = rec.maquina_id
+            cliente = maquina.cliente_id
+
+            rec.cliente_id = cliente.id or False
+
+            rec.contacto = (
+                maquina.contacto
+                or cliente.complete_name
+                or cliente.name
+                or False
+            )
+
+            rec.correo = (
+                maquina.correo
+                or cliente.email
+                or False
+            )
+
+            rec.telefono_contacto = (
+                maquina.celular
+                or cliente.mobile
+                or cliente.phone
+                or False
+            )
+
+            rec.ubicacion = maquina.ubicacion or False
+            rec.sede = maquina.sede or False
+            rec.ip_maquina = maquina.ip_id or False
     def write(self, vals):
         """Override write para notificar cambios de estado"""
         res = super(CopierServiceRequest, self).write(vals)
@@ -886,30 +964,42 @@ class CopierServiceRequest(models.Model):
     # ========================================
     
     def _registrar_contador(self):
-        """Crea un registro de contador al completar el servicio"""
+        """
+        Crea un registro de contador al completar el servicio.
+
+        Importante:
+        - Usa cliente_id del servicio, no el cliente actual de la máquina.
+        - Así no se contamina el historial si la máquina fue reasignada.
+        """
         self.ensure_one()
-        
+
         if not self.contador_bn and not self.contador_color:
             return
-        
-        # Crear contador
+
         counter_vals = {
             'maquina_id': self.maquina_id.id,
+            'cliente_id': self.cliente_id.id or self.maquina_id.cliente_id.id or False,
             'fecha': self.fecha_fin or fields.Datetime.now(),
             'contador_actual_bn': self.contador_bn,
             'contador_actual_color': self.contador_color,
             'observaciones': f'Registrado desde servicio técnico {self.name}',
             'state': 'draft',
         }
-        
+
         try:
             counter = self.env['copier.counter'].create(counter_vals)
-            _logger.info("Contador creado desde servicio %s: ID=%s", self.name, counter.id)
-            
+            _logger.info(
+                "Contador creado desde servicio %s: ID=%s Cliente=%s",
+                self.name,
+                counter.id,
+                self.cliente_id.display_name if self.cliente_id else 'Sin cliente'
+            )
+
             self.message_post(
                 body=f'''
                     📊 Contador Registrado
-                    
+
+                    • Cliente: {self.cliente_id.name if self.cliente_id else 'N/A'}
                     • B/N: {self.contador_bn:,}
                     • Color: {self.contador_color:,}
                     • Total: {self.contador_total:,}

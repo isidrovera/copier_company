@@ -252,7 +252,13 @@ class CopierCompany(models.Model):
     # HELPERS PARA EL REPORTE
     # ==========================
     def action_crear_servicio_tecnico(self):
-        """Abrir formulario de nuevo servicio con máquina precargada"""
+        """
+        Abrir formulario de nuevo servicio con máquina y datos históricos precargados.
+
+        Importante:
+        - default_cliente_id congela el cliente actual.
+        - default_ubicacion, default_sede y default_ip_maquina congelan ubicación actual.
+        """
         self.ensure_one()
 
         return {
@@ -262,16 +268,21 @@ class CopierCompany(models.Model):
             'view_mode': 'form',
             'target': 'current',
             'context': {
-                # precargar datos
                 'default_maquina_id': self.id,
+                'default_cliente_id': self.cliente_id.id or False,
                 'default_company_id': self.env.company.id,
                 'default_origen_solicitud': 'interno',
                 'default_prioridad': '1',
 
-                # precargar contacto desde la máquina
-                'default_contacto': self.contacto or self.cliente_id.name,
+                # Datos históricos del contacto
+                'default_contacto': self.contacto or self.cliente_id.complete_name or self.cliente_id.name,
                 'default_correo': self.correo or self.cliente_id.email,
-                'default_telefono_contacto': self.celular or self.cliente_id.phone,
+                'default_telefono_contacto': self.celular or self.cliente_id.mobile or self.cliente_id.phone,
+
+                # Datos históricos de ubicación
+                'default_ubicacion': self.ubicacion,
+                'default_sede': self.sede,
+                'default_ip_maquina': self.ip_id,
             }
         }
     def action_print_stickers(self):

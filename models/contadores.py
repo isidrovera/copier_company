@@ -29,16 +29,26 @@ class CopierCounter(models.Model):
     )
     cliente_id = fields.Many2one(
         'res.partner',
-        related='maquina_id.cliente_id',
         string='Cliente',
-        store=True
+        store=True,
+        tracking=True,
+        readonly=True,
+        index=True,
+        copy=False,
+        help="Cliente congelado al momento de crear el servicio. No cambia si la máquina cambia de cliente."
     )
     serie = fields.Char(
         related='maquina_id.serie_id',
         string='Serie',
         store=True
     )
-    ubicacion = fields.Char(related='maquina_id.ubicacion', string='Ubicación', store=True)
+    ubicacion = fields.Char(
+        string='Ubicación',
+        store=True,
+        readonly=True,
+        copy=False,
+        help="Ubicación congelada al momento de crear el servicio."
+    )
     fecha = fields.Date(
         'Fecha de Lectura',
         required=True,
@@ -215,31 +225,58 @@ class CopierCounter(models.Model):
                 record.precio_color_sin_igv = 0.0
     @api.model
     def create(self, vals_list):
-        """Método create corregido para manejar tanto lista como diccionario individual"""
-        
-        # Asegurar que vals_list sea una lista
-        if isinstance(vals_list, dict):
+        """
+        Crea lecturas de contador manteniendo historial correcto.
+
+        Importante:
+        - cliente_id se guarda como snapshot del cliente actual de la máquina.
+        - Si luego la máquina cambia de cliente, las lecturas antiguas no cambian.
+        - También conserva la lógica de contadores anteriores y secuencia.
+        """
+
+        # Asegurar compatibilidad con dict individual y lista
+        single_create = isinstance(vals_list, dict)
+        if single_create:
             vals_list = [vals_list]
-        
-        # Procesar cada conjunto de valores
+
         for vals in vals_list:
-            # Lógica original para contadores anteriores
-            if not vals.get('contador_anterior_bn'):
-                # Buscar última lectura confirmada
+            maquina = False
+
+            if vals.get('maquina_id'):
+                maquina = self.env['copier.company'].browse(vals.get('maquina_id')).exists()
+
+            # ==========================================================
+            # SNAPSHOT DEL CLIENTE
+            # ==========================================================
+            # Solo se asigna si viene máquina y no viene cliente manualmente.
+            # Esto evita que el contador dependa del cliente actual de la máquina.
+            if maquina and not vals.get('cliente_id'):
+                vals['cliente_id'] = maquina.cliente_id.id or False
+
+            # ==========================================================
+            # CONTADORES ANTERIORES
+            # ==========================================================
+            # Se mantiene tu lógica original, pero mejorando:
+            # - incluye confirmed e invoiced
+            # - solo busca si hay máquina
+            if maquina and not vals.get('contador_anterior_bn'):
                 ultima_lectura = self.search([
-                    ('maquina_id', '=', vals.get('maquina_id')),
-                    ('state', '=', 'confirmed')
+                    ('maquina_id', '=', maquina.id),
+                    ('state', 'in', ['confirmed', 'invoiced']),
                 ], limit=1, order='fecha desc, id desc')
-                
+
                 vals['contador_anterior_bn'] = ultima_lectura.contador_actual_bn if ultima_lectura else 0
                 vals['contador_anterior_color'] = ultima_lectura.contador_actual_color if ultima_lectura else 0
 
-            # Generar secuencia si es necesario
+            # ==========================================================
+            # SECUENCIA
+            # ==========================================================
             if vals.get('name', 'New') == 'New':
                 vals['name'] = self.env['ir.sequence'].next_by_code('copier.counter') or 'New'
-        
-        # Llamar al método padre con la lista procesada
-        return super(CopierCounter, self).create(vals_list)
+
+        records = super(CopierCounter, self).create(vals_list)
+
+        return records[0] if single_create else records
     @api.depends('fecha_facturacion', 'fecha_emision_factura')
     def _compute_mes_facturacion(self):
         meses = {
@@ -293,51 +330,69 @@ class CopierCounter(models.Model):
         return self.fecha_emision_factura or fields.Date.today()
     @api.onchange('maquina_id')
     def _onchange_maquina(self):
-        if self.maquina_id:
-            ultima_lectura = self.search([
-                ('maquina_id', '=', self.maquina_id.id),
-                ('state', 'in', ['confirmed', 'invoiced'])
-            ], limit=1, order='fecha desc, id desc')
+        """
+        Al seleccionar una máquina:
+        - Copia el cliente actual como snapshot.
+        - Carga últimos contadores.
+        - Calcula fecha de facturación según día configurado.
+        """
 
-            # Contadores anteriores
-            self.contador_anterior_bn = ultima_lectura.contador_actual_bn if ultima_lectura else 0
-            self.contador_anterior_color = ultima_lectura.contador_actual_color if ultima_lectura else 0
+        if not self.maquina_id:
+            self.cliente_id = False
+            self.contador_anterior_bn = 0
+            self.contador_anterior_color = 0
+            return
 
-            # =============================
-            # CÁLCULO SEGURO DE FECHA
-            # =============================
-            if self.maquina_id.dia_facturacion:
+        # ==========================================================
+        # SNAPSHOT DEL CLIENTE
+        # ==========================================================
+        # Este valor queda guardado en la lectura.
+        # No será related, por eso no cambiará si la máquina cambia de cliente.
+        self.cliente_id = self.maquina_id.cliente_id.id or False
 
-                # 👉 ESTA LÍNEA FALTABA O ESTABA MAL ESCRITA
-                fecha_base = fields.Date.today()
+        # ==========================================================
+        # ÚLTIMA LECTURA
+        # ==========================================================
+        ultima_lectura = self.search([
+            ('maquina_id', '=', self.maquina_id.id),
+            ('state', 'in', ['confirmed', 'invoiced'])
+        ], limit=1, order='fecha desc, id desc')
 
-                # último día del mes actual
-                ultimo_dia_mes = calendar.monthrange(fecha_base.year, fecha_base.month)[1]
+        self.contador_anterior_bn = ultima_lectura.contador_actual_bn if ultima_lectura else 0
+        self.contador_anterior_color = ultima_lectura.contador_actual_color if ultima_lectura else 0
 
-                # día válido dentro del mes
-                dia = min(self.maquina_id.dia_facturacion, ultimo_dia_mes)
+        # ==========================================================
+        # FECHA DE FACTURACIÓN
+        # ==========================================================
+        if self.maquina_id.dia_facturacion:
+            fecha_base = fields.Date.today()
 
-                # fecha tentativa en el mes actual
-                fecha_facturacion = fecha_base.replace(day=dia)
+            # Último día del mes actual
+            ultimo_dia_mes = calendar.monthrange(fecha_base.year, fecha_base.month)[1]
 
-                # si ya pasó, mover al mes siguiente de forma segura
-                if fecha_base > fecha_facturacion:
-                    fecha_facturacion = fecha_facturacion + relativedelta(months=1)
+            # Día válido dentro del mes
+            dia = min(self.maquina_id.dia_facturacion, ultimo_dia_mes)
 
-                    # volver a ajustar el día en el nuevo mes
-                    ultimo_dia_mes_sig = calendar.monthrange(
-                        fecha_facturacion.year,
-                        fecha_facturacion.month
-                    )[1]
+            # Fecha tentativa en el mes actual
+            fecha_facturacion = fecha_base.replace(day=dia)
 
-                    dia = min(self.maquina_id.dia_facturacion, ultimo_dia_mes_sig)
-                    fecha_facturacion = fecha_facturacion.replace(day=dia)
+            # Si ya pasó, mover al mes siguiente
+            if fecha_base > fecha_facturacion:
+                fecha_facturacion = fecha_facturacion + relativedelta(months=1)
 
-                # si cae domingo, mover a sábado
-                if fecha_facturacion.weekday() == 6:
-                    fecha_facturacion -= timedelta(days=1)
+                ultimo_dia_mes_sig = calendar.monthrange(
+                    fecha_facturacion.year,
+                    fecha_facturacion.month
+                )[1]
 
-                self.fecha_facturacion = fecha_facturacion
+                dia = min(self.maquina_id.dia_facturacion, ultimo_dia_mes_sig)
+                fecha_facturacion = fecha_facturacion.replace(day=dia)
+
+            # Si cae domingo, mover a sábado
+            if fecha_facturacion.weekday() == 6:
+                fecha_facturacion -= timedelta(days=1)
+
+            self.fecha_facturacion = fecha_facturacion
 
     @api.depends('contador_actual_bn', 'contador_anterior_bn',
                 'contador_actual_color', 'contador_anterior_color')
@@ -741,12 +796,14 @@ class CopierCounter(models.Model):
     @api.model
     def generate_monthly_readings(self):
         """
-        Método para generar lecturas mensuales automáticamente.
-        Se ejecuta mediante el cron job.
+        Genera lecturas mensuales automáticamente.
+
+        Ahora guarda cliente_id como snapshot para que las lecturas históricas
+        no cambien si la máquina retorna y luego se asigna a otro cliente.
         """
+
         today = fields.Date.today()
-        
-        # Buscar máquinas activas en alquiler
+
         machines = self.env['copier.company'].search([
             ('estado_maquina_id.name', '=', 'Alquilada'),
             ('dia_facturacion', '!=', False)
@@ -754,73 +811,81 @@ class CopierCounter(models.Model):
 
         for machine in machines:
             try:
-                # Calcular fecha de facturación
-                dia = min(machine.dia_facturacion, 
-                        (today.replace(day=1) + relativedelta(months=1, days=-1)).day)
+                # Calcular fecha de facturación segura
+                ultimo_dia_mes = calendar.monthrange(today.year, today.month)[1]
+                dia = min(machine.dia_facturacion, ultimo_dia_mes)
                 fecha_facturacion = today.replace(day=dia)
 
-                # Ajustar al mes siguiente si ya pasó la fecha
+                # Ajustar al mes siguiente si ya pasó
                 if today > fecha_facturacion:
-                    if today.month == 12:
-                        fecha_facturacion = fecha_facturacion.replace(year=today.year + 1, month=1)
-                    else:
-                        fecha_facturacion = fecha_facturacion.replace(month=today.month + 1)
+                    fecha_facturacion = fecha_facturacion + relativedelta(months=1)
 
-                # Determinar si crear hoy basado en la lógica actualizada
-                crear_hoy = False
-                if fecha_facturacion.weekday() == 6:  # Si es domingo
-                    fecha_facturacion -= timedelta(days=1)  # Mover al sábado
-                    crear_hoy = today == fecha_facturacion
-                else:
-                    crear_hoy = today == fecha_facturacion
+                    ultimo_dia_mes_sig = calendar.monthrange(
+                        fecha_facturacion.year,
+                        fecha_facturacion.month
+                    )[1]
 
-                # Verificar si ya existe lectura para este período
+                    dia = min(machine.dia_facturacion, ultimo_dia_mes_sig)
+                    fecha_facturacion = fecha_facturacion.replace(day=dia)
+
+                # Si cae domingo, mover al sábado
+                if fecha_facturacion.weekday() == 6:
+                    fecha_facturacion -= timedelta(days=1)
+
+                crear_hoy = today == fecha_facturacion
+
+                # Evitar duplicado por máquina y fecha de facturación
                 existing_reading = self.env['copier.counter'].search([
                     ('maquina_id', '=', machine.id),
                     ('fecha_facturacion', '=', fecha_facturacion)
                 ], limit=1)
 
                 if existing_reading:
-                    _logger.info(f"Ya existe lectura para la máquina {machine.serie_id} "
-                            f"en fecha {fecha_facturacion}")
+                    _logger.info(
+                        "Ya existe lectura para la máquina %s en fecha %s",
+                        machine.serie_id,
+                        fecha_facturacion
+                    )
                     continue
 
-                # Crear nueva lectura si corresponde
                 if crear_hoy:
-                    # Obtener última lectura confirmada O facturada
                     ultima_lectura = self.env['copier.counter'].search([
                         ('maquina_id', '=', machine.id),
                         ('state', 'in', ['confirmed', 'invoiced'])
                     ], limit=1, order='fecha desc, id desc')
 
-                    # Valores por defecto para los contadores
                     contador_anterior_bn = ultima_lectura.contador_actual_bn if ultima_lectura else 0
                     contador_anterior_color = ultima_lectura.contador_actual_color if ultima_lectura else 0
-                    
-                    # Crear registro con valores por defecto para contadores actuales
+
                     vals = {
                         'maquina_id': machine.id,
+                        'cliente_id': machine.cliente_id.id or False,
                         'fecha': today,
                         'fecha_facturacion': fecha_facturacion,
-                        'fecha_emision_factura': False,  # Inicialmente vacío para facturación manual
+                        'fecha_emision_factura': False,
                         'contador_anterior_bn': contador_anterior_bn,
                         'contador_anterior_color': contador_anterior_color,
                         'contador_actual_bn': contador_anterior_bn,
                         'contador_actual_color': contador_anterior_color,
-                        'state': 'draft'
+                        'state': 'draft',
                     }
-                    
-                    with self.env.cr.savepoint():          # ✅ Crea un punto de guardado interno
+
+                    with self.env.cr.savepoint():
                         self.env['copier.counter'].create(vals)
-                    
+
                     _logger.info(
-                        f"Creada nueva lectura para máquina {machine.serie_id} "
-                        f"con fecha de facturación {fecha_facturacion}"
+                        "Creada nueva lectura para máquina %s, cliente %s, fecha de facturación %s",
+                        machine.serie_id,
+                        machine.cliente_id.display_name if machine.cliente_id else 'Sin cliente',
+                        fecha_facturacion
                     )
 
             except Exception as e:
-                _logger.error(f"Error al procesar máquina {machine.serie_id}: {str(e)}")
-                self.env.cr.rollback()
+                _logger.exception(
+                    "Error al procesar máquina %s: %s",
+                    machine.serie_id,
+                    str(e)
+                )
                 continue
 
         return True
@@ -1390,9 +1455,12 @@ class CopierMachineUser(models.Model):
     cliente_id = fields.Many2one(
         'res.partner',
         string='Cliente',
-        related='maquina_id.cliente_id',
         store=True,
-        readonly=True
+        tracking=True,
+        readonly=True,
+        index=True,
+        copy=False,
+        help="Cliente congelado al momento de crear el servicio. No cambia si la máquina cambia de cliente."
     )
 
     serie_maquina = fields.Char(
@@ -1412,9 +1480,10 @@ class CopierMachineUser(models.Model):
 
     ubicacion = fields.Char(
         string='Ubicación',
-        related='maquina_id.ubicacion',
         store=True,
-        readonly=True
+        readonly=True,
+        copy=False,
+        help="Ubicación congelada al momento de crear el servicio."
     )
 
 

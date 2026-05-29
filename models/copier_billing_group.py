@@ -29,8 +29,12 @@ class CopierBillingGroup(models.Model):
     cliente_id = fields.Many2one(
         'res.partner',
         string='Cliente',
-        required=True,
-        tracking=True
+        store=True,
+        tracking=True,
+        readonly=True,
+        index=True,
+        copy=False,
+        help="Cliente congelado al momento de crear el servicio. No cambia si la máquina cambia de cliente."
     )
 
     machine_ids = fields.One2many(
