@@ -193,6 +193,7 @@ class CopierPortal(CustomerPortal):
         _logger.info("=== INICIANDO portal_my_equipment EXTENDIDO ===")
 
         page = int(page or 1)
+        search = (kwargs.get('search') or '').strip()
 
         # --- ORDENAMIENTOS ---
         searchbar_sortings = {
