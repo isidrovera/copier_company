@@ -244,6 +244,16 @@ class CopierPortal(CustomerPortal):
             filterby = 'all'
 
         current_domain = searchbar_filters[filterby]['domain']
+        # --- BÚSQUEDA POR TEXTO LIBRE ---
+        if search:
+            search_domain = [
+                '|', '|', '|',
+                ('name.name', 'ilike', search),
+                ('serie_id', 'ilike', search),
+                ('ubicacion', 'ilike', search),
+                ('sede', 'ilike', search),
+            ]
+            current_domain = Domain.AND([current_domain, search_domain])
 
         sortby = kwargs.get('sortby') or 'name'
         if sortby not in searchbar_sortings:
@@ -262,6 +272,7 @@ class CopierPortal(CustomerPortal):
             url_args={
                 'filterby': filterby,
                 'sortby': sortby,
+                'search': search,
             },
             total=total,
             page=page,
