@@ -102,27 +102,6 @@
         <t t-set="breadcrumbs_searchbar" t-value="True"/>
         <t t-call="portal.portal_searchbar">
             <t t-set="title">Mis Equipos en Alquiler</t>
-            <t t-set="searchbar_inputs">
-                <input type="text"
-                    name="search"
-                    class="o_searchbar_input o_input"
-                    placeholder="Buscar modelo, serie, ubicación, sede..."
-                    t-att-value="search or ''"/>
-            </t>
-            <t t-set="searchbar_filters">
-                <a t-foreach="filters.values()" t-as="sf"
-                t-attf-href="/my/copier/equipments?{{ keep_query('search', page=0, filterby=sf['url_value'] if sf.get('url_value') else sf_index) }}"
-                t-attf-class="dropdown-item{{ ' active' if sf_index == filterby else '' }}">
-                    <t t-esc="sf['label']"/>
-                </a>
-            </t>
-            <t t-set="searchbar_sortings">
-                <a t-foreach="searchbar_sortings.values()" t-as="ss"
-                t-attf-href="/my/copier/equipments?{{ keep_query('search', page=0, sortby=ss_index) }}"
-                t-attf-class="dropdown-item{{ ' active' if ss_index == sortby else '' }}">
-                    <t t-esc="ss['label']"/>
-                </a>
-            </t>
         </t>
         
         <style>
