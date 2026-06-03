@@ -302,7 +302,6 @@ class CopierPortalCompanyAccess(BaseCopierPortal):
             'sortby': sortby,
             'filters': searchbar_filters,
             'filterby': filterby,
-            'search': search,
             'service_counts': service_counts,
         }
 
