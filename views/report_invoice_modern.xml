@@ -367,6 +367,58 @@
                     </div>
                 </div>
 
+                <!-- DOCUMENTO AFECTADO: solo para notas de crédito -->
+                <div
+                    t-if="o.move_type == 'out_refund' and o.reversed_entry_id"
+                    class="cc_credit_origin"
+                    name="credit_note_affected_document"
+                    style="
+                        display: table;
+                        width: 100%;
+                        margin: 0 0 10pt 0;
+                        padding: 8pt 10pt;
+                        background-color: #f4f5f7;
+                        border-left: 3pt solid #1c1c2e;
+                        border-radius: 3pt;
+                        -webkit-print-color-adjust: exact;
+                    "
+                >
+                    <div style="display: table-row;">
+                        <div style="display: table-cell; width: 34%; vertical-align: top; padding-right: 10pt;">
+                            <span class="cc_lbl first">Documento afectado</span>
+                            <span class="cc_val">
+                                <t t-out="(o.reversed_entry_id.name or '').replace(' ', '')"/>
+                            </span>
+                        </div>
+
+                        <div style="display: table-cell; width: 33%; vertical-align: top; padding-right: 10pt;">
+                            <span class="cc_lbl first">Tipo de documento</span>
+                            <span class="cc_val">
+                                <t t-if="o.reversed_entry_id.l10n_latam_document_type_id">
+                                    <t t-out="o.reversed_entry_id.l10n_latam_document_type_id.code"/>
+                                    <t t-if="o.reversed_entry_id.l10n_latam_document_type_id.name">
+                                        - <t t-out="o.reversed_entry_id.l10n_latam_document_type_id.name"/>
+                                    </t>
+                                </t>
+                                <t t-else="">01 - Factura</t>
+                            </span>
+                        </div>
+
+                        <div style="display: table-cell; width: 33%; vertical-align: top;">
+                            <span class="cc_lbl first">Motivo</span>
+                            <span class="cc_val">
+                                <t t-if="o.l10n_pe_edi_refund_reason">
+                                    <span t-field="o.l10n_pe_edi_refund_reason"/>
+                                </t>
+                                <t t-elif="o.ref">
+                                    <span t-field="o.ref"/>
+                                </t>
+                                <t t-else="">Cancelación de la operación</t>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- TABLA DE LÍNEAS -->
                 <t t-set="display_discount" t-value="any(l.discount for l in o.invoice_line_ids)"/>
                 <t t-set="display_taxes" t-value="any(l.tax_ids for l in o.invoice_line_ids)"/>
@@ -434,7 +486,7 @@
                                     <t t-set="tax_totals" t-value="o.tax_totals"/>
                                     <t t-set="currency" t-value="o.currency_id"/>
                                 </t>
-                                <t t-if="print_with_payments">
+                                <t t-if="print_with_payments and o.move_type == 'out_invoice'">
                                     <t t-if="o.payment_state != 'invoicing_legacy'">
                                         <t t-set="payments_vals" t-value="o.sudo().invoice_payments_widget and o.sudo().invoice_payments_widget['content'] or []"/>
                                         <t t-foreach="payments_vals" t-as="payment_vals">
