@@ -389,6 +389,15 @@
                             <span class="cc_val">
                                 <t t-out="(o.reversed_entry_id.name or '').replace(' ', '')"/>
                             </span>
+
+                            <span class="cc_lbl">Fecha del documento afectado</span>
+                            <span class="cc_val">
+                                <span
+                                    t-if="o.reversed_entry_id.invoice_date"
+                                    t-field="o.reversed_entry_id.invoice_date"
+                                />
+                                <t t-else="">—</t>
+                            </span>
                         </div>
 
                         <div style="display: table-cell; width: 33%; vertical-align: top; padding-right: 10pt;">
