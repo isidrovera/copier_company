@@ -549,7 +549,7 @@
                         string="Total mayor a 1,000"
                         domain="[('total', '&gt;', 1000)]"/>
 
-                <group>
+                <group name="groupby">
                     <filter name="group_by_cliente"
                             string="Cliente"
                             context="{'group_by': 'cliente_id'}"/>
