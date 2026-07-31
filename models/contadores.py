@@ -1,7 +1,7 @@
 from odoo import models, fields, api
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 import calendar
 import logging
 _logger = logging.getLogger(__name__)
@@ -175,6 +175,14 @@ class CopierCounter(models.Model):
         related='maquina_id.currency_id',
         string='Moneda'
     )
+
+    tipo_maquina = fields.Selection(
+        related='maquina_id.tipo',
+        string='Tipo de Máquina',
+        store=True,
+        readonly=True,
+        help='Tipo de máquina usado para organizar la vista y ocultar los campos de color cuando corresponde.'
+    )
    
   
  
@@ -297,30 +305,63 @@ class CopierCounter(models.Model):
                     raise ValidationError(
                         "La fecha de emisión no puede ser anterior a la fecha de lectura."
                     )
+
     def action_confirm(self):
+        """
+        Confirma la lectura después de validar contadores y,
+        cuando corresponde, el detalle de copias por usuario.
+        """
         self.ensure_one()
 
-        # Validaciones de contadores
         if self.contador_actual_bn < self.contador_anterior_bn:
-            raise UserError('El contador actual B/N no puede ser menor al anterior')
-        if self.contador_actual_color < self.contador_anterior_color:
-            raise UserError('El contador actual Color no puede ser menor al anterior')
+            raise UserError(
+                'El contador actual B/N no puede ser menor al anterior.'
+            )
 
-        # VALIDAR CUADRE POR USUARIO SI ESTÁ ACTIVO EL DETALLE
+        if (
+            self.maquina_id.tipo == 'color'
+            and self.contador_actual_color < self.contador_anterior_color
+        ):
+            raise UserError(
+                'El contador actual Color no puede ser menor al anterior.'
+            )
+
         if self.informe_por_usuario and self.usuario_detalle_ids:
-            total_bn_usuarios = sum(self.usuario_detalle_ids.mapped('cantidad_bn'))
-            total_color_usuarios = sum(self.usuario_detalle_ids.mapped('cantidad_color'))
+            total_bn_usuarios = sum(
+                self.usuario_detalle_ids.mapped('cantidad_bn')
+            )
+            total_color_usuarios = sum(
+                self.usuario_detalle_ids.mapped('cantidad_color')
+            )
 
             if total_bn_usuarios != self.total_copias_bn:
                 raise UserError(
-                    f'Las copias B/N por usuario ({total_bn_usuarios}) no coinciden con el total del contador ({self.total_copias_bn}).'
+                    f'Las copias B/N por usuario ({total_bn_usuarios}) '
+                    f'no coinciden con el total del contador '
+                    f'({self.total_copias_bn}).'
                 )
 
-            if self.maquina_id.tipo == 'color':
-                if total_color_usuarios != self.total_copias_color:
-                    raise UserError(
-                        f'Las copias Color por usuario ({total_color_usuarios}) no coinciden con el total del contador ({self.total_copias_color}).'
-                    )
+            if (
+                self.maquina_id.tipo == 'color'
+                and total_color_usuarios != self.total_copias_color
+            ):
+                raise UserError(
+                    f'Las copias Color por usuario ({total_color_usuarios}) '
+                    f'no coinciden con el total del contador '
+                    f'({self.total_copias_color}).'
+                )
+
+        _logger.info(
+            "Confirmando counter %s | serie=%s | total_bn=%s | "
+            "exceso_bn=%s | total_color=%s | exceso_color=%s | total=%s",
+            self.name,
+            self.serie,
+            self.total_copias_bn,
+            self.exceso_bn,
+            self.total_copias_color,
+            self.exceso_color,
+            self.total,
+        )
 
         self.write({'state': 'confirmed'})
 
@@ -410,20 +451,101 @@ class CopierCounter(models.Model):
 
     @api.depends('total_copias_bn', 'total_copias_color',
                 'maquina_id.volumen_mensual_bn', 'maquina_id.volumen_mensual_color')
+
+    @api.depends(
+        'total_copias_bn',
+        'total_copias_color',
+        'exceso_bn',
+        'exceso_color',
+        'maquina_id.tipo_calculo',
+        'maquina_id.volumen_mensual_bn',
+        'maquina_id.volumen_mensual_color'
+    )
     def _compute_facturables(self):
+        """
+        Calcula las copias facturables sin cambiar los nombres técnicos existentes.
+
+        Reglas:
+        - auto:
+          Se factura como mínimo el volumen contratado o el consumo real si es mayor.
+        - renta fija manual B/N:
+          La renta fija cubre el volumen contratado B/N y solo se factura el excedente.
+        - renta fija manual Color:
+          La renta fija cubre el volumen contratado Color y solo se factura el excedente.
+        - renta fija manual Total:
+          La renta fija cubre ambos volúmenes y se facturan los excedentes B/N y Color.
+        """
+        tipos_renta_fija_bn = {
+            'manual_sin_igv_bn',
+            'manual_con_igv_bn',
+            'manual_sin_igv_total',
+            'manual_con_igv_total',
+        }
+        tipos_renta_fija_color = {
+            'manual_sin_igv_color',
+            'manual_con_igv_color',
+            'manual_sin_igv_total',
+            'manual_con_igv_total',
+        }
+
+        _logger.info("=== INICIO _compute_facturables ===")
+
         for record in self:
-            # Para B/N - siempre se factura al menos el volumen mensual
-            record.copias_facturables_bn = max(
+            maquina = record.maquina_id
+
+            if not maquina:
+                record.copias_facturables_bn = 0
+                record.copias_facturables_color = 0
+                _logger.warning(
+                    "Counter ID %s sin máquina: copias facturables en cero.",
+                    record.id,
+                )
+                continue
+
+            tipo_calculo = maquina.tipo_calculo or 'auto'
+            volumen_bn = maquina.volumen_mensual_bn or 0
+            volumen_color = maquina.volumen_mensual_color or 0
+
+            if tipo_calculo in tipos_renta_fija_bn:
+                record.copias_facturables_bn = max(record.exceso_bn or 0, 0)
+            else:
+                record.copias_facturables_bn = max(
+                    record.total_copias_bn or 0,
+                    volumen_bn,
+                )
+
+            if maquina.tipo == 'color':
+                if tipo_calculo in tipos_renta_fija_color:
+                    record.copias_facturables_color = max(
+                        record.exceso_color or 0,
+                        0,
+                    )
+                else:
+                    record.copias_facturables_color = max(
+                        record.total_copias_color or 0,
+                        volumen_color,
+                    )
+            else:
+                record.copias_facturables_color = 0
+
+            _logger.info(
+                "Counter %s | tipo=%s | total_bn=%s | incluido_bn=%s | "
+                "exceso_bn=%s | facturable_bn=%s | total_color=%s | "
+                "incluido_color=%s | exceso_color=%s | facturable_color=%s",
+                record.name or record.id,
+                tipo_calculo,
                 record.total_copias_bn,
-                record.maquina_id.volumen_mensual_bn or 0
-            )
-            
-            # Para Color - igual que B/N, facturar al menos el volumen mensual
-            record.copias_facturables_color = max(
+                volumen_bn,
+                record.exceso_bn,
+                record.copias_facturables_bn,
                 record.total_copias_color,
-                record.maquina_id.volumen_mensual_color or 0
+                volumen_color,
+                record.exceso_color,
+                record.copias_facturables_color,
             )
-    
+
+        _logger.info("=== FIN _compute_facturables ===")
+
     descuento_porcentaje = fields.Float(
         'Descuento (%)',
         compute='_compute_descuento_desde_maquina',
@@ -540,6 +662,36 @@ class CopierCounter(models.Model):
             _logger.exception("Error en debug_totales_company: %s", str(e))
 
     
+
+    renta_fija_bn = fields.Monetary(
+        'Renta Fija B/N',
+        compute='_compute_totales',
+        store=True,
+        currency_field='currency_id',
+        help='Renta fija B/N sin IGV antes de descuento.'
+    )
+    monto_exceso_bn = fields.Monetary(
+        'Monto Excedente B/N',
+        compute='_compute_totales',
+        store=True,
+        currency_field='currency_id',
+        help='Importe sin IGV de las copias B/N excedentes antes de descuento.'
+    )
+    renta_fija_color = fields.Monetary(
+        'Renta Fija Color',
+        compute='_compute_totales',
+        store=True,
+        currency_field='currency_id',
+        help='Renta fija Color sin IGV antes de descuento.'
+    )
+    monto_exceso_color = fields.Monetary(
+        'Monto Excedente Color',
+        compute='_compute_totales',
+        store=True,
+        currency_field='currency_id',
+        help='Importe sin IGV de las copias Color excedentes antes de descuento.'
+    )
+
     subtotal_antes_descuento = fields.Monetary(
         'Subtotal Antes Descuento',
         compute='_compute_totales',
@@ -559,180 +711,330 @@ class CopierCounter(models.Model):
                 'precio_bn_sin_igv', 'precio_color_sin_igv', 'descuento_porcentaje',
                 'maquina_id.tipo_calculo', 'maquina_id.monto_mensual_bn', 
                 'maquina_id.monto_mensual_color', 'maquina_id.monto_mensual_total')
+
+    @api.depends(
+        'copias_facturables_bn',
+        'copias_facturables_color',
+        'exceso_bn',
+        'exceso_color',
+        'precio_bn_sin_igv',
+        'precio_color_sin_igv',
+        'descuento_porcentaje',
+        'maquina_id.tipo',
+        'maquina_id.tipo_calculo',
+        'maquina_id.monto_mensual_bn',
+        'maquina_id.monto_mensual_color',
+        'maquina_id.monto_mensual_total',
+        'maquina_id.volumen_mensual_bn',
+        'maquina_id.volumen_mensual_color',
+        'maquina_id.igv'
+    )
     def _compute_totales(self):
         """
-        Calcula totales usando la MISMA LÓGICA Y TIPO DE CÁLCULO que copier.company
+        Calcula renta fija + excedentes conservando todos los nombres técnicos.
+
+        Los importes de renta fija configurados con IGV se convierten primero
+        a valores sin IGV. Luego se suman los excedentes, se aplica el descuento
+        y finalmente se calcula el IGV.
         """
-        _logger.info("=== INICIANDO _compute_totales SINCRONIZADO COMPLETO ===")
-        
+        _logger.info("=== INICIO _compute_totales: renta fija + excedentes ===")
+
         for record in self:
             try:
-                _logger.info("Procesando counter ID: %s, Serie: %s", record.id, record.serie)
-                
-                if not record.maquina_id:
-                    _logger.warning("Counter sin máquina asociada")
+                maquina = record.maquina_id
+
+                if not maquina:
+                    _logger.warning(
+                        "Counter ID %s sin máquina. Totales asignados a cero.",
+                        record.id,
+                    )
                     record._set_zero_values()
                     continue
-                
-                # OBTENER TIPO DE CÁLCULO DE LA MÁQUINA
-                tipo_calculo = record.maquina_id.tipo_calculo or 'auto'
-                _logger.info("🎯 TIPO DE CÁLCULO DETECTADO: %s", tipo_calculo)
-                
-                # CALCULAR RENTAS SEGÚN EL MISMO TIPO QUE COMPANY
+
+                tipo_calculo = maquina.tipo_calculo or 'auto'
+                igv_rate = (maquina.igv or 18.0) / 100.0
+                divisor_igv = 1.0 + igv_rate
+
+                renta_fija_bn = 0.0
+                renta_fija_color = 0.0
+                monto_exceso_bn = 0.0
+                monto_exceso_color = 0.0
+                renta_bn = 0.0
+                renta_color = 0.0
+
+                _logger.info(
+                    "Counter %s | serie=%s | tipo_maquina=%s | tipo_calculo=%s",
+                    record.name or record.id,
+                    record.serie,
+                    maquina.tipo,
+                    tipo_calculo,
+                )
+
+                # ======================================================
+                # CÁLCULO AUTOMÁTICO
+                # ======================================================
                 if tipo_calculo == 'auto':
-                    _logger.info(">>> APLICANDO CÁLCULO AUTOMÁTICO EN COUNTER")
-                    renta_bn = record.copias_facturables_bn * record.precio_bn_sin_igv
-                    renta_color = record.copias_facturables_color * record.precio_color_sin_igv
-                    _logger.info("- Renta B/N automática: %s × %s = %s", record.copias_facturables_bn, record.precio_bn_sin_igv, renta_bn)
-                    _logger.info("- Renta Color automática: %s × %s = %s", record.copias_facturables_color, record.precio_color_sin_igv, renta_color)
-                
-                elif tipo_calculo in ['manual_sin_igv_bn', 'manual_con_igv_bn']:
-                    _logger.info(">>> APLICANDO CÁLCULO MANUAL B/N EN COUNTER: %s", tipo_calculo)
-                    
-                    # B/N usa monto manual
-                    if tipo_calculo == 'manual_sin_igv_bn':
-                        renta_bn = record.maquina_id.monto_mensual_bn or 0
-                        _logger.info("- Renta B/N manual (sin IGV): %s", renta_bn)
-                    else:  # manual_con_igv_bn
-                        monto_con_igv = record.maquina_id.monto_mensual_bn or 0
-                        igv_rate = (record.maquina_id.igv or 18) / 100
-                        renta_bn = monto_con_igv / (1 + igv_rate)
-                        _logger.info("- Renta B/N manual (con IGV): %s / %s = %s", monto_con_igv, (1 + igv_rate), renta_bn)
-                    
-                    # Color sigue automático
-                    renta_color = record.copias_facturables_color * record.precio_color_sin_igv
-                    _logger.info("- Renta Color automática: %s × %s = %s", record.copias_facturables_color, record.precio_color_sin_igv, renta_color)
-                
-                elif tipo_calculo in ['manual_sin_igv_color', 'manual_con_igv_color']:
-                    _logger.info(">>> APLICANDO CÁLCULO MANUAL COLOR EN COUNTER: %s", tipo_calculo)
-                    
-                    # B/N sigue automático
-                    renta_bn = record.copias_facturables_bn * record.precio_bn_sin_igv
-                    _logger.info("- Renta B/N automática: %s × %s = %s", record.copias_facturables_bn, record.precio_bn_sin_igv, renta_bn)
-                    
-                    # Color usa monto manual
-                    if tipo_calculo == 'manual_sin_igv_color':
-                        renta_color = record.maquina_id.monto_mensual_color or 0
-                        _logger.info("- Renta Color manual (sin IGV): %s", renta_color)
-                    else:  # manual_con_igv_color
-                        monto_con_igv = record.maquina_id.monto_mensual_color or 0
-                        igv_rate = (record.maquina_id.igv or 18) / 100
-                        renta_color = monto_con_igv / (1 + igv_rate)
-                        _logger.info("- Renta Color manual (con IGV): %s / %s = %s", monto_con_igv, (1 + igv_rate), renta_color)
-                
-                elif tipo_calculo in ['manual_sin_igv_total', 'manual_con_igv_total']:
-                    _logger.info(">>> APLICANDO CÁLCULO MANUAL TOTAL EN COUNTER: %s", tipo_calculo)
-                    
-                    # Determinar monto total sin IGV
-                    if tipo_calculo == 'manual_sin_igv_total':
-                        monto_total = record.maquina_id.monto_mensual_total or 0
-                        _logger.info("- Monto total manual (sin IGV): %s", monto_total)
-                    else:  # manual_con_igv_total
-                        monto_con_igv = record.maquina_id.monto_mensual_total or 0
-                        igv_rate = (record.maquina_id.igv or 18) / 100
-                        monto_total = monto_con_igv / (1 + igv_rate)
-                        _logger.info("- Monto total manual (con IGV): %s / %s = %s", monto_con_igv, (1 + igv_rate), monto_total)
-                    
-                    # Distribuir proporcionalmente usando los costos unitarios
-                    volumen_total = record.copias_facturables_bn + record.copias_facturables_color
-                    
-                    if volumen_total > 0:
-                        # Calcular usando costos unitarios actuales
-                        costo_bn_base = record.copias_facturables_bn * record.precio_bn_sin_igv
-                        costo_color_base = record.copias_facturables_color * record.precio_color_sin_igv
-                        costo_total_base = costo_bn_base + costo_color_base
-                        
-                        if costo_total_base > 0:
-                            # Distribuir proporcionalmente
-                            factor = monto_total / costo_total_base
-                            renta_bn = costo_bn_base * factor
-                            renta_color = costo_color_base * factor
-                            _logger.info("- Distribución proporcional: factor=%s, B/N=%s, Color=%s", factor, renta_bn, renta_color)
-                        else:
-                            # Si no hay base, asignar todo a B/N
-                            renta_bn = monto_total
-                            renta_color = 0
-                            _logger.info("- Sin base de costos, asignando todo a B/N: %s", renta_bn)
+                    renta_bn = (
+                        (record.copias_facturables_bn or 0)
+                        * (record.precio_bn_sin_igv or 0.0)
+                    )
+
+                    if maquina.tipo == 'color':
+                        renta_color = (
+                            (record.copias_facturables_color or 0)
+                            * (record.precio_color_sin_igv or 0.0)
+                        )
+
+                    _logger.info(
+                        "AUTO | B/N: %s x %s = %s | Color: %s x %s = %s",
+                        record.copias_facturables_bn,
+                        record.precio_bn_sin_igv,
+                        renta_bn,
+                        record.copias_facturables_color,
+                        record.precio_color_sin_igv,
+                        renta_color,
+                    )
+
+                # ======================================================
+                # RENTA FIJA SOLO B/N + EXCEDENTE B/N
+                # Color continúa en automático si la máquina es color.
+                # ======================================================
+                elif tipo_calculo in {
+                    'manual_sin_igv_bn',
+                    'manual_con_igv_bn',
+                }:
+                    monto_configurado = maquina.monto_mensual_bn or 0.0
+
+                    if tipo_calculo == 'manual_con_igv_bn':
+                        renta_fija_bn = monto_configurado / divisor_igv
                     else:
-                        renta_bn = monto_total
-                        renta_color = 0
-                        _logger.info("- Sin volumen, asignando todo a B/N: %s", renta_bn)
-                
+                        renta_fija_bn = monto_configurado
+
+                    monto_exceso_bn = (
+                        (record.exceso_bn or 0)
+                        * (record.precio_bn_sin_igv or 0.0)
+                    )
+                    renta_bn = renta_fija_bn + monto_exceso_bn
+
+                    if maquina.tipo == 'color':
+                        renta_color = (
+                            (record.copias_facturables_color or 0)
+                            * (record.precio_color_sin_igv or 0.0)
+                        )
+
+                    _logger.info(
+                        "RENTA FIJA B/N | fija=%s | exceso=%s x %s=%s | "
+                        "subtotal_bn=%s | color_auto=%s",
+                        renta_fija_bn,
+                        record.exceso_bn,
+                        record.precio_bn_sin_igv,
+                        monto_exceso_bn,
+                        renta_bn,
+                        renta_color,
+                    )
+
+                # ======================================================
+                # RENTA FIJA SOLO COLOR + EXCEDENTE COLOR
+                # B/N continúa en automático.
+                # ======================================================
+                elif tipo_calculo in {
+                    'manual_sin_igv_color',
+                    'manual_con_igv_color',
+                }:
+                    renta_bn = (
+                        (record.copias_facturables_bn or 0)
+                        * (record.precio_bn_sin_igv or 0.0)
+                    )
+
+                    monto_configurado = maquina.monto_mensual_color or 0.0
+
+                    if tipo_calculo == 'manual_con_igv_color':
+                        renta_fija_color = monto_configurado / divisor_igv
+                    else:
+                        renta_fija_color = monto_configurado
+
+                    if maquina.tipo == 'color':
+                        monto_exceso_color = (
+                            (record.exceso_color or 0)
+                            * (record.precio_color_sin_igv or 0.0)
+                        )
+                        renta_color = renta_fija_color + monto_exceso_color
+
+                    _logger.info(
+                        "RENTA FIJA COLOR | bn_auto=%s | fija=%s | "
+                        "exceso=%s x %s=%s | subtotal_color=%s",
+                        renta_bn,
+                        renta_fija_color,
+                        record.exceso_color,
+                        record.precio_color_sin_igv,
+                        monto_exceso_color,
+                        renta_color,
+                    )
+
+                # ======================================================
+                # RENTA FIJA TOTAL + EXCEDENTES B/N Y COLOR
+                # ======================================================
+                elif tipo_calculo in {
+                    'manual_sin_igv_total',
+                    'manual_con_igv_total',
+                }:
+                    monto_configurado = maquina.monto_mensual_total or 0.0
+
+                    if tipo_calculo == 'manual_con_igv_total':
+                        renta_fija_total = monto_configurado / divisor_igv
+                    else:
+                        renta_fija_total = monto_configurado
+
+                    monto_exceso_bn = (
+                        (record.exceso_bn or 0)
+                        * (record.precio_bn_sin_igv or 0.0)
+                    )
+
+                    if maquina.tipo == 'color':
+                        monto_exceso_color = (
+                            (record.exceso_color or 0)
+                            * (record.precio_color_sin_igv or 0.0)
+                        )
+
+                    # Distribuir únicamente la renta fija total.
+                    # Los excedentes se mantienen en su modalidad real.
+                    if maquina.tipo != 'color':
+                        renta_fija_bn = renta_fija_total
+                        renta_fija_color = 0.0
+                    else:
+                        base_bn = (
+                            (maquina.volumen_mensual_bn or 0)
+                            * (record.precio_bn_sin_igv or 0.0)
+                        )
+                        base_color = (
+                            (maquina.volumen_mensual_color or 0)
+                            * (record.precio_color_sin_igv or 0.0)
+                        )
+                        base_total = base_bn + base_color
+
+                        if base_total > 0:
+                            renta_fija_bn = renta_fija_total * (
+                                base_bn / base_total
+                            )
+                            renta_fija_color = (
+                                renta_fija_total - renta_fija_bn
+                            )
+                        else:
+                            renta_fija_bn = renta_fija_total
+                            renta_fija_color = 0.0
+
+                    renta_bn = renta_fija_bn + monto_exceso_bn
+                    renta_color = renta_fija_color + monto_exceso_color
+
+                    _logger.info(
+                        "RENTA FIJA TOTAL | total_fija=%s | fija_bn=%s | "
+                        "fija_color=%s | exceso_bn=%s | exceso_color=%s",
+                        renta_fija_total,
+                        renta_fija_bn,
+                        renta_fija_color,
+                        monto_exceso_bn,
+                        monto_exceso_color,
+                    )
+
                 else:
-                    _logger.warning("Tipo de cálculo no reconocido: %s, usando automático", tipo_calculo)
-                    renta_bn = record.copias_facturables_bn * record.precio_bn_sin_igv
-                    renta_color = record.copias_facturables_color * record.precio_color_sin_igv
-                
-                # APLICAR LÓGICA DE TOTALES (igual que company)
-                _logger.info("=== CALCULANDO TOTALES FINALES ===")
-                
+                    _logger.warning(
+                        "Tipo de cálculo no reconocido: %s. Se usa automático.",
+                        tipo_calculo,
+                    )
+                    renta_bn = (
+                        (record.copias_facturables_bn or 0)
+                        * (record.precio_bn_sin_igv or 0.0)
+                    )
+                    if maquina.tipo == 'color':
+                        renta_color = (
+                            (record.copias_facturables_color or 0)
+                            * (record.precio_color_sin_igv or 0.0)
+                        )
+
+                # Guardar desglose antes del descuento.
+                record.renta_fija_bn = round(renta_fija_bn, 2)
+                record.monto_exceso_bn = round(monto_exceso_bn, 2)
+                record.renta_fija_color = round(renta_fija_color, 2)
+                record.monto_exceso_color = round(monto_exceso_color, 2)
+
                 subtotal_antes_descuento = renta_bn + renta_color
-                record.subtotal_antes_descuento = subtotal_antes_descuento
-                
-                # Aplicar descuento
-                descuento_valor = subtotal_antes_descuento * (record.descuento_porcentaje / 100.0)
-                record.monto_descuento = descuento_valor
-                subtotal_con_descuento = subtotal_antes_descuento - descuento_valor
-                
-                _logger.info("- Subtotal antes descuento: %s", subtotal_antes_descuento)
-                _logger.info("- Descuento (%s%%): %s", record.descuento_porcentaje, descuento_valor)
-                _logger.info("- Subtotal con descuento: %s", subtotal_con_descuento)
-                
-                # Distribuir descuento proporcionalmente
+                record.subtotal_antes_descuento = round(
+                    subtotal_antes_descuento,
+                    2,
+                )
+
+                descuento_porcentaje = record.descuento_porcentaje or 0.0
+                descuento_valor = (
+                    subtotal_antes_descuento
+                    * descuento_porcentaje
+                    / 100.0
+                )
+                record.monto_descuento = round(descuento_valor, 2)
+
+                subtotal_con_descuento = (
+                    subtotal_antes_descuento - descuento_valor
+                )
+
                 if subtotal_antes_descuento > 0:
-                    factor_descuento = subtotal_con_descuento / subtotal_antes_descuento
-                    subtotal_bn_final = renta_bn * factor_descuento
-                    subtotal_color_final = renta_color * factor_descuento
+                    factor_descuento = (
+                        subtotal_con_descuento
+                        / subtotal_antes_descuento
+                    )
                 else:
-                    subtotal_bn_final = 0
-                    subtotal_color_final = 0
-                
-                # Calcular IGV
-                igv_rate = (record.maquina_id.igv or 18) / 100.0
+                    factor_descuento = 0.0
+
+                subtotal_bn_final = renta_bn * factor_descuento
+                subtotal_color_final = renta_color * factor_descuento
+
                 igv_bn = subtotal_bn_final * igv_rate
                 igv_color = subtotal_color_final * igv_rate
-                
-                # Totales finales
+
                 total_bn = subtotal_bn_final + igv_bn
                 total_color = subtotal_color_final + igv_color
-                
-                # Asignar valores
+
                 record.subtotal_bn = round(subtotal_bn_final, 2)
                 record.subtotal_color = round(subtotal_color_final, 2)
                 record.igv_bn = round(igv_bn, 2)
                 record.igv_color = round(igv_color, 2)
                 record.total_bn = round(total_bn, 2)
                 record.total_color = round(total_color, 2)
+
                 record.subtotal = round(subtotal_con_descuento, 2)
                 record.igv = round(igv_bn + igv_color, 2)
                 record.total = round(total_bn + total_color, 2)
-                
-                _logger.info("=== TOTALES FINALES SINCRONIZADOS ===")
-                _logger.info("- Subtotal: %s", record.subtotal)
-                _logger.info("- IGV: %s", record.igv)
-                _logger.info("- Total: %s", record.total)
-                
-                # VERIFICACIÓN FINAL
-                company_total = record.maquina_id.total_facturar_mensual
-                diferencia = abs(record.total - company_total)
-                _logger.info("=== VERIFICACIÓN FINAL ===")
-                _logger.info("- Company total: %s", company_total)
-                _logger.info("- Counter total: %s", record.total)
-                _logger.info("- Diferencia: %s", diferencia)
-                
-                if diferencia <= 0.01:
-                    _logger.info("✅ TOTALES PERFECTAMENTE SINCRONIZADOS!")
-                else:
-                    _logger.warning("⚠️ Pequeña diferencia: %s", diferencia)
-                
-            except Exception as e:
-                _logger.exception("Error en _compute_totales para counter ID %s: %s", record.id, str(e))
+
+                _logger.info(
+                    "RESULTADO %s | fija_bn=%s | exceso_bn=%s | "
+                    "fija_color=%s | exceso_color=%s | antes_desc=%s | "
+                    "descuento=%s | subtotal=%s | igv=%s | total=%s",
+                    record.name or record.id,
+                    record.renta_fija_bn,
+                    record.monto_exceso_bn,
+                    record.renta_fija_color,
+                    record.monto_exceso_color,
+                    record.subtotal_antes_descuento,
+                    record.monto_descuento,
+                    record.subtotal,
+                    record.igv,
+                    record.total,
+                )
+
+            except Exception as error:
+                _logger.exception(
+                    "Error en _compute_totales para counter ID %s: %s",
+                    record.id,
+                    error,
+                )
                 record._set_zero_values()
-        
-        _logger.info("=== FINALIZANDO _compute_totales SINCRONIZADO COMPLETO ===")
-    
+
+        _logger.info("=== FIN _compute_totales: renta fija + excedentes ===")
+
     def _set_zero_values(self):
         """Helper para asignar valores cero en caso de error"""
+        self.renta_fija_bn = 0.0
+        self.monto_exceso_bn = 0.0
+        self.renta_fija_color = 0.0
+        self.monto_exceso_color = 0.0
         self.subtotal_antes_descuento = 0.0
         self.monto_descuento = 0.0
         self.subtotal_bn = 0.0
@@ -764,14 +1066,6 @@ class CopierCounter(models.Model):
                 'default_counter_id': self.id,
             },
         }
-    def action_confirm(self):
-        self.ensure_one()
-        if self.contador_actual_bn < self.contador_anterior_bn:
-            raise UserError('El contador actual B/N no puede ser menor al anterior')
-        if self.contador_actual_color < self.contador_anterior_color:
-            raise UserError('El contador actual Color no puede ser menor al anterior')
-        self.write({'state': 'confirmed'})
-
     def action_draft(self):
         return self.write({'state': 'draft'})
 
@@ -1038,120 +1332,272 @@ class CopierCounter(models.Model):
             else:
                 record.precio_producto = 0.0
 
+
     def action_create_invoice(self):
-        """Crea una factura basada en la lectura del contador"""
+        """
+        Crea una factura basada en la lectura.
+
+        Para rentas fijas genera líneas separadas:
+        - renta fija;
+        - copias excedentes.
+
+        No cambia los nombres técnicos existentes ni los productos configurados.
+        """
         self.ensure_one()
-        
+
         if self.state != 'confirmed':
-            raise UserError('Solo se pueden facturar lecturas confirmadas.')
-        
+            raise UserError(
+                'Solo se pueden facturar lecturas confirmadas.'
+            )
+
         if not self.cliente_id:
-            raise UserError('No se encontró cliente asociado a la máquina.')
-        
-        # VALIDACIÓN MEJORADA - SIN ERROR AUTOMÁTICO
-        productos_faltantes = []
-        
-        if self.maquina_id.tipo == 'monocroma':
+            raise UserError(
+                'No se encontró cliente asociado a la máquina.'
+            )
+
+        maquina = self.maquina_id
+        tipo_calculo = maquina.tipo_calculo or 'auto'
+
+        if maquina.tipo == 'monocroma':
             if not self.producto_facturable_bn_id:
-                productos_faltantes.append('Producto B/N para máquina monocroma')
-        else:  # color
-            if not self.producto_facturable_bn_id:
-                productos_faltantes.append('Producto B/N para máquina color')
-            if not self.producto_facturable_color_id:
-                productos_faltantes.append('Producto Color para máquina color')
-        
-        # Solo mostrar error si faltan productos Y hay copias a facturar
-        if productos_faltantes:
-            if (self.maquina_id.tipo == 'monocroma' and self.copias_facturables_bn > 0) or \
-            (self.maquina_id.tipo == 'color' and (self.copias_facturables_bn > 0 or self.copias_facturables_color > 0)):
                 raise UserError(
-                    f"Faltan productos por configurar:\n" + 
-                    "\n".join([f"- {p}" for p in productos_faltantes]) +
-                    f"\n\nVe a la configuración de la máquina {self.serie} y configura los productos necesarios."
+                    f'Configure el Producto B/N en la máquina {self.serie}.'
                 )
-        
-        # Preparar información del modelo y serie
-        modelo_maquina = self.maquina_id.name.name if self.maquina_id.name else 'N/A'
-        info_maquina = f"Modelo: {modelo_maquina} - Serie: {self.serie}"
-        
-        # Determinar fecha según si es automática o manual
-        if self.maquina_id.facturacion_automatica:
-            # Futura lógica automática: usar fecha_facturacion calculada
+        else:
+            if not self.producto_facturable_bn_id:
+                raise UserError(
+                    f'Configure el Producto B/N en la máquina {self.serie}.'
+                )
+            if not self.producto_facturable_color_id:
+                raise UserError(
+                    f'Configure el Producto Color en la máquina {self.serie}.'
+                )
+
+        modelo_maquina = (
+            maquina.name.name if maquina.name else 'N/A'
+        )
+        info_maquina = (
+            f'Modelo: {modelo_maquina} - Serie: {self.serie}'
+        )
+
+        if maquina.facturacion_automatica:
             fecha_para_factura = self.fecha_facturacion
         else:
-            # Lógica manual actual: usar fecha_emision_factura o hoy
-            fecha_para_factura = self.fecha_emision_factura or fields.Date.today()
-        
-        # Crear factura
+            fecha_para_factura = (
+                self.fecha_emision_factura or fields.Date.today()
+            )
+
         invoice_vals = {
             'partner_id': self.cliente_id.id,
             'move_type': 'out_invoice',
             'invoice_date': fecha_para_factura,
-            'invoice_payment_term_id': self.payment_term_id.id,
+            'invoice_payment_term_id': (
+                self.payment_term_id.id
+                if self.payment_term_id
+                else False
+            ),
             'invoice_origin': self.name,
-            
         }
-        
+
         invoice = self.env['account.move'].create(invoice_vals)
-        
-        # Crear líneas de factura
         invoice_lines = []
-        
-        # Línea para copias B/N (si hay copias Y producto configurado)
-        if self.copias_facturables_bn > 0 and self.producto_facturable_bn_id:
-            descripcion_bn = f'{self.producto_facturable_bn_id.name} - Copias B/N: {int(self.copias_facturables_bn)} - {self.mes_facturacion}\n{info_maquina}'
-            
-            line_vals_bn = {
-                'move_id': invoice.id,
-                'product_id': self.producto_facturable_bn_id.id,
-                'name': descripcion_bn,
-                'quantity': 1,  # 1 servicio
-                'price_unit': self.subtotal_bn,  # Usar subtotal B/N separado
-                'account_id': self.producto_facturable_bn_id.property_account_income_id.id or 
-                            self.producto_facturable_bn_id.categ_id.property_account_income_categ_id.id,
-            }
-            invoice_lines.append((0, 0, line_vals_bn))
-        
-        # Línea para copias Color (si hay copias Y producto configurado)
-        if self.copias_facturables_color > 0 and self.producto_facturable_color_id:
-            descripcion_color = f'{self.producto_facturable_color_id.name} - Copias Color: {int(self.copias_facturables_color)} - {self.mes_facturacion}\n{info_maquina}'
-            
-            line_vals_color = {
-                'move_id': invoice.id,
-                'product_id': self.producto_facturable_color_id.id,
-                'name': descripcion_color,
-                'quantity': 1,  # 1 servicio
-                'price_unit': self.subtotal_color,  # Usar subtotal Color separado
-                'account_id': self.producto_facturable_color_id.property_account_income_id.id or 
-                            self.producto_facturable_color_id.categ_id.property_account_income_categ_id.id,
-            }
-            invoice_lines.append((0, 0, line_vals_color))
-        
-        if not invoice_lines:
-            raise UserError(
-                'No se pueden crear líneas de factura.\n'
-                'Verifique:\n'
-                '1. Que haya copias facturables (B/N o Color)\n'
-                '2. Que los productos estén configurados en la máquina\n'
-                f'3. Configuración actual: {self.copias_facturables_bn} copias B/N, {self.copias_facturables_color} copias Color'
-            )
-        
-        # Asignar líneas a la factura
-        invoice.write({'invoice_line_ids': invoice_lines})
-        
-        # Marcar como facturado
-        self.write({'state': 'invoiced'})
-        
-        # Agregar nota en el chatter
-        self.message_post(
-            body=f'Factura creada: {invoice.name}\n'
-                f'- B/N: {self.copias_facturables_bn} copias = S/ {self.total_bn:.2f}\n'
-                f'- Color: {self.copias_facturables_color} copias = S/ {self.total_color:.2f}\n'
-                f'- Total: S/ {self.total:.2f}\n'
-                f'- Fecha factura: {fecha_para_factura}',
-            message_type='notification'
+
+        subtotal_antes_descuento = (
+            self.subtotal_antes_descuento or 0.0
         )
-        
+        if subtotal_antes_descuento > 0:
+            factor_descuento = (
+                (self.subtotal or 0.0)
+                / subtotal_antes_descuento
+            )
+        else:
+            factor_descuento = 1.0
+
+        def _income_account(product):
+            return (
+                product.property_account_income_id.id
+                or product.categ_id.property_account_income_categ_id.id
+            )
+
+        def _tax_commands(product):
+            taxes = product.taxes_id.filtered(
+                lambda tax: not tax.company_id
+                or tax.company_id == self.env.company
+            )
+            return [(6, 0, taxes.ids)]
+
+        def _append_line(product, description, quantity, price_unit):
+            if not product or quantity <= 0 or price_unit < 0:
+                return
+
+            invoice_lines.append((0, 0, {
+                'move_id': invoice.id,
+                'product_id': product.id,
+                'name': description,
+                'quantity': quantity,
+                'price_unit': price_unit,
+                'account_id': _income_account(product),
+                'tax_ids': _tax_commands(product),
+            }))
+
+        tipos_renta_bn = {
+            'manual_sin_igv_bn',
+            'manual_con_igv_bn',
+            'manual_sin_igv_total',
+            'manual_con_igv_total',
+        }
+        tipos_renta_color = {
+            'manual_sin_igv_color',
+            'manual_con_igv_color',
+            'manual_sin_igv_total',
+            'manual_con_igv_total',
+        }
+
+        # ==========================================================
+        # BLANCO Y NEGRO
+        # ==========================================================
+        if tipo_calculo in tipos_renta_bn:
+            renta_bn_factura = (
+                (self.renta_fija_bn or 0.0)
+                * factor_descuento
+            )
+            exceso_bn_unitario = (
+                (self.precio_bn_sin_igv or 0.0)
+                * factor_descuento
+            )
+
+            _append_line(
+                self.producto_facturable_bn_id,
+                (
+                    f'{self.producto_facturable_bn_id.name} - '
+                    f'Renta fija B/N - {self.mes_facturacion}\n'
+                    f'Incluye hasta '
+                    f'{int(maquina.volumen_mensual_bn or 0)} copias\n'
+                    f'{info_maquina}'
+                ),
+                1,
+                renta_bn_factura,
+            )
+
+            if self.exceso_bn > 0:
+                _append_line(
+                    self.producto_facturable_bn_id,
+                    (
+                        f'{self.producto_facturable_bn_id.name} - '
+                        f'Excedente B/N - {self.mes_facturacion}\n'
+                        f'{int(self.exceso_bn)} copias excedentes x '
+                        f'{self.precio_bn_sin_igv:.6f} sin IGV\n'
+                        f'{info_maquina}'
+                    ),
+                    self.exceso_bn,
+                    exceso_bn_unitario,
+                )
+        else:
+            _append_line(
+                self.producto_facturable_bn_id,
+                (
+                    f'{self.producto_facturable_bn_id.name} - '
+                    f'Copias B/N: '
+                    f'{int(self.copias_facturables_bn)} - '
+                    f'{self.mes_facturacion}\n{info_maquina}'
+                ),
+                1,
+                self.subtotal_bn,
+            )
+
+        # ==========================================================
+        # COLOR
+        # ==========================================================
+        if maquina.tipo == 'color':
+            if tipo_calculo in tipos_renta_color:
+                renta_color_factura = (
+                    (self.renta_fija_color or 0.0)
+                    * factor_descuento
+                )
+                exceso_color_unitario = (
+                    (self.precio_color_sin_igv or 0.0)
+                    * factor_descuento
+                )
+
+                _append_line(
+                    self.producto_facturable_color_id,
+                    (
+                        f'{self.producto_facturable_color_id.name} - '
+                        f'Renta fija Color - {self.mes_facturacion}\n'
+                        f'Incluye hasta '
+                        f'{int(maquina.volumen_mensual_color or 0)} copias\n'
+                        f'{info_maquina}'
+                    ),
+                    1,
+                    renta_color_factura,
+                )
+
+                if self.exceso_color > 0:
+                    _append_line(
+                        self.producto_facturable_color_id,
+                        (
+                            f'{self.producto_facturable_color_id.name} - '
+                            f'Excedente Color - {self.mes_facturacion}\n'
+                            f'{int(self.exceso_color)} copias excedentes x '
+                            f'{self.precio_color_sin_igv:.6f} sin IGV\n'
+                            f'{info_maquina}'
+                        ),
+                        self.exceso_color,
+                        exceso_color_unitario,
+                    )
+            else:
+                _append_line(
+                    self.producto_facturable_color_id,
+                    (
+                        f'{self.producto_facturable_color_id.name} - '
+                        f'Copias Color: '
+                        f'{int(self.copias_facturables_color)} - '
+                        f'{self.mes_facturacion}\n{info_maquina}'
+                    ),
+                    1,
+                    self.subtotal_color,
+                )
+
+        if not invoice_lines:
+            invoice.unlink()
+            raise UserError(
+                'No se pudieron crear líneas de factura. '
+                'Revise la renta fija, los excedentes y los productos.'
+            )
+
+        invoice.write({'invoice_line_ids': invoice_lines})
+        self.write({'state': 'invoiced'})
+
+        _logger.info(
+            "Factura %s creada desde counter %s | cliente=%s | "
+            "tipo_calculo=%s | líneas=%s | subtotal=%s | igv=%s | total=%s",
+            invoice.name,
+            self.name,
+            self.cliente_id.display_name,
+            tipo_calculo,
+            len(invoice_lines),
+            self.subtotal,
+            self.igv,
+            self.total,
+        )
+
+        self.message_post(
+            body=(
+                f'Factura creada: {invoice.name}<br/>'
+                f'Renta fija B/N: S/ {self.renta_fija_bn:.2f}<br/>'
+                f'Excedente B/N: {self.exceso_bn} copias = '
+                f'S/ {self.monto_exceso_bn:.2f}<br/>'
+                f'Renta fija Color: S/ {self.renta_fija_color:.2f}<br/>'
+                f'Excedente Color: {self.exceso_color} copias = '
+                f'S/ {self.monto_exceso_color:.2f}<br/>'
+                f'Subtotal: S/ {self.subtotal:.2f}<br/>'
+                f'IGV: S/ {self.igv:.2f}<br/>'
+                f'Total: S/ {self.total:.2f}<br/>'
+                f'Fecha factura: {fecha_para_factura}'
+            ),
+            message_type='notification',
+        )
+
         return {
             'name': 'Factura Creada',
             'type': 'ir.actions.act_window',
@@ -1160,6 +1606,7 @@ class CopierCounter(models.Model):
             'view_mode': 'form',
             'target': 'current',
         }
+
     def action_create_multiple_invoices(self):
         """Crea una factura consolidada por cliente para múltiples lecturas seleccionadas"""
         
