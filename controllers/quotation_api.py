@@ -1,4 +1,4 @@
-from odoo import http
+from odoo import http, fields
 from odoo.http import request
 
 import json
@@ -12,54 +12,98 @@ _logger = logging.getLogger(__name__)
 
 class PowerAppsAPI(http.Controller):
     """
-    API CENTRAL PARA POWER APPS
+    ============================================================
+    API CENTRAL POWER APPS <-> ODOO
+    ============================================================
 
     Endpoint único:
+
         POST /api/powerapps
 
     Headers:
-        X-API-Key
-        X-User-Email
+
+        X-API-Key: <clave>
+        X-User-Email: usuario@dominio.com
         Content-Type: application/json
 
     Body:
+
         {
             "action": "customers",
             "data": {}
         }
 
-    Power Apps puede enviar "data" como:
-        {}
-    o como:
-        "{}"
+    IMPORTANTE:
 
-    Este controlador acepta ambas formas.
+    Microsoft Power Apps puede enviar `data` como objeto:
+
+        "data": {}
+
+    o como string JSON:
+
+        "data": "{}"
+
+    Esta API acepta ambos formatos.
+
+    ============================================================
+    ACCIONES DISPONIBLES
+    ============================================================
+
+    SISTEMA
+    -------
+    ping
+
+    CLIENTES
+    --------
+    customers
+    customer_detail
+
+    EQUIPOS / MODELOS
+    -----------------
+    equipment
+    equipment_detail
+
+    CONFIGURACIÓN
+    -------------
+    payment_modes
+    currencies
+    durations
+
+    COTIZACIONES
+    ------------
+    quotations
+    quotation_detail
+    create_quotation
+    update_quotation
+    delete_quotation
+    send_quotation
+    approve_quotation
+    reject_quotation
+    convert_quotation
+
+    ============================================================
     """
-
-    # ============================================================
-    # CONFIGURACIÓN
-    # ============================================================
 
     API_CONFIG_KEY = 'copier.powerapps.api_key'
 
-    # Opcional:
-    # Si este parámetro está vacío, cualquier correo con API Key
-    # válida podrá consumir la API.
-    #
-    # Ejemplo:
-    # info@copiercompanysac.com,ventas@copiercompanysac.com
-    ALLOWED_EMAILS_CONFIG_KEY = 'copier.powerapps.allowed_emails'
+    ALLOWED_EMAILS_CONFIG_KEY = (
+        'copier.powerapps.allowed_emails'
+    )
 
     DEFAULT_LIMIT = 100
     MAX_LIMIT = 500
 
     # ============================================================
-    # RESPUESTA JSON
+    # JSON RESPONSE
     # ============================================================
 
-    def _json_response(self, data, status=200):
+    def _json_response(
+        self,
+        data,
+        status=200,
+    ):
         """
-        Devuelve siempre JSON válido y agrega cabeceras CORS.
+        Todas las respuestas de la API pasan por aquí.
         """
 
         try:
@@ -68,15 +112,24 @@ class PowerAppsAPI(http.Controller):
                 ensure_ascii=False,
                 default=str,
             )
-        except Exception:
+
+        except Exception as exc:
+
             _logger.exception(
-                '[POWERAPPS API] Error serializando respuesta JSON'
+                '[POWERAPPS API] '
+                'ERROR SERIALIZANDO JSON | error=%s',
+                exc,
             )
 
-            body = json.dumps({
-                'ok': False,
-                'error': 'Error serializando respuesta',
-            })
+            body = json.dumps(
+                {
+                    'ok': False,
+                    'error': (
+                        'No se pudo serializar '
+                        'la respuesta'
+                    ),
+                }
+            )
 
             status = 500
 
@@ -85,39 +138,48 @@ class PowerAppsAPI(http.Controller):
             headers=[
                 (
                     'Content-Type',
-                    'application/json; charset=utf-8'
+                    'application/json; charset=utf-8',
                 ),
                 (
                     'Access-Control-Allow-Origin',
-                    '*'
+                    '*',
                 ),
                 (
                     'Access-Control-Allow-Headers',
-                    'Content-Type, X-API-Key, X-User-Email'
+                    (
+                        'Content-Type, '
+                        'X-API-Key, '
+                        'X-User-Email'
+                    ),
                 ),
                 (
                     'Access-Control-Allow-Methods',
-                    'POST, OPTIONS'
+                    'POST, OPTIONS',
                 ),
                 (
                     'Cache-Control',
-                    'no-store'
+                    'no-store',
                 ),
             ],
             status=status,
         )
 
     # ============================================================
-    # HELPERS GENERALES
+    # HELPERS BÁSICOS
     # ============================================================
 
-    def _get_external_email(self):
-        email = (
-            request.httprequest.headers.get('X-User-Email')
-            or ''
-        )
+    def _safe_str(
+        self,
+        value,
+        default='',
+    ):
+        if value is None:
+            return default
 
-        return email.strip().lower()
+        try:
+            return str(value).strip()
+        except Exception:
+            return default
 
     def _safe_int(
         self,
@@ -128,14 +190,21 @@ class PowerAppsAPI(http.Controller):
     ):
         try:
             result = int(value)
+
         except (TypeError, ValueError):
             result = default
 
         if minimum is not None:
-            result = max(result, minimum)
+            result = max(
+                result,
+                minimum,
+            )
 
         if maximum is not None:
-            result = min(result, maximum)
+            result = min(
+                result,
+                maximum,
+            )
 
         return result
 
@@ -148,220 +217,497 @@ class PowerAppsAPI(http.Controller):
     ):
         try:
             result = float(value)
+
         except (TypeError, ValueError):
             result = default
 
         if minimum is not None:
-            result = max(result, minimum)
+            result = max(
+                result,
+                minimum,
+            )
 
         if maximum is not None:
-            result = min(result, maximum)
+            result = min(
+                result,
+                maximum,
+            )
 
         return result
 
-    def _safe_str(self, value):
+    def _safe_bool(
+        self,
+        value,
+        default=False,
+    ):
+        if isinstance(value, bool):
+            return value
+
         if value is None:
+            return default
+
+        if isinstance(
+            value,
+            (int, float),
+        ):
+            return bool(value)
+
+        text = str(
+            value
+        ).strip().lower()
+
+        if text in {
+            'true',
+            '1',
+            'yes',
+            'si',
+            'sí',
+        }:
+            return True
+
+        if text in {
+            'false',
+            '0',
+            'no',
+        }:
+            return False
+
+        return default
+
+    # ============================================================
+    # HELPER SEGURO PARA CAMPOS ODOO
+    # ============================================================
+
+    def _field_exists(
+        self,
+        record,
+        field_name,
+    ):
+        """
+        Comprueba si un campo existe realmente en el modelo.
+        """
+
+        try:
+            return (
+                field_name
+                in record._fields
+            )
+
+        except Exception:
+            return False
+
+    def _field_value(
+        self,
+        record,
+        field_name,
+        default=False,
+    ):
+        """
+        Obtiene un campo únicamente si existe.
+
+        Evita errores como:
+
+            'res.partner' object
+            has no attribute 'mobile'
+        """
+
+        if not record:
+            return default
+
+        if not self._field_exists(
+            record,
+            field_name,
+        ):
+            return default
+
+        try:
+            value = record[
+                field_name
+            ]
+
+            if value is None:
+                return default
+
+            return value
+
+        except Exception:
+            return default
+
+    def _char_field(
+        self,
+        record,
+        field_name,
+        default='',
+    ):
+        value = self._field_value(
+            record,
+            field_name,
+            default,
+        )
+
+        if not value:
+            return default
+
+        return str(value)
+
+    def _m2o_name(
+        self,
+        record,
+        field_name,
+    ):
+        value = self._field_value(
+            record,
+            field_name,
+            False,
+        )
+
+        if not value:
             return ''
 
-        return str(value).strip()
+        return (
+            value.display_name
+            or value.name
+            or ''
+        )
 
-    def _get_limit(self, data):
-        limit = self._safe_int(
+    def _m2o_id(
+        self,
+        record,
+        field_name,
+    ):
+        value = self._field_value(
+            record,
+            field_name,
+            False,
+        )
+
+        if not value:
+            return False
+
+        return value.id
+
+    # ============================================================
+    # LIMIT
+    # ============================================================
+
+    def _get_limit(
+        self,
+        data,
+    ):
+        return self._safe_int(
             data.get('limit'),
             default=self.DEFAULT_LIMIT,
             minimum=1,
             maximum=self.MAX_LIMIT,
         )
 
-        return limit
+    # ============================================================
+    # EMAIL EXTERNO
+    # ============================================================
+
+    def _get_external_email(self):
+        return (
+            request
+            .httprequest
+            .headers
+            .get(
+                'X-User-Email',
+                '',
+            )
+            .strip()
+            .lower()
+        )
 
     # ============================================================
-    # SEGURIDAD
+    # API KEY
     # ============================================================
 
     def _check_api_key(self):
-        """
-        Valida la API Key usando comparación segura.
-        """
-
         configured_key = (
-            request.env['ir.config_parameter']
+            request.env[
+                'ir.config_parameter'
+            ]
             .sudo()
-            .get_param(self.API_CONFIG_KEY)
+            .get_param(
+                self.API_CONFIG_KEY
+            )
         )
 
         received_key = (
-            request.httprequest.headers.get('X-API-Key')
-            or ''
+            request
+            .httprequest
+            .headers
+            .get(
+                'X-API-Key',
+                '',
+            )
         )
 
         if not configured_key:
+
             _logger.error(
                 '[POWERAPPS API] '
-                'No está configurado el parámetro %s',
+                'API KEY NO CONFIGURADA | '
+                'parametro=%s',
                 self.API_CONFIG_KEY,
             )
 
-            return False, 'API Key no configurada en Odoo'
-
-        if not received_key:
-            _logger.warning(
-                '[POWERAPPS API] '
-                'Solicitud sin X-API-Key'
+            return (
+                False,
+                'API Key no configurada en Odoo',
             )
 
-            return False, 'Falta encabezado X-API-Key'
+        if not received_key:
+
+            _logger.warning(
+                '[POWERAPPS API] '
+                'REQUEST SIN X-API-KEY'
+            )
+
+            return (
+                False,
+                'Falta encabezado X-API-Key',
+            )
 
         try:
             valid = secrets.compare_digest(
                 str(received_key),
                 str(configured_key),
             )
-        except Exception:
-            valid = received_key == configured_key
 
-        if not valid:
-            _logger.warning(
-                '[POWERAPPS API] API Key inválida'
+        except Exception:
+
+            valid = (
+                received_key
+                == configured_key
             )
 
-            return False, 'API Key inválida'
+        if not valid:
+
+            _logger.warning(
+                '[POWERAPPS API] '
+                'API KEY INCORRECTA | '
+                'ip=%s',
+                request
+                .httprequest
+                .remote_addr,
+            )
+
+            return (
+                False,
+                'API Key inválida',
+            )
 
         return True, None
 
-    def _check_external_email(self, email):
-        """
-        Permite opcionalmente limitar qué cuentas Microsoft
-        pueden consumir la API.
+    # ============================================================
+    # USUARIOS AUTORIZADOS
+    # ============================================================
 
-        Parámetro:
-            copier.powerapps.allowed_emails
+    def _check_external_email(
+        self,
+        email,
+    ):
+        """
+        Parámetro opcional:
+
+        copier.powerapps.allowed_emails
 
         Ejemplo:
-            info@copiercompanysac.com,
-            ventas@copiercompanysac.com
 
-        Si el parámetro está vacío, no restringe por correo.
+        info@copiercompanysac.com,
+        ventas1@copiercompanysac.com,
+        ventas2@copiercompanysac.com
+
+        Si está vacío:
+            la API Key es suficiente.
+
+        Si está configurado:
+            además se valida el correo.
         """
 
         configured = (
-            request.env['ir.config_parameter']
+            request.env[
+                'ir.config_parameter'
+            ]
             .sudo()
-            .get_param(self.ALLOWED_EMAILS_CONFIG_KEY)
+            .get_param(
+                self.ALLOWED_EMAILS_CONFIG_KEY
+            )
             or ''
         ).strip()
 
         if not configured:
             return True, None
 
-        allowed_emails = {
+        allowed = {
             item.strip().lower()
-            for item in configured.split(',')
+            for item
+            in configured.split(',')
             if item.strip()
         }
 
         if not email:
-            return False, 'Falta X-User-Email'
 
-        if email not in allowed_emails:
+            return (
+                False,
+                'Falta X-User-Email',
+            )
+
+        if email not in allowed:
+
             _logger.warning(
                 '[POWERAPPS API] '
-                'Correo no autorizado | email=%s',
+                'EMAIL NO AUTORIZADO | '
+                'email=%s',
                 email,
             )
 
-            return False, 'Usuario no autorizado'
+            return (
+                False,
+                'Usuario no autorizado',
+            )
 
         return True, None
 
     # ============================================================
-    # PARSEO DEL REQUEST
+    # PARSEO DEL BODY
     # ============================================================
 
     def _parse_payload(self):
-        """
-        Lee y normaliza el JSON.
-
-        Power Apps puede convertir "data" en texto:
-
-            "data": "{}"
-
-        Este método lo vuelve a convertir en diccionario.
-        """
-
-        raw_data = request.httprequest.data or b''
+        raw_data = (
+            request
+            .httprequest
+            .data
+            or b''
+        )
 
         if not raw_data:
-            return None, 'No se recibió información'
+            return (
+                None,
+                'No se recibió información',
+            )
 
         try:
+
             payload = json.loads(
-                raw_data.decode('utf-8')
+                raw_data.decode(
+                    'utf-8'
+                )
             )
+
         except Exception as exc:
+
             _logger.warning(
-                '[POWERAPPS API] JSON inválido | error=%s',
+                '[POWERAPPS API] '
+                'JSON GENERAL INVÁLIDO | '
+                'error=%s',
                 exc,
             )
 
-            return None, 'JSON inválido'
+            return (
+                None,
+                'JSON inválido',
+            )
 
-        if not isinstance(payload, dict):
-            return None, 'El cuerpo debe ser un objeto JSON'
+        if not isinstance(
+            payload,
+            dict,
+        ):
+
+            return (
+                None,
+                (
+                    'El cuerpo debe ser '
+                    'un objeto JSON'
+                ),
+            )
 
         action = self._safe_str(
             payload.get('action')
         )
 
         if not action:
-            return None, 'Falta action'
 
-        data = payload.get('data', {})
+            return (
+                None,
+                'Falta action',
+            )
 
-        # --------------------------------------------------------
-        # Power Apps puede mandar data como string
-        # --------------------------------------------------------
+        data = payload.get(
+            'data',
+            {},
+        )
 
-        if isinstance(data, str):
+        # ========================================================
+        # POWER APPS ENVÍA data COMO STRING
+        # ========================================================
+
+        if isinstance(
+            data,
+            str,
+        ):
+
             data = data.strip()
 
             if not data:
                 data = {}
 
             else:
+
                 try:
-                    data = json.loads(data)
+
+                    data = json.loads(
+                        data
+                    )
 
                 except Exception as exc:
+
                     _logger.warning(
                         '[POWERAPPS API] '
-                        'data contiene JSON inválido | '
-                        'action=%s | error=%s',
+                        'DATA JSON INVÁLIDO | '
+                        'action=%s | '
+                        'data=%s | '
+                        'error=%s',
                         action,
+                        data,
                         exc,
                     )
 
                     return (
                         None,
-                        'El campo data contiene JSON inválido'
+                        (
+                            'El campo data '
+                            'contiene JSON inválido'
+                        ),
                     )
 
         if data is None:
             data = {}
 
-        if not isinstance(data, dict):
+        if not isinstance(
+            data,
+            dict,
+        ):
+
             return (
                 None,
-                'El campo data debe ser un objeto JSON'
+                (
+                    'El campo data debe '
+                    'ser un objeto JSON'
+                ),
             )
 
-        return {
-            'action': action,
-            'data': data,
-        }, None
+        return (
+            {
+                'action': action,
+                'data': data,
+            },
+            None,
+        )
 
     # ============================================================
-    # LOG DE REQUEST
+    # LOG REQUEST
     # ============================================================
 
     def _log_request(
@@ -370,26 +716,39 @@ class PowerAppsAPI(http.Controller):
         email,
         data,
     ):
-        """
-        No imprime API Key ni información sensible.
-        """
-
         safe_data = {}
 
+        blocked_fields = {
+            'password',
+            'password_confirmation',
+            'api_key',
+            'apikey',
+            'token',
+            'secret',
+        }
+
         try:
+
             for key, value in data.items():
 
-                if key.lower() in {
-                    'password',
-                    'api_key',
-                    'token',
-                    'secret',
-                }:
-                    safe_data[key] = '***'
+                if (
+                    str(key)
+                    .lower()
+                    in blocked_fields
+                ):
+
+                    safe_data[
+                        key
+                    ] = '***'
+
                 else:
-                    safe_data[key] = value
+
+                    safe_data[
+                        key
+                    ] = value
 
         except Exception:
+
             safe_data = {}
 
         _logger.info(
@@ -400,7 +759,9 @@ class PowerAppsAPI(http.Controller):
             'data=%s',
             action,
             email or '-',
-            request.httprequest.remote_addr,
+            request
+            .httprequest
+            .remote_addr,
             safe_data,
         )
 
@@ -416,29 +777,36 @@ class PowerAppsAPI(http.Controller):
         csrf=False,
         save_session=False,
     )
-    def powerapps_options(self, **kwargs):
+    def powerapps_options(
+        self,
+        **kwargs,
+    ):
 
         return request.make_response(
             '',
             headers=[
                 (
                     'Access-Control-Allow-Origin',
-                    '*'
+                    '*',
                 ),
                 (
                     'Access-Control-Allow-Headers',
-                    'Content-Type, X-API-Key, X-User-Email'
+                    (
+                        'Content-Type, '
+                        'X-API-Key, '
+                        'X-User-Email'
+                    ),
                 ),
                 (
                     'Access-Control-Allow-Methods',
-                    'POST, OPTIONS'
+                    'POST, OPTIONS',
                 ),
             ],
             status=200,
         )
 
     # ============================================================
-    # ENDPOINT CENTRAL
+    # ENDPOINT ÚNICO
     # ============================================================
 
     @http.route(
@@ -449,15 +817,21 @@ class PowerAppsAPI(http.Controller):
         csrf=False,
         save_session=False,
     )
-    def powerapps_execute(self, **kwargs):
+    def powerapps_execute(
+        self,
+        **kwargs,
+    ):
 
         # --------------------------------------------------------
         # API KEY
         # --------------------------------------------------------
 
-        valid, error = self._check_api_key()
+        valid, error = (
+            self._check_api_key()
+        )
 
         if not valid:
+
             return self._json_response(
                 {
                     'ok': False,
@@ -467,16 +841,21 @@ class PowerAppsAPI(http.Controller):
             )
 
         # --------------------------------------------------------
-        # CORREO MICROSOFT
+        # EMAIL
         # --------------------------------------------------------
 
-        email = self._get_external_email()
-
-        valid_email, email_error = (
-            self._check_external_email(email)
+        email = (
+            self._get_external_email()
         )
 
-        if not valid_email:
+        email_valid, email_error = (
+            self._check_external_email(
+                email
+            )
+        )
+
+        if not email_valid:
+
             return self._json_response(
                 {
                     'ok': False,
@@ -489,21 +868,27 @@ class PowerAppsAPI(http.Controller):
         # BODY
         # --------------------------------------------------------
 
-        payload, payload_error = (
+        payload, error = (
             self._parse_payload()
         )
 
-        if payload_error:
+        if error:
+
             return self._json_response(
                 {
                     'ok': False,
-                    'error': payload_error,
+                    'error': error,
                 },
                 status=400,
             )
 
-        action = payload['action']
-        data = payload['data']
+        action = payload[
+            'action'
+        ]
+
+        data = payload[
+            'data'
+        ]
 
         self._log_request(
             action,
@@ -512,7 +897,7 @@ class PowerAppsAPI(http.Controller):
         )
 
         # --------------------------------------------------------
-        # ROUTER
+        # ROUTER CENTRAL
         # --------------------------------------------------------
 
         actions = {
@@ -567,17 +952,24 @@ class PowerAppsAPI(http.Controller):
             'approve_quotation':
                 self._action_approve_quotation,
 
+            'reject_quotation':
+                self._action_reject_quotation,
+
             'convert_quotation':
                 self._action_convert_quotation,
         }
 
-        handler = actions.get(action)
+        handler = actions.get(
+            action
+        )
 
         if not handler:
+
             _logger.warning(
                 '[POWERAPPS API] '
-                'Acción desconocida | '
-                'action=%s | email=%s',
+                'ACTION DESCONOCIDA | '
+                'action=%s | '
+                'email=%s',
                 action,
                 email,
             )
@@ -586,14 +978,15 @@ class PowerAppsAPI(http.Controller):
                 {
                     'ok': False,
                     'error': (
-                        f'Acción no válida: {action}'
+                        f'Acción no válida: '
+                        f'{action}'
                     ),
                 },
                 status=400,
             )
 
         # --------------------------------------------------------
-        # EJECUTAR
+        # EJECUCIÓN
         # --------------------------------------------------------
 
         try:
@@ -603,17 +996,28 @@ class PowerAppsAPI(http.Controller):
                 email=email,
             )
 
-            if not isinstance(result, dict):
+            if not isinstance(
+                result,
+                dict,
+            ):
+
                 result = {
                     'ok': True,
                     'result': result,
                 }
 
-            if 'ok' not in result:
-                result['ok'] = True
+            if (
+                'ok'
+                not in result
+            ):
+
+                result[
+                    'ok'
+                ] = True
 
             _logger.info(
-                '[POWERAPPS API] RESPONSE OK | '
+                '[POWERAPPS API] '
+                'RESPONSE OK | '
                 'action=%s | '
                 'email=%s',
                 action,
@@ -628,7 +1032,8 @@ class PowerAppsAPI(http.Controller):
         except ValueError as exc:
 
             _logger.warning(
-                '[POWERAPPS API] VALIDATION ERROR | '
+                '[POWERAPPS API] '
+                'VALIDATION ERROR | '
                 'action=%s | '
                 'email=%s | '
                 'error=%s',
@@ -649,7 +1054,8 @@ class PowerAppsAPI(http.Controller):
         except Exception as exc:
 
             _logger.error(
-                '[POWERAPPS API] INTERNAL ERROR | '
+                '[POWERAPPS API] '
+                'INTERNAL ERROR | '
                 'action=%s | '
                 'email=%s | '
                 'error=%s\n%s',
@@ -663,7 +1069,9 @@ class PowerAppsAPI(http.Controller):
                 {
                     'ok': False,
                     'action': action,
-                    'error': 'Error interno en Odoo',
+                    'error': (
+                        'Error interno en Odoo'
+                    ),
                     'detail': str(exc),
                 },
                 status=500,
@@ -682,8 +1090,126 @@ class PowerAppsAPI(http.Controller):
         return {
             'ok': True,
             'action': 'ping',
-            'message': 'Conexión correcta con Odoo',
+            'message': (
+                'Conexión correcta con Odoo'
+            ),
             'user_email': email,
+            'server_date': fields.Date.today(),
+        }
+
+    # ============================================================
+    # SERIALIZAR CLIENTE
+    # ============================================================
+
+    def _serialize_customer(
+        self,
+        partner,
+    ):
+        """
+        Campos verificados para res.partner:
+
+        name
+        vat
+        email
+        phone
+        street
+        street2
+        city
+        zip
+        state_id
+        country_id
+
+        NO usamos mobile.
+        """
+
+        return {
+            'id':
+                partner.id,
+
+            'name':
+                self._char_field(
+                    partner,
+                    'name',
+                ),
+
+            'display_name':
+                partner.display_name
+                or '',
+
+            'vat':
+                self._char_field(
+                    partner,
+                    'vat',
+                ),
+
+            'email':
+                self._char_field(
+                    partner,
+                    'email',
+                ),
+
+            'phone':
+                self._char_field(
+                    partner,
+                    'phone',
+                ),
+
+            'street':
+                self._char_field(
+                    partner,
+                    'street',
+                ),
+
+            'street2':
+                self._char_field(
+                    partner,
+                    'street2',
+                ),
+
+            'city':
+                self._char_field(
+                    partner,
+                    'city',
+                ),
+
+            'zip':
+                self._char_field(
+                    partner,
+                    'zip',
+                ),
+
+            'state_id':
+                self._m2o_id(
+                    partner,
+                    'state_id',
+                ),
+
+            'state':
+                self._m2o_name(
+                    partner,
+                    'state_id',
+                ),
+
+            'country_id':
+                self._m2o_id(
+                    partner,
+                    'country_id',
+                ),
+
+            'country':
+                self._m2o_name(
+                    partner,
+                    'country_id',
+                ),
+
+            'is_company':
+                bool(
+                    self._field_value(
+                        partner,
+                        'is_company',
+                        False,
+                    )
+                ),
         }
 
     # ============================================================
@@ -696,29 +1222,43 @@ class PowerAppsAPI(http.Controller):
         email,
     ):
 
-        search_text = self._safe_str(
-            data.get('search')
+        search_text = (
+            self._safe_str(
+                data.get(
+                    'search'
+                )
+            )
         )
 
-        limit = self._get_limit(data)
+        limit = self._get_limit(
+            data
+        )
+
+        only_companies = (
+            self._safe_bool(
+                data.get(
+                    'only_companies'
+                ),
+                default=False,
+            )
+        )
 
         domain = [
-            ('active', '=', True),
+            (
+                'active',
+                '=',
+                True,
+            ),
         ]
 
-        # Si quieres únicamente empresas, Power Apps puede mandar:
-        #
-        # {
-        #     "only_companies": true
-        # }
-
-        only_companies = bool(
-            data.get('only_companies', False)
-        )
-
         if only_companies:
+
             domain.append(
-                ('is_company', '=', True)
+                (
+                    'is_company',
+                    '=',
+                    True,
+                )
             )
 
         if search_text:
@@ -731,30 +1271,32 @@ class PowerAppsAPI(http.Controller):
                 (
                     'name',
                     'ilike',
-                    search_text
+                    search_text,
                 ),
 
                 (
                     'vat',
                     'ilike',
-                    search_text
+                    search_text,
                 ),
 
                 (
                     'email',
                     'ilike',
-                    search_text
+                    search_text,
                 ),
 
                 (
                     'phone',
                     'ilike',
-                    search_text
+                    search_text,
                 ),
             ]
 
         partners = (
-            request.env['res.partner']
+            request.env[
+                'res.partner'
+            ]
             .sudo()
             .search(
                 domain,
@@ -763,72 +1305,34 @@ class PowerAppsAPI(http.Controller):
             )
         )
 
-        values = []
-
-        for partner in partners:
-
-            values.append({
-                'id':
-                    partner.id,
-
-                'name':
-                    partner.name or '',
-
-                'display_name':
-                    partner.display_name or '',
-
-                'vat':
-                    partner.vat or '',
-
-                'email':
-                    partner.email or '',
-
-                'phone':
-                    partner.phone or '',
-
-                'mobile':
-                    partner.mobile or '',
-
-                'street':
-                    partner.street or '',
-
-                'street2':
-                    partner.street2 or '',
-
-                'city':
-                    partner.city or '',
-
-                'state':
-                    (
-                        partner.state_id.name
-                        if partner.state_id
-                        else ''
-                    ),
-
-                'country':
-                    (
-                        partner.country_id.name
-                        if partner.country_id
-                        else ''
-                    ),
-
-                'is_company':
-                    partner.is_company,
-            })
+        customers = [
+            self._serialize_customer(
+                partner
+            )
+            for partner
+            in partners
+        ]
 
         _logger.info(
-            '[POWERAPPS API] CUSTOMERS | '
-            'email=%s | search=%s | count=%s',
+            '[POWERAPPS API] '
+            'CUSTOMERS | '
+            'email=%s | '
+            'search=%s | '
+            'only_companies=%s | '
+            'count=%s',
             email,
             search_text,
-            len(values),
+            only_companies,
+            len(customers),
         )
 
         return {
             'ok': True,
             'action': 'customers',
-            'count': len(values),
-            'customers': values,
+            'count': len(
+                customers
+            ),
+            'customers': customers,
         }
 
     # ============================================================
@@ -841,80 +1345,104 @@ class PowerAppsAPI(http.Controller):
         email,
     ):
 
-        customer_id = self._safe_int(
-            data.get('customer_id'),
-            default=0,
+        customer_id = (
+            self._safe_int(
+                data.get(
+                    'customer_id'
+                )
+                or data.get(
+                    'cliente_id'
+                ),
+                default=0,
+            )
         )
 
         if not customer_id:
+
             raise ValueError(
                 'customer_id es obligatorio'
             )
 
         partner = (
-            request.env['res.partner']
+            request.env[
+                'res.partner'
+            ]
             .sudo()
-            .browse(customer_id)
+            .browse(
+                customer_id
+            )
         )
 
         if not partner.exists():
+
             raise ValueError(
                 'Cliente no encontrado'
             )
 
         return {
             'ok': True,
-
-            'action':
-                'customer_detail',
-
-            'customer': {
-
-                'id':
-                    partner.id,
-
-                'name':
-                    partner.name or '',
-
-                'vat':
-                    partner.vat or '',
-
-                'email':
-                    partner.email or '',
-
-                'phone':
-                    partner.phone or '',
-
-                'mobile':
-                    partner.mobile or '',
-
-                'street':
-                    partner.street or '',
-
-                'street2':
-                    partner.street2 or '',
-
-                'city':
-                    partner.city or '',
-
-                'zip':
-                    partner.zip or '',
-
-                'state':
-                    (
-                        partner.state_id.name
-                        if partner.state_id
-                        else ''
-                    ),
-
-                'country':
-                    (
-                        partner.country_id.name
-                        if partner.country_id
-                        else ''
-                    ),
-            },
+            'action': (
+                'customer_detail'
+            ),
+            'customer': (
+                self._serialize_customer(
+                    partner
+                )
+            ),
         }
+
+    # ============================================================
+    # SERIALIZAR EQUIPO
+    # ============================================================
+
+    def _serialize_equipment(
+        self,
+        machine,
+        include_detail=False,
+    ):
+
+        result = {
+            'id':
+                machine.id,
+
+            'name':
+                self._char_field(
+                    machine,
+                    'name',
+                ),
+
+            'brand_id':
+                self._m2o_id(
+                    machine,
+                    'marca_id',
+                ),
+
+            'brand':
+                self._m2o_name(
+                    machine,
+                    'marca_id',
+                ),
+
+            'has_image':
+                bool(
+                    self._field_value(
+                        machine,
+                        'imagen',
+                        False,
+                    )
+                ),
+        }
+
+        if include_detail:
+
+            result[
+                'specifications'
+            ] = self._char_field(
+                machine,
+                'especificaciones',
+            )
+
+        return result
 
     # ============================================================
     # EQUIPOS
@@ -926,11 +1454,17 @@ class PowerAppsAPI(http.Controller):
         email,
     ):
 
-        search_text = self._safe_str(
-            data.get('search')
+        search_text = (
+            self._safe_str(
+                data.get(
+                    'search'
+                )
+            )
         )
 
-        limit = self._get_limit(data)
+        limit = self._get_limit(
+            data
+        )
 
         domain = []
 
@@ -942,18 +1476,20 @@ class PowerAppsAPI(http.Controller):
                 (
                     'name',
                     'ilike',
-                    search_text
+                    search_text,
                 ),
 
                 (
                     'marca_id.name',
                     'ilike',
-                    search_text
+                    search_text,
                 ),
             ]
 
         records = (
-            request.env['modelos.maquinas']
+            request.env[
+                'modelos.maquinas'
+            ]
             .sudo()
             .search(
                 domain,
@@ -962,49 +1498,32 @@ class PowerAppsAPI(http.Controller):
             )
         )
 
-        values = []
-
-        for rec in records:
-
-            values.append({
-
-                'id':
-                    rec.id,
-
-                'name':
-                    rec.name or '',
-
-                'brand_id':
-                    (
-                        rec.marca_id.id
-                        if rec.marca_id
-                        else False
-                    ),
-
-                'brand':
-                    (
-                        rec.marca_id.name
-                        if rec.marca_id
-                        else ''
-                    ),
-
-                'has_image':
-                    bool(rec.imagen),
-            })
+        equipment = [
+            self._serialize_equipment(
+                rec
+            )
+            for rec
+            in records
+        ]
 
         _logger.info(
-            '[POWERAPPS API] EQUIPMENT | '
-            'email=%s | search=%s | count=%s',
+            '[POWERAPPS API] '
+            'EQUIPMENT | '
+            'email=%s | '
+            'search=%s | '
+            'count=%s',
             email,
             search_text,
-            len(values),
+            len(equipment),
         )
 
         return {
             'ok': True,
             'action': 'equipment',
-            'count': len(values),
-            'equipment': values,
+            'count': len(
+                equipment
+            ),
+            'equipment': equipment,
         }
 
     # ============================================================
@@ -1017,54 +1536,51 @@ class PowerAppsAPI(http.Controller):
         email,
     ):
 
-        equipment_id = self._safe_int(
-            data.get('equipment_id'),
-            default=0,
+        equipment_id = (
+            self._safe_int(
+                data.get(
+                    'equipment_id'
+                )
+                or data.get(
+                    'equipo_id'
+                ),
+                default=0,
+            )
         )
 
         if not equipment_id:
+
             raise ValueError(
                 'equipment_id es obligatorio'
             )
 
         machine = (
-            request.env['modelos.maquinas']
+            request.env[
+                'modelos.maquinas'
+            ]
             .sudo()
-            .browse(equipment_id)
+            .browse(
+                equipment_id
+            )
         )
 
         if not machine.exists():
+
             raise ValueError(
                 'Equipo no encontrado'
             )
 
         return {
             'ok': True,
-
-            'action':
-                'equipment_detail',
-
-            'equipment': {
-
-                'id':
-                    machine.id,
-
-                'name':
-                    machine.name or '',
-
-                'brand':
-                    (
-                        machine.marca_id.name
-                        if machine.marca_id
-                        else ''
-                    ),
-
-                'specifications':
-                    machine.especificaciones or '',
-
-                'has_image':
-                    bool(machine.imagen),
-            },
+            'action': (
+                'equipment_detail'
+            ),
+            'equipment': (
+                self._serialize_equipment(
+                    machine,
+                    include_detail=True,
+                )
+            ),
         }
 
     # ============================================================
@@ -1078,13 +1594,21 @@ class PowerAppsAPI(http.Controller):
     ):
 
         records = (
-            request.env['copier.payment.mode']
+            request.env[
+                'copier.payment.mode'
+            ]
             .sudo()
             .search(
                 [
-                    ('activo', '=', True),
+                    (
+                        'activo',
+                        '=',
+                        True,
+                    ),
                 ],
-                order='frecuencia_meses asc',
+                order=(
+                    'frecuencia_meses asc'
+                ),
             )
         )
 
@@ -1092,27 +1616,33 @@ class PowerAppsAPI(http.Controller):
 
         for rec in records:
 
-            values.append({
+            values.append(
+                {
+                    'id':
+                        rec.id,
 
-                'id':
-                    rec.id,
+                    'name':
+                        rec.name
+                        or '',
 
-                'name':
-                    rec.name or '',
+                    'description':
+                        rec.descripcion
+                        or '',
 
-                'description':
-                    rec.descripcion or '',
+                    'months':
+                        rec.frecuencia_meses,
 
-                'months':
-                    rec.frecuencia_meses,
-
-                'discount':
-                    rec.descuento_porcentaje,
-            })
+                    'discount':
+                        rec.descuento_porcentaje,
+                }
+            )
 
         return {
             'ok': True,
-            'action': 'payment_modes',
+            'action': (
+                'payment_modes'
+            ),
+            'count': len(values),
             'payment_modes': values,
         }
 
@@ -1127,12 +1657,25 @@ class PowerAppsAPI(http.Controller):
     ):
 
         records = (
-            request.env['res.currency']
+            request.env[
+                'res.currency'
+            ]
             .sudo()
             .search(
                 [
-                    ('active', '=', True),
-                    ('name', 'in', ['PEN', 'USD']),
+                    (
+                        'active',
+                        '=',
+                        True,
+                    ),
+                    (
+                        'name',
+                        'in',
+                        [
+                            'PEN',
+                            'USD',
+                        ],
+                    ),
                 ],
                 order='name asc',
             )
@@ -1142,24 +1685,31 @@ class PowerAppsAPI(http.Controller):
 
         for rec in records:
 
-            values.append({
+            values.append(
+                {
+                    'id':
+                        rec.id,
 
-                'id':
-                    rec.id,
+                    'name':
+                        rec.name
+                        or '',
 
-                'name':
-                    rec.name or '',
+                    'symbol':
+                        rec.symbol
+                        or '',
 
-                'symbol':
-                    rec.symbol or '',
-
-                'position':
-                    rec.position or '',
-            })
+                    'position':
+                        rec.position
+                        or '',
+                }
+            )
 
         return {
             'ok': True,
-            'action': 'currencies',
+            'action': (
+                'currencies'
+            ),
+            'count': len(values),
             'currencies': values,
         }
 
@@ -1174,7 +1724,9 @@ class PowerAppsAPI(http.Controller):
     ):
 
         records = (
-            request.env['copier.duracion']
+            request.env[
+                'copier.duracion'
+            ]
             .sudo()
             .search(
                 [],
@@ -1182,22 +1734,109 @@ class PowerAppsAPI(http.Controller):
             )
         )
 
-        values = []
-
-        for rec in records:
-
-            values.append({
+        values = [
+            {
                 'id':
                     rec.id,
 
                 'name':
-                    rec.name or '',
-            })
+                    rec.name
+                    or '',
+            }
+            for rec
+            in records
+        ]
 
         return {
             'ok': True,
             'action': 'durations',
+            'count': len(values),
             'durations': values,
+        }
+
+    # ============================================================
+    # SERIALIZAR COTIZACIÓN SIMPLE
+    # ============================================================
+
+    def _serialize_quotation_summary(
+        self,
+        quotation,
+    ):
+
+        return {
+            'id':
+                quotation.id,
+
+            'name':
+                quotation.name
+                or '',
+
+            'customer_id':
+                (
+                    quotation
+                    .cliente_id
+                    .id
+                    if quotation.cliente_id
+                    else False
+                ),
+
+            'customer':
+                (
+                    quotation
+                    .cliente_id
+                    .name
+                    if quotation.cliente_id
+                    else ''
+                ),
+
+            'vat':
+                (
+                    quotation
+                    .cliente_id
+                    .vat
+                    or ''
+                    if quotation.cliente_id
+                    else ''
+                ),
+
+            'date':
+                quotation.fecha_cotizacion,
+
+            'expiration_date':
+                quotation.fecha_vencimiento,
+
+            'currency':
+                (
+                    quotation
+                    .currency_id
+                    .name
+                    if quotation.currency_id
+                    else ''
+                ),
+
+            'currency_symbol':
+                (
+                    quotation
+                    .currency_id
+                    .symbol
+                    if quotation.currency_id
+                    else ''
+                ),
+
+            'monthly_total':
+                quotation.total_mensual,
+
+            'total':
+                quotation.total_por_modalidad,
+
+            'state':
+                quotation.estado,
+
+            'equipment_count':
+                len(
+                    quotation
+                    .linea_equipos_ids
+                ),
         }
 
     # ============================================================
@@ -1210,21 +1849,39 @@ class PowerAppsAPI(http.Controller):
         email,
     ):
 
-        limit = self._get_limit(data)
-
-        search_text = self._safe_str(
-            data.get('search')
+        limit = self._get_limit(
+            data
         )
 
-        estado = self._safe_str(
-            data.get('estado')
+        search_text = (
+            self._safe_str(
+                data.get(
+                    'search'
+                )
+            )
+        )
+
+        state = (
+            self._safe_str(
+                data.get(
+                    'estado'
+                )
+                or data.get(
+                    'state'
+                )
+            )
         )
 
         domain = []
 
-        if estado:
+        if state:
+
             domain.append(
-                ('estado', '=', estado)
+                (
+                    'estado',
+                    '=',
+                    state,
+                )
             )
 
         if search_text:
@@ -1236,24 +1893,26 @@ class PowerAppsAPI(http.Controller):
                 (
                     'name',
                     'ilike',
-                    search_text
+                    search_text,
                 ),
 
                 (
                     'cliente_id.name',
                     'ilike',
-                    search_text
+                    search_text,
                 ),
 
                 (
                     'cliente_id.vat',
                     'ilike',
-                    search_text
+                    search_text,
                 ),
             ]
 
-        records = (
-            request.env['copier.quotation']
+        quotations = (
+            request.env[
+                'copier.quotation'
+            ]
             .sudo()
             .search(
                 domain,
@@ -1262,66 +1921,26 @@ class PowerAppsAPI(http.Controller):
             )
         )
 
-        values = []
+        values = [
+            self._serialize_quotation_summary(
+                quotation
+            )
+            for quotation
+            in quotations
+        ]
 
-        for rec in records:
-
-            values.append({
-
-                'id':
-                    rec.id,
-
-                'name':
-                    rec.name or '',
-
-                'customer_id':
-                    (
-                        rec.cliente_id.id
-                        if rec.cliente_id
-                        else False
-                    ),
-
-                'customer':
-                    (
-                        rec.cliente_id.name
-                        if rec.cliente_id
-                        else ''
-                    ),
-
-                'date':
-                    rec.fecha_cotizacion,
-
-                'expiration_date':
-                    rec.fecha_vencimiento,
-
-                'currency':
-                    (
-                        rec.currency_id.name
-                        if rec.currency_id
-                        else ''
-                    ),
-
-                'currency_symbol':
-                    (
-                        rec.currency_id.symbol
-                        if rec.currency_id
-                        else ''
-                    ),
-
-                'monthly_total':
-                    rec.total_mensual,
-
-                'total':
-                    rec.total_por_modalidad,
-
-                'state':
-                    rec.estado,
-
-                'equipment_count':
-                    len(
-                        rec.linea_equipos_ids
-                    ),
-            })
+        _logger.info(
+            '[POWERAPPS API] '
+            'QUOTATIONS | '
+            'email=%s | '
+            'search=%s | '
+            'state=%s | '
+            'count=%s',
+            email,
+            search_text,
+            state,
+            len(values),
+        )
 
         return {
             'ok': True,
@@ -1340,93 +1959,84 @@ class PowerAppsAPI(http.Controller):
         email,
     ):
 
-        quotation_id = self._safe_int(
-            data.get('quotation_id'),
-            default=0,
-        )
-
-        if not quotation_id:
-            raise ValueError(
-                'quotation_id es obligatorio'
-            )
-
         quotation = (
-            request.env['copier.quotation']
-            .sudo()
-            .browse(quotation_id)
+            self._get_quotation_from_data(
+                data
+            )
         )
 
-        if not quotation.exists():
-            raise ValueError(
-                'Cotización no encontrada'
+        equipment = []
+
+        for line in (
+            quotation
+            .linea_equipos_ids
+        ):
+
+            equipment.append(
+                {
+                    'id':
+                        line.id,
+
+                    'sequence':
+                        line.sequence,
+
+                    'equipment_id':
+                        line.equipo_id.id,
+
+                    'equipment':
+                        line.equipo_id.name
+                        or '',
+
+                    'brand':
+                        (
+                            line
+                            .marca_id
+                            .name
+                            if line.marca_id
+                            else ''
+                        ),
+
+                    'quantity':
+                        line.cantidad,
+
+                    'equipment_type':
+                        line.tipo_equipo,
+
+                    'format':
+                        line.formato,
+
+                    'monthly_bw':
+                        line.volumen_mensual_bn,
+
+                    'monthly_color':
+                        line.volumen_mensual_color,
+
+                    'price_bw':
+                        line.precio_bn,
+
+                    'price_color':
+                        line.precio_color,
+
+                    'subtotal_bw':
+                        line.subtotal_bn,
+
+                    'subtotal_color':
+                        line.subtotal_color,
+
+                    'subtotal':
+                        line.subtotal_linea,
+
+                    'notes':
+                        line.observaciones
+                        or '',
+                }
             )
-
-        lines = []
-
-        for line in quotation.linea_equipos_ids:
-
-            lines.append({
-
-                'id':
-                    line.id,
-
-                'sequence':
-                    line.sequence,
-
-                'equipment_id':
-                    line.equipo_id.id,
-
-                'equipment':
-                    line.equipo_id.name or '',
-
-                'brand':
-                    (
-                        line.marca_id.name
-                        if line.marca_id
-                        else ''
-                    ),
-
-                'quantity':
-                    line.cantidad,
-
-                'equipment_type':
-                    line.tipo_equipo,
-
-                'format':
-                    line.formato,
-
-                'monthly_bw':
-                    line.volumen_mensual_bn,
-
-                'monthly_color':
-                    line.volumen_mensual_color,
-
-                'price_bw':
-                    line.precio_bn,
-
-                'price_color':
-                    line.precio_color,
-
-                'subtotal_bw':
-                    line.subtotal_bn,
-
-                'subtotal_color':
-                    line.subtotal_color,
-
-                'subtotal':
-                    line.subtotal_linea,
-
-                'notes':
-                    line.observaciones or '',
-            })
 
         return {
-
-            'ok':
-                True,
-
-            'action':
-                'quotation_detail',
+            'ok': True,
+            'action': (
+                'quotation_detail'
+            ),
 
             'quotation': {
 
@@ -1434,262 +2044,246 @@ class PowerAppsAPI(http.Controller):
                     quotation.id,
 
                 'name':
-                    quotation.name or '',
+                    quotation.name
+                    or '',
 
                 'customer_id':
-                    quotation.cliente_id.id,
+                    quotation
+                    .cliente_id
+                    .id,
 
                 'customer':
-                    quotation.cliente_id.name or '',
+                    quotation
+                    .cliente_id
+                    .name
+                    or '',
 
                 'vat':
-                    quotation.cliente_id.vat or '',
+                    quotation
+                    .cliente_id
+                    .vat
+                    or '',
 
                 'contact':
-                    quotation.contacto or '',
+                    quotation.contacto
+                    or '',
 
                 'phone':
-                    quotation.telefono or '',
+                    quotation.telefono
+                    or '',
 
                 'email':
-                    quotation.email or '',
+                    quotation.email
+                    or '',
 
                 'address':
-                    quotation.direccion or '',
+                    quotation.direccion
+                    or '',
 
                 'branch':
-                    quotation.sede or '',
+                    quotation.sede
+                    or '',
 
                 'currency_id':
-                    quotation.currency_id.id,
+                    quotation
+                    .currency_id
+                    .id,
 
                 'currency':
-                    quotation.currency_id.name or '',
+                    quotation
+                    .currency_id
+                    .name
+                    or '',
 
                 'currency_symbol':
-                    quotation.currency_id.symbol or '',
+                    quotation
+                    .currency_id
+                    .symbol
+                    or '',
 
                 'payment_mode_id':
                     (
-                        quotation.modalidad_pago_id.id
-                        if quotation.modalidad_pago_id
+                        quotation
+                        .modalidad_pago_id
+                        .id
+                        if quotation
+                        .modalidad_pago_id
                         else False
                     ),
 
                 'payment_mode':
                     (
-                        quotation.modalidad_pago_id.name
-                        if quotation.modalidad_pago_id
+                        quotation
+                        .modalidad_pago_id
+                        .name
+                        if quotation
+                        .modalidad_pago_id
                         else ''
                     ),
 
                 'duration_id':
                     (
-                        quotation.duracion_contrato_id.id
-                        if quotation.duracion_contrato_id
+                        quotation
+                        .duracion_contrato_id
+                        .id
+                        if quotation
+                        .duracion_contrato_id
                         else False
                     ),
 
                 'duration':
                     (
-                        quotation.duracion_contrato_id.name
-                        if quotation.duracion_contrato_id
+                        quotation
+                        .duracion_contrato_id
+                        .name
+                        if quotation
+                        .duracion_contrato_id
                         else ''
                     ),
 
                 'quotation_date':
-                    quotation.fecha_cotizacion,
+                    quotation
+                    .fecha_cotizacion,
 
                 'validity_days':
-                    quotation.validez_dias,
+                    quotation
+                    .validez_dias,
 
                 'expiration_date':
-                    quotation.fecha_vencimiento,
+                    quotation
+                    .fecha_vencimiento,
 
                 'proposed_start':
-                    quotation.fecha_inicio_propuesta,
+                    quotation
+                    .fecha_inicio_propuesta,
 
                 'proposed_end':
-                    quotation.fecha_fin_propuesta,
+                    quotation
+                    .fecha_fin_propuesta,
 
                 'general_discount':
-                    quotation.descuento_general,
+                    quotation
+                    .descuento_general,
 
                 'igv':
                     quotation.igv,
 
                 'monthly_subtotal':
-                    quotation.subtotal_mensual,
+                    quotation
+                    .subtotal_mensual,
 
                 'monthly_discount':
-                    quotation.descuento_mensual,
+                    quotation
+                    .descuento_mensual,
 
                 'monthly_igv':
-                    quotation.igv_mensual,
+                    quotation
+                    .igv_mensual,
 
                 'monthly_total':
-                    quotation.total_mensual,
+                    quotation
+                    .total_mensual,
 
                 'final_subtotal':
-                    quotation.subtotal_final,
+                    quotation
+                    .subtotal_final,
 
                 'final_igv':
-                    quotation.igv_final,
+                    quotation
+                    .igv_final,
 
                 'total':
-                    quotation.total_por_modalidad,
+                    quotation
+                    .total_por_modalidad,
 
                 'annual_total':
-                    quotation.total_anual,
+                    quotation
+                    .total_anual,
 
                 'state':
                     quotation.estado,
 
                 'notes':
-                    quotation.observaciones or '',
+                    quotation
+                    .observaciones
+                    or '',
 
                 'equipment':
-                    lines,
+                    equipment,
             },
         }
 
     # ============================================================
-    # CREAR COTIZACIÓN
+    # HELPER MONEDA
     # ============================================================
 
-    def _action_create_quotation(
+    def _get_currency(
         self,
-        data,
-        email,
+        currency_code,
     ):
-
-        customer_id = self._safe_int(
-            data.get('cliente_id')
-            or data.get('customer_id'),
-            default=0,
-        )
-
-        payment_mode_id = self._safe_int(
-            data.get('modalidad_pago_id')
-            or data.get('payment_mode_id'),
-            default=0,
-        )
-
-        duration_id = self._safe_int(
-            data.get('duracion_contrato_id')
-            or data.get('duration_id'),
-            default=0,
-        )
-
-        equipment_data = (
-            data.get('equipos')
-            or data.get('equipment')
-            or []
-        )
-
-        if not customer_id:
-            raise ValueError(
-                'cliente_id es obligatorio'
-            )
-
-        if not payment_mode_id:
-            raise ValueError(
-                'modalidad_pago_id es obligatorio'
-            )
-
-        if not isinstance(
-            equipment_data,
-            list,
-        ):
-            raise ValueError(
-                'equipos debe ser una lista'
-            )
-
-        if not equipment_data:
-            raise ValueError(
-                'Debe incluir al menos un equipo'
-            )
-
-        # --------------------------------------------------------
-        # Cliente
-        # --------------------------------------------------------
-
-        partner = (
-            request.env['res.partner']
-            .sudo()
-            .browse(customer_id)
-        )
-
-        if not partner.exists():
-            raise ValueError(
-                'Cliente no encontrado'
-            )
-
-        # --------------------------------------------------------
-        # Modalidad
-        # --------------------------------------------------------
-
-        payment_mode = (
-            request.env['copier.payment.mode']
-            .sudo()
-            .browse(payment_mode_id)
-        )
-
-        if not payment_mode.exists():
-            raise ValueError(
-                'Modalidad de pago no encontrada'
-            )
-
-        # --------------------------------------------------------
-        # Moneda
-        # --------------------------------------------------------
 
         currency_code = (
             self._safe_str(
-                data.get('currency')
+                currency_code,
+                'PEN',
             )
             or 'PEN'
         ).upper()
 
         currency = (
-            request.env['res.currency']
+            request.env[
+                'res.currency'
+            ]
             .sudo()
             .search(
                 [
-                    ('name', '=', currency_code),
+                    (
+                        'name',
+                        '=',
+                        currency_code,
+                    ),
                 ],
                 limit=1,
             )
         )
 
         if not currency:
+
             raise ValueError(
-                f'Moneda no encontrada: '
-                f'{currency_code}'
-            )
-
-        # --------------------------------------------------------
-        # Duración
-        # --------------------------------------------------------
-
-        duration = False
-
-        if duration_id:
-
-            duration = (
-                request.env['copier.duracion']
-                .sudo()
-                .browse(duration_id)
-            )
-
-            if not duration.exists():
-                raise ValueError(
-                    'Duración no encontrada'
+                (
+                    'Moneda no encontrada: '
+                    f'{currency_code}'
                 )
+            )
 
-        # --------------------------------------------------------
-        # Líneas
-        # --------------------------------------------------------
+        return currency
+
+    # ============================================================
+    # PREPARAR LÍNEAS
+    # ============================================================
+
+    def _prepare_equipment_lines(
+        self,
+        equipment_data,
+    ):
+
+        if not isinstance(
+            equipment_data,
+            list,
+        ):
+
+            raise ValueError(
+                'equipos debe ser una lista'
+            )
+
+        if not equipment_data:
+
+            raise ValueError(
+                (
+                    'Debe incluir al menos '
+                    'un equipo'
+                )
+            )
 
         lines = []
 
@@ -1698,47 +2292,79 @@ class PowerAppsAPI(http.Controller):
             start=1,
         ):
 
-            if not isinstance(item, dict):
+            if not isinstance(
+                item,
+                dict,
+            ):
+
                 raise ValueError(
-                    f'Equipo #{index}: '
-                    f'formato inválido'
+                    (
+                        f'Equipo #{index}: '
+                        'formato inválido'
+                    )
                 )
 
-            machine_id = self._safe_int(
-                item.get('equipo_id')
-                or item.get('equipment_id'),
-                default=0,
+            machine_id = (
+                self._safe_int(
+                    item.get(
+                        'equipo_id'
+                    )
+                    or item.get(
+                        'equipment_id'
+                    ),
+                    default=0,
+                )
             )
 
             if not machine_id:
+
                 raise ValueError(
-                    f'Equipo #{index}: '
-                    f'falta equipo_id'
+                    (
+                        f'Equipo #{index}: '
+                        'falta equipo_id'
+                    )
                 )
 
             machine = (
-                request.env['modelos.maquinas']
+                request.env[
+                    'modelos.maquinas'
+                ]
                 .sudo()
-                .browse(machine_id)
+                .browse(
+                    machine_id
+                )
             )
 
             if not machine.exists():
+
                 raise ValueError(
-                    f'Equipo #{index}: '
-                    f'modelo no encontrado'
+                    (
+                        f'Equipo #{index}: '
+                        'modelo no encontrado'
+                    )
                 )
 
-            quantity = self._safe_int(
-                item.get('cantidad')
-                or item.get('quantity'),
-                default=1,
-                minimum=1,
+            quantity = (
+                self._safe_int(
+                    item.get(
+                        'cantidad'
+                    )
+                    or item.get(
+                        'quantity'
+                    ),
+                    default=1,
+                    minimum=1,
+                )
             )
 
             equipment_type = (
                 self._safe_str(
-                    item.get('tipo_equipo')
-                    or item.get('equipment_type')
+                    item.get(
+                        'tipo_equipo'
+                    )
+                    or item.get(
+                        'equipment_type'
+                    )
                 )
                 or 'monocroma'
             )
@@ -1747,15 +2373,22 @@ class PowerAppsAPI(http.Controller):
                 'monocroma',
                 'color',
             }:
+
                 raise ValueError(
-                    f'Equipo #{index}: '
-                    f'tipo_equipo inválido'
+                    (
+                        f'Equipo #{index}: '
+                        'tipo_equipo inválido'
+                    )
                 )
 
             format_value = (
                 self._safe_str(
-                    item.get('formato')
-                    or item.get('format')
+                    item.get(
+                        'formato'
+                    )
+                    or item.get(
+                        'format'
+                    )
                 )
                 or 'a4'
             )
@@ -1764,40 +2397,71 @@ class PowerAppsAPI(http.Controller):
                 'a4',
                 'a3',
             }:
+
                 raise ValueError(
-                    f'Equipo #{index}: '
-                    f'formato inválido'
+                    (
+                        f'Equipo #{index}: '
+                        'formato inválido'
+                    )
                 )
 
-            monthly_bw = self._safe_int(
-                item.get('volumen_mensual_bn')
-                or item.get('monthly_bw'),
-                default=0,
-                minimum=0,
+            volume_bw = (
+                self._safe_int(
+                    item.get(
+                        'volumen_mensual_bn'
+                    )
+                    or item.get(
+                        'monthly_bw'
+                    ),
+                    default=0,
+                    minimum=0,
+                )
             )
 
-            monthly_color = self._safe_int(
-                item.get('volumen_mensual_color')
-                or item.get('monthly_color'),
-                default=0,
-                minimum=0,
+            volume_color = (
+                self._safe_int(
+                    item.get(
+                        'volumen_mensual_color'
+                    )
+                    or item.get(
+                        'monthly_color'
+                    ),
+                    default=0,
+                    minimum=0,
+                )
             )
 
-            if equipment_type == 'monocroma':
-                monthly_color = 0
+            if (
+                equipment_type
+                == 'monocroma'
+            ):
 
-            price_bw = self._safe_float(
-                item.get('precio_bn')
-                or item.get('price_bw'),
-                default=0.0,
-                minimum=0.0,
+                volume_color = 0
+
+            price_bw = (
+                self._safe_float(
+                    item.get(
+                        'precio_bn'
+                    )
+                    or item.get(
+                        'price_bw'
+                    ),
+                    default=0.0,
+                    minimum=0.0,
+                )
             )
 
-            price_color = self._safe_float(
-                item.get('precio_color')
-                or item.get('price_color'),
-                default=0.0,
-                minimum=0.0,
+            price_color = (
+                self._safe_float(
+                    item.get(
+                        'precio_color'
+                    )
+                    or item.get(
+                        'price_color'
+                    ),
+                    default=0.0,
+                    minimum=0.0,
+                )
             )
 
             lines.append(
@@ -1821,10 +2485,10 @@ class PowerAppsAPI(http.Controller):
                             format_value,
 
                         'volumen_mensual_bn':
-                            monthly_bw,
+                            volume_bw,
 
                         'volumen_mensual_color':
-                            monthly_color,
+                            volume_color,
 
                         'precio_bn':
                             price_bw,
@@ -1834,12 +2498,162 @@ class PowerAppsAPI(http.Controller):
 
                         'observaciones':
                             self._safe_str(
-                                item.get('observaciones')
-                                or item.get('notes')
+                                item.get(
+                                    'observaciones'
+                                )
+                                or item.get(
+                                    'notes'
+                                )
                             ),
                     },
                 )
             )
+
+        return lines
+
+    # ============================================================
+    # CREAR COTIZACIÓN
+    # ============================================================
+
+    def _action_create_quotation(
+        self,
+        data,
+        email,
+    ):
+
+        customer_id = (
+            self._safe_int(
+                data.get(
+                    'cliente_id'
+                )
+                or data.get(
+                    'customer_id'
+                ),
+                default=0,
+            )
+        )
+
+        payment_mode_id = (
+            self._safe_int(
+                data.get(
+                    'modalidad_pago_id'
+                )
+                or data.get(
+                    'payment_mode_id'
+                ),
+                default=0,
+            )
+        )
+
+        duration_id = (
+            self._safe_int(
+                data.get(
+                    'duracion_contrato_id'
+                )
+                or data.get(
+                    'duration_id'
+                ),
+                default=0,
+            )
+        )
+
+        equipment_data = (
+            data.get(
+                'equipos'
+            )
+            or data.get(
+                'equipment'
+            )
+            or []
+        )
+
+        if not customer_id:
+
+            raise ValueError(
+                'cliente_id es obligatorio'
+            )
+
+        if not payment_mode_id:
+
+            raise ValueError(
+                (
+                    'modalidad_pago_id '
+                    'es obligatorio'
+                )
+            )
+
+        partner = (
+            request.env[
+                'res.partner'
+            ]
+            .sudo()
+            .browse(
+                customer_id
+            )
+        )
+
+        if not partner.exists():
+
+            raise ValueError(
+                'Cliente no encontrado'
+            )
+
+        payment_mode = (
+            request.env[
+                'copier.payment.mode'
+            ]
+            .sudo()
+            .browse(
+                payment_mode_id
+            )
+        )
+
+        if not payment_mode.exists():
+
+            raise ValueError(
+                (
+                    'Modalidad de pago '
+                    'no encontrada'
+                )
+            )
+
+        currency = (
+            self._get_currency(
+                data.get(
+                    'currency'
+                )
+                or 'PEN'
+            )
+        )
+
+        duration = False
+
+        if duration_id:
+
+            duration = (
+                request.env[
+                    'copier.duracion'
+                ]
+                .sudo()
+                .browse(
+                    duration_id
+                )
+            )
+
+            if not duration.exists():
+
+                raise ValueError(
+                    (
+                        'Duración '
+                        'no encontrada'
+                    )
+                )
+
+        lines = (
+            self._prepare_equipment_lines(
+                equipment_data
+            )
+        )
 
         vals = {
 
@@ -1854,37 +2668,59 @@ class PowerAppsAPI(http.Controller):
 
             'contacto':
                 self._safe_str(
-                    data.get('contacto')
-                    or data.get('contact')
+                    data.get(
+                        'contacto'
+                    )
+                    or data.get(
+                        'contact'
+                    )
                 ),
 
             'telefono':
                 self._safe_str(
-                    data.get('telefono')
-                    or data.get('phone')
+                    data.get(
+                        'telefono'
+                    )
+                    or data.get(
+                        'phone'
+                    )
                 ),
 
             'email':
                 self._safe_str(
-                    data.get('email')
+                    data.get(
+                        'email'
+                    )
                 ),
 
             'direccion':
                 self._safe_str(
-                    data.get('direccion')
-                    or data.get('address')
+                    data.get(
+                        'direccion'
+                    )
+                    or data.get(
+                        'address'
+                    )
                 ),
 
             'sede':
                 self._safe_str(
-                    data.get('sede')
-                    or data.get('branch')
+                    data.get(
+                        'sede'
+                    )
+                    or data.get(
+                        'branch'
+                    )
                 ),
 
             'validez_dias':
                 self._safe_int(
-                    data.get('validez_dias')
-                    or data.get('validity_days'),
+                    data.get(
+                        'validez_dias'
+                    )
+                    or data.get(
+                        'validity_days'
+                    ),
                     default=30,
                     minimum=1,
                     maximum=365,
@@ -1892,8 +2728,12 @@ class PowerAppsAPI(http.Controller):
 
             'descuento_general':
                 self._safe_float(
-                    data.get('descuento_general')
-                    or data.get('general_discount'),
+                    data.get(
+                        'descuento_general'
+                    )
+                    or data.get(
+                        'general_discount'
+                    ),
                     default=0.0,
                     minimum=0.0,
                     maximum=100.0,
@@ -1901,7 +2741,9 @@ class PowerAppsAPI(http.Controller):
 
             'igv':
                 self._safe_float(
-                    data.get('igv'),
+                    data.get(
+                        'igv'
+                    ),
                     default=18.0,
                     minimum=0.0,
                     maximum=100.0,
@@ -1909,8 +2751,12 @@ class PowerAppsAPI(http.Controller):
 
             'observaciones':
                 self._safe_str(
-                    data.get('observaciones')
-                    or data.get('notes')
+                    data.get(
+                        'observaciones'
+                    )
+                    or data.get(
+                        'notes'
+                    )
                 ),
 
             'linea_equipos_ids':
@@ -1918,23 +2764,34 @@ class PowerAppsAPI(http.Controller):
         }
 
         if duration:
+
             vals[
                 'duracion_contrato_id'
             ] = duration.id
 
-        if data.get(
-            'fecha_inicio_propuesta'
-        ):
+        start_date = (
+            data.get(
+                'fecha_inicio_propuesta'
+            )
+            or data.get(
+                'proposed_start'
+            )
+        )
+
+        if start_date:
+
             vals[
                 'fecha_inicio_propuesta'
-            ] = data[
-                'fecha_inicio_propuesta'
-            ]
+            ] = start_date
 
         quotation = (
-            request.env['copier.quotation']
+            request.env[
+                'copier.quotation'
+            ]
             .sudo()
-            .create(vals)
+            .create(
+                vals
+            )
         )
 
         _logger.info(
@@ -1942,71 +2799,34 @@ class PowerAppsAPI(http.Controller):
             'QUOTATION CREATED | '
             'id=%s | '
             'name=%s | '
-            'cliente=%s | '
-            'email=%s | '
+            'customer=%s | '
+            'user_email=%s | '
+            'currency=%s | '
+            'monthly_total=%s | '
             'total=%s',
             quotation.id,
             quotation.name,
             partner.name,
             email,
+            currency.name,
+            quotation.total_mensual,
             quotation.total_por_modalidad,
         )
 
         return {
-
-            'ok':
-                True,
-
-            'action':
-                'create_quotation',
-
-            'message':
-                'Cotización creada correctamente',
-
-            'quotation': {
-
-                'id':
-                    quotation.id,
-
-                'name':
-                    quotation.name,
-
-                'customer':
-                    partner.name,
-
-                'currency':
-                    currency.name,
-
-                'monthly_subtotal':
-                    quotation.subtotal_mensual,
-
-                'monthly_igv':
-                    quotation.igv_mensual,
-
-                'monthly_total':
-                    quotation.total_mensual,
-
-                'final_subtotal':
-                    quotation.subtotal_final,
-
-                'final_igv':
-                    quotation.igv_final,
-
-                'total':
-                    quotation.total_por_modalidad,
-
-                'quotation_date':
-                    quotation.fecha_cotizacion,
-
-                'expiration_date':
-                    quotation.fecha_vencimiento,
-
-                'state':
-                    quotation.estado,
-
-                'created_by_email':
-                    email,
-            },
+            'ok': True,
+            'action': (
+                'create_quotation'
+            ),
+            'message': (
+                'Cotización creada '
+                'correctamente'
+            ),
+            'quotation': (
+                self._serialize_quotation_summary(
+                    quotation
+                )
+            ),
         }
 
     # ============================================================
@@ -2019,44 +2839,41 @@ class PowerAppsAPI(http.Controller):
         email,
     ):
 
-        quotation_id = self._safe_int(
-            data.get('quotation_id'),
-            default=0,
-        )
-
-        if not quotation_id:
-            raise ValueError(
-                'quotation_id es obligatorio'
-            )
-
         quotation = (
-            request.env['copier.quotation']
-            .sudo()
-            .browse(quotation_id)
+            self._get_quotation_from_data(
+                data
+            )
         )
 
-        if not quotation.exists():
-            raise ValueError(
-                'Cotización no encontrada'
-            )
+        if (
+            quotation.estado
+            not in {
+                'borrador',
+                'rechazado',
+            }
+        ):
 
-        if quotation.estado not in {
-            'borrador',
-            'rechazado',
-        }:
             raise ValueError(
-                'Solo se pueden modificar '
-                'cotizaciones en borrador o rechazadas'
+                (
+                    'Solo se pueden modificar '
+                    'cotizaciones en borrador '
+                    'o rechazadas'
+                )
             )
 
         vals = {}
 
-        simple_fields = {
-
+        text_mapping = {
             'contacto':
                 'contacto',
 
+            'contact':
+                'contacto',
+
             'telefono':
+                'telefono',
+
+            'phone':
                 'telefono',
 
             'email':
@@ -2065,95 +2882,141 @@ class PowerAppsAPI(http.Controller):
             'direccion':
                 'direccion',
 
+            'address':
+                'direccion',
+
             'sede':
                 'sede',
 
-            'fecha_inicio_propuesta':
-                'fecha_inicio_propuesta',
+            'branch':
+                'sede',
 
             'observaciones':
                 'observaciones',
+
+            'notes':
+                'observaciones',
         }
 
-        for source, target in simple_fields.items():
+        for source, target in (
+            text_mapping.items()
+        ):
 
             if source in data:
-                vals[target] = data[source]
 
-        if 'validez_dias' in data:
-
-            vals['validez_dias'] = (
-                self._safe_int(
-                    data.get('validez_dias'),
-                    default=30,
-                    minimum=1,
-                    maximum=365,
+                vals[
+                    target
+                ] = self._safe_str(
+                    data.get(
+                        source
+                    )
                 )
+
+        if (
+            'fecha_inicio_propuesta'
+            in data
+        ):
+
+            vals[
+                'fecha_inicio_propuesta'
+            ] = data.get(
+                'fecha_inicio_propuesta'
             )
 
-        if 'descuento_general' in data:
+        elif (
+            'proposed_start'
+            in data
+        ):
 
-            vals['descuento_general'] = (
-                self._safe_float(
-                    data.get(
-                        'descuento_general'
-                    ),
-                    default=0,
-                    minimum=0,
-                    maximum=100,
+            vals[
+                'fecha_inicio_propuesta'
+            ] = data.get(
+                'proposed_start'
+            )
+
+        if (
+            'validez_dias'
+            in data
+            or 'validity_days'
+            in data
+        ):
+
+            vals[
+                'validez_dias'
+            ] = self._safe_int(
+                data.get(
+                    'validez_dias'
                 )
+                or data.get(
+                    'validity_days'
+                ),
+                default=30,
+                minimum=1,
+                maximum=365,
+            )
+
+        if (
+            'descuento_general'
+            in data
+            or 'general_discount'
+            in data
+        ):
+
+            vals[
+                'descuento_general'
+            ] = self._safe_float(
+                data.get(
+                    'descuento_general'
+                )
+                or data.get(
+                    'general_discount'
+                ),
+                default=0,
+                minimum=0,
+                maximum=100,
             )
 
         if 'igv' in data:
 
-            vals['igv'] = (
-                self._safe_float(
-                    data.get('igv'),
-                    default=18,
-                    minimum=0,
-                    maximum=100,
-                )
+            vals[
+                'igv'
+            ] = self._safe_float(
+                data.get(
+                    'igv'
+                ),
+                default=18,
+                minimum=0,
+                maximum=100,
             )
 
         if 'currency' in data:
 
-            currency_code = (
-                self._safe_str(
-                    data.get('currency')
-                )
-                .upper()
-            )
-
             currency = (
-                request.env['res.currency']
-                .sudo()
-                .search(
-                    [
-                        (
-                            'name',
-                            '=',
-                            currency_code
-                        ),
-                    ],
-                    limit=1,
+                self._get_currency(
+                    data.get(
+                        'currency'
+                    )
                 )
             )
 
-            if not currency:
-                raise ValueError(
-                    'Moneda no encontrada'
-                )
+            vals[
+                'currency_id'
+            ] = currency.id
 
-            vals['currency_id'] = (
-                currency.id
-            )
-
-        if 'modalidad_pago_id' in data:
+        if (
+            'modalidad_pago_id'
+            in data
+            or 'payment_mode_id'
+            in data
+        ):
 
             payment_mode_id = (
                 self._safe_int(
                     data.get(
                         'modalidad_pago_id'
+                    )
+                    or data.get(
+                        'payment_mode_id'
                     ),
                     default=0,
                 )
@@ -2164,63 +3027,141 @@ class PowerAppsAPI(http.Controller):
                     'copier.payment.mode'
                 ]
                 .sudo()
-                .browse(payment_mode_id)
+                .browse(
+                    payment_mode_id
+                )
             )
 
-            if not payment_mode.exists():
+            if (
+                not payment_mode.exists()
+            ):
+
                 raise ValueError(
-                    'Modalidad de pago '
-                    'no encontrada'
+                    (
+                        'Modalidad de pago '
+                        'no encontrada'
+                    )
                 )
 
             vals[
                 'modalidad_pago_id'
             ] = payment_mode.id
 
-        if 'duracion_contrato_id' in data:
+        if (
+            'duracion_contrato_id'
+            in data
+            or 'duration_id'
+            in data
+        ):
 
-            duration_id = self._safe_int(
-                data.get(
-                    'duracion_contrato_id'
-                ),
-                default=0,
+            duration_id = (
+                self._safe_int(
+                    data.get(
+                        'duracion_contrato_id'
+                    )
+                    or data.get(
+                        'duration_id'
+                    ),
+                    default=0,
+                )
             )
 
             duration = (
-                request.env['copier.duracion']
+                request.env[
+                    'copier.duracion'
+                ]
                 .sudo()
-                .browse(duration_id)
+                .browse(
+                    duration_id
+                )
             )
 
             if not duration.exists():
+
                 raise ValueError(
-                    'Duración no encontrada'
+                    (
+                        'Duración '
+                        'no encontrada'
+                    )
                 )
 
             vals[
                 'duracion_contrato_id'
             ] = duration.id
 
+        # ========================================================
+        # REEMPLAZAR LÍNEAS SI SE ENVÍAN EQUIPOS
+        # ========================================================
+
+        if (
+            'equipos'
+            in data
+            or 'equipment'
+            in data
+        ):
+
+            equipment_data = (
+                data.get(
+                    'equipos'
+                )
+                or data.get(
+                    'equipment'
+                )
+                or []
+            )
+
+            lines = (
+                self._prepare_equipment_lines(
+                    equipment_data
+                )
+            )
+
+            vals[
+                'linea_equipos_ids'
+            ] = [
+                (
+                    5,
+                    0,
+                    0,
+                ),
+                *lines,
+            ]
+
         if vals:
-            quotation.write(vals)
+
+            quotation.write(
+                vals
+            )
 
         _logger.info(
             '[POWERAPPS API] '
             'QUOTATION UPDATED | '
-            'id=%s | name=%s | email=%s',
+            'id=%s | '
+            'name=%s | '
+            'email=%s | '
+            'fields=%s',
             quotation.id,
             quotation.name,
             email,
+            list(
+                vals.keys()
+            ),
         )
 
         return {
             'ok': True,
-            'action': 'update_quotation',
-            'message': (
-                'Cotización actualizada correctamente'
+            'action': (
+                'update_quotation'
             ),
-            'quotation_id': quotation.id,
-            'name': quotation.name,
+            'message': (
+                'Cotización actualizada '
+                'correctamente'
+            ),
+            'quotation': (
+                self._serialize_quotation_summary(
+                    quotation
+                )
+            ),
         }
 
     # ============================================================
@@ -2233,55 +3174,58 @@ class PowerAppsAPI(http.Controller):
         email,
     ):
 
-        quotation_id = self._safe_int(
-            data.get('quotation_id'),
-            default=0,
-        )
-
-        if not quotation_id:
-            raise ValueError(
-                'quotation_id es obligatorio'
-            )
-
         quotation = (
-            request.env['copier.quotation']
-            .sudo()
-            .browse(quotation_id)
+            self._get_quotation_from_data(
+                data
+            )
         )
 
-        if not quotation.exists():
+        if (
+            quotation.estado
+            != 'borrador'
+        ):
+
             raise ValueError(
-                'Cotización no encontrada'
+                (
+                    'Solo se pueden eliminar '
+                    'cotizaciones en borrador'
+                )
             )
 
-        if quotation.estado != 'borrador':
-            raise ValueError(
-                'Solo se pueden eliminar '
-                'cotizaciones en borrador'
-            )
+        quotation_id = (
+            quotation.id
+        )
 
-        name = quotation.name
+        quotation_name = (
+            quotation.name
+        )
 
         quotation.unlink()
 
         _logger.info(
             '[POWERAPPS API] '
             'QUOTATION DELETED | '
-            'name=%s | email=%s',
-            name,
+            'id=%s | '
+            'name=%s | '
+            'email=%s',
+            quotation_id,
+            quotation_name,
             email,
         )
 
         return {
             'ok': True,
-            'action': 'delete_quotation',
+            'action': (
+                'delete_quotation'
+            ),
             'message': (
-                'Cotización eliminada correctamente'
+                'Cotización eliminada '
+                'correctamente'
             ),
         }
 
     # ============================================================
-    # ENVIAR COTIZACIÓN
+    # ENVIAR
     # ============================================================
 
     def _action_send_quotation(
@@ -2311,15 +3255,19 @@ class PowerAppsAPI(http.Controller):
 
         return {
             'ok': True,
-            'action': 'send_quotation',
-            'message': (
-                'Cotización marcada como enviada'
+            'action': (
+                'send_quotation'
             ),
-            'state': quotation.estado,
+            'message': (
+                'Cotización marcada '
+                'como enviada'
+            ),
+            'state':
+                quotation.estado,
         }
 
     # ============================================================
-    # APROBAR COTIZACIÓN
+    # APROBAR
     # ============================================================
 
     def _action_approve_quotation(
@@ -2349,15 +3297,64 @@ class PowerAppsAPI(http.Controller):
 
         return {
             'ok': True,
-            'action': 'approve_quotation',
-            'message': (
-                'Cotización aprobada correctamente'
+            'action': (
+                'approve_quotation'
             ),
-            'state': quotation.estado,
+            'message': (
+                'Cotización aprobada'
+            ),
+            'state':
+                quotation.estado,
         }
 
     # ============================================================
-    # CONVERTIR COTIZACIÓN A CONTRATOS
+    # RECHAZAR
+    # ============================================================
+
+    def _action_reject_quotation(
+        self,
+        data,
+        email,
+    ):
+
+        quotation = (
+            self._get_quotation_from_data(
+                data
+            )
+        )
+
+        quotation.write(
+            {
+                'estado':
+                    'rechazado',
+            }
+        )
+
+        _logger.info(
+            '[POWERAPPS API] '
+            'QUOTATION REJECTED | '
+            'id=%s | '
+            'name=%s | '
+            'email=%s',
+            quotation.id,
+            quotation.name,
+            email,
+        )
+
+        return {
+            'ok': True,
+            'action': (
+                'reject_quotation'
+            ),
+            'message': (
+                'Cotización rechazada'
+            ),
+            'state':
+                quotation.estado,
+        }
+
+    # ============================================================
+    # CONVERTIR A CONTRATO
     # ============================================================
 
     def _action_convert_quotation(
@@ -2372,10 +3369,17 @@ class PowerAppsAPI(http.Controller):
             )
         )
 
-        if quotation.estado != 'aprobado':
+        if (
+            quotation.estado
+            != 'aprobado'
+        ):
+
             raise ValueError(
-                'La cotización debe estar aprobada '
-                'antes de convertirla'
+                (
+                    'La cotización debe '
+                    'estar aprobada antes '
+                    'de convertirla'
+                )
             )
 
         quotation.action_convertir_contratos()
@@ -2393,15 +3397,19 @@ class PowerAppsAPI(http.Controller):
 
         return {
             'ok': True,
-            'action': 'convert_quotation',
-            'message': (
-                'Cotización convertida a contratos'
+            'action': (
+                'convert_quotation'
             ),
-            'state': quotation.estado,
+            'message': (
+                'Cotización convertida '
+                'a contratos'
+            ),
+            'state':
+                quotation.estado,
         }
 
     # ============================================================
-    # HELPER COTIZACIÓN
+    # OBTENER COTIZACIÓN
     # ============================================================
 
     def _get_quotation_from_data(
@@ -2409,23 +3417,39 @@ class PowerAppsAPI(http.Controller):
         data,
     ):
 
-        quotation_id = self._safe_int(
-            data.get('quotation_id'),
-            default=0,
+        quotation_id = (
+            self._safe_int(
+                data.get(
+                    'quotation_id'
+                )
+                or data.get(
+                    'cotizacion_id'
+                ),
+                default=0,
+            )
         )
 
         if not quotation_id:
+
             raise ValueError(
-                'quotation_id es obligatorio'
+                (
+                    'quotation_id '
+                    'es obligatorio'
+                )
             )
 
         quotation = (
-            request.env['copier.quotation']
+            request.env[
+                'copier.quotation'
+            ]
             .sudo()
-            .browse(quotation_id)
+            .browse(
+                quotation_id
+            )
         )
 
         if not quotation.exists():
+
             raise ValueError(
                 'Cotización no encontrada'
             )
