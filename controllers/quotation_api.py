@@ -6,10 +6,10 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-class PowerAppsQuotationAPI(http.Controller):
+class PowerAppsAPI(http.Controller):
 
     # ============================================================
-    # HELPERS
+    # RESPUESTA JSON
     # ============================================================
 
     def _json_response(self, data, status=200):
@@ -19,20 +19,16 @@ class PowerAppsQuotationAPI(http.Controller):
                 ('Content-Type', 'application/json; charset=utf-8'),
                 ('Access-Control-Allow-Origin', '*'),
                 ('Access-Control-Allow-Headers', 'Content-Type, X-API-Key, X-User-Email'),
-                ('Access-Control-Allow-Methods', 'GET, POST, OPTIONS'),
+                ('Access-Control-Allow-Methods', 'POST, OPTIONS'),
             ],
             status=status,
         )
 
+    # ============================================================
+    # SEGURIDAD
+    # ============================================================
+
     def _check_api_key(self):
-        """
-        Valida la API Key configurada en:
-        Ajustes > Parámetros del sistema
-
-        Clave:
-        copier.powerapps.api_key
-        """
-
         configured_key = (
             request.env['ir.config_parameter']
             .sudo()
@@ -42,9 +38,6 @@ class PowerAppsQuotationAPI(http.Controller):
         received_key = request.httprequest.headers.get('X-API-Key')
 
         if not configured_key:
-            _logger.error(
-                "No existe el parámetro copier.powerapps.api_key"
-            )
             return False, 'API Key no configurada en Odoo'
 
         if not received_key:
@@ -55,7 +48,7 @@ class PowerAppsQuotationAPI(http.Controller):
 
         return True, None
 
-    def _get_external_user_email(self):
+    def _get_external_email(self):
         return (
             request.httprequest.headers.get('X-User-Email')
             or ''
@@ -66,35 +59,35 @@ class PowerAppsQuotationAPI(http.Controller):
     # ============================================================
 
     @http.route(
-        '/api/powerapps/<path:any_path>',
+        '/api/powerapps',
         type='http',
         auth='none',
         methods=['OPTIONS'],
         csrf=False,
     )
-    def powerapps_options(self, any_path=None, **kwargs):
+    def powerapps_options(self, **kwargs):
         return request.make_response(
             '',
             headers=[
                 ('Access-Control-Allow-Origin', '*'),
                 ('Access-Control-Allow-Headers', 'Content-Type, X-API-Key, X-User-Email'),
-                ('Access-Control-Allow-Methods', 'GET, POST, OPTIONS'),
+                ('Access-Control-Allow-Methods', 'POST, OPTIONS'),
             ],
             status=200,
         )
 
     # ============================================================
-    # TEST DE CONEXIÓN
+    # ENDPOINT CENTRAL
     # ============================================================
 
     @http.route(
-        '/api/powerapps/ping',
+        '/api/powerapps',
         type='http',
         auth='none',
-        methods=['GET'],
+        methods=['POST'],
         csrf=False,
     )
-    def ping(self, **kwargs):
+    def powerapps_execute(self, **kwargs):
 
         valid, error = self._check_api_key()
 
@@ -107,42 +100,114 @@ class PowerAppsQuotationAPI(http.Controller):
                 status=401,
             )
 
-        email = self._get_external_user_email()
+        try:
+            raw_data = request.httprequest.data or b'{}'
+            payload = json.loads(raw_data.decode('utf-8'))
 
-        return self._json_response({
+        except Exception as e:
+            return self._json_response(
+                {
+                    'ok': False,
+                    'error': 'JSON inválido',
+                    'detail': str(e),
+                },
+                status=400,
+            )
+
+        action = (payload.get('action') or '').strip()
+        data = payload.get('data') or {}
+
+        if not action:
+            return self._json_response(
+                {
+                    'ok': False,
+                    'error': 'Falta action',
+                },
+                status=400,
+            )
+
+        email = self._get_external_email()
+
+        try:
+
+            # ----------------------------------------------------
+            # ROUTER
+            # ----------------------------------------------------
+
+            actions = {
+                'ping': self._action_ping,
+                'customers': self._action_customers,
+                'equipment': self._action_equipment,
+                'payment_modes': self._action_payment_modes,
+                'currencies': self._action_currencies,
+                'create_quotation': self._action_create_quotation,
+                'quotations': self._action_quotations,
+                'quotation_detail': self._action_quotation_detail,
+            }
+
+            handler = actions.get(action)
+
+            if not handler:
+                return self._json_response(
+                    {
+                        'ok': False,
+                        'error': f'Acción no válida: {action}',
+                    },
+                    status=400,
+                )
+
+            result = handler(
+                data=data,
+                email=email,
+            )
+
+            return self._json_response(result)
+
+        except Exception as e:
+
+            _logger.exception(
+                "Power Apps API error | action=%s | email=%s",
+                action,
+                email,
+            )
+
+            return self._json_response(
+                {
+                    'ok': False,
+                    'error': 'Error interno en Odoo',
+                    'detail': str(e),
+                },
+                status=500,
+            )
+
+    # ============================================================
+    # PING
+    # ============================================================
+
+    def _action_ping(self, data, email):
+
+        return {
             'ok': True,
+            'action': 'ping',
             'message': 'Conexión correcta con Odoo',
             'user_email': email,
-        })
+        }
 
     # ============================================================
     # CLIENTES
     # ============================================================
 
-    @http.route(
-        '/api/powerapps/customers',
-        type='http',
-        auth='none',
-        methods=['GET'],
-        csrf=False,
-    )
-    def customers(self, **kwargs):
-
-        valid, error = self._check_api_key()
-
-        if not valid:
-            return self._json_response(
-                {
-                    'ok': False,
-                    'error': error,
-                },
-                status=401,
-            )
+    def _action_customers(self, data, email):
 
         search_text = (
-            request.httprequest.args.get('search')
+            data.get('search')
             or ''
         ).strip()
+
+        limit = int(
+            data.get('limit')
+            or 100
+        )
 
         domain = [
             ('active', '=', True),
@@ -163,14 +228,14 @@ class PowerAppsQuotationAPI(http.Controller):
             .search(
                 domain,
                 order='name asc',
-                limit=100,
+                limit=limit,
             )
         )
 
-        results = []
+        customers = []
 
         for partner in partners:
-            results.append({
+            customers.append({
                 'id': partner.id,
                 'name': partner.name or '',
                 'vat': partner.vat or '',
@@ -180,172 +245,155 @@ class PowerAppsQuotationAPI(http.Controller):
                 'city': partner.city or '',
             })
 
-        return self._json_response({
+        return {
             'ok': True,
-            'count': len(results),
-            'customers': results,
-        })
+            'action': 'customers',
+            'count': len(customers),
+            'customers': customers,
+        }
 
     # ============================================================
-    # MODELOS / EQUIPOS
+    # EQUIPOS / MODELOS
     # ============================================================
 
-    @http.route(
-        '/api/powerapps/equipment',
-        type='http',
-        auth='none',
-        methods=['GET'],
-        csrf=False,
-    )
-    def equipment(self, **kwargs):
-
-        valid, error = self._check_api_key()
-
-        if not valid:
-            return self._json_response(
-                {
-                    'ok': False,
-                    'error': error,
-                },
-                status=401,
-            )
+    def _action_equipment(self, data, email):
 
         search_text = (
-            request.httprequest.args.get('search')
+            data.get('search')
             or ''
         ).strip()
+
+        limit = int(
+            data.get('limit')
+            or 100
+        )
 
         domain = []
 
         if search_text:
-            domain += [
-                ('name', 'ilike', search_text),
-            ]
+            domain.append(
+                ('name', 'ilike', search_text)
+            )
 
-        models = (
+        machines = (
             request.env['modelos.maquinas']
             .sudo()
             .search(
                 domain,
                 order='name asc',
-                limit=100,
+                limit=limit,
             )
         )
 
-        results = []
+        equipment = []
 
-        for machine in models:
+        for machine in machines:
 
-            marca = ''
-
-            if machine.marca_id:
-                marca = machine.marca_id.name or ''
-
-            results.append({
+            equipment.append({
                 'id': machine.id,
                 'name': machine.name or '',
-                'brand': marca,
+                'brand': (
+                    machine.marca_id.name
+                    if machine.marca_id
+                    else ''
+                ),
             })
 
-        return self._json_response({
+        return {
             'ok': True,
-            'count': len(results),
-            'equipment': results,
-        })
+            'action': 'equipment',
+            'count': len(equipment),
+            'equipment': equipment,
+        }
+
+    # ============================================================
+    # MODALIDADES DE PAGO
+    # ============================================================
+
+    def _action_payment_modes(self, data, email):
+
+        records = (
+            request.env['copier.payment.mode']
+            .sudo()
+            .search(
+                [('activo', '=', True)],
+                order='frecuencia_meses asc',
+            )
+        )
+
+        values = []
+
+        for rec in records:
+            values.append({
+                'id': rec.id,
+                'name': rec.name or '',
+                'frecuencia_meses': rec.frecuencia_meses,
+                'descuento_porcentaje': rec.descuento_porcentaje,
+                'descripcion': rec.descripcion or '',
+            })
+
+        return {
+            'ok': True,
+            'action': 'payment_modes',
+            'payment_modes': values,
+        }
+
+    # ============================================================
+    # MONEDAS
+    # ============================================================
+
+    def _action_currencies(self, data, email):
+
+        records = (
+            request.env['res.currency']
+            .sudo()
+            .search(
+                [
+                    ('active', '=', True),
+                    ('name', 'in', ['PEN', 'USD']),
+                ],
+                order='name asc',
+            )
+        )
+
+        values = []
+
+        for rec in records:
+            values.append({
+                'id': rec.id,
+                'name': rec.name,
+                'symbol': rec.symbol or '',
+            })
+
+        return {
+            'ok': True,
+            'action': 'currencies',
+            'currencies': values,
+        }
 
     # ============================================================
     # CREAR COTIZACIÓN
     # ============================================================
 
-    @http.route(
-        '/api/powerapps/quotations',
-        type='http',
-        auth='none',
-        methods=['POST'],
-        csrf=False,
-    )
-    def create_quotation(self, **kwargs):
-
-        valid, error = self._check_api_key()
-
-        if not valid:
-            return self._json_response(
-                {
-                    'ok': False,
-                    'error': error,
-                },
-                status=401,
-            )
-
-        try:
-
-            raw_data = request.httprequest.data
-
-            if not raw_data:
-                return self._json_response(
-                    {
-                        'ok': False,
-                        'error': 'No se recibió información',
-                    },
-                    status=400,
-                )
-
-            data = json.loads(
-                raw_data.decode('utf-8')
-            )
-
-        except Exception as e:
-            _logger.exception(
-                "Error leyendo JSON de Power Apps"
-            )
-
-            return self._json_response(
-                {
-                    'ok': False,
-                    'error': 'JSON inválido',
-                    'detail': str(e),
-                },
-                status=400,
-            )
-
-        # --------------------------------------------------------
-        # DATOS OBLIGATORIOS
-        # --------------------------------------------------------
+    def _action_create_quotation(self, data, email):
 
         cliente_id = data.get('cliente_id')
         modalidad_pago_id = data.get('modalidad_pago_id')
+
         equipos = data.get('equipos') or []
 
         if not cliente_id:
-            return self._json_response(
-                {
-                    'ok': False,
-                    'error': 'cliente_id es obligatorio',
-                },
-                status=400,
-            )
+            raise ValueError('cliente_id es obligatorio')
 
         if not modalidad_pago_id:
-            return self._json_response(
-                {
-                    'ok': False,
-                    'error': 'modalidad_pago_id es obligatorio',
-                },
-                status=400,
+            raise ValueError(
+                'modalidad_pago_id es obligatorio'
             )
 
         if not equipos:
-            return self._json_response(
-                {
-                    'ok': False,
-                    'error': 'Debe incluir al menos un equipo',
-                },
-                status=400,
+            raise ValueError(
+                'Debe incluir al menos un equipo'
             )
-
-        # --------------------------------------------------------
-        # VALIDAR CLIENTE
-        # --------------------------------------------------------
 
         partner = (
             request.env['res.partner']
@@ -354,17 +402,9 @@ class PowerAppsQuotationAPI(http.Controller):
         )
 
         if not partner.exists():
-            return self._json_response(
-                {
-                    'ok': False,
-                    'error': 'Cliente no encontrado',
-                },
-                status=404,
+            raise ValueError(
+                'Cliente no encontrado'
             )
-
-        # --------------------------------------------------------
-        # VALIDAR MODALIDAD
-        # --------------------------------------------------------
 
         payment_mode = (
             request.env['copier.payment.mode']
@@ -373,17 +413,9 @@ class PowerAppsQuotationAPI(http.Controller):
         )
 
         if not payment_mode.exists():
-            return self._json_response(
-                {
-                    'ok': False,
-                    'error': 'Modalidad de pago no encontrada',
-                },
-                status=404,
+            raise ValueError(
+                'Modalidad de pago no encontrada'
             )
-
-        # --------------------------------------------------------
-        # MONEDA
-        # --------------------------------------------------------
 
         currency_code = (
             data.get('currency')
@@ -400,77 +432,33 @@ class PowerAppsQuotationAPI(http.Controller):
         )
 
         if not currency:
-            return self._json_response(
-                {
-                    'ok': False,
-                    'error': f'Moneda {currency_code} no encontrada',
-                },
-                status=404,
+            raise ValueError(
+                f'Moneda {currency_code} no encontrada'
             )
-
-        # --------------------------------------------------------
-        # LÍNEAS
-        # --------------------------------------------------------
 
         lines = []
 
-        for index, item in enumerate(equipos, start=1):
+        for index, item in enumerate(
+            equipos,
+            start=1,
+        ):
 
             equipo_id = item.get('equipo_id')
 
             if not equipo_id:
-                return self._json_response(
-                    {
-                        'ok': False,
-                        'error': f'Equipo #{index}: falta equipo_id',
-                    },
-                    status=400,
+                raise ValueError(
+                    f'Equipo #{index}: falta equipo_id'
                 )
 
-            equipment = (
+            machine = (
                 request.env['modelos.maquinas']
                 .sudo()
                 .browse(int(equipo_id))
             )
 
-            if not equipment.exists():
-                return self._json_response(
-                    {
-                        'ok': False,
-                        'error': f'Equipo #{index} no encontrado',
-                    },
-                    status=404,
-                )
-
-            cantidad = int(
-                item.get('cantidad')
-                or 1
-            )
-
-            if cantidad <= 0:
-                return self._json_response(
-                    {
-                        'ok': False,
-                        'error': f'Equipo #{index}: cantidad inválida',
-                    },
-                    status=400,
-                )
-
-            tipo_equipo = (
-                item.get('tipo_equipo')
-                or 'monocroma'
-            )
-
-            if tipo_equipo not in [
-                'monocroma',
-                'color',
-            ]:
-                return self._json_response(
-                    {
-                        'ok': False,
-                        'error': f'Equipo #{index}: tipo_equipo inválido',
-                    },
-                    status=400,
+            if not machine.exists():
+                raise ValueError(
+                    f'Equipo #{index}: no encontrado'
                 )
 
             lines.append(
@@ -479,18 +467,35 @@ class PowerAppsQuotationAPI(http.Controller):
                     0,
                     {
                         'sequence': index * 10,
-                        'equipo_id': equipment.id,
-                        'cantidad': cantidad,
-                        'tipo_equipo': tipo_equipo,
-                        'formato': item.get('formato') or 'a4',
+
+                        'equipo_id': machine.id,
+
+                        'cantidad': int(
+                            item.get('cantidad')
+                            or 1
+                        ),
+
+                        'tipo_equipo': (
+                            item.get('tipo_equipo')
+                            or 'monocroma'
+                        ),
+
+                        'formato': (
+                            item.get('formato')
+                            or 'a4'
+                        ),
 
                         'volumen_mensual_bn': int(
-                            item.get('volumen_mensual_bn')
+                            item.get(
+                                'volumen_mensual_bn'
+                            )
                             or 0
                         ),
 
                         'volumen_mensual_color': int(
-                            item.get('volumen_mensual_color')
+                            item.get(
+                                'volumen_mensual_color'
+                            )
                             or 0
                         ),
 
@@ -512,23 +517,39 @@ class PowerAppsQuotationAPI(http.Controller):
                 )
             )
 
-        # --------------------------------------------------------
-        # CREACIÓN
-        # --------------------------------------------------------
-
-        external_email = self._get_external_user_email()
-
         vals = {
             'cliente_id': partner.id,
-            'modalidad_pago_id': payment_mode.id,
+
+            'modalidad_pago_id': (
+                payment_mode.id
+            ),
+
             'currency_id': currency.id,
 
-            'contacto': data.get('contacto') or '',
-            'telefono': data.get('telefono') or '',
-            'email': data.get('email') or '',
+            'contacto': (
+                data.get('contacto')
+                or ''
+            ),
 
-            'direccion': data.get('direccion') or '',
-            'sede': data.get('sede') or '',
+            'telefono': (
+                data.get('telefono')
+                or ''
+            ),
+
+            'email': (
+                data.get('email')
+                or ''
+            ),
+
+            'direccion': (
+                data.get('direccion')
+                or ''
+            ),
+
+            'sede': (
+                data.get('sede')
+                or ''
+            ),
 
             'validez_dias': int(
                 data.get('validez_dias')
@@ -536,7 +557,9 @@ class PowerAppsQuotationAPI(http.Controller):
             ),
 
             'descuento_general': float(
-                data.get('descuento_general')
+                data.get(
+                    'descuento_general'
+                )
                 or 0
             ),
 
@@ -545,75 +568,273 @@ class PowerAppsQuotationAPI(http.Controller):
                 or 18
             ),
 
-            'observaciones': data.get('observaciones') or '',
+            'observaciones': (
+                data.get('observaciones')
+                or ''
+            ),
 
             'linea_equipos_ids': lines,
         }
 
-        try:
-
-            quotation = (
-                request.env['copier.quotation']
-                .sudo()
-                .create(vals)
-            )
-
-            _logger.info(
-                "Cotización Power Apps creada | "
-                "id=%s | numero=%s | email=%s",
-                quotation.id,
-                quotation.name,
-                external_email,
-            )
-
-        except Exception as e:
-
-            _logger.exception(
-                "Error creando cotización desde Power Apps"
-            )
-
-            return self._json_response(
-                {
-                    'ok': False,
-                    'error': 'No se pudo crear la cotización',
-                    'detail': str(e),
-                },
-                status=500,
-            )
-
-        return self._json_response(
-            {
-                'ok': True,
-
-                'quotation': {
-                    'id': quotation.id,
-                    'name': quotation.name,
-
-                    'cliente': (
-                        quotation.cliente_id.name
-                        or ''
-                    ),
-
-                    'currency': (
-                        quotation.currency_id.name
-                        or ''
-                    ),
-
-                    'subtotal_mensual': quotation.subtotal_mensual,
-                    'igv_mensual': quotation.igv_mensual,
-                    'total_mensual': quotation.total_mensual,
-
-                    'subtotal_final': quotation.subtotal_final,
-                    'igv_final': quotation.igv_final,
-                    'total': quotation.total_por_modalidad,
-
-                    'fecha_cotizacion': quotation.fecha_cotizacion,
-                    'fecha_vencimiento': quotation.fecha_vencimiento,
-
-                    'estado': quotation.estado,
-
-                    'asesora_email': external_email,
-                },
-            },
-            status=201,
+        quotation = (
+            request.env['copier.quotation']
+            .sudo()
+            .create(vals)
         )
+
+        _logger.info(
+            "Cotización creada desde Power Apps | "
+            "numero=%s | asesora=%s",
+            quotation.name,
+            email,
+        )
+
+        return {
+            'ok': True,
+            'action': 'create_quotation',
+
+            'quotation': {
+                'id': quotation.id,
+                'name': quotation.name,
+
+                'cliente': (
+                    quotation.cliente_id.name
+                    or ''
+                ),
+
+                'currency': (
+                    quotation.currency_id.name
+                    or ''
+                ),
+
+                'subtotal_mensual': (
+                    quotation.subtotal_mensual
+                ),
+
+                'igv_mensual': (
+                    quotation.igv_mensual
+                ),
+
+                'total_mensual': (
+                    quotation.total_mensual
+                ),
+
+                'total': (
+                    quotation.total_por_modalidad
+                ),
+
+                'fecha_cotizacion': (
+                    quotation.fecha_cotizacion
+                ),
+
+                'fecha_vencimiento': (
+                    quotation.fecha_vencimiento
+                ),
+
+                'estado': quotation.estado,
+
+                'asesora_email': email,
+            },
+        }
+
+    # ============================================================
+    # LISTAR COTIZACIONES
+    # ============================================================
+
+    def _action_quotations(self, data, email):
+
+        limit = int(
+            data.get('limit')
+            or 100
+        )
+
+        quotations = (
+            request.env['copier.quotation']
+            .sudo()
+            .search(
+                [],
+                order='id desc',
+                limit=limit,
+            )
+        )
+
+        values = []
+
+        for q in quotations:
+
+            values.append({
+                'id': q.id,
+                'name': q.name,
+
+                'cliente': (
+                    q.cliente_id.name
+                    or ''
+                ),
+
+                'fecha': (
+                    q.fecha_cotizacion
+                ),
+
+                'vencimiento': (
+                    q.fecha_vencimiento
+                ),
+
+                'currency': (
+                    q.currency_id.name
+                    or ''
+                ),
+
+                'total': (
+                    q.total_por_modalidad
+                ),
+
+                'estado': q.estado,
+            })
+
+        return {
+            'ok': True,
+            'action': 'quotations',
+            'quotations': values,
+        }
+
+    # ============================================================
+    # DETALLE COTIZACIÓN
+    # ============================================================
+
+    def _action_quotation_detail(
+        self,
+        data,
+        email,
+    ):
+
+        quotation_id = data.get(
+            'quotation_id'
+        )
+
+        if not quotation_id:
+            raise ValueError(
+                'quotation_id es obligatorio'
+            )
+
+        q = (
+            request.env['copier.quotation']
+            .sudo()
+            .browse(int(quotation_id))
+        )
+
+        if not q.exists():
+            raise ValueError(
+                'Cotización no encontrada'
+            )
+
+        lines = []
+
+        for line in q.linea_equipos_ids:
+
+            lines.append({
+                'id': line.id,
+
+                'equipo_id': (
+                    line.equipo_id.id
+                ),
+
+                'equipo': (
+                    line.equipo_id.name
+                    or ''
+                ),
+
+                'cantidad': line.cantidad,
+
+                'tipo_equipo': (
+                    line.tipo_equipo
+                ),
+
+                'volumen_mensual_bn': (
+                    line.volumen_mensual_bn
+                ),
+
+                'volumen_mensual_color': (
+                    line.volumen_mensual_color
+                ),
+
+                'precio_bn': (
+                    line.precio_bn
+                ),
+
+                'precio_color': (
+                    line.precio_color
+                ),
+
+                'subtotal': (
+                    line.subtotal_linea
+                ),
+            })
+
+        return {
+            'ok': True,
+            'action': 'quotation_detail',
+
+            'quotation': {
+                'id': q.id,
+                'name': q.name,
+
+                'cliente_id': (
+                    q.cliente_id.id
+                ),
+
+                'cliente': (
+                    q.cliente_id.name
+                    or ''
+                ),
+
+                'contacto': (
+                    q.contacto
+                    or ''
+                ),
+
+                'telefono': (
+                    q.telefono
+                    or ''
+                ),
+
+                'email': (
+                    q.email
+                    or ''
+                ),
+
+                'direccion': (
+                    q.direccion
+                    or ''
+                ),
+
+                'sede': (
+                    q.sede
+                    or ''
+                ),
+
+                'currency': (
+                    q.currency_id.name
+                    or ''
+                ),
+
+                'estado': q.estado,
+
+                'subtotal_mensual': (
+                    q.subtotal_mensual
+                ),
+
+                'igv_mensual': (
+                    q.igv_mensual
+                ),
+
+                'total_mensual': (
+                    q.total_mensual
+                ),
+
+                'total': (
+                    q.total_por_modalidad
+                ),
+
+                'equipos': lines,
+            },
+        }
