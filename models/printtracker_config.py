@@ -540,109 +540,157 @@ class CopierCounter(models.Model):
 
     def _obtener_ultima_lectura_printtracker_v2(self, config):
         """
-        Obtiene la lectura actual desde /currentMeter.
+        Obtiene la lectura más reciente del dispositivo usando el endpoint oficial:
+        /entity/{entityId}/device/{deviceId}/meter/mostRecentPriorTo
 
-        Importante:
-        - PrintTracker documenta que currentMeter.deviceKey corresponde al ID del dispositivo.
-        - Se elimina el límite anterior de 10 páginas.
-        - Se usa un page size grande para reducir llamadas.
+        Para facturación se usan exclusivamente los contadores LIFE:
+        - pageCounts.life.totalBlack.value -> contador B/N
+        - pageCounts.life.totalColor.value -> contador Color
+
+        Los contadores EQUIV se registran solo para diagnóstico.
         """
         self.ensure_one()
 
-        target_device_id = (self.maquina_id.pt_device_id or '').strip()
-        if not target_device_id:
+        device_id = self.maquina_id.pt_device_id
+        if not device_id:
+            _logger.warning(
+                "PrintTracker: máquina sin pt_device_id | serie=%s",
+                self.serie,
+            )
             return None
 
-        path = f'entity/{config.entity_bbbb_id}/currentMeter'
+        url = (
+            f'{config.api_url.rstrip("/")}/entity/'
+            f'{config.entity_bbbb_id}/device/{device_id}/meter/mostRecentPriorTo'
+        )
 
-        page = 1
-        limit = 5000
-        total_revisados = 0
+        from datetime import datetime, time, timezone
+
+        if self.fecha:
+            fecha_ref = datetime.combine(
+                fields.Date.to_date(self.fecha),
+                time(23, 59, 59),
+            ).replace(tzinfo=timezone.utc)
+        else:
+            fecha_ref = datetime.now(timezone.utc)
+
+        params = {
+            'date': fecha_ref.isoformat().replace('+00:00', 'Z'),
+        }
 
         _logger.info(
-            'PrintTracker currentMeter: buscando deviceKey=%s | serie=%s',
-            target_device_id,
+            "PrintTracker mostRecentPriorTo | serie=%s | deviceId=%s | date=%s",
             self.serie,
+            device_id,
+            params['date'],
         )
 
-        while True:
-            params = {
-                'includeChildren': True,
-                'excludeDisabled': False,
-                'page': page,
-                'limit': limit,
-            }
-
-            response = config._get(path, params=params)
-
-            if response.status_code != 200:
-                _logger.error(
-                    'PrintTracker currentMeter: HTTP %s | página=%s | body=%s',
-                    response.status_code,
-                    page,
-                    response.text,
-                )
-                return None
-
-            meters = response.json() or []
-            total_revisados += len(meters)
-
-            _logger.info(
-                'PrintTracker currentMeter: página=%s | medidores=%s | acumulado=%s',
-                page,
-                len(meters),
-                total_revisados,
+        def _meter_call():
+            return requests.get(
+                url,
+                headers=config.get_api_headers(),
+                params=params,
+                timeout=config.timeout_seconds,
             )
 
-            if not meters:
-                break
+        response = config._retry_api_call(_meter_call)
 
-            for position, meter_data in enumerate(meters, start=1):
-                device_key = str(meter_data.get('deviceKey') or '').strip()
+        if response.status_code != 200:
+            _logger.error(
+                "PrintTracker mostRecentPriorTo HTTP %s | serie=%s | respuesta=%s",
+                response.status_code,
+                self.serie,
+                response.text[:1000],
+            )
+            return None
 
-                if device_key == target_device_id:
-                    _logger.info(
-                        'PrintTracker: lectura encontrada | página=%s | posición=%s | '
-                        'deviceKey=%s | timestamp=%s',
-                        page,
-                        position,
-                        device_key,
-                        meter_data.get('timestamp'),
-                    )
+        data = response.json()
 
-                    counts = self._get_pt_counts_container(meter_data)
-                    if not counts:
-                        _logger.error(
-                            'PrintTracker: lectura encontrada pero sin pageCounts life/default.'
-                        )
-                        return None
-
-                    _logger.info(
-                        'PrintTracker: B/N=%s | Color=%s',
-                        self._safe_int((counts.get('totalBlack') or {}).get('value', 0)),
-                        self._safe_int((counts.get('totalColor') or {}).get('value', 0)),
-                    )
-                    return meter_data
-
-            if len(meters) < limit:
-                break
-
-            page += 1
-
-            # Protección extrema únicamente para evitar ciclos anormales de API.
-            if page > 1000:
-                _logger.error(
-                    'PrintTracker: límite de seguridad de 1000 páginas alcanzado en currentMeter.'
+        # La documentación muestra una respuesta en lista.
+        # Se soporta también dict por compatibilidad.
+        if isinstance(data, list):
+            if not data:
+                _logger.warning(
+                    "PrintTracker: mostRecentPriorTo sin lecturas | serie=%s",
+                    self.serie,
                 )
-                break
+                return None
+            lectura = data[0]
+        elif isinstance(data, dict):
+            lectura = data
+        else:
+            _logger.error(
+                "PrintTracker: formato inesperado en mostRecentPriorTo | tipo=%s",
+                type(data).__name__,
+            )
+            return None
 
-        _logger.error(
-            'PrintTracker: deviceKey=%s no encontrado después de revisar %s medidores en %s páginas.',
-            target_device_id,
-            total_revisados,
-            page,
+        page_counts = lectura.get('pageCounts') or {}
+        life_counts = page_counts.get('life') or {}
+        equiv_counts = page_counts.get('equiv') or {}
+
+        if not life_counts:
+            _logger.error(
+                "PrintTracker: lectura sin pageCounts.life | serie=%s | pageCounts=%s",
+                self.serie,
+                page_counts,
+            )
+            return None
+
+        life_black = self._safe_int(
+            (life_counts.get('totalBlack') or {}).get('value', 0)
         )
-        return None
+        life_color = self._safe_int(
+            (life_counts.get('totalColor') or {}).get('value', 0)
+        )
+        life_total = self._safe_int(
+            (life_counts.get('total') or {}).get('value', 0)
+        )
+
+        equiv_black = self._safe_int(
+            (equiv_counts.get('totalBlack') or {}).get('value', 0)
+        )
+        equiv_color = self._safe_int(
+            (equiv_counts.get('totalColor') or {}).get('value', 0)
+        )
+        equiv_total = self._safe_int(
+            (equiv_counts.get('total') or {}).get('value', 0)
+        )
+
+        _logger.info(
+            "PrintTracker LIFE | serie=%s | total=%s | B/N=%s | Color=%s",
+            self.serie,
+            life_total,
+            life_black,
+            life_color,
+        )
+        _logger.info(
+            "PrintTracker EQUIV (solo diagnóstico) | serie=%s | total=%s | B/N=%s | Color=%s",
+            self.serie,
+            equiv_total,
+            equiv_black,
+            equiv_color,
+        )
+
+        if self.maquina_id.tipo != 'color':
+            life_color = 0
+
+        # Valores normalizados para que validación y actualización usen LIFE.
+        lectura['_odoo_life_black'] = life_black
+        lectura['_odoo_life_color'] = life_color
+        lectura['_odoo_life_total'] = life_total
+
+        _logger.info(
+            "PrintTracker lectura seleccionada | serie=%s | deviceKey=%s | "
+            "timestamp=%s | B/N=%s | Color=%s",
+            self.serie,
+            lectura.get('deviceKey'),
+            lectura.get('timestamp'),
+            life_black,
+            life_color,
+        )
+
+        return lectura
 
     def _get_pt_counts_container(self, lectura_pt):
         """
@@ -653,27 +701,26 @@ class CopierCounter(models.Model):
         return page_counts.get('life') or page_counts.get('default') or {}
 
     def _validar_nuevos_contadores_pt(self, lectura_pt):
+        """Valida los contadores LIFE obtenidos de PrintTracker."""
         self.ensure_one()
 
-        counts = self._get_pt_counts_container(lectura_pt)
-        if not counts:
-            return {
-                'valido': False,
-                'mensaje': 'PrintTracker no devolvió una estructura de contadores válida.',
-            }
-
         contador_bn_nuevo = self._safe_int(
-            (counts.get('totalBlack') or {}).get('value', 0)
+            lectura_pt.get('_odoo_life_black', 0)
         )
         contador_color_nuevo = self._safe_int(
-            (counts.get('totalColor') or {}).get('value', 0)
+            lectura_pt.get('_odoo_life_color', 0)
         )
 
-        anterior_bn = int(self.contador_anterior_bn or 0)
-        anterior_color = int(self.contador_anterior_color or 0)
+        if self.maquina_id.tipo != 'color':
+            contador_color_nuevo = 0
+
+        anterior_bn = self.contador_anterior_bn or 0
+        anterior_color = self.contador_anterior_color or 0
 
         _logger.info(
-            'Validando PrintTracker | anterior_bn=%s | nuevo_bn=%s | anterior_color=%s | nuevo_color=%s',
+            "Validando PrintTracker LIFE | serie=%s | anterior_bn=%s | nuevo_bn=%s | "
+            "anterior_color=%s | nuevo_color=%s",
+            self.serie,
             anterior_bn,
             contador_bn_nuevo,
             anterior_color,
@@ -683,16 +730,15 @@ class CopierCounter(models.Model):
         if contador_bn_nuevo < 0 or contador_color_nuevo < 0:
             return {
                 'valido': False,
-                'mensaje': 'PrintTracker devolvió un contador negativo.',
+                'mensaje': 'PrintTracker devolvió contadores negativos.',
             }
 
-        # Para monocromas ignoramos cualquier anomalía del contador color.
         if contador_bn_nuevo < anterior_bn:
             return {
                 'valido': False,
                 'mensaje': (
-                    f'El contador B/N de PrintTracker ({contador_bn_nuevo:,}) es menor '
-                    f'al anterior registrado ({anterior_bn:,}).'
+                    f'El contador B/N LIFE de PrintTracker ({contador_bn_nuevo:,}) '
+                    f'es menor al contador anterior registrado ({anterior_bn:,}).'
                 ),
             }
 
@@ -700,25 +746,24 @@ class CopierCounter(models.Model):
             return {
                 'valido': False,
                 'mensaje': (
-                    f'El contador Color de PrintTracker ({contador_color_nuevo:,}) es menor '
-                    f'al anterior registrado ({anterior_color:,}).'
+                    f'El contador Color LIFE de PrintTracker ({contador_color_nuevo:,}) '
+                    f'es menor al contador anterior registrado ({anterior_color:,}).'
                 ),
             }
 
         incremento_bn = contador_bn_nuevo - anterior_bn
         incremento_color = contador_color_nuevo - anterior_color
 
-        # No bloqueamos equipos de alto volumen; solo dejamos advertencia en logs.
         if incremento_bn > 100000:
             _logger.warning(
-                'PrintTracker: incremento B/N alto para %s: +%s',
+                "PrintTracker: incremento B/N alto permitido | serie=%s | incremento=%s",
                 self.serie,
                 incremento_bn,
             )
 
         if self.maquina_id.tipo == 'color' and incremento_color > 50000:
             _logger.warning(
-                'PrintTracker: incremento Color alto para %s: +%s',
+                "PrintTracker: incremento Color alto permitido | serie=%s | incremento=%s",
                 self.serie,
                 incremento_color,
             )
@@ -726,28 +771,31 @@ class CopierCounter(models.Model):
         return {'valido': True}
 
     def _actualizar_contadores_desde_printtracker(self, lectura_pt):
+        """
+        Actualiza contador_actual_bn y contador_actual_color
+        usando exclusivamente pageCounts.life.
+        """
         self.ensure_one()
 
-        counts = self._get_pt_counts_container(lectura_pt)
-        if not counts:
-            raise UserError('No se encontró estructura de contadores en PrintTracker.')
-
         contador_bn_nuevo = self._safe_int(
-            (counts.get('totalBlack') or {}).get('value', 0)
+            lectura_pt.get('_odoo_life_black', 0)
         )
         contador_color_nuevo = self._safe_int(
-            (counts.get('totalColor') or {}).get('value', 0)
+            lectura_pt.get('_odoo_life_color', 0)
         )
 
-        # En monocromas no necesitamos cargar color desde PT.
         if self.maquina_id.tipo != 'color':
-            contador_color_nuevo = self.contador_anterior_color or 0
+            contador_color_nuevo = 0
 
         timestamp = lectura_pt.get('timestamp')
-        fecha_lectura = self._parse_printtracker_datetime(timestamp)
+        fecha_lectura = (
+            self._parse_printtracker_datetime(timestamp)
+            if timestamp
+            else fields.Datetime.now()
+        )
 
-        anterior_bn = int(self.contador_anterior_bn or 0)
-        anterior_color = int(self.contador_anterior_color or 0)
+        anterior_bn = self.contador_anterior_bn or 0
+        anterior_color = self.contador_anterior_color or 0
 
         self.write({
             'contador_actual_bn': contador_bn_nuevo,
@@ -756,38 +804,25 @@ class CopierCounter(models.Model):
             'pt_last_reading_date': fecha_lectura,
         })
 
-        incremento_bn = contador_bn_nuevo - anterior_bn
-        incremento_color = contador_color_nuevo - anterior_color
-
-        message = (
-            '<b>Contadores actualizados desde PrintTracker</b><br/><br/>'
-            f'B/N: {anterior_bn:,} → {contador_bn_nuevo:,} '
-            f'(+{incremento_bn:,})<br/>'
-        )
-
-        if self.maquina_id.tipo == 'color':
-            message += (
-                f'Color: {anterior_color:,} → {contador_color_nuevo:,} '
-                f'(+{incremento_color:,})<br/>'
-            )
-
-        message += (
-            f'<br/>Fecha lectura PT: {fecha_lectura}<br/>'
-            f'Device ID: {self.maquina_id.pt_device_id}'
-        )
-
-        self.message_post(
-            body=message,
-            message_type='notification',
-        )
-
         _logger.info(
-            'PrintTracker actualizado | serie=%s | B/N=%s -> %s | Color=%s -> %s',
+            "PrintTracker actualizado desde LIFE | serie=%s | B/N=%s -> %s | "
+            "Color=%s -> %s",
             self.serie,
             anterior_bn,
             contador_bn_nuevo,
             anterior_color,
             contador_color_nuevo,
+        )
+
+        self.message_post(
+            body=(
+                "Contadores actualizados desde PrintTracker (LIFE)<br/>"
+                f"B/N: {anterior_bn:,} → {contador_bn_nuevo:,}<br/>"
+                f"Color: {anterior_color:,} → {contador_color_nuevo:,}<br/>"
+                f"Fecha lectura PT: {fecha_lectura}<br/>"
+                f"ID Device: {self.maquina_id.pt_device_id}"
+            ),
+            message_type='notification',
         )
 
     def _safe_int(self, value, default=0):
