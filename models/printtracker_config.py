@@ -721,15 +721,12 @@ class CopierCounter(models.Model):
                 config.entity_bbbb_id,
             )
 
-        from datetime import datetime, time, timezone
+        from datetime import datetime, timezone
 
-        if self.fecha:
-            fecha_ref = datetime.combine(
-                fields.Date.to_date(self.fecha),
-                time(23, 59, 59),
-            ).replace(tzinfo=timezone.utc)
-        else:
-            fecha_ref = datetime.now(timezone.utc)
+        # El botón "Actualizar desde PrintTracker" siempre debe consultar
+        # la lectura más reciente disponible al momento de ejecutarse.
+        # No se usa self.fecha porque eso devolvería una lectura histórica.
+        fecha_ref = datetime.now(timezone.utc)
 
         date_param = fecha_ref.isoformat().replace('+00:00', 'Z')
 
