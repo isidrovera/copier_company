@@ -315,6 +315,7 @@ class CopierCompany(models.Model):
         return None
 
     def action_map_printtracker(self):
+        """Mapea la máquina por serie y guarda device ID + entityKey reales."""
         self.ensure_one()
 
         if not self.serie_id:
@@ -322,67 +323,180 @@ class CopierCompany(models.Model):
 
         try:
             config = self.env['copier.printtracker.config'].get_active_config()
-            device = self._find_printtracker_device(config)
+            device_found = self._search_device_with_pagination(config)
 
-            if not device:
+            if not device_found:
                 return {
                     'type': 'ir.actions.client',
                     'tag': 'display_notification',
                     'params': {
-                        'title': 'PrintTracker Pro',
                         'message': (
-                            f'No se encontró la serie "{self.serie_id}" en PrintTracker. '
-                            'Verifique que la serie coincida con PrintTracker.'
+                            f'No se encontró dispositivo con serie "{self.serie_id}" '
+                            'en PrintTracker.'
                         ),
                         'type': 'warning',
-                        'sticky': True,
-                    },
+                    }
                 }
 
-            device_id = device.get('id')
-            entity_id = device.get('entityKey') or config.entity_bbbb_id
+            device_id = device_found.get('id')
+            entity_key = device_found.get('entityKey')
 
             if not device_id:
-                raise UserError('PrintTracker devolvió el dispositivo sin campo id.')
+                raise UserError(
+                    f'PrintTracker encontró la serie {self.serie_id}, '
+                    'pero no devolvió un ID de dispositivo.'
+                )
+
+            if not entity_key:
+                _logger.warning(
+                    "PrintTracker: dispositivo sin entityKey | serie=%s | device=%s",
+                    self.serie_id,
+                    device_found,
+                )
 
             self.write({
                 'pt_device_id': device_id,
-                'pt_entity_id': entity_id,
+                'pt_entity_id': entity_key or config.entity_bbbb_id,
                 'pt_last_sync': fields.Datetime.now(),
             })
-
-            _logger.info(
-                'PrintTracker: máquina mapeada | serie=%s | device_id=%s | entity_id=%s',
-                self.serie_id,
-                device_id,
-                entity_id,
-            )
 
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
-                    'title': 'Máquina mapeada con PrintTracker',
                     'message': (
+                        'Máquina mapeada exitosamente con PrintTracker\n'
                         f'Serie: {self.serie_id}\n'
                         f'Device ID: {device_id}\n'
-                        f'Entidad: {entity_id}\n'
-                        f'Ubicación: {device.get("customLocation") or device.get("location") or "N/A"}'
+                        f'Entity ID: {entity_key or config.entity_bbbb_id}'
                     ),
                     'type': 'success',
-                    'sticky': True,
-                },
+                }
             }
 
-        except UserError:
-            raise
-        except Exception as exc:
-            _logger.exception('PrintTracker: error mapeando máquina %s', self.serie_id)
-            raise UserError(f'Error mapeando con PrintTracker: {exc}')
+        except Exception as e:
+            _logger.exception("Error mapeando con PrintTracker")
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'message': f'Error: {str(e)}',
+                    'type': 'danger',
+                }
+            }
 
     def _search_device_with_pagination(self, config):
-        """Compatibilidad con llamadas existentes del código anterior."""
-        return self._find_printtracker_device(config)
+        """
+        Busca el dispositivo por serie.
+        Primero intenta búsqueda directa por serialNumber; si no devuelve resultado,
+        recorre páginas del endpoint /device.
+        """
+        self.ensure_one()
+        serie_buscar = (self.serie_id or '').strip()
+
+        if not serie_buscar:
+            return None
+
+        url = f'{config.api_url.rstrip("/")}/entity/{config.entity_bbbb_id}/device'
+        headers = config.get_api_headers()
+
+        # Intento directo por serialNumber
+        params = {
+            'includeChildren': True,
+            'excludeDisabled': False,
+            'serialNumber': serie_buscar,
+            'limit': 100,
+            'page': 1,
+        }
+
+        def _direct_call():
+            return requests.get(
+                url,
+                headers=headers,
+                params=params,
+                timeout=config.timeout_seconds,
+            )
+
+        response = config._retry_api_call(_direct_call)
+
+        if response.status_code == 200:
+            devices = response.json() or []
+            _logger.info(
+                "PrintTracker: búsqueda directa serie=%s | resultados=%s",
+                serie_buscar,
+                len(devices) if isinstance(devices, list) else 0,
+            )
+
+            if isinstance(devices, list):
+                for device in devices:
+                    if (device.get('serialNumber') or '').strip() == serie_buscar:
+                        _logger.info(
+                            "PrintTracker: dispositivo encontrado | serie=%s | "
+                            "deviceId=%s | entityKey=%s",
+                            serie_buscar,
+                            device.get('id'),
+                            device.get('entityKey'),
+                        )
+                        return device
+
+        # Fallback paginado
+        page = 1
+        while True:
+            params = {
+                'includeChildren': True,
+                'excludeDisabled': False,
+                'limit': 100,
+                'page': page,
+            }
+
+            def _page_call():
+                return requests.get(
+                    url,
+                    headers=headers,
+                    params=params,
+                    timeout=config.timeout_seconds,
+                )
+
+            response = config._retry_api_call(_page_call)
+
+            if response.status_code != 200:
+                raise UserError(
+                    f'Error HTTP {response.status_code} consultando dispositivos '
+                    f'PrintTracker: {response.text}'
+                )
+
+            devices = response.json() or []
+            _logger.info(
+                "PrintTracker: página dispositivos=%s | cantidad=%s",
+                page,
+                len(devices) if isinstance(devices, list) else 0,
+            )
+
+            if not isinstance(devices, list) or not devices:
+                break
+
+            for device in devices:
+                if (device.get('serialNumber') or '').strip() == serie_buscar:
+                    _logger.info(
+                        "PrintTracker: dispositivo encontrado | serie=%s | "
+                        "deviceId=%s | entityKey=%s",
+                        serie_buscar,
+                        device.get('id'),
+                        device.get('entityKey'),
+                    )
+                    return device
+
+            if len(devices) < 100:
+                break
+
+            page += 1
+            if page > 100:
+                _logger.warning(
+                    "PrintTracker: límite de seguridad de paginación alcanzado"
+                )
+                break
+
+        return None
 
     def debug_list_printtracker_devices(self):
         """Muestra una muestra de dispositivos y deja detalle en logs."""
@@ -442,12 +556,13 @@ class CopierCounter(models.Model):
     )
 
     def action_update_from_printtracker(self):
+        """Actualiza contadores desde PrintTracker y remapea si es necesario."""
         self.ensure_one()
 
-        _logger.info('=' * 70)
-        _logger.info('INICIANDO ACTUALIZACIÓN DESDE PRINTTRACKER')
+        _logger.info("=" * 70)
+        _logger.info("INICIANDO ACTUALIZACIÓN DESDE PRINTTRACKER")
         _logger.info(
-            'Counter=%s | ID=%s | serie=%s | estado=%s',
+            "Counter=%s | ID=%s | serie=%s | estado=%s",
             self.name,
             self.id,
             self.serie,
@@ -455,103 +570,142 @@ class CopierCounter(models.Model):
         )
 
         if self.state != 'draft':
-            raise UserError('Solo se pueden actualizar contadores en estado borrador.')
+            raise UserError(
+                'Solo se pueden actualizar contadores en estado borrador.'
+            )
 
         if not self.maquina_id:
             raise UserError('No hay máquina asociada al contador.')
 
         config = self.env['copier.printtracker.config'].get_active_config()
 
-        # Si no está mapeada, intentar mapear automáticamente por serie.
-        if not self.maquina_id.pt_device_id:
-            _logger.info(
-                'PrintTracker: máquina sin mapeo. Intentando mapear automáticamente por serie %s',
-                self.serie,
-            )
-            device = self.maquina_id._find_printtracker_device(config)
-            if not device:
-                raise UserError(
-                    f'La máquina {self.serie} no está mapeada y no se encontró en PrintTracker.'
+        try:
+            # Si falta mapeo completo, remapear antes de consultar.
+            if (
+                not self.maquina_id.pt_device_id
+                or not self.maquina_id.pt_entity_id
+            ):
+                _logger.info(
+                    "PrintTracker: mapeo incompleto. Remapeando serie=%s...",
+                    self.serie,
                 )
+                device = self.maquina_id._search_device_with_pagination(config)
 
-            self.maquina_id.write({
-                'pt_device_id': device.get('id'),
-                'pt_entity_id': device.get('entityKey') or config.entity_bbbb_id,
-                'pt_last_sync': fields.Datetime.now(),
-            })
-
-        lectura_pt = self._obtener_ultima_lectura_printtracker_v2(config)
-
-        # Si el ID guardado está obsoleto, volver a mapear por serie y reintentar una vez.
-        if not lectura_pt:
-            _logger.warning(
-                'PrintTracker: no se encontró lectura con device_id=%s. Remapeando serie=%s...',
-                self.maquina_id.pt_device_id,
-                self.serie,
-            )
-            device = self.maquina_id._find_printtracker_device(config)
-            if device and device.get('id'):
-                nuevo_device_id = device.get('id')
-                nuevo_entity_id = device.get('entityKey') or config.entity_bbbb_id
+                if not device:
+                    return {
+                        'type': 'ir.actions.client',
+                        'tag': 'display_notification',
+                        'params': {
+                            'message': (
+                                f'No se encontró la serie {self.serie} '
+                                'en PrintTracker.'
+                            ),
+                            'type': 'warning',
+                        }
+                    }
 
                 self.maquina_id.write({
-                    'pt_device_id': nuevo_device_id,
-                    'pt_entity_id': nuevo_entity_id,
+                    'pt_device_id': device.get('id'),
+                    'pt_entity_id': (
+                        device.get('entityKey') or config.entity_bbbb_id
+                    ),
                     'pt_last_sync': fields.Datetime.now(),
                 })
 
-                lectura_pt = self._obtener_ultima_lectura_printtracker_v2(config)
+            lectura_pt = self._obtener_ultima_lectura_printtracker_v2(config)
 
-        if not lectura_pt:
+            # Si falla, volver a localizar dispositivo por serie y actualizar
+            # tanto deviceId como entityKey antes de reintentar.
+            if not lectura_pt:
+                _logger.warning(
+                    "PrintTracker: no se encontró lectura con mapeo actual. "
+                    "Remapeando serie=%s...",
+                    self.serie,
+                )
+
+                device = self.maquina_id._search_device_with_pagination(config)
+
+                if device:
+                    self.maquina_id.write({
+                        'pt_device_id': device.get('id'),
+                        'pt_entity_id': (
+                            device.get('entityKey') or config.entity_bbbb_id
+                        ),
+                        'pt_last_sync': fields.Datetime.now(),
+                    })
+
+                    lectura_pt = (
+                        self._obtener_ultima_lectura_printtracker_v2(config)
+                    )
+
+            if not lectura_pt:
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'message': (
+                            f'No se pudo obtener la lectura de PrintTracker '
+                            f'para la serie {self.serie}. Revise el log.'
+                        ),
+                        'type': 'warning',
+                    }
+                }
+
+            validacion = self._validar_nuevos_contadores_pt(lectura_pt)
+            if not validacion.get('valido'):
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'message': validacion.get(
+                            'mensaje',
+                            'Lectura PrintTracker no válida.',
+                        ),
+                        'type': 'danger',
+                    }
+                }
+
+            self._actualizar_contadores_desde_printtracker(lectura_pt)
+
+            self.maquina_id.write({
+                'pt_last_sync': fields.Datetime.now(),
+            })
+
+            _logger.info("ACTUALIZACIÓN PRINTTRACKER COMPLETADA")
+            _logger.info("=" * 70)
+
+            return self._mostrar_exito_actualizacion_pt(lectura_pt)
+
+        except Exception as e:
+            _logger.exception(
+                "Error crítico actualizando desde PrintTracker | serie=%s",
+                self.serie,
+            )
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
-                    'title': 'PrintTracker Pro',
-                    'message': (
-                        f'PrintTracker no devolvió una lectura actual para la serie {self.serie}. '
-                        'El dispositivo está mapeado, pero no apareció en currentMeter.'
-                    ),
-                    'type': 'warning',
-                    'sticky': True,
-                },
-            }
-
-        validacion = self._validar_nuevos_contadores_pt(lectura_pt)
-        if not validacion.get('valido'):
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': 'Validación de contadores',
-                    'message': validacion.get('mensaje') or 'Lectura inválida.',
+                    'message': f'Error: {str(e)}',
                     'type': 'danger',
-                    'sticky': True,
-                },
+                }
             }
-
-        self._actualizar_contadores_desde_printtracker(lectura_pt)
-        self.maquina_id.write({'pt_last_sync': fields.Datetime.now()})
-
-        _logger.info('ACTUALIZACIÓN PRINTTRACKER COMPLETADA')
-        _logger.info('=' * 70)
-
-        return self._mostrar_exito_actualizacion_pt(lectura_pt)
 
     def _obtener_ultima_lectura_printtracker_v2(self, config):
         """
-        Obtiene la lectura más reciente del dispositivo usando el endpoint oficial:
+        Obtiene la lectura más reciente del dispositivo usando:
         /entity/{entityId}/device/{deviceId}/meter/mostRecentPriorTo
 
-        Para facturación se usan exclusivamente los contadores LIFE:
-        - pageCounts.life.totalBlack.value -> contador B/N
-        - pageCounts.life.totalColor.value -> contador Color
-
-        Los contadores EQUIV se registran solo para diagnóstico.
+        Usa el entityKey REAL del dispositivo, no siempre la entidad principal.
+        Para facturación utiliza exclusivamente pageCounts.life:
+        - totalBlack -> B/N
+        - totalColor -> Color
         """
         self.ensure_one()
 
-        device_id = self.maquina_id.pt_device_id
+        maquina = self.maquina_id
+        device_id = maquina.pt_device_id
+        entity_id = maquina.pt_entity_id or config.entity_bbbb_id
+
         if not device_id:
             _logger.warning(
                 "PrintTracker: máquina sin pt_device_id | serie=%s",
@@ -559,10 +713,13 @@ class CopierCounter(models.Model):
             )
             return None
 
-        url = (
-            f'{config.api_url.rstrip("/")}/entity/'
-            f'{config.entity_bbbb_id}/device/{device_id}/meter/mostRecentPriorTo'
-        )
+        if not maquina.pt_entity_id:
+            _logger.warning(
+                "PrintTracker: máquina sin pt_entity_id | serie=%s | "
+                "usando entidad principal temporalmente=%s",
+                self.serie,
+                config.entity_bbbb_id,
+            )
 
         from datetime import datetime, time, timezone
 
@@ -574,15 +731,22 @@ class CopierCounter(models.Model):
         else:
             fecha_ref = datetime.now(timezone.utc)
 
-        params = {
-            'date': fecha_ref.isoformat().replace('+00:00', 'Z'),
-        }
+        date_param = fecha_ref.isoformat().replace('+00:00', 'Z')
+
+        url = (
+            f'{config.api_url.rstrip("/")}/entity/{entity_id}/device/'
+            f'{device_id}/meter/mostRecentPriorTo'
+        )
+
+        params = {'date': date_param}
 
         _logger.info(
-            "PrintTracker mostRecentPriorTo | serie=%s | deviceId=%s | date=%s",
+            "PrintTracker mostRecentPriorTo | serie=%s | entityId=%s | "
+            "deviceId=%s | date=%s",
             self.serie,
+            entity_id,
             device_id,
-            params['date'],
+            date_param,
         )
 
         def _meter_call():
@@ -597,17 +761,18 @@ class CopierCounter(models.Model):
 
         if response.status_code != 200:
             _logger.error(
-                "PrintTracker mostRecentPriorTo HTTP %s | serie=%s | respuesta=%s",
+                "PrintTracker mostRecentPriorTo HTTP %s | serie=%s | "
+                "entityId=%s | deviceId=%s | respuesta=%s",
                 response.status_code,
                 self.serie,
+                entity_id,
+                device_id,
                 response.text[:1000],
             )
             return None
 
         data = response.json()
 
-        # La documentación muestra una respuesta en lista.
-        # Se soporta también dict por compatibilidad.
         if isinstance(data, list):
             if not data:
                 _logger.warning(
@@ -620,7 +785,7 @@ class CopierCounter(models.Model):
             lectura = data
         else:
             _logger.error(
-                "PrintTracker: formato inesperado en mostRecentPriorTo | tipo=%s",
+                "PrintTracker: formato inesperado | tipo=%s",
                 type(data).__name__,
             )
             return None
@@ -637,25 +802,19 @@ class CopierCounter(models.Model):
             )
             return None
 
-        life_black = self._safe_int(
-            (life_counts.get('totalBlack') or {}).get('value', 0)
-        )
-        life_color = self._safe_int(
-            (life_counts.get('totalColor') or {}).get('value', 0)
-        )
-        life_total = self._safe_int(
-            (life_counts.get('total') or {}).get('value', 0)
-        )
+        def _value(block, key):
+            raw = block.get(key) or {}
+            if isinstance(raw, dict):
+                raw = raw.get('value', 0)
+            return self._safe_int(raw)
 
-        equiv_black = self._safe_int(
-            (equiv_counts.get('totalBlack') or {}).get('value', 0)
-        )
-        equiv_color = self._safe_int(
-            (equiv_counts.get('totalColor') or {}).get('value', 0)
-        )
-        equiv_total = self._safe_int(
-            (equiv_counts.get('total') or {}).get('value', 0)
-        )
+        life_total = _value(life_counts, 'total')
+        life_black = _value(life_counts, 'totalBlack')
+        life_color = _value(life_counts, 'totalColor')
+
+        equiv_total = _value(equiv_counts, 'total')
+        equiv_black = _value(equiv_counts, 'totalBlack')
+        equiv_color = _value(equiv_counts, 'totalColor')
 
         _logger.info(
             "PrintTracker LIFE | serie=%s | total=%s | B/N=%s | Color=%s",
@@ -664,26 +823,28 @@ class CopierCounter(models.Model):
             life_black,
             life_color,
         )
+
         _logger.info(
-            "PrintTracker EQUIV (solo diagnóstico) | serie=%s | total=%s | B/N=%s | Color=%s",
+            "PrintTracker EQUIV (solo diagnóstico) | serie=%s | "
+            "total=%s | B/N=%s | Color=%s",
             self.serie,
             equiv_total,
             equiv_black,
             equiv_color,
         )
 
-        if self.maquina_id.tipo != 'color':
+        if maquina.tipo != 'color':
             life_color = 0
 
-        # Valores normalizados para que validación y actualización usen LIFE.
         lectura['_odoo_life_black'] = life_black
         lectura['_odoo_life_color'] = life_color
         lectura['_odoo_life_total'] = life_total
 
         _logger.info(
-            "PrintTracker lectura seleccionada | serie=%s | deviceKey=%s | "
-            "timestamp=%s | B/N=%s | Color=%s",
+            "PrintTracker lectura seleccionada | serie=%s | entityId=%s | "
+            "deviceKey=%s | timestamp=%s | B/N=%s | Color=%s",
             self.serie,
+            entity_id,
             lectura.get('deviceKey'),
             lectura.get('timestamp'),
             life_black,
