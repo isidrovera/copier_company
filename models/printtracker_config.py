@@ -695,8 +695,15 @@ class CopierCounter(models.Model):
         Obtiene la lectura más reciente del dispositivo usando:
         /entity/{entityId}/device/{deviceId}/meter/mostRecentPriorTo
 
-        Usa el entityKey REAL del dispositivo, no siempre la entidad principal.
-        Para facturación utiliza exclusivamente pageCounts.life:
+        Regla de selección del bloque de contadores:
+        - CANON: pageCounts.equiv
+        - Otras marcas: pageCounts.life
+
+        Para equipos monocromos:
+        - totalBlack -> B/N
+        - Color -> 0
+
+        Para equipos color:
         - totalBlack -> B/N
         - totalColor -> Color
         """
@@ -723,11 +730,9 @@ class CopierCounter(models.Model):
 
         from datetime import datetime, timezone
 
-        # El botón "Actualizar desde PrintTracker" siempre debe consultar
-        # la lectura más reciente disponible al momento de ejecutarse.
-        # No se usa self.fecha porque eso devolvería una lectura histórica.
+        # Siempre consultar la lectura más reciente disponible al momento
+        # de pulsar "Actualizar desde PrintTracker".
         fecha_ref = datetime.now(timezone.utc)
-
         date_param = fecha_ref.isoformat().replace('+00:00', 'Z')
 
         url = (
@@ -791,14 +796,6 @@ class CopierCounter(models.Model):
         life_counts = page_counts.get('life') or {}
         equiv_counts = page_counts.get('equiv') or {}
 
-        if not life_counts:
-            _logger.error(
-                "PrintTracker: lectura sin pageCounts.life | serie=%s | pageCounts=%s",
-                self.serie,
-                page_counts,
-            )
-            return None
-
         def _value(block, key):
             raw = block.get(key) or {}
             if isinstance(raw, dict):
@@ -822,20 +819,107 @@ class CopierCounter(models.Model):
         )
 
         _logger.info(
-            "PrintTracker EQUIV (solo diagnóstico) | serie=%s | "
-            "total=%s | B/N=%s | Color=%s",
+            "PrintTracker EQUIV | serie=%s | total=%s | B/N=%s | Color=%s",
             self.serie,
             equiv_total,
             equiv_black,
             equiv_color,
         )
 
-        if maquina.tipo != 'color':
-            life_color = 0
+        # Detectar la marca desde copier.company.marca_id.
+        marca_nombre = ''
+        if maquina.marca_id:
+            marca_nombre = (
+                maquina.marca_id.display_name
+                or getattr(maquina.marca_id, 'name', '')
+                or ''
+            )
 
-        lectura['_odoo_life_black'] = life_black
-        lectura['_odoo_life_color'] = life_color
-        lectura['_odoo_life_total'] = life_total
+        marca_normalizada = str(marca_nombre).strip().lower()
+
+        # PrintTracker muestra EQUIV para Canon.
+        # Para las demás marcas se mantiene LIFE.
+        usar_equiv = 'canon' in marca_normalizada
+
+        if usar_equiv:
+            selected_source = 'equiv'
+            selected_total = equiv_total
+            selected_black = equiv_black
+            selected_color = equiv_color
+
+            # Seguridad: si EQUIV no trae datos útiles, usar LIFE.
+            if not equiv_counts or (
+                selected_total == 0
+                and selected_black == 0
+                and selected_color == 0
+                and (
+                    life_total > 0
+                    or life_black > 0
+                    or life_color > 0
+                )
+            ):
+                _logger.warning(
+                    "PrintTracker: CANON sin valores EQUIV útiles; "
+                    "usando LIFE como respaldo | serie=%s",
+                    self.serie,
+                )
+                selected_source = 'life'
+                selected_total = life_total
+                selected_black = life_black
+                selected_color = life_color
+        else:
+            selected_source = 'life'
+            selected_total = life_total
+            selected_black = life_black
+            selected_color = life_color
+
+            # Seguridad: si LIFE no existe o viene totalmente vacío y EQUIV sí
+            # tiene datos, usar EQUIV para no guardar cero por error.
+            if not life_counts or (
+                selected_total == 0
+                and selected_black == 0
+                and selected_color == 0
+                and (
+                    equiv_total > 0
+                    or equiv_black > 0
+                    or equiv_color > 0
+                )
+            ):
+                _logger.warning(
+                    "PrintTracker: LIFE sin valores útiles; "
+                    "usando EQUIV como respaldo | serie=%s | marca=%s",
+                    self.serie,
+                    marca_nombre,
+                )
+                selected_source = 'equiv'
+                selected_total = equiv_total
+                selected_black = equiv_black
+                selected_color = equiv_color
+
+        if maquina.tipo != 'color':
+            selected_color = 0
+
+        lectura['_odoo_counter_source'] = selected_source
+        lectura['_odoo_selected_black'] = selected_black
+        lectura['_odoo_selected_color'] = selected_color
+        lectura['_odoo_selected_total'] = selected_total
+
+        # Mantener las claves anteriores por compatibilidad con los métodos
+        # existentes del archivo, aunque ahora pueden provenir de LIFE o EQUIV.
+        lectura['_odoo_life_black'] = selected_black
+        lectura['_odoo_life_color'] = selected_color
+        lectura['_odoo_life_total'] = selected_total
+
+        _logger.info(
+            "PrintTracker CONTADOR SELECCIONADO | serie=%s | marca=%s | "
+            "fuente=%s | total=%s | B/N=%s | Color=%s",
+            self.serie,
+            marca_nombre or 'Sin marca',
+            selected_source.upper(),
+            selected_total,
+            selected_black,
+            selected_color,
+        )
 
         _logger.info(
             "PrintTracker lectura seleccionada | serie=%s | entityId=%s | "
@@ -844,8 +928,8 @@ class CopierCounter(models.Model):
             entity_id,
             lectura.get('deviceKey'),
             lectura.get('timestamp'),
-            life_black,
-            life_color,
+            selected_black,
+            selected_color,
         )
 
         return lectura
@@ -859,15 +943,23 @@ class CopierCounter(models.Model):
         return page_counts.get('life') or page_counts.get('default') or {}
 
     def _validar_nuevos_contadores_pt(self, lectura_pt):
-        """Valida los contadores LIFE obtenidos de PrintTracker."""
+        """Valida los contadores seleccionados de PrintTracker."""
         self.ensure_one()
 
         contador_bn_nuevo = self._safe_int(
-            lectura_pt.get('_odoo_life_black', 0)
+            lectura_pt.get(
+                '_odoo_selected_black',
+                lectura_pt.get('_odoo_life_black', 0),
+            )
         )
         contador_color_nuevo = self._safe_int(
-            lectura_pt.get('_odoo_life_color', 0)
+            lectura_pt.get(
+                '_odoo_selected_color',
+                lectura_pt.get('_odoo_life_color', 0),
+            )
         )
+
+        fuente = lectura_pt.get('_odoo_counter_source', 'life').upper()
 
         if self.maquina_id.tipo != 'color':
             contador_color_nuevo = 0
@@ -876,8 +968,9 @@ class CopierCounter(models.Model):
         anterior_color = self.contador_anterior_color or 0
 
         _logger.info(
-            "Validando PrintTracker LIFE | serie=%s | anterior_bn=%s | nuevo_bn=%s | "
-            "anterior_color=%s | nuevo_color=%s",
+            "Validando PrintTracker %s | serie=%s | anterior_bn=%s | "
+            "nuevo_bn=%s | anterior_color=%s | nuevo_color=%s",
+            fuente,
             self.serie,
             anterior_bn,
             contador_bn_nuevo,
@@ -895,8 +988,9 @@ class CopierCounter(models.Model):
             return {
                 'valido': False,
                 'mensaje': (
-                    f'El contador B/N LIFE de PrintTracker ({contador_bn_nuevo:,}) '
-                    f'es menor al contador anterior registrado ({anterior_bn:,}).'
+                    f'El contador B/N {fuente} de PrintTracker '
+                    f'({contador_bn_nuevo:,}) es menor al contador anterior '
+                    f'registrado ({anterior_bn:,}).'
                 ),
             }
 
@@ -904,8 +998,9 @@ class CopierCounter(models.Model):
             return {
                 'valido': False,
                 'mensaje': (
-                    f'El contador Color LIFE de PrintTracker ({contador_color_nuevo:,}) '
-                    f'es menor al contador anterior registrado ({anterior_color:,}).'
+                    f'El contador Color {fuente} de PrintTracker '
+                    f'({contador_color_nuevo:,}) es menor al contador anterior '
+                    f'registrado ({anterior_color:,}).'
                 ),
             }
 
@@ -930,17 +1025,26 @@ class CopierCounter(models.Model):
 
     def _actualizar_contadores_desde_printtracker(self, lectura_pt):
         """
-        Actualiza contador_actual_bn y contador_actual_color
-        usando exclusivamente pageCounts.life.
+        Actualiza los contadores usando la fuente seleccionada:
+        CANON -> EQUIV
+        otras marcas -> LIFE
         """
         self.ensure_one()
 
         contador_bn_nuevo = self._safe_int(
-            lectura_pt.get('_odoo_life_black', 0)
+            lectura_pt.get(
+                '_odoo_selected_black',
+                lectura_pt.get('_odoo_life_black', 0),
+            )
         )
         contador_color_nuevo = self._safe_int(
-            lectura_pt.get('_odoo_life_color', 0)
+            lectura_pt.get(
+                '_odoo_selected_color',
+                lectura_pt.get('_odoo_life_color', 0),
+            )
         )
+
+        fuente = lectura_pt.get('_odoo_counter_source', 'life').upper()
 
         if self.maquina_id.tipo != 'color':
             contador_color_nuevo = 0
@@ -963,8 +1067,9 @@ class CopierCounter(models.Model):
         })
 
         _logger.info(
-            "PrintTracker actualizado desde LIFE | serie=%s | B/N=%s -> %s | "
+            "PrintTracker actualizado desde %s | serie=%s | B/N=%s -> %s | "
             "Color=%s -> %s",
+            fuente,
             self.serie,
             anterior_bn,
             contador_bn_nuevo,
@@ -974,7 +1079,7 @@ class CopierCounter(models.Model):
 
         self.message_post(
             body=(
-                "Contadores actualizados desde PrintTracker (LIFE)<br/>"
+                f"Contadores actualizados desde PrintTracker ({fuente})<br/>"
                 f"B/N: {anterior_bn:,} → {contador_bn_nuevo:,}<br/>"
                 f"Color: {anterior_color:,} → {contador_color_nuevo:,}<br/>"
                 f"Fecha lectura PT: {fecha_lectura}<br/>"
