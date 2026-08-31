@@ -1,151 +1,212 @@
+# -*- coding: utf-8 -*-
 # ====================================================================================
-# ARCHIVO 1: models/printtracker_config.py
-# Configuración de conexión con PrintTracker
+# models/printtracker_config.py
+# Integración PrintTracker Pro - Copier Company
+# Corregido según documentación oficial Print Tracker API 1.0.0
 # ====================================================================================
 
-from odoo import models, fields, api
-import requests
+from datetime import datetime, timezone
 import logging
 import time
 
+import requests
+
+from odoo import api, fields, models
+from odoo.exceptions import UserError
+
+
 _logger = logging.getLogger(__name__)
+
 
 class PrintTrackerConfig(models.Model):
     _name = 'copier.printtracker.config'
     _description = 'Configuración API PrintTracker Pro - Copier Company'
     _rec_name = 'name'
 
-    name = fields.Char('Nombre de Configuración', required=True, default='PrintTracker Pro Config')
-    api_url = fields.Char('URL Base API', required=True, 
-                         default='https://papi.printtrackerpro.com/v1',
-                         help='URL base de la API de PrintTracker Pro')
-    api_key = fields.Char('API Key', required=True,
-                         help='Token de autenticación para la API')
-    entity_bbbb_id = fields.Char('ID Entidad Principal', required=True,
-                                help='ID de la entidad BBBB en PrintTracker')
-    
-    # Estado de conexión
-    connection_status = fields.Selection([
-        ('not_tested', 'No Probado'),
-        ('connected', 'Conectado'),
-        ('error', 'Error de Conexión')
-    ], string='Estado Conexión', default='not_tested', readonly=True)
-    
+    name = fields.Char(
+        'Nombre de Configuración',
+        required=True,
+        default='PrintTracker Pro Config',
+    )
+    api_url = fields.Char(
+        'URL Base API',
+        required=True,
+        default='https://papi.printtrackerpro.com/v1',
+        help='URL base de la API de PrintTracker Pro',
+    )
+    api_key = fields.Char(
+        'API Key',
+        required=True,
+        help='Token de autenticación para la API',
+    )
+    entity_bbbb_id = fields.Char(
+        'ID Entidad Principal',
+        required=True,
+        help='ID de la entidad principal en PrintTracker',
+    )
+
+    connection_status = fields.Selection(
+        [
+            ('not_tested', 'No Probado'),
+            ('connected', 'Conectado'),
+            ('error', 'Error de Conexión'),
+        ],
+        string='Estado Conexión',
+        default='not_tested',
+        readonly=True,
+    )
     last_error = fields.Text('Último Error', readonly=True)
     timeout_seconds = fields.Integer('Timeout (segundos)', default=30)
     max_retries = fields.Integer('Reintentos Máximos', default=3)
     retry_delay = fields.Integer('Delay entre Reintentos (seg)', default=5)
 
     def get_api_headers(self):
-        """Retorna headers para requests a la API"""
+        self.ensure_one()
         return {
             'x-api-key': self.api_key,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
         }
 
     def _retry_api_call(self, func, *args, **kwargs):
-        """Wrapper para reintentar llamadas API fallidas"""
-        for attempt in range(self.max_retries):
+        """Ejecuta una llamada HTTP con reintentos para errores de transporte."""
+        self.ensure_one()
+        max_retries = max(int(self.max_retries or 1), 1)
+        retry_delay = max(int(self.retry_delay or 0), 0)
+
+        for attempt in range(max_retries):
             try:
                 return func(*args, **kwargs)
-            except requests.exceptions.RequestException as e:
-                if attempt == self.max_retries - 1:
-                    raise e
-                _logger.warning(f"Intento {attempt + 1} falló, reintentando en {self.retry_delay}s...")
-                time.sleep(self.retry_delay)
+            except requests.exceptions.RequestException:
+                if attempt >= max_retries - 1:
+                    raise
+                _logger.warning(
+                    'PrintTracker: intento %s/%s falló. Reintentando en %ss...',
+                    attempt + 1,
+                    max_retries,
+                    retry_delay,
+                )
+                if retry_delay:
+                    time.sleep(retry_delay)
+
+    def _get(self, path, params=None):
+        """GET centralizado para la API de PrintTracker."""
+        self.ensure_one()
+        url = f'{self.api_url.rstrip("/")}/{path.lstrip("/")}'
+
+        def _call():
+            return requests.get(
+                url,
+                headers=self.get_api_headers(),
+                params=params or {},
+                timeout=self.timeout_seconds or 30,
+            )
+
+        response = self._retry_api_call(_call)
+        return response
 
     def test_connection(self):
-        """Prueba la conexión con PrintTracker API"""
+        self.ensure_one()
         try:
-            _logger.info(f"Probando conexión a {self.api_url} con entidad {self.entity_bbbb_id}")
-            
-            def _test_call():
-                return requests.get(
-                    f'{self.api_url.rstrip("/")}/entity/{self.entity_bbbb_id}',
-                    headers=self.get_api_headers(),
-                    timeout=self.timeout_seconds
-                )
-            
-            response = self._retry_api_call(_test_call)
-            
+            _logger.info(
+                'PrintTracker: probando conexión | url=%s | entity=%s',
+                self.api_url,
+                self.entity_bbbb_id,
+            )
+
+            response = self._get(f'entity/{self.entity_bbbb_id}')
+
             if response.status_code == 200:
-                data = response.json()
+                data = response.json() or {}
                 entity_name = data.get('name', 'Sin nombre')
-                
                 self.write({
                     'connection_status': 'connected',
-                    'last_error': False
-                })
-                
-                return {
-                    'type': 'ir.actions.client',
-                    'tag': 'display_notification',
-                    'params': {
-                        'message': f'Conexión exitosa con PrintTracker Pro\nEntidad: {entity_name}',
-                        'type': 'success'
-                    }
-                }
-            else:
-                error_msg = f'Error HTTP {response.status_code}: {response.text}'
-                self.write({
-                    'connection_status': 'error',
-                    'last_error': error_msg
+                    'last_error': False,
                 })
                 return {
                     'type': 'ir.actions.client',
                     'tag': 'display_notification',
                     'params': {
-                        'message': f'Error de conexión: {error_msg}',
-                        'type': 'danger'
-                    }
+                        'title': 'PrintTracker Pro',
+                        'message': f'Conexión exitosa\nEntidad: {entity_name}',
+                        'type': 'success',
+                        'sticky': False,
+                    },
                 }
-                
-        except Exception as e:
-            error_msg = str(e)
+
+            error_msg = f'HTTP {response.status_code}: {response.text}'
             self.write({
                 'connection_status': 'error',
-                'last_error': error_msg
+                'last_error': error_msg,
             })
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
+                    'title': 'PrintTracker Pro',
+                    'message': f'Error de conexión: {error_msg}',
+                    'type': 'danger',
+                    'sticky': True,
+                },
+            }
+
+        except Exception as exc:
+            error_msg = str(exc)
+            self.write({
+                'connection_status': 'error',
+                'last_error': error_msg,
+            })
+            _logger.exception('PrintTracker: error probando conexión')
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'PrintTracker Pro',
                     'message': f'Error: {error_msg}',
-                    'type': 'danger'
-                }
+                    'type': 'danger',
+                    'sticky': True,
+                },
             }
 
     @api.model
     def get_active_config(self):
-        """Obtiene la configuración activa"""
         config = self.search([], limit=1)
         if not config:
-            raise ValueError("No hay configuración de PrintTracker configurada")
+            raise UserError('No hay configuración de PrintTracker configurada.')
+        if not config.api_key:
+            raise UserError('La configuración de PrintTracker no tiene API Key.')
+        if not config.entity_bbbb_id:
+            raise UserError('La configuración de PrintTracker no tiene ID de entidad.')
         return config
 
+
 # ====================================================================================
-# ARCHIVO 2: models/copier_company.py (AGREGAR ESTOS CAMPOS Y MÉTODOS)
-# Extensión del modelo existente
+# Extensión de copier.company
 # ====================================================================================
 
 class CopierCompany(models.Model):
     _inherit = 'copier.company'
-    
-    # NUEVOS CAMPOS PARA PRINTTRACKER
+
     pt_device_id = fields.Char(
-        'ID PrintTracker Device', 
-        help='ID del dispositivo en PrintTracker Pro',
-        index=True
+        'ID PrintTracker Device',
+        help='ID del dispositivo en PrintTracker. Este ID corresponde al deviceKey de los medidores.',
+        index=True,
+        tracking=True,
+    )
+    pt_entity_id = fields.Char(
+        'ID Entidad PrintTracker',
+        help='Entidad real a la que pertenece el dispositivo en PrintTracker.',
+        index=True,
+        tracking=True,
     )
     pt_last_sync = fields.Datetime(
         'Última Sincronización PT',
         readonly=True,
-        help='Última vez que se sincronizó con PrintTracker'
+        tracking=True,
     )
     pt_mapped = fields.Boolean(
         'Mapeado con PrintTracker',
         compute='_compute_pt_mapped',
-        help='Indica si está mapeado con PrintTracker'
     )
 
     @api.depends('pt_device_id')
@@ -153,864 +214,747 @@ class CopierCompany(models.Model):
         for record in self:
             record.pt_mapped = bool(record.pt_device_id)
 
-    def action_map_printtracker(self):
-        """Acción para mapear con PrintTracker por serie usando paginación del ejemplo"""
-        self.ensure_one()
-        
-        if not self.serie_id:
-            raise UserError('La máquina debe tener una serie para mapear con PrintTracker.')
-        
-        try:
-            config = self.env['copier.printtracker.config'].get_active_config()
-            
-            # Buscar dispositivo con paginación siguiendo el patrón del ejemplo
-            device_found = self._search_device_with_pagination(config)
-            
-            if device_found:
-                self.write({
-                    'pt_device_id': device_found.get('id'),
-                    'pt_last_sync': fields.Datetime.now()
-                })
-                
-                return {
-                    'type': 'ir.actions.client',
-                    'tag': 'display_notification',
-                    'params': {
-                        'message': f'Máquina mapeada exitosamente con PrintTracker\nSerie: {self.serie_id}\nDispositivo ID: {device_found.get("id")}\nUbicación: {device_found.get("customLocation", "N/A")}',
-                        'type': 'success'
-                    }
-                }
-            else:
-                return {
-                    'type': 'ir.actions.client',
-                    'tag': 'display_notification',
-                    'params': {
-                        'message': f'No se encontró dispositivo con serie "{self.serie_id}" en PrintTracker.\n\nVerifica que la serie coincida exactamente.',
-                        'type': 'warning'
-                    }
-                }
-                
-        except Exception as e:
-            _logger.error(f"Error mapeando con PrintTracker: {e}")
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'message': f'Error: {str(e)}',
-                    'type': 'danger'
-                }
-            }
+    def _normalize_pt_serial(self, value):
+        """Normaliza solo espacios externos. No altera caracteres internos de la serie."""
+        return (value or '').strip()
 
-    def _search_device_with_pagination(self, config):
+    def _find_printtracker_device(self, config):
         """
-        Búsqueda con paginación siguiendo exactamente el patrón del código de ejemplo
-        Basado en sync_all_devices del archivo printtracker_config.py
+        Busca el dispositivo usando el filtro oficial serialNumber.
+        Si por alguna razón el filtro remoto no devuelve coincidencia, hace fallback paginado.
         """
-        serie_buscar = self.serie_id.strip()
-        _logger.info(f"Iniciando búsqueda paginada para serie: {serie_buscar}")
-        
-        all_devices = []
+        self.ensure_one()
+
+        serial = self._normalize_pt_serial(self.serie_id)
+        if not serial:
+            return None
+
+        path = f'entity/{config.entity_bbbb_id}/device'
+
+        # 1) Búsqueda directa usando el filtro oficial serialNumber.
+        params = {
+            'includeChildren': True,
+            'excludeDisabled': False,
+            'serialNumber': serial,
+            'limit': 100,
+            'page': 1,
+        }
+
+        response = config._get(path, params=params)
+        if response.status_code != 200:
+            raise UserError(
+                f'PrintTracker devolvió HTTP {response.status_code} buscando la serie {serial}: '
+                f'{response.text}'
+            )
+
+        devices = response.json() or []
+        _logger.info(
+            'PrintTracker: búsqueda directa serie=%s | resultados=%s',
+            serial,
+            len(devices),
+        )
+
+        # Comparación exacta primero.
+        for device in devices:
+            if self._normalize_pt_serial(device.get('serialNumber')) == serial:
+                return device
+
+        # Comparación case-insensitive como tolerancia.
+        serial_upper = serial.upper()
+        for device in devices:
+            if self._normalize_pt_serial(device.get('serialNumber')).upper() == serial_upper:
+                return device
+
+        # 2) Fallback: paginación completa, sin límite artificial de 10 páginas.
         page = 1
-        total_pages_processed = 0
-        
-        # PAGINACIÓN COMPLETA siguiendo el patrón del ejemplo
+        limit = 1000
+
         while True:
-            _logger.info(f"=== PROCESANDO PÁGINA {page} ===")
-            
             params = {
                 'includeChildren': True,
-                'excludeDisabled': False,  # Incluir dispositivos deshabilitados por si acaso
-                'limit': 100,             # Mismo límite que el ejemplo
-                'page': page              # Parámetro clave que faltaba
+                'excludeDisabled': False,
+                'limit': limit,
+                'page': page,
             }
-            
-            def _devices_call():
-                return requests.get(
-                    f'{config.api_url.rstrip("/")}/entity/{config.entity_bbbb_id}/device',
-                    headers=config.get_api_headers(),
-                    params=params,
-                    timeout=config.timeout_seconds
+            response = config._get(path, params=params)
+
+            if response.status_code != 200:
+                raise UserError(
+                    f'PrintTracker devolvió HTTP {response.status_code} en página {page}: '
+                    f'{response.text}'
                 )
-            
-            response = config._retry_api_call(_devices_call)
-            
-            _logger.info(f"Respuesta API página {page}: Status {response.status_code}")
-            
-            if response.status_code == 200:
-                devices_page = response.json()
-                
-                _logger.info(f"Página {page}: {len(devices_page)} dispositivos recibidos")
-                
-                if not devices_page:
-                    _logger.info(f"Página {page} vacía - Fin de datos")
-                    break
-                
-                # BUSCAR EN ESTA PÁGINA INMEDIATAMENTE
-                for device in devices_page:
-                    device_serial = device.get('serialNumber', '').strip()
-                    
-                    if device_serial == serie_buscar:
-                        _logger.info(f"DISPOSITIVO ENCONTRADO: {device_serial} -> ID: {device.get('id')}")
-                        _logger.info(f"Ubicación: {device.get('customLocation', 'N/A')}")
-                        _logger.info(f"Entidad: {device.get('entityKey', 'N/A')}")
-                        return device
-                
-                all_devices.extend(devices_page)
-                total_pages_processed += 1
-                
-                # Si la página está incompleta, es la última (patrón del ejemplo)
-                if len(devices_page) < 100:
-                    _logger.info(f"Página {page} incompleta - Última página")
-                    break
-                
-                page += 1
-                
-                # Límite de seguridad (del ejemplo)
-                if page > 50:
-                    _logger.warning(f"Límite de seguridad alcanzado: {page-1} páginas")
-                    break
-                    
-            else:
-                error_msg = f'Error HTTP {response.status_code} en página {page}: {response.text}'
-                _logger.error(f"Error de API: {error_msg}")
-                
-                if page == 1:
-                    raise Exception(error_msg)
-                else:
-                    _logger.warning(f"Error en página {page}, continuando con datos obtenidos")
-                    break
-        
-        # Log final de debug
-        _logger.info(f"=== RESUMEN BÚSQUEDA ===")
-        _logger.info(f"Páginas procesadas: {total_pages_processed}")
-        _logger.info(f"Total dispositivos revisados: {len(all_devices)}")
-        _logger.info(f"Serie buscada: '{serie_buscar}'")
-        
-        # Log de algunas series encontradas para debug
-        series_encontradas = [d.get('serialNumber', 'N/A') for d in all_devices[:10]]
-        _logger.info(f"Primeras 10 series encontradas: {series_encontradas}")
-        
+
+            page_devices = response.json() or []
+            _logger.info(
+                'PrintTracker: fallback dispositivos | página=%s | cantidad=%s',
+                page,
+                len(page_devices),
+            )
+
+            if not page_devices:
+                break
+
+            for device in page_devices:
+                device_serial = self._normalize_pt_serial(device.get('serialNumber'))
+                if device_serial == serial or device_serial.upper() == serial_upper:
+                    return device
+
+            if len(page_devices) < limit:
+                break
+
+            page += 1
+
+            # Límite de seguridad alto. No limita flotas normales.
+            if page > 200:
+                _logger.warning(
+                    'PrintTracker: se alcanzó límite de seguridad de 200 páginas buscando %s',
+                    serial,
+                )
+                break
+
         return None
-    def debug_list_printtracker_devices(self):
-        """Método de debug para listar los primeros dispositivos"""
+
+    def action_map_printtracker(self):
+        self.ensure_one()
+
+        if not self.serie_id:
+            raise UserError('La máquina debe tener una serie para mapear con PrintTracker.')
+
         try:
             config = self.env['copier.printtracker.config'].get_active_config()
-            
-            response = requests.get(
-                f'{config.api_url.rstrip("/")}/entity/{config.entity_bbbb_id}/device',
-                headers=config.get_api_headers(),
-                params={
-                    'includeChildren': True,
-                    'limit': 20,
-                    'page': 1
-                },
-                timeout=config.timeout_seconds
-            )
-            
-            if response.status_code == 200:
-                devices = response.json()
-                
-                message_lines = [
-                    f"DEBUG DISPOSITIVOS PRINTTRACKER",
-                    f"Total en primera página: {len(devices)}",
-                    "",
-                    "Primeros 10 dispositivos:"
-                ]
-                
-                for i, device in enumerate(devices[:10]):
-                    message_lines.append(
-                        f"{i+1}. Serie: '{device.get('serialNumber')}' | ID: {device.get('id')} | Ubicación: {device.get('customLocation', 'N/A')}"
-                    )
-                
+            device = self._find_printtracker_device(config)
+
+            if not device:
                 return {
                     'type': 'ir.actions.client',
                     'tag': 'display_notification',
                     'params': {
-                        'title': 'Debug PrintTracker',
-                        'message': '\n'.join(message_lines),
-                        'type': 'info',
-                        'sticky': True
-                    }
+                        'title': 'PrintTracker Pro',
+                        'message': (
+                            f'No se encontró la serie "{self.serie_id}" en PrintTracker. '
+                            'Verifique que la serie coincida con PrintTracker.'
+                        ),
+                        'type': 'warning',
+                        'sticky': True,
+                    },
                 }
-            else:
-                raise Exception(f'Error HTTP {response.status_code}: {response.text}')
-                
-        except Exception as e:
+
+            device_id = device.get('id')
+            entity_id = device.get('entityKey') or config.entity_bbbb_id
+
+            if not device_id:
+                raise UserError('PrintTracker devolvió el dispositivo sin campo id.')
+
+            self.write({
+                'pt_device_id': device_id,
+                'pt_entity_id': entity_id,
+                'pt_last_sync': fields.Datetime.now(),
+            })
+
+            _logger.info(
+                'PrintTracker: máquina mapeada | serie=%s | device_id=%s | entity_id=%s',
+                self.serie_id,
+                device_id,
+                entity_id,
+            )
+
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
-                    'message': f'Error en debug: {str(e)}',
-                    'type': 'danger'
-                }
+                    'title': 'Máquina mapeada con PrintTracker',
+                    'message': (
+                        f'Serie: {self.serie_id}\n'
+                        f'Device ID: {device_id}\n'
+                        f'Entidad: {entity_id}\n'
+                        f'Ubicación: {device.get("customLocation") or device.get("location") or "N/A"}'
+                    ),
+                    'type': 'success',
+                    'sticky': True,
+                },
             }
 
+        except UserError:
+            raise
+        except Exception as exc:
+            _logger.exception('PrintTracker: error mapeando máquina %s', self.serie_id)
+            raise UserError(f'Error mapeando con PrintTracker: {exc}')
+
+    def _search_device_with_pagination(self, config):
+        """Compatibilidad con llamadas existentes del código anterior."""
+        return self._find_printtracker_device(config)
+
+    def debug_list_printtracker_devices(self):
+        """Muestra una muestra de dispositivos y deja detalle en logs."""
+        self.ensure_one()
+        config = self.env['copier.printtracker.config'].get_active_config()
+
+        response = config._get(
+            f'entity/{config.entity_bbbb_id}/device',
+            params={
+                'includeChildren': True,
+                'excludeDisabled': False,
+                'limit': 20,
+                'page': 1,
+            },
+        )
+
+        if response.status_code != 200:
+            raise UserError(f'HTTP {response.status_code}: {response.text}')
+
+        devices = response.json() or []
+        lines = [f'Dispositivos recibidos: {len(devices)}', '']
+
+        for i, device in enumerate(devices[:10], start=1):
+            lines.append(
+                f'{i}. Serie: {device.get("serialNumber") or "N/A"} | '
+                f'ID: {device.get("id") or "N/A"} | '
+                f'Entidad: {device.get("entityKey") or "N/A"}'
+            )
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Debug PrintTracker',
+                'message': '\n'.join(lines),
+                'type': 'info',
+                'sticky': True,
+            },
+        }
+
+
 # ====================================================================================
-# ARCHIVO 3: models/copier_counter.py (AGREGAR ESTOS MÉTODOS)
-# Extensión del modelo CopierCounter existente
+# Extensión de copier.counter
 # ====================================================================================
 
 class CopierCounter(models.Model):
     _inherit = 'copier.counter'
-    
-    # Campo para rastrear si fue actualizado desde PrintTracker
+
     pt_updated = fields.Boolean(
         'Actualizado desde PrintTracker',
         default=False,
-        help='Indica si los contadores fueron actualizados desde PrintTracker'
+        help='Indica si los contadores fueron actualizados desde PrintTracker.',
     )
     pt_last_reading_date = fields.Datetime(
         'Fecha Lectura PrintTracker',
-        help='Fecha de la última lectura obtenida de PrintTracker'
+        help='Fecha de la última lectura obtenida de PrintTracker.',
     )
 
-    # ARCHIVO: models/copier_counter.py
-    # REEMPLAZAR completamente los métodos de PrintTracker en CopierCounter
-
     def action_update_from_printtracker(self):
-        """Botón para actualizar contadores desde PrintTracker con logging completo"""
         self.ensure_one()
-        
-        _logger.info("=" * 60)
-        _logger.info("INICIANDO ACTUALIZACIÓN DESDE PRINTTRACKER")
-        _logger.info("=" * 60)
-        _logger.info(f"Counter ID: {self.id}")
-        _logger.info(f"Serie: {self.serie}")
-        _logger.info(f"Estado: {self.state}")
-        
+
+        _logger.info('=' * 70)
+        _logger.info('INICIANDO ACTUALIZACIÓN DESDE PRINTTRACKER')
+        _logger.info(
+            'Counter=%s | ID=%s | serie=%s | estado=%s',
+            self.name,
+            self.id,
+            self.serie,
+            self.state,
+        )
+
         if self.state != 'draft':
-            _logger.error(f"Estado inválido: {self.state} (debe ser 'draft')")
             raise UserError('Solo se pueden actualizar contadores en estado borrador.')
-        
+
         if not self.maquina_id:
-            _logger.error("No hay máquina asociada")
             raise UserError('No hay máquina asociada al contador.')
-        
-        _logger.info(f"Máquina ID: {self.maquina_id.id}")
-        _logger.info(f"PrintTracker Device ID: {self.maquina_id.pt_device_id}")
-        
+
+        config = self.env['copier.printtracker.config'].get_active_config()
+
+        # Si no está mapeada, intentar mapear automáticamente por serie.
         if not self.maquina_id.pt_device_id:
-            _logger.error("Máquina no mapeada con PrintTracker")
+            _logger.info(
+                'PrintTracker: máquina sin mapeo. Intentando mapear automáticamente por serie %s',
+                self.serie,
+            )
+            device = self.maquina_id._find_printtracker_device(config)
+            if not device:
+                raise UserError(
+                    f'La máquina {self.serie} no está mapeada y no se encontró en PrintTracker.'
+                )
+
+            self.maquina_id.write({
+                'pt_device_id': device.get('id'),
+                'pt_entity_id': device.get('entityKey') or config.entity_bbbb_id,
+                'pt_last_sync': fields.Datetime.now(),
+            })
+
+        lectura_pt = self._obtener_ultima_lectura_printtracker_v2(config)
+
+        # Si el ID guardado está obsoleto, volver a mapear por serie y reintentar una vez.
+        if not lectura_pt:
+            _logger.warning(
+                'PrintTracker: no se encontró lectura con device_id=%s. Remapeando serie=%s...',
+                self.maquina_id.pt_device_id,
+                self.serie,
+            )
+            device = self.maquina_id._find_printtracker_device(config)
+            if device and device.get('id'):
+                nuevo_device_id = device.get('id')
+                nuevo_entity_id = device.get('entityKey') or config.entity_bbbb_id
+
+                self.maquina_id.write({
+                    'pt_device_id': nuevo_device_id,
+                    'pt_entity_id': nuevo_entity_id,
+                    'pt_last_sync': fields.Datetime.now(),
+                })
+
+                lectura_pt = self._obtener_ultima_lectura_printtracker_v2(config)
+
+        if not lectura_pt:
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
-                    'message': f'La máquina {self.serie} no está mapeada con PrintTracker.\nUse "Mapear con PrintTracker" en la máquina primero.',
-                    'type': 'warning'
-                }
+                    'title': 'PrintTracker Pro',
+                    'message': (
+                        f'PrintTracker no devolvió una lectura actual para la serie {self.serie}. '
+                        'El dispositivo está mapeado, pero no apareció en currentMeter.'
+                    ),
+                    'type': 'warning',
+                    'sticky': True,
+                },
             }
-        
-        try:
-            # Paso 1: Obtener configuración
-            _logger.info("PASO 1: Obteniendo configuración PrintTracker")
-            config = self.env['copier.printtracker.config'].get_active_config()
-            _logger.info(f"Config encontrada: {config.name}")
-            _logger.info(f"URL API: {config.api_url}")
-            _logger.info(f"Entidad ID: {config.entity_bbbb_id}")
-            
-            # Paso 2: Obtener medidores
-            _logger.info("PASO 2: Obteniendo lecturas de PrintTracker")
-            lectura_pt = self._obtener_ultima_lectura_printtracker_v2(config)
-            
-            if not lectura_pt:
-                _logger.error("No se pudieron obtener lecturas de PrintTracker")
-                return {
-                    'type': 'ir.actions.client',
-                    'tag': 'display_notification',
-                    'params': {
-                        'message': f'No hay lecturas disponibles en PrintTracker para la serie: {self.serie}',
-                        'type': 'warning'
-                    }
-                }
-            
-            # Paso 3: Validar contadores
-            _logger.info("PASO 3: Validando nuevos contadores")
-            validacion = self._validar_nuevos_contadores_pt(lectura_pt)
-            if not validacion['valido']:
-                _logger.error(f"Validación fallida: {validacion['mensaje']}")
-                return {
-                    'type': 'ir.actions.client',
-                    'tag': 'display_notification',
-                    'params': {
-                        'message': f'Validación fallida: {validacion["mensaje"]}',
-                        'type': 'danger'
-                    }
-                }
-            
-            # Paso 4: Actualizar contadores
-            _logger.info("PASO 4: Actualizando contadores")
-            self._actualizar_contadores_desde_printtracker(lectura_pt)
-            
-            # Paso 5: Marcar sincronización
-            _logger.info("PASO 5: Marcando sincronización")
-            self.maquina_id.write({'pt_last_sync': fields.Datetime.now()})
-            
-            _logger.info("ACTUALIZACIÓN COMPLETADA EXITOSAMENTE")
-            _logger.info("=" * 60)
-            
-            return self._mostrar_exito_actualizacion_pt(lectura_pt)
-            
-        except Exception as e:
-            _logger.error("=" * 60)
-            _logger.error(f"ERROR CRÍTICO EN ACTUALIZACIÓN: {e}")
-            _logger.error("=" * 60)
-            import traceback
-            _logger.error(f"Traceback completo: {traceback.format_exc()}")
-            
+
+        validacion = self._validar_nuevos_contadores_pt(lectura_pt)
+        if not validacion.get('valido'):
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
-                    'message': f'Error: {str(e)}',
-                    'type': 'danger'
-                }
+                    'title': 'Validación de contadores',
+                    'message': validacion.get('mensaje') or 'Lectura inválida.',
+                    'type': 'danger',
+                    'sticky': True,
+                },
             }
+
+        self._actualizar_contadores_desde_printtracker(lectura_pt)
+        self.maquina_id.write({'pt_last_sync': fields.Datetime.now()})
+
+        _logger.info('ACTUALIZACIÓN PRINTTRACKER COMPLETADA')
+        _logger.info('=' * 70)
+
+        return self._mostrar_exito_actualizacion_pt(lectura_pt)
 
     def _obtener_ultima_lectura_printtracker_v2(self, config):
         """
-        Obtiene lecturas del endpoint /currentMeter buscando por deviceKey
+        Obtiene la lectura actual desde /currentMeter.
+
+        Importante:
+        - PrintTracker documenta que currentMeter.deviceKey corresponde al ID del dispositivo.
+        - Se elimina el límite anterior de 10 páginas.
+        - Se usa un page size grande para reducir llamadas.
         """
-        _logger.info("--- Iniciando obtención de medidores ---")
-        target_device_id = self.maquina_id.pt_device_id
-        _logger.info(f"Device ID buscado: {target_device_id}")
-        
+        self.ensure_one()
+
+        target_device_id = (self.maquina_id.pt_device_id or '').strip()
         if not target_device_id:
-            _logger.error("❌ No hay Device ID configurado")
             return None
-        
-        try:
-            # Usar endpoint currentMeter (no device/{id}/meter)
-            url = f'{config.api_url.rstrip("/")}/entity/{config.entity_bbbb_id}/currentMeter'
-            headers = config.get_api_headers()
-            
-            _logger.info(f"URL petición: {url}")
-            
-            page = 1
-            max_pages = 10
-            
-            while page <= max_pages:
-                params = {
-                    'includeChildren': True,
-                    'page': page,
-                    'limit': 100
-                }
-                
-                _logger.info(f"📄 Buscando en página {page}")
-                
-                response = requests.get(url, headers=headers, params=params, timeout=config.timeout_seconds)
-                
-                if response.status_code != 200:
-                    _logger.error(f"❌ HTTP {response.status_code}")
-                    break
-                
-                meters = response.json()
-                _logger.info(f"✅ Página {page}: {len(meters)} medidores")
-                
-                if not meters:
-                    _logger.info("Página vacía - fin de búsqueda")
-                    break
-                
-                # BUSCAR POR deviceKey (NO por deviceId._id)
-                for i, meter_data in enumerate(meters):
-                    device_key = meter_data.get('deviceKey')
-                    
-                    # Log del primer registro para debug
-                    if page == 1 and i == 0:
-                        _logger.info(f"Ejemplo estructura: deviceKey={device_key}")
-                    
-                    if device_key == target_device_id:
-                        _logger.info(f"🎯 ENCONTRADO en página {page}, posición {i+1}")
-                        _logger.info(f"deviceKey: {device_key}")
-                        _logger.info(f"Timestamp: {meter_data.get('timestamp')}")
-                        
-                        # Extraer contadores
-                        page_counts = meter_data.get('pageCounts', {})
-                        default_counts = page_counts.get('default') or page_counts.get('life')
-                        
-                        if not default_counts:
-                            _logger.error("❌ Sin estructura de contadores")
-                            return None
-                        
-                        total_black = self._safe_int(default_counts.get('totalBlack', {}).get('value', 0))
-                        total_color = self._safe_int(default_counts.get('totalColor', {}).get('value', 0))
-                        
-                        _logger.info(f"📊 B/N: {total_black:,} | Color: {total_color:,}")
-                        
-                        return meter_data
-                
-                # Si la página tiene menos de 100, es la última
-                if len(meters) < 100:
-                    _logger.info("Última página alcanzada")
-                    break
-                
-                page += 1
-            
-            _logger.error(f"❌ Device {target_device_id} NO encontrado en {page} páginas")
-            return None
-            
-        except Exception as e:
-            _logger.error(f"💥 Error: {e}")
-            import traceback
-            _logger.error(traceback.format_exc())
-            return None
-    def debug_printtracker_api_raw(self):
-        """Debug directo de la API con diferentes combinaciones de parámetros"""
-        try:
-            config = self.env['copier.printtracker.config'].get_active_config()
-            url = f'{config.api_url.rstrip("/")}/entity/{config.entity_bbbb_id}/currentMeter'
-            headers = config.get_api_headers()
-            
-            # Probar diferentes combinaciones
-            test_cases = [
-                {'page': 1},
-                {'page': 1, 'includeChildren': True},
-                {'page': 1, 'includeChildren': True, 'limit': 10},
-                {'page': 1, 'limit': 10},
-            ]
-            
-            results = []
-            
-            for i, params in enumerate(test_cases):
-                try:
-                    _logger.info(f"Probando caso {i+1}: {params}")
-                    response = requests.get(url, headers=headers, params=params, timeout=30)
-                    
-                    if response.status_code == 200:
-                        data = response.json()
-                        results.append(f"✅ Caso {i+1}: {len(data)} medidores")
-                        _logger.info(f"Éxito caso {i+1}: {len(data)} medidores")
-                        
-                        # Si encontramos nuestro dispositivo, reportarlo
-                        target_id = self.maquina_id.pt_device_id if self.maquina_id else None
-                        if target_id:
-                            found = any(m.get('deviceKey') == target_id for m in data)
-                            if found:
-                                results.append(f"   🎯 Dispositivo {target_id[:8]}... ENCONTRADO")
-                                _logger.info(f"Dispositivo encontrado en caso {i+1}")
-                    else:
-                        results.append(f"❌ Caso {i+1}: HTTP {response.status_code}")
-                        _logger.error(f"Error caso {i+1}: {response.status_code} - {response.text}")
-                        
-                except Exception as e:
-                    results.append(f"💥 Caso {i+1}: {str(e)}")
-                    _logger.error(f"Excepción caso {i+1}: {e}")
-            
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': 'Debug API PrintTracker',
-                    'message': '\n'.join(results),
-                    'type': 'info',
-                    'sticky': True
-                }
-            }
-            
-        except Exception as e:
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'message': f'Error en debug: {str(e)}',
-                    'type': 'danger'
-                }
+
+        path = f'entity/{config.entity_bbbb_id}/currentMeter'
+
+        page = 1
+        limit = 5000
+        total_revisados = 0
+
+        _logger.info(
+            'PrintTracker currentMeter: buscando deviceKey=%s | serie=%s',
+            target_device_id,
+            self.serie,
+        )
+
+        while True:
+            params = {
+                'includeChildren': True,
+                'excludeDisabled': False,
+                'page': page,
+                'limit': limit,
             }
 
+            response = config._get(path, params=params)
+
+            if response.status_code != 200:
+                _logger.error(
+                    'PrintTracker currentMeter: HTTP %s | página=%s | body=%s',
+                    response.status_code,
+                    page,
+                    response.text,
+                )
+                return None
+
+            meters = response.json() or []
+            total_revisados += len(meters)
+
+            _logger.info(
+                'PrintTracker currentMeter: página=%s | medidores=%s | acumulado=%s',
+                page,
+                len(meters),
+                total_revisados,
+            )
+
+            if not meters:
+                break
+
+            for position, meter_data in enumerate(meters, start=1):
+                device_key = str(meter_data.get('deviceKey') or '').strip()
+
+                if device_key == target_device_id:
+                    _logger.info(
+                        'PrintTracker: lectura encontrada | página=%s | posición=%s | '
+                        'deviceKey=%s | timestamp=%s',
+                        page,
+                        position,
+                        device_key,
+                        meter_data.get('timestamp'),
+                    )
+
+                    counts = self._get_pt_counts_container(meter_data)
+                    if not counts:
+                        _logger.error(
+                            'PrintTracker: lectura encontrada pero sin pageCounts life/default.'
+                        )
+                        return None
+
+                    _logger.info(
+                        'PrintTracker: B/N=%s | Color=%s',
+                        self._safe_int((counts.get('totalBlack') or {}).get('value', 0)),
+                        self._safe_int((counts.get('totalColor') or {}).get('value', 0)),
+                    )
+                    return meter_data
+
+            if len(meters) < limit:
+                break
+
+            page += 1
+
+            # Protección extrema únicamente para evitar ciclos anormales de API.
+            if page > 1000:
+                _logger.error(
+                    'PrintTracker: límite de seguridad de 1000 páginas alcanzado en currentMeter.'
+                )
+                break
+
+        _logger.error(
+            'PrintTracker: deviceKey=%s no encontrado después de revisar %s medidores en %s páginas.',
+            target_device_id,
+            total_revisados,
+            page,
+        )
+        return None
+
+    def _get_pt_counts_container(self, lectura_pt):
+        """
+        Devuelve el bloque de contadores más adecuado.
+        La documentación muestra normalmente `life`; algunas lecturas pueden incluir `default`.
+        """
+        page_counts = (lectura_pt or {}).get('pageCounts') or {}
+        return page_counts.get('life') or page_counts.get('default') or {}
 
     def _validar_nuevos_contadores_pt(self, lectura_pt):
-        """Validación con logging detallado"""
-        _logger.info("--- Iniciando validación de contadores ---")
-        
-        try:
-            # Extraer contadores de PrintTracker
-            page_counts = lectura_pt.get('pageCounts', {})
-            default_counts = page_counts.get('default', {}) or page_counts.get('life', {})
-            
-            if not default_counts:
-                _logger.error("No se encontró estructura de contadores válida")
-                return {
-                    'valido': False,
-                    'mensaje': 'No se encontró estructura de contadores válida en PrintTracker'
-                }
-            
-            # Extraer valores
-            contador_bn_nuevo = self._safe_int(default_counts.get('totalBlack', {}).get('value', 0))
-            contador_color_nuevo = self._safe_int(default_counts.get('totalColor', {}).get('value', 0))
-            
-            _logger.info(f"Contadores actuales en Odoo:")
-            _logger.info(f"  B/N anterior: {self.contador_anterior_bn}")
-            _logger.info(f"  Color anterior: {self.contador_anterior_color}")
-            _logger.info(f"Contadores nuevos de PrintTracker:")
-            _logger.info(f"  B/N nuevo: {contador_bn_nuevo}")
-            _logger.info(f"  Color nuevo: {contador_color_nuevo}")
-            
-            # Validaciones
-            if contador_bn_nuevo < self.contador_anterior_bn:
-                error_msg = f'El contador B/N de PrintTracker ({contador_bn_nuevo:,}) es menor al anterior registrado ({self.contador_anterior_bn:,})'
-                _logger.error(f"VALIDACIÓN FALLIDA: {error_msg}")
-                return {'valido': False, 'mensaje': error_msg}
-            
-            if contador_color_nuevo < self.contador_anterior_color:
-                error_msg = f'El contador Color de PrintTracker ({contador_color_nuevo:,}) es menor al anterior registrado ({self.contador_anterior_color:,})'
-                _logger.error(f"VALIDACIÓN FALLIDA: {error_msg}")
-                return {'valido': False, 'mensaje': error_msg}
-            
-            # Calcular incrementos
-            incremento_bn = contador_bn_nuevo - self.contador_anterior_bn
-            incremento_color = contador_color_nuevo - self.contador_anterior_color
-            
-            _logger.info(f"Incrementos calculados:")
-            _logger.info(f"  B/N: +{incremento_bn:,}")
-            _logger.info(f"  Color: +{incremento_color:,}")
-            
-            # Validar incrementos razonables
-            if incremento_bn > 100000:
-                error_msg = f'Incremento B/N muy alto: {incremento_bn:,} páginas. Verificar datos.'
-                _logger.warning(f"ADVERTENCIA: {error_msg}")
-                return {'valido': False, 'mensaje': error_msg}
-            
-            if incremento_color > 50000:
-                error_msg = f'Incremento Color muy alto: {incremento_color:,} páginas. Verificar datos.'
-                _logger.warning(f"ADVERTENCIA: {error_msg}")
-                return {'valido': False, 'mensaje': error_msg}
-            
-            _logger.info("VALIDACIÓN EXITOSA: Todos los controles pasaron")
-            return {'valido': True}
-            
-        except Exception as e:
-            error_msg = f'Error validando contadores: {str(e)}'
-            _logger.error(f"EXCEPCIÓN EN VALIDACIÓN: {error_msg}")
-            return {'valido': False, 'mensaje': error_msg}
+        self.ensure_one()
+
+        counts = self._get_pt_counts_container(lectura_pt)
+        if not counts:
+            return {
+                'valido': False,
+                'mensaje': 'PrintTracker no devolvió una estructura de contadores válida.',
+            }
+
+        contador_bn_nuevo = self._safe_int(
+            (counts.get('totalBlack') or {}).get('value', 0)
+        )
+        contador_color_nuevo = self._safe_int(
+            (counts.get('totalColor') or {}).get('value', 0)
+        )
+
+        anterior_bn = int(self.contador_anterior_bn or 0)
+        anterior_color = int(self.contador_anterior_color or 0)
+
+        _logger.info(
+            'Validando PrintTracker | anterior_bn=%s | nuevo_bn=%s | anterior_color=%s | nuevo_color=%s',
+            anterior_bn,
+            contador_bn_nuevo,
+            anterior_color,
+            contador_color_nuevo,
+        )
+
+        if contador_bn_nuevo < 0 or contador_color_nuevo < 0:
+            return {
+                'valido': False,
+                'mensaje': 'PrintTracker devolvió un contador negativo.',
+            }
+
+        # Para monocromas ignoramos cualquier anomalía del contador color.
+        if contador_bn_nuevo < anterior_bn:
+            return {
+                'valido': False,
+                'mensaje': (
+                    f'El contador B/N de PrintTracker ({contador_bn_nuevo:,}) es menor '
+                    f'al anterior registrado ({anterior_bn:,}).'
+                ),
+            }
+
+        if self.maquina_id.tipo == 'color' and contador_color_nuevo < anterior_color:
+            return {
+                'valido': False,
+                'mensaje': (
+                    f'El contador Color de PrintTracker ({contador_color_nuevo:,}) es menor '
+                    f'al anterior registrado ({anterior_color:,}).'
+                ),
+            }
+
+        incremento_bn = contador_bn_nuevo - anterior_bn
+        incremento_color = contador_color_nuevo - anterior_color
+
+        # No bloqueamos equipos de alto volumen; solo dejamos advertencia en logs.
+        if incremento_bn > 100000:
+            _logger.warning(
+                'PrintTracker: incremento B/N alto para %s: +%s',
+                self.serie,
+                incremento_bn,
+            )
+
+        if self.maquina_id.tipo == 'color' and incremento_color > 50000:
+            _logger.warning(
+                'PrintTracker: incremento Color alto para %s: +%s',
+                self.serie,
+                incremento_color,
+            )
+
+        return {'valido': True}
 
     def _actualizar_contadores_desde_printtracker(self, lectura_pt):
-        """Actualización con logging detallado"""
-        _logger.info("--- Iniciando actualización de contadores ---")
-        
-        try:
-            # Extraer contadores
-            page_counts = lectura_pt.get('pageCounts', {})
-            default_counts = page_counts.get('default', {}) or page_counts.get('life', {})
-            
-            contador_bn_nuevo = self._safe_int(default_counts.get('totalBlack', {}).get('value', 0))
-            contador_color_nuevo = self._safe_int(default_counts.get('totalColor', {}).get('value', 0))
-            
-            # Obtener fecha de lectura
-            timestamp = lectura_pt.get('timestamp')
-            fecha_lectura = self._parse_printtracker_datetime(timestamp) if timestamp else fields.Datetime.now()
-            
-            _logger.info(f"Valores a actualizar:")
-            _logger.info(f"  contador_actual_bn: {self.contador_actual_bn} → {contador_bn_nuevo}")
-            _logger.info(f"  contador_actual_color: {self.contador_actual_color} → {contador_color_nuevo}")
-            _logger.info(f"  pt_last_reading_date: {fecha_lectura}")
-            
-            valores_actualizar = {
-                'contador_actual_bn': contador_bn_nuevo,
-                'contador_actual_color': contador_color_nuevo,
-                'pt_updated': True,
-                'pt_last_reading_date': fecha_lectura
-            }
-            
-            # Actualizar registro
-            self.write(valores_actualizar)
-            _logger.info("Registro actualizado en base de datos")
-            
-            # Mensaje en el chatter
-            incremento_bn = contador_bn_nuevo - self.contador_anterior_bn
-            incremento_color = contador_color_nuevo - self.contador_anterior_color
-            
-            mensaje_chatter = f"""Contadores actualizados desde PrintTracker
+        self.ensure_one()
 
-    Lecturas actualizadas:
-    • B/N: {self.contador_anterior_bn:,} → {contador_bn_nuevo:,} 
-    (+{incremento_bn:,} páginas)
-    • Color: {self.contador_anterior_color:,} → {contador_color_nuevo:,} 
-    (+{incremento_color:,} páginas)
+        counts = self._get_pt_counts_container(lectura_pt)
+        if not counts:
+            raise UserError('No se encontró estructura de contadores en PrintTracker.')
 
-    Fecha lectura PT: {fecha_lectura}
-    ID Device: {self.maquina_id.pt_device_id}"""
-            
-            self.message_post(
-                body=mensaje_chatter,
-                message_type='notification'
+        contador_bn_nuevo = self._safe_int(
+            (counts.get('totalBlack') or {}).get('value', 0)
+        )
+        contador_color_nuevo = self._safe_int(
+            (counts.get('totalColor') or {}).get('value', 0)
+        )
+
+        # En monocromas no necesitamos cargar color desde PT.
+        if self.maquina_id.tipo != 'color':
+            contador_color_nuevo = self.contador_anterior_color or 0
+
+        timestamp = lectura_pt.get('timestamp')
+        fecha_lectura = self._parse_printtracker_datetime(timestamp)
+
+        anterior_bn = int(self.contador_anterior_bn or 0)
+        anterior_color = int(self.contador_anterior_color or 0)
+
+        self.write({
+            'contador_actual_bn': contador_bn_nuevo,
+            'contador_actual_color': contador_color_nuevo,
+            'pt_updated': True,
+            'pt_last_reading_date': fecha_lectura,
+        })
+
+        incremento_bn = contador_bn_nuevo - anterior_bn
+        incremento_color = contador_color_nuevo - anterior_color
+
+        message = (
+            '<b>Contadores actualizados desde PrintTracker</b><br/><br/>'
+            f'B/N: {anterior_bn:,} → {contador_bn_nuevo:,} '
+            f'(+{incremento_bn:,})<br/>'
+        )
+
+        if self.maquina_id.tipo == 'color':
+            message += (
+                f'Color: {anterior_color:,} → {contador_color_nuevo:,} '
+                f'(+{incremento_color:,})<br/>'
             )
-            _logger.info("Mensaje agregado al chatter")
-            
-            _logger.info("ACTUALIZACIÓN COMPLETADA")
-            
-        except Exception as e:
-            _logger.error(f"Error en actualización: {e}")
-            import traceback
-            _logger.error(f"Traceback: {traceback.format_exc()}")
-            raise
 
-    def _mostrar_exito_actualizacion_pt(self, lectura_pt):
-        """Mensaje de éxito con logging"""
-        incremento_bn = self.contador_actual_bn - self.contador_anterior_bn
-        incremento_color = self.contador_actual_color - self.contador_anterior_color
-        
-        mensaje = f"""Actualización exitosa desde PrintTracker
+        message += (
+            f'<br/>Fecha lectura PT: {fecha_lectura}<br/>'
+            f'Device ID: {self.maquina_id.pt_device_id}'
+        )
 
-    Nuevos contadores:
-    • B/N: {self.contador_actual_bn:,} (+{incremento_bn:,})
-    • Color: {self.contador_actual_color:,} (+{incremento_color:,})
+        self.message_post(
+            body=message,
+            message_type='notification',
+        )
 
-    Fecha lectura: {self.pt_last_reading_date}
-    Total a facturar: S/ {self.total:.2f}"""
-        
-        _logger.info("MOSTRANDO MENSAJE DE ÉXITO AL USUARIO")
-        
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': 'Contadores Actualizados desde PrintTracker',
-                'message': mensaje,
-                'type': 'success',
-                'sticky': True
-            }
-        }
-    # TAMBIÉN AGREGAR este botón de debug al modelo CopierCounter para testing
-    def action_debug_printtracker_meters(self):
-        """Acción para el botón de debug de medidores"""
-        return self.debug_printtracker_meters()
-    def _validar_nuevos_contadores_pt(self, lectura_pt):
-        """Validación mejorada que permite primeras lecturas con logging detallado"""
-        _logger.info("--- Iniciando validación de contadores ---")
-        
-        try:
-            # Extraer contadores de PrintTracker
-            page_counts = lectura_pt.get('pageCounts', {})
-            default_counts = page_counts.get('default', {}) or page_counts.get('life', {})
-            
-            if not default_counts:
-                _logger.error("No se encontró estructura de contadores válida")
-                return {
-                    'valido': False,
-                    'mensaje': 'No se encontró estructura de contadores válida en PrintTracker'
-                }
-            
-            # Extraer valores
-            contador_bn_nuevo = self._safe_int(default_counts.get('totalBlack', {}).get('value', 0))
-            contador_color_nuevo = self._safe_int(default_counts.get('totalColor', {}).get('value', 0))
-            
-            _logger.info(f"Contadores actuales en Odoo:")
-            _logger.info(f"  B/N anterior: {self.contador_anterior_bn}")
-            _logger.info(f"  Color anterior: {self.contador_anterior_color}")
-            _logger.info(f"Contadores nuevos de PrintTracker:")
-            _logger.info(f"  B/N nuevo: {contador_bn_nuevo}")
-            _logger.info(f"  Color nuevo: {contador_color_nuevo}")
-            
-            # DETECTAR SI ES PRIMERA LECTURA
-            es_primera_lectura = (self.contador_anterior_bn == 0 and self.contador_anterior_color == 0)
-            
-            if es_primera_lectura:
-                _logger.info("🆕 DETECTADA PRIMERA LECTURA - Saltando validaciones de incremento")
-                
-                # Para primera lectura, solo validar que los valores sean razonables
-                if contador_bn_nuevo < 0:
-                    error_msg = f'Contador B/N inválido: {contador_bn_nuevo} (no puede ser negativo)'
-                    _logger.error(f"VALIDACIÓN FALLIDA: {error_msg}")
-                    return {'valido': False, 'mensaje': error_msg}
-                
-                if contador_color_nuevo < 0:
-                    error_msg = f'Contador Color inválido: {contador_color_nuevo} (no puede ser negativo)'
-                    _logger.error(f"VALIDACIÓN FALLIDA: {error_msg}")
-                    return {'valido': False, 'mensaje': error_msg}
-                
-                # Validación de valores extremos para primera lectura
-                if contador_bn_nuevo > 10000000:  # 10 millones como límite absoluto
-                    error_msg = f'Contador B/N extremadamente alto: {contador_bn_nuevo:,}. Verificar si es correcto.'
-                    _logger.warning(f"ADVERTENCIA: {error_msg}")
-                    return {'valido': False, 'mensaje': error_msg}
-                
-                if contador_color_nuevo > 5000000:  # 5 millones como límite absoluto
-                    error_msg = f'Contador Color extremadamente alto: {contador_color_nuevo:,}. Verificar si es correcto.'
-                    _logger.warning(f"ADVERTENCIA: {error_msg}")
-                    return {'valido': False, 'mensaje': error_msg}
-                
-                _logger.info("✅ PRIMERA LECTURA VALIDADA: Valores dentro de rangos aceptables")
-                return {'valido': True}
-            
-            # VALIDACIONES PARA LECTURAS SUBSECUENTES
-            _logger.info("📊 Validando lectura subsecuente...")
-            
-            # Validar que no sean menores a los anteriores
-            if contador_bn_nuevo < self.contador_anterior_bn:
-                error_msg = f'El contador B/N de PrintTracker ({contador_bn_nuevo:,}) es menor al anterior registrado ({self.contador_anterior_bn:,})'
-                _logger.error(f"VALIDACIÓN FALLIDA: {error_msg}")
-                return {'valido': False, 'mensaje': error_msg}
-            
-            if contador_color_nuevo < self.contador_anterior_color:
-                error_msg = f'El contador Color de PrintTracker ({contador_color_nuevo:,}) es menor al anterior registrado ({self.contador_anterior_color:,})'
-                _logger.error(f"VALIDACIÓN FALLIDA: {error_msg}")
-                return {'valido': False, 'mensaje': error_msg}
-            
-            # Calcular incrementos
-            incremento_bn = contador_bn_nuevo - self.contador_anterior_bn
-            incremento_color = contador_color_nuevo - self.contador_anterior_color
-            
-            _logger.info(f"Incrementos calculados:")
-            _logger.info(f"  B/N: +{incremento_bn:,}")
-            _logger.info(f"  Color: +{incremento_color:,}")
-            
-            # Validar incrementos razonables para lecturas mensuales
-            limite_bn_mensual = 100000      # 100k páginas B/N por mes
-            limite_color_mensual = 50000    # 50k páginas Color por mes
-            
-            if incremento_bn > limite_bn_mensual:
-                error_msg = f'Incremento B/N muy alto: {incremento_bn:,} páginas. ¿Confirma que es correcto?'
-                _logger.warning(f"ADVERTENCIA: {error_msg}")
-                # CAMBIO: En lugar de rechazar, convertir en advertencia permisiva
-                _logger.info("ℹ️ Permitiendo incremento alto por ser posible en equipos de alto volumen")
-            
-            if incremento_color > limite_color_mensual:
-                error_msg = f'Incremento Color muy alto: {incremento_color:,} páginas. ¿Confirma que es correcto?'
-                _logger.warning(f"ADVERTENCIA: {error_msg}")
-                # CAMBIO: En lugar de rechazar, convertir en advertencia permisiva
-                _logger.info("ℹ️ Permitiendo incremento alto por ser posible en equipos de alto volumen")
-            
-            _logger.info("✅ VALIDACIÓN EXITOSA: Todos los controles pasaron")
-            return {'valido': True}
-            
-        except Exception as e:
-            error_msg = f'Error validando contadores: {str(e)}'
-            _logger.error(f"EXCEPCIÓN EN VALIDACIÓN: {error_msg}")
-            return {'valido': False, 'mensaje': error_msg}
+        _logger.info(
+            'PrintTracker actualizado | serie=%s | B/N=%s -> %s | Color=%s -> %s',
+            self.serie,
+            anterior_bn,
+            contador_bn_nuevo,
+            anterior_color,
+            contador_color_nuevo,
+        )
 
     def _safe_int(self, value, default=0):
-        """Convierte un valor a entero de forma segura"""
         try:
-            if value is None or value == '' or value == 'N/A':
+            if value in (None, '', 'N/A'):
                 return default
-            if isinstance(value, str):
-                value = ''.join(filter(str.isdigit, value))
-                if not value:
-                    return default
-            return int(value)
-        except (ValueError, TypeError):
-            _logger.warning(f"No se pudo convertir '{value}' a entero, usando {default}")
+
+            if isinstance(value, bool):
+                return int(value)
+
+            if isinstance(value, (int, float)):
+                return int(value)
+
+            value_str = str(value).strip().replace(',', '')
+
+            try:
+                return int(float(value_str))
+            except (ValueError, TypeError):
+                digits = ''.join(ch for ch in value_str if ch.isdigit())
+                return int(digits) if digits else default
+
+        except Exception:
+            _logger.warning('PrintTracker: no se pudo convertir %r a entero.', value)
             return default
 
-    def _actualizar_contadores_desde_printtracker(self, lectura_pt):
-        """Actualiza los contadores con los datos de PrintTracker"""
-        try:
-            # Extraer contadores
-            page_counts = lectura_pt.get('pageCounts', {})
-            default_counts = page_counts.get('default', {}) or page_counts.get('life', {})
-            
-            contador_bn_nuevo = self._safe_int(default_counts.get('totalBlack', {}).get('value', 0))
-            contador_color_nuevo = self._safe_int(default_counts.get('totalColor', {}).get('value', 0))
-            
-            # Obtener fecha de lectura
-            timestamp = lectura_pt.get('timestamp')
-            fecha_lectura = self._parse_printtracker_datetime(timestamp) if timestamp else fields.Datetime.now()
-            
-            valores_actualizar = {
-                'contador_actual_bn': contador_bn_nuevo,
-                'contador_actual_color': contador_color_nuevo,
-                'pt_updated': True,
-                'pt_last_reading_date': fecha_lectura
-            }
-            
-            self.write(valores_actualizar)
-            
-            # Log de la actualización
-            _logger.info(
-                f"Contadores actualizados desde PrintTracker para {self.serie}: "
-                f"B/N: {self.contador_anterior_bn} → {contador_bn_nuevo}, "
-                f"Color: {self.contador_anterior_color} → {contador_color_nuevo}"
-            )
-            
-            # Mensaje en el chatter
-            self.message_post(
-                body=f"""Contadores actualizados desde PrintTracker
-                
-Lecturas actualizadas:
-• B/N: {self.contador_anterior_bn:,} → {contador_bn_nuevo:,} 
-  (+{contador_bn_nuevo - self.contador_anterior_bn:,} páginas)
-• Color: {self.contador_anterior_color:,} → {contador_color_nuevo:,} 
-  (+{contador_color_nuevo - self.contador_anterior_color:,} páginas)
-
-Fecha lectura PT: {fecha_lectura}
-ID Device: {self.maquina_id.pt_device_id}""",
-                message_type='notification'
-            )
-            
-        except Exception as e:
-            _logger.error(f"Error actualizando contadores: {e}")
-            raise
-
     def _parse_printtracker_datetime(self, datetime_str):
-        """Convierte fecha de PrintTracker a formato Odoo"""
+        """Convierte timestamp ISO/RFC3339 de PrintTracker a datetime UTC sin tz para Odoo."""
+        if not datetime_str:
+            return fields.Datetime.now()
+
         try:
-            if not datetime_str:
-                return fields.Datetime.now()
-            
-            from datetime import datetime
-            import re
-            
-            # Limpiar formato ISO 8601
-            clean_datetime = re.sub(r'\.\d+Z?$', '', datetime_str)
-            clean_datetime = clean_datetime.replace('T', ' ').replace('Z', '')
-            
-            try:
-                parsed_dt = datetime.strptime(clean_datetime, '%Y-%m-%d %H:%M:%S')
-                return parsed_dt
-            except ValueError:
-                _logger.error(f"Formato de fecha inválido: {datetime_str}")
-                return fields.Datetime.now()
-                
-        except Exception as e:
-            _logger.error(f"Error parseando fecha: {e}")
+            value = str(datetime_str).strip()
+
+            # Python acepta +00:00; reemplazamos Z por UTC explícito.
+            if value.endswith('Z'):
+                value = value[:-1] + '+00:00'
+
+            parsed = datetime.fromisoformat(value)
+
+            if parsed.tzinfo:
+                parsed = parsed.astimezone(timezone.utc).replace(tzinfo=None)
+
+            return parsed
+
+        except Exception:
+            _logger.warning(
+                'PrintTracker: timestamp no reconocido %r. Se usará fecha actual.',
+                datetime_str,
+            )
             return fields.Datetime.now()
 
     def _mostrar_exito_actualizacion_pt(self, lectura_pt):
-        """Muestra mensaje de éxito con detalles"""
-        incremento_bn = self.contador_actual_bn - self.contador_anterior_bn
-        incremento_color = self.contador_actual_color - self.contador_anterior_color
-        
+        self.ensure_one()
+
+        incremento_bn = (self.contador_actual_bn or 0) - (self.contador_anterior_bn or 0)
+        incremento_color = (
+            (self.contador_actual_color or 0) - (self.contador_anterior_color or 0)
+        )
+
+        lines = [
+            'Actualización exitosa desde PrintTracker',
+            '',
+            f'B/N: {self.contador_actual_bn:,} (+{incremento_bn:,})',
+        ]
+
+        if self.maquina_id.tipo == 'color':
+            lines.append(
+                f'Color: {self.contador_actual_color:,} (+{incremento_color:,})'
+            )
+
+        lines.extend([
+            '',
+            f'Fecha lectura: {self.pt_last_reading_date}',
+            f'Total a facturar: S/ {self.total:.2f}',
+        ])
+
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
                 'title': 'Contadores Actualizados desde PrintTracker',
-                'message': f"""Actualización exitosa:
-
-Nuevos contadores:
-• B/N: {self.contador_actual_bn:,} (+{incremento_bn:,})
-• Color: {self.contador_actual_color:,} (+{incremento_color:,})
-
-Fecha lectura: {self.pt_last_reading_date}
-Total a facturar: S/ {self.total:.2f}""",
+                'message': '\n'.join(lines),
                 'type': 'success',
-                'sticky': True
-            }
+                'sticky': True,
+            },
         }
 
+    def debug_printtracker_api_raw(self):
+        """Debug útil: comprueba el mapeo y busca el deviceKey en currentMeter."""
+        self.ensure_one()
+
+        if not self.maquina_id:
+            raise UserError('No hay máquina asociada.')
+
+        config = self.env['copier.printtracker.config'].get_active_config()
+
+        device_id = self.maquina_id.pt_device_id or 'SIN MAPEO'
+        lectura = None
+        if self.maquina_id.pt_device_id:
+            lectura = self._obtener_ultima_lectura_printtracker_v2(config)
+
+        lines = [
+            f'Serie: {self.serie}',
+            f'Device ID: {device_id}',
+            f'Entidad del dispositivo: {self.maquina_id.pt_entity_id or "N/A"}',
+            f'Lectura encontrada: {"SÍ" if lectura else "NO"}',
+        ]
+
+        if lectura:
+            counts = self._get_pt_counts_container(lectura)
+            lines.extend([
+                f'Timestamp: {lectura.get("timestamp") or "N/A"}',
+                f'B/N: {self._safe_int((counts.get("totalBlack") or {}).get("value", 0))}',
+                f'Color: {self._safe_int((counts.get("totalColor") or {}).get("value", 0))}',
+            ])
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Debug API PrintTracker',
+                'message': '\n'.join(lines),
+                'type': 'info',
+                'sticky': True,
+            },
+        }
+
+    def action_debug_printtracker_meters(self):
+        """Compatibilidad con el botón debug existente."""
+        self.ensure_one()
+        return self.debug_printtracker_api_raw()
+
     def action_update_multiple_from_printtracker(self):
-        """Actualiza múltiples contadores desde PrintTracker"""
+        """Actualiza múltiples contadores en borrador."""
         contadores_draft = self.filtered(lambda c: c.state == 'draft')
-        
+
         if not contadores_draft:
             raise UserError('Solo se pueden actualizar contadores en estado borrador.')
-        
+
         actualizados = 0
         errores = []
-        
+
         for contador in contadores_draft:
             try:
                 resultado = contador.action_update_from_printtracker()
-                if resultado['params']['type'] == 'success':
+                params = (resultado or {}).get('params') or {}
+
+                if params.get('type') == 'success':
                     actualizados += 1
                 else:
-                    errores.append(f"{contador.serie}: {resultado['params']['message']}")
-            except Exception as e:
-                errores.append(f"{contador.serie}: {str(e)}")
-        
-        mensaje = f"Proceso completado: {actualizados} contadores actualizados"
+                    errores.append(
+                        f'{contador.serie}: {params.get("message") or "No actualizado"}'
+                    )
+            except Exception as exc:
+                _logger.exception(
+                    'PrintTracker: error actualizando contador %s',
+                    contador.name,
+                )
+                errores.append(f'{contador.serie}: {exc}')
+
+        mensaje = f'Proceso completado: {actualizados} contadores actualizados'
         if errores:
-            mensaje += f", {len(errores)} errores"
-        
+            mensaje += f' | {len(errores)} con observaciones/error'
+            mensaje += '\n' + '\n'.join(errores[:10])
+            if len(errores) > 10:
+                mensaje += f'\n... y {len(errores) - 10} más.'
+
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -1018,6 +962,6 @@ Total a facturar: S/ {self.total:.2f}""",
                 'title': 'Actualización Masiva desde PrintTracker',
                 'message': mensaje,
                 'type': 'success' if not errores else 'warning',
-                'sticky': True
-            }
+                'sticky': True,
+            },
         }
