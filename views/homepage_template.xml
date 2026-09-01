@@ -312,15 +312,14 @@
                             z-index: 2;
                         }
 
-                        .cc-reveal {
-                            opacity: 0;
-                            transform: translateY(16px);
-                            transition: opacity .55s ease, transform .55s ease;
-                        }
-
+                        /*
+                         * El contenido debe ser visible SIEMPRE.
+                         * No dependemos de JavaScript para mostrar secciones.
+                         */
+                        .cc-reveal,
                         .cc-reveal.cc-visible {
-                            opacity: 1;
-                            transform: translateY(0);
+                            opacity: 1 !important;
+                            transform: none !important;
                         }
 
                         @media (max-width: 991.98px) {
