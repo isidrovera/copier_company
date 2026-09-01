@@ -1,49 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+
         <template id="copier_company_modern_homepage"
                   name="Copier Company Modern Homepage"
                   inherit_id="website.homepage">
 
             <xpath expr="//div[@id='wrap']" position="replace">
+
                 <div id="wrap" class="oe_structure cc-homepage">
 
                     <style>
+
                         @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css');
+
+                        /* ==================================================
+                           VARIABLES
+                           ================================================== */
 
                         .cc-homepage {
                             --cc-primary: #0d6efd;
-                            --cc-primary-dark: #0a3d91;
-                            --cc-navy: #0b1f52;
+                            --cc-primary-dark: #0756c9;
+                            --cc-navy: #0b2865;
                             --cc-text: #334155;
                             --cc-muted: #64748b;
                             --cc-border: #e2e8f0;
-                            --cc-light: #f8fafc;
+                            --cc-light: #f7faff;
+                            --cc-whatsapp: #25d366;
+
                             background: #ffffff;
                             color: var(--cc-text);
                         }
 
+
+                        /* ==================================================
+                           GENERALES
+                           ================================================== */
+
                         .cc-section {
-                            padding: 64px 0;
+                            padding: 48px 0;
                         }
 
                         .cc-section-soft {
-                            background: var(--cc-light);
-                        }
-
-                        .cc-title {
-                            color: var(--cc-navy);
-                            font-size: clamp(1.75rem, 3.2vw, 3rem);
-                            line-height: 1.05;
-                            font-weight: 800;
-                            letter-spacing: -0.03em;
+                            background: #f8fafc;
                         }
 
                         .cc-section-title {
                             color: var(--cc-navy);
-                            font-size: clamp(1.8rem, 3vw, 2.65rem);
-                            line-height: 1.15;
                             font-weight: 800;
+                            font-size: clamp(1.6rem, 2.6vw, 2.25rem);
+                            line-height: 1.15;
                             letter-spacing: -0.02em;
                         }
 
@@ -51,177 +57,255 @@
                             color: var(--cc-muted);
                         }
 
+
+                        /* ==================================================
+                           HERO
+                           ================================================== */
+
                         .cc-hero {
                             position: relative;
                             overflow: hidden;
+
                             background:
-                                radial-gradient(circle at 90% 20%, rgba(13,110,253,.12), transparent 34%),
-                                linear-gradient(180deg, #fbfdff 0%, #f2f7ff 100%);
-                            padding: 34px 0 28px;
+                                radial-gradient(
+                                    circle at 90% 20%,
+                                    rgba(13, 110, 253, .10),
+                                    transparent 35%
+                                ),
+                                linear-gradient(
+                                    180deg,
+                                    #fbfdff 0%,
+                                    #f1f6ff 100%
+                                );
+
+                            padding: 32px 0 28px;
                         }
 
                         .cc-kicker {
                             display: inline-flex;
                             align-items: center;
-                            gap: .55rem;
-                            padding: .5rem .8rem;
-                            border-radius: 999px;
+                            gap: .45rem;
+
                             background: #eaf2ff;
                             color: var(--cc-primary);
-                            font-weight: 700;
+
+                            padding: .45rem .75rem;
+                            border-radius: 999px;
+
                             font-size: .78rem;
+                            font-weight: 700;
+                        }
+
+                        .cc-title {
+                            color: var(--cc-navy);
+
+                            font-size: clamp(
+                                1.8rem,
+                                3.3vw,
+                                3rem
+                            );
+
+                            line-height: 1.05;
+                            font-weight: 800;
+                            letter-spacing: -0.035em;
+
+                            max-width: 570px;
                         }
 
                         .cc-hero-text {
-                            font-size: .94rem;
-                            line-height: 1.5;
                             color: #475569;
-                            max-width: 520px;
+
+                            font-size: .95rem;
+                            line-height: 1.55;
+
+                            max-width: 530px;
+                        }
+
+
+                        /* ==================================================
+                           BOTONES HERO
+                           ================================================== */
+
+                        .cc-hero-actions {
+                            display: flex;
+                            flex-wrap: wrap;
+                            gap: .65rem;
                         }
 
                         .cc-hero-actions .btn {
-                            font-size: .9rem;
-                            padding: .7rem 1.05rem;
-                            border-radius: 12px;
-                            white-space: nowrap;
-                        }
+                            border-radius: 11px;
 
-                        .cc-whatsapp-btn {
-                            background: #25D366;
-                            border-color: #25D366;
-                            color: #fff;
-                        }
+                            padding: .68rem 1.05rem;
 
-                        .cc-whatsapp-btn:hover {
-                            background: #1fb85a;
-                            border-color: #1fb85a;
-                            color: #fff;
+                            font-size: .88rem;
+                            font-weight: 700;
                         }
 
                         .cc-btn-primary {
                             background: var(--cc-primary);
                             border-color: var(--cc-primary);
-                            box-shadow: 0 10px 24px rgba(13,110,253,.18);
+                            color: #ffffff;
+
+                            box-shadow:
+                                0 8px 18px
+                                rgba(13, 110, 253, .17);
                         }
 
                         .cc-btn-primary:hover {
-                            background: #0b5ed7;
-                            border-color: #0b5ed7;
+                            background: var(--cc-primary-dark);
+                            border-color: var(--cc-primary-dark);
+                            color: #ffffff;
+                        }
+
+                        .cc-whatsapp-btn {
+                            background: var(--cc-whatsapp);
+                            border-color: var(--cc-whatsapp);
+                            color: #ffffff;
+                        }
+
+                        .cc-whatsapp-btn:hover {
+                            background: #1ebd5a;
+                            border-color: #1ebd5a;
+                            color: #ffffff;
+                        }
+
+
+                        /* ==================================================
+                           ACCESOS RÁPIDOS
+                           ================================================== */
+
+                        .cc-services-shortcuts {
+                            margin-top: 16px;
                         }
 
                         .cc-service-link {
-                            min-height: 56px;
+                            min-height: 54px;
+
                             display: flex;
                             align-items: center;
-                            gap: .55rem;
-                            padding: .65rem .8rem;
-                            border: 1px solid var(--cc-border);
-                            border-radius: 13px;
-                            background: #fff;
+
+                            gap: .5rem;
+
+                            padding: .6rem .72rem;
+
+                            background: #ffffff;
+
+                            border:
+                                1px solid
+                                var(--cc-border);
+
+                            border-radius: 12px;
+
                             color: var(--cc-navy);
                             text-decoration: none;
-                            box-shadow: 0 8px 22px rgba(15,23,42,.05);
-                            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+
+                            box-shadow:
+                                0 5px 16px
+                                rgba(15, 23, 42, .04);
+
+                            transition:
+                                transform .2s ease,
+                                box-shadow .2s ease;
                         }
 
                         .cc-service-link:hover {
                             color: var(--cc-primary);
-                            border-color: #bfd6ff;
-                            transform: translateY(-3px);
-                            box-shadow: 0 12px 26px rgba(15,23,42,.08);
+
+                            transform:
+                                translateY(-2px);
+
+                            box-shadow:
+                                0 8px 18px
+                                rgba(15, 23, 42, .07);
                         }
 
                         .cc-service-link i {
-                            font-size: 1rem;
                             color: var(--cc-primary);
+                            font-size: 1rem;
                         }
 
                         .cc-service-link span {
-                            font-size: .9rem;
-                            line-height: 1.15;
+                            font-size: .87rem;
+                            font-weight: 700;
+                            line-height: 1.1;
                         }
 
-                        .cc-hero-visual {
-                            position: relative;
-                            min-height: 330px;
+
+                        /* ==================================================
+                           IMAGEN HERO
+                           ================================================== */
+
+                        .cc-hero-image-wrapper {
+                            width: 100%;
                         }
 
                         .cc-hero-image {
+                            display: block;
+
                             width: 100%;
                             height: 330px;
+
                             object-fit: cover;
-                            border-radius: 26px;
-                            box-shadow: 0 22px 60px rgba(15,23,42,.14);
+
+                            border-radius: 22px;
+
+                            box-shadow:
+                                0 18px 45px
+                                rgba(15, 23, 42, .13);
                         }
 
-                        .cc-mini-icon,
-                        .cc-feature-icon,
-                        .cc-mps-icon {
-                            flex: 0 0 auto;
-                            display: inline-flex;
-                            align-items: center;
-                            justify-content: center;
-                            border-radius: 50%;
-                            background: #edf4ff;
-                            color: var(--cc-primary);
-                        }
 
-                        .cc-mini-icon {
-                            width: 48px;
-                            height: 48px;
-                            font-size: 1rem;
-                        }
-
-                        .cc-feature-card {
-                            height: 100%;
-                            padding: 1.75rem;
-                            background: #fff;
-                            border: 1px solid var(--cc-border);
-                            border-radius: 20px;
-                            box-shadow: 0 10px 30px rgba(15,23,42,.05);
-                        }
-
-                        .cc-feature-icon {
-                            width: 64px;
-                            height: 64px;
-                            font-size: 1.6rem;
-                            margin-bottom: 1rem;
-                        }
-
-                        .cc-feature-card h3 {
-                            color: var(--cc-navy);
-                            font-size: 1rem;
-                            font-weight: 800;
-                        }
+                        /* ==================================================
+                           SOLUCIONES
+                           ================================================== */
 
                         .cc-solution-card {
                             height: 100%;
+
                             overflow: hidden;
-                            background: #fff;
-                            border: 1px solid var(--cc-border);
-                            border-radius: 20px;
-                            box-shadow: 0 10px 30px rgba(15,23,42,.06);
+
+                            background: #ffffff;
+
+                            border:
+                                1px solid
+                                var(--cc-border);
+
+                            border-radius: 16px;
+
+                            box-shadow:
+                                0 7px 22px
+                                rgba(15, 23, 42, .05);
                         }
 
                         .cc-solution-card img {
+                            display: block;
+
                             width: 100%;
-                            height: 210px;
+                            height: 170px;
+
                             object-fit: cover;
                         }
 
                         .cc-solution-body {
-                            padding: 1.4rem;
+                            padding: 1.15rem;
                         }
 
                         .cc-solution-body h3 {
                             color: var(--cc-navy);
-                            font-size: 1.35rem;
+
+                            font-size: 1.1rem;
                             font-weight: 800;
+                        }
+
+                        .cc-solution-body p {
+                            font-size: .9rem;
                         }
 
                         .cc-link {
                             color: var(--cc-primary);
+
                             text-decoration: none;
+                            font-size: .88rem;
                             font-weight: 700;
                         }
 
@@ -229,450 +313,980 @@
                             text-decoration: underline;
                         }
 
+
+                        /* ==================================================
+                           POR QUÉ COPIER COMPANY
+                           ================================================== */
+
+                        .cc-feature-card {
+                            height: 100%;
+
+                            padding: 1.4rem;
+
+                            background: #ffffff;
+
+                            border:
+                                1px solid
+                                var(--cc-border);
+
+                            border-radius: 16px;
+
+                            box-shadow:
+                                0 7px 22px
+                                rgba(15, 23, 42, .04);
+                        }
+
+                        .cc-feature-icon {
+                            width: 50px;
+                            height: 50px;
+
+                            margin-bottom: .9rem;
+
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+
+                            border-radius: 50%;
+
+                            background: #edf4ff;
+                            color: var(--cc-primary);
+
+                            font-size: 1.3rem;
+                        }
+
+                        .cc-feature-card h3 {
+                            color: var(--cc-navy);
+
+                            font-size: 1rem;
+                            font-weight: 800;
+                        }
+
+                        .cc-feature-card p {
+                            font-size: .88rem;
+                        }
+
+
+                        /* ==================================================
+                           MARCAS
+                           ================================================== */
+
                         .cc-brand-strip {
                             display: grid;
-                            grid-template-columns: repeat(3, minmax(0, 1fr));
+
+                            grid-template-columns:
+                                repeat(
+                                    3,
+                                    minmax(0, 1fr)
+                                );
+
                             gap: 1rem;
                         }
 
                         .cc-brand {
-                            min-height: 92px;
+                            min-height: 78px;
+
                             display: flex;
                             align-items: center;
                             justify-content: center;
-                            padding: 1rem 1.5rem;
-                            background: #fff;
-                            border: 1px solid var(--cc-border);
-                            border-radius: 13px;
+
+                            padding: .8rem 1.25rem;
+
+                            border:
+                                1px solid
+                                var(--cc-border);
+
+                            border-radius: 14px;
+
+                            background: #ffffff;
                         }
 
                         .cc-brand img {
-                            max-height: 48px;
-                            max-width: 88%;
+                            max-height: 42px;
+                            max-width: 85%;
+
                             object-fit: contain;
                         }
 
+
+                        /* ==================================================
+                           MPS
+                           ================================================== */
+
                         .cc-mps-box {
-                            padding: 2rem;
-                            border: 1px solid #d7e6ff;
-                            border-radius: 24px;
-                            background: linear-gradient(180deg, #eef5ff 0%, #f9fbff 100%);
+                            padding: 1.6rem;
+
+                            border:
+                                1px solid #dbe8ff;
+
+                            border-radius: 18px;
+
+                            background:
+                                linear-gradient(
+                                    180deg,
+                                    #eff5ff 0%,
+                                    #f9fbff 100%
+                                );
                         }
 
                         .cc-mps-main-icon {
-                            width: 112px;
-                            height: 112px;
+                            width: 82px;
+                            height: 82px;
+
                             display: inline-flex;
                             align-items: center;
                             justify-content: center;
-                            border-radius: 28px;
-                            background: #fff;
+
+                            border-radius: 20px;
+
+                            background: #ffffff;
                             color: var(--cc-primary);
-                            font-size: 3rem;
-                            box-shadow: 0 12px 28px rgba(15,23,42,.07);
+
+                            font-size: 2.2rem;
+
+                            box-shadow:
+                                0 8px 22px
+                                rgba(15, 23, 42, .06);
                         }
 
                         .cc-mps-feature {
                             display: flex;
-                            gap: .8rem;
                             align-items: flex-start;
+
+                            gap: .6rem;
                         }
 
                         .cc-mps-icon {
-                            width: 46px;
-                            height: 46px;
-                            font-size: 1.15rem;
+                            flex: 0 0 auto;
+
+                            width: 38px;
+                            height: 38px;
+
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+
+                            border-radius: 50%;
+
+                            background: #ffffff;
+                            color: var(--cc-primary);
                         }
 
                         .cc-mps-feature h4 {
                             color: var(--cc-navy);
-                            font-size: 1rem;
+
+                            margin-bottom: .15rem;
+
+                            font-size: .9rem;
                             font-weight: 800;
-                            margin-bottom: .2rem;
                         }
+
+
+                        /* ==================================================
+                           CTA FINAL
+                           ================================================== */
 
                         .cc-final-cta {
-                            position: relative;
                             overflow: hidden;
-                            padding: 2.5rem;
-                            border-radius: 24px;
-                            color: #fff;
-                            background: linear-gradient(135deg, #0d6efd 0%, #063a98 100%);
+
+                            padding: 1.8rem 2rem;
+
+                            border-radius: 18px;
+
+                            color: #ffffff;
+
+                            background:
+                                linear-gradient(
+                                    135deg,
+                                    #0d6efd 0%,
+                                    #07358a 100%
+                                );
                         }
 
-                        .cc-final-cta::before {
-                            content: '';
-                            position: absolute;
-                            right: -80px;
-                            bottom: -120px;
-                            width: 320px;
-                            height: 280px;
-                            border: 1px solid rgba(255,255,255,.14);
-                            border-radius: 50%;
-                            box-shadow:
-                                0 0 0 40px rgba(255,255,255,.04),
-                                0 0 0 80px rgba(255,255,255,.025);
+                        .cc-final-cta h2 {
+                            font-size: 1.7rem;
                         }
 
-                        .cc-final-cta .position-relative {
-                            z-index: 2;
-                        }
-
-                        /*
-                         * El contenido debe ser visible SIEMPRE.
-                         * No dependemos de JavaScript para mostrar secciones.
-                         */
-                        .cc-reveal,
-                        .cc-reveal.cc-visible {
-                            opacity: 1 !important;
-                            transform: none !important;
+                        .cc-final-cta p {
+                            font-size: .95rem;
                         }
 
 
-                        .cc-whatsapp-float {
-                            position: fixed;
-                            right: 24px;
-                            bottom: 24px;
-                            width: 54px;
-                            height: 54px;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            border-radius: 50%;
-                            background: #25D366;
-                            color: #fff !important;
-                            font-size: 1.65rem;
-                            text-decoration: none;
-                            box-shadow: 0 12px 28px rgba(0,0,0,.18);
-                            z-index: 1060;
-                        }
-
-                        .cc-whatsapp-float:hover {
-                            background: #1fb85a;
-                            transform: translateY(-2px);
-                        }
+                        /* ==================================================
+                           RESPONSIVE
+                           ================================================== */
 
                         @media (max-width: 991.98px) {
+
                             .cc-hero {
-                                padding: 30px 0 24px;
-                            }
-
-                            .cc-section {
-                                padding: 52px 0;
-                            }
-
-                            .cc-hero-visual {
-                                min-height: auto;
+                                padding:
+                                    28px 0
+                                    30px;
                             }
 
                             .cc-hero-image {
-                                height: 310px;
+                                height: 300px;
                             }
+
+                            .cc-section {
+                                padding: 40px 0;
+                            }
+
                         }
 
-                        @media (max-width: 767.98px) {
-                            .cc-brand-strip {
-                                grid-template-columns: 1fr;
-                            }
 
-                            .cc-kicker {
-                                font-size: .84rem;
-                                padding: .6rem .9rem;
-                            }
+                        @media (max-width: 767.98px) {
 
                             .cc-title {
-                                font-size: 2rem;
+                                font-size: 2.25rem;
                             }
 
                             .cc-hero-text {
-                                font-size: .9rem;
+                                font-size: .92rem;
                             }
 
                             .cc-hero-actions .btn {
                                 width: 100%;
-                                white-space: normal;
                             }
 
                             .cc-hero-image {
-                                height: 280px;
+                                height: 260px;
+                            }
+
+                            .cc-brand-strip {
+                                grid-template-columns:
+                                    1fr;
+                            }
+
+                            .cc-section {
+                                padding: 34px 0;
                             }
 
                             .cc-final-cta {
-                                padding: 2rem 1.5rem;
+                                padding:
+                                    1.5rem;
                             }
+
                         }
+
                     </style>
 
-                    <!-- HERO -->
+
+                    <!-- ==================================================
+                         HERO
+                         ================================================== -->
+
                     <section class="cc-hero">
+
                         <div class="container">
+
                             <div class="row align-items-center g-4">
+
                                 <div class="col-lg-6">
+
                                     <div class="cc-kicker mb-3">
+
                                         <i class="bi bi-building"></i>
-                                        <span>Soluciones de impresión para empresas</span>
+
+                                        <span>
+                                            Soluciones de impresión para empresas
+                                        </span>
+
                                     </div>
 
+
                                     <h1 class="cc-title mb-3">
-                                        Alquiler y venta de fotocopiadoras para tu empresa
+
+                                        Alquiler y venta de
+                                        fotocopiadoras para tu empresa
+
                                     </h1>
 
+
                                     <p class="cc-hero-text mb-3">
-                                        Equipos multifuncionales, servicio técnico, repuestos y soluciones de monitoreo para las necesidades de impresión de tu empresa.
+
+                                        Equipos multifuncionales,
+                                        servicio técnico, repuestos
+                                        y soluciones de monitoreo para
+                                        las necesidades de impresión
+                                        de tu empresa.
+
                                     </p>
 
-                                    <div class="d-flex flex-column flex-sm-row gap-2 mb-3 cc-hero-actions">
-                                        <a href="/cotizacion/form" class="btn btn-primary cc-btn-primary fw-bold">
+
+                                    <div class="cc-hero-actions">
+
+                                        <a href="/cotizacion/form"
+                                           class="btn cc-btn-primary">
+
+                                            <i class="bi bi-arrow-right me-1"></i>
+
                                             Solicitar cotización
-                                            <i class="bi bi-arrow-right ms-2"></i>
+
                                         </a>
+
+
                                         <a href="https://wa.me/51975399303?text=Hola%2C%20quisiera%20informaci%C3%B3n%20sobre%20sus%20servicios%20de%20impresi%C3%B3n."
                                            target="_blank"
                                            rel="noopener"
-                                           class="btn btn-success fw-semibold cc-whatsapp-btn">
-                                            <i class="bi bi-whatsapp me-2"></i>
+                                           class="btn cc-whatsapp-btn">
+
+                                            <i class="bi bi-whatsapp me-1"></i>
+
                                             WhatsApp
+
                                         </a>
+
                                     </div>
 
-                                    <div class="row g-2">
+
+                                    <div class="row g-2 cc-services-shortcuts">
+
                                         <div class="col-6 col-xl-3">
-                                            <a href="/cotizacion/form" class="cc-service-link">
+
+                                            <a href="/cotizacion/form"
+                                               class="cc-service-link">
+
                                                 <i class="bi bi-printer"></i>
-                                                <span class="fw-semibold">Alquiler</span>
+
+                                                <span>
+                                                    Alquiler
+                                                </span>
+
                                             </a>
+
                                         </div>
+
+
                                         <div class="col-6 col-xl-3">
-                                            <a href="/cotizacion/form" class="cc-service-link">
+
+                                            <a href="/cotizacion/form"
+                                               class="cc-service-link">
+
                                                 <i class="bi bi-tag"></i>
-                                                <span class="fw-semibold">Venta</span>
+
+                                                <span>
+                                                    Venta
+                                                </span>
+
                                             </a>
+
                                         </div>
+
+
                                         <div class="col-6 col-xl-3">
-                                            <a href="/our-services" class="cc-service-link">
+
+                                            <a href="/our-services"
+                                               class="cc-service-link">
+
                                                 <i class="bi bi-tools"></i>
-                                                <span class="fw-semibold">Servicio técnico</span>
+
+                                                <span>
+                                                    Servicio técnico
+                                                </span>
+
                                             </a>
+
                                         </div>
+
+
                                         <div class="col-6 col-xl-3">
-                                            <a href="/our-services" class="cc-service-link">
+
+                                            <a href="/our-services"
+                                               class="cc-service-link">
+
                                                 <i class="bi bi-box-seam"></i>
-                                                <span class="fw-semibold">Repuestos</span>
+
+                                                <span>
+                                                    Repuestos
+                                                </span>
+
                                             </a>
+
                                         </div>
+
                                     </div>
+
                                 </div>
+
 
                                 <div class="col-lg-6">
-                                    <div class="cc-hero-visual">
-                                        <img src="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/MFP-A3/0852640001525386084WEhFP7GP3L.jpg"
-                                             alt="Equipo multifuncional Copier Company"
-                                             class="cc-hero-image"/>
+
+                                    <div class="cc-hero-image-wrapper">
+
+                                        <img
+                                            src="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/MFP-A3/0852640001525386084WEhFP7GP3L.jpg"
+                                            alt="Equipo multifuncional Copier Company"
+                                            class="cc-hero-image"
+                                        />
+
                                     </div>
+
                                 </div>
+
                             </div>
+
                         </div>
+
                     </section>
 
-                    <!-- SERVICIOS PRINCIPALES -->
+
+                    <!-- ==================================================
+                         SOLUCIONES
+                         ================================================== -->
+
                     <section class="cc-section bg-white">
+
                         <div class="container">
-                            <div class="text-center mb-5 cc-reveal">
-                                <h2 class="cc-section-title mb-3">Soluciones para tu empresa</h2>
-                                <p class="cc-muted mb-0">Concentramos nuestros principales servicios en una sola sección para que encuentres rápidamente lo que necesitas.</p>
+
+                            <div class="text-center mb-4">
+
+                                <h2 class="cc-section-title mb-2">
+
+                                    Soluciones para tu empresa
+
+                                </h2>
+
+                                <p class="cc-muted mb-0">
+
+                                    Equipos y servicios para las
+                                    necesidades de impresión de tu organización.
+
+                                </p>
+
                             </div>
 
-                            <div class="row g-4">
-                                <div class="col-lg-4 cc-reveal">
+
+                            <div class="row g-3">
+
+
+                                <!-- ALQUILER -->
+
+                                <div class="col-lg-4">
+
                                     <div class="cc-solution-card">
-                                        <img src="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/MFP-A3/images.jpg" alt="Alquiler de fotocopiadoras"/>
+
+                                        <img
+                                            src="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/MFP-A3/images.jpg"
+                                            alt="Alquiler de fotocopiadoras"
+                                        />
+
                                         <div class="cc-solution-body">
-                                            <h3>Alquiler de equipos</h3>
-                                            <p class="cc-muted">Equipos multifuncionales para empresas con servicio y mantenimiento según las condiciones de cada plan.</p>
-                                            <a href="/cotizacion/form" class="cc-link">Solicitar información <i class="bi bi-arrow-right ms-1"></i></a>
+
+                                            <h3>
+                                                Alquiler de equipos
+                                            </h3>
+
+                                            <p class="cc-muted">
+
+                                                Soluciones de alquiler
+                                                de equipos multifuncionales
+                                                para empresas.
+
+                                            </p>
+
+                                            <a href="/cotizacion/form"
+                                               class="cc-link">
+
+                                                Solicitar cotización
+
+                                                <i class="bi bi-arrow-right ms-1"></i>
+
+                                            </a>
+
                                         </div>
+
                                     </div>
+
                                 </div>
 
-                                <div class="col-lg-4 cc-reveal">
+
+                                <!-- VENTA -->
+
+                                <div class="col-lg-4">
+
                                     <div class="cc-solution-card">
-                                        <img src="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/MFP-A4/iR-ADV_C355i_No_076_EU_1920x1080.jpg" alt="Venta de fotocopiadoras"/>
+
+                                        <img
+                                            src="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/MFP-A4/iR-ADV_C355i_No_076_EU_1920x1080.jpg"
+                                            alt="Venta de equipos multifuncionales"
+                                        />
+
                                         <div class="cc-solution-body">
-                                            <h3>Venta de equipos</h3>
-                                            <p class="cc-muted">Soluciones de impresión para diferentes volúmenes y necesidades de trabajo.</p>
-                                            <a href="/cotizacion/form" class="cc-link">Solicitar información <i class="bi bi-arrow-right ms-1"></i></a>
+
+                                            <h3>
+                                                Venta de equipos
+                                            </h3>
+
+                                            <p class="cc-muted">
+
+                                                Equipos multifuncionales
+                                                para diferentes necesidades
+                                                de impresión.
+
+                                            </p>
+
+                                            <a href="/cotizacion/form"
+                                               class="cc-link">
+
+                                                Solicitar información
+
+                                                <i class="bi bi-arrow-right ms-1"></i>
+
+                                            </a>
+
                                         </div>
+
                                     </div>
+
                                 </div>
 
-                                <div class="col-lg-4 cc-reveal">
+
+                                <!-- SERVICIO -->
+
+                                <div class="col-lg-4">
+
                                     <div class="cc-solution-card">
-                                        <img src="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/MFP-A3/bizhub-iseries-media2.jpg" alt="Servicio técnico de fotocopiadoras"/>
+
+                                        <img
+                                            src="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/MFP-A3/bizhub-iseries-media2.jpg"
+                                            alt="Servicio técnico de fotocopiadoras"
+                                        />
+
                                         <div class="cc-solution-body">
-                                            <h3>Servicio técnico</h3>
-                                            <p class="cc-muted">Diagnóstico, mantenimiento y reparación de equipos multifuncionales.</p>
-                                            <a href="/our-services" class="cc-link">Conocer el servicio <i class="bi bi-arrow-right ms-1"></i></a>
+
+                                            <h3>
+                                                Servicio técnico
+                                            </h3>
+
+                                            <p class="cc-muted">
+
+                                                Diagnóstico,
+                                                mantenimiento y reparación
+                                                de equipos multifuncionales.
+
+                                            </p>
+
+                                            <a href="/our-services"
+                                               class="cc-link">
+
+                                                Conocer el servicio
+
+                                                <i class="bi bi-arrow-right ms-1"></i>
+
+                                            </a>
+
                                         </div>
+
                                     </div>
+
                                 </div>
+
                             </div>
+
                         </div>
+
                     </section>
 
-                    <!-- POR QUÉ ELEGIRNOS -->
+
+                    <!-- ==================================================
+                         POR QUÉ COPIER COMPANY
+                         ================================================== -->
+
                     <section class="cc-section cc-section-soft">
+
                         <div class="container">
-                            <div class="text-center mb-5 cc-reveal">
-                                <h2 class="cc-section-title mb-3">¿Por qué Copier Company?</h2>
-                                <p class="cc-muted mb-0">Tres pilares que resumen nuestra propuesta de servicio.</p>
+
+                            <div class="text-center mb-4">
+
+                                <h2 class="cc-section-title mb-2">
+
+                                    ¿Por qué Copier Company?
+
+                                </h2>
+
                             </div>
 
-                            <div class="row g-4">
-                                <div class="col-lg-4 cc-reveal">
+
+                            <div class="row g-3">
+
+
+                                <div class="col-lg-4">
+
                                     <div class="cc-feature-card text-center">
-                                        <span class="cc-feature-icon"><i class="bi bi-tools"></i></span>
-                                        <h3>Servicio y mantenimiento</h3>
-                                        <p class="cc-muted mb-0">Acompañamiento técnico para mantener tus equipos en operación.</p>
+
+                                        <span class="cc-feature-icon">
+
+                                            <i class="bi bi-tools"></i>
+
+                                        </span>
+
+                                        <h3>
+                                            Servicio y mantenimiento
+                                        </h3>
+
+                                        <p class="cc-muted mb-0">
+
+                                            Acompañamiento técnico
+                                            para mantener tus equipos
+                                            en operación.
+
+                                        </p>
+
                                     </div>
+
                                 </div>
 
-                                <div class="col-lg-4 cc-reveal">
+
+                                <div class="col-lg-4">
+
                                     <div class="cc-feature-card text-center">
-                                        <span class="cc-feature-icon"><i class="bi bi-printer"></i></span>
-                                        <h3>Equipos para distintas necesidades</h3>
-                                        <p class="cc-muted mb-0">Opciones para diferentes volúmenes, formatos y requerimientos de impresión.</p>
+
+                                        <span class="cc-feature-icon">
+
+                                            <i class="bi bi-printer"></i>
+
+                                        </span>
+
+                                        <h3>
+                                            Equipos para distintas necesidades
+                                        </h3>
+
+                                        <p class="cc-muted mb-0">
+
+                                            Alternativas para diferentes
+                                            volúmenes y requerimientos
+                                            de impresión.
+
+                                        </p>
+
                                     </div>
+
                                 </div>
 
-                                <div class="col-lg-4 cc-reveal">
+
+                                <div class="col-lg-4">
+
                                     <div class="cc-feature-card text-center">
-                                        <span class="cc-feature-icon"><i class="bi bi-bar-chart-line"></i></span>
-                                        <h3>Monitoreo MPS</h3>
-                                        <p class="cc-muted mb-0">Seguimiento de contadores, niveles de consumibles y estado de equipos compatibles.</p>
+
+                                        <span class="cc-feature-icon">
+
+                                            <i class="bi bi-bar-chart-line"></i>
+
+                                        </span>
+
+                                        <h3>
+                                            Monitoreo MPS
+                                        </h3>
+
+                                        <p class="cc-muted mb-0">
+
+                                            Seguimiento de información
+                                            de equipos compatibles
+                                            y gestión de flota.
+
+                                        </p>
+
                                     </div>
+
                                 </div>
+
                             </div>
+
                         </div>
+
                     </section>
 
-                    <!-- MARCAS -->
+
+                    <!-- ==================================================
+                         MARCAS
+                         ================================================== -->
+
                     <section class="cc-section bg-white">
+
                         <div class="container">
-                            <div class="text-center mb-4 cc-reveal">
-                                <h2 class="cc-section-title mb-3">Marcas con las que trabajamos</h2>
+
+                            <div class="text-center mb-4">
+
+                                <h2 class="cc-section-title">
+
+                                    Marcas con las que trabajamos
+
+                                </h2>
+
                             </div>
 
-                            <div class="cc-brand-strip cc-reveal">
+
+                            <div class="cc-brand-strip">
+
+
                                 <div class="cc-brand">
-                                    <img src="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/ricoh-vector-logo-seeklogo/ricoh-seeklogo.png" alt="Ricoh"/>
+
+                                    <img
+                                        src="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/ricoh-vector-logo-seeklogo/ricoh-seeklogo.png"
+                                        alt="Ricoh"
+                                    />
+
                                 </div>
+
+
                                 <div class="cc-brand">
-                                    <img src="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/konica-minolta-vector-logo-seeklogo/konica-minolta-seeklogo.png" alt="Konica Minolta"/>
+
+                                    <img
+                                        src="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/konica-minolta-vector-logo-seeklogo/konica-minolta-seeklogo.png"
+                                        alt="Konica Minolta"
+                                    />
+
                                 </div>
+
+
                                 <div class="cc-brand">
-                                    <img src="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/canon-vector-logo-seeklogo/canon-seeklogo.png" alt="Canon"/>
+
+                                    <img
+                                        src="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/canon-vector-logo-seeklogo/canon-seeklogo.png"
+                                        alt="Canon"
+                                    />
+
                                 </div>
+
+
                             </div>
+
                         </div>
+
                     </section>
 
-                    <!-- MPS -->
+
+                    <!-- ==================================================
+                         MPS
+                         ================================================== -->
+
                     <section class="cc-section cc-section-soft">
+
                         <div class="container">
-                            <div class="cc-mps-box cc-reveal">
+
+                            <div class="cc-mps-box">
+
                                 <div class="row align-items-center g-4">
-                                    <div class="col-lg-3 text-center">
+
+
+                                    <div class="col-lg-2 text-center">
+
                                         <div class="cc-mps-main-icon">
+
                                             <i class="bi bi-display"></i>
+
                                         </div>
+
                                     </div>
 
-                                    <div class="col-lg-9">
-                                        <h2 class="cc-section-title mb-3">Monitoreo inteligente MPS</h2>
+
+                                    <div class="col-lg-10">
+
+                                        <h2 class="cc-section-title mb-2">
+
+                                            Monitoreo inteligente MPS
+
+                                        </h2>
+
                                         <p class="cc-muted mb-4">
-                                            Herramientas de monitoreo para consultar información de los equipos y facilitar la gestión de la flota de impresión.
+
+                                            Herramientas de monitoreo
+                                            para facilitar la gestión
+                                            de tu flota de impresión.
+
                                         </p>
 
-                                        <div class="row g-4">
-                                            <div class="col-md-4">
-                                                <div class="cc-mps-feature">
-                                                    <span class="cc-mps-icon"><i class="bi bi-speedometer2"></i></span>
-                                                    <div>
-                                                        <h4>Lecturas remotas</h4>
-                                                        <div class="small cc-muted">Consulta de contadores.</div>
-                                                    </div>
-                                                </div>
-                                            </div>
+
+                                        <div class="row g-3">
+
 
                                             <div class="col-md-4">
+
                                                 <div class="cc-mps-feature">
-                                                    <span class="cc-mps-icon"><i class="bi bi-droplet"></i></span>
+
+                                                    <span class="cc-mps-icon">
+
+                                                        <i class="bi bi-speedometer2"></i>
+
+                                                    </span>
+
                                                     <div>
-                                                        <h4>Consumibles</h4>
-                                                        <div class="small cc-muted">Seguimiento de niveles disponibles.</div>
+
+                                                        <h4>
+                                                            Lecturas remotas
+                                                        </h4>
+
+                                                        <div class="small cc-muted">
+
+                                                            Consulta de contadores.
+
+                                                        </div>
+
                                                     </div>
+
                                                 </div>
+
                                             </div>
 
+
                                             <div class="col-md-4">
+
                                                 <div class="cc-mps-feature">
-                                                    <span class="cc-mps-icon"><i class="bi bi-clipboard-data"></i></span>
+
+                                                    <span class="cc-mps-icon">
+
+                                                        <i class="bi bi-droplet"></i>
+
+                                                    </span>
+
                                                     <div>
-                                                        <h4>Gestión de flota</h4>
-                                                        <div class="small cc-muted">Información centralizada de equipos compatibles.</div>
+
+                                                        <h4>
+                                                            Consumibles
+                                                        </h4>
+
+                                                        <div class="small cc-muted">
+
+                                                            Seguimiento de niveles.
+
+                                                        </div>
+
                                                     </div>
+
                                                 </div>
+
                                             </div>
+
+
+                                            <div class="col-md-4">
+
+                                                <div class="cc-mps-feature">
+
+                                                    <span class="cc-mps-icon">
+
+                                                        <i class="bi bi-clipboard-data"></i>
+
+                                                    </span>
+
+                                                    <div>
+
+                                                        <h4>
+                                                            Gestión de flota
+                                                        </h4>
+
+                                                        <div class="small cc-muted">
+
+                                                            Información centralizada.
+
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+
                                         </div>
+
                                     </div>
+
                                 </div>
+
                             </div>
+
                         </div>
+
                     </section>
 
-                    <!-- CTA FINAL -->
-                    <section class="cc-section bg-white pt-0">
+
+                    <!-- ==================================================
+                         CTA FINAL
+                         ================================================== -->
+
+                    <section class="cc-section bg-white">
+
                         <div class="container">
-                            <div class="cc-final-cta cc-reveal">
-                                <div class="row align-items-center g-4 position-relative">
+
+                            <div class="cc-final-cta">
+
+                                <div class="row align-items-center g-3">
+
+
                                     <div class="col-lg-8">
-                                        <h2 class="fw-bold mb-3">Encuentra la solución adecuada para tu empresa</h2>
-                                        <p class="mb-4 fs-5 opacity-90">
-                                            Cuéntanos tus necesidades de impresión y solicita una cotización.
+
+                                        <h2 class="fw-bold mb-2">
+
+                                            Encuentra la solución adecuada para tu empresa
+
+                                        </h2>
+
+                                        <p class="mb-3">
+
+                                            Cuéntanos tus necesidades
+                                            de impresión y solicita
+                                            una cotización.
+
                                         </p>
 
-                                        <div class="d-flex flex-column flex-sm-row gap-3">
-                                            <a href="/cotizacion/form" class="btn btn-light btn-lg px-4 py-3 fw-bold text-primary">
+
+                                        <div class="d-flex flex-wrap gap-2">
+
+                                            <a href="/cotizacion/form"
+                                               class="btn btn-light fw-bold text-primary">
+
                                                 Cotizar ahora
-                                                <i class="bi bi-arrow-right ms-2"></i>
+
+                                                <i class="bi bi-arrow-right ms-1"></i>
+
                                             </a>
-                                            <a href="/contactus" class="btn btn-outline-light btn-lg px-4 py-3 fw-semibold">
-                                                <i class="bi bi-chat-dots me-2"></i>
-                                                Contactar
+
+
+                                            <a href="https://wa.me/51975399303?text=Hola%2C%20quisiera%20informaci%C3%B3n%20sobre%20sus%20servicios%20de%20impresi%C3%B3n."
+                                               target="_blank"
+                                               rel="noopener"
+                                               class="btn btn-outline-light fw-semibold">
+
+                                                <i class="bi bi-whatsapp me-1"></i>
+
+                                                WhatsApp
+
                                             </a>
+
                                         </div>
+
                                     </div>
 
-                                    <div class="col-lg-4 text-center">
-                                        <i class="bi bi-printer" style="font-size: 5.5rem; opacity: .9;"></i>
+
+                                    <div class="col-lg-4 text-center d-none d-lg-block">
+
+                                        <i class="bi bi-printer"
+                                           style="font-size:4rem; opacity:.8;"></i>
+
                                     </div>
+
+
                                 </div>
+
                             </div>
+
                         </div>
+
                     </section>
 
-                    <script type="text/javascript" src="/copier_company/static/src/js/copier_homepage_scripts.js"></script>
+
+                    <!-- JS -->
+
+                    <script type="text/javascript"
+                            src="/copier_company/static/src/js/copier_homepage_scripts.js">
+                    </script>
 
 
-                    <a href="https://wa.me/51975399303?text=Hola%2C%20quisiera%20informaci%C3%B3n%20sobre%20sus%20servicios%20de%20impresi%C3%B3n."
-                       target="_blank"
-                       rel="noopener"
-                       class="cc-whatsapp-float"
-                       aria-label="Contactar por WhatsApp">
-                        <i class="bi bi-whatsapp"></i>
-                    </a>
                 </div>
+
             </xpath>
+
         </template>
+
     </data>
 </odoo>
