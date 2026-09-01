@@ -86,6 +86,18 @@
                             white-space: nowrap;
                         }
 
+                        .cc-whatsapp-btn {
+                            background: #25D366;
+                            border-color: #25D366;
+                            color: #fff;
+                        }
+
+                        .cc-whatsapp-btn:hover {
+                            background: #1fb85a;
+                            border-color: #1fb85a;
+                            color: #fff;
+                        }
+
                         .cc-btn-primary {
                             background: var(--cc-primary);
                             border-color: var(--cc-primary);
@@ -140,34 +152,6 @@
                             object-fit: cover;
                             border-radius: 26px;
                             box-shadow: 0 22px 60px rgba(15,23,42,.14);
-                        }
-
-                        .cc-floating-card {
-                            position: absolute;
-                            right: 14px;
-                            display: flex;
-                            align-items: center;
-                            gap: .55rem;
-                            width: 165px;
-                            padding: .65rem .75rem;
-                            background: rgba(255,255,255,.94);
-                            border: 1px solid var(--cc-border);
-                            border-radius: 13px;
-                            box-shadow: 0 14px 34px rgba(15,23,42,.13);
-                        }
-
-                        .cc-floating-card.cc-float-top { top: 14px; }
-                        .cc-floating-card.cc-float-middle { top: 105px; }
-                        .cc-floating-card.cc-float-bottom { top: 196px; }
-
-                        .cc-floating-card .fw-bold {
-                            font-size: .88rem;
-                            line-height: 1.15;
-                        }
-
-                        .cc-floating-card .small {
-                            font-size: .78rem;
-                            line-height: 1.25;
                         }
 
                         .cc-mini-icon,
@@ -344,6 +328,30 @@
                             transform: none !important;
                         }
 
+
+                        .cc-whatsapp-float {
+                            position: fixed;
+                            right: 24px;
+                            bottom: 24px;
+                            width: 54px;
+                            height: 54px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            border-radius: 50%;
+                            background: #25D366;
+                            color: #fff !important;
+                            font-size: 1.65rem;
+                            text-decoration: none;
+                            box-shadow: 0 12px 28px rgba(0,0,0,.18);
+                            z-index: 1060;
+                        }
+
+                        .cc-whatsapp-float:hover {
+                            background: #1fb85a;
+                            transform: translateY(-2px);
+                        }
+
                         @media (max-width: 991.98px) {
                             .cc-hero {
                                 padding: 30px 0 24px;
@@ -359,12 +367,6 @@
 
                             .cc-hero-image {
                                 height: 310px;
-                            }
-
-                            .cc-floating-card {
-                                position: static;
-                                width: 100%;
-                                margin-top: .75rem;
                             }
                         }
 
@@ -424,9 +426,12 @@
                                             Solicitar cotización
                                             <i class="bi bi-arrow-right ms-2"></i>
                                         </a>
-                                        <a href="/contactus" class="btn btn-outline-primary fw-semibold">
-                                            <i class="bi bi-chat-dots me-2"></i>
-                                            Hablar con un asesor
+                                        <a href="https://wa.me/51975399303?text=Hola%2C%20quisiera%20informaci%C3%B3n%20sobre%20sus%20servicios%20de%20impresi%C3%B3n."
+                                           target="_blank"
+                                           rel="noopener"
+                                           class="btn btn-success fw-semibold cc-whatsapp-btn">
+                                            <i class="bi bi-whatsapp me-2"></i>
+                                            WhatsApp
                                         </a>
                                     </div>
 
@@ -463,30 +468,6 @@
                                         <img src="https://filedn.com/lSeVjMkwzjCzV24eJl1FUoj/MFP-A3/0852640001525386084WEhFP7GP3L.jpg"
                                              alt="Equipo multifuncional Copier Company"
                                              class="cc-hero-image"/>
-
-                                        <div class="cc-floating-card cc-float-bottom">
-                                            <span class="cc-mini-icon"><i class="bi bi-shield-check"></i></span>
-                                            <div>
-                                                <div class="fw-bold text-dark">Mantenimiento</div>
-                                                <div class="small cc-muted">Soporte para equipos</div>
-                                            </div>
-                                        </div>
-
-                                        <div class="cc-floating-card cc-float-top">
-                                            <span class="cc-mini-icon"><i class="bi bi-headset"></i></span>
-                                            <div>
-                                                <div class="fw-bold text-dark">Servicio técnico</div>
-                                                <div class="small cc-muted">Atención especializada</div>
-                                            </div>
-                                        </div>
-
-                                        <div class="cc-floating-card cc-float-middle">
-                                            <span class="cc-mini-icon"><i class="bi bi-bar-chart-line"></i></span>
-                                            <div>
-                                                <div class="fw-bold text-dark">Monitoreo MPS</div>
-                                                <div class="small cc-muted">Control de flota</div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -682,6 +663,14 @@
 
                     <script type="text/javascript" src="/copier_company/static/src/js/copier_homepage_scripts.js"></script>
 
+
+                    <a href="https://wa.me/51975399303?text=Hola%2C%20quisiera%20informaci%C3%B3n%20sobre%20sus%20servicios%20de%20impresi%C3%B3n."
+                       target="_blank"
+                       rel="noopener"
+                       class="cc-whatsapp-float"
+                       aria-label="Contactar por WhatsApp">
+                        <i class="bi bi-whatsapp"></i>
+                    </a>
                 </div>
             </xpath>
         </template>
