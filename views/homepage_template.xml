@@ -33,7 +33,7 @@
 
                         .cc-title {
                             color: var(--cc-navy);
-                            font-size: clamp(2.35rem, 4.8vw, 4.25rem);
+                            font-size: clamp(2.1rem, 4.2vw, 3.8rem);
                             line-height: 1.05;
                             font-weight: 800;
                             letter-spacing: -0.03em;
@@ -57,7 +57,7 @@
                             background:
                                 radial-gradient(circle at 90% 20%, rgba(13,110,253,.12), transparent 34%),
                                 linear-gradient(180deg, #fbfdff 0%, #f2f7ff 100%);
-                            padding: 72px 0 56px;
+                            padding: 56px 0 44px;
                         }
 
                         .cc-kicker {
@@ -73,10 +73,17 @@
                         }
 
                         .cc-hero-text {
-                            font-size: 1.12rem;
-                            line-height: 1.7;
+                            font-size: 1.02rem;
+                            line-height: 1.65;
                             color: #475569;
-                            max-width: 620px;
+                            max-width: 560px;
+                        }
+
+                        .cc-hero-actions .btn {
+                            font-size: 1rem;
+                            padding: .9rem 1.35rem;
+                            border-radius: 14px;
+                            white-space: nowrap;
                         }
 
                         .cc-btn-primary {
@@ -91,11 +98,11 @@
                         }
 
                         .cc-service-link {
-                            min-height: 82px;
+                            min-height: 72px;
                             display: flex;
                             align-items: center;
-                            gap: .8rem;
-                            padding: 1rem 1.1rem;
+                            gap: .7rem;
+                            padding: .85rem 1rem;
                             border: 1px solid var(--cc-border);
                             border-radius: 16px;
                             background: #fff;
@@ -113,18 +120,23 @@
                         }
 
                         .cc-service-link i {
-                            font-size: 1.45rem;
+                            font-size: 1.2rem;
                             color: var(--cc-primary);
+                        }
+
+                        .cc-service-link span {
+                            font-size: 1rem;
+                            line-height: 1.25;
                         }
 
                         .cc-hero-visual {
                             position: relative;
-                            min-height: 500px;
+                            min-height: 450px;
                         }
 
                         .cc-hero-image {
                             width: 100%;
-                            height: 500px;
+                            height: 450px;
                             object-fit: cover;
                             border-radius: 26px;
                             box-shadow: 0 22px 60px rgba(15,23,42,.14);
@@ -132,21 +144,31 @@
 
                         .cc-floating-card {
                             position: absolute;
-                            right: -12px;
+                            right: 14px;
                             display: flex;
                             align-items: center;
-                            gap: .8rem;
-                            width: 215px;
-                            padding: .95rem 1rem;
-                            background: rgba(255,255,255,.97);
+                            gap: .7rem;
+                            width: 190px;
+                            padding: .8rem .9rem;
+                            background: rgba(255,255,255,.96);
                             border: 1px solid var(--cc-border);
                             border-radius: 16px;
                             box-shadow: 0 14px 34px rgba(15,23,42,.13);
                         }
 
-                        .cc-floating-card:nth-of-type(2) { top: 70px; }
-                        .cc-floating-card:nth-of-type(3) { top: 210px; }
-                        .cc-floating-card:nth-of-type(4) { top: 350px; }
+                        .cc-floating-card.cc-float-top { top: 22px; }
+                        .cc-floating-card.cc-float-middle { top: 132px; }
+                        .cc-floating-card.cc-float-bottom { top: 242px; }
+
+                        .cc-floating-card .fw-bold {
+                            font-size: 1rem;
+                            line-height: 1.2;
+                        }
+
+                        .cc-floating-card .small {
+                            font-size: .92rem;
+                            line-height: 1.25;
+                        }
 
                         .cc-mini-icon,
                         .cc-feature-icon,
@@ -324,7 +346,7 @@
 
                         @media (max-width: 991.98px) {
                             .cc-hero {
-                                padding: 52px 0 42px;
+                                padding: 44px 0 36px;
                             }
 
                             .cc-section {
@@ -336,7 +358,7 @@
                             }
 
                             .cc-hero-image {
-                                height: 420px;
+                                height: 380px;
                             }
 
                             .cc-floating-card {
@@ -351,8 +373,26 @@
                                 grid-template-columns: 1fr;
                             }
 
+                            .cc-kicker {
+                                font-size: .84rem;
+                                padding: .6rem .9rem;
+                            }
+
+                            .cc-title {
+                                font-size: 2.6rem;
+                            }
+
+                            .cc-hero-text {
+                                font-size: .98rem;
+                            }
+
+                            .cc-hero-actions .btn {
+                                width: 100%;
+                                white-space: normal;
+                            }
+
                             .cc-hero-image {
-                                height: 340px;
+                                height: 320px;
                             }
 
                             .cc-final-cta {
@@ -379,12 +419,12 @@
                                         Equipos multifuncionales, servicio técnico, repuestos y soluciones de monitoreo para las necesidades de impresión de tu empresa.
                                     </p>
 
-                                    <div class="d-flex flex-column flex-sm-row gap-3 mb-4">
-                                        <a href="/cotizacion/form" class="btn btn-primary cc-btn-primary btn-lg px-4 py-3 fw-bold">
+                                    <div class="d-flex flex-column flex-sm-row gap-3 mb-4 cc-hero-actions">
+                                        <a href="/cotizacion/form" class="btn btn-primary cc-btn-primary fw-bold">
                                             Solicitar cotización
                                             <i class="bi bi-arrow-right ms-2"></i>
                                         </a>
-                                        <a href="/contactus" class="btn btn-outline-primary btn-lg px-4 py-3 fw-semibold">
+                                        <a href="/contactus" class="btn btn-outline-primary fw-semibold">
                                             <i class="bi bi-chat-dots me-2"></i>
                                             Hablar con un asesor
                                         </a>
@@ -424,15 +464,15 @@
                                              alt="Equipo multifuncional Copier Company"
                                              class="cc-hero-image"/>
 
-                                        <div class="cc-floating-card">
+                                        <div class="cc-floating-card cc-float-bottom">
                                             <span class="cc-mini-icon"><i class="bi bi-shield-check"></i></span>
                                             <div>
                                                 <div class="fw-bold text-dark">Mantenimiento</div>
-                                                <div class="small cc-muted">Soporte para tus equipos</div>
+                                                <div class="small cc-muted">Soporte para equipos</div>
                                             </div>
                                         </div>
 
-                                        <div class="cc-floating-card">
+                                        <div class="cc-floating-card cc-float-top">
                                             <span class="cc-mini-icon"><i class="bi bi-headset"></i></span>
                                             <div>
                                                 <div class="fw-bold text-dark">Servicio técnico</div>
@@ -440,11 +480,11 @@
                                             </div>
                                         </div>
 
-                                        <div class="cc-floating-card">
+                                        <div class="cc-floating-card cc-float-middle">
                                             <span class="cc-mini-icon"><i class="bi bi-bar-chart-line"></i></span>
                                             <div>
                                                 <div class="fw-bold text-dark">Monitoreo MPS</div>
-                                                <div class="small cc-muted">Control de tu flota</div>
+                                                <div class="small cc-muted">Control de flota</div>
                                             </div>
                                         </div>
                                     </div>
