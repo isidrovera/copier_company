@@ -1,499 +1,2479 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <data>
-    <template id="copier_services_modern" name="Servicios">
-      <t t-call="website.layout">
-        <div id="wrap" class="cc-services-page">
-          <style>
-            @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css');
+    <data>
 
-            .cc-services-page{
-              --cc-primary:#0d6efd;--cc-navy:#0b2865;--cc-text:#334155;
-              --cc-muted:#64748b;--cc-border:#e2e8f0;--cc-soft:#f6f9ff;
-              --cc-whatsapp:#25d366;color:var(--cc-text);background:#fff;
-            }
-            .cc-section{padding:44px 0}
-            .cc-soft{background:var(--cc-soft)}
-            .cc-title{color:var(--cc-navy);font-size:clamp(2rem,3.5vw,3.2rem);line-height:1.05;font-weight:800;letter-spacing:-.035em}
-            .cc-section-title{color:var(--cc-navy);font-size:clamp(1.55rem,2.5vw,2.15rem);font-weight:800;line-height:1.15}
-            .cc-muted{color:var(--cc-muted)}
+        <!-- =========================================================
+             COPIER COMPANY - PÁGINA DE SERVICIOS
+             Diseño compacto, moderno, comercial y responsive
+             ========================================================= -->
 
-            .cc-services-hero{
-              padding:32px 0 28px;
-              background:radial-gradient(circle at 90% 10%,rgba(13,110,253,.11),transparent 34%),
-                         linear-gradient(180deg,#fbfdff 0%,#f1f6ff 100%);
-            }
-            .cc-kicker{
-              display:inline-flex;align-items:center;gap:.45rem;padding:.45rem .72rem;
-              border-radius:999px;background:#eaf2ff;color:var(--cc-primary);
-              font-size:.8rem;font-weight:700;
-            }
-            .cc-services-hero p{max-width:610px;font-size:.95rem;line-height:1.55;color:#475569}
-            .cc-hero-actions .btn{font-size:.86rem;font-weight:700;padding:.68rem 1rem;border-radius:10px}
-            .cc-btn-whatsapp{background:var(--cc-whatsapp);border-color:var(--cc-whatsapp);color:#fff}
-            .cc-btn-whatsapp:hover{background:#1ebd5a;border-color:#1ebd5a;color:#fff}
+        <template id="copier_services_modern"
+                  name="Servicios">
 
-            .cc-hero-service-strip{
-              display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
-              gap:.6rem;margin-top:1rem;
-            }
-            .cc-hero-chip{
-              display:flex;align-items:center;gap:.4rem;min-height:46px;padding:.52rem .62rem;
-              border:1px solid var(--cc-border);border-radius:11px;background:#fff;
-              color:var(--cc-navy);font-size:.78rem;font-weight:700;
-              box-shadow:0 5px 14px rgba(15,23,42,.04);
-            }
-            .cc-hero-chip i{color:var(--cc-primary);font-size:.95rem}
+            <t t-call="website.layout">
 
-            .cc-service-card{
-              height:100%;padding:1.15rem;border:1px solid var(--cc-border);border-radius:15px;
-              background:#fff;box-shadow:0 7px 20px rgba(15,23,42,.05);
-              transition:transform .2s ease,box-shadow .2s ease;
-            }
-            .cc-service-card:hover{transform:translateY(-3px);box-shadow:0 11px 26px rgba(15,23,42,.08)}
-            .cc-service-icon{
-              width:46px;height:46px;display:inline-flex;align-items:center;justify-content:center;
-              border-radius:13px;background:#edf4ff;color:var(--cc-primary);font-size:1.2rem;margin-bottom:.8rem;
-            }
-            .cc-service-card h3{color:var(--cc-navy);font-size:1.02rem;font-weight:800;margin-bottom:.45rem}
-            .cc-service-card p{font-size:.85rem;line-height:1.48;color:var(--cc-muted);margin-bottom:.75rem}
-            .cc-service-card ul{padding-left:0;list-style:none;margin-bottom:.75rem}
-            .cc-service-card li{display:flex;gap:.42rem;align-items:flex-start;font-size:.8rem;color:#475569;margin-bottom:.3rem}
-            .cc-service-card li i{color:#198754;margin-top:.1rem}
-            .cc-link{color:var(--cc-primary);text-decoration:none;font-size:.82rem;font-weight:700}
+                <div id="wrap"
+                     class="oe_structure cc-services-page">
 
-            .cc-step{height:100%;padding:.95rem;border:1px solid var(--cc-border);border-radius:13px;background:#fff}
-            .cc-step-number{
-              width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;
-              border-radius:50%;background:var(--cc-primary);color:#fff;font-weight:800;margin-bottom:.6rem;
-            }
-            .cc-step h4{color:var(--cc-navy);font-size:.92rem;font-weight:800}
-            .cc-step p{color:var(--cc-muted);font-size:.8rem;margin:0}
+                    <!-- =================================================
+                         ESTILOS
+                         ================================================= -->
 
-            .cc-services-cta{
-              padding:1.5rem 1.7rem;border-radius:17px;
-              background:linear-gradient(135deg,#0d6efd 0%,#07358a 100%);color:#fff;
-            }
-            .cc-services-cta h2{font-size:1.5rem;font-weight:800}
-            .cc-services-cta p{font-size:.88rem;margin-bottom:.9rem}
+                    <style>
 
-            .cc-form-header{
-              padding:26px 0;background:linear-gradient(135deg,#0d6efd 0%,#0b2865 100%);color:#fff;
-            }
-            .cc-form-header h1{font-size:clamp(1.8rem,3vw,2.5rem);font-weight:800;margin-bottom:.3rem}
-            .cc-form-header p{font-size:.9rem;margin:0;opacity:.9}
-            .cc-form-wrap{max-width:980px;margin:28px auto 42px}
-            .cc-info-panel,.cc-form-card{
-              border:1px solid var(--cc-border);border-radius:15px;background:#fff;
-              box-shadow:0 7px 20px rgba(15,23,42,.05);
-            }
-            .cc-info-panel{padding:.95rem 1.1rem;background:#f8fbff;border-left:4px solid var(--cc-primary)}
-            .cc-info-panel h5{color:var(--cc-navy);font-size:.98rem;font-weight:800}
-            .cc-info-panel p{font-size:.82rem;margin-bottom:.25rem}
-            .cc-form-card{overflow:hidden;margin-bottom:.9rem}
-            .cc-form-card-header{
-              padding:.72rem .95rem;background:#f8fafc;border-bottom:1px solid var(--cc-border);
-              color:var(--cc-navy);font-size:.92rem;font-weight:800;
-            }
-            .cc-form-card-body{padding:.95rem}
-            .cc-form-card .form-label{font-size:.82rem;font-weight:700;color:#475569;margin-bottom:.3rem}
-            .cc-form-card .form-control,.cc-form-card .form-select{padding:.6rem .72rem;border-radius:9px;font-size:.88rem}
-            .cc-form-card textarea.form-control{min-height:105px}
-            .cc-help{display:block;margin-top:.28rem;color:var(--cc-muted);font-size:.73rem}
-            .cc-priority{display:flex;flex-wrap:wrap;gap:.4rem}
-            .cc-priority .btn{font-size:.76rem;padding:.42rem .65rem;border-radius:999px}
-            .photo-preview{max-width:150px;max-height:150px;margin-top:.7rem;border-radius:10px;display:none}
-            .cc-submit-row{display:flex;justify-content:space-between;align-items:center;gap:.7rem;margin-top:1.1rem}
-            .cc-submit-row .btn{font-size:.86rem;font-weight:700;border-radius:10px;padding:.65rem .95rem}
+                        @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css');
 
-            @media(max-width:991.98px){
-              .cc-hero-service-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
-              .cc-section{padding:36px 0}
-            }
-            @media(max-width:767.98px){
-              .cc-services-hero{padding:26px 0 24px}
-              .cc-hero-service-strip{grid-template-columns:1fr 1fr}
-              .cc-submit-row{flex-direction:column-reverse;align-items:stretch}
-              .cc-submit-row .btn{width:100%}
-            }
-          </style>
 
-          <section class="cc-services-hero">
-            <div class="container">
-              <div class="cc-kicker mb-3"><i class="bi bi-printer"></i><span>Servicios para empresas</span></div>
-              <h1 class="cc-title mb-3">Soluciones de impresión y soporte técnico</h1>
-              <p class="mb-3">Alquiler, venta, servicio técnico, repuestos y monitoreo MPS para mantener la operación de impresión de tu empresa.</p>
+                        /* =================================================
+                           VARIABLES
+                           ================================================= */
 
-              <div class="d-flex flex-wrap gap-2 cc-hero-actions">
-                <a href="/cotizacion/form" class="btn btn-primary"><i class="bi bi-file-earmark-text me-1"></i>Solicitar cotización</a>
-                <a href="https://wa.me/51975399303?text=Hola%2C%20quisiera%20informaci%C3%B3n%20sobre%20sus%20servicios."
-                   target="_blank" rel="noopener" class="btn cc-btn-whatsapp">
-                  <i class="bi bi-whatsapp me-1"></i>WhatsApp
-                </a>
-              </div>
+                        .cc-services-page {
 
-              <div class="cc-hero-service-strip">
-                <div class="cc-hero-chip"><i class="bi bi-printer"></i>Alquiler</div>
-                <div class="cc-hero-chip"><i class="bi bi-tag"></i>Venta</div>
-                <div class="cc-hero-chip"><i class="bi bi-tools"></i>Servicio técnico</div>
-                <div class="cc-hero-chip"><i class="bi bi-box-seam"></i>Repuestos</div>
-                <div class="cc-hero-chip"><i class="bi bi-bar-chart-line"></i>MPS</div>
-              </div>
-            </div>
-          </section>
+                            --cc-primary: #0d6efd;
+                            --cc-primary-dark: #0756c9;
 
-          <section class="cc-section bg-white">
-            <div class="container">
-              <div class="text-center mb-4">
-                <h2 class="cc-section-title mb-2">Nuestros servicios</h2>
-                <p class="cc-muted mb-0">Lo principal, explicado de forma clara y directa.</p>
-              </div>
+                            --cc-navy: #0b2865;
+                            --cc-navy-dark: #071c49;
 
-              <div class="row g-3">
-                <div class="col-lg-4 col-md-6">
-                  <div class="cc-service-card">
-                    <span class="cc-service-icon"><i class="bi bi-printer"></i></span>
-                    <h3>Alquiler de equipos</h3>
-                    <p>Planes de alquiler de equipos multifuncionales para diferentes volúmenes de impresión.</p>
-                    <ul>
-                      <li><i class="bi bi-check-circle-fill"></i><span>Equipos multifuncionales</span></li>
-                      <li><i class="bi bi-check-circle-fill"></i><span>Mantenimiento y soporte según el plan</span></li>
-                      <li><i class="bi bi-check-circle-fill"></i><span>Alternativas B/N y color</span></li>
-                    </ul>
-                    <a href="/cotizacion/form" class="cc-link">Solicitar cotización <i class="bi bi-arrow-right ms-1"></i></a>
-                  </div>
-                </div>
+                            --cc-text: #334155;
+                            --cc-muted: #64748b;
 
-                <div class="col-lg-4 col-md-6">
-                  <div class="cc-service-card">
-                    <span class="cc-service-icon"><i class="bi bi-tag"></i></span>
-                    <h3>Venta de equipos</h3>
-                    <p>Equipos multifuncionales para empresas que requieren renovar o ampliar su capacidad de impresión.</p>
-                    <ul>
-                      <li><i class="bi bi-check-circle-fill"></i><span>Ricoh, Konica Minolta y Canon</span></li>
-                      <li><i class="bi bi-check-circle-fill"></i><span>Asesoría según volumen de trabajo</span></li>
-                      <li><i class="bi bi-check-circle-fill"></i><span>Opciones para oficina y producción</span></li>
-                    </ul>
-                    <a href="/cotizacion/form" class="cc-link">Consultar equipos <i class="bi bi-arrow-right ms-1"></i></a>
-                  </div>
-                </div>
+                            --cc-border: #e2e8f0;
+                            --cc-soft: #f6f9ff;
 
-                <div class="col-lg-4 col-md-6">
-                  <div class="cc-service-card">
-                    <span class="cc-service-icon"><i class="bi bi-tools"></i></span>
-                    <h3>Servicio técnico</h3>
-                    <p>Diagnóstico, mantenimiento y reparación de equipos multifuncionales.</p>
-                    <ul>
-                      <li><i class="bi bi-check-circle-fill"></i><span>Mantenimiento preventivo</span></li>
-                      <li><i class="bi bi-check-circle-fill"></i><span>Reparación y diagnóstico</span></li>
-                      <li><i class="bi bi-check-circle-fill"></i><span>Atención de incidencias</span></li>
-                    </ul>
-                    <a href="/contactus" class="cc-link">Solicitar servicio <i class="bi bi-arrow-right ms-1"></i></a>
-                  </div>
-                </div>
+                            --cc-whatsapp: #25d366;
+                            --cc-success: #198754;
 
-                <div class="col-lg-6 col-md-6">
-                  <div class="cc-service-card">
-                    <span class="cc-service-icon"><i class="bi bi-box-seam"></i></span>
-                    <h3>Repuestos y consumibles</h3>
-                    <p>Suministro de repuestos y consumibles para los equipos y marcas que atendemos.</p>
-                    <ul>
-                      <li><i class="bi bi-check-circle-fill"></i><span>Tóner y consumibles</span></li>
-                      <li><i class="bi bi-check-circle-fill"></i><span>Repuestos para mantenimiento y reparación</span></li>
-                    </ul>
-                    <a href="/contactus" class="cc-link">Consultar disponibilidad <i class="bi bi-arrow-right ms-1"></i></a>
-                  </div>
-                </div>
+                            background: #ffffff;
+                            color: var(--cc-text);
+                        }
 
-                <div class="col-lg-6 col-md-6">
-                  <div class="cc-service-card">
-                    <span class="cc-service-icon"><i class="bi bi-bar-chart-line"></i></span>
-                    <h3>Monitoreo MPS</h3>
-                    <p>Herramientas para facilitar el seguimiento de equipos compatibles dentro de tu flota.</p>
-                    <ul>
-                      <li><i class="bi bi-check-circle-fill"></i><span>Lecturas de contadores</span></li>
-                      <li><i class="bi bi-check-circle-fill"></i><span>Seguimiento de consumibles</span></li>
-                      <li><i class="bi bi-check-circle-fill"></i><span>Información centralizada</span></li>
-                    </ul>
-                    <a href="https://app.printtrackerpro.com/auth/login" target="_blank" rel="noopener" class="cc-link">
-                      Acceder a MPS <i class="bi bi-box-arrow-up-right ms-1"></i>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
 
-          <section class="cc-section cc-soft">
-            <div class="container">
-              <div class="text-center mb-4">
-                <h2 class="cc-section-title mb-2">¿Cómo trabajamos?</h2>
-                <p class="cc-muted mb-0">Un proceso simple para encontrar la solución adecuada.</p>
-              </div>
-              <div class="row g-3">
-                <div class="col-md-4">
-                  <div class="cc-step">
-                    <span class="cc-step-number">1</span>
-                    <h4>Revisamos tu necesidad</h4>
-                    <p>Volumen, tipo de impresión, número de usuarios y requerimientos del equipo.</p>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="cc-step">
-                    <span class="cc-step-number">2</span>
-                    <h4>Proponemos una solución</h4>
-                    <p>Definimos la alternativa de alquiler, venta, soporte o monitoreo que corresponda.</p>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="cc-step">
-                    <span class="cc-step-number">3</span>
-                    <h4>Coordinamos la atención</h4>
-                    <p>Se programa la entrega, instalación o intervención técnica según el servicio solicitado.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
+                        /* =================================================
+                           GENERALES
+                           ================================================= */
 
-          <section class="cc-section bg-white">
-            <div class="container">
-              <div class="cc-services-cta">
-                <div class="row align-items-center g-3">
-                  <div class="col-lg-8">
-                    <h2 class="mb-2">¿Qué solución necesita tu empresa?</h2>
-                    <p>Cuéntanos qué equipo utilizas o qué necesitas mejorar y te ayudamos a definir la opción adecuada.</p>
-                    <div class="d-flex flex-wrap gap-2">
-                      <a href="/cotizacion/form" class="btn btn-light text-primary fw-bold">Solicitar cotización</a>
-                      <a href="https://wa.me/51975399303?text=Hola%2C%20quisiera%20informaci%C3%B3n%20sobre%20sus%20servicios."
-                         target="_blank" rel="noopener" class="btn btn-outline-light fw-semibold">
-                        <i class="bi bi-whatsapp me-1"></i>WhatsApp
-                      </a>
-                    </div>
-                  </div>
-                  <div class="col-lg-4 text-center d-none d-lg-block">
-                    <i class="bi bi-printer" style="font-size:3.5rem;opacity:.8;"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        </div>
-      </t>
-    </template>
+                        .cc-section {
+                            padding: 46px 0;
+                        }
 
-    <template id="portal_service_request" name="Solicitud de Servicio Técnico">
-      <t t-call="portal.frontend_layout">
-        <t t-set="additional_title">Solicitar Servicio Técnico</t>
-        <t t-set="head">
-          <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
-        </t>
+                        .cc-section-soft {
+                            background: var(--cc-soft);
+                        }
 
-        <div class="cc-services-page">
-          <div class="cc-form-header">
-            <div class="container">
-              <h1><i class="bi bi-tools me-2"></i>Solicitar servicio técnico</h1>
-              <p>Registra la incidencia y los datos necesarios para que podamos atenderla.</p>
-            </div>
-          </div>
+                        .cc-section-title {
+                            color: var(--cc-navy);
 
-          <div class="container">
-            <div class="cc-form-wrap">
+                            font-size: clamp(
+                                1.55rem,
+                                2.5vw,
+                                2.2rem
+                            );
 
-              <t t-if="from_qr">
-                <div class="alert alert-info py-2 px-3 mb-3">
-                  <i class="bi bi-qr-code me-2"></i>
-                  Acceso mediante código QR. Complete los datos de contacto para registrar la solicitud.
-                </div>
-              </t>
+                            line-height: 1.15;
 
-              <t t-if="success_message">
-                <div class="alert alert-success mb-3">
-                  <div class="d-flex gap-3 align-items-start">
-                    <i class="bi bi-check-circle-fill fs-3"></i>
-                    <div>
-                      <h5 class="fw-bold mb-2">Solicitud creada correctamente</h5>
-                      <div t-out="success_message"/>
-                      <t t-if="request_data">
-                        <div class="small mt-2">
-                          <strong>Número:</strong> <span t-esc="request_data.get('number')"/>
-                          <span class="mx-2">·</span>
-                          <strong>Estado:</strong> <span t-esc="request_data.get('estado')"/>
+                            font-weight: 800;
+
+                            letter-spacing: -0.02em;
+                        }
+
+                        .cc-section-description {
+                            max-width: 680px;
+
+                            margin-left: auto;
+                            margin-right: auto;
+
+                            color: var(--cc-muted);
+
+                            font-size: .92rem;
+                            line-height: 1.55;
+                        }
+
+                        .cc-muted {
+                            color: var(--cc-muted);
+                        }
+
+
+                        /* =================================================
+                           HERO
+                           ================================================= */
+
+                        .cc-services-hero {
+
+                            position: relative;
+
+                            overflow: hidden;
+
+                            padding: 34px 0 30px;
+
+                            background:
+
+                                radial-gradient(
+                                    circle at 90% 10%,
+                                    rgba(13,110,253,.12),
+                                    transparent 34%
+                                ),
+
+                                linear-gradient(
+                                    180deg,
+                                    #fbfdff 0%,
+                                    #f1f6ff 100%
+                                );
+                        }
+
+
+                        .cc-services-hero::after {
+
+                            content: '';
+
+                            position: absolute;
+
+                            right: -150px;
+                            top: -170px;
+
+                            width: 420px;
+                            height: 420px;
+
+                            border-radius: 50%;
+
+                            border:
+                                1px solid
+                                rgba(13,110,253,.08);
+                        }
+
+
+                        .cc-hero-content {
+
+                            position: relative;
+                            z-index: 2;
+                        }
+
+
+                        .cc-kicker {
+
+                            display: inline-flex;
+
+                            align-items: center;
+
+                            gap: .45rem;
+
+                            padding: .45rem .72rem;
+
+                            border-radius: 999px;
+
+                            background: #eaf2ff;
+
+                            color: var(--cc-primary);
+
+                            font-size: .79rem;
+
+                            font-weight: 700;
+                        }
+
+
+                        .cc-hero-title {
+
+                            color: var(--cc-navy);
+
+                            max-width: 650px;
+
+                            font-size: clamp(
+                                2rem,
+                                3.5vw,
+                                3.3rem
+                            );
+
+                            line-height: 1.05;
+
+                            font-weight: 800;
+
+                            letter-spacing: -.035em;
+                        }
+
+
+                        .cc-hero-text {
+
+                            max-width: 610px;
+
+                            color: #475569;
+
+                            font-size: .95rem;
+
+                            line-height: 1.58;
+                        }
+
+
+                        .cc-hero-actions {
+
+                            display: flex;
+
+                            flex-wrap: wrap;
+
+                            gap: .6rem;
+                        }
+
+
+                        .cc-hero-actions .btn {
+
+                            padding: .68rem 1rem;
+
+                            border-radius: 10px;
+
+                            font-size: .86rem;
+
+                            font-weight: 700;
+                        }
+
+
+                        .cc-btn-primary {
+
+                            background:
+                                var(--cc-primary);
+
+                            border-color:
+                                var(--cc-primary);
+
+                            color: #ffffff;
+
+                            box-shadow:
+                                0 8px 18px
+                                rgba(13,110,253,.17);
+                        }
+
+
+                        .cc-btn-primary:hover {
+
+                            background:
+                                var(--cc-primary-dark);
+
+                            border-color:
+                                var(--cc-primary-dark);
+
+                            color: #ffffff;
+                        }
+
+
+                        .cc-btn-whatsapp {
+
+                            background:
+                                var(--cc-whatsapp);
+
+                            border-color:
+                                var(--cc-whatsapp);
+
+                            color: #ffffff;
+                        }
+
+
+                        .cc-btn-whatsapp:hover {
+
+                            background: #1ebd5a;
+
+                            border-color: #1ebd5a;
+
+                            color: #ffffff;
+                        }
+
+
+                        /* =================================================
+                           HERO VISUAL
+                           ================================================= */
+
+                        .cc-hero-visual {
+
+                            position: relative;
+
+                            width: 100%;
+
+                            padding: 12px;
+                        }
+
+
+                        .cc-hero-visual-main {
+
+                            width: 100%;
+
+                            height: 280px;
+
+                            object-fit: cover;
+
+                            border-radius: 20px;
+
+                            box-shadow:
+                                0 18px 45px
+                                rgba(15,23,42,.12);
+                        }
+
+
+                        .cc-hero-mini {
+
+                            position: absolute;
+
+                            left: -14px;
+                            bottom: 28px;
+
+                            display: flex;
+
+                            align-items: center;
+
+                            gap: .6rem;
+
+                            padding: .7rem .8rem;
+
+                            background:
+                                rgba(255,255,255,.97);
+
+                            border:
+                                1px solid
+                                var(--cc-border);
+
+                            border-radius: 13px;
+
+                            box-shadow:
+                                0 10px 25px
+                                rgba(15,23,42,.11);
+                        }
+
+
+                        .cc-hero-mini-icon {
+
+                            width: 36px;
+                            height: 36px;
+
+                            display: inline-flex;
+
+                            align-items: center;
+                            justify-content: center;
+
+                            border-radius: 10px;
+
+                            background: #edf4ff;
+
+                            color:
+                                var(--cc-primary);
+                        }
+
+
+                        .cc-hero-mini strong {
+
+                            display: block;
+
+                            color:
+                                var(--cc-navy);
+
+                            font-size: .78rem;
+                        }
+
+
+                        .cc-hero-mini small {
+
+                            display: block;
+
+                            color:
+                                var(--cc-muted);
+
+                            font-size: .69rem;
+                        }
+
+
+                        /* =================================================
+                           ACCESOS RÁPIDOS
+                           ================================================= */
+
+                        .cc-service-shortcuts {
+
+                            display: grid;
+
+                            grid-template-columns:
+                                repeat(
+                                    5,
+                                    minmax(0, 1fr)
+                                );
+
+                            gap: .6rem;
+
+                            margin-top: 1.1rem;
+                        }
+
+
+                        .cc-shortcut {
+
+                            display: flex;
+
+                            align-items: center;
+
+                            justify-content: center;
+
+                            gap: .4rem;
+
+                            min-height: 46px;
+
+                            padding: .52rem .6rem;
+
+                            border:
+                                1px solid
+                                var(--cc-border);
+
+                            border-radius: 11px;
+
+                            background: #ffffff;
+
+                            color:
+                                var(--cc-navy);
+
+                            text-decoration: none;
+
+                            font-size: .78rem;
+
+                            font-weight: 700;
+
+                            box-shadow:
+                                0 5px 14px
+                                rgba(15,23,42,.04);
+
+                            transition:
+                                transform .2s ease,
+                                box-shadow .2s ease,
+                                border-color .2s ease;
+                        }
+
+
+                        .cc-shortcut:hover {
+
+                            color:
+                                var(--cc-primary);
+
+                            border-color: #bdd4ff;
+
+                            transform:
+                                translateY(-2px);
+
+                            box-shadow:
+                                0 9px 20px
+                                rgba(15,23,42,.07);
+                        }
+
+
+                        .cc-shortcut i {
+
+                            color:
+                                var(--cc-primary);
+
+                            font-size: .95rem;
+                        }
+
+
+                        /* =================================================
+                           TARJETAS DE SERVICIO
+                           ================================================= */
+
+                        .cc-service-card {
+
+                            height: 100%;
+
+                            overflow: hidden;
+
+                            border:
+                                1px solid
+                                var(--cc-border);
+
+                            border-radius: 16px;
+
+                            background: #ffffff;
+
+                            box-shadow:
+                                0 7px 22px
+                                rgba(15,23,42,.05);
+
+                            transition:
+                                transform .25s ease,
+                                box-shadow .25s ease,
+                                border-color .25s ease;
+                        }
+
+
+                        .cc-service-card:hover {
+
+                            transform:
+                                translateY(-4px);
+
+                            border-color:
+                                #c8dcff;
+
+                            box-shadow:
+                                0 14px 30px
+                                rgba(15,23,42,.09);
+                        }
+
+
+                        .cc-service-image-wrap {
+
+                            position: relative;
+
+                            overflow: hidden;
+                        }
+
+
+                        .cc-service-image {
+
+                            display: block;
+
+                            width: 100%;
+
+                            height: 135px;
+
+                            object-fit: cover;
+
+                            transition:
+                                transform .4s ease;
+                        }
+
+
+                        .cc-service-card:hover
+                        .cc-service-image {
+
+                            transform:
+                                scale(1.035);
+                        }
+
+
+                        .cc-service-tag {
+
+                            position: absolute;
+
+                            left: 10px;
+                            bottom: 10px;
+
+                            padding:
+                                .3rem .55rem;
+
+                            border-radius: 999px;
+
+                            background:
+                                rgba(8,28,73,.88);
+
+                            color: #ffffff;
+
+                            font-size: .7rem;
+
+                            font-weight: 700;
+
+                            backdrop-filter:
+                                blur(4px);
+                        }
+
+
+                        .cc-service-body {
+
+                            padding: 1.05rem;
+                        }
+
+
+                        .cc-service-header {
+
+                            display: flex;
+
+                            align-items: center;
+
+                            gap: .65rem;
+
+                            margin-bottom: .7rem;
+                        }
+
+
+                        .cc-service-icon {
+
+                            flex: 0 0 auto;
+
+                            width: 42px;
+                            height: 42px;
+
+                            display: inline-flex;
+
+                            align-items: center;
+                            justify-content: center;
+
+                            border-radius: 12px;
+
+                            background: #edf4ff;
+
+                            color:
+                                var(--cc-primary);
+
+                            font-size: 1.05rem;
+                        }
+
+
+                        .cc-service-title {
+
+                            margin: 0;
+
+                            color:
+                                var(--cc-navy);
+
+                            font-size: 1rem;
+
+                            font-weight: 800;
+                        }
+
+
+                        .cc-service-subtitle {
+
+                            margin: 2px 0 0;
+
+                            color:
+                                var(--cc-muted);
+
+                            font-size: .73rem;
+                        }
+
+
+                        .cc-service-description {
+
+                            color:
+                                var(--cc-muted);
+
+                            font-size: .83rem;
+
+                            line-height: 1.5;
+
+                            margin-bottom: .8rem;
+                        }
+
+
+                        .cc-feature-list {
+
+                            list-style: none;
+
+                            margin: 0 0 .85rem;
+
+                            padding: 0;
+                        }
+
+
+                        .cc-feature-list li {
+
+                            display: flex;
+
+                            align-items: flex-start;
+
+                            gap: .42rem;
+
+                            margin-bottom: .32rem;
+
+                            color: #475569;
+
+                            font-size: .78rem;
+                        }
+
+
+                        .cc-feature-list li i {
+
+                            color:
+                                var(--cc-success);
+
+                            margin-top: .08rem;
+
+                            font-size: .8rem;
+                        }
+
+
+                        .cc-service-actions {
+
+                            display: flex;
+
+                            flex-wrap: wrap;
+
+                            gap: .45rem;
+
+                            padding-top: .75rem;
+
+                            border-top:
+                                1px solid
+                                #edf2f7;
+                        }
+
+
+                        .cc-service-actions .btn {
+
+                            border-radius: 9px;
+
+                            padding: .5rem .7rem;
+
+                            font-size: .75rem;
+
+                            font-weight: 700;
+                        }
+
+
+                        /* =================================================
+                           SERVICIOS DESTACADOS HORIZONTALES
+                           ================================================= */
+
+                        .cc-wide-service {
+
+                            height: 100%;
+
+                            display: grid;
+
+                            grid-template-columns:
+                                170px 1fr;
+
+                            overflow: hidden;
+
+                            border:
+                                1px solid
+                                var(--cc-border);
+
+                            border-radius: 16px;
+
+                            background: #ffffff;
+
+                            box-shadow:
+                                0 7px 22px
+                                rgba(15,23,42,.05);
+                        }
+
+
+                        .cc-wide-service img {
+
+                            width: 100%;
+
+                            height: 100%;
+
+                            min-height: 180px;
+
+                            object-fit: cover;
+                        }
+
+
+                        .cc-wide-content {
+
+                            padding: 1rem;
+                        }
+
+
+                        .cc-wide-content h3 {
+
+                            color:
+                                var(--cc-navy);
+
+                            font-size: 1rem;
+
+                            font-weight: 800;
+                        }
+
+
+                        .cc-wide-content p {
+
+                            color:
+                                var(--cc-muted);
+
+                            font-size: .82rem;
+                        }
+
+
+                        /* =================================================
+                           PROCESO
+                           ================================================= */
+
+                        .cc-process-step {
+
+                            height: 100%;
+
+                            padding: 1rem;
+
+                            background: #ffffff;
+
+                            border:
+                                1px solid
+                                var(--cc-border);
+
+                            border-radius: 14px;
+                        }
+
+
+                        .cc-step-number {
+
+                            width: 32px;
+                            height: 32px;
+
+                            display: inline-flex;
+
+                            align-items: center;
+                            justify-content: center;
+
+                            border-radius: 50%;
+
+                            background:
+                                var(--cc-primary);
+
+                            color: #ffffff;
+
+                            font-size: .8rem;
+
+                            font-weight: 800;
+
+                            margin-bottom: .6rem;
+                        }
+
+
+                        .cc-process-step h4 {
+
+                            color:
+                                var(--cc-navy);
+
+                            font-size: .91rem;
+
+                            font-weight: 800;
+                        }
+
+
+                        .cc-process-step p {
+
+                            margin: 0;
+
+                            color:
+                                var(--cc-muted);
+
+                            font-size: .78rem;
+
+                            line-height: 1.48;
+                        }
+
+
+                        /* =================================================
+                           BLOQUE DIFERENCIAL
+                           ================================================= */
+
+                        .cc-support-box {
+
+                            padding: 1.4rem;
+
+                            border:
+                                1px solid
+                                #dbe8ff;
+
+                            border-radius: 17px;
+
+                            background:
+
+                                linear-gradient(
+                                    180deg,
+                                    #eff5ff 0%,
+                                    #fbfdff 100%
+                                );
+                        }
+
+
+                        .cc-support-point {
+
+                            display: flex;
+
+                            align-items: flex-start;
+
+                            gap: .6rem;
+                        }
+
+
+                        .cc-support-point-icon {
+
+                            flex: 0 0 auto;
+
+                            width: 38px;
+                            height: 38px;
+
+                            display: inline-flex;
+
+                            align-items: center;
+                            justify-content: center;
+
+                            border-radius: 11px;
+
+                            background: #ffffff;
+
+                            color:
+                                var(--cc-primary);
+
+                            box-shadow:
+                                0 6px 15px
+                                rgba(15,23,42,.05);
+                        }
+
+
+                        .cc-support-point h4 {
+
+                            color:
+                                var(--cc-navy);
+
+                            font-size: .86rem;
+
+                            font-weight: 800;
+
+                            margin-bottom: .12rem;
+                        }
+
+
+                        .cc-support-point p {
+
+                            margin: 0;
+
+                            color:
+                                var(--cc-muted);
+
+                            font-size: .74rem;
+                        }
+
+
+                        /* =================================================
+                           CTA FINAL
+                           ================================================= */
+
+                        .cc-services-cta {
+
+                            overflow: hidden;
+
+                            position: relative;
+
+                            padding: 1.6rem 1.8rem;
+
+                            border-radius: 18px;
+
+                            color: #ffffff;
+
+                            background:
+
+                                linear-gradient(
+                                    135deg,
+                                    #0d6efd 0%,
+                                    #07358a 100%
+                                );
+                        }
+
+
+                        .cc-services-cta::after {
+
+                            content: '';
+
+                            position: absolute;
+
+                            right: -70px;
+                            bottom: -110px;
+
+                            width: 250px;
+                            height: 250px;
+
+                            border-radius: 50%;
+
+                            border:
+                                1px solid
+                                rgba(255,255,255,.15);
+
+                            box-shadow:
+
+                                0 0 0 35px
+                                rgba(255,255,255,.035),
+
+                                0 0 0 70px
+                                rgba(255,255,255,.02);
+                        }
+
+
+                        .cc-services-cta-content {
+
+                            position: relative;
+
+                            z-index: 2;
+                        }
+
+
+                        .cc-services-cta h2 {
+
+                            font-size: 1.5rem;
+
+                            font-weight: 800;
+                        }
+
+
+                        .cc-services-cta p {
+
+                            font-size: .87rem;
+
+                            margin-bottom: .9rem;
+                        }
+
+
+                        /* =================================================
+                           ANIMACIONES
+                           ================================================= */
+
+                        .cc-animate {
+
+                            animation:
+                                ccFadeUp .55s ease both;
+                        }
+
+
+                        .cc-delay-1 {
+
+                            animation-delay: .07s;
+                        }
+
+
+                        .cc-delay-2 {
+
+                            animation-delay: .14s;
+                        }
+
+
+                        .cc-delay-3 {
+
+                            animation-delay: .21s;
+                        }
+
+
+                        @keyframes ccFadeUp {
+
+                            from {
+
+                                opacity: 0;
+
+                                transform:
+                                    translateY(12px);
+                            }
+
+                            to {
+
+                                opacity: 1;
+
+                                transform:
+                                    translateY(0);
+                            }
+                        }
+
+
+                        @media
+                        (prefers-reduced-motion: reduce) {
+
+                            .cc-animate {
+
+                                animation: none;
+                            }
+
+                            .cc-service-card,
+                            .cc-service-image,
+                            .cc-shortcut {
+
+                                transition: none;
+                            }
+                        }
+
+
+                        /* =================================================
+                           RESPONSIVE
+                           ================================================= */
+
+                        @media
+                        (max-width: 991.98px) {
+
+                            .cc-section {
+
+                                padding:
+                                    38px 0;
+                            }
+
+                            .cc-service-shortcuts {
+
+                                grid-template-columns:
+                                    repeat(
+                                        3,
+                                        minmax(0,1fr)
+                                    );
+                            }
+
+                            .cc-hero-visual-main {
+
+                                height: 250px;
+                            }
+
+                            .cc-hero-mini {
+
+                                left: 24px;
+                            }
+                        }
+
+
+                        @media
+                        (max-width: 767.98px) {
+
+                            .cc-services-hero {
+
+                                padding:
+                                    28px 0 25px;
+                            }
+
+                            .cc-service-shortcuts {
+
+                                grid-template-columns:
+                                    1fr 1fr;
+                            }
+
+                            .cc-shortcut {
+
+                                justify-content:
+                                    flex-start;
+                            }
+
+                            .cc-hero-visual {
+
+                                padding:
+                                    0;
+                            }
+
+                            .cc-hero-visual-main {
+
+                                height:
+                                    220px;
+                            }
+
+                            .cc-hero-mini {
+
+                                position: static;
+
+                                margin-top:
+                                    .6rem;
+                            }
+
+                            .cc-wide-service {
+
+                                grid-template-columns:
+                                    1fr;
+                            }
+
+                            .cc-wide-service img {
+
+                                height:
+                                    130px;
+
+                                min-height:
+                                    130px;
+                            }
+                        }
+
+                    </style>
+
+
+                    <!-- =================================================
+                         HERO
+                         ================================================= -->
+
+                    <section class="cc-services-hero">
+
+                        <div class="container cc-hero-content">
+
+                            <div class="row align-items-center g-4">
+
+
+                                <!-- TEXTO -->
+
+                                <div class="col-lg-7">
+
+                                    <div class="cc-kicker mb-3">
+
+                                        <i class="bi bi-printer"></i>
+
+                                        <span>
+                                            Soluciones para empresas
+                                        </span>
+
+                                    </div>
+
+
+                                    <h1 class="cc-hero-title mb-3">
+
+                                        Soluciones de impresión
+                                        para mantener tu empresa
+                                        operativa
+
+                                    </h1>
+
+
+                                    <p class="cc-hero-text mb-3">
+
+                                        Alquiler y venta de equipos,
+                                        servicio técnico, repuestos,
+                                        consumibles y monitoreo MPS
+                                        para gestionar tus necesidades
+                                        de impresión desde un solo lugar.
+
+                                    </p>
+
+
+                                    <div class="cc-hero-actions">
+
+                                        <a href="/cotizacion/form"
+                                           class="btn cc-btn-primary">
+
+                                            <i class="bi bi-file-earmark-text me-1"></i>
+
+                                            Solicitar cotización
+
+                                        </a>
+
+
+                                        <a href="https://wa.me/51975399303?text=Hola%2C%20quisiera%20informaci%C3%B3n%20sobre%20los%20servicios%20de%20Copier%20Company."
+                                           target="_blank"
+                                           rel="noopener"
+                                           class="btn cc-btn-whatsapp">
+
+                                            <i class="bi bi-whatsapp me-1"></i>
+
+                                            Hablar por WhatsApp
+
+                                        </a>
+
+                                    </div>
+
+
+                                    <!-- ACCESOS -->
+
+                                    <div class="cc-service-shortcuts">
+
+                                        <a href="#servicio-alquiler"
+                                           class="cc-shortcut">
+
+                                            <i class="bi bi-printer"></i>
+
+                                            Alquiler
+
+                                        </a>
+
+
+                                        <a href="#servicio-venta"
+                                           class="cc-shortcut">
+
+                                            <i class="bi bi-tag"></i>
+
+                                            Venta
+
+                                        </a>
+
+
+                                        <a href="#servicio-tecnico"
+                                           class="cc-shortcut">
+
+                                            <i class="bi bi-tools"></i>
+
+                                            Servicio técnico
+
+                                        </a>
+
+
+                                        <a href="#servicio-repuestos"
+                                           class="cc-shortcut">
+
+                                            <i class="bi bi-box-seam"></i>
+
+                                            Repuestos
+
+                                        </a>
+
+
+                                        <a href="#servicio-mps"
+                                           class="cc-shortcut">
+
+                                            <i class="bi bi-bar-chart-line"></i>
+
+                                            MPS
+
+                                        </a>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- IMAGEN -->
+
+                                <div class="col-lg-5">
+
+                                    <div class="cc-hero-visual cc-animate">
+
+                                        <img
+                                            src="/copier_company/static/img/office-hero.png"
+                                            alt="Soluciones de impresión Copier Company"
+                                            class="cc-hero-visual-main"
+                                        />
+
+
+                                        <div class="cc-hero-mini">
+
+                                            <span class="cc-hero-mini-icon">
+
+                                                <i class="bi bi-headset"></i>
+
+                                            </span>
+
+                                            <div>
+
+                                                <strong>
+                                                    Atención especializada
+                                                </strong>
+
+                                                <small>
+                                                    Ventas y soporte técnico
+                                                </small>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
                         </div>
-                      </t>
-                      <a t-attf-href="/public/equipment_menu?copier_company_id=#{equipment.id}"
-                         class="btn btn-sm btn-success mt-3">
-                        <i class="bi bi-arrow-left me-1"></i>Volver al menú
-                      </a>
-                    </div>
-                  </div>
+
+                    </section>
+
+
+                    <!-- =================================================
+                         SERVICIOS PRINCIPALES
+                         ================================================= -->
+
+                    <section class="cc-section bg-white">
+
+                        <div class="container">
+
+                            <div class="text-center mb-4">
+
+                                <h2 class="cc-section-title mb-2">
+
+                                    ¿Qué necesitas?
+
+                                </h2>
+
+                                <p class="cc-section-description mb-0">
+
+                                    Selecciona el servicio que
+                                    necesita tu empresa y accede
+                                    directamente a cotización,
+                                    contacto o soporte.
+
+                                </p>
+
+                            </div>
+
+
+                            <div class="row g-3">
+
+
+                                <!-- =====================================
+                                     ALQUILER
+                                     ===================================== -->
+
+                                <div class="col-lg-4 col-md-6"
+                                     id="servicio-alquiler">
+
+                                    <div class="cc-service-card cc-animate">
+
+                                        <div class="cc-service-image-wrap">
+
+                                            <img
+                                                src="/static/img/services/rental-office.jpg"
+                                                alt="Alquiler de fotocopiadoras"
+                                                class="cc-service-image"
+                                            />
+
+                                            <span class="cc-service-tag">
+
+                                                <i class="bi bi-printer me-1"></i>
+
+                                                Alquiler
+
+                                            </span>
+
+                                        </div>
+
+
+                                        <div class="cc-service-body">
+
+                                            <div class="cc-service-header">
+
+                                                <span class="cc-service-icon">
+
+                                                    <i class="bi bi-printer"></i>
+
+                                                </span>
+
+                                                <div>
+
+                                                    <h3 class="cc-service-title">
+
+                                                        Alquiler de equipos
+
+                                                    </h3>
+
+                                                    <p class="cc-service-subtitle">
+
+                                                        Planes para empresas
+
+                                                    </p>
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <p class="cc-service-description">
+
+                                                Equipos multifuncionales
+                                                en B/N o color para empresas
+                                                que prefieren operar mediante
+                                                un plan mensual.
+
+                                            </p>
+
+
+                                            <ul class="cc-feature-list">
+
+                                                <li>
+
+                                                    <i class="bi bi-check-circle-fill"></i>
+
+                                                    <span>
+                                                        Equipos A3 y A4
+                                                    </span>
+
+                                                </li>
+
+
+                                                <li>
+
+                                                    <i class="bi bi-check-circle-fill"></i>
+
+                                                    <span>
+                                                        Planes según volumen
+                                                        de impresión
+                                                    </span>
+
+                                                </li>
+
+
+                                                <li>
+
+                                                    <i class="bi bi-check-circle-fill"></i>
+
+                                                    <span>
+                                                        Servicio y mantenimiento
+                                                        según condiciones del plan
+                                                    </span>
+
+                                                </li>
+
+
+                                                <li>
+
+                                                    <i class="bi bi-check-circle-fill"></i>
+
+                                                    <span>
+                                                        Monitoreo de contadores
+                                                        para equipos compatibles
+                                                    </span>
+
+                                                </li>
+
+                                            </ul>
+
+
+                                            <div class="cc-service-actions">
+
+                                                <a href="/cotizacion/form"
+                                                   class="btn btn-primary">
+
+                                                    <i class="bi bi-calculator me-1"></i>
+
+                                                    Cotizar alquiler
+
+                                                </a>
+
+
+                                                <a href="https://wa.me/51975399303?text=Hola%2C%20quisiera%20cotizar%20el%20alquiler%20de%20una%20fotocopiadora%20para%20mi%20empresa."
+                                                   target="_blank"
+                                                   rel="noopener"
+                                                   class="btn btn-outline-success">
+
+                                                    <i class="bi bi-whatsapp me-1"></i>
+
+                                                    Consultar
+
+                                                </a>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- =====================================
+                                     VENTA
+                                     ===================================== -->
+
+                                <div class="col-lg-4 col-md-6"
+                                     id="servicio-venta">
+
+                                    <div class="cc-service-card cc-animate cc-delay-1">
+
+                                        <div class="cc-service-image-wrap">
+
+                                            <img
+                                                src="/static/img/services/equipment-showroom.jpg"
+                                                alt="Venta de equipos multifuncionales"
+                                                class="cc-service-image"
+                                            />
+
+                                            <span class="cc-service-tag">
+
+                                                <i class="bi bi-tag me-1"></i>
+
+                                                Venta
+
+                                            </span>
+
+                                        </div>
+
+
+                                        <div class="cc-service-body">
+
+                                            <div class="cc-service-header">
+
+                                                <span class="cc-service-icon">
+
+                                                    <i class="bi bi-tag"></i>
+
+                                                </span>
+
+                                                <div>
+
+                                                    <h3 class="cc-service-title">
+
+                                                        Venta de equipos
+
+                                                    </h3>
+
+                                                    <p class="cc-service-subtitle">
+
+                                                        Equipos para cada necesidad
+
+                                                    </p>
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <p class="cc-service-description">
+
+                                                Te ayudamos a seleccionar
+                                                el equipo adecuado según
+                                                volumen, funciones y tipo
+                                                de trabajo.
+
+                                            </p>
+
+
+                                            <ul class="cc-feature-list">
+
+                                                <li>
+
+                                                    <i class="bi bi-check-circle-fill"></i>
+
+                                                    <span>
+                                                        Ricoh
+                                                    </span>
+
+                                                </li>
+
+
+                                                <li>
+
+                                                    <i class="bi bi-check-circle-fill"></i>
+
+                                                    <span>
+                                                        Konica Minolta
+                                                    </span>
+
+                                                </li>
+
+
+                                                <li>
+
+                                                    <i class="bi bi-check-circle-fill"></i>
+
+                                                    <span>
+                                                        Canon
+                                                    </span>
+
+                                                </li>
+
+
+                                                <li>
+
+                                                    <i class="bi bi-check-circle-fill"></i>
+
+                                                    <span>
+                                                        Equipos para oficina
+                                                        y mayores volúmenes
+                                                    </span>
+
+                                                </li>
+
+                                            </ul>
+
+
+                                            <div class="cc-service-actions">
+
+                                                <a href="/cotizacion/form"
+                                                   class="btn btn-primary">
+
+                                                    <i class="bi bi-file-earmark-text me-1"></i>
+
+                                                    Cotizar equipo
+
+                                                </a>
+
+
+                                                <a href="https://wa.me/51975399303?text=Hola%2C%20quisiera%20informaci%C3%B3n%20para%20comprar%20una%20fotocopiadora."
+                                                   target="_blank"
+                                                   rel="noopener"
+                                                   class="btn btn-outline-success">
+
+                                                    <i class="bi bi-whatsapp me-1"></i>
+
+                                                    Consultar
+
+                                                </a>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- =====================================
+                                     SERVICIO TÉCNICO
+                                     ===================================== -->
+
+                                <div class="col-lg-4 col-md-6"
+                                     id="servicio-tecnico">
+
+                                    <div class="cc-service-card cc-animate cc-delay-2">
+
+                                        <div class="cc-service-image-wrap">
+
+                                            <img
+                                                src="/copier_company/static/img/services/technical-service.jpg"
+                                                alt="Servicio técnico de fotocopiadoras"
+                                                class="cc-service-image"
+                                            />
+
+                                            <span class="cc-service-tag">
+
+                                                <i class="bi bi-tools me-1"></i>
+
+                                                Soporte
+
+                                            </span>
+
+                                        </div>
+
+
+                                        <div class="cc-service-body">
+
+                                            <div class="cc-service-header">
+
+                                                <span class="cc-service-icon">
+
+                                                    <i class="bi bi-tools"></i>
+
+                                                </span>
+
+                                                <div>
+
+                                                    <h3 class="cc-service-title">
+
+                                                        Servicio técnico
+
+                                                    </h3>
+
+                                                    <p class="cc-service-subtitle">
+
+                                                        Mantenimiento y reparación
+
+                                                    </p>
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <p class="cc-service-description">
+
+                                                Atención técnica para
+                                                diagnosticar, mantener
+                                                y reparar equipos
+                                                multifuncionales.
+
+                                            </p>
+
+
+                                            <ul class="cc-feature-list">
+
+                                                <li>
+
+                                                    <i class="bi bi-check-circle-fill"></i>
+
+                                                    <span>
+                                                        Diagnóstico técnico
+                                                    </span>
+
+                                                </li>
+
+
+                                                <li>
+
+                                                    <i class="bi bi-check-circle-fill"></i>
+
+                                                    <span>
+                                                        Mantenimiento preventivo
+                                                    </span>
+
+                                                </li>
+
+
+                                                <li>
+
+                                                    <i class="bi bi-check-circle-fill"></i>
+
+                                                    <span>
+                                                        Reparación de incidencias
+                                                    </span>
+
+                                                </li>
+
+
+                                                <li>
+
+                                                    <i class="bi bi-check-circle-fill"></i>
+
+                                                    <span>
+                                                        Cambio de componentes
+                                                        cuando corresponda
+                                                    </span>
+
+                                                </li>
+
+                                            </ul>
+
+
+                                            <div class="cc-service-actions">
+
+                                                <a href="/contactus"
+                                                   class="btn btn-primary">
+
+                                                    <i class="bi bi-tools me-1"></i>
+
+                                                    Solicitar servicio
+
+                                                </a>
+
+
+                                                <a href="https://wa.me/51975399303?text=Hola%2C%20necesito%20servicio%20t%C3%A9cnico%20para%20una%20fotocopiadora."
+                                                   target="_blank"
+                                                   rel="noopener"
+                                                   class="btn btn-outline-success">
+
+                                                    <i class="bi bi-whatsapp me-1"></i>
+
+                                                    WhatsApp
+
+                                                </a>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- =========================================
+                                 SEGUNDA FILA
+                                 ========================================= -->
+
+                            <div class="row g-3 mt-1">
+
+
+                                <!-- REPUESTOS -->
+
+                                <div class="col-lg-6"
+                                     id="servicio-repuestos">
+
+                                    <div class="cc-wide-service cc-animate">
+
+                                        <img
+                                            src="/copier_company/static/img/services/repuestos-toner.jpg"
+                                            alt="Repuestos y consumibles"
+                                        />
+
+
+                                        <div class="cc-wide-content">
+
+                                            <div class="cc-service-header">
+
+                                                <span class="cc-service-icon">
+
+                                                    <i class="bi bi-box-seam"></i>
+
+                                                </span>
+
+                                                <div>
+
+                                                    <h3>
+                                                        Repuestos y consumibles
+                                                    </h3>
+
+                                                    <span class="cc-service-subtitle">
+
+                                                        Tóner y componentes
+
+                                                    </span>
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <p>
+
+                                                Consulta disponibilidad
+                                                de tóner, consumibles
+                                                y repuestos para las
+                                                marcas que atendemos.
+
+                                            </p>
+
+
+                                            <ul class="cc-feature-list">
+
+                                                <li>
+
+                                                    <i class="bi bi-check-circle-fill"></i>
+
+                                                    <span>
+                                                        Tóner y consumibles
+                                                    </span>
+
+                                                </li>
+
+
+                                                <li>
+
+                                                    <i class="bi bi-check-circle-fill"></i>
+
+                                                    <span>
+                                                        Fusores, unidades de imagen
+                                                        y componentes
+                                                    </span>
+
+                                                </li>
+
+                                            </ul>
+
+
+                                            <div class="cc-service-actions">
+
+                                                <a href="https://wa.me/51975399303?text=Hola%2C%20quisiera%20consultar%20la%20disponibilidad%20de%20un%20repuesto%20o%20t%C3%B3ner."
+                                                   target="_blank"
+                                                   rel="noopener"
+                                                   class="btn btn-primary">
+
+                                                    <i class="bi bi-whatsapp me-1"></i>
+
+                                                    Consultar repuesto
+
+                                                </a>
+
+
+                                                <a href="/contactus"
+                                                   class="btn btn-outline-primary">
+
+                                                    Contacto
+
+                                                </a>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- MPS -->
+
+                                <div class="col-lg-6"
+                                     id="servicio-mps">
+
+                                    <div class="cc-wide-service cc-animate cc-delay-1">
+
+                                        <img
+                                            src="/copier_company/static/img/services/mps-monitoring.jpg"
+                                            alt="Monitoreo MPS"
+                                        />
+
+
+                                        <div class="cc-wide-content">
+
+                                            <div class="cc-service-header">
+
+                                                <span class="cc-service-icon">
+
+                                                    <i class="bi bi-bar-chart-line"></i>
+
+                                                </span>
+
+                                                <div>
+
+                                                    <h3>
+                                                        Monitoreo MPS
+                                                    </h3>
+
+                                                    <span class="cc-service-subtitle">
+
+                                                        Gestión de flota
+
+                                                    </span>
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <p>
+
+                                                Herramientas para
+                                                consultar información
+                                                de los equipos compatibles
+                                                y facilitar la gestión
+                                                de la flota.
+
+                                            </p>
+
+
+                                            <ul class="cc-feature-list">
+
+                                                <li>
+
+                                                    <i class="bi bi-check-circle-fill"></i>
+
+                                                    <span>
+                                                        Lecturas de contadores
+                                                    </span>
+
+                                                </li>
+
+
+                                                <li>
+
+                                                    <i class="bi bi-check-circle-fill"></i>
+
+                                                    <span>
+                                                        Seguimiento de consumibles
+                                                    </span>
+
+                                                </li>
+
+
+                                                <li>
+
+                                                    <i class="bi bi-check-circle-fill"></i>
+
+                                                    <span>
+                                                        Información centralizada
+                                                    </span>
+
+                                                </li>
+
+                                            </ul>
+
+
+                                            <div class="cc-service-actions">
+
+                                                <a href="https://app.printtrackerpro.com/auth/login"
+                                                   target="_blank"
+                                                   rel="noopener"
+                                                   class="btn btn-primary">
+
+                                                    <i class="bi bi-box-arrow-up-right me-1"></i>
+
+                                                    Acceder al sistema
+
+                                                </a>
+
+
+                                                <a href="https://wa.me/51975399303?text=Hola%2C%20quisiera%20informaci%C3%B3n%20sobre%20el%20servicio%20de%20monitoreo%20MPS."
+                                                   target="_blank"
+                                                   rel="noopener"
+                                                   class="btn btn-outline-success">
+
+                                                    Consultar MPS
+
+                                                </a>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =================================================
+                         CÓMO TRABAJAMOS
+                         ================================================= -->
+
+                    <section class="cc-section cc-section-soft">
+
+                        <div class="container">
+
+                            <div class="text-center mb-4">
+
+                                <h2 class="cc-section-title mb-2">
+
+                                    ¿Cómo encontramos la solución adecuada?
+
+                                </h2>
+
+                                <p class="cc-section-description mb-0">
+
+                                    Antes de recomendar un equipo
+                                    o servicio revisamos las necesidades
+                                    reales de operación.
+
+                                </p>
+
+                            </div>
+
+
+                            <div class="row g-3">
+
+                                <div class="col-md-4">
+
+                                    <div class="cc-process-step cc-animate">
+
+                                        <span class="cc-step-number">
+                                            1
+                                        </span>
+
+                                        <h4>
+                                            Revisamos tu necesidad
+                                        </h4>
+
+                                        <p>
+
+                                            Tipo de impresión,
+                                            volumen aproximado,
+                                            usuarios y funciones
+                                            necesarias.
+
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="col-md-4">
+
+                                    <div class="cc-process-step cc-animate cc-delay-1">
+
+                                        <span class="cc-step-number">
+                                            2
+                                        </span>
+
+                                        <h4>
+                                            Definimos la alternativa
+                                        </h4>
+
+                                        <p>
+
+                                            Alquiler, compra,
+                                            soporte técnico,
+                                            repuestos o monitoreo.
+
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="col-md-4">
+
+                                    <div class="cc-process-step cc-animate cc-delay-2">
+
+                                        <span class="cc-step-number">
+                                            3
+                                        </span>
+
+                                        <h4>
+                                            Coordinamos la atención
+                                        </h4>
+
+                                        <p>
+
+                                            Cotización,
+                                            programación,
+                                            entrega o atención técnica
+                                            según corresponda.
+
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =================================================
+                         SOPORTE / BENEFICIOS
+                         ================================================= -->
+
+                    <section class="cc-section bg-white">
+
+                        <div class="container">
+
+                            <div class="cc-support-box">
+
+                                <div class="row align-items-center g-4">
+
+                                    <div class="col-lg-4">
+
+                                        <h2 class="cc-section-title mb-2">
+
+                                            Más que un equipo
+
+                                        </h2>
+
+                                        <p class="cc-muted mb-0"
+                                           style="font-size:.85rem;">
+
+                                            La operación de impresión
+                                            también necesita soporte,
+                                            seguimiento y disponibilidad
+                                            de suministros.
+
+                                        </p>
+
+                                    </div>
+
+
+                                    <div class="col-lg-8">
+
+                                        <div class="row g-3">
+
+                                            <div class="col-md-4">
+
+                                                <div class="cc-support-point">
+
+                                                    <span class="cc-support-point-icon">
+
+                                                        <i class="bi bi-tools"></i>
+
+                                                    </span>
+
+                                                    <div>
+
+                                                        <h4>
+                                                            Soporte técnico
+                                                        </h4>
+
+                                                        <p>
+                                                            Atención para mantenimiento
+                                                            e incidencias.
+                                                        </p>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <div class="col-md-4">
+
+                                                <div class="cc-support-point">
+
+                                                    <span class="cc-support-point-icon">
+
+                                                        <i class="bi bi-box-seam"></i>
+
+                                                    </span>
+
+                                                    <div>
+
+                                                        <h4>
+                                                            Consumibles
+                                                        </h4>
+
+                                                        <p>
+                                                            Consulta de tóner
+                                                            y repuestos.
+                                                        </p>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <div class="col-md-4">
+
+                                                <div class="cc-support-point">
+
+                                                    <span class="cc-support-point-icon">
+
+                                                        <i class="bi bi-display"></i>
+
+                                                    </span>
+
+                                                    <div>
+
+                                                        <h4>
+                                                            Monitoreo
+                                                        </h4>
+
+                                                        <p>
+                                                            Gestión de equipos
+                                                            compatibles mediante MPS.
+                                                        </p>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =================================================
+                         CTA FINAL
+                         ================================================= -->
+
+                    <section class="cc-section bg-white">
+
+                        <div class="container">
+
+                            <div class="cc-services-cta">
+
+                                <div class="cc-services-cta-content">
+
+                                    <div class="row align-items-center g-3">
+
+                                        <div class="col-lg-8">
+
+                                            <h2 class="mb-2">
+
+                                                ¿No sabes qué equipo o plan necesitas?
+
+                                            </h2>
+
+
+                                            <p>
+
+                                                Cuéntanos aproximadamente
+                                                cuánto imprime tu empresa,
+                                                si necesitas B/N o color
+                                                y cuántos usuarios utilizarán
+                                                el equipo.
+
+                                            </p>
+
+
+                                            <div class="d-flex flex-wrap gap-2">
+
+                                                <a href="/cotizacion/form"
+                                                   class="btn btn-light text-primary fw-bold">
+
+                                                    <i class="bi bi-file-earmark-text me-1"></i>
+
+                                                    Solicitar cotización
+
+                                                </a>
+
+
+                                                <a href="https://wa.me/51975399303?text=Hola%2C%20necesito%20asesor%C3%ADa%20para%20elegir%20una%20soluci%C3%B3n%20de%20impresi%C3%B3n%20para%20mi%20empresa."
+                                                   target="_blank"
+                                                   rel="noopener"
+                                                   class="btn btn-outline-light fw-semibold">
+
+                                                    <i class="bi bi-whatsapp me-1"></i>
+
+                                                    Hablar con un asesor
+
+                                                </a>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="col-lg-4 text-center d-none d-lg-block">
+
+                                            <i class="bi bi-printer"
+                                               style="font-size:3.8rem;opacity:.82;"></i>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =================================================
+                         SCROLL SUAVE
+                         ================================================= -->
+
+                    <script>
+                    <![CDATA[
+
+                        (function () {
+
+                            'use strict';
+
+
+                            document.addEventListener(
+                                'DOMContentLoaded',
+                                function () {
+
+                                    document
+                                        .querySelectorAll(
+                                            '.cc-services-page a[href^="#"]'
+                                        )
+                                        .forEach(
+                                            function (link) {
+
+                                                link.addEventListener(
+                                                    'click',
+                                                    function (event) {
+
+                                                        var href =
+                                                            this.getAttribute(
+                                                                'href'
+                                                            );
+
+
+                                                        if (
+                                                            !href ||
+                                                            href === '#'
+                                                        ) {
+                                                            return;
+                                                        }
+
+
+                                                        var target = null;
+
+
+                                                        try {
+
+                                                            target =
+                                                                document.querySelector(
+                                                                    href
+                                                                );
+
+                                                        } catch (error) {
+
+                                                            return;
+                                                        }
+
+
+                                                        if (!target) {
+                                                            return;
+                                                        }
+
+
+                                                        event.preventDefault();
+
+
+                                                        target.scrollIntoView({
+                                                            behavior: 'smooth',
+                                                            block: 'start'
+                                                        });
+
+                                                    }
+                                                );
+
+                                            }
+                                        );
+
+                                }
+                            );
+
+                        })();
+
+                    ]]>
+                    </script>
+
+
                 </div>
-              </t>
 
-              <t t-if="error_message">
-                <div class="alert alert-danger mb-3">
-                  <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                  <span t-esc="error_message"/>
-                </div>
-              </t>
+            </t>
 
-              <t t-if="not success_message">
-                <div class="cc-info-panel mb-3">
-                  <h5 class="mb-2"><i class="bi bi-printer me-2"></i>Información del equipo</h5>
-                  <div class="row g-2">
-                    <div class="col-md-4">
-                      <p><strong>Equipo:</strong> <span t-esc="equipment_data.get('name')"/></p>
-                      <p><strong>Serie:</strong> <span t-esc="equipment_data.get('serie')"/></p>
-                    </div>
-                    <div class="col-md-4">
-                      <p><strong>Marca:</strong> <span t-esc="equipment_data.get('marca')"/></p>
-                      <p><strong>Tipo:</strong> <span t-esc="equipment_data.get('tipo')"/></p>
-                    </div>
-                    <div class="col-md-4">
-                      <p><strong>Cliente:</strong> <span t-esc="equipment_data.get('cliente_name')"/></p>
-                      <p><strong>Ubicación:</strong> <span t-esc="equipment_data.get('ubicacion')"/></p>
-                    </div>
-                  </div>
-                </div>
+        </template>
 
-                <form method="POST" enctype="multipart/form-data" id="serviceForm">
-                  <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-
-                  <div class="cc-form-card">
-                    <div class="cc-form-card-header"><i class="bi bi-person me-2"></i>Datos de contacto</div>
-                    <div class="cc-form-card-body">
-
-                      <t t-if="not is_logged">
-                        <div class="row g-3">
-                          <div class="col-md-4">
-                            <label class="form-label" for="contacto">Nombre completo *</label>
-                            <input type="text" class="form-control" id="contacto" name="contacto"
-                                   t-att-value="contact_data.get('contacto', '')"
-                                   placeholder="Nombre de la persona que reporta" required="required"/>
-                          </div>
-                          <div class="col-md-4">
-                            <label class="form-label" for="correo">Correo *</label>
-                            <input type="email" class="form-control" id="correo" name="correo"
-                                   t-att-value="contact_data.get('correo', '')"
-                                   placeholder="correo@empresa.com" required="required"/>
-                          </div>
-                          <div class="col-md-4">
-                            <label class="form-label" for="telefono_contacto">Celular *</label>
-                            <input type="tel" class="form-control" id="telefono_contacto" name="telefono_contacto"
-                                   t-att-value="contact_data.get('telefono_contacto', '')"
-                                   placeholder="987654321" pattern="[0-9]{9,15}" required="required"/>
-                          </div>
-                        </div>
-                      </t>
-
-                      <t t-else="">
-                        <input type="hidden" name="contacto" t-att-value="contact_data.get('contacto', '')"/>
-                        <input type="hidden" name="correo" t-att-value="contact_data.get('correo', '')"/>
-                        <input type="hidden" name="telefono_contacto" t-att-value="contact_data.get('telefono_contacto', '')"/>
-
-                        <div class="small">
-                          <strong><t t-esc="contact_data.get('contacto')"/></strong>
-                          <span class="mx-2">·</span>
-                          <t t-esc="contact_data.get('correo')"/>
-                          <span class="mx-2">·</span>
-                          <t t-esc="contact_data.get('telefono_contacto')"/>
-                        </div>
-                      </t>
-                    </div>
-                  </div>
-
-                  <div class="cc-form-card">
-                    <div class="cc-form-card-header"><i class="bi bi-exclamation-circle me-2"></i>Detalle de la incidencia</div>
-                    <div class="cc-form-card-body">
-
-                      <div class="row g-3">
-                        <div class="col-md-6">
-                          <label class="form-label" for="tipo_problema_id">Tipo de problema *</label>
-                          <select class="form-select" id="tipo_problema_id" name="tipo_problema_id" required="required">
-                            <option value="">Seleccione un tipo</option>
-                            <t t-foreach="problem_types" t-as="ptype">
-                              <option t-att-value="ptype.id"><t t-esc="ptype.icono"/> <t t-esc="ptype.name"/></option>
-                            </t>
-                          </select>
-                        </div>
-
-                        <div class="col-md-6">
-                          <label class="form-label d-block">Prioridad *</label>
-                          <div class="cc-priority">
-                            <input type="radio" class="btn-check" name="prioridad" id="prioridad_baja" value="0"/>
-                            <label class="btn btn-outline-success" for="prioridad_baja">Baja</label>
-
-                            <input type="radio" class="btn-check" name="prioridad" id="prioridad_normal" value="1" checked="checked"/>
-                            <label class="btn btn-outline-primary" for="prioridad_normal">Normal</label>
-
-                            <input type="radio" class="btn-check" name="prioridad" id="prioridad_alta" value="2"/>
-                            <label class="btn btn-outline-warning" for="prioridad_alta">Alta</label>
-
-                            <input type="radio" class="btn-check" name="prioridad" id="prioridad_critica" value="3"/>
-                            <label class="btn btn-outline-danger" for="prioridad_critica">Crítica</label>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="mt-3">
-                        <label class="form-label" for="problema_reportado">Descripción detallada *</label>
-                        <textarea class="form-control" id="problema_reportado" name="problema_reportado" rows="4"
-                                  placeholder="Describa qué ocurre, desde cuándo y si aparece algún código o mensaje de error."
-                                  required="required"></textarea>
-                        <span class="cc-help">Incluya códigos de error, mensajes de pantalla o comportamiento observado.</span>
-                      </div>
-
-                      <div class="mt-3">
-                        <label class="form-label" for="foto_antes">Foto del problema</label>
-                        <input type="file" class="form-control" id="foto_antes" name="foto_antes"
-                               accept="image/*" onchange="previewImage(this)"/>
-                        <span class="cc-help">Opcional. Puede adjuntar una foto del error o del equipo.</span>
-                        <img id="imagePreview" class="photo-preview img-thumbnail" alt="Vista previa"/>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="cc-submit-row">
-                    <a t-attf-href="/public/equipment_menu?copier_company_id=#{equipment.id}"
-                       class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Volver</a>
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-send me-1"></i>Enviar solicitud</button>
-                  </div>
-                </form>
-              </t>
-            </div>
-          </div>
-
-          <script>
-            function previewImage(input) {
-              const preview = document.getElementById('imagePreview');
-              if (input.files &amp;&amp; input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                  preview.src = e.target.result;
-                  preview.style.display = 'block';
-                };
-                reader.readAsDataURL(input.files[0]);
-              } else {
-                preview.style.display = 'none';
-              }
-            }
-
-            (function() {
-              'use strict';
-              const form = document.getElementById('serviceForm');
-              if (form) {
-                form.addEventListener('submit', function(event) {
-                  if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                  }
-                  form.classList.add('was-validated');
-                }, false);
-              }
-            })();
-          </script>
-        </div>
-      </t>
-    </template>
-  </data>
+    </data>
 </odoo>
