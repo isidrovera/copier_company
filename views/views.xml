@@ -10,7 +10,6 @@
                   decoration-info="estado_maquina_id and estado_maquina_id.name == 'Disponible'"
                   decoration-warning="estado_maquina_id and estado_maquina_id.name == 'En Mantenimiento'"
                   decoration-danger="estado_maquina_id and estado_maquina_id.name == 'Fuera de Servicio'">
-                
                 <!-- Campos siempre visibles -->
                 <field name="secuencia"/>
                 <field name="marca_id"/>
@@ -20,22 +19,18 @@
                 <field name="sede"/>
                 <field name="ubicacion"/>
                 <field name="estado_maquina_id"/>
-                
                 <!-- Campos opcionales - Facturación -->
                 <field name="tipo" optional="hide"/>
                 <field name="currency_id" optional="hide"/>
                 <field name="fecha_inicio_alquiler" optional="show"/>
                 <field name="fecha_fin_alquiler" optional="hide"/>
                 <field name="dia_facturacion" optional="hide"/>
-                
                 <!-- Campos opcionales - Volúmenes -->
                 <field name="volumen_mensual_bn" optional="hide" string="Vol. Mensual B/N" sum="Total Vol. B/N"/>
                 <field name="volumen_mensual_color" optional="hide" string="Vol. Mensual Color" sum="Total Vol. Color"/>
-                
                 <!-- Campos opcionales - Costos -->
                 <field name="costo_copia_bn" optional="hide" string="Costo B/N" avg="Promedio Costo B/N"/>
                 <field name="costo_copia_color" optional="hide" string="Costo Color" avg="Promedio Costo Color"/>
-                
                 <!-- Campos opcionales - Totales Financieros -->
                 <field name="renta_mensual_bn" optional="hide" string="Renta B/N" sum="Total Renta B/N" widget="monetary"/>
                 <field name="renta_mensual_color" optional="hide" string="Renta Color" sum="Total Renta Color" widget="monetary"/>
@@ -44,25 +39,20 @@
                 <field name="monto_igv" optional="hide" string="Monto IGV" sum="Total IGV" widget="monetary"/>
                 <field name="descuento" optional="hide" avg="Promedio Descuento"/>
                 <field name="total_facturar_mensual" optional="show" string="Total Mensual" sum="Total General" widget="monetary"/>
-                
                 <!-- Campos opcionales - Estado -->
                 <field name="estado_renovacion" optional="show"/>
                 <field name="duracion_alquiler_id" optional="hide" string="Duración"/>
-                
                 <!-- Campos opcionales - Productos -->
                 <field name="producto_facturable_bn_id" optional="hide" string="Producto B/N"/>
                 <field name="producto_facturable_color_id" optional="hide" string="Producto Color"/>
-                
                 <!-- Campo QR Code -->
                 <field name="qr_code" optional="hide"/>
-                
                 <!-- Botones de acción -->
                 <button name="action_crear_servicio_tecnico" string="Servicio" type="object" icon="fa-wrench" class="btn-primary"/>
                 <button name="generar_qr_code" string="QR" type="object" icon="fa-qrcode" class="btn-info"/>
             </list>
         </field>
     </record>
-
     <!-- Form View -->
     <record id="view_maquinas_form" model="ir.ui.view">
     <field name="name">copier.company.form</field>
@@ -73,24 +63,22 @@
                 <button name="action_crear_servicio_tecnico" string="Crear Ticket" type="object" class="btn-primary"/>
                 <button name="generar_qr_code" string="Generar QR" type="object" class="btn-info"/>
                 <button name="action_print_report" string="Imprimir Cotización" type="object" class="btn-success"/>
-                <button name="send_whatsapp_report" 
-                        string="Enviar WhatsApp" 
-                        type="object" 
+                <button name="send_whatsapp_report"
+                        string="Enviar WhatsApp"
+                        type="object"
                         class="btn-success"
                         invisible="not estado_maquina_id"
                         data-hotkey="w"/>
                 <button name="enviar_correo_propuesta" string="Enviar Propuesta" type="object" class="oe_highlight"/>
                 <field name="estado_renovacion" widget="statusbar" statusbar_visible="vigente,por_vencer,renovado,finalizado"/>
-                
-                <button name="action_renovar_contrato" 
-                        string="Renovar Contrato" 
-                        type="object" 
+                <button name="action_renovar_contrato"
+                        string="Renovar Contrato"
+                        type="object"
                         class="oe_highlight"
                 />
-               
-                <button name="generar_sticker_corporativo" 
-        string="Generar Sticker" 
-        type="object" 
+                <button name="generar_sticker_corporativo"
+        string="Generar Sticker"
+        type="object"
         class="btn-primary"
         icon="fa-qrcode"/>
         <button name="action_ver_usuarios_internos"
@@ -103,13 +91,11 @@
         string="Imprimir Stickers"
         class="btn-primary"
         icon="fa-print"/>
-
-
                 <field name="estado_maquina_id" widget="statusbar" options="{'clickable': '1'}"/>
             </header>
             <sheet>
                 <div class="oe_button_box" name="button_box">
-                    <button class="oe_stat_button" type="object" 
+                    <button class="oe_stat_button" type="object"
                             name="action_view_counters" icon="fa-calculator">
                         <field string="Lecturas" name="counter_count" widget="statinfo"/>
                     </button>
@@ -119,9 +105,7 @@
                         icon="fa-users">
                 <field name="user_count" widget="statinfo" string="Usuarios"/>
                 </button>
-
                 </div>
-
                 <div class="alert alert-info">
                     <strong>Instrucciones:</strong>
                     <ul>
@@ -131,7 +115,6 @@
                         <li>Genere el código QR para servicio técnico</li>
                     </ul>
                 </div>
-
                 <group>
                     <group string="Datos del Equipo">
                         <field name="secuencia" readonly="1"/>
@@ -149,13 +132,12 @@
                         <field name="ubicacion" required="1"/>
                     </group>
                 </group>
-
                 <notebook>
                     <page name="facturacion" string="Facturación">
                         <group>
                             <group string="Configuración">
                                 <field name="currency_id"/>
-                                <field name="payment_term_id" 
+                                <field name="payment_term_id"
                            options="{'no_create': True, 'no_edit': True}"/>
                                 <field name="fecha_inicio_alquiler" required="1"/>
                                 <field name="duracion_alquiler_id" required="1"/>
@@ -163,11 +145,10 @@
                                 <field name="dia_facturacion"/>
                                 <field name="facturacion_automatica"/>
                                 <field name="producto_facturable_id" options="{'no_create': True}"/>
-                                <field name="producto_facturable_bn_id" 
+                                <field name="producto_facturable_bn_id"
            required="'estado_maquina_id.name', '=', 'Alquilada'"
            string="Producto B/N"/>
-                                <field name="producto_facturable_color_id" 
-                                
+                                <field name="producto_facturable_color_id"
        required="tipo == 'color' and estado_maquina_id and estado_maquina_id.name == 'Alquilada'"
        invisible="tipo == 'monocroma'"/>
                             </group>
@@ -182,18 +163,15 @@
                             </group>
                             <group string="Configuración de Cálculo">
                                 <field name="tipo_calculo" widget="radio"/>
-                                
                                 <!-- Campos para ingreso manual de montos, visibles según el tipo de cálculo seleccionado -->
-                                <field name="monto_mensual_bn" 
-                                       invisible="tipo_calculo not in ['manual_sin_igv_bn', 'manual_con_igv_bn']" 
+                                <field name="monto_mensual_bn"
+                                       invisible="tipo_calculo not in ['manual_sin_igv_bn', 'manual_con_igv_bn']"
                                        placeholder="Ingrese el monto mensual para copias B/N"/>
-                                
-                                <field name="monto_mensual_color" 
-                                       invisible="tipo_calculo not in ['manual_sin_igv_color', 'manual_con_igv_color'] or tipo == 'monocroma'" 
+                                <field name="monto_mensual_color"
+                                       invisible="tipo_calculo not in ['manual_sin_igv_color', 'manual_con_igv_color'] or tipo == 'monocroma'"
                                        placeholder="Ingrese el monto mensual para copias a color"/>
-                                
-                                <field name="monto_mensual_total" 
-                                       invisible="tipo_calculo not in ['manual_sin_igv_total', 'manual_con_igv_total']" 
+                                <field name="monto_mensual_total"
+                                       invisible="tipo_calculo not in ['manual_sin_igv_total', 'manual_con_igv_total']"
                                        placeholder="Ingrese el monto mensual total (B/N y color)"/>
                             </group>
                             <group string="Totales">
@@ -235,7 +213,6 @@
         </form>
     </field>
 </record>
-
  <!-- Kanban View (Odoo 17/18) -->
 <record model="ir.ui.view" id="copier_company.kanban">
   <field name="name">copier_company.kanban</field>
@@ -245,7 +222,6 @@
             class="o_kanban_mobile"
             records_draggable="1"
             create="1" quick_create="0">
-
       <!-- Declarar campos usados -->
       <field name="name"/>
       <field name="marca_id"/>
@@ -257,12 +233,10 @@
       <field name="tipo"/>
       <field name="formato"/>
       <field name="secuencia"/>
-
       <templates>
         <t t-name="card">
           <!-- Usar el display_name del M2O para comparar -->
           <t t-set="estado" t-value="record.estado_maquina_id.value or ''"/>
-
           <div class="o_kanban_record o_kanban_global_click w-100 position-relative rounded-3 shadow-sm"
                t-att-style="'background-color: ' + (
                  (estado == 'Disponible'    and 'rgba(40,167,69,0.1)')  or
@@ -271,7 +245,6 @@
                  (estado == 'Mantenimiento' and 'rgba(220,53,69,0.1)') or
                  'rgba(108,117,125,0.1)'
                )">
-
             <div class="p-3">
               <!-- Header -->
               <div class="d-flex justify-content-between align-items-center mb-3">
@@ -292,7 +265,6 @@
                   <field name="estado_maquina_id"/>
                 </span>
               </div>
-
               <!-- Details -->
               <div class="mb-3">
                 <div class="d-flex flex-column gap-2">
@@ -314,7 +286,6 @@
                   </div>
                 </div>
               </div>
-
               <!-- Action Buttons -->
               <div class="d-flex gap-2">
                 <button name="action_crear_servicio_tecnico" type="object" class="btn btn-primary btn-sm">
@@ -334,9 +305,7 @@
     </kanban>
   </field>
 </record>
-
     <!-- Search View -->
-  
      <record id="copier_company_search" model="ir.ui.view">
         <field name="name">copier.company.search</field>
         <field name="model">copier.company</field>
@@ -349,93 +318,78 @@
                 <field name="cliente_id" string="Cliente"/>
                 <field name="sede" string="Sede"/>
                 <field name="marca_id" string="Marca"/>
-                
                 <separator/>
-                
                 <!-- Filtros por Estado de Máquina -->
-                <filter name="disponible" string="Disponibles" 
+                <filter name="disponible" string="Disponibles"
                         domain="[('estado_maquina_id.name', '=', 'Disponible')]"/>
-                <filter name="alquilada" string="Alquiladas" 
+                <filter name="alquilada" string="Alquiladas"
                         domain="[('estado_maquina_id.name', '=', 'Alquilada')]"/>
-                <filter name="mantenimiento" string="En Mantenimiento" 
+                <filter name="mantenimiento" string="En Mantenimiento"
                         domain="[('estado_maquina_id.name', '=', 'En Mantenimiento')]"/>
-                <filter name="fuera_servicio" string="Fuera de Servicio" 
+                <filter name="fuera_servicio" string="Fuera de Servicio"
                         domain="[('estado_maquina_id.name', '=', 'Fuera de Servicio')]"/>
-                
                 <separator/>
-                
                 <!-- Filtros por Tipo de Máquina -->
-                <filter name="monocroma" string="Monocromas" 
+                <filter name="monocroma" string="Monocromas"
                         domain="[('tipo', '=', 'monocroma')]"/>
-                <filter name="color" string="A Color" 
+                <filter name="color" string="A Color"
                         domain="[('tipo', '=', 'color')]"/>
-                
                 <separator/>
-                
                 <!-- Filtros por Estado de Renovación -->
-                <filter name="vigente" string="Vigente" 
+                <filter name="vigente" string="Vigente"
                         domain="[('estado_renovacion', '=', 'vigente')]"/>
-                <filter name="por_vencer" string="Por Vencer" 
+                <filter name="por_vencer" string="Por Vencer"
                         domain="[('estado_renovacion', '=', 'por_vencer')]"/>
-                <filter name="vencido" string="Vencido" 
+                <filter name="vencido" string="Vencido"
                         domain="[('estado_renovacion', '=', 'vencido')]"/>
-                <filter name="renovado" string="Renovado" 
+                <filter name="renovado" string="Renovado"
                         domain="[('estado_renovacion', '=', 'renovado')]"/>
-                
                 <separator/>
-                
                 <!-- Filtros por Facturación -->
-                <filter name="con_facturacion_auto" string="Facturación Automática" 
+                <filter name="con_facturacion_auto" string="Facturación Automática"
                         domain="[('facturacion_automatica', '=', True)]"/>
-                <filter name="sin_facturacion_auto" string="Facturación Manual" 
+                <filter name="sin_facturacion_auto" string="Facturación Manual"
                         domain="[('facturacion_automatica', '=', False)]"/>
-                
                 <separator/>
-                
                 <!-- Filtros por Monto -->
-                <filter name="renta_alta" string="Renta Alta (&gt; 1000)" 
+                <filter name="renta_alta" string="Renta Alta (&gt; 1000)"
                         domain="[('total_facturar_mensual', '&gt;', 1000)]"/>
-                <filter name="renta_media" string="Renta Media (500 - 1000)" 
+                <filter name="renta_media" string="Renta Media (500 - 1000)"
                         domain="[('total_facturar_mensual', '&gt;=', 500), ('total_facturar_mensual', '&lt;=', 1000)]"/>
-                <filter name="renta_baja" string="Renta Baja (&lt; 500)" 
+                <filter name="renta_baja" string="Renta Baja (&lt; 500)"
                         domain="[('total_facturar_mensual', '&lt;', 500)]"/>
-                
                 <separator/>
-                
                 <!-- Filtros por Volumen -->
-                <filter name="alto_volumen_bn" string="Alto Volumen B/N (&gt; 5000)" 
+                <filter name="alto_volumen_bn" string="Alto Volumen B/N (&gt; 5000)"
                         domain="[('volumen_mensual_bn', '&gt;', 5000)]"/>
-                <filter name="con_volumen_color" string="Con Volumen Color" 
+                <filter name="con_volumen_color" string="Con Volumen Color"
                         domain="[('volumen_mensual_color', '&gt;', 0)]"/>
-                
                 <separator/>
-                
                 <!-- Agrupaciones -->
-                <group name="groupby">
-                    <filter name="group_by_estado" string="Estado Máquina" 
+                <group name="groupby" invisible="1">
+                    <filter name="group_by_estado" string="Estado Máquina"
                             context="{'group_by': 'estado_maquina_id'}"/>
-                    <filter name="group_by_renovacion" string="Estado Renovación" 
+                    <filter name="group_by_renovacion" string="Estado Renovación"
                             context="{'group_by': 'estado_renovacion'}"/>
-                    <filter name="group_by_tipo" string="Tipo de Máquina" 
+                    <filter name="group_by_tipo" string="Tipo de Máquina"
                             context="{'group_by': 'tipo'}"/>
-                    <filter name="group_by_marca" string="Marca" 
+                    <filter name="group_by_marca" string="Marca"
                             context="{'group_by': 'marca_id'}"/>
-                    <filter name="group_by_modelo" string="Modelo" 
+                    <filter name="group_by_modelo" string="Modelo"
                             context="{'group_by': 'name'}"/>
-                    <filter name="group_by_cliente" string="Cliente" 
+                    <filter name="group_by_cliente" string="Cliente"
                             context="{'group_by': 'cliente_id'}"/>
-                    <filter name="group_by_sede" string="Sede" 
+                    <filter name="group_by_sede" string="Sede"
                             context="{'group_by': 'sede'}"/>
-                    <filter name="group_by_duracion" string="Duración Alquiler" 
+                    <filter name="group_by_duracion" string="Duración Alquiler"
                             context="{'group_by': 'duracion_alquiler_id'}"/>
-                    <filter name="group_by_currency" string="Moneda" 
+                    <filter name="group_by_currency" string="Moneda"
                             context="{'group_by': 'currency_id'}"/>
-                    <filter name="group_by_fecha_inicio" string="Fecha Inicio" 
+                    <filter name="group_by_fecha_inicio" string="Fecha Inicio"
                             context="{'group_by': 'fecha_inicio_alquiler:month'}"/>
                 </group>
             </search>
         </field>
     </record>
-    
   </data>
 </odoo>
