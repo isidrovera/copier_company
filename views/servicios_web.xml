@@ -1,686 +1,499 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <data>
-    <!-- Página de Servicios (mejorada con modales y sin solaparse con el chat) -->
     <template id="copier_services_modern" name="Servicios">
       <t t-call="website.layout">
-        <div id="wrap">
+        <div id="wrap" class="cc-services-page">
           <style>
             @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css');
-            .services-hero-bg{background:linear-gradient(135deg,#198754 0%,#20c997 100%);min-height:60vh}
-            .service-card-hover:hover{transform:translateY(-5px);transition:all .3s ease}
-            .floating-animation{animation:float 3s ease-in-out infinite}
-            @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-            .pricing-badge{background:linear-gradient(45deg,#ffc107,#fd7e14);color:#000;font-weight:700}
-            .service-icon{width:80px;height:80px;background:linear-gradient(135deg,#0d6efd,#6610f2)}
-            /* Evitar solape con el chat de Odoo (abajo-derecha) */
-            .cc-float-right{position:fixed;right:16px;bottom:96px;z-index:1049}
-            .cc-float-left{position:fixed;left:16px;bottom:96px;z-index:1049}
-            @media (max-width: 576px){
-              .cc-float-right{bottom:84px;right:12px}
-              .cc-float-left{bottom:84px;left:12px}
+
+            .cc-services-page{
+              --cc-primary:#0d6efd;--cc-navy:#0b2865;--cc-text:#334155;
+              --cc-muted:#64748b;--cc-border:#e2e8f0;--cc-soft:#f6f9ff;
+              --cc-whatsapp:#25d366;color:var(--cc-text);background:#fff;
+            }
+            .cc-section{padding:44px 0}
+            .cc-soft{background:var(--cc-soft)}
+            .cc-title{color:var(--cc-navy);font-size:clamp(2rem,3.5vw,3.2rem);line-height:1.05;font-weight:800;letter-spacing:-.035em}
+            .cc-section-title{color:var(--cc-navy);font-size:clamp(1.55rem,2.5vw,2.15rem);font-weight:800;line-height:1.15}
+            .cc-muted{color:var(--cc-muted)}
+
+            .cc-services-hero{
+              padding:32px 0 28px;
+              background:radial-gradient(circle at 90% 10%,rgba(13,110,253,.11),transparent 34%),
+                         linear-gradient(180deg,#fbfdff 0%,#f1f6ff 100%);
+            }
+            .cc-kicker{
+              display:inline-flex;align-items:center;gap:.45rem;padding:.45rem .72rem;
+              border-radius:999px;background:#eaf2ff;color:var(--cc-primary);
+              font-size:.8rem;font-weight:700;
+            }
+            .cc-services-hero p{max-width:610px;font-size:.95rem;line-height:1.55;color:#475569}
+            .cc-hero-actions .btn{font-size:.86rem;font-weight:700;padding:.68rem 1rem;border-radius:10px}
+            .cc-btn-whatsapp{background:var(--cc-whatsapp);border-color:var(--cc-whatsapp);color:#fff}
+            .cc-btn-whatsapp:hover{background:#1ebd5a;border-color:#1ebd5a;color:#fff}
+
+            .cc-hero-service-strip{
+              display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
+              gap:.6rem;margin-top:1rem;
+            }
+            .cc-hero-chip{
+              display:flex;align-items:center;gap:.4rem;min-height:46px;padding:.52rem .62rem;
+              border:1px solid var(--cc-border);border-radius:11px;background:#fff;
+              color:var(--cc-navy);font-size:.78rem;font-weight:700;
+              box-shadow:0 5px 14px rgba(15,23,42,.04);
+            }
+            .cc-hero-chip i{color:var(--cc-primary);font-size:.95rem}
+
+            .cc-service-card{
+              height:100%;padding:1.15rem;border:1px solid var(--cc-border);border-radius:15px;
+              background:#fff;box-shadow:0 7px 20px rgba(15,23,42,.05);
+              transition:transform .2s ease,box-shadow .2s ease;
+            }
+            .cc-service-card:hover{transform:translateY(-3px);box-shadow:0 11px 26px rgba(15,23,42,.08)}
+            .cc-service-icon{
+              width:46px;height:46px;display:inline-flex;align-items:center;justify-content:center;
+              border-radius:13px;background:#edf4ff;color:var(--cc-primary);font-size:1.2rem;margin-bottom:.8rem;
+            }
+            .cc-service-card h3{color:var(--cc-navy);font-size:1.02rem;font-weight:800;margin-bottom:.45rem}
+            .cc-service-card p{font-size:.85rem;line-height:1.48;color:var(--cc-muted);margin-bottom:.75rem}
+            .cc-service-card ul{padding-left:0;list-style:none;margin-bottom:.75rem}
+            .cc-service-card li{display:flex;gap:.42rem;align-items:flex-start;font-size:.8rem;color:#475569;margin-bottom:.3rem}
+            .cc-service-card li i{color:#198754;margin-top:.1rem}
+            .cc-link{color:var(--cc-primary);text-decoration:none;font-size:.82rem;font-weight:700}
+
+            .cc-step{height:100%;padding:.95rem;border:1px solid var(--cc-border);border-radius:13px;background:#fff}
+            .cc-step-number{
+              width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;
+              border-radius:50%;background:var(--cc-primary);color:#fff;font-weight:800;margin-bottom:.6rem;
+            }
+            .cc-step h4{color:var(--cc-navy);font-size:.92rem;font-weight:800}
+            .cc-step p{color:var(--cc-muted);font-size:.8rem;margin:0}
+
+            .cc-services-cta{
+              padding:1.5rem 1.7rem;border-radius:17px;
+              background:linear-gradient(135deg,#0d6efd 0%,#07358a 100%);color:#fff;
+            }
+            .cc-services-cta h2{font-size:1.5rem;font-weight:800}
+            .cc-services-cta p{font-size:.88rem;margin-bottom:.9rem}
+
+            .cc-form-header{
+              padding:26px 0;background:linear-gradient(135deg,#0d6efd 0%,#0b2865 100%);color:#fff;
+            }
+            .cc-form-header h1{font-size:clamp(1.8rem,3vw,2.5rem);font-weight:800;margin-bottom:.3rem}
+            .cc-form-header p{font-size:.9rem;margin:0;opacity:.9}
+            .cc-form-wrap{max-width:980px;margin:28px auto 42px}
+            .cc-info-panel,.cc-form-card{
+              border:1px solid var(--cc-border);border-radius:15px;background:#fff;
+              box-shadow:0 7px 20px rgba(15,23,42,.05);
+            }
+            .cc-info-panel{padding:.95rem 1.1rem;background:#f8fbff;border-left:4px solid var(--cc-primary)}
+            .cc-info-panel h5{color:var(--cc-navy);font-size:.98rem;font-weight:800}
+            .cc-info-panel p{font-size:.82rem;margin-bottom:.25rem}
+            .cc-form-card{overflow:hidden;margin-bottom:.9rem}
+            .cc-form-card-header{
+              padding:.72rem .95rem;background:#f8fafc;border-bottom:1px solid var(--cc-border);
+              color:var(--cc-navy);font-size:.92rem;font-weight:800;
+            }
+            .cc-form-card-body{padding:.95rem}
+            .cc-form-card .form-label{font-size:.82rem;font-weight:700;color:#475569;margin-bottom:.3rem}
+            .cc-form-card .form-control,.cc-form-card .form-select{padding:.6rem .72rem;border-radius:9px;font-size:.88rem}
+            .cc-form-card textarea.form-control{min-height:105px}
+            .cc-help{display:block;margin-top:.28rem;color:var(--cc-muted);font-size:.73rem}
+            .cc-priority{display:flex;flex-wrap:wrap;gap:.4rem}
+            .cc-priority .btn{font-size:.76rem;padding:.42rem .65rem;border-radius:999px}
+            .photo-preview{max-width:150px;max-height:150px;margin-top:.7rem;border-radius:10px;display:none}
+            .cc-submit-row{display:flex;justify-content:space-between;align-items:center;gap:.7rem;margin-top:1.1rem}
+            .cc-submit-row .btn{font-size:.86rem;font-weight:700;border-radius:10px;padding:.65rem .95rem}
+
+            @media(max-width:991.98px){
+              .cc-hero-service-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+              .cc-section{padding:36px 0}
+            }
+            @media(max-width:767.98px){
+              .cc-services-hero{padding:26px 0 24px}
+              .cc-hero-service-strip{grid-template-columns:1fr 1fr}
+              .cc-submit-row{flex-direction:column-reverse;align-items:stretch}
+              .cc-submit-row .btn{width:100%}
             }
           </style>
 
-          <!-- HERO -->
-          <section class="position-relative overflow-hidden text-white"
-            style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.4)), url('/copier_company/static/img/office-hero.png'); background-size: cover; background-position: center; min-height: 70vh;">
-            <div class="container position-relative" style="z-index:2;">
-              <div class="row min-vh-70 align-items-center py-5">
-                <div class="col-lg-7">
-                  <h1 class="display-3 fw-bold mb-4">Soluciones <span class="text-warning">Completas</span><br/>de Impresión Empresarial</h1>
-                  <p class="fs-4 mb-4 opacity-90"><strong>Desde alquiler sin inversión inicial hasta soporte técnico 24/7.</strong><br/>Transformamos la productividad de tu oficina con las mejores marcas del mercado.</p>
-                  <div class="row g-3 mb-4">
-                    <div class="col-md-6">
-                      <div class="d-flex align-items-center bg-white bg-opacity-15 rounded-3 p-3">
-                        <i class="bi bi-shield-check text-success fs-1 me-3"></i>
-                        <div><h5 class="mb-1">Garantía Total</h5><small class="opacity-75">Mantenimiento incluido</small></div>
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="d-flex align-items-center bg-white bg-opacity-15 rounded-3 p-3">
-                        <i class="bi bi-clock text-warning fs-1 me-3"></i>
-                        <div><h5 class="mb-1">Instalación 24H</h5><small class="opacity-75">Listo para trabajar</small></div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row g-2 mb-5">
-                    <div class="col-3 text-center"><h2 class="display-6 fw-bold text-warning mb-0">500+</h2><small class="opacity-75">Empresas</small></div>
-                    <div class="col-3 text-center"><h2 class="display-6 fw-bold text-success mb-0">15</h2><small class="opacity-75">Años</small></div>
-                    <div class="col-3 text-center"><h2 class="display-6 fw-bold text-info mb-0">4H</h2><small class="opacity-75">Respuesta</small></div>
-                    <div class="col-3 text-center"><h2 class="display-6 fw-bold text-primary mb-0">24/7</h2><small class="opacity-75">Soporte</small></div>
-                  </div>
-                  <div class="d-flex flex-column flex-sm-row gap-3">
-                    <a href="/cotizacion/form" class="btn btn-warning btn-lg px-4 py-3 fw-bold"><i class="bi bi-calculator me-2"></i>Solicitar Cotización</a>
-                    <a href="#servicios" class="btn btn-outline-light btn-lg px-4 py-3"><i class="bi bi-arrow-down me-2"></i>Ver Servicios</a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <!-- SERVICIOS PRINCIPALES -->
-          <section id="servicios" class="py-5">
+          <section class="cc-services-hero">
             <div class="container">
-              <div class="text-center mb-5">
-                <span class="badge bg-success fs-6 px-3 py-2 rounded-pill mb-3">Servicios Principales</span>
-                <h2 class="display-5 fw-bold mb-3">Soluciones Completas de Impresión</h2>
-                <p class="lead text-muted">Desde alquiler hasta soporte técnico, cubrimos todas tus necesidades</p>
+              <div class="cc-kicker mb-3"><i class="bi bi-printer"></i><span>Servicios para empresas</span></div>
+              <h1 class="cc-title mb-3">Soluciones de impresión y soporte técnico</h1>
+              <p class="mb-3">Alquiler, venta, servicio técnico, repuestos y monitoreo MPS para mantener la operación de impresión de tu empresa.</p>
+
+              <div class="d-flex flex-wrap gap-2 cc-hero-actions">
+                <a href="/cotizacion/form" class="btn btn-primary"><i class="bi bi-file-earmark-text me-1"></i>Solicitar cotización</a>
+                <a href="https://wa.me/51975399303?text=Hola%2C%20quisiera%20informaci%C3%B3n%20sobre%20sus%20servicios."
+                   target="_blank" rel="noopener" class="btn cc-btn-whatsapp">
+                  <i class="bi bi-whatsapp me-1"></i>WhatsApp
+                </a>
               </div>
 
-              <div class="row g-4">
-                <!-- Alquiler -->
-                <div class="col-lg-6">
-                  <div class="card h-100 border-0 shadow-lg service-card-hover position-relative"
-                       data-bs-toggle="modal" data-bs-target="#serviceModal" data-service="alquiler" style="cursor:pointer;">
-                    <span class="position-absolute top-0 end-0 m-3 badge bg-primary fs-6">Más Popular</span>
-                    <div class="position-relative">
-                      <img src="/static/img/services/rental-office.jpg" alt="Alquiler de fotocopiadoras" class="card-img-top" style="height:200px;object-fit:cover;"/>
-                      <div class="position-absolute bottom-0 start-0 m-3"><span class="badge bg-dark bg-opacity-75 text-white"><i class="bi bi-handshake me-1"></i>Alquiler</span></div>
-                    </div>
-                    <div class="card-body p-4">
-                      <div class="d-flex align-items-start">
-                        <div class="service-icon rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0">
-                          <i class="bi bi-handshake text-white fs-3"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                          <h3 class="h4 fw-bold mb-3 text-primary">Alquiler de Fotocopiadoras</h3>
-                          <p class="text-muted mb-4"><strong>¡Sin inversión inicial!</strong> Equipos de última generación de Konica Minolta, Canon y Ricoh. Mantenimiento, tóner y soporte incluido.</p>
-                          <div class="row g-2 mb-4">
-                            <div class="col-6 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-2"></i><small>Sin inversión</small></div>
-                            <div class="col-6 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-2"></i><small>Mantenimiento incluido</small></div>
-                            <div class="col-6 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-2"></i><small>Soporte 24/7</small></div>
-                            <div class="col-6 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-2"></i><small>Instalación gratis</small></div>
-                          </div>
-                          <div class="d-flex align-items-center justify-content-between">
-                            <span class="pricing-badge badge fs-6 px-3 py-2 rounded-pill">Desde $149/mes</span>
-                            <a href="/cotizacion/form" class="btn btn-primary"><i class="bi bi-calculator me-1"></i>Cotizar</a>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+              <div class="cc-hero-service-strip">
+                <div class="cc-hero-chip"><i class="bi bi-printer"></i>Alquiler</div>
+                <div class="cc-hero-chip"><i class="bi bi-tag"></i>Venta</div>
+                <div class="cc-hero-chip"><i class="bi bi-tools"></i>Servicio técnico</div>
+                <div class="cc-hero-chip"><i class="bi bi-box-seam"></i>Repuestos</div>
+                <div class="cc-hero-chip"><i class="bi bi-bar-chart-line"></i>MPS</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="cc-section bg-white">
+            <div class="container">
+              <div class="text-center mb-4">
+                <h2 class="cc-section-title mb-2">Nuestros servicios</h2>
+                <p class="cc-muted mb-0">Lo principal, explicado de forma clara y directa.</p>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-lg-4 col-md-6">
+                  <div class="cc-service-card">
+                    <span class="cc-service-icon"><i class="bi bi-printer"></i></span>
+                    <h3>Alquiler de equipos</h3>
+                    <p>Planes de alquiler de equipos multifuncionales para diferentes volúmenes de impresión.</p>
+                    <ul>
+                      <li><i class="bi bi-check-circle-fill"></i><span>Equipos multifuncionales</span></li>
+                      <li><i class="bi bi-check-circle-fill"></i><span>Mantenimiento y soporte según el plan</span></li>
+                      <li><i class="bi bi-check-circle-fill"></i><span>Alternativas B/N y color</span></li>
+                    </ul>
+                    <a href="/cotizacion/form" class="cc-link">Solicitar cotización <i class="bi bi-arrow-right ms-1"></i></a>
                   </div>
                 </div>
 
-                <!-- Venta -->
-                <div class="col-lg-6">
-                  <div class="card h-100 border-0 shadow-lg service-card-hover"
-                       data-bs-toggle="modal" data-bs-target="#serviceModal" data-service="venta" style="cursor:pointer;">
-                    <div class="position-relative">
-                      <img src="/static/img/services/equipment-showroom.jpg" alt="Venta de equipos de impresión" class="card-img-top" style="height:200px;object-fit:cover;"/>
-                      <div class="position-absolute bottom-0 start-0 m-3"><span class="badge bg-success"><i class="bi bi-cart3 me-1"></i>Venta</span></div>
-                    </div>
-                    <div class="card-body p-4">
-                      <div class="d-flex align-items-start">
-                        <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width:60px;height:60px;"><i class="bi bi-cart3 text-white fs-3"></i></div>
-                        <div class="flex-grow-1">
-                          <h3 class="h4 fw-bold mb-3 text-success">Venta de Equipos Nuevos</h3>
-                          <p class="text-muted mb-4"><strong>Equipos nuevos y seminuevos</strong> de las mejores marcas. Asesoría especializada y planes de financiamiento.</p>
-                          <div class="row g-2 mb-4">
-                            <div class="col-6 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-2"></i><small>Equipos nuevos</small></div>
-                            <div class="col-6 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-2"></i><small>Garantía oficial</small></div>
-                            <div class="col-6 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-2"></i><small>Financiamiento</small></div>
-                            <div class="col-6 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-2"></i><small>Instalación incluida</small></div>
-                          </div>
-                          <div class="d-flex align-items-center justify-content-between">
-                            <span class="badge bg-success fs-6 px-3 py-2 rounded-pill">Desde $2,999</span>
-                            <a href="/contactus" class="btn btn-success"><i class="bi bi-chat-dots me-1"></i>Consultar</a>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                <div class="col-lg-4 col-md-6">
+                  <div class="cc-service-card">
+                    <span class="cc-service-icon"><i class="bi bi-tag"></i></span>
+                    <h3>Venta de equipos</h3>
+                    <p>Equipos multifuncionales para empresas que requieren renovar o ampliar su capacidad de impresión.</p>
+                    <ul>
+                      <li><i class="bi bi-check-circle-fill"></i><span>Ricoh, Konica Minolta y Canon</span></li>
+                      <li><i class="bi bi-check-circle-fill"></i><span>Asesoría según volumen de trabajo</span></li>
+                      <li><i class="bi bi-check-circle-fill"></i><span>Opciones para oficina y producción</span></li>
+                    </ul>
+                    <a href="/cotizacion/form" class="cc-link">Consultar equipos <i class="bi bi-arrow-right ms-1"></i></a>
                   </div>
                 </div>
 
-                <!-- Servicio Técnico -->
-                <div class="col-lg-4">
-                  <div class="card h-100 border-0 shadow-sm service-card-hover text-center"
-                       data-bs-toggle="modal" data-bs-target="#serviceModal" data-service="tecnico" style="cursor:pointer;">
-                    <div class="card-body p-4">
-                      <div class="bg-warning bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width:80px;height:80px;"><i class="bi bi-tools text-dark fs-1"></i></div>
-                      <h3 class="h5 fw-bold mb-3">Servicio Técnico</h3>
-                      <p class="text-muted mb-4">Mantenimiento y reparación especializada con técnicos certificados.</p>
-                      <div class="mb-4"><div class="badge bg-warning text-dark mb-2 d-block">Tiempo de respuesta</div><h4 class="text-warning mb-0">4 horas</h4></div>
-                      <a href="/contactus" class="btn btn-warning text-dark w-100"><i class="bi bi-telephone me-1"></i>Solicitar Servicio</a>
-                    </div>
+                <div class="col-lg-4 col-md-6">
+                  <div class="cc-service-card">
+                    <span class="cc-service-icon"><i class="bi bi-tools"></i></span>
+                    <h3>Servicio técnico</h3>
+                    <p>Diagnóstico, mantenimiento y reparación de equipos multifuncionales.</p>
+                    <ul>
+                      <li><i class="bi bi-check-circle-fill"></i><span>Mantenimiento preventivo</span></li>
+                      <li><i class="bi bi-check-circle-fill"></i><span>Reparación y diagnóstico</span></li>
+                      <li><i class="bi bi-check-circle-fill"></i><span>Atención de incidencias</span></li>
+                    </ul>
+                    <a href="/contactus" class="cc-link">Solicitar servicio <i class="bi bi-arrow-right ms-1"></i></a>
                   </div>
                 </div>
 
-                <!-- Repuestos -->
-                <div class="col-lg-4">
-                  <div class="card h-100 border-0 shadow-sm service-card-hover text-center"
-                       data-bs-toggle="modal" data-bs-target="#serviceModal" data-service="repuestos" style="cursor:pointer;">
-                    <div class="card-body p-4">
-                      <div class="bg-info bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width:80px;height:80px;"><i class="bi bi-droplet-fill text-white fs-1"></i></div>
-                      <h3 class="h5 fw-bold mb-3">Repuestos y Tóner</h3>
-                      <p class="text-muted mb-4">Amplio inventario de tóneres originales y repuestos para todas las marcas.</p>
-                      <div class="mb-4"><div class="badge bg-info mb-2 d-block">Stock disponible</div><h4 class="text-info mb-0">1000+ items</h4></div>
-                      <a href="/contactus" class="btn btn-info w-100"><i class="bi bi-box-seam me-1"></i>Ver Catálogo</a>
-                    </div>
+                <div class="col-lg-6 col-md-6">
+                  <div class="cc-service-card">
+                    <span class="cc-service-icon"><i class="bi bi-box-seam"></i></span>
+                    <h3>Repuestos y consumibles</h3>
+                    <p>Suministro de repuestos y consumibles para los equipos y marcas que atendemos.</p>
+                    <ul>
+                      <li><i class="bi bi-check-circle-fill"></i><span>Tóner y consumibles</span></li>
+                      <li><i class="bi bi-check-circle-fill"></i><span>Repuestos para mantenimiento y reparación</span></li>
+                    </ul>
+                    <a href="/contactus" class="cc-link">Consultar disponibilidad <i class="bi bi-arrow-right ms-1"></i></a>
                   </div>
                 </div>
 
-                <!-- Monitoreo -->
-                <div class="col-lg-4">
-                  <div class="card h-100 border-0 shadow-sm service-card-hover text-center"
-                       data-bs-toggle="modal" data-bs-target="#serviceModal" data-service="monitoreo" style="cursor:pointer;">
-                    <div class="card-body p-4">
-                      <div class="bg-danger bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width:80px;height:80px;"><i class="bi bi-graph-up-arrow text-white fs-1"></i></div>
-                      <h3 class="h5 fw-bold mb-3">Monitoreo Flota</h3>
-                      <p class="text-muted mb-4">Control remoto total de tu flota de impresoras con reportes en tiempo real.</p>
-                      <div class="mb-4"><div class="badge bg-danger mb-2 d-block">Acceso remoto</div><h4 class="text-danger mb-0">24/7</h4></div>
-                      <a href="https://app.printtrackerpro.com/auth/login" target="_blank" class="btn btn-danger w-100"><i class="bi bi-box-arrow-up-right me-1"></i>Acceder Sistema</a>
-                    </div>
+                <div class="col-lg-6 col-md-6">
+                  <div class="cc-service-card">
+                    <span class="cc-service-icon"><i class="bi bi-bar-chart-line"></i></span>
+                    <h3>Monitoreo MPS</h3>
+                    <p>Herramientas para facilitar el seguimiento de equipos compatibles dentro de tu flota.</p>
+                    <ul>
+                      <li><i class="bi bi-check-circle-fill"></i><span>Lecturas de contadores</span></li>
+                      <li><i class="bi bi-check-circle-fill"></i><span>Seguimiento de consumibles</span></li>
+                      <li><i class="bi bi-check-circle-fill"></i><span>Información centralizada</span></li>
+                    </ul>
+                    <a href="https://app.printtrackerpro.com/auth/login" target="_blank" rel="noopener" class="cc-link">
+                      Acceder a MPS <i class="bi bi-box-arrow-up-right ms-1"></i>
+                    </a>
                   </div>
                 </div>
               </div>
             </div>
           </section>
 
-          <!-- PROCESO, GARANTÍAS, CTA final: (se mantiene como en tu archivo) -->
-
-          <!-- MODAL GENÉRICO DE SERVICIOS -->
-          <div class="modal fade" id="serviceModal" tabindex="-1" aria-labelledby="serviceModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
-              <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-primary text-white">
-                  <h5 class="modal-title fw-bold" id="serviceModalLabel"><i class="bi bi-info-circle me-2"></i>Detalles del Servicio</h5>
-                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          <section class="cc-section cc-soft">
+            <div class="container">
+              <div class="text-center mb-4">
+                <h2 class="cc-section-title mb-2">¿Cómo trabajamos?</h2>
+                <p class="cc-muted mb-0">Un proceso simple para encontrar la solución adecuada.</p>
+              </div>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <div class="cc-step">
+                    <span class="cc-step-number">1</span>
+                    <h4>Revisamos tu necesidad</h4>
+                    <p>Volumen, tipo de impresión, número de usuarios y requerimientos del equipo.</p>
+                  </div>
                 </div>
-                <div class="modal-body p-4" id="serviceModalBody">
-                  <!-- Contenido dinámico -->
+                <div class="col-md-4">
+                  <div class="cc-step">
+                    <span class="cc-step-number">2</span>
+                    <h4>Proponemos una solución</h4>
+                    <p>Definimos la alternativa de alquiler, venta, soporte o monitoreo que corresponda.</p>
+                  </div>
                 </div>
-                <div class="modal-footer bg-light">
-                  <a href="/cotizacion/form" class="btn btn-primary"><i class="bi bi-calculator me-2"></i>Solicitar Cotización</a>
-                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <div class="col-md-4">
+                  <div class="cc-step">
+                    <span class="cc-step-number">3</span>
+                    <h4>Coordinamos la atención</h4>
+                    <p>Se programa la entrega, instalación o intervención técnica según el servicio solicitado.</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </section>
 
-          <!-- BOTONES FLOTANTES (ajustados para no chocar con el chat) -->
-          <div class="cc-float-right">
-            <a href="https://wa.me/51975399303?text=Hola,%20necesito%20información%20sobre%20sus%20servicios" target="_blank"
-               class="btn btn-success rounded-pill shadow-lg d-flex align-items-center">
-              <i class="bi bi-whatsapp fs-4 me-2"></i><span class="d-none d-md-inline fw-semibold">¿Necesitas ayuda?</span>
-            </a>
-          </div>
-          <div class="cc-float-left">
-            <a href="/cotizacion/form" class="btn btn-warning rounded-pill shadow-lg d-flex align-items-center">
-              <i class="bi bi-calculator fs-4 me-2"></i><span class="d-none d-md-inline fw-semibold text-dark">Cotización Rápida</span>
-            </a>
-          </div>
-
-          <!-- Carga del JS específico para esta página -->
-          <script t-att-src="'/copier_company/static/src/js/copier_services_scripts.js'"></script>
+          <section class="cc-section bg-white">
+            <div class="container">
+              <div class="cc-services-cta">
+                <div class="row align-items-center g-3">
+                  <div class="col-lg-8">
+                    <h2 class="mb-2">¿Qué solución necesita tu empresa?</h2>
+                    <p>Cuéntanos qué equipo utilizas o qué necesitas mejorar y te ayudamos a definir la opción adecuada.</p>
+                    <div class="d-flex flex-wrap gap-2">
+                      <a href="/cotizacion/form" class="btn btn-light text-primary fw-bold">Solicitar cotización</a>
+                      <a href="https://wa.me/51975399303?text=Hola%2C%20quisiera%20informaci%C3%B3n%20sobre%20sus%20servicios."
+                         target="_blank" rel="noopener" class="btn btn-outline-light fw-semibold">
+                        <i class="bi bi-whatsapp me-1"></i>WhatsApp
+                      </a>
+                    </div>
+                  </div>
+                  <div class="col-lg-4 text-center d-none d-lg-block">
+                    <i class="bi bi-printer" style="font-size:3.5rem;opacity:.8;"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
       </t>
     </template>
 
-      <!-- ========================================== -->
-    <!-- TEMPLATE: FORMULARIO SERVICIO TÉCNICO -->
-    <!-- ========================================== -->
     <template id="portal_service_request" name="Solicitud de Servicio Técnico">
-        <t t-call="portal.frontend_layout">
-            <t t-set="additional_title">Solicitar Servicio Técnico</t>
-            
-            <!-- CSS Custom -->
-            <t t-set="head">
-                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
-                <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet"/>
-                <style>
-                    .service-header {
-                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                        color: white;
-                        padding: 3rem 0;
-                        margin-bottom: 2rem;
-                        border-radius: 0 0 30px 30px;
-                    }
-                    .equipment-info-card {
-                        background: #f8f9fa;
-                        border-left: 4px solid #667eea;
-                        padding: 1.5rem;
-                        margin-bottom: 2rem;
-                        border-radius: 8px;
-                    }
-                    .form-label {
-                        font-weight: 600;
-                        color: #495057;
-                        margin-bottom: 0.5rem;
-                    }
-                    .form-control, .form-select {
-                        border-radius: 8px;
-                        border: 1px solid #dee2e6;
-                        padding: 0.75rem;
-                    }
-                    .form-control:focus, .form-select:focus {
-                        border-color: #667eea;
-                        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-                    }
-                    .btn-submit {
-                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                        border: none;
-                        padding: 1rem 3rem;
-                        font-weight: 600;
-                        border-radius: 50px;
-                        transition: all 0.3s;
-                    }
-                    .btn-submit:hover {
-                        transform: translateY(-2px);
-                        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-                    }
-                    .priority-badge {
-                        display: inline-block;
-                        padding: 0.5rem 1rem;
-                        border-radius: 20px;
-                        font-weight: 600;
-                        margin: 0.25rem;
-                        cursor: pointer;
-                        transition: all 0.3s;
-                    }
-                    .priority-badge:hover {
-                        transform: scale(1.05);
-                    }
-                    .success-card {
-                        background: #d4edda;
-                        border: 1px solid #c3e6cb;
-                        border-radius: 12px;
-                        padding: 2rem;
-                        margin: 2rem 0;
-                    }
-                    .error-card {
-                        background: #f8d7da;
-                        border: 1px solid #f5c6cb;
-                        border-radius: 12px;
-                        padding: 1.5rem;
-                        margin: 2rem 0;
-                    }
-                    .qr-badge {
-                        background: #fff3cd;
-                        border: 1px solid #ffc107;
-                        padding: 1rem;
-                        border-radius: 8px;
-                        margin-bottom: 1.5rem;
-                    }
-                    .photo-preview {
-                        max-width: 200px;
-                        max-height: 200px;
-                        margin-top: 1rem;
-                        border-radius: 8px;
-                        display: none;
-                    }
-                </style>
-            </t>
-
-            <div class="container-fluid p-0">
-                <!-- Header -->
-                <div class="service-header">
-                    <div class="container">
-                        <div class="row align-items-center">
-                            <div class="col-md-8">
-                                <h1 class="display-5 fw-bold mb-2">
-                                    <i class="bi bi-tools me-3"></i>
-                                    Solicitar Servicio Técnico
-                                </h1>
-                                <p class="lead mb-0">Complete el formulario y nos pondremos en contacto</p>
-                            </div>
-                            <div class="col-md-4 text-end">
-                                <div class="bg-white bg-opacity-25 rounded p-3">
-                                    <i class="bi bi-headset fs-1"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="container mb-5">
-                    <!-- Mensaje si viene de QR -->
-                    <t t-if="from_qr">
-                        <div class="qr-badge">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-qr-code fs-2 me-3 text-warning"></i>
-                                <div>
-                                    <h5 class="mb-1">Acceso mediante código QR</h5>
-                                    <p class="mb-0 small">Por favor ingrese sus datos de contacto para que podamos atenderle</p>
-                                </div>
-                            </div>
-                        </div>
-                    </t>
-
-                    <!-- Mensajes de éxito/error -->
-                    <t t-if="success_message">
-                        <div class="success-card">
-                            <div class="d-flex align-items-start">
-                                <i class="bi bi-check-circle-fill fs-1 text-success me-3"></i>
-                                <div class="flex-grow-1">
-                                    <h4 class="text-success mb-3">¡Solicitud Creada Exitosamente!</h4>
-                                    <div t-out="success_message"/>
-
-                                    
-                                    <div class="mt-4 p-3 bg-white rounded">
-                                        <h6 class="fw-bold mb-3">Detalles de su solicitud:</h6>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <p class="mb-2"><strong>Número:</strong> <span class="text-primary" t-esc="request_data.get('number')"/></p>
-                                                <p class="mb-2"><strong>Tipo:</strong> <t t-esc="request_data.get('tipo_problema')"/></p>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <p class="mb-2"><strong>Prioridad:</strong> <t t-esc="request_data.get('prioridad')"/></p>
-                                                <p class="mb-2"><strong>Estado:</strong> <span class="badge bg-info" t-esc="request_data.get('estado')"/></p>
-                                            </div>
-                                        </div>
-                                        <div class="mt-3">
-                                            <p class="mb-1"><strong>Reportado por:</strong> <t t-esc="request_data.get('reportado_por')"/></p>
-                                            <p class="mb-1"><strong>Email:</strong> <t t-esc="request_data.get('email')"/></p>
-                                            <p class="mb-0"><strong>Teléfono:</strong> <t t-esc="request_data.get('telefono')"/></p>
-                                        </div>
-                                    </div>
-
-                                    <div class="mt-4">
-                                        <a t-attf-href="/public/equipment_menu?copier_company_id=#{equipment.id}" 
-                                           class="btn btn-primary">
-                                            <i class="bi bi-arrow-left me-2"></i>
-                                            Volver al Menú
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </t>
-
-                    <t t-if="error_message">
-                        <div class="error-card">
-                            <div class="d-flex align-items-start">
-                                <i class="bi bi-exclamation-triangle-fill fs-2 text-danger me-3"></i>
-                                <div>
-                                    <h5 class="text-danger mb-2">Error al procesar la solicitud</h5>
-                                    <p class="mb-0" t-esc="error_message"/>
-                                </div>
-                            </div>
-                        </div>
-                    </t>
-
-                    <!-- Formulario (solo mostrar si NO hay éxito) -->
-                    <t t-if="not success_message">
-                        <!-- Información del Equipo -->
-                        <div class="equipment-info-card">
-                            <h5 class="mb-3">
-                                <i class="bi bi-printer me-2"></i>
-                                Información del Equipo
-                            </h5>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p class="mb-2">
-                                        <strong>Equipo:</strong> 
-                                        <span t-esc="equipment_data.get('name')"/>
-                                    </p>
-                                    <p class="mb-2">
-                                        <strong>Serie:</strong> 
-                                        <span t-esc="equipment_data.get('serie')"/>
-                                    </p>
-                                    <p class="mb-0">
-                                        <strong>Marca:</strong> 
-                                        <span t-esc="equipment_data.get('marca')"/>
-                                    </p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p class="mb-2">
-                                        <strong>Ubicación:</strong> 
-                                        <span t-esc="equipment_data.get('ubicacion')"/>
-                                    </p>
-                                    <p class="mb-2">
-                                        <strong>Tipo:</strong> 
-                                        <span t-esc="equipment_data.get('tipo')"/>
-                                    </p>
-                                    <p class="mb-0">
-                                        <strong>Cliente:</strong> 
-                                        <span t-esc="equipment_data.get('cliente_name')"/>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Formulario -->
-                        <form method="POST" enctype="multipart/form-data" id="serviceForm">
-                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-
-                            <!-- Sección: Datos de Contacto -->
-                            <div class="card shadow-sm mb-4">
-                                <div class="card-header bg-primary text-white">
-                                    <h5 class="mb-0">
-                                        <i class="bi bi-person-fill me-2"></i>
-                                        Datos de Contacto
-                                        <span class="badge bg-warning text-dark ms-2">OBLIGATORIO</span>
-                                    </h5>
-                                </div>
-                                <div class="card-body">
-
-                                    <!-- Si NO está logueado: mostrar campos normales -->
-                                    <t t-if="not is_logged">
-                                        <div class="row">
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label" for="contacto">
-                                                    Nombre Completo <span class="text-danger">*</span>
-                                                </label>
-                                                <input type="text"
-                                                    class="form-control"
-                                                    id="contacto"
-                                                    name="contacto"
-                                                    t-att-value="contact_data.get('contacto', '')"
-                                                    placeholder="Ej: Juan Pérez López"
-                                                    required="required"/>
-                                                <small class="text-muted">Persona que reporta el problema</small>
-                                            </div>
-
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label" for="correo">
-                                                    Email <span class="text-danger">*</span>
-                                                </label>
-                                                <input type="email"
-                                                    class="form-control"
-                                                    id="correo"
-                                                    name="correo"
-                                                    t-att-value="contact_data.get('correo', '')"
-                                                    placeholder="ejemplo@empresa.com"
-                                                    required="required"/>
-                                                <small class="text-muted">Para notificaciones y seguimiento</small>
-                                            </div>
-
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label" for="telefono_contacto">
-                                                    Teléfono/Celular <span class="text-danger">*</span>
-                                                </label>
-                                                <input type="tel"
-                                                    class="form-control"
-                                                    id="telefono_contacto"
-                                                    name="telefono_contacto"
-                                                    t-att-value="contact_data.get('telefono_contacto', '')"
-                                                    placeholder="987654321"
-                                                    pattern="[0-9]{9,15}"
-                                                    required="required"/>
-                                                <small class="text-muted">Mínimo 9 dígitos</small>
-                                            </div>
-                                        </div>
-                                    </t>
-
-                                    <!-- Si SÍ está logueado: no pedir datos, enviarlos ocultos -->
-                                    <t t-else="">
-                                        <!-- Inputs ocultos para que el POST tenga datos -->
-                                        <input type="hidden" name="contacto"
-                                            t-att-value="contact_data.get('contacto', '')"/>
-                                        <input type="hidden" name="correo"
-                                            t-att-value="contact_data.get('correo', '')"/>
-                                        <input type="hidden" name="telefono_contacto"
-                                            t-att-value="contact_data.get('telefono_contacto', '')"/>
-
-                                        <!-- Mostrar datos solo informativos -->
-                                        <div class="alert alert-info mb-0">
-                                            <h6 class="fw-bold mb-2">
-                                                <i class="bi bi-person-check me-2"></i>
-                                                Datos del usuario logueado
-                                            </h6>
-                                            <p class="mb-1">
-                                                <strong>Nombre:</strong>
-                                                <t t-esc="contact_data.get('contacto')"/>
-                                            </p>
-                                            <p class="mb-1">
-                                                <strong>Email:</strong>
-                                                <t t-esc="contact_data.get('correo')"/>
-                                            </p>
-                                            <p class="mb-0">
-                                                <strong>Teléfono:</strong>
-                                                <t t-esc="contact_data.get('telefono_contacto')"/>
-                                            </p>
-                                            <small class="text-muted">
-                                                Estos datos se enviarán automáticamente con la solicitud.
-                                            </small>
-                                        </div>
-                                    </t>
-
-                                </div>
-                                
-                            </div>
-
-                            <!-- Sección: Descripción del Problema -->
-                            <div class="card shadow-sm mb-4">
-                                <div class="card-header bg-danger text-white">
-                                    <h5 class="mb-0">
-                                        <i class="bi bi-exclamation-circle-fill me-2"></i>
-                                        Descripción del Problema
-                                    </h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label" for="tipo_problema_id">
-                                                Tipo de Problema <span class="text-danger">*</span>
-                                            </label>
-                                            <select class="form-select" 
-                                                    id="tipo_problema_id" 
-                                                    name="tipo_problema_id" 
-                                                    required="required">
-                                                <option value="">-- Seleccione un tipo --</option>
-                                                <t t-foreach="problem_types" t-as="ptype">
-                                                    <option t-att-value="ptype.id">
-                                                        <t t-esc="ptype.icono"/> <t t-esc="ptype.name"/>
-                                                    </option>
-                                                </t>
-                                            </select>
-                                        </div>
-
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">
-                                                Prioridad <span class="text-danger">*</span>
-                                            </label>
-                                            <div class="d-flex flex-wrap gap-2">
-                                                <input type="radio" class="btn-check" name="prioridad" id="prioridad_baja" value="0"/>
-                                                <label class="priority-badge bg-success text-white" for="prioridad_baja">
-                                                    🟢 Baja
-                                                </label>
-
-                                                <input type="radio" class="btn-check" name="prioridad" id="prioridad_normal" value="1" checked="checked"/>
-                                                <label class="priority-badge bg-info text-white" for="prioridad_normal">
-                                                    🔵 Normal
-                                                </label>
-
-                                                <input type="radio" class="btn-check" name="prioridad" id="prioridad_alta" value="2"/>
-                                                <label class="priority-badge bg-warning text-dark" for="prioridad_alta">
-                                                    🟠 Alta
-                                                </label>
-
-                                                <input type="radio" class="btn-check" name="prioridad" id="prioridad_critica" value="3"/>
-                                                <label class="priority-badge bg-danger text-white" for="prioridad_critica">
-                                                    🔴 Crítica
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label" for="problema_reportado">
-                                            Descripción Detallada <span class="text-danger">*</span>
-                                        </label>
-                                        <textarea class="form-control" 
-                                                  id="problema_reportado" 
-                                                  name="problema_reportado" 
-                                                  rows="5" 
-                                                  placeholder="Describa el problema con el mayor detalle posible. Ej: La impresora no imprime desde hace 2 días, muestra mensaje de error 'E000020-0001'..."
-                                                  required="required"></textarea>
-                                        <small class="text-muted">
-                                            Sea lo más específico posible. Incluya mensajes de error si los hay.
-                                        </small>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label" for="foto_antes">
-                                            Foto del Problema (Opcional)
-                                        </label>
-                                        <input type="file" 
-                                               class="form-control" 
-                                               id="foto_antes" 
-                                               name="foto_antes" 
-                                               accept="image/*"
-                                               onchange="previewImage(this)"/>
-                                        <small class="text-muted">
-                                            Si es posible, adjunte una foto del error o problema
-                                        </small>
-                                        <img id="imagePreview" class="photo-preview img-thumbnail" alt="Vista previa"/>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Botones -->
-                            <div class="text-center my-5">
-                                <button type="submit" class="btn btn-primary btn-submit btn-lg">
-                                    <i class="bi bi-send-fill me-2"></i>
-                                    Enviar Solicitud de Servicio
-                                </button>
-                                <br/>
-                                <a t-attf-href="/public/equipment_menu?copier_company_id=#{equipment.id}" 
-                                   class="btn btn-link mt-3">
-                                    <i class="bi bi-arrow-left me-2"></i>
-                                    Volver al Menú
-                                </a>
-                            </div>
-                        </form>
-                    </t>
-                </div>
-            </div>
-
-            <!-- JavaScript -->
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-            <script>
-                // Preview de imagen
-                function previewImage(input) {
-                    const preview = document.getElementById('imagePreview');
-                    if (input.files &amp;&amp; input.files[0]) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            preview.src = e.target.result;
-                            preview.style.display = 'block';
-                        }
-                        reader.readAsDataURL(input.files[0]);
-                    } else {
-                        preview.style.display = 'none';
-                    }
-                }
-
-                // Validación del formulario
-                (function() {
-                    'use strict';
-                    const form = document.getElementById('serviceForm');
-                    if (form) {
-                        form.addEventListener('submit', function(event) {
-                            if (!form.checkValidity()) {
-                                event.preventDefault();
-                                event.stopPropagation();
-                            }
-                            form.classList.add('was-validated');
-                        }, false);
-                    }
-                })();
-            </script>
+      <t t-call="portal.frontend_layout">
+        <t t-set="additional_title">Solicitar Servicio Técnico</t>
+        <t t-set="head">
+          <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
         </t>
+
+        <div class="cc-services-page">
+          <div class="cc-form-header">
+            <div class="container">
+              <h1><i class="bi bi-tools me-2"></i>Solicitar servicio técnico</h1>
+              <p>Registra la incidencia y los datos necesarios para que podamos atenderla.</p>
+            </div>
+          </div>
+
+          <div class="container">
+            <div class="cc-form-wrap">
+
+              <t t-if="from_qr">
+                <div class="alert alert-info py-2 px-3 mb-3">
+                  <i class="bi bi-qr-code me-2"></i>
+                  Acceso mediante código QR. Complete los datos de contacto para registrar la solicitud.
+                </div>
+              </t>
+
+              <t t-if="success_message">
+                <div class="alert alert-success mb-3">
+                  <div class="d-flex gap-3 align-items-start">
+                    <i class="bi bi-check-circle-fill fs-3"></i>
+                    <div>
+                      <h5 class="fw-bold mb-2">Solicitud creada correctamente</h5>
+                      <div t-out="success_message"/>
+                      <t t-if="request_data">
+                        <div class="small mt-2">
+                          <strong>Número:</strong> <span t-esc="request_data.get('number')"/>
+                          <span class="mx-2">·</span>
+                          <strong>Estado:</strong> <span t-esc="request_data.get('estado')"/>
+                        </div>
+                      </t>
+                      <a t-attf-href="/public/equipment_menu?copier_company_id=#{equipment.id}"
+                         class="btn btn-sm btn-success mt-3">
+                        <i class="bi bi-arrow-left me-1"></i>Volver al menú
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </t>
+
+              <t t-if="error_message">
+                <div class="alert alert-danger mb-3">
+                  <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                  <span t-esc="error_message"/>
+                </div>
+              </t>
+
+              <t t-if="not success_message">
+                <div class="cc-info-panel mb-3">
+                  <h5 class="mb-2"><i class="bi bi-printer me-2"></i>Información del equipo</h5>
+                  <div class="row g-2">
+                    <div class="col-md-4">
+                      <p><strong>Equipo:</strong> <span t-esc="equipment_data.get('name')"/></p>
+                      <p><strong>Serie:</strong> <span t-esc="equipment_data.get('serie')"/></p>
+                    </div>
+                    <div class="col-md-4">
+                      <p><strong>Marca:</strong> <span t-esc="equipment_data.get('marca')"/></p>
+                      <p><strong>Tipo:</strong> <span t-esc="equipment_data.get('tipo')"/></p>
+                    </div>
+                    <div class="col-md-4">
+                      <p><strong>Cliente:</strong> <span t-esc="equipment_data.get('cliente_name')"/></p>
+                      <p><strong>Ubicación:</strong> <span t-esc="equipment_data.get('ubicacion')"/></p>
+                    </div>
+                  </div>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data" id="serviceForm">
+                  <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                  <div class="cc-form-card">
+                    <div class="cc-form-card-header"><i class="bi bi-person me-2"></i>Datos de contacto</div>
+                    <div class="cc-form-card-body">
+
+                      <t t-if="not is_logged">
+                        <div class="row g-3">
+                          <div class="col-md-4">
+                            <label class="form-label" for="contacto">Nombre completo *</label>
+                            <input type="text" class="form-control" id="contacto" name="contacto"
+                                   t-att-value="contact_data.get('contacto', '')"
+                                   placeholder="Nombre de la persona que reporta" required="required"/>
+                          </div>
+                          <div class="col-md-4">
+                            <label class="form-label" for="correo">Correo *</label>
+                            <input type="email" class="form-control" id="correo" name="correo"
+                                   t-att-value="contact_data.get('correo', '')"
+                                   placeholder="correo@empresa.com" required="required"/>
+                          </div>
+                          <div class="col-md-4">
+                            <label class="form-label" for="telefono_contacto">Celular *</label>
+                            <input type="tel" class="form-control" id="telefono_contacto" name="telefono_contacto"
+                                   t-att-value="contact_data.get('telefono_contacto', '')"
+                                   placeholder="987654321" pattern="[0-9]{9,15}" required="required"/>
+                          </div>
+                        </div>
+                      </t>
+
+                      <t t-else="">
+                        <input type="hidden" name="contacto" t-att-value="contact_data.get('contacto', '')"/>
+                        <input type="hidden" name="correo" t-att-value="contact_data.get('correo', '')"/>
+                        <input type="hidden" name="telefono_contacto" t-att-value="contact_data.get('telefono_contacto', '')"/>
+
+                        <div class="small">
+                          <strong><t t-esc="contact_data.get('contacto')"/></strong>
+                          <span class="mx-2">·</span>
+                          <t t-esc="contact_data.get('correo')"/>
+                          <span class="mx-2">·</span>
+                          <t t-esc="contact_data.get('telefono_contacto')"/>
+                        </div>
+                      </t>
+                    </div>
+                  </div>
+
+                  <div class="cc-form-card">
+                    <div class="cc-form-card-header"><i class="bi bi-exclamation-circle me-2"></i>Detalle de la incidencia</div>
+                    <div class="cc-form-card-body">
+
+                      <div class="row g-3">
+                        <div class="col-md-6">
+                          <label class="form-label" for="tipo_problema_id">Tipo de problema *</label>
+                          <select class="form-select" id="tipo_problema_id" name="tipo_problema_id" required="required">
+                            <option value="">Seleccione un tipo</option>
+                            <t t-foreach="problem_types" t-as="ptype">
+                              <option t-att-value="ptype.id"><t t-esc="ptype.icono"/> <t t-esc="ptype.name"/></option>
+                            </t>
+                          </select>
+                        </div>
+
+                        <div class="col-md-6">
+                          <label class="form-label d-block">Prioridad *</label>
+                          <div class="cc-priority">
+                            <input type="radio" class="btn-check" name="prioridad" id="prioridad_baja" value="0"/>
+                            <label class="btn btn-outline-success" for="prioridad_baja">Baja</label>
+
+                            <input type="radio" class="btn-check" name="prioridad" id="prioridad_normal" value="1" checked="checked"/>
+                            <label class="btn btn-outline-primary" for="prioridad_normal">Normal</label>
+
+                            <input type="radio" class="btn-check" name="prioridad" id="prioridad_alta" value="2"/>
+                            <label class="btn btn-outline-warning" for="prioridad_alta">Alta</label>
+
+                            <input type="radio" class="btn-check" name="prioridad" id="prioridad_critica" value="3"/>
+                            <label class="btn btn-outline-danger" for="prioridad_critica">Crítica</label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="mt-3">
+                        <label class="form-label" for="problema_reportado">Descripción detallada *</label>
+                        <textarea class="form-control" id="problema_reportado" name="problema_reportado" rows="4"
+                                  placeholder="Describa qué ocurre, desde cuándo y si aparece algún código o mensaje de error."
+                                  required="required"></textarea>
+                        <span class="cc-help">Incluya códigos de error, mensajes de pantalla o comportamiento observado.</span>
+                      </div>
+
+                      <div class="mt-3">
+                        <label class="form-label" for="foto_antes">Foto del problema</label>
+                        <input type="file" class="form-control" id="foto_antes" name="foto_antes"
+                               accept="image/*" onchange="previewImage(this)"/>
+                        <span class="cc-help">Opcional. Puede adjuntar una foto del error o del equipo.</span>
+                        <img id="imagePreview" class="photo-preview img-thumbnail" alt="Vista previa"/>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="cc-submit-row">
+                    <a t-attf-href="/public/equipment_menu?copier_company_id=#{equipment.id}"
+                       class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Volver</a>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-send me-1"></i>Enviar solicitud</button>
+                  </div>
+                </form>
+              </t>
+            </div>
+          </div>
+
+          <script>
+            function previewImage(input) {
+              const preview = document.getElementById('imagePreview');
+              if (input.files &amp;&amp; input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                  preview.src = e.target.result;
+                  preview.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+              } else {
+                preview.style.display = 'none';
+              }
+            }
+
+            (function() {
+              'use strict';
+              const form = document.getElementById('serviceForm');
+              if (form) {
+                form.addEventListener('submit', function(event) {
+                  if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                  }
+                  form.classList.add('was-validated');
+                }, false);
+              }
+            })();
+          </script>
+        </div>
+      </t>
     </template>
   </data>
 </odoo>
