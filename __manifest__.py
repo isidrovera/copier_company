@@ -109,6 +109,7 @@
             'copier_company/static/src/css/onedrive_selector.css',
             'copier_company/static/src/js/onedrive_selector_dialog.js',
             'copier_company/static/src/xml/onedrive_selector_dialog.xml',
+            'copier_company/static/src/scss/copier_company_odoo19.scss',
         ],
 
         # ✅ Website / frontend

@@ -1,0 +1,241 @@
+
+/* ============================================================
+   COPIER COMPANY - Odoo 19
+   Vistas de máquinas
+   ============================================================ */
+
+.cc_machine_form {
+
+    .o_form_sheet_bg {
+        background: #f6f7f9;
+    }
+
+    .o_form_sheet {
+        max-width: 1500px;
+    }
+
+    .cc_machine_hero {
+        padding: 22px 24px;
+        border: 1px solid var(--border-color, #dee2e6);
+        border-radius: 14px;
+        background: var(--o-view-background-color, #fff);
+        box-shadow: 0 3px 14px rgba(0, 0, 0, .04);
+    }
+
+    .cc_machine_hero_main {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .cc_machine_icon {
+        width: 58px;
+        height: 58px;
+        min-width: 58px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        background: rgba(113, 75, 103, .10);
+        font-size: 25px;
+    }
+
+    .cc_machine_title h1 {
+        font-size: 1.65rem;
+        font-weight: 700;
+    }
+
+    .cc_machine_tip {
+        border-radius: 12px;
+        border: 0;
+    }
+
+    .cc_section {
+        margin: 18px 0 26px;
+        padding: 20px 22px;
+        border: 1px solid var(--border-color, #dee2e6);
+        border-radius: 14px;
+        background: var(--o-view-background-color, #fff);
+    }
+
+    .cc_section_title {
+        margin-bottom: 18px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border-color, #dee2e6);
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    .cc_machine_notebook > .nav-tabs {
+        gap: 4px;
+        border-bottom: 1px solid var(--border-color, #dee2e6);
+    }
+
+    .cc_machine_notebook > .nav-tabs .nav-link {
+        padding: 12px 18px;
+        border-radius: 9px 9px 0 0;
+        font-weight: 600;
+    }
+
+    .cc_tab_intro {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        margin: 6px 0 20px;
+        padding: 14px 16px;
+        border-left: 4px solid var(--o-brand-primary, #714b67);
+        border-radius: 8px;
+        background: rgba(113, 75, 103, .06);
+    }
+
+    .cc_total_box {
+        padding: 16px 18px;
+        border-radius: 12px;
+        background: rgba(113, 75, 103, .06);
+    }
+
+    .cc_total_box .o_field_widget {
+        font-size: 1.15rem;
+        font-weight: 700;
+    }
+
+    .cc_calc_radio .o_radio_input {
+        margin-right: 5px;
+    }
+}
+
+
+/* LISTA */
+
+.cc_machine_list {
+
+    .o_list_table thead {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+    }
+
+    .o_list_table thead th {
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .o_data_row {
+        transition: background-color .15s ease;
+    }
+
+    .o_data_row:hover {
+        background: rgba(113, 75, 103, .045);
+    }
+
+    .o_list_record_selector {
+        width: 40px;
+    }
+}
+
+
+/* KANBAN */
+
+.cc_machine_kanban {
+
+    .o_kanban_record {
+        padding: 0;
+        border: 0;
+        background: transparent;
+    }
+
+    .cc_kanban_card {
+        height: 100%;
+        padding: 18px;
+        border: 1px solid var(--border-color, #dee2e6);
+        border-radius: 14px;
+        background: var(--o-view-background-color, #fff);
+        box-shadow: 0 3px 12px rgba(0, 0, 0, .05);
+        transition: transform .15s ease, box-shadow .15s ease;
+    }
+
+    .cc_kanban_card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 7px 18px rgba(0, 0, 0, .08);
+    }
+
+    .cc_kanban_header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--border-color, #dee2e6);
+    }
+
+    .cc_kanban_code {
+        margin-bottom: 2px;
+        color: var(--o-brand-primary, #714b67);
+        font-size: .78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .cc_kanban_model {
+        font-size: 1.15rem;
+        font-weight: 700;
+    }
+
+    .cc_kanban_status {
+        white-space: nowrap;
+        font-size: .82rem;
+        font-weight: 600;
+    }
+
+    .cc_kanban_body {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 16px 0;
+    }
+
+    .cc_kanban_body > div {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+    }
+
+    .cc_kanban_body i {
+        width: 18px;
+        margin-top: 2px;
+        text-align: center;
+        opacity: .65;
+    }
+
+    .cc_kanban_footer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding-top: 13px;
+        border-top: 1px solid var(--border-color, #dee2e6);
+    }
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+
+    .cc_machine_form .cc_machine_hero {
+        padding: 16px;
+    }
+
+    .cc_machine_form .cc_machine_icon {
+        width: 46px;
+        height: 46px;
+        min-width: 46px;
+    }
+
+    .cc_machine_form .cc_machine_title h1 {
+        font-size: 1.3rem;
+    }
+
+    .cc_machine_form .cc_section {
+        padding: 16px;
+    }
+}
