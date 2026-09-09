@@ -166,6 +166,17 @@
                         <div class="oe_button_box" name="button_box">
                             <button class="oe_stat_button"
                                     type="object"
+                                    name="action_map_printtracker"
+                                    icon="fa-refresh"
+                                    invisible="not serie_id">
+                                <div class="o_stat_info">
+                                    <span class="o_stat_text">Actualizar vínculo</span>
+                                    <span class="o_stat_text">PrintTracker</span>
+                                </div>
+                            </button>
+
+                            <button class="oe_stat_button"
+                                    type="object"
                                     name="action_view_counters"
                                     icon="fa-calculator">
                                 <field name="counter_count"

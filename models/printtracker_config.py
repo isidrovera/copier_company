@@ -219,103 +219,11 @@ class CopierCompany(models.Model):
         return (value or '').strip()
 
     def _find_printtracker_device(self, config):
-        """
-        Busca el dispositivo usando el filtro oficial serialNumber.
-        Si por alguna razón el filtro remoto no devuelve coincidencia, hace fallback paginado.
-        """
-        self.ensure_one()
-
-        serial = self._normalize_pt_serial(self.serie_id)
-        if not serial:
-            return None
-
-        path = f'entity/{config.entity_bbbb_id}/device'
-
-        # 1) Búsqueda directa usando el filtro oficial serialNumber.
-        params = {
-            'includeChildren': True,
-            'excludeDisabled': False,
-            'serialNumber': serial,
-            'limit': 100,
-            'page': 1,
-        }
-
-        response = config._get(path, params=params)
-        if response.status_code != 200:
-            raise UserError(
-                f'PrintTracker devolvió HTTP {response.status_code} buscando la serie {serial}: '
-                f'{response.text}'
-            )
-
-        devices = response.json() or []
-        _logger.info(
-            'PrintTracker: búsqueda directa serie=%s | resultados=%s',
-            serial,
-            len(devices),
-        )
-
-        # Comparación exacta primero.
-        for device in devices:
-            if self._normalize_pt_serial(device.get('serialNumber')) == serial:
-                return device
-
-        # Comparación case-insensitive como tolerancia.
-        serial_upper = serial.upper()
-        for device in devices:
-            if self._normalize_pt_serial(device.get('serialNumber')).upper() == serial_upper:
-                return device
-
-        # 2) Fallback: paginación completa, sin límite artificial de 10 páginas.
-        page = 1
-        limit = 1000
-
-        while True:
-            params = {
-                'includeChildren': True,
-                'excludeDisabled': False,
-                'limit': limit,
-                'page': page,
-            }
-            response = config._get(path, params=params)
-
-            if response.status_code != 200:
-                raise UserError(
-                    f'PrintTracker devolvió HTTP {response.status_code} en página {page}: '
-                    f'{response.text}'
-                )
-
-            page_devices = response.json() or []
-            _logger.info(
-                'PrintTracker: fallback dispositivos | página=%s | cantidad=%s',
-                page,
-                len(page_devices),
-            )
-
-            if not page_devices:
-                break
-
-            for device in page_devices:
-                device_serial = self._normalize_pt_serial(device.get('serialNumber'))
-                if device_serial == serial or device_serial.upper() == serial_upper:
-                    return device
-
-            if len(page_devices) < limit:
-                break
-
-            page += 1
-
-            # Límite de seguridad alto. No limita flotas normales.
-            if page > 200:
-                _logger.warning(
-                    'PrintTracker: se alcanzó límite de seguridad de 200 páginas buscando %s',
-                    serial,
-                )
-                break
-
-        return None
+        """Compatibilidad: usa la búsqueda corregida y selección más reciente."""
+        return self._search_device_with_pagination(config)
 
     def action_map_printtracker(self):
-        """Mapea la máquina por serie y guarda device ID + entityKey reales."""
+        """Busca de nuevo la serie y actualiza el vínculo con PrintTracker."""
         self.ensure_one()
 
         if not self.serie_id:
@@ -360,6 +268,10 @@ class CopierCompany(models.Model):
                 'pt_last_sync': fields.Datetime.now(),
             })
 
+            last_meter_timestamp = device_found.get(
+                '_odoo_latest_meter_timestamp'
+            ) or 'Sin lectura disponible'
+
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
@@ -368,9 +280,11 @@ class CopierCompany(models.Model):
                         'Máquina mapeada exitosamente con PrintTracker\n'
                         f'Serie: {self.serie_id}\n'
                         f'Device ID: {device_id}\n'
-                        f'Entity ID: {entity_key or config.entity_bbbb_id}'
+                        f'Entity ID: {entity_key or config.entity_bbbb_id}\n'
+                        f'Última lectura: {last_meter_timestamp}'
                     ),
                     'type': 'success',
+                    'sticky': True,
                 }
             }
 
@@ -385,116 +299,203 @@ class CopierCompany(models.Model):
                 }
             }
 
+    def _pt_timestamp_for_sort(self, value):
+        """Convierte un timestamp de PrintTracker en un valor comparable."""
+        self.ensure_one()
+
+        if not value:
+            return datetime.min.replace(tzinfo=timezone.utc)
+
+        try:
+            timestamp = str(value).strip()
+            if timestamp.endswith('Z'):
+                timestamp = timestamp[:-1] + '+00:00'
+
+            parsed = datetime.fromisoformat(timestamp)
+            if parsed.tzinfo is None:
+                parsed = parsed.replace(tzinfo=timezone.utc)
+            return parsed.astimezone(timezone.utc)
+        except (TypeError, ValueError):
+            _logger.warning(
+                'PrintTracker: timestamp de dispositivo no reconocido: %r',
+                value,
+            )
+            return datetime.min.replace(tzinfo=timezone.utc)
+
+    def _get_printtracker_device_latest_meter(self, config, device):
+        """Obtiene la última lectura de un candidato sin modificar Odoo."""
+        self.ensure_one()
+
+        device_id = device.get('id')
+        entity_id = device.get('entityKey') or config.entity_bbbb_id
+        if not device_id or not entity_id:
+            return None
+
+        date_param = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
+
+        try:
+            response = config._get(
+                f'entity/{entity_id}/device/{device_id}/meter/mostRecentPriorTo',
+                params={'date': date_param},
+            )
+        except requests.exceptions.RequestException:
+            _logger.exception(
+                'PrintTracker: error consultando última lectura del candidato %s',
+                device_id,
+            )
+            return None
+
+        if response.status_code != 200:
+            _logger.warning(
+                'PrintTracker: candidato sin lectura accesible | deviceId=%s | HTTP=%s',
+                device_id,
+                response.status_code,
+            )
+            return None
+
+        data = response.json()
+        if isinstance(data, list):
+            return data[0] if data else None
+        return data if isinstance(data, dict) else None
+
+    def _select_best_printtracker_device(self, config, devices):
+        """Elige la coincidencia cuya lectura tenga el timestamp más reciente."""
+        self.ensure_one()
+
+        unique_devices = []
+        seen = set()
+        for device in devices:
+            device_id = device.get('id')
+            if not device_id or device_id in seen:
+                continue
+            seen.add(device_id)
+            unique_devices.append(device)
+
+        if not unique_devices:
+            return None
+
+        ranked = []
+        for position, device in enumerate(unique_devices):
+            reading = self._get_printtracker_device_latest_meter(config, device)
+            timestamp = (reading or {}).get('timestamp')
+            ranked.append((
+                self._pt_timestamp_for_sort(timestamp),
+                -position,
+                device,
+                timestamp,
+            ))
+
+        ranked.sort(key=lambda item: (item[0], item[1]), reverse=True)
+        _, _, selected, timestamp = ranked[0]
+        selected = dict(selected)
+        selected['_odoo_latest_meter_timestamp'] = timestamp
+
+        _logger.info(
+            'PrintTracker: mejor coincidencia seleccionada | serie=%s | '
+            'candidatos=%s | deviceId=%s | entityKey=%s | timestamp=%s',
+            self.serie_id,
+            len(unique_devices),
+            selected.get('id'),
+            selected.get('entityKey'),
+            timestamp,
+        )
+        return selected
+
     def _search_device_with_pagination(self, config):
         """
-        Busca el dispositivo por serie.
-        Primero intenta búsqueda directa por serialNumber; si no devuelve resultado,
-        recorre páginas del endpoint /device.
+        Busca todos los dispositivos que coincidan con la serie.
+
+        Primero busca solo dispositivos habilitados. Si no existe ninguno,
+        repite incluyendo deshabilitados. Cuando hay duplicados, elige el que
+        tenga la lectura con timestamp más reciente.
         """
         self.ensure_one()
-        serie_buscar = (self.serie_id or '').strip()
+        serie_buscar = self._normalize_pt_serial(self.serie_id)
 
         if not serie_buscar:
             return None
 
-        url = f'{config.api_url.rstrip("/")}/entity/{config.entity_bbbb_id}/device'
-        headers = config.get_api_headers()
+        path = f'entity/{config.entity_bbbb_id}/device'
+        serial_upper = serie_buscar.upper()
 
-        # Intento directo por serialNumber
-        params = {
-            'includeChildren': True,
-            'excludeDisabled': False,
-            'serialNumber': serie_buscar,
-            'limit': 100,
-            'page': 1,
-        }
+        def _matches(device):
+            candidate = self._normalize_pt_serial(device.get('serialNumber'))
+            return candidate.upper() == serial_upper
 
-        def _direct_call():
-            return requests.get(
-                url,
-                headers=headers,
-                params=params,
-                timeout=config.timeout_seconds,
+        for exclude_disabled in (True, False):
+            candidates = []
+
+            response = config._get(
+                path,
+                params={
+                    'includeChildren': True,
+                    'excludeDisabled': exclude_disabled,
+                    'serialNumber': serie_buscar,
+                    'limit': 100,
+                    'page': 1,
+                },
             )
-
-        response = config._retry_api_call(_direct_call)
-
-        if response.status_code == 200:
-            devices = response.json() or []
-            _logger.info(
-                "PrintTracker: búsqueda directa serie=%s | resultados=%s",
-                serie_buscar,
-                len(devices) if isinstance(devices, list) else 0,
-            )
-
-            if isinstance(devices, list):
-                for device in devices:
-                    if (device.get('serialNumber') or '').strip() == serie_buscar:
-                        _logger.info(
-                            "PrintTracker: dispositivo encontrado | serie=%s | "
-                            "deviceId=%s | entityKey=%s",
-                            serie_buscar,
-                            device.get('id'),
-                            device.get('entityKey'),
-                        )
-                        return device
-
-        # Fallback paginado
-        page = 1
-        while True:
-            params = {
-                'includeChildren': True,
-                'excludeDisabled': False,
-                'limit': 100,
-                'page': page,
-            }
-
-            def _page_call():
-                return requests.get(
-                    url,
-                    headers=headers,
-                    params=params,
-                    timeout=config.timeout_seconds,
-                )
-
-            response = config._retry_api_call(_page_call)
 
             if response.status_code != 200:
                 raise UserError(
-                    f'Error HTTP {response.status_code} consultando dispositivos '
-                    f'PrintTracker: {response.text}'
+                    f'Error HTTP {response.status_code} buscando la serie '
+                    f'{serie_buscar} en PrintTracker: {response.text}'
                 )
 
-            devices = response.json() or []
-            _logger.info(
-                "PrintTracker: página dispositivos=%s | cantidad=%s",
-                page,
-                len(devices) if isinstance(devices, list) else 0,
-            )
+            direct_devices = response.json() or []
+            if isinstance(direct_devices, list):
+                candidates.extend(
+                    device for device in direct_devices if _matches(device)
+                )
 
-            if not isinstance(devices, list) or not devices:
-                break
-
-            for device in devices:
-                if (device.get('serialNumber') or '').strip() == serie_buscar:
-                    _logger.info(
-                        "PrintTracker: dispositivo encontrado | serie=%s | "
-                        "deviceId=%s | entityKey=%s",
-                        serie_buscar,
-                        device.get('id'),
-                        device.get('entityKey'),
+            # Si el filtro remoto no encontró la serie, recorrer toda la flota.
+            if not candidates:
+                page = 1
+                while True:
+                    response = config._get(
+                        path,
+                        params={
+                            'includeChildren': True,
+                            'excludeDisabled': exclude_disabled,
+                            'limit': 100,
+                            'page': page,
+                        },
                     )
-                    return device
 
-            if len(devices) < 100:
-                break
+                    if response.status_code != 200:
+                        raise UserError(
+                            f'Error HTTP {response.status_code} consultando '
+                            f'dispositivos PrintTracker: {response.text}'
+                        )
 
-            page += 1
-            if page > 100:
-                _logger.warning(
-                    "PrintTracker: límite de seguridad de paginación alcanzado"
+                    page_devices = response.json() or []
+                    if not isinstance(page_devices, list) or not page_devices:
+                        break
+
+                    candidates.extend(
+                        device for device in page_devices if _matches(device)
+                    )
+
+                    if len(page_devices) < 100:
+                        break
+
+                    page += 1
+                    if page > 200:
+                        _logger.warning(
+                            'PrintTracker: límite de seguridad de paginación '
+                            'alcanzado buscando %s',
+                            serie_buscar,
+                        )
+                        break
+
+            if candidates:
+                _logger.info(
+                    'PrintTracker: coincidencias de serie=%s | activos=%s | cantidad=%s',
+                    serie_buscar,
+                    exclude_disabled,
+                    len(candidates),
                 )
-                break
+                return self._select_best_printtracker_device(config, candidates)
 
         return None
 
@@ -652,6 +653,50 @@ class CopierCounter(models.Model):
                 }
 
             validacion = self._validar_nuevos_contadores_pt(lectura_pt)
+
+            # Una lectura puede existir pero pertenecer a un vínculo antiguo.
+            # Si los contadores retroceden, buscar de nuevo la serie y probar
+            # otro dispositivo antes de devolver el error al usuario.
+            if not validacion.get('valido'):
+                old_device_id = self.maquina_id.pt_device_id
+                old_entity_id = self.maquina_id.pt_entity_id
+                device = self.maquina_id._search_device_with_pagination(config)
+
+                new_device_id = (device or {}).get('id')
+                new_entity_id = (
+                    (device or {}).get('entityKey') or config.entity_bbbb_id
+                )
+
+                if (
+                    new_device_id
+                    and (
+                        new_device_id != old_device_id
+                        or new_entity_id != old_entity_id
+                    )
+                ):
+                    _logger.warning(
+                        'PrintTracker: lectura inválida con vínculo anterior; '
+                        'remapeando serie=%s | deviceId=%s -> %s | entityId=%s -> %s',
+                        self.serie,
+                        old_device_id,
+                        new_device_id,
+                        old_entity_id,
+                        new_entity_id,
+                    )
+                    self.maquina_id.write({
+                        'pt_device_id': new_device_id,
+                        'pt_entity_id': new_entity_id,
+                        'pt_last_sync': fields.Datetime.now(),
+                    })
+                    lectura_remapeada = (
+                        self._obtener_ultima_lectura_printtracker_v2(config)
+                    )
+                    if lectura_remapeada:
+                        lectura_pt = lectura_remapeada
+                        validacion = self._validar_nuevos_contadores_pt(
+                            lectura_pt
+                        )
+
             if not validacion.get('valido'):
                 return {
                     'type': 'ir.actions.client',
