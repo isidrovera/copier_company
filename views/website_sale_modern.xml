@@ -2,13 +2,13 @@
 <odoo>
 
     <template id="copier_company_modern_products"
-              name="Copier Company - Tienda compacta"
+              name="Copier Company - Catálogo mosaico"
               inherit_id="website_sale.products"
               priority="90">
 
         <xpath expr="//div[@id='wrap']" position="attributes">
             <attribute name="class"
-                       add="cc-modern-shop"
+                       add="cc-mosaic-shop"
                        separator=" "/>
         </xpath>
 
@@ -17,30 +17,28 @@
             <style type="text/css">
 
                 /* =====================================================
-                   ESTRUCTURA GENERAL
+                   PÁGINA GENERAL
                    ===================================================== */
 
-                .cc-modern-shop {
+                .cc-mosaic-shop {
                     min-height: 70vh;
                     padding-bottom: 35px;
                     color: #172033;
-                    background: #f3f6fa;
+                    background: #f5f6f8;
                 }
 
-                .cc-modern-shop #o_wsale_container {
-                    padding-top: 22px;
-                    padding-bottom: 25px;
+                .cc-mosaic-shop #o_wsale_container {
+                    padding-top: 18px;
+                    padding-bottom: 30px;
                 }
 
-                .cc-modern-shop .o_wsale_products_main_row {
-                    gap: 20px;
+                .cc-mosaic-shop .o_wsale_products_main_row {
+                    gap: 18px;
                 }
 
-                /*
-                 * Ocultar la columna izquierda cuando no tiene
-                 * categorías ni filtros reales.
-                 */
-                .cc-modern-shop #products_grid_before:not(
+                /* Ocultar lateral vacío */
+
+                .cc-mosaic-shop #products_grid_before:not(
                     :has(.products_categories)
                 ):not(
                     :has(.products_attributes_filters &gt; *)
@@ -52,140 +50,134 @@
                    FILTROS LATERALES
                    ===================================================== */
 
-                .cc-modern-shop #products_grid_before {
-                    flex: 0 0 225px;
-                    width: 225px;
+                .cc-mosaic-shop #products_grid_before {
+                    flex: 0 0 210px;
+                    width: 210px;
                     padding-top: 0 !important;
                 }
 
-                .cc-modern-shop
+                .cc-mosaic-shop
                 .o_wsale_products_grid_before_rail {
                     height: auto !important;
-                    max-height: calc(100vh - 120px);
-                    padding: 17px !important;
-                    border: 1px solid #e1e7ef;
-                    border-radius: 14px;
+                    max-height: calc(100vh - 110px);
+                    padding: 18px !important;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 4px;
                     background: #ffffff;
-                    box-shadow: 0 5px 18px rgba(18,38,63,0.05);
-                    scrollbar-width: thin;
+                    box-shadow: none;
                 }
 
-                .cc-modern-shop .products_categories {
-                    font-size: 13px;
+                .cc-mosaic-shop .products_categories a {
+                    display: block;
+                    padding: 8px 10px;
+                    border-radius: 3px;
+                    color: #252b35;
+                    font-size: 12px;
+                    font-weight: 600;
+                    text-transform: uppercase;
                 }
 
-                .cc-modern-shop .products_categories a {
-                    border-radius: 8px;
-                    color: #263244;
-                    font-weight: 500;
-                }
-
-                .cc-modern-shop .products_categories a:hover {
-                    color: #1769e0;
-                    background: #edf5ff;
+                .cc-mosaic-shop .products_categories a:hover {
+                    color: #0b335d;
+                    background: #f3f5f7;
                 }
 
                 /* =====================================================
                    CABECERA COMPACTA
                    ===================================================== */
 
-                .cc-modern-shop #o_wsale_products_header {
-                    margin-bottom: 18px;
-                    padding: 15px 18px !important;
-                    border: 1px solid #e1e7ef;
-                    border-radius: 14px;
+                .cc-mosaic-shop #o_wsale_products_header {
+                    margin-bottom: 14px;
+                    padding: 13px 16px !important;
+                    border: 0;
+                    border-radius: 4px;
                     background: #ffffff;
-                    box-shadow: 0 5px 18px rgba(18,38,63,0.05);
-                }
-
-                .cc-modern-shop .o_wsale_shop_title,
-                .cc-modern-shop .o_wsale_category_title {
-                    margin: 0 0 10px !important;
-                    color: #0b1f3a;
-                    font-size: 22px !important;
-                    font-weight: 800;
-                    letter-spacing: -0.02em;
-                }
-
-                .cc-modern-shop .products_header {
-                    margin-top: 0;
-                    gap: 10px !important;
-                }
-
-                .cc-modern-shop
-                .o_wsale_products_header_search_form_container {
-                    max-width: 390px;
-                }
-
-                .cc-modern-shop
-                .products_header
-                .input-group {
-                    overflow: hidden;
-                    min-height: 42px;
-                    border: 1px solid #d8e0eb;
-                    border-radius: 10px !important;
-                    background: #f8fafc;
                     box-shadow: none;
                 }
 
-                .cc-modern-shop
+                .cc-mosaic-shop .o_wsale_shop_title,
+                .cc-mosaic-shop .o_wsale_category_title {
+                    margin: 0 0 8px !important;
+                    color: #111827;
+                    font-size: 20px !important;
+                    font-weight: 700;
+                    letter-spacing: -0.02em;
+                }
+
+                .cc-mosaic-shop .products_header {
+                    margin: 0;
+                    gap: 10px !important;
+                }
+
+                .cc-mosaic-shop
+                .o_wsale_products_header_search_form_container {
+                    max-width: 330px;
+                }
+
+                .cc-mosaic-shop
+                .products_header
+                .input-group {
+                    overflow: hidden;
+                    min-height: 39px;
+                    border: 1px solid #dfe3e8;
+                    border-radius: 3px !important;
+                    background: #ffffff;
+                }
+
+                .cc-mosaic-shop
                 .products_header
                 input {
                     border: 0 !important;
                     background: transparent !important;
-                    font-size: 14px;
+                    font-size: 13px;
                     box-shadow: none !important;
                 }
 
-                .cc-modern-shop
+                .cc-mosaic-shop
                 .products_header
                 .oe_search_button {
                     border: 0 !important;
                     background: transparent !important;
-                    color: #0b1f3a !important;
+                    color: #111827 !important;
                 }
 
                 /* =====================================================
-                   MONEDA CON BANDERAS
+                   MONEDA
                    ===================================================== */
 
-                .cc-modern-shop .o_pricelist_dropdown {
-                    position: relative;
-                }
-
-                .cc-modern-shop
+                .cc-mosaic-shop
                 .o_pricelist_dropdown
+                .dropdown-toggle,
+                .cc-mosaic-shop
+                .o_sortby_dropdown
                 .dropdown-toggle {
                     display: inline-flex;
-                    min-height: 40px;
+                    min-height: 38px;
                     align-items: center;
-                    padding: 7px 12px !important;
-                    border: 1px solid #d8e0eb;
-                    border-radius: 10px;
-                    color: #172033;
+                    padding: 7px 11px !important;
+                    border: 1px solid #dfe3e8;
+                    border-radius: 3px;
+                    color: #222831;
                     background: #ffffff;
-                    font-size: 13px;
-                    font-weight: 700;
+                    font-size: 12px;
+                    font-weight: 600;
                 }
 
-                .cc-modern-shop
+                .cc-mosaic-shop
                 .o_pricelist_dropdown
                 .dropdown-toggle
                 small {
                     display: none !important;
                 }
 
-                .cc-modern-shop
+                .cc-mosaic-shop
                 .o_pricelist_dropdown
                 .dropdown-toggle
                 &gt; span.d-none.d-md-inline {
                     font-size: 0;
                 }
 
-                /*
-                 * Lista activa PEN.
-                 */
-                .cc-modern-shop
+                .cc-mosaic-shop
                 .o_pricelist_dropdown:has(
                     .dropdown-item.active
                     .switcher_pricelist[data-pl_id="1"]
@@ -193,13 +185,10 @@
                 .dropdown-toggle
                 &gt; span.d-none.d-md-inline::after {
                     content: "🇵🇪  PEN";
-                    font-size: 13px;
+                    font-size: 12px;
                 }
 
-                /*
-                 * Lista activa USD.
-                 */
-                .cc-modern-shop
+                .cc-mosaic-shop
                 .o_pricelist_dropdown:has(
                     .dropdown-item.active
                     .switcher_pricelist[data-pl_id="2"]
@@ -207,42 +196,42 @@
                 .dropdown-toggle
                 &gt; span.d-none.d-md-inline::after {
                     content: "🇺🇸  USD";
-                    font-size: 13px;
+                    font-size: 12px;
                 }
 
-                .cc-modern-shop
-                .o_pricelist_dropdown
-                .dropdown-menu {
-                    overflow: hidden;
-                    min-width: 205px;
-                    margin-top: 7px;
-                    padding: 6px;
-                    border: 1px solid #dfe5ed;
-                    border-radius: 11px;
-                    box-shadow: 0 12px 30px rgba(16,36,64,0.15);
-                }
-
-                .cc-modern-shop
-                .o_pricelist_dropdown
-                .dropdown-item {
-                    padding: 9px 11px;
-                    border-radius: 7px;
-                    font-size: 13px;
-                }
-
-                .cc-modern-shop
+                .cc-mosaic-shop
                 .switcher_pricelist[data-pl_id="1"]::before {
-                    margin-right: 8px;
+                    margin-right: 7px;
                     content: "🇵🇪";
                 }
 
-                .cc-modern-shop
+                .cc-mosaic-shop
                 .switcher_pricelist[data-pl_id="2"]::before {
-                    margin-right: 8px;
+                    margin-right: 7px;
                     content: "🇺🇸";
                 }
 
-                .cc-modern-shop
+                .cc-mosaic-shop
+                .o_pricelist_dropdown
+                .dropdown-menu,
+                .cc-mosaic-shop
+                .o_sortby_dropdown
+                .dropdown-menu {
+                    padding: 5px;
+                    border: 1px solid #e1e4e8;
+                    border-radius: 4px;
+                    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+                }
+
+                .cc-mosaic-shop
+                .dropdown-menu
+                .dropdown-item {
+                    padding: 8px 10px;
+                    border-radius: 2px;
+                    font-size: 12px;
+                }
+
+                .cc-mosaic-shop
                 .o_pricelist_dropdown
                 .dropdown-item.active {
                     color: #ffffff;
@@ -250,235 +239,272 @@
                 }
 
                 /* =====================================================
-                   ORDENAMIENTO
+                   MOSAICO
                    ===================================================== */
 
-                .cc-modern-shop
-                .o_sortby_dropdown
-                .dropdown-toggle {
-                    display: inline-flex;
-                    min-height: 40px;
-                    align-items: center;
-                    padding: 7px 12px !important;
-                    border: 1px solid #d8e0eb;
-                    border-radius: 10px;
-                    color: #172033;
-                    background: #ffffff;
-                    font-size: 13px;
+                .cc-mosaic-shop #o_wsale_products_grid {
+                    display: grid !important;
+                    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+                    grid-auto-flow: dense !important;
+                    grid-auto-rows: 1px !important;
+                    column-gap: 12px !important;
+                    row-gap: 0 !important;
                 }
 
-                .cc-modern-shop
-                .o_sortby_dropdown
-                .dropdown-menu {
-                    padding: 6px;
-                    border: 1px solid #dfe5ed;
-                    border-radius: 10px;
-                    box-shadow: 0 12px 30px rgba(16,36,64,0.14);
-                }
-
-                .cc-modern-shop
-                .o_sortby_dropdown
-                .dropdown-item {
-                    padding: 8px 11px;
-                    border-radius: 7px;
-                    font-size: 13px;
-                }
-
-                /* =====================================================
-                   CUADRÍCULA: 4 PRODUCTOS
-                   ===================================================== */
-
-                .cc-modern-shop #o_wsale_products_grid {
-                    --o-wsale-products-grid-gap: 16px !important;
-                    --o-wsale-card-thumb-aspect-ratio: auto !important;
-                    --o-wsale-card-height: auto !important;
-                }
-
-                .cc-modern-shop
+                .cc-mosaic-shop
                 #o_wsale_products_grid
                 .oe_product {
-                    grid-column: span 3 !important;
-                    grid-row: span 1 !important;
-                    min-height: 0 !important;
-                    align-self: start !important;
+                    grid-column: auto !important;
+                    grid-row: span 310 !important;
+                    min-width: 0 !important;
+                    height: 310px !important;
+                    padding-bottom: 12px;
+                }
+
+                .cc-mosaic-shop
+                #o_wsale_products_grid
+                .oe_product:nth-child(6n + 2) {
+                    grid-row: span 385 !important;
+                    height: 385px !important;
+                }
+
+                .cc-mosaic-shop
+                #o_wsale_products_grid
+                .oe_product:nth-child(6n + 3) {
+                    grid-row: span 335 !important;
+                    height: 335px !important;
+                }
+
+                .cc-mosaic-shop
+                #o_wsale_products_grid
+                .oe_product:nth-child(6n + 4) {
+                    grid-row: span 365 !important;
+                    height: 365px !important;
+                }
+
+                .cc-mosaic-shop
+                #o_wsale_products_grid
+                .oe_product:nth-child(6n + 5) {
+                    grid-row: span 300 !important;
+                    height: 300px !important;
+                }
+
+                .cc-mosaic-shop
+                #o_wsale_products_grid
+                .oe_product:nth-child(6n + 6) {
+                    grid-row: span 350 !important;
+                    height: 350px !important;
                 }
 
                 /* =====================================================
-                   TARJETAS COMPACTAS
+                   PRODUCTO COMO BLOQUE DE IMAGEN
                    ===================================================== */
 
-                .cc-modern-shop
+                .cc-mosaic-shop
                 .o_wsale_product_grid_wrapper {
                     overflow: hidden;
-                    height: auto !important;
+                    position: relative;
+                    width: 100%;
+                    height: calc(100% - 12px) !important;
                     min-height: 0 !important;
-                    border: 1px solid #e0e6ee;
-                    border-radius: 14px !important;
+                    border: 0 !important;
+                    border-radius: 2px !important;
                     background: #ffffff !important;
-                    box-shadow: 0 5px 17px rgba(18,38,63,0.06);
+                    box-shadow: none !important;
                     transition:
-                        transform 0.22s ease,
-                        box-shadow 0.22s ease,
-                        border-color 0.22s ease;
+                        transform 0.25s ease,
+                        box-shadow 0.25s ease;
                 }
 
-                .cc-modern-shop
+                .cc-mosaic-shop
                 .o_wsale_product_grid_wrapper:hover {
-                    border-color: #abcbed;
-                    box-shadow: 0 13px 28px rgba(16,50,95,0.12);
+                    z-index: 3;
+                    box-shadow: 0 15px 32px rgba(0,0,0,0.15) !important;
                     transform: translateY(-3px);
                 }
 
-                .cc-modern-shop .oe_product_cart {
-                    display: flex !important;
-                    flex-direction: column !important;
-                    height: auto !important;
+                .cc-mosaic-shop .oe_product_cart {
+                    display: block !important;
+                    position: relative !important;
+                    width: 100% !important;
+                    height: 100% !important;
                     min-height: 0 !important;
-                    align-items: stretch !important;
                     background: #ffffff !important;
                 }
 
-                /* IMAGEN MÁS PEQUEÑA */
+                /* =====================================================
+                   IMAGEN COMPLETA Y CENTRADA
+                   ===================================================== */
 
-                .cc-modern-shop .oe_product_image {
-                    width: 100% !important;
-                    min-width: 100% !important;
-                    height: 135px !important;
-                    min-height: 135px !important;
-                    border-bottom: 1px solid #edf0f5;
-                    background: #f7f9fc;
-                }
-
-                .cc-modern-shop .oe_product_image_link,
-                .cc-modern-shop
+                .cc-mosaic-shop .oe_product_image,
+                .cc-mosaic-shop .oe_product_image_link,
+                .cc-mosaic-shop
                 .oe_product_image_img_wrapper {
                     display: flex !important;
-                    width: 100% !important;
-                    height: 135px !important;
-                    min-height: 0 !important;
-                    aspect-ratio: auto !important;
-                    align-items: center;
-                    justify-content: center;
-                }
-
-                .cc-modern-shop .oe_product_image_img {
+                    overflow: hidden !important;
+                    position: absolute !important;
+                    inset: 0 !important;
                     width: 100% !important;
                     height: 100% !important;
-                    padding: 10px !important;
+                    min-width: 0 !important;
+                    min-height: 0 !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    aspect-ratio: auto !important;
+                    background: #f1f2f3 !important;
+                    transform: none !important;
+                }
+
+                .cc-mosaic-shop .oe_product_image_img {
+                    display: block !important;
+                    position: static !important;
+                    width: auto !important;
+                    height: auto !important;
+                    max-width: 100% !important;
+                    max-height: 100% !important;
+                    margin: auto !important;
+                    padding: 0 !important;
                     object-fit: contain !important;
-                    transition: transform 0.25s ease;
+                    object-position: center center !important;
+                    transform: none !important;
                 }
 
-                .cc-modern-shop
-                .o_wsale_product_grid_wrapper:hover
-                .oe_product_image_img {
-                    transform: scale(1.025);
+                .cc-mosaic-shop
+                .oe_product_image_img_wrapper_secondary {
+                    display: none !important;
                 }
 
-                /* INFORMACIÓN */
+                /* =====================================================
+                   INFORMACIÓN SUPERPUESTA
+                   ===================================================== */
 
-                .cc-modern-shop
+                .cc-mosaic-shop
                 .o_wsale_product_information {
                     display: flex !important;
-                    flex: 0 0 auto !important;
-                    flex-direction: column !important;
+                    position: absolute !important;
+                    z-index: 5;
+                    right: 0;
+                    bottom: 0;
+                    left: 0;
                     width: 100% !important;
-                    min-height: 135px !important;
+                    min-height: 105px !important;
+                    flex-direction: column !important;
+                    justify-content: flex-end !important;
                     margin: 0 !important;
-                    padding: 12px !important;
-                    gap: 0 !important;
+                    padding: 42px 16px 14px !important;
+                    background:
+                        linear-gradient(
+                            to bottom,
+                            rgba(255,255,255,0),
+                            rgba(255,255,255,0.90) 34%,
+                            #ffffff 70%
+                        ) !important;
                 }
 
-                .cc-modern-shop
+                .cc-mosaic-shop
                 .o_wsale_product_information_text {
                     width: 100% !important;
                     padding: 0 !important;
                 }
 
-                .cc-modern-shop
-                .o_wsale_products_item_title {
-                    min-height: 39px !important;
-                    margin: 0 0 7px !important;
-                    font-size: 14px !important;
-                    font-weight: 700;
-                    line-height: 1.35;
+                .cc-mosaic-shop
+                .o_wsale_product_information_text::before {
+                    display: block;
+                    width: 40px;
+                    height: 2px;
+                    margin-bottom: 7px;
+                    background: #f0b323;
+                    content: "";
                 }
 
-                .cc-modern-shop
+                .cc-mosaic-shop
+                .o_wsale_products_item_title {
+                    min-height: 0 !important;
+                    margin: 0 0 5px !important;
+                    font-size: 14px !important;
+                    font-weight: 700;
+                    line-height: 1.25;
+                }
+
+                .cc-mosaic-shop
                 .o_wsale_products_item_title a {
                     display: -webkit-box;
                     overflow: hidden;
-                    color: #172033 !important;
+                    color: #15191f !important;
                     -webkit-box-orient: vertical;
                     -webkit-line-clamp: 2;
                 }
 
-                .cc-modern-shop
-                .o_wsale_products_item_title a:hover {
-                    color: #1769e0 !important;
-                }
-
-                /* Ocultar descripción para mantener compacta la tarjeta */
-
-                .cc-modern-shop
+                .cc-mosaic-shop
                 .oe_subdescription_wrapper {
                     display: none !important;
                 }
 
-                /* PRECIO Y BOTÓN */
+                /* PRECIO Y CARRITO */
 
-                .cc-modern-shop .o_wsale_product_sub {
+                .cc-mosaic-shop .o_wsale_product_sub {
                     display: flex !important;
                     width: 100% !important;
                     align-items: center !important;
                     justify-content: space-between !important;
                     flex-wrap: nowrap !important;
                     gap: 8px !important;
-                    margin-top: auto !important;
-                    padding-top: 10px !important;
-                    border-top: 1px solid #edf0f5;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    border: 0 !important;
                 }
 
-                .cc-modern-shop .product_price {
+                .cc-mosaic-shop .product_price {
                     min-width: 0 !important;
                     margin: 0 !important;
                     padding: 0 !important;
-                    color: #0b1f3a !important;
-                    font-size: 16px !important;
+                    color: #0b335d !important;
+                    font-size: 13px !important;
                     font-weight: 800 !important;
-                    white-space: nowrap;
                 }
 
-                .cc-modern-shop .product_price::before,
-                .cc-modern-shop
+                .cc-mosaic-shop .product_price::before,
+                .cc-mosaic-shop
                 .o_wsale_product_btn::before {
                     display: none !important;
                 }
 
-                .cc-modern-shop .o_wsale_product_btn {
+                .cc-mosaic-shop .o_wsale_product_btn {
                     width: auto !important;
                     margin: 0 0 0 auto !important;
                     padding: 0 !important;
                 }
 
-                .cc-modern-shop
+                .cc-mosaic-shop
                 .o_wsale_product_btn
                 .btn {
+                    overflow: hidden;
+                    width: 34px !important;
+                    min-width: 34px !important;
+                    height: 34px !important;
                     min-height: 34px !important;
-                    padding: 6px 9px !important;
+                    padding: 0 !important;
                     border: 0 !important;
-                    border-radius: 8px !important;
-                    background: #0b335d !important;
+                    border-radius: 50% !important;
                     color: #ffffff !important;
-                    font-size: 11px !important;
-                    font-weight: 700;
-                    white-space: nowrap;
+                    background: #0b335d !important;
+                    font-size: 0 !important;
+                    line-height: 34px !important;
+                    text-align: center;
                 }
 
-                .cc-modern-shop
+                .cc-mosaic-shop
+                .o_wsale_product_btn
+                .btn i {
+                    margin: 0 !important;
+                    font-size: 12px !important;
+                    line-height: 34px !important;
+                }
+
+                .cc-mosaic-shop
                 .o_wsale_product_btn
                 .btn:hover {
-                    background: #1769e0 !important;
+                    background: #f0b323 !important;
                 }
 
                 /* =====================================================
@@ -486,48 +512,51 @@
                    ===================================================== */
 
                 @media (max-width: 1199.98px) {
-                    .cc-modern-shop
-                    #o_wsale_products_grid
-                    .oe_product {
-                        grid-column: span 4 !important;
+                    .cc-mosaic-shop #o_wsale_products_grid {
+                        grid-template-columns:
+                            repeat(3, minmax(0, 1fr)) !important;
                     }
                 }
 
-                @media (max-width: 991.98px) {
-                    .cc-modern-shop
-                    #o_wsale_products_grid
-                    .oe_product {
-                        grid-column: span 6 !important;
+                @media (max-width: 767.98px) {
+                    .cc-mosaic-shop #o_wsale_products_grid {
+                        grid-template-columns:
+                            repeat(2, minmax(0, 1fr)) !important;
                     }
 
-                    .cc-modern-shop
-                    .products_header {
+                    .cc-mosaic-shop .products_header {
                         flex-wrap: wrap !important;
+                    }
+
+                    .cc-mosaic-shop
+                    .o_wsale_products_header_search_form_container {
+                        width: 100%;
+                        max-width: none;
                     }
                 }
 
                 @media (max-width: 575.98px) {
-                    .cc-modern-shop #o_wsale_container {
-                        padding-top: 13px;
+                    .cc-mosaic-shop #o_wsale_container {
+                        padding-top: 10px;
                     }
 
-                    .cc-modern-shop #o_wsale_products_header {
-                        padding: 13px !important;
-                        border-radius: 12px;
+                    .cc-mosaic-shop #o_wsale_products_header {
+                        padding: 12px !important;
                     }
 
-                    .cc-modern-shop
+                    .cc-mosaic-shop #o_wsale_products_grid {
+                        grid-template-columns:
+                            minmax(0, 1fr) !important;
+                    }
+
+                    .cc-mosaic-shop
                     #o_wsale_products_grid
-                    .oe_product {
-                        grid-column: span 12 !important;
-                    }
-
-                    .cc-modern-shop .oe_product_image,
-                    .cc-modern-shop .oe_product_image_link,
-                    .cc-modern-shop
-                    .oe_product_image_img_wrapper {
-                        height: 165px !important;
-                        min-height: 165px !important;
+                    .oe_product,
+                    .cc-mosaic-shop
+                    #o_wsale_products_grid
+                    .oe_product:nth-child(n) {
+                        grid-row: span 330 !important;
+                        height: 330px !important;
                     }
                 }
 
