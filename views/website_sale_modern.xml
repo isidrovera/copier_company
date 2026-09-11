@@ -6,18 +6,54 @@
               inherit_id="website_sale.products"
               priority="90">
 
+        <!-- Clase principal -->
         <xpath expr="//div[@id='wrap']" position="attributes">
             <attribute name="class"
                        add="cc-modern-shop"
                        separator=" "/>
         </xpath>
 
+        <!-- Selector cuadrícula/lista -->
+        <xpath expr="//div[contains(@class, 'products_header')]"
+               position="inside">
+
+            <div class="cc-view-switcher"
+                 title="Cambiar presentación">
+
+                <input type="radio"
+                       name="cc_shop_view"
+                       id="cc-view-grid"
+                       class="cc-view-option"
+                       checked="checked"/>
+
+                <label for="cc-view-grid"
+                       title="Vista cuadrícula">
+                    <i class="fa fa-th-large"/>
+                    <span>Cuadrícula</span>
+                </label>
+
+                <input type="radio"
+                       name="cc_shop_view"
+                       id="cc-view-list"
+                       class="cc-view-option"/>
+
+                <label for="cc-view-list"
+                       title="Vista lista">
+                    <i class="fa fa-list"/>
+                    <span>Lista</span>
+                </label>
+
+            </div>
+
+        </xpath>
+
+        <!-- Estilos directos -->
         <xpath expr="//div[@id='wrap']" position="inside">
 
             <style type="text/css">
 
                 /* =====================================================
-                   VARIABLES Y PÁGINA
+                   CONFIGURACIÓN GENERAL
                    ===================================================== */
 
                 .cc-modern-shop {
@@ -47,13 +83,13 @@
                 }
 
                 /* =====================================================
-                   COLUMNA DE FILTROS
+                   FILTROS LATERALES
                    ===================================================== */
 
                 .cc-modern-shop #products_grid_before:not(
                     :has(.products_categories)
                 ):not(
-                    :has(.products_attributes_filters &gt; *)
+                    :has(.products_attributes_filters *)
                 ) {
                     display: none !important;
                 }
@@ -72,16 +108,16 @@
                     border: 1px solid var(--cc-border);
                     border-radius: 14px;
                     background: var(--cc-white);
-                    box-shadow: 0 5px 20px rgba(18, 38, 63, 0.05);
+                    box-shadow: 0 5px 20px rgba(18,38,63,0.05);
                     scrollbar-width: thin;
                 }
 
                 .cc-modern-shop
                 .o_wsale_products_grid_before_rail::before {
                     display: block;
-                    margin-bottom: 13px;
+                    margin-bottom: 12px;
                     color: var(--cc-primary);
-                    font-size: 13px;
+                    font-size: 12px;
                     font-weight: 800;
                     letter-spacing: 0.05em;
                     content: "CATEGORÍAS Y FILTROS";
@@ -108,17 +144,16 @@
                 }
 
                 /* =====================================================
-                   ENCABEZADO DE LA TIENDA
+                   CABECERA DE LA TIENDA
                    ===================================================== */
 
                 .cc-modern-shop #o_wsale_products_header {
-                    position: relative;
                     margin-bottom: 18px;
-                    padding: 17px 18px !important;
+                    padding: 16px 18px !important;
                     border: 1px solid var(--cc-border);
                     border-radius: 14px;
                     background: var(--cc-white);
-                    box-shadow: 0 6px 22px rgba(18, 38, 63, 0.05);
+                    box-shadow: 0 6px 22px rgba(18,38,63,0.05);
                 }
 
                 .cc-modern-shop .o_wsale_shop_title,
@@ -147,7 +182,7 @@
 
                 .cc-modern-shop .products_header {
                     margin: 0;
-                    gap: 10px !important;
+                    gap: 9px !important;
                 }
 
                 /* =====================================================
@@ -157,14 +192,14 @@
                 .cc-modern-shop
                 .o_wsale_products_header_search_form_container {
                     width: 100%;
-                    max-width: 400px;
+                    max-width: 390px;
                 }
 
                 .cc-modern-shop
                 .products_header
                 .input-group {
                     overflow: hidden;
-                    min-height: 42px;
+                    min-height: 41px;
                     border: 1px solid #d9e1eb;
                     border-radius: 10px !important;
                     background: #f8fafc;
@@ -177,7 +212,7 @@
                 .products_header
                 .input-group:focus-within {
                     border-color: #85add4;
-                    box-shadow: 0 0 0 3px rgba(18, 91, 159, 0.10);
+                    box-shadow: 0 0 0 3px rgba(18,91,159,0.10);
                 }
 
                 .cc-modern-shop
@@ -193,14 +228,14 @@
                 .cc-modern-shop
                 .products_header
                 .oe_search_button {
-                    width: 43px;
+                    width: 42px;
                     border: 0 !important;
-                    background: transparent !important;
                     color: var(--cc-primary) !important;
+                    background: transparent !important;
                 }
 
                 /* =====================================================
-                   SELECTORES GENERALES
+                   SELECTOR DE MONEDA
                    ===================================================== */
 
                 .cc-modern-shop
@@ -244,16 +279,14 @@
                 .cc-modern-shop
                 .o_pricelist_dropdown
                 .dropdown-toggle
-                &gt; span.d-none.d-md-inline {
+                span.d-none.d-md-inline {
                     display: inline-flex !important;
                     align-items: center;
                     gap: 7px;
                     font-size: 0;
                 }
 
-                /* =====================================================
-                   BANDERA DE PERÚ
-                   ===================================================== */
+                /* PEN seleccionado */
 
                 .cc-modern-shop
                 .o_pricelist_dropdown:has(
@@ -261,7 +294,7 @@
                     .switcher_pricelist[data-pl_id="1"]
                 )
                 .dropdown-toggle
-                &gt; span.d-none.d-md-inline::before {
+                span.d-none.d-md-inline::before {
                     display: inline-block;
                     width: 21px;
                     height: 14px;
@@ -286,15 +319,13 @@
                     .switcher_pricelist[data-pl_id="1"]
                 )
                 .dropdown-toggle
-                &gt; span.d-none.d-md-inline::after {
+                span.d-none.d-md-inline::after {
                     color: var(--cc-text);
                     font-size: 12px;
                     content: "Soles (PEN)";
                 }
 
-                /* =====================================================
-                   BANDERA DE ESTADOS UNIDOS
-                   ===================================================== */
+                /* USD seleccionado */
 
                 .cc-modern-shop
                 .o_pricelist_dropdown:has(
@@ -302,7 +333,7 @@
                     .switcher_pricelist[data-pl_id="2"]
                 )
                 .dropdown-toggle
-                &gt; span.d-none.d-md-inline::before {
+                span.d-none.d-md-inline::before {
                     display: inline-block;
                     width: 21px;
                     height: 14px;
@@ -329,7 +360,7 @@
                     .switcher_pricelist[data-pl_id="2"]
                 )
                 .dropdown-toggle
-                &gt; span.d-none.d-md-inline::after {
+                span.d-none.d-md-inline::after {
                     color: var(--cc-text);
                     font-size: 12px;
                     content: "Dólares (USD)";
@@ -337,8 +368,7 @@
 
                 /* Banderas dentro del menú */
 
-                .cc-modern-shop
-                .switcher_pricelist {
+                .cc-modern-shop .switcher_pricelist {
                     display: inline-flex;
                     align-items: center;
                     gap: 8px;
@@ -401,7 +431,7 @@
                     border: 1px solid #dfe5ec;
                     border-radius: 10px;
                     background: var(--cc-white);
-                    box-shadow: 0 14px 32px rgba(16, 36, 64, 0.14);
+                    box-shadow: 0 14px 32px rgba(16,36,64,0.14);
                 }
 
                 .cc-modern-shop
@@ -428,7 +458,63 @@
                 }
 
                 /* =====================================================
-                   CUADRÍCULA UNIFORME
+                   SELECTOR CUADRÍCULA / LISTA
+                   ===================================================== */
+
+                .cc-modern-shop .cc-view-switcher {
+                    display: inline-flex;
+                    overflow: hidden;
+                    flex: 0 0 auto;
+                    align-items: center;
+                    margin-left: 1px;
+                    padding: 3px;
+                    border: 1px solid #d9e1eb;
+                    border-radius: 10px;
+                    background: #f5f7fa;
+                }
+
+                .cc-modern-shop .cc-view-option {
+                    position: absolute;
+                    width: 1px;
+                    height: 1px;
+                    opacity: 0;
+                    pointer-events: none;
+                }
+
+                .cc-modern-shop
+                .cc-view-switcher label {
+                    display: inline-flex;
+                    min-height: 32px;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 6px;
+                    margin: 0;
+                    padding: 6px 10px;
+                    border-radius: 7px;
+                    color: var(--cc-muted);
+                    font-size: 11px;
+                    font-weight: 700;
+                    cursor: pointer;
+                    transition:
+                        color 0.2s ease,
+                        background 0.2s ease,
+                        box-shadow 0.2s ease;
+                }
+
+                .cc-modern-shop
+                .cc-view-switcher label:hover {
+                    color: var(--cc-primary);
+                }
+
+                .cc-modern-shop
+                .cc-view-option:checked + label {
+                    color: var(--cc-white);
+                    background: var(--cc-primary);
+                    box-shadow: 0 3px 8px rgba(10,49,90,0.18);
+                }
+
+                /* =====================================================
+                   VISTA CUADRÍCULA
                    ===================================================== */
 
                 .cc-modern-shop #o_wsale_products_grid {
@@ -455,16 +541,14 @@
                     grid-column: auto !important;
                     grid-row: auto !important;
                     width: 100% !important;
-                    height: 342px !important;
-                    min-height: 342px !important;
+                    height: 378px !important;
+                    min-height: 378px !important;
                     margin: 0 !important;
                     padding: 0 !important;
                     align-self: stretch !important;
                 }
 
-                /* =====================================================
-                   TARJETA
-                   ===================================================== */
+                /* Tarjeta de la cuadrícula */
 
                 .cc-modern-shop
                 .o_wsale_product_grid_wrapper {
@@ -472,12 +556,12 @@
                     overflow: hidden !important;
                     position: relative !important;
                     width: 100% !important;
-                    height: 342px !important;
-                    min-height: 342px !important;
+                    height: 378px !important;
+                    min-height: 378px !important;
                     border: 1px solid var(--cc-border) !important;
                     border-radius: 15px !important;
                     background: var(--cc-white) !important;
-                    box-shadow: 0 6px 20px rgba(18, 38, 63, 0.06);
+                    box-shadow: 0 6px 20px rgba(18,38,63,0.06);
                     transition:
                         transform 0.22s ease,
                         border-color 0.22s ease,
@@ -487,7 +571,7 @@
                 .cc-modern-shop
                 .o_wsale_product_grid_wrapper:hover {
                     border-color: #a9c4df !important;
-                    box-shadow: 0 15px 34px rgba(16, 50, 95, 0.13);
+                    box-shadow: 0 15px 34px rgba(16,50,95,0.13);
                     transform: translateY(-3px);
                 }
 
@@ -504,19 +588,17 @@
                     background: var(--cc-white) !important;
                 }
 
-                /* =====================================================
-                   IMAGEN
-                   ===================================================== */
+                /* Imagen de la cuadrícula */
 
                 .cc-modern-shop .oe_product_image {
                     display: flex !important;
                     overflow: hidden !important;
                     position: relative !important;
-                    flex: 0 0 172px !important;
+                    flex: 0 0 175px !important;
                     width: 100% !important;
                     min-width: 100% !important;
-                    height: 172px !important;
-                    min-height: 172px !important;
+                    height: 175px !important;
+                    min-height: 175px !important;
                     align-items: center !important;
                     justify-content: center !important;
                     border: 0 !important;
@@ -534,8 +616,8 @@
                     overflow: hidden !important;
                     position: relative !important;
                     width: 100% !important;
-                    height: 172px !important;
-                    min-height: 172px !important;
+                    height: 175px !important;
+                    min-height: 175px !important;
                     align-items: center !important;
                     justify-content: center !important;
                     aspect-ratio: auto !important;
@@ -575,9 +657,7 @@
                     display: none !important;
                 }
 
-                /* =====================================================
-                   INFORMACIÓN DEL PRODUCTO
-                   ===================================================== */
+                /* Información de la cuadrícula */
 
                 .cc-modern-shop
                 .o_wsale_product_information {
@@ -617,7 +697,7 @@
                     margin: 0 !important;
                     color: var(--cc-text);
                     font-size: 14px !important;
-                    font-weight: 750 !important;
+                    font-weight: 700 !important;
                     line-height: 1.35 !important;
                 }
 
@@ -641,9 +721,7 @@
                     display: none !important;
                 }
 
-                /* =====================================================
-                   PRECIO Y BOTÓN
-                   ===================================================== */
+                /* Precio y botón de la cuadrícula */
 
                 .cc-modern-shop .o_wsale_product_sub {
                     display: flex !important;
@@ -653,9 +731,9 @@
                     flex-direction: column !important;
                     align-items: stretch !important;
                     justify-content: flex-end !important;
-                    gap: 8px !important;
+                    gap: 9px !important;
                     margin: 0 !important;
-                    padding: 8px 0 0 !important;
+                    padding: 9px 0 0 !important;
                     border: 0 !important;
                     border-top: 1px solid #edf0f4 !important;
                 }
@@ -675,12 +753,8 @@
                     white-space: nowrap !important;
                 }
 
-                .cc-modern-shop
-                .product_price
-                &gt; span,
-                .cc-modern-shop
-                .product_price
-                &gt; del {
+                .cc-modern-shop .product_price span,
+                .cc-modern-shop .product_price del {
                     display: inline-block !important;
                     margin: 0 !important;
                     text-align: left !important;
@@ -705,11 +779,11 @@
                 .o_wsale_product_btn_primary {
                     display: inline-flex !important;
                     width: 100% !important;
-                    min-height: 37px !important;
+                    min-height: 38px !important;
                     align-items: center !important;
                     justify-content: center !important;
                     margin: 0 !important;
-                    padding: 7px 12px !important;
+                    padding: 8px 11px !important;
                     border: 0 !important;
                     border-radius: 9px !important;
                     color: var(--cc-white) !important;
@@ -732,6 +806,166 @@
                 .o_wsale_product_btn_primary:hover {
                     color: var(--cc-white) !important;
                     background: var(--cc-primary-hover) !important;
+                }
+
+                /* =====================================================
+                   VISTA LISTA
+                   ===================================================== */
+
+                @media (min-width: 768px) {
+
+                    .cc-modern-shop
+                    #products_grid:has(#cc-view-list:checked)
+                    #o_wsale_products_grid {
+                        display: flex !important;
+                        flex-direction: column !important;
+                        gap: 12px !important;
+                    }
+
+                    .cc-modern-shop
+                    #products_grid:has(#cc-view-list:checked)
+                    #o_wsale_products_grid
+                    .oe_product,
+                    .cc-modern-shop
+                    #products_grid:has(#cc-view-list:checked)
+                    #o_wsale_products_grid
+                    .oe_product:nth-child(n) {
+                        display: block !important;
+                        width: 100% !important;
+                        height: 165px !important;
+                        min-height: 165px !important;
+                        margin: 0 !important;
+                    }
+
+                    .cc-modern-shop
+                    #products_grid:has(#cc-view-list:checked)
+                    .o_wsale_product_grid_wrapper {
+                        width: 100% !important;
+                        height: 165px !important;
+                        min-height: 165px !important;
+                        border-radius: 13px !important;
+                    }
+
+                    .cc-modern-shop
+                    #products_grid:has(#cc-view-list:checked)
+                    .oe_product_cart {
+                        display: flex !important;
+                        width: 100% !important;
+                        height: 100% !important;
+                        flex-direction: row !important;
+                        align-items: stretch !important;
+                    }
+
+                    /* Imagen de lista */
+
+                    .cc-modern-shop
+                    #products_grid:has(#cc-view-list:checked)
+                    .oe_product_image {
+                        flex: 0 0 210px !important;
+                        width: 210px !important;
+                        min-width: 210px !important;
+                        height: 100% !important;
+                        min-height: 100% !important;
+                        border-right: 1px solid #edf0f4 !important;
+                        border-bottom: 0 !important;
+                    }
+
+                    .cc-modern-shop
+                    #products_grid:has(#cc-view-list:checked)
+                    .oe_product_image_link {
+                        width: 210px !important;
+                        height: 100% !important;
+                        min-height: 100% !important;
+                    }
+
+                    .cc-modern-shop
+                    #products_grid:has(#cc-view-list:checked)
+                    .oe_product_image_img {
+                        max-width: calc(100% - 18px) !important;
+                        max-height: calc(100% - 18px) !important;
+                    }
+
+                    /* Información de lista */
+
+                    .cc-modern-shop
+                    #products_grid:has(#cc-view-list:checked)
+                    .o_wsale_product_information {
+                        display: flex !important;
+                        flex: 1 1 auto !important;
+                        width: auto !important;
+                        min-width: 0 !important;
+                        height: 100% !important;
+                        flex-direction: row !important;
+                        align-items: center !important;
+                        gap: 20px !important;
+                        padding: 18px 20px !important;
+                    }
+
+                    .cc-modern-shop
+                    #products_grid:has(#cc-view-list:checked)
+                    .o_wsale_product_info_attributes_wrapper {
+                        flex: 1 1 auto !important;
+                        min-width: 0 !important;
+                    }
+
+                    .cc-modern-shop
+                    #products_grid:has(#cc-view-list:checked)
+                    .o_wsale_product_information_text {
+                        display: flex !important;
+                        flex-direction: column !important;
+                        justify-content: center !important;
+                    }
+
+                    .cc-modern-shop
+                    #products_grid:has(#cc-view-list:checked)
+                    .o_wsale_products_item_title {
+                        min-height: 0 !important;
+                        margin: 0 !important;
+                        font-size: 16px !important;
+                        line-height: 1.35 !important;
+                    }
+
+                    .cc-modern-shop
+                    #products_grid:has(#cc-view-list:checked)
+                    .o_wsale_products_item_title a {
+                        display: block !important;
+                        overflow: visible !important;
+                        -webkit-line-clamp: initial;
+                    }
+
+                    /* Precio y botón de lista */
+
+                    .cc-modern-shop
+                    #products_grid:has(#cc-view-list:checked)
+                    .o_wsale_product_sub {
+                        display: flex !important;
+                        flex: 0 0 205px !important;
+                        width: 205px !important;
+                        height: auto !important;
+                        align-items: stretch !important;
+                        justify-content: center !important;
+                        flex-direction: column !important;
+                        gap: 11px !important;
+                        margin: 0 !important;
+                        padding: 0 0 0 19px !important;
+                        border-top: 0 !important;
+                        border-left: 1px solid #edf0f4 !important;
+                    }
+
+                    .cc-modern-shop
+                    #products_grid:has(#cc-view-list:checked)
+                    .product_price {
+                        width: 100% !important;
+                        justify-content: flex-start !important;
+                        font-size: 18px !important;
+                    }
+
+                    .cc-modern-shop
+                    #products_grid:has(#cc-view-list:checked)
+                    .o_wsale_product_btn_primary {
+                        width: 100% !important;
+                        min-height: 40px !important;
+                    }
                 }
 
                 /* =====================================================
@@ -779,6 +1013,20 @@
                         grid-template-columns:
                             repeat(3, minmax(0, 1fr)) !important;
                     }
+
+                    .cc-modern-shop
+                    #products_grid:has(#cc-view-list:checked)
+                    .oe_product_image {
+                        flex-basis: 180px !important;
+                        width: 180px !important;
+                        min-width: 180px !important;
+                    }
+
+                    .cc-modern-shop
+                    #products_grid:has(#cc-view-list:checked)
+                    .oe_product_image_link {
+                        width: 180px !important;
+                    }
                 }
 
                 /* =====================================================
@@ -805,31 +1053,27 @@
                         width: 100%;
                         max-width: none;
                     }
+
+                    .cc-modern-shop
+                    #products_grid:has(#cc-view-list:checked)
+                    .o_wsale_product_sub {
+                        flex-basis: 175px !important;
+                        width: 175px !important;
+                    }
                 }
 
                 /* =====================================================
                    MÓVIL
                    ===================================================== */
 
-                @media (max-width: 575.98px) {
+                @media (max-width: 767.98px) {
 
                     .cc-modern-shop {
-                        padding-top: 52px;
-                        padding-bottom: 25px;
+                        padding-top: 54px;
                     }
 
-                    .cc-modern-shop #o_wsale_container {
-                        padding-top: 10px;
-                    }
-
-                    .cc-modern-shop #o_wsale_products_header {
-                        padding: 13px !important;
-                        border-radius: 12px;
-                    }
-
-                    .cc-modern-shop .o_wsale_shop_title,
-                    .cc-modern-shop .o_wsale_category_title {
-                        font-size: 20px !important;
+                    .cc-modern-shop .cc-view-switcher {
+                        display: none !important;
                     }
 
                     .cc-modern-shop #o_wsale_products_grid {
@@ -846,15 +1090,37 @@
                     .oe_product:nth-child(n),
                     .cc-modern-shop
                     .o_wsale_product_grid_wrapper {
-                        height: 355px !important;
-                        min-height: 355px !important;
+                        height: 380px !important;
+                        min-height: 380px !important;
                     }
 
                     .cc-modern-shop .oe_product_image,
                     .cc-modern-shop .oe_product_image_link {
-                        height: 185px !important;
-                        min-height: 185px !important;
-                        flex-basis: 185px !important;
+                        height: 190px !important;
+                        min-height: 190px !important;
+                        flex-basis: 190px !important;
+                    }
+                }
+
+                @media (max-width: 575.98px) {
+
+                    .cc-modern-shop {
+                        padding-top: 50px;
+                        padding-bottom: 24px;
+                    }
+
+                    .cc-modern-shop #o_wsale_container {
+                        padding-top: 10px;
+                    }
+
+                    .cc-modern-shop #o_wsale_products_header {
+                        padding: 13px !important;
+                        border-radius: 12px;
+                    }
+
+                    .cc-modern-shop .o_wsale_shop_title,
+                    .cc-modern-shop .o_wsale_category_title {
+                        font-size: 20px !important;
                     }
 
                     .cc-modern-shop
