@@ -22,23 +22,20 @@
                     <div class="cc-shop-hero-content">
 
                         <div class="cc-shop-hero-copy">
-
                             <span class="cc-shop-eyebrow">
                                 CATÁLOGO COPIER COMPANY
                             </span>
 
                             <h1>
-                                Soluciones de impresión
-                                <span>para tu empresa</span>
+                                Soluciones para impresión empresarial
                             </h1>
 
                             <p>
                                 Equipos, repuestos, consumibles, firmware y
-                                servicios especializados con asesoría técnica.
+                                servicios especializados.
                             </p>
 
                             <div class="cc-shop-benefits">
-
                                 <span>
                                     <i class="fa fa-check-circle"/>
                                     Compra segura
@@ -53,18 +50,493 @@
                                     <i class="fa fa-shield"/>
                                     Soporte técnico
                                 </span>
-
                             </div>
                         </div>
 
-                        <div class="cc-shop-hero-icon"
-                             aria-hidden="true">
+                        <div class="cc-shop-hero-icon">
                             <i class="fa fa-print"/>
                         </div>
 
                     </div>
                 </div>
             </section>
+
+        </xpath>
+
+        <!-- CSS directo para comprobar el diseño -->
+        <xpath expr="//div[@id='wrap']" position="inside">
+
+            <style type="text/css">
+
+                .cc-modern-shop {
+                    min-height: 70vh;
+                    background: #f3f6fa;
+                    color: #172033;
+                }
+
+                /* ENCABEZADO */
+
+                .cc-modern-shop .cc-shop-hero {
+                    overflow: hidden;
+                    padding: 34px 0;
+                    color: #ffffff;
+                    background:
+                        radial-gradient(
+                            circle at 88% 15%,
+                            rgba(27, 184, 215, 0.35),
+                            transparent 28%
+                        ),
+                        linear-gradient(
+                            135deg,
+                            #081a31 0%,
+                            #103d70 100%
+                        );
+                }
+
+                .cc-modern-shop .cc-shop-hero-content {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 30px;
+                }
+
+                .cc-modern-shop .cc-shop-hero-copy {
+                    max-width: 720px;
+                }
+
+                .cc-modern-shop .cc-shop-eyebrow {
+                    display: inline-flex;
+                    margin-bottom: 10px;
+                    padding: 6px 11px;
+                    border: 1px solid rgba(255,255,255,0.20);
+                    border-radius: 999px;
+                    background: rgba(255,255,255,0.09);
+                    color: #aeefff;
+                    font-size: 11px;
+                    font-weight: 800;
+                    letter-spacing: 0.08em;
+                }
+
+                .cc-modern-shop .cc-shop-hero h1 {
+                    max-width: 700px;
+                    margin: 0;
+                    color: #ffffff;
+                    font-size: clamp(30px, 3.6vw, 44px);
+                    font-weight: 800;
+                    line-height: 1.1;
+                    letter-spacing: -0.035em;
+                }
+
+                .cc-modern-shop .cc-shop-hero p {
+                    margin: 12px 0 0;
+                    color: rgba(255,255,255,0.78);
+                    font-size: 15px;
+                    line-height: 1.55;
+                }
+
+                .cc-modern-shop .cc-shop-benefits {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 10px 20px;
+                    margin-top: 18px;
+                }
+
+                .cc-modern-shop .cc-shop-benefits span {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    color: rgba(255,255,255,0.90);
+                    font-size: 12px;
+                    font-weight: 600;
+                }
+
+                .cc-modern-shop .cc-shop-benefits i {
+                    color: #61dced;
+                }
+
+                .cc-modern-shop .cc-shop-hero-icon {
+                    display: grid;
+                    flex: 0 0 108px;
+                    width: 108px;
+                    height: 108px;
+                    place-items: center;
+                    border: 1px solid rgba(255,255,255,0.16);
+                    border-radius: 27px;
+                    background: rgba(255,255,255,0.08);
+                    box-shadow: 0 20px 45px rgba(0,0,0,0.20);
+                    transform: rotate(4deg);
+                }
+
+                .cc-modern-shop .cc-shop-hero-icon i {
+                    color: #ffffff;
+                    font-size: 43px;
+                }
+
+                /* CONTENIDO */
+
+                .cc-modern-shop #o_wsale_container {
+                    padding-top: 25px;
+                    padding-bottom: 45px;
+                }
+
+                .cc-modern-shop .o_wsale_products_main_row {
+                    gap: 22px;
+                }
+
+                /*
+                 * Si los filtros laterales están vacíos, no deben dejar
+                 * una columna blanca ocupando espacio.
+                 */
+                .cc-modern-shop #products_grid_before:not(
+                    :has(.products_categories)
+                ):not(
+                    :has(.products_attributes_filters &gt; *)
+                ) {
+                    display: none !important;
+                }
+
+                /* FILTROS LATERALES */
+
+                .cc-modern-shop #products_grid_before {
+                    flex: 0 0 245px;
+                    width: 245px;
+                    padding-top: 0 !important;
+                }
+
+                .cc-modern-shop
+                .o_wsale_products_grid_before_rail {
+                    height: auto !important;
+                    max-height: calc(100vh - 120px);
+                    padding: 20px !important;
+                    border: 1px solid #e1e7ef;
+                    border-radius: 16px;
+                    background: #ffffff;
+                    box-shadow: 0 7px 24px rgba(18,38,63,0.06);
+                    scrollbar-width: thin;
+                }
+
+                .cc-modern-shop .products_categories {
+                    font-size: 14px;
+                }
+
+                .cc-modern-shop .products_categories a {
+                    border-radius: 8px;
+                    color: #172033;
+                    font-weight: 500;
+                    transition: 0.2s ease;
+                }
+
+                .cc-modern-shop .products_categories a:hover {
+                    color: #1769e0;
+                    background: #edf5ff;
+                }
+
+                /* BARRA DEL CATÁLOGO */
+
+                .cc-modern-shop #o_wsale_products_header {
+                    margin-bottom: 22px;
+                    padding: 19px !important;
+                    border: 1px solid #e1e7ef;
+                    border-radius: 16px;
+                    background: #ffffff;
+                    box-shadow: 0 7px 24px rgba(18,38,63,0.06);
+                }
+
+                .cc-modern-shop .o_wsale_shop_title,
+                .cc-modern-shop .o_wsale_category_title {
+                    margin: 0 0 10px !important;
+                    color: #0b1f3a;
+                    font-size: 25px !important;
+                    font-weight: 800;
+                    letter-spacing: -0.025em;
+                }
+
+                .cc-modern-shop .products_header {
+                    margin-top: 4px;
+                    gap: 12px !important;
+                }
+
+                .cc-modern-shop
+                .products_header
+                .input-group {
+                    overflow: hidden;
+                    min-height: 45px;
+                    border: 1px solid #d8e0eb;
+                    border-radius: 11px !important;
+                    background: #ffffff;
+                    box-shadow: 0 3px 10px rgba(16,36,64,0.04);
+                }
+
+                .cc-modern-shop
+                .products_header
+                input {
+                    border: 0 !important;
+                    background: #ffffff;
+                    box-shadow: none !important;
+                }
+
+                .cc-modern-shop
+                .products_header
+                .btn {
+                    min-height: 43px;
+                    border-radius: 10px;
+                    font-weight: 600;
+                }
+
+                /* CUADRÍCULA */
+
+                .cc-modern-shop #o_wsale_products_grid {
+                    --o-wsale-products-grid-gap: 20px !important;
+                }
+
+                .cc-modern-shop
+                #o_wsale_products_grid
+                .oe_product {
+                    grid-column: span 4 !important;
+                }
+
+                /* TARJETAS */
+
+                .cc-modern-shop
+                .o_wsale_product_grid_wrapper {
+                    overflow: hidden;
+                    border: 1px solid #e1e7ef;
+                    border-radius: 17px !important;
+                    background: #ffffff !important;
+                    box-shadow: 0 7px 22px rgba(18,38,63,0.07);
+                    transition:
+                        transform 0.25s ease,
+                        box-shadow 0.25s ease,
+                        border-color 0.25s ease;
+                }
+
+                .cc-modern-shop
+                .o_wsale_product_grid_wrapper:hover {
+                    border-color: #b6d1f5;
+                    box-shadow: 0 17px 38px rgba(16,50,95,0.14);
+                    transform: translateY(-4px);
+                }
+
+                /*
+                 * Convierte el diseño lista configurado en Odoo
+                 * en una tarjeta vertical.
+                 */
+                .cc-modern-shop .oe_product_cart {
+                    display: flex !important;
+                    flex-direction: column !important;
+                    height: 100% !important;
+                    background: #ffffff !important;
+                }
+
+                .cc-modern-shop .oe_product_image {
+                    width: 100% !important;
+                    min-width: 100% !important;
+                    height: 190px !important;
+                    border-bottom: 1px solid #edf0f5;
+                    background:
+                        linear-gradient(
+                            145deg,
+                            #f9fbfd,
+                            #eef3f8
+                        );
+                }
+
+                .cc-modern-shop .oe_product_image_link,
+                .cc-modern-shop
+                .oe_product_image_img_wrapper {
+                    display: flex !important;
+                    width: 100% !important;
+                    height: 100% !important;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .cc-modern-shop .oe_product_image_img {
+                    width: 100% !important;
+                    height: 100% !important;
+                    padding: 17px;
+                    object-fit: contain !important;
+                    transition: transform 0.3s ease;
+                }
+
+                .cc-modern-shop
+                .o_wsale_product_grid_wrapper:hover
+                .oe_product_image_img {
+                    transform: scale(1.035);
+                }
+
+                .cc-modern-shop
+                .o_wsale_product_information {
+                    display: flex !important;
+                    flex: 1 1 auto !important;
+                    flex-direction: column !important;
+                    width: 100% !important;
+                    padding: 17px !important;
+                }
+
+                .cc-modern-shop
+                .o_wsale_products_item_title {
+                    min-height: 45px;
+                    margin: 0 0 8px !important;
+                    font-size: 16px !important;
+                    font-weight: 700;
+                    line-height: 1.4;
+                }
+
+                .cc-modern-shop
+                .o_wsale_products_item_title a {
+                    display: -webkit-box;
+                    overflow: hidden;
+                    color: #172033 !important;
+                    -webkit-box-orient: vertical;
+                    -webkit-line-clamp: 2;
+                }
+
+                .cc-modern-shop
+                .o_wsale_products_item_title a:hover {
+                    color: #1769e0 !important;
+                }
+
+                .cc-modern-shop
+                .oe_subdescription_wrapper {
+                    overflow: hidden;
+                    max-height: 43px;
+                    margin-bottom: 12px;
+                    color: #667085;
+                    line-height: 1.45;
+                }
+
+                .cc-modern-shop .o_wsale_product_sub {
+                    display: flex !important;
+                    align-items: center !important;
+                    flex-wrap: wrap;
+                    gap: 10px;
+                    width: 100% !important;
+                    margin-top: auto !important;
+                    padding-top: 13px;
+                    border-top: 1px solid #edf0f5;
+                }
+
+                .cc-modern-shop .product_price {
+                    color: #0b1f3a !important;
+                    font-size: 18px !important;
+                    font-weight: 800 !important;
+                }
+
+                .cc-modern-shop
+                .o_wsale_product_btn
+                .btn {
+                    min-height: 39px;
+                    padding: 8px 12px;
+                    border: 0;
+                    border-radius: 9px;
+                    background: #0b335d;
+                    color: #ffffff;
+                    font-size: 12px;
+                    font-weight: 700;
+                }
+
+                .cc-modern-shop
+                .o_wsale_product_btn
+                .btn:hover {
+                    background: #1769e0;
+                    color: #ffffff;
+                }
+
+                /* PAGINACIÓN */
+
+                .cc-modern-shop
+                #o_wsale_pager
+                .pagination {
+                    gap: 6px;
+                }
+
+                .cc-modern-shop
+                #o_wsale_pager
+                .page-link {
+                    min-width: 41px;
+                    height: 41px;
+                    border: 1px solid #e1e7ef;
+                    border-radius: 9px !important;
+                    color: #0b1f3a;
+                    background: #ffffff;
+                    text-align: center;
+                }
+
+                .cc-modern-shop
+                #o_wsale_pager
+                .page-item.active
+                .page-link {
+                    border-color: #1769e0;
+                    background: #1769e0;
+                    color: #ffffff;
+                }
+
+                /* TABLET */
+
+                @media (max-width: 991.98px) {
+                    .cc-modern-shop .cc-shop-hero {
+                        padding: 30px 0;
+                    }
+
+                    .cc-modern-shop .cc-shop-hero-icon {
+                        display: none;
+                    }
+
+                    .cc-modern-shop
+                    #o_wsale_products_grid
+                    .oe_product {
+                        grid-column: span 6 !important;
+                    }
+                }
+
+                /* MÓVIL */
+
+                @media (max-width: 575.98px) {
+                    .cc-modern-shop .cc-shop-hero {
+                        padding: 25px 0;
+                    }
+
+                    .cc-modern-shop .cc-shop-hero h1 {
+                        font-size: 29px;
+                    }
+
+                    .cc-modern-shop .cc-shop-hero p {
+                        font-size: 14px;
+                    }
+
+                    .cc-modern-shop .cc-shop-benefits {
+                        display: grid;
+                        gap: 8px;
+                    }
+
+                    .cc-modern-shop #o_wsale_container {
+                        padding-top: 16px;
+                    }
+
+                    .cc-modern-shop
+                    #o_wsale_products_header {
+                        padding: 15px !important;
+                        border-radius: 13px;
+                    }
+
+                    .cc-modern-shop
+                    #o_wsale_products_grid {
+                        --o-wsale-products-grid-gap: 14px !important;
+                    }
+
+                    .cc-modern-shop
+                    #o_wsale_products_grid
+                    .oe_product {
+                        grid-column: span 12 !important;
+                    }
+
+                    .cc-modern-shop .oe_product_image {
+                        height: 220px !important;
+                    }
+                }
+
+            </style>
 
         </xpath>
 
