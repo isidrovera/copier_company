@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Página principal de la tienda -->
+    <template id="copier_company_modern_products"
+              name="Copier Company - Tienda moderna"
+              inherit_id="website_sale.products"
+              priority="90">
+
+        <xpath expr="//div[@id='wrap']" position="attributes">
+            <attribute name="class" add="cc-modern-shop" separator=" "/>
+        </xpath>
+
+        <xpath expr="//div[@id='oe_structure_website_sale_products_1']"
+               position="after">
+
+            <section t-if="not category and not search"
+                     class="cc-shop-hero">
+
+                <div class="container">
+                    <div class="cc-shop-hero-content">
+
+                        <div class="cc-shop-hero-copy">
+                            <span class="cc-shop-eyebrow">
+                                CATÁLOGO COPIER COMPANY
+                            </span>
+
+                            <h1>
+                                Soluciones de impresión
+                                <span>para tu empresa</span>
+                            </h1>
+
+                            <p>
+                                Equipos, repuestos, consumibles, firmware y
+                                servicios especializados con asesoría técnica.
+                            </p>
+
+                            <div class="cc-shop-benefits">
+                                <span>
+                                    <i class="fa fa-check-circle"/>
+                                    Compra segura
+                                </span>
+
+                                <span>
+                                    <i class="fa fa-headphones"/>
+                                    Asesoría especializada
+                                </span>
+
+                                <span>
+                                    <i class="fa fa-shield"/>
+                                    Soporte técnico
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="cc-shop-hero-icon"
+                             aria-hidden="true">
+                            <i class="fa fa-print"/>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+        </xpath>
+
+    </template>
+
+    <!-- Tarjetas del catálogo -->
+    <template id="copier_company_modern_product_item"
+              name="Copier Company - Tarjeta moderna"
+              inherit_id="website_sale.products_item"
+              priority="90">
+
+        <xpath expr="//form[contains(@class, 'oe_product_cart')]"
+               position="attributes">
+            <attribute name="class"
+                       add="cc-product-card"
+                       separator=" "/>
+        </xpath>
+
+        <xpath expr="//h2[contains(@class, 'o_wsale_products_item_title')]"
+               position="before">
+
+            <div t-if="product.public_categ_ids"
+                 class="cc-product-category">
+                <t t-out="product.public_categ_ids[0].name"/>
+            </div>
+
+        </xpath>
+
+        <xpath expr="//div[contains(@class, 'product_price')]"
+               position="after">
+
+            <a t-att-href="product_href"
+               class="btn btn-primary cc-product-link"
+               title="Ver producto">
+
+                <span>Ver producto</span>
+                <i class="fa fa-arrow-right ms-1"/>
+
+            </a>
+
+        </xpath>
+
+    </template>
+
+    <!-- Ficha individual del producto -->
+    <template id="copier_company_modern_product_detail"
+              name="Copier Company - Ficha moderna"
+              inherit_id="website_sale.product"
+              priority="90">
+
+        <xpath expr="//div[@id='product_detail']"
+               position="attributes">
+
+            <attribute name="class"
+                       add="cc-modern-product-detail"
+                       separator=" "/>
+
+        </xpath>
+
+    </template>
+
+    <!-- Carrito -->
+    <template id="copier_company_modern_cart"
+              name="Copier Company - Carrito moderno"
+              inherit_id="website_sale.cart"
+              priority="90">
+
+        <xpath expr="//div[@id='wrap']"
+               position="attributes">
+
+            <attribute name="class"
+                       add="cc-modern-cart"
+                       separator=" "/>
+
+        </xpath>
+
+    </template>
+
+</odoo>

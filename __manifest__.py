@@ -23,6 +23,7 @@
         'base', 'web', 'mail', 'contacts', 'helpdesk',
         'sale_management', 'portal', 'sale_subscription',
         'website',
+        'website_sale',
         'account',
         'odoo_onedrive_integration',
     ],
