@@ -96,6 +96,7 @@
         'views/copier_billing_group_views.xml',
         'views/copier_company_billing_group_views.xml',
         'views/copier_counter_billing_group_views.xml',
+        'views/website_sale_modern.xml',
         'views/menus_actions.xml',
     ],
 
@@ -120,6 +121,7 @@
             'copier_company/static/src/css/cotizacion_styles.css',
             'copier_company/static/src/css/PcloudDescargas.css',
             'copier_company/static/src/css/copier_list.css',
+            'copier_company/static/src/scss/copier_company_shop.scss',
 
             # Scripts propios
             'copier_company/static/src/js/manuals.js',
