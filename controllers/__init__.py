@@ -17,3 +17,4 @@ from . import pcloud_proxy
 from . import purchase_api
 from . import resolver_producto
 from . import quotation_api
+from . import portal_comercial_controller

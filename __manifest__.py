@@ -35,6 +35,7 @@
         'views/modelos.xml',
         'views/portal_suscripcion.xml',
         'views/vista_tree_portal.xml',
+        'security/portal_comercial_security.xml',
         'security/ir.model.access.csv',
         'data/ir.secuencia.xml',
         'report/copier_company_report.xml',
@@ -97,6 +98,8 @@
         'views/copier_company_billing_group_views.xml',
         'views/copier_counter_billing_group_views.xml',
         'views/website_sale_modern.xml',
+        'views/portal_comercial_backend_views.xml',
+        'views/portal_comercial_templates.xml',
         'views/menus_actions.xml',
     ],
 
