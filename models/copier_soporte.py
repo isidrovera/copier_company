@@ -644,9 +644,15 @@ class CopierServiceRequest(models.Model):
                 vals_dict['correo'] = maquina.correo or cliente.email or False
 
             if not vals_dict.get('telefono_contacto'):
+                cliente_mobile = (
+                    cliente['mobile']
+                    if cliente and 'mobile' in cliente._fields
+                    else False
+                )
+
                 vals_dict['telefono_contacto'] = (
                     maquina.celular
-                    or cliente.mobile
+                    or cliente_mobile
                     or cliente.phone
                     or False
                 )
@@ -770,9 +776,15 @@ class CopierServiceRequest(models.Model):
                 or False
             )
 
+            cliente_mobile = (
+                cliente['mobile']
+                if cliente and 'mobile' in cliente._fields
+                else False
+            )
+
             rec.telefono_contacto = (
                 maquina.celular
-                or cliente.mobile
+                or cliente_mobile
                 or cliente.phone
                 or False
             )
