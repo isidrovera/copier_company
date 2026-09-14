@@ -74,7 +74,7 @@
         <field name="name">copier.service.request.form</field>
         <field name="model">copier.service.request</field>
         <field name="arch" type="xml">
-            <form string="Solicitud de Servicio">
+            <form string="Solicitud de Servicio" class="cc_service_form">
                 <header>
                     <button name="action_asignar_tecnico" 
                             type="object" 
@@ -194,41 +194,67 @@
                         </div>
                     </div>
 
-                    <!-- Título -->
-                    <div class="oe_title mb-3">
-                        <h1>
-                            <field name="name" readonly="1"/>
-                        </h1>
-                        <h2>
-                            <field name="tipo_problema_id" 
-                                   placeholder="Seleccione tipo de problema..."
-                                   readonly="estado in ('completado', 'cancelado')"/>
-                        </h2>
-                        <div class="text-muted mt-1">
-                            <field name="cliente_id" readonly="1"/>
-                            <span class="mx-2">•</span>
-                            <field name="modelo_maquina" readonly="1"/>
-                            <span class="mx-2">•</span>
-                            Serie <field name="serie_maquina" readonly="1"/>
+                    <!-- CABECERA PRINCIPAL -->
+                    <div class="cc_service_hero">
+                        <div class="cc_service_hero_icon">
+                            <i class="fa fa-wrench"/>
+                        </div>
+                        <div class="cc_service_hero_content">
+                            <div class="cc_service_eyebrow">Servicio técnico</div>
+                            <div class="oe_title">
+                                <h1><field name="name" readonly="1"/></h1>
+                            </div>
+                            <div class="cc_service_meta">
+                                <span>
+                                    <i class="fa fa-exclamation-circle"/>
+                                    <field name="tipo_problema_id"
+                                           placeholder="Seleccione el tipo de problema"
+                                           readonly="estado in ('completado', 'cancelado')"/>
+                                </span>
+                                <span>
+                                    <i class="fa fa-print"/>
+                                    <field name="modelo_maquina" readonly="1"/>
+                                </span>
+                                <span>
+                                    <i class="fa fa-barcode"/>
+                                    <field name="serie_maquina" readonly="1"/>
+                                </span>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Widgets de estado -->
-                    <group class="bg-light rounded-3 p-3 mb-3">
+                    <!-- RESUMEN -->
+                    <div class="cc_service_summary">
+                        <div class="cc_service_summary_item">
+                            <span class="cc_service_summary_label">Cliente</span>
+                            <strong><field name="cliente_id" readonly="1"/></strong>
+                        </div>
+                        <div class="cc_service_summary_item">
+                            <span class="cc_service_summary_label">Técnico</span>
+                            <strong><field name="tecnico_id" readonly="1"/></strong>
+                        </div>
+                        <div class="cc_service_summary_item">
+                            <span class="cc_service_summary_label">Programación</span>
+                            <strong><field name="fecha_programada" readonly="1"/></strong>
+                        </div>
+                        <div class="cc_service_summary_item">
+                            <span class="cc_service_summary_label">Prioridad</span>
+                            <strong><field name="prioridad" widget="priority"/></strong>
+                        </div>
+                    </div>
+
+                    <group class="cc_service_settings">
                         <group>
-                            <field name="prioridad" widget="priority"/>
                             <field name="origen_solicitud"/>
+                            <field name="sla_limite_1" readonly="1" string="Límite SLA (horas)"/>
                         </group>
                         <group>
-                            <field name="sla_limite_1" readonly="1" string="Límite SLA (horas)"/>
-                            <field name="sla_cumplido" 
-                                   invisible="estado != 'completado'"
-                                   widget="boolean"/>
+                            <field name="sla_cumplido" invisible="estado != 'completado'"/>
                             <field name="enable_whatsapp_notifications" widget="boolean_toggle"/>
                         </group>
                     </group>
 
-                    <notebook>
+                    <notebook class="cc_service_notebook">
                         <!-- TAB: INFORMACIÓN GENERAL -->
                         <page string="Información General" name="general">
                             <group class="p-2">
@@ -356,47 +382,67 @@
                         <page string="Repuestos"
                               name="repuestos"
                               invisible="estado not in ('en_sitio', 'pausado', 'completado') and not requiere_repuestos">
-                            <div class="alert alert-light border d-flex align-items-start gap-2" role="alert">
-                                <i class="fa fa-cogs fa-lg text-primary mt-1"/>
-                                <div>
-                                    Marque esta opción cuando el diagnóstico requiera partes o repuestos.
-                                    La cotización se creará en borrador para revisión del área comercial.
+                            <field name="sale_order_currency_id" invisible="1"/>
+
+                            <div class="cc_service_parts_card">
+                                <div class="cc_service_parts_intro">
+                                    <div class="cc_service_parts_icon"><i class="fa fa-cogs"/></div>
+                                    <div class="cc_service_parts_copy">
+                                        <h3>Repuestos del servicio</h3>
+                                        <p>
+                                            Active la necesidad de repuestos y cree una cotización en borrador.
+                                            Los productos, cantidades, precios, impuestos y descripciones se agregan
+                                            directamente en las líneas normales del pedido de venta.
+                                        </p>
+                                    </div>
+                                    <div class="cc_service_parts_toggle">
+                                        <span>Requiere repuestos</span>
+                                        <field name="requiere_repuestos"
+                                               widget="boolean_toggle"
+                                               nolabel="1"
+                                               readonly="estado not in ('en_sitio', 'pausado')"/>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <group class="p-2">
-                                <group string="Necesidad técnica">
-                                    <field name="requiere_repuestos"
-                                           widget="boolean_toggle"
-                                           readonly="estado not in ('en_sitio', 'pausado')"/>
-                                    <field name="motivo_repuestos"
-                                           placeholder="Ejemplo: Developer Cyan - Ricoh MP C2003 / MP C2503"
-                                           readonly="estado not in ('en_sitio', 'pausado')"/>
-                                </group>
+                                <div class="cc_service_parts_empty"
+                                     invisible="not requiere_repuestos or sale_order_id">
+                                    <i class="fa fa-shopping-cart"/>
+                                    <div>
+                                        <strong>Aún no hay una cotización vinculada</strong>
+                                        <span>Créela para seleccionar los repuestos desde el catálogo de productos.</span>
+                                    </div>
+                                    <button name="action_create_parts_sale_order"
+                                            type="object"
+                                            string="Crear y agregar productos"
+                                            icon="fa-plus"
+                                            class="btn-primary"
+                                            invisible="estado not in ('en_sitio', 'pausado')"/>
+                                </div>
 
-                                <group string="Cotización comercial" invisible="not sale_order_id">
-                                    <field name="sale_order_id" readonly="1"/>
-                                    <field name="sale_order_state" widget="badge" readonly="1"/>
-                                    <field name="sale_order_currency_id" invisible="1"/>
-                                    <field name="sale_order_amount_total"
-                                           widget="monetary"
-                                           options="{'currency_field': 'sale_order_currency_id'}"
-                                           readonly="1"/>
+                                <div class="cc_service_parts_order" invisible="not sale_order_id">
+                                    <div>
+                                        <span class="cc_service_parts_label">Cotización vinculada</span>
+                                        <strong><field name="sale_order_id" readonly="1" nolabel="1"/></strong>
+                                    </div>
+                                    <div>
+                                        <span class="cc_service_parts_label">Estado comercial</span>
+                                        <field name="sale_order_state" widget="badge" readonly="1" nolabel="1"/>
+                                    </div>
+                                    <div>
+                                        <span class="cc_service_parts_label">Total</span>
+                                        <strong>
+                                            <field name="sale_order_amount_total"
+                                                   widget="monetary"
+                                                   options="{'currency_field': 'sale_order_currency_id'}"
+                                                   readonly="1" nolabel="1"/>
+                                        </strong>
+                                    </div>
                                     <button name="action_open_parts_sale_order"
                                             type="object"
-                                            string="Abrir cotización"
+                                            string="Abrir productos"
                                             icon="fa-external-link"
                                             class="btn-primary"/>
-                                </group>
-                            </group>
-
-                            <div class="d-flex justify-content-end mt-2"
-                                 invisible="not requiere_repuestos or sale_order_id or estado not in ('en_sitio', 'pausado')">
-                                <button name="action_create_parts_sale_order"
-                                        type="object"
-                                        string="Crear pedido y agregar productos"
-                                        icon="fa-shopping-cart"
-                                        class="btn-primary"/>
+                                </div>
                             </div>
                         </page>
 
