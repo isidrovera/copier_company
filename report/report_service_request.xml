@@ -202,6 +202,63 @@
                         line-height: 1.6;
                         white-space: pre-wrap;
                     }
+
+                    .parts-notice {
+                        margin-bottom: 0.9rem;
+                        padding: 0.8rem 1rem;
+                        border-left: 4px solid #f59e0b;
+                        border-radius: 6px;
+                        background-color: #fff7e6;
+                        color: #78350f;
+                        line-height: 1.45;
+                    }
+
+                    .parts-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        table-layout: fixed;
+                    }
+
+                    .parts-table th {
+                        padding: 0.65rem 0.75rem;
+                        border: 1px solid #cbd5e1;
+                        background-color: #1e3a8a;
+                        color: white;
+                        font-size: 10px;
+                        font-weight: 700;
+                        letter-spacing: 0.4px;
+                        text-transform: uppercase;
+                    }
+
+                    .parts-table td {
+                        padding: 0.7rem 0.75rem;
+                        border: 1px solid #cbd5e1;
+                        color: #1e293b;
+                        vertical-align: top;
+                    }
+
+                    .parts-table .parts-description {
+                        width: 82%;
+                        white-space: pre-line;
+                    }
+
+                    .parts-table .parts-quantity {
+                        width: 18%;
+                        text-align: center;
+                        font-size: 12px;
+                        font-weight: 700;
+                    }
+
+                    .parts-acceptance {
+                        margin-top: 0.9rem;
+                        padding: 0.75rem 1rem;
+                        border: 1px solid #bfdbfe;
+                        border-radius: 6px;
+                        background-color: #eff6ff;
+                        color: #1e3a8a;
+                        font-size: 10px;
+                        line-height: 1.45;
+                    }
                     
                     .calificacion-stars {
                         font-size: 24px;
@@ -417,6 +474,49 @@
                         </div>
                     </t>
 
+                    <!-- =================== REPUESTOS SOLICITADOS =================== -->
+                    <t t-if="docs[0].requiere_repuestos and docs[0].sale_order_id">
+                        <div class="card-container">
+                            <div class="section-title">
+                                <i class="fa fa-cogs"/>
+                                REPUESTOS SOLICITADOS
+                            </div>
+
+                            <div class="parts-notice">
+                                Los siguientes repuestos fueron identificados durante la atención técnica
+                                y quedan sujetos a revisión de disponibilidad y aprobación comercial.
+                            </div>
+
+                            <table class="parts-table">
+                                <thead>
+                                    <tr>
+                                        <th class="parts-description">Descripción</th>
+                                        <th class="parts-quantity">Cantidad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="docs[0].sale_order_id.order_line" t-as="line">
+                                        <tr t-if="not line.display_type">
+                                            <td class="parts-description">
+                                                <t t-esc="line.name"/>
+                                            </td>
+                                            <td class="parts-quantity">
+                                                <t t-esc="('{:,.2f}'.format(line.product_uom_qty or 0)).rstrip('0').rstrip('.')"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+
+                            <div class="parts-acceptance">
+                                <strong>Constancia:</strong>
+                                con su firma, el cliente confirma que fue informado sobre la necesidad
+                                técnica de los repuestos descritos. Este documento no constituye aceptación
+                                de precio ni aprobación de compra; la cotización comercial será comunicada por separado.
+                            </div>
+                        </div>
+                    </t>
+
                     <!-- =================== CONTADORES =================== -->
                     <t t-if="docs[0].contador_bn or docs[0].contador_color">
                         <div class="card-container">
@@ -529,7 +629,10 @@
                                         <t t-esc="docs[0].nombre_firma or '___________________'"/>
                                     </div>
                                     <div style="font-size: 10px; color: #64748b; margin-top: 0.3rem;">
-                                        Firma y Conformidad
+                                        <t t-if="docs[0].requiere_repuestos and docs[0].sale_order_id">
+                                            Firma, conformidad e información de repuestos
+                                        </t>
+                                        <t t-else="">Firma y Conformidad</t>
                                     </div>
                                 </div>
                             </div>
