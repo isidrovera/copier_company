@@ -584,10 +584,7 @@
                 <separator/>
                 <filter name="services_open"
                         string="Servicios abiertos"
-                        domain="[('estado', 'not in', ('completado', 'cancelado'))]"/>
-                <filter name="services_today"
-                        string="Programados hoy"
-                        date="fecha_programada"/>
+                        domain="[('estado', 'not in', ['completado', 'cancelado'])]"/>
                 <filter name="services_critical"
                         string="Prioridad crítica"
                         domain="[('prioridad', '=', '3')]"/>
@@ -604,13 +601,12 @@
                         string="Cancelados"
                         domain="[('estado', '=', 'cancelado')]"/>
 
-                <group expand="0" string="Agrupar por">
-                    <filter name="group_state" string="Estado" context="{'group_by': 'estado'}"/>
-                    <filter name="group_technician" string="Técnico" context="{'group_by': 'tecnico_id'}"/>
-                    <filter name="group_customer" string="Cliente" context="{'group_by': 'cliente_id'}"/>
-                    <filter name="group_problem" string="Tipo de problema" context="{'group_by': 'tipo_problema_id'}"/>
-                    <filter name="group_scheduled_day" string="Fecha programada" context="{'group_by': 'fecha_programada:day'}"/>
-                </group>
+                <separator/>
+                <filter name="group_state" string="Agrupar por estado" context="{'group_by': 'estado'}"/>
+                <filter name="group_technician" string="Agrupar por técnico" context="{'group_by': 'tecnico_id'}"/>
+                <filter name="group_customer" string="Agrupar por cliente" context="{'group_by': 'cliente_id'}"/>
+                <filter name="group_problem" string="Agrupar por problema" context="{'group_by': 'tipo_problema_id'}"/>
+                <filter name="group_scheduled_day" string="Agrupar por fecha" context="{'group_by': 'fecha_programada:day'}"/>
             </search>
         </field>
     </record>
