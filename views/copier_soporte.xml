@@ -126,7 +126,7 @@
 
                     <button name="action_create_parts_sale_order"
                             type="object"
-                            string="Crear Pedido"
+                            string="Agregar Productos"
                             icon="fa-shopping-cart"
                             invisible="not requiere_repuestos or sale_order_id or estado not in ('en_sitio', 'pausado')"
                             class="btn-primary"/>
@@ -371,7 +371,6 @@
                                            readonly="estado not in ('en_sitio', 'pausado')"/>
                                     <field name="motivo_repuestos"
                                            placeholder="Ejemplo: Developer Cyan - Ricoh MP C2003 / MP C2503"
-                                           required="requiere_repuestos"
                                            readonly="estado not in ('en_sitio', 'pausado')"/>
                                 </group>
 
@@ -395,7 +394,7 @@
                                  invisible="not requiere_repuestos or sale_order_id or estado not in ('en_sitio', 'pausado')">
                                 <button name="action_create_parts_sale_order"
                                         type="object"
-                                        string="Crear cotización de repuestos"
+                                        string="Crear pedido y agregar productos"
                                         icon="fa-shopping-cart"
                                         class="btn-primary"/>
                             </div>

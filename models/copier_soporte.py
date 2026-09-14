@@ -1148,11 +1148,6 @@ class CopierServiceRequest(models.Model):
                 "Debe indicar que el servicio requiere partes o repuestos."
             ))
 
-        if not self.motivo_repuestos:
-            raise ValidationError(_(
-                "Debe detallar las partes o repuestos requeridos."
-            ))
-
         if self.sale_order_id:
             raise ValidationError(_(
                 "Este servicio ya tiene vinculada la cotización %s."
@@ -1165,6 +1160,12 @@ class CopierServiceRequest(models.Model):
 
         equipo = self.modelo_maquina.display_name if self.modelo_maquina else _('Sin modelo')
         serie = self.serie_maquina or _('Sin serie')
+        detalle_repuestos = (
+            self.motivo_repuestos
+            or self.diagnostico
+            or self.problema_reportado
+            or _('Pendiente de completar por el técnico')
+        )
         nota = _(
             "Pedido de repuestos generado desde el servicio %(servicio)s.\n"
             "Equipo: %(equipo)s\n"
@@ -1174,7 +1175,7 @@ class CopierServiceRequest(models.Model):
             'servicio': self.name,
             'equipo': equipo,
             'serie': serie,
-            'detalle': self.motivo_repuestos,
+            'detalle': detalle_repuestos,
         }
 
         order = self.env['sale.order'].create({
