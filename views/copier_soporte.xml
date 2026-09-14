@@ -15,13 +15,6 @@
                   decoration-success="estado == 'completado'"
                   decoration-muted="estado == 'cancelado'">
                 
-                <header>
-                    <button name="action_asignar_tecnico" 
-                            type="object" 
-                            string="Asignar Técnico"
-                            />
-                </header>
-                
                 <field name="name" string="Número"/>
                 <field name="create_date" string="Fecha Solicitud" optional="show"/>
                 <field name="cliente_id" string="Cliente"/>
@@ -45,6 +38,20 @@
                 
                 <field name="tecnico_id" string="Técnico" optional="show"/>
                 <field name="fecha_programada" string="Programado" optional="show"/>
+                <field name="requiere_repuestos"
+                       string="Repuestos"
+                       widget="boolean"
+                       optional="show"/>
+                <field name="sale_order_id"
+                       string="Pedido"
+                       optional="show"/>
+                <field name="sale_order_state"
+                       string="Estado pedido"
+                       widget="badge"
+                       optional="hide"
+                       decoration-info="sale_order_state in ('draft', 'sent')"
+                       decoration-success="sale_order_state == 'sale'"
+                       decoration-muted="sale_order_state == 'cancel'"/>
                 
                 <field name="sla_limite_1" 
                        string="Límite SLA (hrs)" 
@@ -69,52 +76,72 @@
         <field name="arch" type="xml">
             <form string="Solicitud de Servicio">
                 <header>
-                    <!-- Botones según estado -->
                     <button name="action_asignar_tecnico" 
                             type="object" 
                             string="Asignar Técnico"
-                            invisible="estado not in ('nuevo', 'asignado')"
-                            
+                            icon="fa-user-plus"
+                            invisible="estado != 'nuevo'"
                             class="btn-primary"/>
                     
                     <button name="action_confirmar_visita" 
                             type="object" 
                             string="Confirmar Visita"
                             invisible="estado != 'asignado'"
+                            icon="fa-calendar-check-o"
                             class="btn-primary"/>
                     
                     <button name="action_iniciar_ruta" 
                             type="object" 
                             string="Iniciar Ruta"
                             invisible="estado != 'confirmado'"
-                            
+                            icon="fa-car"
                             class="btn-warning"/>
                     
                     <button name="action_iniciar_servicio" 
                             type="object" 
                             string="Iniciar Servicio"
-                            invisible="estado != 'en_ruta'"
-                            
+                            invisible="estado not in ('confirmado', 'en_ruta')"
+                            icon="fa-play"
                             class="btn-success"/>
                     
                     <button name="action_pausar_servicio" 
                             type="object" 
                             string="Pausar"
                             invisible="estado != 'en_sitio'"
-                            />
+                            icon="fa-pause"/>
+
+                    <button name="action_reanudar_servicio"
+                            type="object"
+                            string="Reanudar"
+                            invisible="estado != 'pausado'"
+                            icon="fa-play-circle"
+                            class="btn-primary"/>
                     
                     <button name="action_completar_servicio" 
                             type="object" 
                             string="Completar Servicio"
-                            invisible="estado not in ('en_sitio', 'pausado')"
-                            
+                            invisible="estado != 'en_sitio'"
+                            icon="fa-check"
                             class="btn-success"/>
+
+                    <button name="action_create_parts_sale_order"
+                            type="object"
+                            string="Crear Pedido"
+                            icon="fa-shopping-cart"
+                            invisible="not requiere_repuestos or sale_order_id or estado not in ('en_sitio', 'pausado')"
+                            class="btn-primary"/>
+
+                    <button name="action_open_parts_sale_order"
+                            type="object"
+                            string="Abrir Pedido"
+                            icon="fa-external-link"
+                            invisible="not sale_order_id"/>
                     
                     <button name="action_cancelar_servicio" 
                             type="object" 
                             string="Cancelar"
                             invisible="estado in ('completado', 'cancelado')"
-                            />
+                            icon="fa-times"/>
                     <button
                         name="action_print_service_report"
                         type="object"
@@ -124,17 +151,9 @@
                         invisible="estado != 'completado'"
                     />
                     
-                    <button name="action_view_whatsapp_notifications"
-                        type="object"
-                        class="oe_stat_button"
-                        icon="fa-whatsapp"
-                        invisible="whatsapp_notifications_count == 0">
-                    <field name="whatsapp_notifications_count" widget="statinfo" string="WhatsApp"/>
-                </button>
-                    
-                    <!-- Barra de estado -->
                     <field name="estado" widget="statusbar" 
-                           statusbar_visible="nuevo,asignado,confirmado,en_ruta,en_sitio,completado" options="{'clickable': '1'}"/>
+                           statusbar_visible="nuevo,asignado,confirmado,en_ruta,en_sitio,pausado,completado,cancelado"
+                           options="{'clickable': 0}"/>
                 </header>
 
                 <sheet>
@@ -142,14 +161,41 @@
                     <div class="ribbon ribbon-top-right" invisible="prioridad != '3'">
                         <span class="bg-danger">CRÍTICA</span>
                     </div>
-                    
-                    <div class="alert alert-warning" role="alert" 
-                         invisible="sla_cumplido or estado in ('completado', 'cancelado')">
-                        <strong>⚠️ Atención:</strong> Verificar cumplimiento de SLA
+
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_whatsapp_notifications"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-whatsapp"
+                                invisible="whatsapp_notifications_count == 0">
+                            <field name="whatsapp_notifications_count"
+                                   widget="statinfo"
+                                   string="WhatsApp"/>
+                        </button>
+                    </div>
+
+                    <div class="alert alert-warning d-flex align-items-center gap-2" role="alert"
+                         invisible="not requiere_repuestos or sale_order_id or estado not in ('en_sitio', 'pausado')">
+                        <i class="fa fa-exclamation-triangle fa-lg"/>
+                        <div>
+                            <strong>Pedido pendiente:</strong>
+                            indicó que se requieren repuestos, pero todavía no se creó la cotización.
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info d-flex align-items-center gap-2" role="alert"
+                         invisible="not sale_order_id">
+                        <i class="fa fa-shopping-cart fa-lg"/>
+                        <div>
+                            Pedido vinculado:
+                            <field name="sale_order_id" readonly="1" class="fw-bold"/>
+                            <span class="ms-2">Estado:</span>
+                            <field name="sale_order_state" widget="badge" readonly="1"/>
+                        </div>
                     </div>
 
                     <!-- Título -->
-                    <div class="oe_title">
+                    <div class="oe_title mb-3">
                         <h1>
                             <field name="name" readonly="1"/>
                         </h1>
@@ -158,10 +204,17 @@
                                    placeholder="Seleccione tipo de problema..."
                                    readonly="estado in ('completado', 'cancelado')"/>
                         </h2>
+                        <div class="text-muted mt-1">
+                            <field name="cliente_id" readonly="1"/>
+                            <span class="mx-2">•</span>
+                            <field name="modelo_maquina" readonly="1"/>
+                            <span class="mx-2">•</span>
+                            Serie <field name="serie_maquina" readonly="1"/>
+                        </div>
                     </div>
 
                     <!-- Widgets de estado -->
-                    <group>
+                    <group class="bg-light rounded-3 p-3 mb-3">
                         <group>
                             <field name="prioridad" widget="priority"/>
                             <field name="origen_solicitud"/>
@@ -171,7 +224,6 @@
                             <field name="sla_cumplido" 
                                    invisible="estado != 'completado'"
                                    widget="boolean"/>
-
                             <field name="enable_whatsapp_notifications" widget="boolean_toggle"/>
                         </group>
                     </group>
@@ -179,10 +231,10 @@
                     <notebook>
                         <!-- TAB: INFORMACIÓN GENERAL -->
                         <page string="Información General" name="general">
-                            <group>
+                            <group class="p-2">
                                 <group string="Máquina y Cliente">
                                     <field name="maquina_id" 
-                                           readonly="estado not in ('nuevo', 'asignado')"
+                                           readonly="estado != 'nuevo'"
                                            options="{'no_create': True}"/>
                                     <field name="cliente_id" readonly="1" force_save="1"/>
                                     <field name="modelo_maquina" readonly="1" force_save="1"/>
@@ -193,8 +245,9 @@
                                 <group string="Ubicación y Contacto">
                                     <field name="ubicacion" readonly="1" force_save="1"/>
                                     <field name="sede" readonly="1" force_save="1"/>
-                                    <field name="contacto"/>
-                                    <field name="telefono_contacto"/>
+                                    <field name="contacto" readonly="estado in ('completado', 'cancelado')"/>
+                                    <field name="telefono_contacto" readonly="estado in ('completado', 'cancelado')"/>
+                                    <field name="correo" readonly="estado in ('completado', 'cancelado')"/>
                                 </group>
                             </group>
 
@@ -208,34 +261,41 @@
 
                         <!-- TAB: ASIGNACIÓN -->
                         <page string="Asignación" name="asignacion">
-                            <group>
+                            <group class="p-2">
                                 <group string="Técnico">
                                     <field name="tecnico_id" 
                                            widget="many2one_avatar_user"
-                                           readonly="estado in ('completado', 'cancelado')"/>
+                                           readonly="estado != 'nuevo'"/>
                                     <field name="tecnico_respaldo_id" 
                                            widget="many2one_avatar_user"
-                                           readonly="estado in ('completado', 'cancelado')"/>
+                                           readonly="estado not in ('nuevo', 'asignado')"/>
+                                    <field name="fecha_asignacion" readonly="1"/>
                                 </group>
                                 
                                 <group string="Programación">
                                     <field name="fecha_programada" 
-                                           readonly="estado in ('completado', 'cancelado')"/>
+                                           readonly="estado != 'asignado'"/>
                                     <field name="duracion_estimada" 
                                            widget="float_time"
-                                           readonly="estado in ('completado', 'cancelado')"/>
-                                    
+                                           readonly="estado not in ('nuevo', 'asignado')"/>
+                                    <field name="fecha_confirmacion" readonly="1"/>
+                                    <field name="fecha_inicio_ruta" readonly="1"/>
+                                </group>
+                            </group>
+                            <group string="Vehículo" class="mt-2">
+                                <group>
+                                    <field name="vehicle_brand"
+                                           readonly="estado in ('en_sitio', 'pausado', 'completado', 'cancelado')"/>
+                                    <field name="vehicle_model"
+                                           readonly="estado in ('en_sitio', 'pausado', 'completado', 'cancelado')"/>
                                 </group>
                                 <group>
-                    <group string="Información del Vehículo">
-                        <field name="vehicle_brand"/>
-                        <field name="vehicle_model"/>
-                        <field name="vehicle_plate"/>
-                        <field name="vehicle_info" 
-                               readonly="1" 
-                               invisible="not vehicle_info"/>
-                    </group>
-                </group>
+                                    <field name="vehicle_plate"
+                                           readonly="estado in ('en_sitio', 'pausado', 'completado', 'cancelado')"/>
+                                    <field name="vehicle_info"
+                                           readonly="1"
+                                           invisible="not vehicle_info"/>
+                                </group>
                             </group>
                         </page>
 
@@ -243,9 +303,10 @@
                         <page string="Ejecución" 
                               name="ejecucion"
                               invisible="estado in ('nuevo', 'asignado', 'confirmado')">
-                            <group>
+                            <group class="p-2">
                                 <group string="Tiempos">
                                     <field name="fecha_inicio" readonly="1" force_save="1"/>
+                                    <field name="fecha_reanudacion" readonly="1" invisible="not fecha_reanudacion"/>
                                     <field name="fecha_fin" readonly="1" force_save="1"/>
                                     <field name="duracion_real" 
                                            widget="float_time" 
@@ -265,32 +326,79 @@
                                 </group>
                             </group>
 
-                            <group string="Diagnóstico y Solución">
-                                <field name="diagnostico" 
-                                       nolabel="1" 
-                                       placeholder="Diagnóstico realizado por el técnico..."
-                                       readonly="estado in ('completado', 'cancelado')"/>
-                                
-                                <field name="solucion_aplicada" 
-                                       readonly="estado in ('completado', 'cancelado')"/>
-                                
-                                <field name="trabajo_realizado" 
-                                       nolabel="1" 
-                                       placeholder="Detalle el trabajo realizado..."
-                                       readonly="estado in ('completado', 'cancelado')"/>
+                            <group string="Diagnóstico y solución" class="p-2">
+                                <group>
+                                    <field name="diagnostico"
+                                           placeholder="Diagnóstico realizado por el técnico..."
+                                           readonly="estado in ('completado', 'cancelado')"/>
+                                    <field name="solucion_aplicada"
+                                           readonly="estado in ('completado', 'cancelado')"/>
+                                </group>
+                                <group>
+                                    <field name="trabajo_realizado"
+                                           placeholder="Detalle el trabajo realizado..."
+                                           readonly="estado in ('completado', 'cancelado')"/>
+                                    <field name="observaciones_tecnico"
+                                           placeholder="Observaciones adicionales..."
+                                           readonly="estado in ('completado', 'cancelado')"/>
+                                </group>
                             </group>
 
-                            <group string="Insumos y Observaciones">
+                            <group string="Insumos utilizados" class="p-2">
                                 <field name="insumos_utilizados" 
                                        nolabel="1" 
                                        placeholder="Tóner, kits, piezas, etc..."
                                        readonly="estado in ('completado', 'cancelado')"/>
-                                
-                                <field name="observaciones_tecnico" 
-                                       nolabel="1" 
-                                       placeholder="Observaciones adicionales del técnico..."
-                                       readonly="estado in ('completado', 'cancelado')"/>
                             </group>
+                        </page>
+
+                        <!-- TAB: PEDIDO DE REPUESTOS -->
+                        <page string="Repuestos"
+                              name="repuestos"
+                              invisible="estado not in ('en_sitio', 'pausado', 'completado') and not requiere_repuestos">
+                            <div class="alert alert-light border d-flex align-items-start gap-2" role="alert">
+                                <i class="fa fa-cogs fa-lg text-primary mt-1"/>
+                                <div>
+                                    Marque esta opción cuando el diagnóstico requiera partes o repuestos.
+                                    La cotización se creará en borrador para revisión del área comercial.
+                                </div>
+                            </div>
+
+                            <group class="p-2">
+                                <group string="Necesidad técnica">
+                                    <field name="requiere_repuestos"
+                                           widget="boolean_toggle"
+                                           readonly="estado not in ('en_sitio', 'pausado')"/>
+                                    <field name="motivo_repuestos"
+                                           placeholder="Ejemplo: Developer Cyan - Ricoh MP C2003 / MP C2503"
+                                           required="requiere_repuestos"
+                                           readonly="estado not in ('en_sitio', 'pausado')"/>
+                                </group>
+
+                                <group string="Cotización comercial" invisible="not sale_order_id">
+                                    <field name="sale_order_id" readonly="1"/>
+                                    <field name="sale_order_state" widget="badge" readonly="1"/>
+                                    <field name="sale_order_currency_id" invisible="1"/>
+                                    <field name="sale_order_amount_total"
+                                           widget="monetary"
+                                           options="{'currency_field': 'sale_order_currency_id'}"
+                                           readonly="1"/>
+                                    <button name="action_open_parts_sale_order"
+                                            type="object"
+                                            string="Abrir cotización"
+                                            icon="fa-external-link"
+                                            class="btn-primary"/>
+                                </group>
+                            </group>
+
+                            <div class="d-flex justify-content-end mt-2"
+                                 invisible="not requiere_repuestos or sale_order_id or estado not in ('en_sitio', 'pausado')">
+                                <button name="action_create_parts_sale_order"
+                                        type="object"
+                                        string="Crear cotización de repuestos"
+                                        icon="fa-shopping-cart"
+                                        class="btn-primary"/>
+                            </div>
                         </page>
 
                         <!-- TAB: CONTADORES -->
@@ -397,66 +505,113 @@
                 <field name="fecha_programada"/>
                 <field name="sla_limite_1"/>
                 <field name="sla_cumplido"/>
+                <field name="requiere_repuestos"/>
+                <field name="sale_order_id"/>
+                <field name="sale_order_state"/>
                 <field name="color"/>
                 <field name="activity_ids"/>
                 <field name="activity_state"/>
 
                 <templates>
-                    <t t-name="card" class="row">
-                        <aside>
-                            <field name="prioridad" widget="priority"/>
-                        </aside>
-                        
-                        <main class="ms-2">
-                            <!-- Header -->
-                            <div class="d-flex align-items-baseline">
-                                <strong class="me-2">
-                                    <field name="name"/>
-                                </strong>
-                                
-                                <span class="badge rounded-pill"
-                                      t-attf-class="#{record.prioridad.raw_value == '3' ? 'text-bg-danger' : record.prioridad.raw_value == '2' ? 'text-bg-warning' : 'text-bg-secondary'}">
-                                    <field name="tipo_problema_id"/>
-                                </span>
+                    <t t-name="card">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <div>
+                                <strong class="fs-5"><field name="name"/></strong>
+                                <div class="text-muted"><field name="tipo_problema_id"/></div>
                             </div>
+                            <field name="prioridad" widget="priority"/>
+                        </div>
 
-                            <!-- Cliente y Máquina -->
-                            <div class="mt-2">
-                                <i class="fa fa-building-o me-1"/>
+                        <div class="border-top mt-2 pt-2">
+                            <div class="fw-semibold text-truncate">
+                                <i class="fa fa-building-o me-2 text-muted"/>
                                 <field name="cliente_id"/>
                             </div>
-                            
-                            <div>
-                                <i class="fa fa-print me-1"/>
+                            <div class="text-muted text-truncate mt-1">
+                                <i class="fa fa-print me-2"/>
                                 <field name="modelo_maquina"/>
                             </div>
+                        </div>
 
-                            <!-- Técnico -->
-                            <div class="mt-2" invisible="not tecnico_id">
-                                <field name="tecnico_id" widget="many2one_avatar_user"/>
-                            </div>
+                        <div class="d-flex flex-wrap gap-2 mt-3">
+                            <span class="badge rounded-pill text-bg-warning"
+                                  invisible="not requiere_repuestos or sale_order_id">
+                                <i class="fa fa-exclamation-triangle me-1"/>Pedido pendiente
+                            </span>
+                            <span class="badge rounded-pill text-bg-info"
+                                  invisible="not sale_order_id">
+                                <i class="fa fa-shopping-cart me-1"/>
+                                <field name="sale_order_id"/>
+                            </span>
+                        </div>
 
-                            <!-- Fecha Programada -->
-                            <div class="mt-2" invisible="not fecha_programada">
-                                <i class="fa fa-calendar me-1"/>
-                                <field name="fecha_programada" widget="date"/>
-                            </div>
+                        <div class="mt-3" invisible="not tecnico_id">
+                            <field name="tecnico_id" widget="many2one_avatar_user"/>
+                        </div>
 
-                            <!-- Alerta SLA -->
-                            <div class="mt-2 text-danger" 
-                                 invisible="sla_cumplido or estado in ('completado', 'cancelado')">
-                                <i class="fa fa-warning me-1"/>
-                                <strong>Revisar SLA</strong>
-                            </div>
+                        <div class="small text-muted mt-2" invisible="not fecha_programada">
+                            <i class="fa fa-calendar me-2"/>
+                            <field name="fecha_programada"/>
+                        </div>
 
-                            <!-- Footer con actividades -->
-                            <footer class="mt-3">
-                                <field name="activity_ids" widget="kanban_activity"/>
-                            </footer>
-                        </main>
+                        <footer class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                            <field name="estado" widget="label_selection"
+                                   options="{'classes': {'nuevo': 'default', 'asignado': 'info', 'confirmado': 'primary', 'en_ruta': 'warning', 'en_sitio': 'success', 'pausado': 'danger', 'completado': 'success', 'cancelado': 'default'}}"/>
+                            <field name="activity_ids" widget="kanban_activity"/>
+                        </footer>
                     </t>
                 </templates>
             </kanban>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- VISTA DE BÚSQUEDA -->
+    <!-- ========================================== -->
+    <record id="view_copier_service_request_search" model="ir.ui.view">
+        <field name="name">copier.service.request.search</field>
+        <field name="model">copier.service.request</field>
+        <field name="arch" type="xml">
+            <search string="Buscar servicios">
+                <field name="name" string="Número"/>
+                <field name="cliente_id"/>
+                <field name="serie_maquina"/>
+                <field name="modelo_maquina"/>
+                <field name="tecnico_id"/>
+                <field name="tipo_problema_id"/>
+                <field name="sale_order_id" string="Pedido de repuestos"/>
+
+                <separator/>
+                <filter name="services_open"
+                        string="Servicios abiertos"
+                        domain="[('estado', 'not in', ('completado', 'cancelado'))]"/>
+                <filter name="services_today"
+                        string="Programados hoy"
+                        date="fecha_programada"/>
+                <filter name="services_critical"
+                        string="Prioridad crítica"
+                        domain="[('prioridad', '=', '3')]"/>
+                <filter name="parts_required"
+                        string="Requieren repuestos"
+                        domain="[('requiere_repuestos', '=', True)]"/>
+                <filter name="parts_without_order"
+                        string="Sin pedido creado"
+                        domain="[('requiere_repuestos', '=', True), ('sale_order_id', '=', False)]"/>
+                <filter name="services_completed"
+                        string="Completados"
+                        domain="[('estado', '=', 'completado')]"/>
+                <filter name="services_cancelled"
+                        string="Cancelados"
+                        domain="[('estado', '=', 'cancelado')]"/>
+
+                <group expand="0" string="Agrupar por">
+                    <filter name="group_state" string="Estado" context="{'group_by': 'estado'}"/>
+                    <filter name="group_technician" string="Técnico" context="{'group_by': 'tecnico_id'}"/>
+                    <filter name="group_customer" string="Cliente" context="{'group_by': 'cliente_id'}"/>
+                    <filter name="group_problem" string="Tipo de problema" context="{'group_by': 'tipo_problema_id'}"/>
+                    <filter name="group_scheduled_day" string="Fecha programada" context="{'group_by': 'fecha_programada:day'}"/>
+                </group>
+            </search>
         </field>
     </record>
 

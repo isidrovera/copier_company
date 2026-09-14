@@ -169,6 +169,34 @@ class CopierServiceRequest(models.Model):
         ('completado', 'Completado'),
         ('cancelado', 'Cancelado')
     ], string='Estado', default='nuevo', required=True, tracking=True)
+
+    fecha_asignacion = fields.Datetime(
+        string='Fecha de Asignación',
+        readonly=True,
+        copy=False,
+        tracking=True
+    )
+
+    fecha_confirmacion = fields.Datetime(
+        string='Fecha de Confirmación',
+        readonly=True,
+        copy=False,
+        tracking=True
+    )
+
+    fecha_inicio_ruta = fields.Datetime(
+        string='Fecha de Inicio de Ruta',
+        readonly=True,
+        copy=False,
+        tracking=True
+    )
+
+    fecha_reanudacion = fields.Datetime(
+        string='Última Reanudación',
+        readonly=True,
+        copy=False,
+        tracking=True
+    )
     
     # ========================================
     # DATOS DE CONTACTO (del reportante)
@@ -307,6 +335,52 @@ class CopierServiceRequest(models.Model):
         string='Insumos Utilizados',
         help='Descripción de insumos/repuestos utilizados'
     )
+
+    # ========================================
+    # PEDIDO DE PARTES / REPUESTOS
+    # ========================================
+
+    requiere_repuestos = fields.Boolean(
+        string='Requiere partes o repuestos',
+        default=False,
+        tracking=True,
+        help='Indica que el diagnóstico requiere crear una cotización de partes o repuestos.'
+    )
+
+    motivo_repuestos = fields.Text(
+        string='Detalle de partes o repuestos',
+        tracking=True,
+        help='Detalle técnico para que el área comercial prepare la cotización.'
+    )
+
+    sale_order_id = fields.Many2one(
+        'sale.order',
+        string='Pedido de repuestos',
+        copy=False,
+        tracking=True,
+        check_company=True,
+        ondelete='restrict'
+    )
+
+    sale_order_state = fields.Selection(
+        related='sale_order_id.state',
+        string='Estado del pedido',
+        readonly=True,
+        store=True
+    )
+
+    sale_order_amount_total = fields.Monetary(
+        related='sale_order_id.amount_total',
+        string='Total del pedido',
+        currency_field='sale_order_currency_id',
+        readonly=True
+    )
+
+    sale_order_currency_id = fields.Many2one(
+        related='sale_order_id.currency_id',
+        string='Moneda del pedido',
+        readonly=True
+    )
     
     color = fields.Integer(
         string='Color',
@@ -320,25 +394,20 @@ class CopierServiceRequest(models.Model):
     def _compute_color(self):
         """Calcula el color para la vista kanban/list según prioridad y estado"""
         for record in self:
-            # Prioridad crítica = rojo
-            if record.prioridad == '3':
-                record.color = 1  # Rojo
-            # Prioridad alta = naranja
-            elif record.prioridad == '2':
-                record.color = 3  # Naranja
-            # Completado = verde
-            elif record.estado == 'completado':
+            # Los estados finales/operativos tienen prioridad visual.
+            if record.estado == 'completado':
                 if record.sla_cumplido:
                     record.color = 10  # Verde
                 else:
                     record.color = 9  # Rosa (completado pero SLA no cumplido)
-            # Cancelado = gris
             elif record.estado == 'cancelado':
                 record.color = 4  # Azul claro/gris
-            # Pausado = amarillo
             elif record.estado == 'pausado':
                 record.color = 5  # Amarillo
-            # Normal = sin color
+            elif record.prioridad == '3':
+                record.color = 1  # Rojo
+            elif record.prioridad == '2':
+                record.color = 3  # Naranja
             else:
                 record.color = 0  # Sin color
     
@@ -573,13 +642,13 @@ class CopierServiceRequest(models.Model):
         for record in self:
             record.sla_limite_1 = sla_map.get(record.prioridad, 24.0)
     
-    @api.depends('create_date', 'fecha_inicio', 'fecha_fin', 'sla_limite_1', 'estado')
+    @api.depends('create_date', 'fecha_asignacion', 'fecha_fin', 'sla_limite_1', 'estado')
     def _compute_sla(self):
         """Calcula los tiempos de SLA"""
         for record in self:
             # Tiempo de respuesta (hasta asignación)
-            if record.fecha_inicio and record.create_date:
-                delta = record.fecha_inicio - record.create_date
+            if record.fecha_asignacion and record.create_date:
+                delta = record.fecha_asignacion - record.create_date
                 record.tiempo_respuesta = delta.total_seconds() / 3600.0
             else:
                 record.tiempo_respuesta = 0.0
@@ -793,15 +862,50 @@ class CopierServiceRequest(models.Model):
             rec.sede = maquina.sede or False
             rec.ip_maquina = maquina.ip_id or False
     def write(self, vals):
-        """Override write para notificar cambios de estado"""
-        res = super(CopierServiceRequest, self).write(vals)
-        
-        # Notificar cambios de estado importantes
-        if 'estado' in vals:
+        """Override write para validar y notificar cambios de estado."""
+        if 'estado' in vals and not self.env.context.get('skip_state_transition_validation'):
+            transiciones_permitidas = {
+                'nuevo': {'asignado', 'cancelado'},
+                'asignado': {'confirmado', 'cancelado'},
+                'confirmado': {'en_ruta', 'en_sitio', 'cancelado'},
+                'en_ruta': {'en_sitio', 'cancelado'},
+                'en_sitio': {'pausado', 'completado', 'cancelado'},
+                'pausado': {'en_sitio', 'cancelado'},
+                'completado': set(),
+                'cancelado': set(),
+            }
+            nombres = dict(self._fields['estado'].selection)
+            nuevo_estado = vals['estado']
+
             for record in self:
-                record._notificar_cambio_estado(vals['estado'])
-        
-        return res
+                if record.estado == nuevo_estado:
+                    continue
+                permitidos = transiciones_permitidas.get(record.estado, set())
+                if nuevo_estado not in permitidos:
+                    raise ValidationError(_(
+                        "Transición de estado no permitida: %(anterior)s → %(nuevo)s."
+                    ) % {
+                        'anterior': nombres.get(record.estado, record.estado),
+                        'nuevo': nombres.get(nuevo_estado, nuevo_estado),
+                    })
+
+        # El campo estado ya tiene tracking=True; mail.thread registra el cambio,
+        # usuario y fecha sin duplicar mensajes manuales en el chatter.
+        return super(CopierServiceRequest, self).write(vals)
+
+    def _validar_estado_actual(self, estados_permitidos, accion):
+        """Impide ejecutar acciones fuera de la secuencia del servicio."""
+        self.ensure_one()
+        if self.estado not in estados_permitidos:
+            estado_actual = dict(
+                self._fields['estado'].selection
+            ).get(self.estado, self.estado)
+            raise ValidationError(_(
+                "No se puede %(accion)s cuando el servicio está en estado %(estado)s."
+            ) % {
+                'accion': accion,
+                'estado': estado_actual,
+            })
     
     # ========================================
     # ACCIONES DE WORKFLOW
@@ -810,11 +914,16 @@ class CopierServiceRequest(models.Model):
     def action_asignar_tecnico(self):
         """Asignar técnico a la solicitud"""
         self.ensure_one()
+
+        self._validar_estado_actual(['nuevo'], _('asignar el técnico'))
         
         if not self.tecnico_id:
             raise ValidationError(_("Debe asignar un técnico antes de continuar."))
         
-        self.write({'estado': 'asignado'})
+        self.write({
+            'estado': 'asignado',
+            'fecha_asignacion': fields.Datetime.now(),
+        })
         
         # ✅ OPCIÓN 1: Crear actividad para el usuario que ejecuta la acción
         # (el administrador o supervisor que asigna)
@@ -865,11 +974,19 @@ class CopierServiceRequest(models.Model):
     def action_confirmar_visita(self):
         """Confirmar fecha de visita del técnico"""
         self.ensure_one()
+
+        self._validar_estado_actual(['asignado'], _('confirmar la visita'))
+
+        if not self.tecnico_id:
+            raise ValidationError(_("Debe asignar un técnico antes de confirmar la visita."))
         
         if not self.fecha_programada:
             raise ValidationError(_("Debe programar una fecha para la visita."))
         
-        self.write({'estado': 'confirmado'})
+        self.write({
+            'estado': 'confirmado',
+            'fecha_confirmacion': fields.Datetime.now(),
+        })
         
         # Enviar email al cliente con técnico asignado
         try:
@@ -882,11 +999,16 @@ class CopierServiceRequest(models.Model):
     def action_iniciar_ruta(self):
         """Técnico indica que está en camino"""
         self.ensure_one()
+
+        self._validar_estado_actual(['confirmado'], _('iniciar la ruta'))
         
         if not self.tecnico_id:
             raise ValidationError(_("No hay técnico asignado a esta solicitud."))
         
-        self.write({'estado': 'en_ruta'})
+        self.write({
+            'estado': 'en_ruta',
+            'fecha_inicio_ruta': fields.Datetime.now(),
+        })
         
         self.message_post(
             body=f'''
@@ -902,6 +1024,13 @@ class CopierServiceRequest(models.Model):
     def action_iniciar_servicio(self):
         """Técnico hace check-in en el sitio"""
         self.ensure_one()
+
+        # Se permite iniciar desde Confirmado para una visita directa y desde
+        # En Ruta cuando el técnico registró su desplazamiento.
+        self._validar_estado_actual(
+            ['confirmado', 'en_ruta'],
+            _('iniciar el servicio')
+        )
         
         if not self.tecnico_id:
             raise ValidationError(_("No hay técnico asignado a esta solicitud."))
@@ -924,6 +1053,8 @@ class CopierServiceRequest(models.Model):
     
     def action_pausar_servicio(self):
         """Pausar servicio temporalmente"""
+        self.ensure_one()
+        self._validar_estado_actual(['en_sitio'], _('pausar el servicio'))
         return {
             'name': _('Pausar Servicio'),
             'type': 'ir.actions.act_window',
@@ -932,13 +1063,40 @@ class CopierServiceRequest(models.Model):
             'target': 'new',
             'context': {'default_request_id': self.id}
         }
+
+    def action_reanudar_servicio(self):
+        """Reanudar un servicio previamente pausado."""
+        self.ensure_one()
+        self._validar_estado_actual(['pausado'], _('reanudar el servicio'))
+
+        self.write({
+            'estado': 'en_sitio',
+            'fecha_reanudacion': fields.Datetime.now(),
+        })
+
+        self.message_post(
+            body=_("Servicio reanudado por %s.") % self.env.user.name,
+            message_type='notification'
+        )
+        return True
     
     def action_completar_servicio(self):
         """Completar servicio técnico"""
         self.ensure_one()
+
+        self._validar_estado_actual(['en_sitio'], _('completar el servicio'))
+
+        if not self.fecha_inicio:
+            raise ValidationError(_("El servicio debe haberse iniciado antes de completarlo."))
         
         if not self.trabajo_realizado:
             raise ValidationError(_("Debe describir el trabajo realizado antes de completar."))
+
+        if self.requiere_repuestos and not self.sale_order_id:
+            raise ValidationError(_(
+                "Indicó que el servicio requiere repuestos. Debe crear y vincular "
+                "el pedido antes de completar el servicio."
+            ))
         
         self.write({
             'estado': 'completado',
@@ -962,6 +1120,11 @@ class CopierServiceRequest(models.Model):
     
     def action_cancelar_servicio(self):
         """Cancelar servicio"""
+        self.ensure_one()
+        self._validar_estado_actual(
+            ['nuevo', 'asignado', 'confirmado', 'en_ruta', 'en_sitio', 'pausado'],
+            _('cancelar el servicio')
+        )
         return {
             'name': _('Cancelar Servicio'),
             'type': 'ir.actions.act_window',
@@ -969,6 +1132,81 @@ class CopierServiceRequest(models.Model):
             'view_mode': 'form',
             'target': 'new',
             'context': {'default_request_id': self.id}
+        }
+
+    def action_create_parts_sale_order(self):
+        """Crear una cotización de repuestos en borrador y abrirla."""
+        self.ensure_one()
+
+        self._validar_estado_actual(
+            ['en_sitio', 'pausado'],
+            _('crear el pedido de repuestos')
+        )
+
+        if not self.requiere_repuestos:
+            raise ValidationError(_(
+                "Debe indicar que el servicio requiere partes o repuestos."
+            ))
+
+        if not self.motivo_repuestos:
+            raise ValidationError(_(
+                "Debe detallar las partes o repuestos requeridos."
+            ))
+
+        if self.sale_order_id:
+            raise ValidationError(_(
+                "Este servicio ya tiene vinculada la cotización %s."
+            ) % self.sale_order_id.display_name)
+
+        if not self.cliente_id:
+            raise ValidationError(_(
+                "El servicio debe tener un cliente para crear la cotización."
+            ))
+
+        equipo = self.modelo_maquina.display_name if self.modelo_maquina else _('Sin modelo')
+        serie = self.serie_maquina or _('Sin serie')
+        nota = _(
+            "Pedido de repuestos generado desde el servicio %(servicio)s.\n"
+            "Equipo: %(equipo)s\n"
+            "Serie: %(serie)s\n"
+            "Detalle técnico:\n%(detalle)s"
+        ) % {
+            'servicio': self.name,
+            'equipo': equipo,
+            'serie': serie,
+            'detalle': self.motivo_repuestos,
+        }
+
+        order = self.env['sale.order'].create({
+            'partner_id': self.cliente_id.id,
+            'company_id': self.company_id.id,
+            'origin': self.name,
+            'note': nota,
+        })
+
+        self.write({'sale_order_id': order.id})
+        self.message_post(
+            body=_("Cotización de repuestos creada en borrador: %s.") % order.display_name,
+            message_type='notification'
+        )
+
+        return self.action_open_parts_sale_order()
+
+    def action_open_parts_sale_order(self):
+        """Abrir la cotización de repuestos vinculada."""
+        self.ensure_one()
+        if not self.sale_order_id:
+            raise ValidationError(_(
+                "Este servicio todavía no tiene una cotización de repuestos."
+            ))
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Pedido de repuestos'),
+            'res_model': 'sale.order',
+            'res_id': self.sale_order_id.id,
+            'view_mode': 'form',
+            'target': 'current',
         }
     
     # ========================================
@@ -1038,24 +1276,6 @@ class CopierServiceRequest(models.Model):
             message_type='notification'
         )
     
-    def _notificar_cambio_estado(self, nuevo_estado):
-        """Notifica cambios de estado importantes"""
-        self.ensure_one()
-        
-        estados_importantes = ['asignado', 'en_ruta', 'en_sitio', 'completado', 'cancelado']
-        
-        if nuevo_estado in estados_importantes:
-            estado_nombre = dict(self._fields['estado'].selection)[nuevo_estado]
-            
-            self.message_post(
-                body=f'''
-                    🔄 Cambio de Estado: {estado_nombre}
-                    
-                    • Fecha: {fields.Datetime.now().strftime('%d/%m/%Y %H:%M')}
-                    • Usuario: {self.env.user.name}
-                ''',
-                message_type='notification'
-            )
     def registrar_evaluacion_publica(self, calificacion, comentario=''):
         """
         Registrar evaluación desde formulario público
@@ -1143,12 +1363,30 @@ class CopierServiceRequest(models.Model):
         })
         
         # Evento: Técnico asignado
-        if self.tecnico_id:
+        if self.tecnico_id and self.fecha_asignacion:
             timeline.append({
-                'fecha': self.write_date,
+                'fecha': self.fecha_asignacion,
                 'titulo': 'Técnico Asignado',
                 'descripcion': f'Técnico: {self.tecnico_id.name}',
                 'icon': '👨‍🔧',
+                'completed': True
+            })
+
+        if self.fecha_confirmacion:
+            timeline.append({
+                'fecha': self.fecha_confirmacion,
+                'titulo': 'Visita Confirmada',
+                'descripcion': 'La fecha de visita fue confirmada',
+                'icon': '✅',
+                'completed': True
+            })
+
+        if self.fecha_inicio_ruta:
+            timeline.append({
+                'fecha': self.fecha_inicio_ruta,
+                'titulo': 'Técnico en Ruta',
+                'descripcion': 'El técnico se encuentra en camino',
+                'icon': '🚗',
                 'completed': True
             })
         
@@ -1681,6 +1919,11 @@ class CopierServicePauseWizard(models.TransientModel):
     def action_pausar(self):
         """Confirma la pausa del servicio"""
         self.ensure_one()
+
+        self.request_id._validar_estado_actual(
+            ['en_sitio'],
+            _('pausar el servicio')
+        )
         
         self.request_id.write({
             'estado': 'pausado',
@@ -1720,6 +1963,11 @@ class CopierServiceCancelWizard(models.TransientModel):
     def action_cancelar(self):
         """Confirma la cancelación del servicio"""
         self.ensure_one()
+
+        self.request_id._validar_estado_actual(
+            ['nuevo', 'asignado', 'confirmado', 'en_ruta', 'en_sitio', 'pausado'],
+            _('cancelar el servicio')
+        )
         
         self.request_id.write({
             'estado': 'cancelado',

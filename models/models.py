@@ -261,6 +261,12 @@ class CopierCompany(models.Model):
         """
         self.ensure_one()
 
+        cliente_mobile = (
+            self.cliente_id['mobile']
+            if self.cliente_id and 'mobile' in self.cliente_id._fields
+            else False
+        )
+
         return {
             'name': 'Nueva Solicitud de Servicio Técnico',
             'type': 'ir.actions.act_window',
@@ -277,7 +283,7 @@ class CopierCompany(models.Model):
                 # Datos históricos del contacto
                 'default_contacto': self.contacto or self.cliente_id.complete_name or self.cliente_id.name,
                 'default_correo': self.correo or self.cliente_id.email,
-                'default_telefono_contacto': self.celular or self.cliente_id.mobile or self.cliente_id.phone,
+                'default_telefono_contacto': self.celular or cliente_mobile or self.cliente_id.phone,
 
                 # Datos históricos de ubicación
                 'default_ubicacion': self.ubicacion,
@@ -354,11 +360,20 @@ class CopierCompany(models.Model):
 
     def get_formatted_phones(self):
         """Obtiene y formatea los números de teléfono del cliente"""
-        if not self.cliente_id.mobile:
+        self.ensure_one()
+
+        cliente_mobile = (
+            self.cliente_id['mobile']
+            if self.cliente_id and 'mobile' in self.cliente_id._fields
+            else False
+        )
+        telefonos = self.celular or cliente_mobile or self.cliente_id.phone
+
+        if not telefonos:
             return False
             
         # Dividir números por punto y coma y formatear cada uno
-        phones = self.cliente_id.mobile.split(';')
+        phones = telefonos.split(';')
         formatted_phones = []
         
         for phone in phones:
