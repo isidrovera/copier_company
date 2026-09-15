@@ -1,0 +1,145 @@
+.pc-page {
+    --pc-navy: #102940;
+    --pc-border: #e7ebf0;
+    --pc-muted: #69798a;
+    color: #263646;
+}
+
+.pc-page .pc-hero {
+    background: linear-gradient(
+        125deg,
+        #48394c 0%,
+        #262d41 100%
+    );
+    border-radius: 18px;
+    color: #fff;
+    padding: 25px 30px;
+}
+
+.pc-page .pc-panel {
+    background: #fff;
+    border: 1px solid var(--pc-border);
+    border-radius: 16px;
+    box-shadow: 0 8px 28px rgba(22, 38, 55, .045);
+}
+
+.pc-page .pc-panel-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--pc-border);
+}
+
+.pc-page .pc-panel-body {
+    padding: 22px;
+}
+
+.pc-page .pc-label {
+    color: var(--pc-muted);
+    font-size: .82rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.pc-page .form-control,
+.pc-page .form-select {
+    border: 1px solid #dce4ec;
+    border-radius: 10px;
+    min-height: 42px;
+}
+
+.pc-page .form-control:focus,
+.pc-page .form-select:focus {
+    border-color: #284c6b;
+    box-shadow: 0 0 0 3px rgba(40, 76, 107, .11);
+}
+
+.pc-page .btn {
+    border-radius: 10px;
+}
+
+.pc-page .btn-primary {
+    background: var(--pc-navy);
+    border-color: var(--pc-navy);
+}
+
+.pc-page .pc-line {
+    padding: 16px;
+    border: 1px solid var(--pc-border);
+    border-radius: 12px;
+    margin-bottom: 12px;
+}
+
+.pc-page .pc-product-picker {
+    position: relative;
+}
+
+.pc-page .pc-search-results {
+    position: absolute;
+    z-index: 50;
+    top: calc(100% + 5px);
+    left: 0;
+    right: 0;
+    max-height: 310px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #dce4ec;
+    border-radius: 12px;
+    box-shadow: 0 18px 35px rgba(22, 38, 55, .16);
+}
+
+.pc-page .pc-search-results[hidden] {
+    display: none;
+}
+
+.pc-page .pc-search-option {
+    display: block;
+    width: 100%;
+    background: #fff;
+    border: 0;
+    border-bottom: 1px solid #edf0f3;
+    padding: 10px 14px;
+    text-align: left;
+}
+
+.pc-page .pc-search-option:hover,
+.pc-page .pc-search-option:focus {
+    background: #eef5fa;
+}
+
+.pc-page .pc-search-option strong,
+.pc-page .pc-search-option small {
+    display: block;
+}
+
+.pc-page .pc-search-option small {
+    color: var(--pc-muted);
+    margin-top: 3px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.pc-page .pc-search-empty {
+    padding: 14px;
+    color: var(--pc-muted);
+}
+
+.pc-page .pc-tax-details {
+    border: 1px solid var(--pc-border);
+    border-radius: 10px;
+    padding: 10px 13px;
+}
+
+.pc-page .pc-tax-details summary {
+    cursor: pointer;
+    font-weight: 600;
+}
+
+@media (max-width: 767px) {
+    .pc-page .pc-hero {
+        padding: 20px;
+    }
+
+    .pc-page .pc-panel-body {
+        padding: 16px;
+    }
+}
