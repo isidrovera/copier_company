@@ -125,8 +125,8 @@
             'copier_company/static/src/css/PcloudDescargas.css',
             'copier_company/static/src/css/copier_list.css',
             'copier_company/static/src/scss/copier_company_shop.scss',
-            'copier_company/static/src/css/portal_comercial.css',
-            'copier_company/static/src/js/portal_comercial_product_search.js',
+            'copier_company/static/src/css/portal_commercial.css',
+            'copier_company/static/src/js/portal_commercial.js',
 
             # Scripts propios
             'copier_company/static/src/js/manuals.js',
