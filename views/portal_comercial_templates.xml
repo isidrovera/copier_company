@@ -1,278 +1,172 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- ACCESO DESDE EL PORTAL PRINCIPAL -->
-
-    <template
-        id="portal_my_home_commercial"
-        inherit_id="portal.portal_my_home"
-        priority="40"
-    >
+    <!-- Acceso desde la página principal del portal -->
+    <template id="portal_my_home_commercial"
+              inherit_id="portal.portal_my_home"
+              name="Acceso al Portal Comercial"
+              priority="40">
         <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
-
-            <t t-if="request.env.user.has_group(
-                'copier_company.group_portal_commercial_executive'
-            )">
-                <t t-call="portal.portal_docs_entry">
-                    <t t-set="title">Portal Comercial</t>
-
-                    <t t-set="text">
-                        Cotizaciones, pedidos y facturas propias
-                    </t>
-
-                    <t t-set="url" t-value="'/my/commercial'"/>
-
-                    <t t-set="config_card" t-value="True"/>
-                </t>
+            <t t-if="request.env.user.has_group('copier_company.group_portal_commercial_executive')">
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <a href="/my/commercial"
+                       class="card h-100 border-0 shadow-sm text-decoration-none">
+                        <div class="card-body">
+                            <div class="text-muted small mb-2">
+                                <i class="fa fa-briefcase me-1"/>
+                                ÁREA PRIVADA
+                            </div>
+                            <h3 class="h5 mb-2">Portal Comercial</h3>
+                            <p class="text-muted mb-0">
+                                Sus cotizaciones, pedidos y facturas
+                            </p>
+                        </div>
+                    </a>
+                </div>
             </t>
-
         </xpath>
     </template>
 
-    <!-- PANEL PRINCIPAL -->
-
-    <template
-        id="portal_commercial_home"
-        name="Portal Comercial"
-    >
+    <!-- Inicio -->
+    <template id="portal_commercial_home"
+              name="Inicio del Portal Comercial">
         <t t-call="portal.portal_layout">
-
             <div class="container py-4">
 
-                <div
-                    class="p-4 mb-4 rounded-4 text-white shadow-sm"
-                    style="background: linear-gradient(
-                        135deg,
-                        #5b3f57,
-                        #3e2c3b
-                    );"
-                >
+                <div class="rounded-4 p-4 mb-4 text-white shadow-sm"
+                     style="background: linear-gradient(135deg, #59405a, #322b43);">
                     <div class="small text-uppercase opacity-75">
                         Área privada
                     </div>
-
-                    <h1 class="h3 mb-2">
-                        Portal Comercial
-                    </h1>
-
-                    <p class="mb-0">
-                        Administre sus cotizaciones,
-                        pedidos y facturas.
+                    <h1 class="h3 mt-2 mb-1">Portal Comercial</h1>
+                    <p class="mb-0 opacity-75">
+                        Administre sus documentos comerciales.
                     </p>
                 </div>
 
                 <div class="row g-3">
-
-                    <div class="col-md-3">
-                        <div class="card h-100 border-0 shadow-sm">
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="card border-0 shadow-sm h-100">
                             <div class="card-body">
-                                <div class="text-muted">
-                                    Cotizaciones
-                                </div>
-
-                                <div class="display-6">
-                                    <t t-esc="quotation_count"/>
-                                </div>
+                                <div class="text-muted">Cotizaciones</div>
+                                <div class="display-6"
+                                     t-esc="quotation_count"/>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-md-3">
-                        <div class="card h-100 border-0 shadow-sm">
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="card border-0 shadow-sm h-100">
                             <div class="card-body">
-                                <div class="text-muted">
-                                    Pedidos
-                                </div>
-
-                                <div class="display-6">
-                                    <t t-esc="order_count"/>
-                                </div>
+                                <div class="text-muted">Pedidos</div>
+                                <div class="display-6"
+                                     t-esc="order_count"/>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-md-3">
-                        <div class="card h-100 border-0 shadow-sm">
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="card border-0 shadow-sm h-100">
                             <div class="card-body">
-                                <div class="text-muted">
-                                    Facturas
-                                </div>
-
-                                <div class="display-6">
-                                    <t t-esc="invoice_count"/>
-                                </div>
+                                <div class="text-muted">Facturas</div>
+                                <div class="display-6"
+                                     t-esc="invoice_count"/>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-md-3">
-                        <div class="card h-100 border-0 shadow-sm">
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="card border-0 shadow-sm h-100">
                             <div class="card-body">
                                 <div class="text-muted">
-                                    Por publicar
+                                    Facturas en borrador
                                 </div>
-
-                                <div class="display-6">
-                                    <t t-esc="draft_invoice_count"/>
-                                </div>
+                                <div class="display-6"
+                                     t-esc="draft_invoice_count"/>
                             </div>
                         </div>
                     </div>
-
                 </div>
 
                 <div class="d-flex flex-wrap gap-2 mt-4">
-
-                    <a
-                        href="/my/commercial/orders/new"
-                        class="btn btn-primary"
-                    >
-                        <i class="fa fa-plus me-2"/>
+                    <a href="/my/commercial/orders/new"
+                       class="btn btn-primary">
+                        <i class="fa fa-plus me-1"/>
                         Nueva cotización
                     </a>
-
-                    <a
-                        href="/my/commercial/orders"
-                        class="btn btn-outline-primary"
-                    >
-                        Mis pedidos
+                    <a href="/my/commercial/orders"
+                       class="btn btn-outline-primary">
+                        Cotizaciones y pedidos
                     </a>
-
-                    <a
-                        href="/my/commercial/invoices"
-                        class="btn btn-outline-primary"
-                    >
-                        Mis facturas
+                    <a href="/my/commercial/invoices"
+                       class="btn btn-outline-primary">
+                        Facturas
                     </a>
-
                 </div>
 
             </div>
-
         </t>
     </template>
 
-    <!-- LISTADO DE PEDIDOS -->
-
-    <template
-        id="portal_commercial_orders"
-        name="Pedidos de la ejecutiva"
-    >
+    <!-- Listado de cotizaciones y pedidos -->
+    <template id="portal_commercial_orders"
+              name="Cotizaciones y pedidos comerciales">
         <t t-call="portal.portal_layout">
-
             <div class="container py-4">
 
-                <div
-                    class="d-flex justify-content-between
-                           align-items-center mb-3"
-                >
-                    <h1 class="h3 mb-0">
-                        Mis cotizaciones y pedidos
-                    </h1>
-
-                    <a
-                        href="/my/commercial/orders/new"
-                        class="btn btn-primary"
-                    >
+                <div class="d-flex flex-wrap justify-content-between
+                            align-items-center gap-2 mb-3">
+                    <h1 class="h3 mb-0">Mis cotizaciones y pedidos</h1>
+                    <a href="/my/commercial/orders/new"
+                       class="btn btn-primary">
                         Nueva cotización
                     </a>
                 </div>
 
                 <div class="card border-0 shadow-sm">
-
                     <div class="table-responsive">
-
-                        <table
-                            class="table table-hover
-                                   align-middle mb-0"
-                        >
+                        <table class="table table-hover align-middle mb-0">
                             <thead class="table-light">
                                 <tr>
                                     <th>Número</th>
                                     <th>Cliente</th>
                                     <th>Fecha</th>
                                     <th>Estado</th>
-                                    <th class="text-end">
-                                        Total
-                                    </th>
+                                    <th>Moneda</th>
+                                    <th class="text-end">Total</th>
                                 </tr>
                             </thead>
-
                             <tbody>
-
-                                <tr
-                                    t-foreach="orders"
-                                    t-as="order"
-                                >
+                                <tr t-foreach="orders" t-as="order">
                                     <td>
-                                        <a
-                                            t-att-href="
-                                                '/my/commercial/orders/%s'
-                                                % order.id
-                                            "
-                                        >
-                                            <strong
-                                                t-esc="order.name"
-                                            />
-                                        </a>
+                                        <a t-att-href="'/my/commercial/orders/%s' % order.id"
+                                           t-esc="order.name"/>
                                     </td>
-
-                                    <td
-                                        t-esc="
-                                            order.partner_id.display_name
-                                        "
-                                    />
-
+                                    <td t-esc="order.partner_id.display_name"/>
                                     <td>
-                                        <span
-                                            t-field="order.date_order"
-                                            t-options="{
-                                                'widget': 'date'
-                                            }"
-                                        />
+                                        <span t-field="order.date_order"
+                                              t-options="{'widget': 'date'}"/>
                                     </td>
-
                                     <td>
-                                        <span
-                                            class="badge text-bg-secondary"
-                                            t-esc="
-                                                dict(
-                                                    order._fields[
-                                                        'state'
-                                                    ].selection
-                                                ).get(order.state)
-                                            "
-                                        />
+                                        <span class="badge text-bg-secondary"
+                                              t-esc="dict(order._fields['state'].selection).get(order.state, order.state)"/>
                                     </td>
-
+                                    <td t-esc="order.currency_id.name"/>
                                     <td class="text-end">
-                                        <span
-                                            t-field="order.amount_total"
-                                            t-options="{
-                                                'widget': 'monetary',
-                                                'display_currency':
-                                                    order.currency_id
-                                            }"
-                                        />
+                                        <span t-field="order.amount_total"
+                                              t-options="{'widget': 'monetary',
+                                                          'display_currency': order.currency_id}"/>
                                     </td>
                                 </tr>
 
                                 <tr t-if="not orders">
-                                    <td
-                                        colspan="5"
-                                        class="
-                                            text-center
-                                            text-muted
-                                            py-5
-                                        "
-                                    >
-                                        Todavía no tiene pedidos.
+                                    <td colspan="6"
+                                        class="text-center text-muted py-5">
+                                        Aún no tiene cotizaciones ni pedidos.
                                     </td>
                                 </tr>
-
                             </tbody>
                         </table>
-
                     </div>
                 </div>
 
@@ -281,97 +175,94 @@
                 </div>
 
             </div>
-
         </t>
     </template>
 
-    <!-- CREAR COTIZACIÓN -->
-
-    <template
-        id="portal_commercial_order_new"
-        name="Nueva cotización comercial"
-    >
+    <!-- Nueva cotización -->
+    <template id="portal_commercial_order_new"
+              name="Nueva cotización comercial">
         <t t-call="portal.portal_layout">
-
             <div class="container py-4">
-
                 <div class="row justify-content-center">
-
                     <div class="col-lg-8">
 
                         <div class="card border-0 shadow-sm">
-
                             <div class="card-body p-4">
+                                <h1 class="h3 mb-4">Nueva cotización</h1>
 
-                                <h1 class="h3 mb-4">
-                                    Nueva cotización
-                                </h1>
+                                <div t-if="error"
+                                     class="alert alert-danger"
+                                     t-esc="error"/>
 
-                                <div
-                                    t-if="error"
-                                    class="alert alert-danger"
-                                    t-esc="error"
-                                />
+                                <form method="post"
+                                      action="/my/commercial/orders/new">
+                                    <input type="hidden"
+                                           name="csrf_token"
+                                           t-att-value="request.csrf_token()"/>
 
-                                <form method="post">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">
+                                            Cliente
+                                        </label>
+                                        <select name="partner_id"
+                                                class="form-select"
+                                                required="required">
+                                            <option value="">
+                                                Seleccione un cliente
+                                            </option>
+                                            <option t-foreach="customers"
+                                                    t-as="customer"
+                                                    t-att-value="customer.id"
+                                                    t-esc="customer.display_name"/>
+                                        </select>
+                                    </div>
 
-                                    <input
-                                        type="hidden"
-                                        name="csrf_token"
-                                        t-att-value="
-                                            request.csrf_token()
-                                        "
-                                    />
+                                    <div class="row g-3">
+                                        <div class="col-md-8">
+                                            <label class="form-label fw-semibold">
+                                                Lista de precios / moneda
+                                            </label>
+                                            <select name="pricelist_id"
+                                                    class="form-select"
+                                                    required="required">
+                                                <option value="">
+                                                    Seleccione una lista
+                                                </option>
+                                                <option t-foreach="pricelists"
+                                                        t-as="pricelist"
+                                                        t-att-value="pricelist.id">
+                                                    <t t-esc="pricelist.name"/>
+                                                    —
+                                                    <t t-esc="pricelist.currency_id.name"/>
+                                                </option>
+                                            </select>
+                                        </div>
 
-                                    <label
-                                        class="form-label fw-semibold"
-                                    >
-                                        Cliente
-                                    </label>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-semibold">
+                                                Vigencia en días
+                                            </label>
+                                            <input type="number"
+                                                   name="validity_days"
+                                                   min="1"
+                                                   max="365"
+                                                   value="15"
+                                                   class="form-control"
+                                                   required="required"/>
+                                        </div>
+                                    </div>
 
-                                    <select
-                                        name="partner_id"
-                                        class="form-select"
-                                        required="required"
-                                    >
-                                        <option value="">
-                                            Seleccione un cliente...
-                                        </option>
-
-                                        <option
-                                            t-foreach="customers"
-                                            t-as="customer"
-                                            t-att-value="customer.id"
-                                            t-esc="
-                                                customer.display_name
-                                            "
-                                        />
-
-                                    </select>
-
-                                    <div
-                                        class="
-                                            d-flex
-                                            justify-content-end
-                                            gap-2
-                                            mt-4
-                                        "
-                                    >
-                                        <a
-                                            href="/my/commercial/orders"
-                                            class="btn btn-light"
-                                        >
+                                    <div class="d-flex justify-content-end
+                                                gap-2 mt-4">
+                                        <a href="/my/commercial/orders"
+                                           class="btn btn-light">
                                             Cancelar
                                         </a>
-
-                                        <button
-                                            type="submit"
-                                            class="btn btn-primary"
-                                        >
+                                        <button type="submit"
+                                                class="btn btn-primary">
                                             Crear cotización
                                         </button>
                                     </div>
-
                                 </form>
 
                             </div>
@@ -379,644 +270,497 @@
 
                     </div>
                 </div>
-
             </div>
-
         </t>
     </template>
 
-    <!-- DETALLE DEL PEDIDO -->
-
-    <template
-        id="portal_commercial_order_detail"
-        name="Detalle comercial del pedido"
-    >
+    <!-- Detalle de cotización o pedido -->
+    <template id="portal_commercial_order_detail"
+              name="Detalle de cotización comercial">
         <t t-call="portal.portal_layout">
-
             <div class="container py-4">
 
-                <div
-                    t-if="error"
-                    class="alert alert-danger"
-                    t-esc="error"
-                />
+                <div t-if="error"
+                     class="alert alert-danger"
+                     t-esc="error"/>
+                <div t-if="success"
+                     class="alert alert-success"
+                     t-esc="success"/>
 
-                <div
-                    t-if="success"
-                    class="alert alert-success"
-                    t-esc="success"
-                />
-
-                <div
-                    class="
-                        d-flex
-                        flex-wrap
-                        justify-content-between
-                        align-items-start
-                        gap-3
-                        mb-3
-                    "
-                >
+                <div class="d-flex flex-wrap justify-content-between
+                            align-items-start gap-3 mb-3">
                     <div>
-                        <div class="text-muted">
-                            Cotización / Pedido
+                        <div class="small text-muted">
+                            COTIZACIÓN / PEDIDO
                         </div>
-
-                        <h1
-                            class="h3 mb-1"
-                            t-esc="order.name"
-                        />
-
-                        <div
-                            t-esc="
-                                order.partner_id.display_name
-                            "
-                        />
+                        <h1 class="h3 mb-1" t-esc="order.name"/>
+                        <div t-esc="order.partner_id.display_name"/>
                     </div>
 
                     <div class="text-end">
-                        <span
-                            class="badge text-bg-secondary"
-                            t-esc="
-                                dict(
-                                    order._fields[
-                                        'state'
-                                    ].selection
-                                ).get(order.state)
-                            "
-                        />
-
+                        <span class="badge text-bg-secondary"
+                              t-esc="dict(order._fields['state'].selection).get(order.state, order.state)"/>
                         <div class="h4 mt-2">
-                            <span
-                                t-field="order.amount_total"
-                                t-options="{
-                                    'widget': 'monetary',
-                                    'display_currency':
-                                        order.currency_id
-                                }"
-                            />
+                            <span t-field="order.amount_total"
+                                  t-options="{'widget': 'monetary',
+                                              'display_currency': order.currency_id}"/>
                         </div>
                     </div>
                 </div>
 
-                <div class="card border-0 shadow-sm mb-3">
+                <!-- Cliente, moneda y vigencia -->
+                <div t-if="can_edit"
+                     class="card border-0 shadow-sm mb-3">
+                    <div class="card-body">
+                        <h2 class="h5 mb-3">
+                            Datos de la cotización
+                        </h2>
 
-                    <div class="table-responsive">
+                        <form method="post"
+                              t-att-action="'/my/commercial/orders/%s/settings' % order.id"
+                              class="row g-3 align-items-end">
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   t-att-value="request.csrf_token()"/>
 
-                        <table
-                            class="
-                                table
-                                align-middle
-                                mb-0
-                            "
-                        >
-                            <thead class="table-light">
-                                <tr>
-                                    <th>
-                                        Producto / descripción
-                                    </th>
+                            <div class="col-md-5">
+                                <label class="form-label">
+                                    Cliente
+                                </label>
+                                <select name="partner_id"
+                                        class="form-select"
+                                        required="required">
+                                    <option t-foreach="customers"
+                                            t-as="customer"
+                                            t-att-value="customer.id"
+                                            t-att-selected="customer.id == order.partner_id.id"
+                                            t-esc="customer.display_name"/>
+                                </select>
+                            </div>
 
-                                    <th style="width: 150px;">
-                                        Cantidad
-                                    </th>
+                            <div class="col-md-4">
+                                <label class="form-label">
+                                    Lista de precios / moneda
+                                </label>
+                                <select name="pricelist_id"
+                                        class="form-select"
+                                        required="required">
+                                    <option t-foreach="pricelists"
+                                            t-as="pricelist"
+                                            t-att-value="pricelist.id"
+                                            t-att-selected="pricelist.id == order.pricelist_id.id">
+                                        <t t-esc="pricelist.name"/>
+                                        —
+                                        <t t-esc="pricelist.currency_id.name"/>
+                                    </option>
+                                </select>
+                            </div>
 
-                                    <th class="text-end">
-                                        Precio
-                                    </th>
+                            <div class="col-md-2">
+                                <label class="form-label">
+                                    Vigencia (días)
+                                </label>
+                                <input type="number"
+                                       name="validity_days"
+                                       min="1"
+                                       max="365"
+                                       class="form-control"
+                                       t-att-value="validity_days"
+                                       required="required"/>
+                            </div>
 
-                                    <th class="text-end">
-                                        Subtotal
-                                    </th>
+                            <div class="col-md-1 d-grid">
+                                <button type="submit"
+                                        class="btn btn-outline-primary">
+                                    <i class="fa fa-save"/>
+                                </button>
+                            </div>
+                        </form>
 
-                                    <th
-                                        t-if="can_edit"
-                                        style="width: 60px;"
-                                    />
-                                </tr>
-                            </thead>
-
-                            <tbody>
-
-                                <t
-                                    t-foreach="
-                                        order.order_line
-                                    "
-                                    t-as="line"
-                                >
-                                    <tr
-                                        t-if="
-                                            not line.display_type
-                                        "
-                                    >
-                                        <td>
-                                            <strong
-                                                t-esc="
-                                                    line.product_id.
-                                                    display_name
-                                                "
-                                            />
-
-                                            <div
-                                                class="
-                                                    small
-                                                    text-muted
-                                                "
-                                                style="
-                                                    white-space:
-                                                    pre-line;
-                                                "
-                                                t-esc="line.name"
-                                            />
-                                        </td>
-
-                                        <td>
-                                            <form
-                                                t-if="can_edit"
-                                                method="post"
-                                                class="d-flex gap-1"
-                                                t-att-action="
-                                                    '/my/commercial/'
-                                                    'orders/%s/'
-                                                    'line/%s/update'
-                                                    % (
-                                                        order.id,
-                                                        line.id
-                                                    )
-                                                "
-                                            >
-                                                <input
-                                                    type="hidden"
-                                                    name="csrf_token"
-                                                    t-att-value="
-                                                        request.
-                                                        csrf_token()
-                                                    "
-                                                />
-
-                                                <input
-                                                    name="quantity"
-                                                    type="number"
-                                                    min="0.01"
-                                                    step="0.01"
-                                                    class="
-                                                        form-control
-                                                        form-control-sm
-                                                    "
-                                                    t-att-value="
-                                                        line.
-                                                        product_uom_qty
-                                                    "
-                                                />
-
-                                                <button
-                                                    type="submit"
-                                                    class="
-                                                        btn
-                                                        btn-sm
-                                                        btn-light
-                                                    "
-                                                >
-                                                    <i
-                                                        class="
-                                                            fa
-                                                            fa-save
-                                                        "
-                                                    />
-                                                </button>
-                                            </form>
-
-                                            <span
-                                                t-else=""
-                                                t-esc="
-                                                    line.
-                                                    product_uom_qty
-                                                "
-                                            />
-                                        </td>
-
-                                        <td class="text-end">
-                                            <span
-                                                t-field="
-                                                    line.price_unit
-                                                "
-                                                t-options="{
-                                                    'widget':
-                                                        'monetary',
-                                                    'display_currency':
-                                                        order.currency_id
-                                                }"
-                                            />
-                                        </td>
-
-                                        <td class="text-end">
-                                            <span
-                                                t-field="
-                                                    line.price_subtotal
-                                                "
-                                                t-options="{
-                                                    'widget':
-                                                        'monetary',
-                                                    'display_currency':
-                                                        order.currency_id
-                                                }"
-                                            />
-                                        </td>
-
-                                        <td t-if="can_edit">
-                                            <form
-                                                method="post"
-                                                t-att-action="
-                                                    '/my/commercial/'
-                                                    'orders/%s/'
-                                                    'line/%s/delete'
-                                                    % (
-                                                        order.id,
-                                                        line.id
-                                                    )
-                                                "
-                                            >
-                                                <input
-                                                    type="hidden"
-                                                    name="csrf_token"
-                                                    t-att-value="
-                                                        request.
-                                                        csrf_token()
-                                                    "
-                                                />
-
-                                                <button
-                                                    type="submit"
-                                                    class="
-                                                        btn
-                                                        btn-sm
-                                                        btn-outline-danger
-                                                    "
-                                                >
-                                                    <i
-                                                        class="
-                                                            fa
-                                                            fa-trash
-                                                        "
-                                                    />
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                </t>
-
-                                <tr
-                                    t-if="
-                                        not order.order_line
-                                    "
-                                >
-                                    <td
-                                        colspan="5"
-                                        class="
-                                            text-center
-                                            text-muted
-                                            py-4
-                                        "
-                                    >
-                                        Agregue productos
-                                        a la cotización.
-                                    </td>
-                                </tr>
-
-                            </tbody>
-                        </table>
-
+                        <div class="small text-muted mt-2">
+                            Moneda:
+                            <strong t-esc="order.currency_id.name"/>
+                            <t t-if="order.validity_date">
+                                · Vence:
+                                <span t-field="order.validity_date"/>
+                            </t>
+                        </div>
                     </div>
                 </div>
 
-                <!-- BUSCADOR Y PRODUCTOS -->
-
-                <div
-                    t-if="can_edit"
-                    class="card border-0 shadow-sm mb-3"
-                >
+                <!-- Líneas actuales -->
+                <div class="card border-0 shadow-sm mb-3">
                     <div class="card-body">
+                        <h2 class="h5 mb-3">Productos</h2>
 
-                        <h2 class="h5">
-                            Agregar producto
-                        </h2>
+                        <t t-foreach="order.order_line" t-as="line">
+                            <div t-if="not line.display_type"
+                                 class="border rounded-3 p-3 mb-2">
 
-                        <form
-                            method="get"
-                            class="row g-2 mb-3"
-                        >
-                            <div class="col">
-                                <input
-                                    name="q"
-                                    class="form-control"
-                                    t-att-value="
-                                        product_query
-                                    "
-                                    placeholder="
-                                        Buscar por nombre
-                                        o referencia...
-                                    "
-                                />
+                                <div class="d-flex flex-wrap
+                                            justify-content-between gap-2 mb-2">
+                                    <strong t-esc="line.product_id.display_name"/>
+                                    <span>
+                                        Subtotal:
+                                        <strong t-field="line.price_subtotal"
+                                                t-options="{'widget': 'monetary',
+                                                            'display_currency': order.currency_id}"/>
+                                    </span>
+                                </div>
+
+                                <form t-if="can_edit"
+                                      method="post"
+                                      t-att-action="'/my/commercial/orders/%s/line/%s/update' % (order.id, line.id)">
+                                    <input type="hidden"
+                                           name="csrf_token"
+                                           t-att-value="request.csrf_token()"/>
+
+                                    <div class="row g-2">
+                                        <div class="col-md-5">
+                                            <label class="form-label small">
+                                                Descripción / nota
+                                            </label>
+                                            <textarea name="description"
+                                                      rows="2"
+                                                      class="form-control form-control-sm"
+                                                      t-esc="line.name"/>
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <label class="form-label small">
+                                                Cantidad
+                                            </label>
+                                            <input type="number"
+                                                   name="quantity"
+                                                   min="0.01"
+                                                   step="0.01"
+                                                   class="form-control form-control-sm"
+                                                   t-att-value="line.product_uom_qty"
+                                                   required="required"/>
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <label class="form-label small">
+                                                Precio unitario
+                                            </label>
+                                            <input type="number"
+                                                   name="price_unit"
+                                                   min="0"
+                                                   step="0.01"
+                                                   class="form-control form-control-sm"
+                                                   t-att-value="line.price_unit"
+                                                   required="required"/>
+                                        </div>
+
+                                        <div class="col-md-1">
+                                            <label class="form-label small">
+                                                Dto. %
+                                            </label>
+                                            <input type="number"
+                                                   name="discount"
+                                                   min="0"
+                                                   max="100"
+                                                   step="0.01"
+                                                   class="form-control form-control-sm"
+                                                   t-att-value="line.discount"/>
+                                        </div>
+
+                                        <div class="col-md-2 d-grid
+                                                    align-items-end">
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-primary">
+                                                Guardar línea
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-2">
+                                        <div class="small fw-semibold mb-1">
+                                            Impuestos
+                                        </div>
+
+                                        <div class="d-flex flex-wrap gap-3">
+                                            <label t-foreach="taxes"
+                                                   t-as="tax"
+                                                   class="form-check-label small">
+                                                <input type="checkbox"
+                                                       name="tax_ids"
+                                                       class="form-check-input me-1"
+                                                       t-att-value="tax.id"
+                                                       t-att-checked="tax.id in line.tax_ids.ids"/>
+                                                <t t-esc="tax.name"/>
+                                            </label>
+
+                                            <span t-if="not taxes"
+                                                  class="text-muted small">
+                                                No hay impuestos de venta disponibles.
+                                            </span>
+                                        </div>
+                                    </div>
+                                </form>
+
+                                <div t-else="" class="small text-muted">
+                                    <div style="white-space: pre-line"
+                                         t-esc="line.name"/>
+                                    Cantidad:
+                                    <t t-esc="line.product_uom_qty"/>
+                                    · Precio:
+                                    <t t-esc="line.price_unit"/>
+                                    · Descuento:
+                                    <t t-esc="line.discount"/>%
+                                </div>
+
+                                <form t-if="can_edit"
+                                      method="post"
+                                      t-att-action="'/my/commercial/orders/%s/line/%s/delete' % (order.id, line.id)"
+                                      class="mt-2 text-end">
+                                    <input type="hidden"
+                                           name="csrf_token"
+                                           t-att-value="request.csrf_token()"/>
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-danger">
+                                        Eliminar
+                                    </button>
+                                </form>
+
                             </div>
+                        </t>
 
+                        <div t-if="not order.order_line"
+                             class="text-center text-muted py-4">
+                            Aún no hay productos en esta cotización.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agregar un producto -->
+                <div t-if="can_edit"
+                     class="card border-0 shadow-sm mb-3">
+                    <div class="card-body">
+                        <h2 class="h5 mb-3">Agregar producto</h2>
+
+                        <form method="get"
+                              t-att-action="'/my/commercial/orders/%s' % order.id"
+                              class="row g-2 mb-3">
+                            <div class="col">
+                                <input type="search"
+                                       name="q"
+                                       class="form-control"
+                                       placeholder="Buscar por nombre o código..."
+                                       t-att-value="product_query"/>
+                            </div>
                             <div class="col-auto">
-                                <button
-                                    type="submit"
-                                    class="
-                                        btn
-                                        btn-outline-primary
-                                    "
-                                >
+                                <button type="submit"
+                                        class="btn btn-outline-primary">
                                     Buscar
                                 </button>
                             </div>
                         </form>
 
-                        <form
-                            method="post"
-                            class="row g-2"
-                            t-att-action="
-                                '/my/commercial/orders/%s/'
-                                'line/add'
-                                % order.id
-                            "
-                        >
-                            <input
-                                type="hidden"
-                                name="csrf_token"
-                                t-att-value="
-                                    request.csrf_token()
-                                "
-                            />
+                        <form method="post"
+                              t-att-action="'/my/commercial/orders/%s/line/add' % order.id">
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   t-att-value="request.csrf_token()"/>
 
-                            <div class="col-md-8">
-                                <select
-                                    name="product_id"
-                                    class="form-select"
-                                    required="required"
-                                >
-                                    <option value="">
-                                        Seleccione producto...
-                                    </option>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        Producto
+                                    </label>
+                                    <select name="product_id"
+                                            class="form-select"
+                                            required="required">
+                                        <option value="">
+                                            Seleccione un producto
+                                        </option>
+                                        <option t-foreach="products"
+                                                t-as="product"
+                                                t-att-value="product.id"
+                                                t-esc="product.display_name"/>
+                                    </select>
+                                </div>
 
-                                    <option
-                                        t-foreach="products"
-                                        t-as="product"
-                                        t-att-value="product.id"
-                                        t-esc="
-                                            product.display_name
-                                        "
-                                    />
+                                <div class="col-md-2">
+                                    <label class="form-label">
+                                        Cantidad
+                                    </label>
+                                    <input type="number"
+                                           name="quantity"
+                                           min="0.01"
+                                           step="0.01"
+                                           value="1"
+                                           class="form-control"
+                                           required="required"/>
+                                </div>
 
-                                </select>
-                            </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">
+                                        Precio unitario
+                                    </label>
+                                    <input type="number"
+                                           name="price_unit"
+                                           min="0"
+                                           step="0.01"
+                                           class="form-control"
+                                           placeholder="Precio del producto"/>
+                                </div>
 
-                            <div class="col-md-2">
-                                <input
-                                    name="quantity"
-                                    type="number"
-                                    min="0.01"
-                                    step="0.01"
-                                    value="1"
-                                    class="form-control"
-                                    required="required"
-                                />
-                            </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">
+                                        Dto. %
+                                    </label>
+                                    <input type="number"
+                                           name="discount"
+                                           min="0"
+                                           max="100"
+                                           step="0.01"
+                                           value="0"
+                                           class="form-control"/>
+                                </div>
 
-                            <div class="col-md-2 d-grid">
-                                <button
-                                    type="submit"
-                                    class="btn btn-primary"
-                                >
-                                    Agregar
-                                </button>
+                                <div class="col-12">
+                                    <label class="form-label">
+                                        Descripción / nota para esta línea
+                                    </label>
+                                    <textarea name="description"
+                                              rows="2"
+                                              class="form-control"
+                                              placeholder="Ejemplo: Developer Cyan — Ricoh MP C2003 / MP C2503"/>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-label">
+                                        Impuestos
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-3">
+                                        <label t-foreach="taxes"
+                                               t-as="tax"
+                                               class="form-check-label">
+                                            <input type="checkbox"
+                                                   name="tax_ids"
+                                                   class="form-check-input me-1"
+                                                   t-att-value="tax.id"/>
+                                            <t t-esc="tax.name"/>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 text-end mt-2">
+                                    <button type="submit"
+                                            class="btn btn-primary">
+                                        Agregar a la cotización
+                                    </button>
+                                </div>
                             </div>
                         </form>
-
                     </div>
                 </div>
 
-                <!-- ACCIONES -->
+                <!-- Acciones -->
+                <div class="d-flex flex-wrap justify-content-end gap-2">
 
-                <div
-                    class="
-                        d-flex
-                        flex-wrap
-                        justify-content-end
-                        gap-2
-                    "
-                >
-                    <form
-                        t-if="
-                            can_edit
-                            and order.order_line
-                        "
-                        method="post"
-                        t-att-action="
-                            '/my/commercial/orders/%s/send'
-                            % order.id
-                        "
-                    >
-                        <input
-                            type="hidden"
-                            name="csrf_token"
-                            t-att-value="
-                                request.csrf_token()
-                            "
-                        />
-
-                        <button
-                            type="submit"
-                            class="btn btn-outline-primary"
-                        >
-                            <i class="fa fa-envelope me-1"/>
+                    <form t-if="can_edit and order.order_line"
+                          method="post"
+                          t-att-action="'/my/commercial/orders/%s/send' % order.id">
+                        <input type="hidden"
+                               name="csrf_token"
+                               t-att-value="request.csrf_token()"/>
+                        <button type="submit"
+                                class="btn btn-outline-primary">
                             Enviar cotización
                         </button>
                     </form>
 
-                    <form
-                        t-if="
-                            can_edit
-                            and order.order_line
-                        "
-                        method="post"
-                        t-att-action="
-                            '/my/commercial/orders/%s/confirm'
-                            % order.id
-                        "
-                    >
-                        <input
-                            type="hidden"
-                            name="csrf_token"
-                            t-att-value="
-                                request.csrf_token()
-                            "
-                        />
-
-                        <button
-                            type="submit"
-                            class="btn btn-success"
-                        >
+                    <form t-if="can_edit and order.order_line"
+                          method="post"
+                          t-att-action="'/my/commercial/orders/%s/confirm' % order.id">
+                        <input type="hidden"
+                               name="csrf_token"
+                               t-att-value="request.csrf_token()"/>
+                        <button type="submit"
+                                class="btn btn-success">
                             Confirmar pedido
                         </button>
                     </form>
 
-                    <form
-                        t-if="can_invoice"
-                        method="post"
-                        t-att-action="
-                            '/my/commercial/orders/%s/invoice'
-                            % order.id
-                        "
-                    >
-                        <input
-                            type="hidden"
-                            name="csrf_token"
-                            t-att-value="
-                                request.csrf_token()
-                            "
-                        />
-
-                        <button
-                            type="submit"
-                            class="btn btn-primary"
-                        >
+                    <form t-if="can_invoice"
+                          method="post"
+                          t-att-action="'/my/commercial/orders/%s/invoice' % order.id">
+                        <input type="hidden"
+                               name="csrf_token"
+                               t-att-value="request.csrf_token()"/>
+                        <button type="submit"
+                                class="btn btn-primary">
                             Crear factura en borrador
                         </button>
                     </form>
+
                 </div>
 
             </div>
-
         </t>
     </template>
 
-    <!-- LISTADO DE FACTURAS -->
-
-    <template
-        id="portal_commercial_invoices"
-        name="Facturas de la ejecutiva"
-    >
+    <!-- Listado de facturas -->
+    <template id="portal_commercial_invoices"
+              name="Facturas comerciales">
         <t t-call="portal.portal_layout">
-
             <div class="container py-4">
 
-                <h1 class="h3 mb-3">
-                    Mis facturas
-                </h1>
+                <div class="d-flex flex-wrap justify-content-between
+                            align-items-center gap-2 mb-3">
+                    <h1 class="h3 mb-0">Mis facturas</h1>
+                    <a href="/my/commercial"
+                       class="btn btn-outline-secondary">
+                        Volver
+                    </a>
+                </div>
 
                 <div class="card border-0 shadow-sm">
-
                     <div class="table-responsive">
-
-                        <table
-                            class="
-                                table
-                                table-hover
-                                align-middle
-                                mb-0
-                            "
-                        >
+                        <table class="table table-hover align-middle mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Número</th>
+                                    <th>Factura</th>
                                     <th>Cliente</th>
                                     <th>Fecha</th>
                                     <th>Estado</th>
-                                    <th>Pago</th>
-                                    <th class="text-end">
-                                        Total
-                                    </th>
+                                    <th>Moneda</th>
+                                    <th class="text-end">Total</th>
                                 </tr>
                             </thead>
 
                             <tbody>
-
-                                <tr
-                                    t-foreach="invoices"
-                                    t-as="invoice"
-                                >
+                                <tr t-foreach="invoices" t-as="invoice">
                                     <td>
-                                        <a
-                                            t-att-href="
-                                                '/my/commercial/'
-                                                'invoices/%s'
-                                                % invoice.id
-                                            "
-                                            t-esc="
-                                                invoice.name
-                                                or 'Borrador'
-                                            "
-                                        />
+                                        <a t-att-href="'/my/commercial/invoices/%s' % invoice.id"
+                                           t-esc="invoice.name or 'Borrador'"/>
                                     </td>
-
-                                    <td
-                                        t-esc="
-                                            invoice.partner_id.
-                                            display_name
-                                        "
-                                    />
-
+                                    <td t-esc="invoice.partner_id.display_name"/>
                                     <td>
-                                        <span
-                                            t-field="
-                                                invoice.invoice_date
-                                            "
-                                        />
+                                        <span t-field="invoice.invoice_date"/>
                                     </td>
-
-                                    <td
-                                        t-esc="
-                                            dict(
-                                                invoice._fields[
-                                                    'state'
-                                                ].selection
-                                            ).get(invoice.state)
-                                        "
-                                    />
-
-                                    <td
-                                        t-esc="
-                                            dict(
-                                                invoice._fields[
-                                                    'payment_state'
-                                                ].selection
-                                            ).get(
-                                                invoice.payment_state
-                                            )
-                                        "
-                                    />
-
+                                    <td>
+                                        <span class="badge text-bg-secondary"
+                                              t-esc="dict(invoice._fields['state'].selection).get(invoice.state, invoice.state)"/>
+                                    </td>
+                                    <td t-esc="invoice.currency_id.name"/>
                                     <td class="text-end">
-                                        <span
-                                            t-field="
-                                                invoice.amount_total
-                                            "
-                                            t-options="{
-                                                'widget':
-                                                    'monetary',
-                                                'display_currency':
-                                                    invoice.currency_id
-                                            }"
-                                        />
+                                        <span t-field="invoice.amount_total"
+                                              t-options="{'widget': 'monetary',
+                                                          'display_currency': invoice.currency_id}"/>
                                     </td>
                                 </tr>
 
                                 <tr t-if="not invoices">
-                                    <td
-                                        colspan="6"
-                                        class="
-                                            text-center
-                                            text-muted
-                                            py-5
-                                        "
-                                    >
-                                        No tiene facturas.
+                                    <td colspan="6"
+                                        class="text-center text-muted py-5">
+                                        Todavía no tiene facturas.
                                     </td>
                                 </tr>
-
                             </tbody>
                         </table>
-
                     </div>
                 </div>
 
@@ -1025,159 +769,397 @@
                 </div>
 
             </div>
-
         </t>
     </template>
 
-    <!-- DETALLE DE FACTURA -->
-
-    <template
-        id="portal_commercial_invoice_detail"
-        name="Detalle de factura comercial"
-    >
+    <!-- Factura: edición solo en borrador -->
+    <template id="portal_commercial_invoice_detail"
+              name="Detalle de factura comercial">
         <t t-call="portal.portal_layout">
-
             <div class="container py-4">
 
-                <div
-                    t-if="error"
-                    class="alert alert-danger"
-                    t-esc="error"
-                />
+                <div t-if="error"
+                     class="alert alert-danger"
+                     t-esc="error"/>
+                <div t-if="success"
+                     class="alert alert-success"
+                     t-esc="success"/>
 
-                <div
-                    t-if="success"
-                    class="alert alert-success"
-                    t-esc="success"
-                />
+                <div class="d-flex flex-wrap justify-content-between
+                            align-items-start gap-3 mb-3">
+                    <div>
+                        <div class="small text-muted">FACTURA</div>
+                        <h1 class="h3 mb-1"
+                            t-esc="invoice.name or 'Borrador'"/>
+                        <div t-esc="invoice.partner_id.display_name"/>
+                    </div>
 
-                <div class="card border-0 shadow-sm">
-
-                    <div class="card-body p-4">
-
-                        <div
-                            class="
-                                d-flex
-                                justify-content-between
-                                gap-3
-                            "
-                        >
-                            <div>
-                                <div class="text-muted">
-                                    Factura
-                                </div>
-
-                                <h1
-                                    class="h3"
-                                    t-esc="
-                                        invoice.name
-                                        or 'Borrador'
-                                    "
-                                />
-
-                                <div
-                                    t-esc="
-                                        invoice.partner_id.
-                                        display_name
-                                    "
-                                />
-                            </div>
-
-                            <div class="text-end">
-                                <span
-                                    class="badge"
-                                    t-att-class="
-                                        invoice.state == 'posted'
-                                        and 'text-bg-success'
-                                        or 'text-bg-warning'
-                                    "
-                                    t-esc="
-                                        dict(
-                                            invoice._fields[
-                                                'state'
-                                            ].selection
-                                        ).get(invoice.state)
-                                    "
-                                />
-
-                                <div class="h4 mt-2">
-                                    <span
-                                        t-field="
-                                            invoice.amount_total
-                                        "
-                                        t-options="{
-                                            'widget':
-                                                'monetary',
-                                            'display_currency':
-                                                invoice.currency_id
-                                        }"
-                                    />
-                                </div>
-                            </div>
+                    <div class="text-end">
+                        <span class="badge text-bg-secondary"
+                              t-esc="dict(invoice._fields['state'].selection).get(invoice.state, invoice.state)"/>
+                        <div class="h4 mt-2">
+                            <span t-field="invoice.amount_total"
+                                  t-options="{'widget': 'monetary',
+                                              'display_currency': invoice.currency_id}"/>
                         </div>
-
-                        <hr/>
-
-                        <div
-                            t-if="invoice.state == 'draft'"
-                            class="alert alert-warning"
-                        >
-                            Esta factura se encuentra en borrador.
-                            Un usuario interno debe revisarla
-                            y publicarla.
-                        </div>
-
-                        <div
-                            t-if="invoice.state == 'posted'"
-                            class="
-                                d-flex
-                                justify-content-end
-                                flex-wrap
-                                gap-2
-                            "
-                        >
-                            <a
-                                class="btn btn-outline-primary"
-                                t-att-href="
-                                    '/my/commercial/invoices/%s/pdf'
-                                    % invoice.id
-                                "
-                            >
-                                <i class="fa fa-download me-1"/>
-                                Descargar PDF
-                            </a>
-
-                            <form
-                                method="post"
-                                t-att-action="
-                                    '/my/commercial/'
-                                    'invoices/%s/send'
-                                    % invoice.id
-                                "
-                            >
-                                <input
-                                    type="hidden"
-                                    name="csrf_token"
-                                    t-att-value="
-                                        request.csrf_token()
-                                    "
-                                />
-
-                                <button
-                                    type="submit"
-                                    class="btn btn-primary"
-                                >
-                                    <i class="fa fa-envelope me-1"/>
-                                    Enviar al cliente
-                                </button>
-                            </form>
-                        </div>
-
                     </div>
                 </div>
 
-            </div>
+                <div t-if="can_edit"
+                     class="alert alert-warning">
+                    Esta factura está en borrador. Puede editarla, pero
+                    un usuario interno debe revisarla y publicarla.
+                </div>
 
+                <!-- Cliente, moneda y fechas -->
+                <div t-if="can_edit"
+                     class="card border-0 shadow-sm mb-3">
+                    <div class="card-body">
+                        <h2 class="h5 mb-3">Datos de la factura</h2>
+
+                        <form method="post"
+                              t-att-action="'/my/commercial/invoices/%s/settings' % invoice.id"
+                              class="row g-3 align-items-end">
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   t-att-value="request.csrf_token()"/>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Cliente</label>
+                                <select name="partner_id"
+                                        class="form-select"
+                                        required="required">
+                                    <option t-foreach="customers"
+                                            t-as="customer"
+                                            t-att-value="customer.id"
+                                            t-att-selected="customer.id == invoice.partner_id.id"
+                                            t-esc="customer.display_name"/>
+                                </select>
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label">Moneda</label>
+                                <select name="currency_id"
+                                        class="form-select"
+                                        required="required">
+                                    <option t-foreach="currencies"
+                                            t-as="currency"
+                                            t-att-value="currency.id"
+                                            t-att-selected="currency.id == invoice.currency_id.id"
+                                            t-esc="currency.name"/>
+                                </select>
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label">
+                                    Fecha de factura
+                                </label>
+                                <input type="date"
+                                       name="invoice_date"
+                                       class="form-control"
+                                       t-att-value="invoice.invoice_date or ''"/>
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label">
+                                    Vencimiento
+                                </label>
+                                <input type="date"
+                                       name="invoice_date_due"
+                                       class="form-control"
+                                       t-att-value="invoice.invoice_date_due or ''"/>
+                            </div>
+
+                            <div class="col-md-2 d-grid">
+                                <button type="submit"
+                                        class="btn btn-outline-primary">
+                                    Guardar datos
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Líneas de factura -->
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body">
+                        <h2 class="h5 mb-3">Productos facturados</h2>
+
+                        <t t-foreach="invoice.invoice_line_ids"
+                           t-as="line">
+                            <div t-if="not line.display_type"
+                                 class="border rounded-3 p-3 mb-2">
+
+                                <div class="d-flex flex-wrap
+                                            justify-content-between gap-2 mb-2">
+                                    <strong t-esc="line.product_id.display_name or line.name"/>
+                                    <span>
+                                        Subtotal:
+                                        <strong t-field="line.price_subtotal"
+                                                t-options="{'widget': 'monetary',
+                                                            'display_currency': invoice.currency_id}"/>
+                                    </span>
+                                </div>
+
+                                <form t-if="can_edit"
+                                      method="post"
+                                      t-att-action="'/my/commercial/invoices/%s/line/%s/update' % (invoice.id, line.id)">
+                                    <input type="hidden"
+                                           name="csrf_token"
+                                           t-att-value="request.csrf_token()"/>
+
+                                    <div class="row g-2">
+                                        <div class="col-md-5">
+                                            <label class="form-label small">
+                                                Descripción
+                                            </label>
+                                            <textarea name="description"
+                                                      rows="2"
+                                                      class="form-control form-control-sm"
+                                                      t-esc="line.name"/>
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <label class="form-label small">
+                                                Cantidad
+                                            </label>
+                                            <input type="number"
+                                                   name="quantity"
+                                                   min="0.01"
+                                                   step="0.01"
+                                                   class="form-control form-control-sm"
+                                                   t-att-value="line.quantity"
+                                                   required="required"/>
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <label class="form-label small">
+                                                Precio unitario
+                                            </label>
+                                            <input type="number"
+                                                   name="price_unit"
+                                                   min="0"
+                                                   step="0.01"
+                                                   class="form-control form-control-sm"
+                                                   t-att-value="line.price_unit"
+                                                   required="required"/>
+                                        </div>
+
+                                        <div class="col-md-1">
+                                            <label class="form-label small">
+                                                Dto. %
+                                            </label>
+                                            <input type="number"
+                                                   name="discount"
+                                                   min="0"
+                                                   max="100"
+                                                   step="0.01"
+                                                   class="form-control form-control-sm"
+                                                   t-att-value="line.discount"/>
+                                        </div>
+
+                                        <div class="col-md-2 d-grid
+                                                    align-items-end">
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-primary">
+                                                Guardar línea
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-2">
+                                        <div class="small fw-semibold mb-1">
+                                            Impuestos
+                                        </div>
+
+                                        <div class="d-flex flex-wrap gap-3">
+                                            <label t-foreach="taxes"
+                                                   t-as="tax"
+                                                   class="form-check-label small">
+                                                <input type="checkbox"
+                                                       name="tax_ids"
+                                                       class="form-check-input me-1"
+                                                       t-att-value="tax.id"
+                                                       t-att-checked="tax.id in line.tax_ids.ids"/>
+                                                <t t-esc="tax.name"/>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </form>
+
+                                <div t-else="" class="small text-muted">
+                                    <div style="white-space: pre-line"
+                                         t-esc="line.name"/>
+                                    Cantidad:
+                                    <t t-esc="line.quantity"/>
+                                    · Precio:
+                                    <t t-esc="line.price_unit"/>
+                                    · Descuento:
+                                    <t t-esc="line.discount"/>%
+                                </div>
+
+                                <form t-if="can_edit"
+                                      method="post"
+                                      t-att-action="'/my/commercial/invoices/%s/line/%s/delete' % (invoice.id, line.id)"
+                                      class="mt-2 text-end">
+                                    <input type="hidden"
+                                           name="csrf_token"
+                                           t-att-value="request.csrf_token()"/>
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-danger">
+                                        Eliminar
+                                    </button>
+                                </form>
+
+                            </div>
+                        </t>
+
+                        <div t-if="not invoice.invoice_line_ids"
+                             class="text-center text-muted py-4">
+                            La factura todavía no tiene productos.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agregar línea a la factura -->
+                <div t-if="can_edit"
+                     class="card border-0 shadow-sm mb-3">
+                    <div class="card-body">
+                        <h2 class="h5 mb-3">Agregar producto a la factura</h2>
+
+                        <form method="get"
+                              t-att-action="'/my/commercial/invoices/%s' % invoice.id"
+                              class="row g-2 mb-3">
+                            <div class="col">
+                                <input type="search"
+                                       name="q"
+                                       class="form-control"
+                                       placeholder="Buscar producto..."
+                                       t-att-value="product_query"/>
+                            </div>
+                            <div class="col-auto">
+                                <button type="submit"
+                                        class="btn btn-outline-primary">
+                                    Buscar
+                                </button>
+                            </div>
+                        </form>
+
+                        <form method="post"
+                              t-att-action="'/my/commercial/invoices/%s/line/add' % invoice.id">
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   t-att-value="request.csrf_token()"/>
+
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label">Producto</label>
+                                    <select name="product_id"
+                                            class="form-select"
+                                            required="required">
+                                        <option value="">
+                                            Seleccione un producto
+                                        </option>
+                                        <option t-foreach="products"
+                                                t-as="product"
+                                                t-att-value="product.id"
+                                                t-esc="product.display_name"/>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label class="form-label">Cantidad</label>
+                                    <input type="number"
+                                           name="quantity"
+                                           min="0.01"
+                                           step="0.01"
+                                           value="1"
+                                           class="form-control"
+                                           required="required"/>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label class="form-label">
+                                        Precio unitario
+                                    </label>
+                                    <input type="number"
+                                           name="price_unit"
+                                           min="0"
+                                           step="0.01"
+                                           value="0"
+                                           class="form-control"
+                                           required="required"/>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label class="form-label">Dto. %</label>
+                                    <input type="number"
+                                           name="discount"
+                                           min="0"
+                                           max="100"
+                                           step="0.01"
+                                           value="0"
+                                           class="form-control"/>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label">
+                                        Descripción / nota
+                                    </label>
+                                    <textarea name="description"
+                                              rows="2"
+                                              class="form-control"/>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-label">Impuestos</div>
+                                    <div class="d-flex flex-wrap gap-3">
+                                        <label t-foreach="taxes"
+                                               t-as="tax"
+                                               class="form-check-label">
+                                            <input type="checkbox"
+                                                   name="tax_ids"
+                                                   class="form-check-input me-1"
+                                                   t-att-value="tax.id"/>
+                                            <t t-esc="tax.name"/>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 text-end mt-2">
+                                    <button type="submit"
+                                            class="btn btn-primary">
+                                        Agregar a la factura
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Solo disponible después de publicación interna -->
+                <div t-if="invoice.state == 'posted'"
+                     class="d-flex flex-wrap justify-content-end gap-2">
+                    <a t-att-href="'/my/commercial/invoices/%s/pdf' % invoice.id"
+                       class="btn btn-outline-primary">
+                        <i class="fa fa-download me-1"/>
+                        Descargar PDF
+                    </a>
+
+                    <form method="post"
+                          t-att-action="'/my/commercial/invoices/%s/send' % invoice.id">
+                        <input type="hidden"
+                               name="csrf_token"
+                               t-att-value="request.csrf_token()"/>
+                        <button type="submit"
+                                class="btn btn-primary">
+                            <i class="fa fa-envelope me-1"/>
+                            Enviar al cliente
+                        </button>
+                    </form>
+                </div>
+
+            </div>
         </t>
     </template>
 
