@@ -200,7 +200,7 @@ class PortalComercialController(CustomerPortal):
             raise NotFound()
 
         term = (q or '').strip()[:80]
-        if len(term) < 2:
+        if not term:
             return request.make_json_response({'products': []})
 
         # Solo campos estándar existentes: no depende de campos inventados.
