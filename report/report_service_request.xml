@@ -2,7 +2,7 @@
 <odoo>
 
     <!-- ===================================================== -->
-    <!-- FORMATO DE PAPEL VERTICAL (PORTRAIT) -->
+    <!-- FORMATO DE PAPEL A4 VERTICAL -->
     <!-- ===================================================== -->
     <record id="paperformat_service_request_portrait" model="report.paperformat">
         <field name="name">Service Request Portrait</field>
@@ -17,6 +17,7 @@
         <field name="dpi">90</field>
     </record>
 
+
     <!-- ===================================================== -->
     <!-- ACCIÓN DEL REPORTE -->
     <!-- ===================================================== -->
@@ -26,834 +27,1781 @@
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">copier_company.report_service_request</field>
         <field name="report_file">copier_company.report_service_request</field>
-        <field name="paperformat_id" ref="copier_company.paperformat_service_request_portrait"/>
-        <field name="print_report_name">'Servicio - %s' % (object.name)</field>
+        <field name="paperformat_id"
+               ref="copier_company.paperformat_service_request_portrait"/>
+        <field name="print_report_name">
+            'Servicio - %s' % (object.name)
+        </field>
     </record>
+
 
     <!-- ===================================================== -->
     <!-- TEMPLATE DEL REPORTE -->
     <!-- ===================================================== -->
     <template id="report_service_request">
         <t t-name="copier_company.report_service_request">
+
             <t t-call="web.basic_layout">
+
                 <style>
-                    * { box-sizing: border-box; }
-                    body { 
-                        font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; 
-                        font-size: 9.2px; 
-                        color: #2c3e50; 
-                        background: #ffffff; 
-                        line-height: 1.4;
-                    }
-                    .page { padding: 0; margin: 0; }
-                    .report-shell { background: #ffffff; }
 
-                    /* ========================= HEADER / HERO ========================= */
-                    .hero { 
-                        background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
-                        color: #ffffff; 
-                        padding: 0; 
-                        margin: 0 0 10px 0; 
-                        border-radius: 0;
-                        display: flex;
-                        align-items: stretch;
+                    /* =====================================================
+                       BASE
+                    ===================================================== */
+
+                    * {
+                        box-sizing: border-box;
                     }
-                    .hero-left { 
-                        width: 35%; 
-                        background: rgba(255, 255, 255, 0.95);
-                        padding: 12px 14px; 
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
+
+                    body {
+                        font-family: Arial, Helvetica, sans-serif;
+                        font-size: 9px;
+                        color: #263548;
+                        background: #ffffff;
+                        line-height: 1.32;
                     }
-                    .hero-right { 
-                        width: 65%; 
-                        padding: 16px 18px; 
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: center;
-                        color: #ffffff;
+
+                    .page {
+                        padding: 0;
+                        margin: 0;
+                        background: #ffffff;
                     }
-                    .company-logo-wrapper {
+
+                    .report-shell {
                         width: 100%;
-                        max-width: 240px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
+                        background: #ffffff;
                     }
-                    .company-logo { 
+
+
+                    /* =====================================================
+                       HEADER PRINCIPAL
+                    ===================================================== */
+
+                    .hero-table {
                         width: 100%;
-                        max-width: 240px;
-                        max-height: 70px;
-                        height: auto;
-                        object-fit: contain;
-                        object-position: center;
-                        display: block;
+                        border-collapse: collapse;
+                        table-layout: fixed;
+                        margin: 0 0 7px 0;
+                        border: 0;
                     }
-                    .company-tagline { 
-                        color: #666; 
-                        font-size: 8px; 
-                        margin-top: 4px;
+
+                    .hero-table td {
+                        padding: 0;
+                        border: 0;
+                        vertical-align: middle;
+                    }
+
+                    .hero-logo-cell {
+                        width: 42%;
+                        height: 112px;
+                        background: #ffffff;
                         text-align: center;
-                    }
-                    .hero-kicker { 
-                        color: rgba(255, 255, 255, 0.85);
-                        font-size: 9px; 
-                        letter-spacing: 0.5px;
-                        text-transform: uppercase; 
-                        margin-bottom: 2px;
-                    }
-                    .hero-title { 
-                        color: #ffffff; 
-                        font-size: 26px; 
-                        font-weight: 900;
-                        line-height: 1.1;
-                        text-transform: uppercase; 
-                        letter-spacing: -0.5px;
-                    }
-                    .report-meta { 
-                        text-align: right; 
-                        padding: 6px 12px 8px; 
-                        font-size: 9px; 
-                        color: #34495e; 
-                        font-weight: 600;
-                        border-bottom: 2px solid #ecf0f1;
-                        margin-bottom: 8px;
-                    }
-                    .report-meta strong { 
-                        color: #1e3a8a; 
-                        font-size: 11px;
+                        vertical-align: middle;
+                        padding: 7px 14px !important;
+                        border: 1px solid #dce3ec !important;
+                        border-right: 0 !important;
                     }
 
-                    /* ========================= CONTENT AREA ========================= */
-                    .content-area { padding: 0; }
-                    .split-table { 
-                        width: 100%; 
-                        border-collapse: separate; 
-                        border-spacing: 6px; 
-                        margin: 0 0 6px 0;
+                    .hero-title-cell {
+                        width: 58%;
+                        height: 112px;
+                        background: #1e3a8a;
+                        vertical-align: middle;
+                        padding: 16px 20px !important;
+                        border: 1px solid #1e3a8a !important;
+                    }
+
+
+                    /* =====================================================
+                       LOGO
+                    ===================================================== */
+
+                    .company-logo-container {
+                        width: 100%;
+                        height: 82px;
+                        text-align: center;
+                        vertical-align: middle;
+                        line-height: 82px;
+                        overflow: hidden;
+                    }
+
+                    .company-logo {
+                        display: inline-block;
+                        width: auto !important;
+                        height: auto !important;
+                        max-width: 100% !important;
+                        max-height: 82px !important;
+                        vertical-align: middle;
+                        border: 0;
+                        margin: 0;
+                        padding: 0;
+                    }
+
+                    .company-tagline {
+                        margin-top: 3px;
+                        text-align: center;
+                        color: #526173;
+                        font-size: 7.5px;
+                        font-weight: 600;
+                        letter-spacing: 0.15px;
+                        line-height: 1.2;
+                    }
+
+
+                    /* =====================================================
+                       TÍTULO
+                    ===================================================== */
+
+                    .hero-kicker {
+                        color: #dbeafe;
+                        font-size: 8px;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                        letter-spacing: 0.8px;
+                        margin-bottom: 4px;
+                    }
+
+                    .hero-title {
+                        color: #ffffff;
+                        font-size: 25px;
+                        font-weight: 900;
+                        line-height: 1.05;
+                        text-transform: uppercase;
+                        letter-spacing: -0.3px;
+                    }
+
+                    .hero-subtitle {
+                        color: #bfdbfe;
+                        font-size: 8px;
+                        margin-top: 5px;
+                        font-weight: 600;
+                    }
+
+
+                    /* =====================================================
+                       META DEL REPORTE
+                    ===================================================== */
+
+                    .report-meta {
+                        width: 100%;
+                        padding: 5px 10px 7px 10px;
+                        margin: 0 0 7px 0;
+                        text-align: right;
+                        border-bottom: 2px solid #e5eaf0;
+                        color: #526173;
+                        font-size: 8.5px;
+                    }
+
+                    .report-number {
+                        color: #1e3a8a;
+                        font-size: 11px;
+                        font-weight: 900;
+                    }
+
+                    .report-separator {
+                        margin: 0 9px;
+                        color: #cbd5e1;
+                    }
+
+                    .report-date {
+                        color: #526173;
+                        font-weight: 600;
+                    }
+
+
+                    /* =====================================================
+                       ÁREA DE CONTENIDO
+                    ===================================================== */
+
+                    .content-area {
+                        width: 100%;
+                        padding: 0;
+                        margin: 0;
+                    }
+
+
+                    /* =====================================================
+                       TABLAS EN 2 COLUMNAS
+                    ===================================================== */
+
+                    .split-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        table-layout: fixed;
+                        margin: 0 0 7px 0;
+                    }
+
+                    .split-table > tbody > tr > td {
+                        width: 50%;
+                        vertical-align: top;
+                        padding: 0;
+                    }
+
+                    .split-table > tbody > tr > td:first-child {
+                        padding-right: 3.5px;
+                    }
+
+                    .split-table > tbody > tr > td:last-child {
+                        padding-left: 3.5px;
+                    }
+
+
+                    /* =====================================================
+                       CARDS
+                    ===================================================== */
+
+                    .card,
+                    .extra-card,
+                    .split-panel {
+                        background: #ffffff;
+                        border: 1px solid #dce3ec;
+                        border-radius: 5px;
+                        padding: 9px 11px;
+                        page-break-inside: avoid;
+                    }
+
+                    .split-panel {
+                        min-height: 116px;
+                    }
+
+                    .full-row {
+                        width: 100%;
+                        margin: 0 0 7px 0;
+                    }
+
+                    .extra-card {
+                        margin: 0 0 7px 0;
+                    }
+
+
+                    /* =====================================================
+                       ENCABEZADOS DE SECCIÓN
+                    ===================================================== */
+
+                    .section-head {
+                        width: 100%;
+                        padding: 0 0 5px 0;
+                        margin: 0 0 7px 0;
+                        border-bottom: 1.5px solid #dfe5ec;
+                    }
+
+                    .section-title {
+                        color: #1e3a8a;
+                        font-size: 10px;
+                        font-weight: 900;
+                        text-transform: uppercase;
+                        letter-spacing: 0.25px;
+                        line-height: 1.15;
+                    }
+
+
+                    /* =====================================================
+                       CAMPOS
+                    ===================================================== */
+
+                    .field-table {
+                        width: 100%;
+                        border-collapse: collapse;
                         table-layout: fixed;
                     }
-                    .split-table td { 
-                        width: 50%; 
-                        vertical-align: top; 
-                    }
-                    .full-row { 
-                        margin: 0 0 6px 0;
+
+                    .field-table td {
+                        width: 50%;
+                        vertical-align: top;
+                        padding: 3px 7px 4px 0;
                     }
 
-                    /* ========================= CARDS ========================= */
-                    .card, .extra-card { 
-                        background: #ffffff; 
-                        border: 1.5px solid #e2e8f0; 
-                        border-radius: 6px; 
-                        padding: 11px 12px; 
-                        page-break-inside: avoid;
-                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-                    }
-                    .extra-card { 
-                        margin: 0 0 6px 0;
-                    }
-                    .split-panel { 
-                        background: #ffffff; 
-                        border: 1.5px solid #e2e8f0; 
-                        border-radius: 6px; 
-                        padding: 11px 12px;
-                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                    .field-table td:last-child {
+                        padding-right: 0;
                     }
 
-                    /* ========================= SECTIONS ========================= */
-                    .section-head { 
-                        margin-bottom: 8px; 
-                        padding-bottom: 6px;
-                        border-bottom: 2px solid #e2e8f0;
-                    }
-                    .section-title { 
-                        font-size: 11px; 
-                        line-height: 1.2; 
-                        color: #1e3a8a; 
-                        font-weight: 800;
+                    .label {
+                        font-size: 6.8px;
+                        color: #738195;
                         text-transform: uppercase;
-                        letter-spacing: 0.3px;
-                        display: flex;
-                        align-items: center;
-                        gap: 6px;
-                    }
-                    .section-icon {
-                        width: 14px;
-                        height: 14px;
-                        flex-shrink: 0;
+                        letter-spacing: 0.2px;
+                        font-weight: 700;
+                        margin: 0 0 2px 0;
                     }
 
-                    /* ========================= FIELDS ========================= */
-                    .field-table { 
-                        width: 100%; 
-                        border-collapse: separate; 
-                        border-spacing: 0 5px;
-                    }
-                    .field-table td { 
-                        width: 50%; 
-                        vertical-align: top; 
-                        padding-right: 4px;
-                    }
-                    .label { 
-                        font-size: 7px; 
-                        color: #64748b; 
-                        text-transform: uppercase; 
-                        letter-spacing: 0.2px; 
-                        font-weight: 700; 
-                        margin-bottom: 3px;
-                    }
-                    .value { 
-                        font-size: 9.2px; 
-                        line-height: 1.3; 
-                        color: #1e293b; 
-                        font-weight: 700; 
-                        overflow-wrap: anywhere; 
+                    .value {
+                        font-size: 8.7px;
+                        line-height: 1.25;
+                        color: #1e293b;
+                        font-weight: 700;
+                        overflow-wrap: anywhere;
                         word-wrap: break-word;
                     }
-                    .plain-text { 
-                        font-size: 9px; 
-                        color: #334155; 
-                        line-height: 1.38; 
-                        margin-top: 3px; 
+
+                    .plain-text {
+                        font-size: 8.7px;
+                        color: #334155;
+                        line-height: 1.35;
+                        margin: 0;
                         white-space: pre-wrap;
                         word-break: break-word;
                     }
 
-                    /* ========================= BADGES ========================= */
-                    .badge { 
-                        display: inline-block; 
-                        padding: 3px 7px; 
-                        border-radius: 12px; 
-                        font-size: 7px; 
-                        font-weight: 700; 
-                        color: #fff;
+
+                    /* =====================================================
+                       BADGES
+                    ===================================================== */
+
+                    .badge {
+                        display: inline-block;
+                        padding: 3px 7px;
+                        border-radius: 10px;
+                        font-size: 6.7px;
+                        font-weight: 800;
+                        color: #ffffff;
                         text-transform: uppercase;
                         letter-spacing: 0.1px;
                     }
-                    .badge-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
-                    .badge-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
-                    .badge-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
-                    .badge-info { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
-                    .badge-primary { background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); }
 
-                    /* ========================= MINI CARDS ========================= */
-                    .mini-table { 
-                        width: 100%; 
-                        border-collapse: separate; 
-                        border-spacing: 6px; 
-                        margin: 6px 0 0 0;
+                    .badge-success {
+                        background: #059669;
                     }
-                    .mini-table td { 
-                        width: 50%; 
+
+                    .badge-warning {
+                        background: #d97706;
+                    }
+
+                    .badge-danger {
+                        background: #dc2626;
+                    }
+
+                    .badge-info {
+                        background: #2563eb;
+                    }
+
+                    .badge-primary {
+                        background: #1e3a8a;
+                    }
+
+
+                    /* =====================================================
+                       FECHAS / MINI CARDS
+                    ===================================================== */
+
+                    .mini-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        table-layout: fixed;
+                        margin: 0 0 7px 0;
+                    }
+
+                    .mini-table td {
+                        width: 50%;
                         vertical-align: top;
+                        padding: 0;
                     }
-                    .mini-card { 
-                        background: #f8fafc; 
-                        border: 1px solid #e2e8f0; 
-                        border-radius: 5px; 
-                        padding: 8px 10px; 
-                        min-height: 40px;
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: center;
+
+                    .mini-table td:first-child {
+                        padding-right: 3.5px;
                     }
-                    .mini-title { 
-                        font-size: 7.2px; 
-                        color: #64748b; 
+
+                    .mini-table td:last-child {
+                        padding-left: 3.5px;
+                    }
+
+                    .mini-card {
+                        width: 100%;
+                        min-height: 42px;
+                        background: #f8fafc;
+                        border: 1px solid #dce3ec;
+                        border-radius: 5px;
+                        padding: 7px 9px;
+                    }
+
+                    .mini-title {
+                        font-size: 6.8px;
+                        color: #738195;
                         margin-bottom: 3px;
-                        text-transform: uppercase;
-                        font-weight: 600;
-                    }
-                    .mini-value { 
-                        font-size: 9.5px; 
-                        color: #1e293b; 
-                        font-weight: 800; 
-                        line-height: 1.2;
-                    }
-
-                    /* ========================= COUNTER CARDS ========================= */
-                    .counter-table { 
-                        width: 100%; 
-                        border-collapse: separate; 
-                        border-spacing: 6px; 
-                        margin: 6px 0 0 0;
-                    }
-                    .counter-table td { 
-                        width: 33.33%; 
-                        vertical-align: top;
-                    }
-                    .counter-card { 
-                        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-                        border: 1px solid #cbd5e1; 
-                        border-radius: 6px; 
-                        padding: 9px 10px;
-                        text-align: center;
-                    }
-                    .counter-label { 
-                        font-size: 7px; 
-                        color: #64748b; 
-                        margin-bottom: 4px;
                         text-transform: uppercase;
                         font-weight: 700;
                     }
-                    .counter-value { 
-                        font-size: 11px; 
-                        color: #1e3a8a; 
+
+                    .mini-value {
+                        font-size: 9px;
+                        color: #1e293b;
                         font-weight: 900;
-                        font-family: 'Monaco', 'Courier New', monospace;
+                        line-height: 1.2;
                     }
 
-                    /* ========================= PARTS TABLE ========================= */
-                    .parts-notice { 
-                        margin-bottom: 6px; 
-                        padding: 6px 8px; 
-                        border-left: 4px solid #f59e0b; 
-                        background: #fffbeb; 
-                        color: #78350f; 
-                        font-size: 7.5px; 
-                        line-height: 1.25;
-                        border-radius: 0 4px 4px 0;
-                    }
-                    .parts-table { 
-                        width: 100%; 
-                        border-collapse: collapse; 
+
+                    /* =====================================================
+                       CONTADORES
+                    ===================================================== */
+
+                    .counter-table {
+                        width: 100%;
+                        border-collapse: collapse;
                         table-layout: fixed;
-                        margin: 6px 0;
+                        margin: 0 0 7px 0;
                     }
-                    .parts-table th { 
-                        background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
-                        color: #fff; 
-                        font-size: 7px; 
-                        font-weight: 700; 
-                        text-transform: uppercase; 
+
+                    .counter-table td {
+                        width: 33.33%;
+                        vertical-align: top;
+                        padding: 0 3px;
+                    }
+
+                    .counter-table td:first-child {
+                        padding-left: 0;
+                    }
+
+                    .counter-table td:last-child {
+                        padding-right: 0;
+                    }
+
+                    .counter-card {
+                        width: 100%;
+                        background: #f8fafc;
+                        border: 1px solid #d7dee8;
+                        border-radius: 5px;
+                        padding: 8px 8px;
+                        text-align: center;
+                    }
+
+                    .counter-label {
+                        font-size: 6.7px;
+                        color: #738195;
+                        margin-bottom: 3px;
+                        text-transform: uppercase;
+                        font-weight: 800;
+                    }
+
+                    .counter-value {
+                        font-size: 11px;
+                        color: #1e3a8a;
+                        font-weight: 900;
+                        font-family: Arial, Helvetica, sans-serif;
+                    }
+
+
+                    /* =====================================================
+                       REPUESTOS
+                    ===================================================== */
+
+                    .parts-notice {
+                        margin: 0 0 6px 0;
+                        padding: 6px 8px;
+                        border-left: 3px solid #f59e0b;
+                        background: #fffbeb;
+                        color: #78350f;
+                        font-size: 7px;
+                        line-height: 1.3;
+                    }
+
+                    .parts-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        table-layout: fixed;
+                        margin: 5px 0;
+                    }
+
+                    .parts-table th {
+                        background: #1e3a8a;
+                        color: #ffffff;
+                        font-size: 6.8px;
+                        font-weight: 800;
+                        text-transform: uppercase;
                         padding: 5px 6px;
                         border: 1px solid #1e3a8a;
                     }
-                    .parts-table td { 
-                        color: #334155; 
-                        font-size: 8px; 
-                        padding: 5px 6px; 
-                        border: 1px solid #e2e8f0; 
+
+                    .parts-table td {
+                        color: #334155;
+                        font-size: 7.7px;
+                        padding: 5px 6px;
+                        border: 1px solid #dce3ec;
                         vertical-align: top;
                     }
-                    .parts-description { 
-                        width: 82%; 
+
+                    .parts-description {
+                        width: 82%;
                         white-space: pre-line;
                     }
-                    .parts-quantity { 
-                        width: 18%; 
-                        text-align: center; 
-                        font-weight: 700;
+
+                    .parts-quantity {
+                        width: 18%;
+                        text-align: center;
+                        font-weight: 800;
                     }
-                    .parts-acceptance { 
-                        margin-top: 6px; 
-                        padding: 6px 8px; 
-                        background: #eff6ff; 
-                        border: 1px solid #bfdbfe; 
-                        color: #1e40af; 
-                        font-size: 6.8px; 
-                        line-height: 1.25;
+
+                    .parts-acceptance {
+                        margin-top: 6px;
+                        padding: 6px 8px;
+                        background: #eff6ff;
+                        border: 1px solid #bfdbfe;
+                        color: #1e40af;
+                        font-size: 6.6px;
+                        line-height: 1.3;
                         border-radius: 4px;
                     }
 
-                    /* ========================= EVIDENCE ========================= */
-                    .evidence-table { 
-                        width: 100%; 
-                        border-collapse: separate; 
-                        border-spacing: 6px;
-                        margin: 6px 0 0 0;
-                    }
-                    .evidence-table td { 
-                        width: 50%; 
-                        vertical-align: top;
-                    }
-                    .evidence-box { 
-                        text-align: center; 
-                        padding: 6px; 
-                        background: #f8fafc; 
-                        border: 1.5px solid #cbd5e1;
-                        border-radius: 5px;
-                    }
-                    .evidence-label { 
-                        font-size: 7.2px; 
-                        font-weight: 800; 
-                        color: #1e293b; 
-                        margin-bottom: 4px;
-                        text-transform: uppercase;
-                        letter-spacing: 0.1px;
-                    }
-                    .evidence-box img { 
-                        max-width: 100%; 
-                        max-height: 100px; 
-                        border: 1px solid #cbd5e1;
-                        border-radius: 3px;
-                    }
-                    .stars { 
-                        text-align: center; 
-                        font-size: 16px; 
-                        color: #f59e0b; 
-                        letter-spacing: 2px;
-                        margin: 6px 0;
+
+                    /* =====================================================
+                       EVIDENCIAS
+                    ===================================================== */
+
+                    .evidence-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        table-layout: fixed;
                     }
 
-                    /* ========================= SIGNATURES ========================= */
-                    .sign-table { 
-                        width: 100%; 
-                        border-collapse: separate; 
-                        border-spacing: 6px;
-                        margin: 6px 0 0 0;
+                    .evidence-table td {
+                        width: 50%;
+                        vertical-align: top;
+                        padding: 0 3px;
                     }
-                    .sign-table td { 
-                        width: 50%; 
-                        vertical-align: bottom;
+
+                    .evidence-table td:first-child {
+                        padding-left: 0;
                     }
-                    .signature-card { 
-                        background: #f8fafc; 
-                        border: 1.5px solid #e2e8f0; 
-                        border-radius: 6px; 
-                        padding: 10px; 
-                        min-height: 95px; 
+
+                    .evidence-table td:last-child {
+                        padding-right: 0;
+                    }
+
+                    .evidence-box {
+                        width: 100%;
                         text-align: center;
+                        padding: 6px;
+                        background: #f8fafc;
+                        border: 1px solid #d7dee8;
+                        border-radius: 5px;
                     }
-                    .signature-area { 
-                        height: 40px; 
-                        text-align: center;
+
+                    .evidence-label {
+                        font-size: 6.8px;
+                        font-weight: 800;
+                        color: #1e293b;
                         margin-bottom: 4px;
+                        text-transform: uppercase;
                     }
-                    .signature-area img { 
-                        max-height: 38px; 
-                        max-width: 160px;
+
+                    .evidence-box img {
+                        width: auto;
+                        height: auto;
+                        max-width: 100%;
+                        max-height: 100px;
+                        border: 1px solid #cbd5e1;
                     }
-                    .signature-line { 
-                        width: 80%; 
-                        margin: 4px auto 5px; 
-                        border-top: 1.5px solid #334155;
+
+
+                    /* =====================================================
+                       EVALUACIÓN
+                    ===================================================== */
+
+                    .stars {
+                        text-align: center;
+                        font-size: 15px;
+                        color: #f59e0b;
+                        letter-spacing: 2px;
+                        margin: 5px 0;
                     }
-                    .signature-role { 
-                        font-size: 7.2px; 
-                        color: #64748b; 
-                        text-transform: uppercase; 
-                        font-weight: 700; 
+
+
+                    /* =====================================================
+                       FIRMAS
+                    ===================================================== */
+
+                    .sign-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        table-layout: fixed;
+                    }
+
+                    .sign-table td {
+                        width: 50%;
+                        vertical-align: bottom;
+                        padding: 0 3px;
+                    }
+
+                    .sign-table td:first-child {
+                        padding-left: 0;
+                    }
+
+                    .sign-table td:last-child {
+                        padding-right: 0;
+                    }
+
+                    .signature-card {
+                        width: 100%;
+                        background: #ffffff;
+                        border: 1px solid #dce3ec;
+                        border-radius: 5px;
+                        padding: 8px;
+                        min-height: 91px;
+                        text-align: center;
+                    }
+
+                    .signature-area {
+                        height: 38px;
+                        text-align: center;
+                        margin-bottom: 3px;
+                    }
+
+                    .signature-area img {
+                        width: auto !important;
+                        height: auto !important;
+                        max-height: 36px !important;
+                        max-width: 150px !important;
+                    }
+
+                    .signature-line {
+                        width: 78%;
+                        margin: 3px auto 5px auto;
+                        border-top: 1px solid #475569;
+                    }
+
+                    .signature-role {
+                        font-size: 6.8px;
+                        color: #64748b;
+                        text-transform: uppercase;
+                        font-weight: 800;
                         margin-bottom: 2px;
-                        letter-spacing: 0.1px;
                     }
-                    .signature-name { 
-                        font-size: 9px; 
-                        color: #1e293b; 
-                        font-weight: 700;
+
+                    .signature-name {
+                        font-size: 8.7px;
+                        color: #1e293b;
+                        font-weight: 800;
                     }
-                    .signature-note { 
-                        font-size: 6.8px; 
-                        color: #64748b; 
-                        margin-top: 2px; 
+
+                    .signature-note {
+                        font-size: 6.3px;
+                        color: #7c8999;
+                        margin-top: 2px;
                         line-height: 1.2;
                     }
 
-                    /* ========================= FOOTER ========================= */
-                    .footer-info { 
-                        margin-top: 8px; 
-                        padding-top: 6px; 
-                        border-top: 2px solid #e2e8f0; 
-                        text-align: center; 
-                        color: #64748b; 
-                        font-size: 7px;
+
+                    /* =====================================================
+                       FOOTER
+                    ===================================================== */
+
+                    .footer-info {
+                        margin-top: 7px;
+                        padding-top: 5px;
+                        border-top: 1.5px solid #dfe5ec;
+                        text-align: center;
+                        color: #738195;
+                        font-size: 6.5px;
                     }
-                    .footer-info p { 
+
+                    .footer-info p {
                         margin: 2px 0;
                     }
-                    .footer-info strong { 
+
+                    .footer-info strong {
                         color: #1e293b;
-                        font-size: 7.5px;
+                        font-size: 7px;
                     }
 
-                    /* ========================= UTILITIES ========================= */
-                    .text-muted { color: #64748b; }
-                    .text-sm { font-size: 8px; }
-                    .gap-4 { gap: 4px; }
-                    .mt-2 { margin-top: 2px; }
-                    .mb-2 { margin-bottom: 2px; }
-                    
                 </style>
 
+
                 <div class="page">
+
                     <div class="report-shell">
-                        <!-- =========== HEADER =========== -->
-                        <div class="hero">
-                            <div class="hero-left">
-                                <div class="company-logo-wrapper">
-                                    <t t-if="docs[0].company_id.logo">
-                                        <img t-att-src="image_data_uri(docs[0].company_id.logo)"
-                                             class="company-logo"
-                                             alt="Logo Empresa"/>
-                                    </t>
-                                    <t t-else="">
-                                        <div style="color: #ccc; font-size: 10px; font-weight: bold;">Logo</div>
-                                    </t>
-                                </div>
-                                <div class="company-tagline" t-if="docs[0].company_id.website">
-                                    <t t-esc="docs[0].company_id.website"/>
-                                </div>
-                            </div>
-                            <div class="hero-right">
-                                <div class="hero-kicker">📋 Reporte de</div>
-                                <div class="hero-title">Servicio Técnico</div>
-                            </div>
+
+
+                        <!-- =================================================
+                             HEADER
+                        ================================================== -->
+
+                        <table class="hero-table">
+                            <tbody>
+                                <tr>
+
+                                    <!-- LOGO -->
+                                    <td class="hero-logo-cell">
+
+                                        <div class="company-logo-container">
+
+                                            <t t-if="docs[0].company_id.logo">
+                                                <img
+                                                    t-att-src="image_data_uri(docs[0].company_id.logo)"
+                                                    class="company-logo"
+                                                    alt="Logo Empresa"
+                                                />
+                                            </t>
+
+                                            <t t-else="">
+                                                <span style="
+                                                    color:#94a3b8;
+                                                    font-size:11px;
+                                                    font-weight:700;
+                                                ">
+                                                    Logo
+                                                </span>
+                                            </t>
+
+                                        </div>
+
+                                        <div class="company-tagline">
+                                            Soluciones integrales de impresión y soporte técnico
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- TÍTULO -->
+                                    <td class="hero-title-cell">
+
+                                        <div class="hero-kicker">
+                                            REPORTE DE
+                                        </div>
+
+                                        <div class="hero-title">
+                                            Servicio<br/>
+                                            Técnico
+                                        </div>
+
+                                        <div class="hero-subtitle">
+                                            Informe de atención y conformidad
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+
+
+                        <!-- =================================================
+                             NÚMERO Y FECHA
+                        ================================================== -->
+
+                        <div class="report-meta">
+
+                            <span class="report-number">
+                                N°
+                                <t t-esc="docs[0].name"/>
+                            </span>
+
+                            <span class="report-separator">|</span>
+
+                            <span class="report-date">
+
+                                <t t-esc="
+                                    time.strftime('%d de %B de %Y')
+                                    .replace('January', 'Enero')
+                                    .replace('February', 'Febrero')
+                                    .replace('March', 'Marzo')
+                                    .replace('April', 'Abril')
+                                    .replace('May', 'Mayo')
+                                    .replace('June', 'Junio')
+                                    .replace('July', 'Julio')
+                                    .replace('August', 'Agosto')
+                                    .replace('September', 'Setiembre')
+                                    .replace('October', 'Octubre')
+                                    .replace('November', 'Noviembre')
+                                    .replace('December', 'Diciembre')
+                                "/>
+
+                            </span>
+
                         </div>
 
-                        <!-- =========== META INFO =========== -->
-                        <div class="report-meta">
-                            <strong>N° <t t-esc="docs[0].name"/></strong>
-                            <span style="margin: 0 12px; color: #cbd5e1;">|</span>
-                            <strong style="color: #64748b; font-weight: 600;"><t t-esc="time.strftime('%d de %B de %Y').replace('January', 'Enero').replace('February', 'Febrero').replace('March', 'Marzo').replace('April', 'Abril').replace('May', 'Mayo').replace('June', 'Junio').replace('July', 'Julio').replace('August', 'Agosto').replace('September', 'Setiembre').replace('October', 'Octubre').replace('November', 'Noviembre').replace('December', 'Diciembre')"/></strong>
-                        </div>
 
                         <div class="content-area">
-                            <!-- =========== ROW 1: INFORMACIÓN GENERAL + CLIENTE =========== -->
+
+
+                            <!-- =================================================
+                                 INFORMACIÓN GENERAL + CLIENTE
+                            ================================================== -->
+
                             <table class="split-table">
-                                <tr>
-                                    <td class="split-panel">
-                                        <div class="card" style="border: none; padding: 0; box-shadow: none;">
-                                            <div class="section-head">
-                                                <div class="section-title">
-                                                    <span>ℹ️</span> Información General
+                                <tbody>
+                                    <tr>
+
+                                        <!-- INFORMACIÓN GENERAL -->
+                                        <td>
+
+                                            <div class="split-panel">
+
+                                                <div class="section-head">
+                                                    <div class="section-title">
+                                                        Información General
+                                                    </div>
                                                 </div>
+
+                                                <table class="field-table">
+                                                    <tbody>
+
+                                                        <tr>
+
+                                                            <td>
+
+                                                                <div class="label">
+                                                                    Estado
+                                                                </div>
+
+                                                                <div>
+
+                                                                    <t t-set="estado_dict"
+                                                                       t-value="{
+                                                                        'nuevo': ('badge-info', 'Nuevo'),
+                                                                        'asignado': ('badge-primary', 'Asignado'),
+                                                                        'confirmado': ('badge-success', 'Confirmado'),
+                                                                        'en_ruta': ('badge-warning', 'En Ruta'),
+                                                                        'en_sitio': ('badge-warning', 'En Sitio'),
+                                                                        'pausado': ('badge-warning', 'Pausado'),
+                                                                        'completado': ('badge-success', 'Completado'),
+                                                                        'cancelado': ('badge-danger', 'Cancelado')
+                                                                       }"/>
+
+                                                                    <span
+                                                                        class="badge"
+                                                                        t-att-class="
+                                                                            estado_dict.get(
+                                                                                docs[0].estado,
+                                                                                ('badge-info', 'N/A')
+                                                                            )[0]
+                                                                        "
+                                                                    >
+                                                                        <t t-esc="
+                                                                            estado_dict.get(
+                                                                                docs[0].estado,
+                                                                                ('badge-info', 'N/A')
+                                                                            )[1]
+                                                                        "/>
+                                                                    </span>
+
+                                                                </div>
+
+                                                            </td>
+
+
+                                                            <td>
+
+                                                                <div class="label">
+                                                                    SLA cumplido
+                                                                </div>
+
+                                                                <div>
+
+                                                                    <span
+                                                                        class="badge"
+                                                                        t-att-class="
+                                                                            docs[0].sla_cumplido
+                                                                            and 'badge-success'
+                                                                            or 'badge-danger'
+                                                                        "
+                                                                    >
+
+                                                                        <t t-if="docs[0].sla_cumplido">
+                                                                            Cumplido
+                                                                        </t>
+
+                                                                        <t t-else="">
+                                                                            No Cumplido
+                                                                        </t>
+
+                                                                    </span>
+
+                                                                </div>
+
+                                                            </td>
+
+                                                        </tr>
+
+
+                                                        <tr>
+
+                                                            <td>
+
+                                                                <div class="label">
+                                                                    Duración
+                                                                </div>
+
+                                                                <div class="value">
+                                                                    <t t-esc="
+                                                                        round(
+                                                                            docs[0].duracion_real or 0,
+                                                                            2
+                                                                        )
+                                                                    "/>
+                                                                    horas
+                                                                </div>
+
+                                                            </td>
+
+
+                                                            <td>
+
+                                                                <div class="label">
+                                                                    Tipo de solución
+                                                                </div>
+
+                                                                <div class="value">
+
+                                                                    <t t-if="docs[0].solucion_aplicada">
+
+                                                                        <t t-esc="
+                                                                            dict(
+                                                                                docs[0]._fields[
+                                                                                    'solucion_aplicada'
+                                                                                ].selection
+                                                                            ).get(
+                                                                                docs[0].solucion_aplicada
+                                                                            )
+                                                                        "/>
+
+                                                                    </t>
+
+                                                                    <t t-else="">
+                                                                        —
+                                                                    </t>
+
+                                                                </div>
+
+                                                            </td>
+
+                                                        </tr>
+
+                                                    </tbody>
+                                                </table>
+
                                             </div>
-                                            <table class="field-table">
-                                                <tr>
-                                                    <td>
-                                                        <div class="label">Estado</div>
-                                                        <div>
-                                                            <t t-set="estado_dict" t-value="{
-                                                                'nuevo': ('badge-info', 'Nuevo'),
-                                                                'asignado': ('badge-primary', 'Asignado'),
-                                                                'confirmado': ('badge-success', 'Confirmado'),
-                                                                'en_ruta': ('badge-warning', 'En Ruta'),
-                                                                'en_sitio': ('badge-warning', 'En Sitio'),
-                                                                'pausado': ('badge-warning', 'Pausado'),
-                                                                'completado': ('badge-success', 'Completado'),
-                                                                'cancelado': ('badge-danger', 'Cancelado')
-                                                            }"/>
-                                                            <span class="badge" t-att-class="estado_dict.get(docs[0].estado, ('badge-info', 'N/A'))[0]">
-                                                                <t t-esc="estado_dict.get(docs[0].estado, ('badge-info', 'N/A'))[1]"/>
-                                                            </span>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div class="label">SLA cumplido</div>
-                                                        <div>
-                                                            <span class="badge" t-att-class="docs[0].sla_cumplido and 'badge-success' or 'badge-danger'">
-                                                                <t t-if="docs[0].sla_cumplido">✓ Cumplido</t>
-                                                                <t t-else="">✗ No Cumplido</t>
-                                                            </span>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>
-                                                        <div class="label">⏱️ Duración</div>
-                                                        <div class="value"><t t-esc="round(docs[0].duracion_real or 0, 2)"/> horas</div>
-                                                    </td>
-                                                    <td>
-                                                        <div class="label">🔧 Tipo de solución</div>
-                                                        <div class="value">
-                                                            <t t-if="docs[0].solucion_aplicada"><t t-esc="dict(docs[0]._fields['solucion_aplicada'].selection).get(docs[0].solucion_aplicada)"/></t>
-                                                            <t t-else="">—</t>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                        </div>
-                                    </td>
-                                    <td class="split-panel">
-                                        <div class="card" style="border: none; padding: 0; box-shadow: none;">
-                                            <div class="section-head">
-                                                <div class="section-title">
-                                                    <span>👤</span> Datos del Cliente
+
+                                        </td>
+
+
+                                        <!-- DATOS DEL CLIENTE -->
+                                        <td>
+
+                                            <div class="split-panel">
+
+                                                <div class="section-head">
+                                                    <div class="section-title">
+                                                        Datos del Cliente
+                                                    </div>
                                                 </div>
+
+                                                <table class="field-table">
+                                                    <tbody>
+
+                                                        <tr>
+
+                                                            <td>
+
+                                                                <div class="label">
+                                                                    Empresa
+                                                                </div>
+
+                                                                <div class="value">
+                                                                    <t t-esc="
+                                                                        docs[0].cliente_id.name
+                                                                    "/>
+                                                                </div>
+
+                                                            </td>
+
+
+                                                            <td>
+
+                                                                <div class="label">
+                                                                    Contacto
+                                                                </div>
+
+                                                                <div class="value">
+                                                                    <t t-esc="
+                                                                        docs[0].contacto or '—'
+                                                                    "/>
+                                                                </div>
+
+                                                            </td>
+
+                                                        </tr>
+
+
+                                                        <tr>
+
+                                                            <td>
+
+                                                                <div class="label">
+                                                                    Teléfono
+                                                                </div>
+
+                                                                <div class="value">
+                                                                    <t t-esc="
+                                                                        docs[0].telefono_contacto
+                                                                        or '—'
+                                                                    "/>
+                                                                </div>
+
+                                                            </td>
+
+
+                                                            <td>
+
+                                                                <div class="label">
+                                                                    Email
+                                                                </div>
+
+                                                                <div class="value">
+                                                                    <t t-esc="
+                                                                        docs[0].correo or '—'
+                                                                    "/>
+                                                                </div>
+
+                                                            </td>
+
+                                                        </tr>
+
+                                                    </tbody>
+                                                </table>
+
                                             </div>
-                                            <table class="field-table">
-                                                <tr>
-                                                    <td>
-                                                        <div class="label">Empresa</div>
-                                                        <div class="value"><t t-esc="docs[0].cliente_id.name"/></div>
-                                                    </td>
-                                                    <td>
-                                                        <div class="label">Contacto</div>
-                                                        <div class="value"><t t-esc="docs[0].contacto or '—'"/></div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>
-                                                        <div class="label">📞 Teléfono</div>
-                                                        <div class="value"><t t-esc="docs[0].telefono_contacto or '—'"/></div>
-                                                    </td>
-                                                    <td>
-                                                        <div class="label">📧 Email</div>
-                                                        <div class="value"><t t-esc="docs[0].correo or '—'"/></div>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                        </div>
-                                    </td>
-                                </tr>
+
+                                        </td>
+
+                                    </tr>
+                                </tbody>
                             </table>
 
-                            <!-- =========== EQUIPO =========== -->
+
+                            <!-- =================================================
+                                 EQUIPO
+                            ================================================== -->
+
                             <div class="full-row card">
+
                                 <div class="section-head">
                                     <div class="section-title">
-                                        <span>🖨️</span> Equipo / Dispositivo
+                                        Equipo / Dispositivo
                                     </div>
                                 </div>
+
                                 <table class="field-table">
-                                    <tr>
-                                        <td>
-                                            <div class="label">Modelo</div>
-                                            <div class="value"><t t-esc="docs[0].modelo_maquina.name"/></div>
-                                        </td>
-                                        <td>
-                                            <div class="label">Número de serie</div>
-                                            <div class="value"><t t-esc="docs[0].serie_maquina"/></div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="label">📍 Ubicación</div>
-                                            <div class="value"><t t-esc="docs[0].ubicacion"/></div>
-                                        </td>
-                                        <td>
-                                            <div class="label">🌐 IP del equipo</div>
-                                            <div class="value"><t t-esc="docs[0].ip_maquina or '—'"/></div>
-                                        </td>
-                                    </tr>
+                                    <tbody>
+
+                                        <tr>
+
+                                            <td>
+
+                                                <div class="label">
+                                                    Modelo
+                                                </div>
+
+                                                <div class="value">
+                                                    <t t-esc="
+                                                        docs[0].modelo_maquina.name
+                                                    "/>
+                                                </div>
+
+                                            </td>
+
+
+                                            <td>
+
+                                                <div class="label">
+                                                    Número de serie
+                                                </div>
+
+                                                <div class="value">
+                                                    <t t-esc="
+                                                        docs[0].serie_maquina
+                                                    "/>
+                                                </div>
+
+                                            </td>
+
+                                        </tr>
+
+
+                                        <tr>
+
+                                            <td>
+
+                                                <div class="label">
+                                                    Ubicación
+                                                </div>
+
+                                                <div class="value">
+                                                    <t t-esc="
+                                                        docs[0].ubicacion
+                                                    "/>
+                                                </div>
+
+                                            </td>
+
+
+                                            <td>
+
+                                                <div class="label">
+                                                    IP del equipo
+                                                </div>
+
+                                                <div class="value">
+                                                    <t t-esc="
+                                                        docs[0].ip_maquina or '—'
+                                                    "/>
+                                                </div>
+
+                                            </td>
+
+                                        </tr>
+
+                                    </tbody>
                                 </table>
+
                             </div>
 
-                            <!-- =========== DESCRIPCIÓN =========== -->
-                            <div class="full-row card">
-                                <div class="section-head">
-                                    <div class="section-title">
-                                        <span>📝</span> Descripción del Problema
-                                    </div>
-                                </div>
-                                <div class="plain-text"><t t-esc="docs[0].problema_reportado or '—'"/></div>
-                            </div>
 
-                            <!-- =========== RESULTADOS =========== -->
+                            <!-- =================================================
+                                 DESCRIPCIÓN DEL PROBLEMA
+                            ================================================== -->
+
                             <div class="full-row card">
+
                                 <div class="section-head">
                                     <div class="section-title">
-                                        <span>✅</span> Resultados / Observaciones
+                                        Descripción del Problema
                                     </div>
                                 </div>
+
                                 <div class="plain-text">
-                                    <t t-if="docs[0].trabajo_realizado">
-                                        <t t-esc="docs[0].trabajo_realizado"/>
-                                    </t>
-                                    <t t-else="">No se registraron observaciones adicionales.</t>
+                                    <t t-esc="
+                                        docs[0].problema_reportado or '—'
+                                    "/>
                                 </div>
+
                             </div>
 
-                            <!-- =========== FECHAS =========== -->
+
+                            <!-- =================================================
+                                 RESULTADOS
+                            ================================================== -->
+
+                            <div class="full-row card">
+
+                                <div class="section-head">
+                                    <div class="section-title">
+                                        Resultados / Observaciones
+                                    </div>
+                                </div>
+
+                                <div class="plain-text">
+
+                                    <t t-if="docs[0].trabajo_realizado">
+                                        <t t-esc="
+                                            docs[0].trabajo_realizado
+                                        "/>
+                                    </t>
+
+                                    <t t-else="">
+                                        No se registraron observaciones adicionales.
+                                    </t>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- =================================================
+                                 FECHAS
+                            ================================================== -->
+
                             <table class="mini-table">
-                                <tr>
-                                    <td>
-                                        <div class="mini-card">
-                                            <div class="mini-title">📅 Fecha de inicio</div>
-                                            <div class="mini-value">
-                                                <t t-if="docs[0].fecha_inicio" t-esc="docs[0].fecha_inicio.strftime('%d/%m/%Y %H:%M')"/>
-                                                <t t-else="">—</t>
+                                <tbody>
+                                    <tr>
+
+                                        <td>
+
+                                            <div class="mini-card">
+
+                                                <div class="mini-title">
+                                                    Fecha de inicio
+                                                </div>
+
+                                                <div class="mini-value">
+
+                                                    <t
+                                                        t-if="docs[0].fecha_inicio"
+                                                        t-esc="
+                                                            docs[0].fecha_inicio.strftime(
+                                                                '%d/%m/%Y %H:%M'
+                                                            )
+                                                        "
+                                                    />
+
+                                                    <t t-else="">
+                                                        —
+                                                    </t>
+
+                                                </div>
+
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="mini-card">
-                                            <div class="mini-title">🏁 Fecha de fin</div>
-                                            <div class="mini-value">
-                                                <t t-if="docs[0].fecha_fin" t-esc="docs[0].fecha_fin.strftime('%d/%m/%Y %H:%M')"/>
-                                                <t t-else="">—</t>
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <div class="mini-card">
+
+                                                <div class="mini-title">
+                                                    Fecha de fin
+                                                </div>
+
+                                                <div class="mini-value">
+
+                                                    <t
+                                                        t-if="docs[0].fecha_fin"
+                                                        t-esc="
+                                                            docs[0].fecha_fin.strftime(
+                                                                '%d/%m/%Y %H:%M'
+                                                            )
+                                                        "
+                                                    />
+
+                                                    <t t-else="">
+                                                        —
+                                                    </t>
+
+                                                </div>
+
                                             </div>
-                                        </div>
-                                    </td>
-                                </tr>
+
+                                        </td>
+
+                                    </tr>
+                                </tbody>
                             </table>
 
-                            <!-- =========== CONTADORES =========== -->
-                            <t t-if="docs[0].contador_bn or docs[0].contador_color or docs[0].contador_total">
+
+                            <!-- =================================================
+                                 CONTADORES
+                            ================================================== -->
+
+                            <t t-if="
+                                docs[0].contador_bn
+                                or docs[0].contador_color
+                                or docs[0].contador_total
+                            ">
+
                                 <table class="counter-table">
-                                    <tr>
-                                        <td>
-                                            <div class="counter-card">
-                                                <div class="counter-label">📊 Contador B/N</div>
-                                                <div class="counter-value"><t t-esc="'{:,}'.format(docs[0].contador_bn or 0)"/></div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="counter-card">
-                                                <div class="counter-label">🎨 Contador Color</div>
-                                                <div class="counter-value"><t t-esc="'{:,}'.format(docs[0].contador_color or 0)"/></div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="counter-card">
-                                                <div class="counter-label">📈 Contador Total</div>
-                                                <div class="counter-value"><t t-esc="'{:,}'.format(docs[0].contador_total or 0)"/></div>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                    <tbody>
+                                        <tr>
+
+                                            <td>
+
+                                                <div class="counter-card">
+
+                                                    <div class="counter-label">
+                                                        Contador B/N
+                                                    </div>
+
+                                                    <div class="counter-value">
+                                                        <t t-esc="
+                                                            '{:,}'.format(
+                                                                docs[0].contador_bn or 0
+                                                            )
+                                                        "/>
+                                                    </div>
+
+                                                </div>
+
+                                            </td>
+
+
+                                            <td>
+
+                                                <div class="counter-card">
+
+                                                    <div class="counter-label">
+                                                        Contador Color
+                                                    </div>
+
+                                                    <div class="counter-value">
+                                                        <t t-esc="
+                                                            '{:,}'.format(
+                                                                docs[0].contador_color or 0
+                                                            )
+                                                        "/>
+                                                    </div>
+
+                                                </div>
+
+                                            </td>
+
+
+                                            <td>
+
+                                                <div class="counter-card">
+
+                                                    <div class="counter-label">
+                                                        Contador Total
+                                                    </div>
+
+                                                    <div class="counter-value">
+                                                        <t t-esc="
+                                                            '{:,}'.format(
+                                                                docs[0].contador_total or 0
+                                                            )
+                                                        "/>
+                                                    </div>
+
+                                                </div>
+
+                                            </td>
+
+                                        </tr>
+                                    </tbody>
                                 </table>
+
                             </t>
 
-                            <!-- =========== INSUMOS =========== -->
+
+                            <!-- =================================================
+                                 INSUMOS UTILIZADOS
+                            ================================================== -->
+
                             <t t-if="docs[0].insumos_utilizados">
+
                                 <div class="extra-card">
+
                                     <div class="section-head">
                                         <div class="section-title">
-                                            <span>🛠️</span> Insumos / Repuestos Utilizados
+                                            Insumos / Repuestos Utilizados
                                         </div>
                                     </div>
-                                    <div class="plain-text"><t t-esc="docs[0].insumos_utilizados"/></div>
+
+                                    <div class="plain-text">
+                                        <t t-esc="
+                                            docs[0].insumos_utilizados
+                                        "/>
+                                    </div>
+
                                 </div>
+
                             </t>
 
-                            <!-- =========== REPUESTOS SOLICITADOS =========== -->
-                            <t t-if="docs[0].requiere_repuestos and docs[0].sale_order_id">
+
+                            <!-- =================================================
+                                 REPUESTOS SOLICITADOS
+                            ================================================== -->
+
+                            <t t-if="
+                                docs[0].requiere_repuestos
+                                and docs[0].sale_order_id
+                            ">
+
                                 <div class="extra-card">
+
                                     <div class="section-head">
                                         <div class="section-title">
-                                            <span>📦</span> Repuestos Solicitados
+                                            Repuestos Solicitados
                                         </div>
                                     </div>
+
 
                                     <div class="parts-notice">
-                                        <strong>⚠️ Aviso Importante:</strong> Los siguientes repuestos fueron identificados durante la atención técnica y quedan sujetos a revisión de disponibilidad y aprobación comercial.
+
+                                        <strong>
+                                            Aviso importante:
+                                        </strong>
+
+                                        Los siguientes repuestos fueron
+                                        identificados durante la atención
+                                        técnica y quedan sujetos a revisión
+                                        de disponibilidad y aprobación
+                                        comercial.
+
                                     </div>
 
+
                                     <table class="parts-table">
+
                                         <thead>
                                             <tr>
-                                                <th class="parts-description">Descripción del Repuesto</th>
-                                                <th class="parts-quantity">Cantidad</th>
+
+                                                <th class="parts-description">
+                                                    Descripción del Repuesto
+                                                </th>
+
+                                                <th class="parts-quantity">
+                                                    Cantidad
+                                                </th>
+
                                             </tr>
                                         </thead>
+
+
                                         <tbody>
-                                            <t t-foreach="docs[0].sale_order_id.order_line" t-as="line">
+
+                                            <t
+                                                t-foreach="
+                                                    docs[0].sale_order_id.order_line
+                                                "
+                                                t-as="line"
+                                            >
+
                                                 <tr t-if="not line.display_type">
-                                                    <td class="parts-description"><t t-esc="line.name"/></td>
-                                                    <td class="parts-quantity"><t t-esc="('{:,.2f}'.format(line.product_uom_qty or 0)).rstrip('0').rstrip('.')"/></td>
+
+                                                    <td class="parts-description">
+                                                        <t t-esc="line.name"/>
+                                                    </td>
+
+                                                    <td class="parts-quantity">
+
+                                                        <t t-esc="
+                                                            (
+                                                                '{:,.2f}'.format(
+                                                                    line.product_uom_qty
+                                                                    or 0
+                                                                )
+                                                            ).rstrip('0').rstrip('.')
+                                                        "/>
+
+                                                    </td>
+
                                                 </tr>
+
                                             </t>
+
+                                        </tbody>
+
+                                    </table>
+
+
+                                    <div class="parts-acceptance">
+
+                                        <strong>
+                                            Constancia de información:
+                                        </strong>
+
+                                        Con su firma, el cliente confirma haber
+                                        sido informado sobre la necesidad técnica
+                                        de los repuestos descritos. Este documento
+                                        no constituye aceptación de precio ni
+                                        aprobación de compra; la cotización
+                                        comercial será comunicada por separado.
+
+                                    </div>
+
+                                </div>
+
+                            </t>
+
+
+                            <!-- =================================================
+                                 EVIDENCIAS FOTOGRÁFICAS
+                            ================================================== -->
+
+                            <t t-if="
+                                docs[0].foto_antes
+                                or docs[0].foto_despues
+                            ">
+
+                                <div class="extra-card">
+
+                                    <div class="section-head">
+                                        <div class="section-title">
+                                            Evidencias Fotográficas
+                                        </div>
+                                    </div>
+
+
+                                    <table class="evidence-table">
+                                        <tbody>
+                                            <tr>
+
+                                                <td t-if="docs[0].foto_antes">
+
+                                                    <div class="evidence-box">
+
+                                                        <div class="evidence-label">
+                                                            Antes del Servicio
+                                                        </div>
+
+                                                        <img
+                                                            t-att-src="
+                                                                'data:image/png;base64,%s'
+                                                                % docs[0].foto_antes
+                                                            "
+                                                            alt="Foto Antes"
+                                                        />
+
+                                                    </div>
+
+                                                </td>
+
+
+                                                <td t-if="docs[0].foto_despues">
+
+                                                    <div class="evidence-box">
+
+                                                        <div class="evidence-label">
+                                                            Después del Servicio
+                                                        </div>
+
+                                                        <img
+                                                            t-att-src="
+                                                                'data:image/png;base64,%s'
+                                                                % docs[0].foto_despues
+                                                            "
+                                                            alt="Foto Después"
+                                                        />
+
+                                                    </div>
+
+                                                </td>
+
+                                            </tr>
                                         </tbody>
                                     </table>
 
-                                    <div class="parts-acceptance">
-                                        <strong>📋 Constancia de información:</strong> Con su firma, el cliente confirma haber sido informado sobre la necesidad técnica de los repuestos descritos. Este documento no constituye aceptación de precio ni aprobación de compra; la cotización comercial será comunicada por separado.
-                                    </div>
                                 </div>
+
                             </t>
 
-                            <!-- =========== EVIDENCIAS =========== -->
-                            <t t-if="docs[0].foto_antes or docs[0].foto_despues">
-                                <div class="extra-card">
-                                    <div class="section-head">
-                                        <div class="section-title">
-                                            <span>📸</span> Evidencias Fotográficas
-                                        </div>
-                                    </div>
-                                    <table class="evidence-table">
-                                        <tr>
-                                            <td t-if="docs[0].foto_antes">
-                                                <div class="evidence-box">
-                                                    <div class="evidence-label">🔴 Antes del Servicio</div>
-                                                    <img t-att-src="'data:image/png;base64,%s' % docs[0].foto_antes" alt="Foto Antes"/>
-                                                </div>
-                                            </td>
-                                            <td t-if="docs[0].foto_despues">
-                                                <div class="evidence-box">
-                                                    <div class="evidence-label">🟢 Después del Servicio</div>
-                                                    <img t-att-src="'data:image/png;base64,%s' % docs[0].foto_despues" alt="Foto Después"/>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            </t>
 
-                            <!-- =========== EVALUACIÓN =========== -->
+                            <!-- =================================================
+                                 EVALUACIÓN DEL CLIENTE
+                            ================================================== -->
+
                             <t t-if="docs[0].calificacion">
+
                                 <div class="extra-card">
+
                                     <div class="section-head">
                                         <div class="section-title">
-                                            <span>⭐</span> Evaluación del Cliente
+                                            Evaluación del Cliente
                                         </div>
                                     </div>
-                                    <div class="stars"><t t-esc="'⭐ ' * int(docs[0].calificacion)"/></div>
-                                    <t t-if="docs[0].comentario_cliente">
-                                        <div class="plain-text" style="margin-top: 6px; font-style: italic;">
-                                            <strong>Comentario:</strong> <t t-esc="docs[0].comentario_cliente"/>
+
+
+                                    <div class="stars">
+                                        <t t-esc="
+                                            '★ ' * int(docs[0].calificacion)
+                                        "/>
+                                    </div>
+
+
+                                    <t t-if="
+                                        docs[0].comentario_cliente
+                                    ">
+
+                                        <div
+                                            class="plain-text"
+                                            style="
+                                                margin-top:5px;
+                                                font-style:italic;
+                                            "
+                                        >
+
+                                            <strong>
+                                                Comentario:
+                                            </strong>
+
+                                            <t t-esc="
+                                                docs[0].comentario_cliente
+                                            "/>
+
                                         </div>
+
                                     </t>
+
                                 </div>
+
                             </t>
 
-                            <!-- =========== FIRMAS =========== -->
+
+                            <!-- =================================================
+                                 FIRMAS Y CONFORMIDAD
+                            ================================================== -->
+
                             <div class="extra-card">
+
                                 <div class="section-head">
                                     <div class="section-title">
-                                        <span>✍️</span> Firmas y Conformidad
+                                        Firmas y Conformidad
                                     </div>
                                 </div>
+
+
                                 <table class="sign-table">
-                                    <tr>
-                                        <td>
-                                            <div class="signature-card">
-                                                <div class="signature-area">
-                                                    <!-- Espacio para firma del técnico -->
+                                    <tbody>
+                                        <tr>
+
+
+                                            <!-- TÉCNICO -->
+                                            <td>
+
+                                                <div class="signature-card">
+
+                                                    <div class="signature-area">
+                                                    </div>
+
+                                                    <div class="signature-line">
+                                                    </div>
+
+                                                    <div class="signature-role">
+                                                        Técnico Responsable
+                                                    </div>
+
+                                                    <div class="signature-name">
+
+                                                        <t t-esc="
+                                                            docs[0].tecnico_id.name
+                                                            or '___________________'
+                                                        "/>
+
+                                                    </div>
+
+                                                    <div class="signature-note">
+                                                        Firma y sello del técnico
+                                                    </div>
+
                                                 </div>
-                                                <div class="signature-line"></div>
-                                                <div class="signature-role">Técnico Responsable</div>
-                                                <div class="signature-name"><t t-esc="docs[0].tecnico_id.name or '___________________'"/></div>
-                                                <div class="signature-note">Firma y sello del técnico</div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="signature-card">
-                                                <div class="signature-area">
-                                                    <t t-if="docs[0].firma_cliente">
-                                                        <img t-att-src="'data:image/png;base64,%s' % docs[0].firma_cliente" alt="Firma Cliente"/>
-                                                    </t>
+
+                                            </td>
+
+
+                                            <!-- CLIENTE -->
+                                            <td>
+
+                                                <div class="signature-card">
+
+                                                    <div class="signature-area">
+
+                                                        <t t-if="
+                                                            docs[0].firma_cliente
+                                                        ">
+
+                                                            <img
+                                                                t-att-src="
+                                                                    'data:image/png;base64,%s'
+                                                                    % docs[0].firma_cliente
+                                                                "
+                                                                alt="Firma Cliente"
+                                                            />
+
+                                                        </t>
+
+                                                    </div>
+
+                                                    <div class="signature-line">
+                                                    </div>
+
+                                                    <div class="signature-role">
+                                                        Conformidad del Cliente
+                                                    </div>
+
+                                                    <div class="signature-name">
+
+                                                        <t t-esc="
+                                                            docs[0].nombre_firma
+                                                            or '___________________'
+                                                        "/>
+
+                                                    </div>
+
+                                                    <div class="signature-note">
+
+                                                        <t t-if="
+                                                            docs[0].requiere_repuestos
+                                                            and docs[0].sale_order_id
+                                                        ">
+                                                            Firma y conformidad de
+                                                            información de repuestos
+                                                        </t>
+
+                                                        <t t-else="">
+                                                            Firma y conformidad del servicio
+                                                        </t>
+
+                                                    </div>
+
                                                 </div>
-                                                <div class="signature-line"></div>
-                                                <div class="signature-role">Conformidad del Cliente</div>
-                                                <div class="signature-name"><t t-esc="docs[0].nombre_firma or '___________________'"/></div>
-                                                <div class="signature-note">
-                                                    <t t-if="docs[0].requiere_repuestos and docs[0].sale_order_id">Firma y conformidad de información de repuestos</t>
-                                                    <t t-else="">Firma y conformidad del servicio</t>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
+
+                                            </td>
+
+                                        </tr>
+                                    </tbody>
                                 </table>
+
                             </div>
 
-                            <!-- =========== FOOTER =========== -->
+
+                            <!-- =================================================
+                                 FOOTER
+                            ================================================== -->
+
                             <div class="footer-info">
+
                                 <p>
-                                    <strong><t t-esc="docs[0].company_id.name"/></strong>
+
+                                    <strong>
+                                        <t t-esc="
+                                            docs[0].company_id.name
+                                        "/>
+                                    </strong>
+
                                     <br/>
-                                    <t t-if="docs[0].company_id.phone">Teléfono: <t t-esc="docs[0].company_id.phone"/> | </t>
-                                    <t t-if="docs[0].company_id.email">Email: <t t-esc="docs[0].company_id.email"/></t>
+
+                                    <t t-if="
+                                        docs[0].company_id.phone
+                                    ">
+
+                                        Teléfono:
+                                        <t t-esc="
+                                            docs[0].company_id.phone
+                                        "/>
+
+                                    </t>
+
+
+                                    <t t-if="
+                                        docs[0].company_id.phone
+                                        and docs[0].company_id.email
+                                    ">
+                                        &nbsp; | &nbsp;
+                                    </t>
+
+
+                                    <t t-if="
+                                        docs[0].company_id.email
+                                    ">
+
+                                        Email:
+                                        <t t-esc="
+                                            docs[0].company_id.email
+                                        "/>
+
+                                    </t>
+
                                 </p>
-                                <p style="margin: 3px 0 0 0; font-size: 6.5px; color: #94a3b8;">
-                                    Este documento es válido como constancia del servicio técnico realizado conforme a los términos acordados.
+
+
+                                <p
+                                    style="
+                                        margin-top:3px;
+                                        font-size:6.2px;
+                                        color:#94a3b8;
+                                    "
+                                >
+                                    Este documento es válido como constancia
+                                    del servicio técnico realizado conforme
+                                    a los términos acordados.
                                 </p>
+
                             </div>
+
+
                         </div>
                     </div>
                 </div>
+
             </t>
+
         </t>
     </template>
 
