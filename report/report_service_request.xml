@@ -37,105 +37,488 @@
         <t t-name="copier_company.report_service_request">
             <t t-call="web.basic_layout">
                 <style>
-                    body { font-family: Arial, 'Segoe UI', sans-serif; font-size: 9.6px; color:#17365f; background:#fff; }
-                    .page { padding:0; margin:0; }
-                    .report-shell { background:#fff; }
-                    .hero { background-color:#ffffff; color:#123a67; padding:0; min-height:108px; margin:0 0 8px 0; border:1px solid #d9e3ef; border-radius:0; }
-                    .hero-table,.split-table,.mini-table,.counter-table,.sign-table { width:100%; border-collapse:separate; table-layout:fixed; }
-                    .hero-table td { vertical-align:middle; }
-                    .hero-left { width:40%; background:#ffffff; padding:16px 16px; }
-                    .hero-right { width:60%; text-align:right; background:#ffffff; padding:18px 20px; border-left:1px solid #d9e3ef; }
-                    .company-logo { width:300px !important; max-width:100%; max-height:92px; height:auto !important; display:block; margin:0 auto 0 0; }
-                    .company-tagline { color:#58708d; font-size:10px; margin-top:4px; }
-                    .hero-kicker { color:#6a7f98; font-size:10px; line-height:1; text-transform:uppercase; }
-                    .hero-title { color:#123a67; font-size:24px; line-height:1.05; font-weight:800; margin-top:4px; text-transform:uppercase; }
-                    .report-meta { text-align:right; padding:3px 12px 8px; font-size:9.5px; color:#274d7a; font-weight:600; }
-                    .report-meta strong { color:#123a67; font-size:10.5px; }
-                    .content-area { padding:0; }
-                    .split-table { border-spacing:6px 6px; margin:0; }
-                    .split-table td { width:50%; vertical-align:top; }
-                    .split-table td.split-panel { background-color:#ffffff; border:1px solid #d9e3ef; border-radius:8px; padding:10px 12px; }
-                    .split-table .split-inner { background:transparent; border:0; border-radius:0; padding:0; margin:0; }
-                    .full-row { margin:0 6px 6px; }
-                    .card,.extra-card { box-sizing:border-box; background-color:#ffffff; border:1px solid #d9e3ef; border-radius:8px; padding:10px 12px; page-break-inside:avoid; }
-                    .extra-card { margin:0 6px 6px; }
-                    .section-head { margin-bottom:6px; }
-                    .section-title { font-size:11.5px; line-height:1.15; color:#123a67; font-weight:800; }
-                    .field-table { width:100%; border-collapse:separate; border-spacing:0 4px; }
-                    .field-table td { width:50%; vertical-align:top; padding-right:4px; }
-                    .label { font-size:7.5px; color:#71849b; text-transform:uppercase; letter-spacing:.1px; font-weight:700; margin-bottom:2px; }
-                    .value { font-size:9.2px; line-height:1.22; color:#17365f; font-weight:700; overflow-wrap:anywhere; word-wrap:break-word; }
-                    .plain-text { font-size:9px; color:#284669; line-height:1.32; margin-top:2px; white-space:pre-wrap; }
-                    .badge { display:inline-block; padding:2px 6px; border-radius:8px; font-size:7px; font-weight:700; color:#fff; }
-                    .badge-success { background-color:#39a97b; } .badge-warning { background-color:#cc8d1d; } .badge-danger { background-color:#c94b4b; } .badge-info { background-color:#397ab5; } .badge-primary { background-color:#245b95; }
-                    .mini-table { border-spacing:6px 6px; margin:0; }
-                    .mini-table td { width:50%; vertical-align:top; }
-                    .mini-card { box-sizing:border-box; width:100%; background-color:#ffffff; border:1px solid #d9e3ef; border-radius:8px; padding:8px 10px; min-height:42px; }
-                    .mini-title { font-size:7.8px; color:#71849b; margin-bottom:2px; }
-                    .mini-value { font-size:9.2px; color:#173b73; font-weight:700; line-height:1.2; }
-                    .counter-table { border-spacing:6px 6px; margin:0; }
-                    .counter-table td { width:33.33%; vertical-align:top; }
-                    .counter-card { box-sizing:border-box; width:100%; background-color:#ffffff; border:1px solid #d9e3ef; border-radius:8px; padding:8px 10px; }
-                    .counter-label { font-size:7.8px; color:#71849b; margin-bottom:2px; }
-                    .counter-value { font-size:10.5px; color:#123d7d; font-weight:800; }
-                    .parts-notice { margin-bottom:4px; padding:4px 6px; border-left:3px solid #dfaa3a; background:#fff8ea; color:#7a5921; font-size:7.5px; line-height:1.2; }
-                    .parts-table { width:100%; border-collapse:collapse; table-layout:fixed; }
-                    .parts-table th { background:#123a67; color:#fff; font-size:7px; font-weight:700; text-transform:uppercase; padding:3px 4px; border:1px solid #dbe6f0; }
-                    .parts-table td { color:#284669; font-size:7.5px; padding:3px 4px; border:1px solid #dbe6f0; vertical-align:top; }
-                    .parts-description { width:82%; white-space:pre-line; } .parts-quantity { width:18%; text-align:center; font-weight:700; }
-                    .parts-acceptance { margin-top:4px; padding:4px 6px; background:#eef5fc; border:1px solid #d7e5f2; color:#36587f; font-size:7px; line-height:1.2; }
-                    .evidence-table { width:100%; border-collapse:separate; border-spacing:4px 0; }
-                    .evidence-table td { width:50%; vertical-align:top; }
-                    .evidence-box { text-align:center; padding:4px; background:#fff; border:1px solid #dce7f1; }
-                    .evidence-label { font-size:7.5px; font-weight:700; color:#123a67; margin-bottom:2px; }
-                    .evidence-box img { max-width:100%; max-height:95px; border:1px solid #dce7f1; }
-                    .stars { text-align:center; font-size:15px; color:#e0ab3a; letter-spacing:1px; }
-                    .sign-table { border-spacing:6px 6px; margin-top:0; }
-                    .sign-table td { width:50%; vertical-align:bottom; }
-                    .signature-card { box-sizing:border-box; width:100%; background:#fff; border:1px solid #d9e3ef; border-radius:8px; padding:8px 10px; min-height:86px; text-align:center; }
-                    .signature-area { height:38px; text-align:center; }
-                    .signature-area img { max-height:36px; max-width:165px; }
-                    .signature-line { width:82%; margin:4px auto 3px; border-top:1px solid #274f7b; }
-                    .signature-role { font-size:7.5px; color:#71849b; text-transform:uppercase; font-weight:700; margin-bottom:2px; }
-                    .signature-name { font-size:9px; color:#173b73; font-weight:700; }
-                    .signature-note { font-size:7px; color:#7d90a6; margin-top:2px; line-height:1.15; }
-                    .footer-info { margin-top:7px; padding-top:5px; border-top:1px solid #dbe6f0; text-align:center; color:#7b8ca0; font-size:7.2px; }
+                    * { box-sizing: border-box; }
+                    body { 
+                        font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; 
+                        font-size: 9.2px; 
+                        color: #2c3e50; 
+                        background: #ffffff; 
+                        line-height: 1.4;
+                    }
+                    .page { padding: 0; margin: 0; }
+                    .report-shell { background: #ffffff; }
+
+                    /* ========================= HEADER / HERO ========================= */
+                    .hero { 
+                        background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+                        color: #ffffff; 
+                        padding: 0; 
+                        margin: 0 0 10px 0; 
+                        border-radius: 0;
+                        display: flex;
+                        align-items: stretch;
+                    }
+                    .hero-left { 
+                        width: 35%; 
+                        background: rgba(255, 255, 255, 0.95);
+                        padding: 12px 14px; 
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+                    .hero-right { 
+                        width: 65%; 
+                        padding: 16px 18px; 
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        color: #ffffff;
+                    }
+                    .company-logo-wrapper {
+                        width: 100%;
+                        max-width: 240px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+                    .company-logo { 
+                        width: 100%;
+                        max-width: 240px;
+                        max-height: 70px;
+                        height: auto;
+                        object-fit: contain;
+                        object-position: center;
+                        display: block;
+                    }
+                    .company-tagline { 
+                        color: #666; 
+                        font-size: 8px; 
+                        margin-top: 4px;
+                        text-align: center;
+                    }
+                    .hero-kicker { 
+                        color: rgba(255, 255, 255, 0.85);
+                        font-size: 9px; 
+                        letter-spacing: 0.5px;
+                        text-transform: uppercase; 
+                        margin-bottom: 2px;
+                    }
+                    .hero-title { 
+                        color: #ffffff; 
+                        font-size: 26px; 
+                        font-weight: 900;
+                        line-height: 1.1;
+                        text-transform: uppercase; 
+                        letter-spacing: -0.5px;
+                    }
+                    .report-meta { 
+                        text-align: right; 
+                        padding: 6px 12px 8px; 
+                        font-size: 9px; 
+                        color: #34495e; 
+                        font-weight: 600;
+                        border-bottom: 2px solid #ecf0f1;
+                        margin-bottom: 8px;
+                    }
+                    .report-meta strong { 
+                        color: #1e3a8a; 
+                        font-size: 11px;
+                    }
+
+                    /* ========================= CONTENT AREA ========================= */
+                    .content-area { padding: 0; }
+                    .split-table { 
+                        width: 100%; 
+                        border-collapse: separate; 
+                        border-spacing: 6px; 
+                        margin: 0 0 6px 0;
+                        table-layout: fixed;
+                    }
+                    .split-table td { 
+                        width: 50%; 
+                        vertical-align: top; 
+                    }
+                    .full-row { 
+                        margin: 0 0 6px 0;
+                    }
+
+                    /* ========================= CARDS ========================= */
+                    .card, .extra-card { 
+                        background: #ffffff; 
+                        border: 1.5px solid #e2e8f0; 
+                        border-radius: 6px; 
+                        padding: 11px 12px; 
+                        page-break-inside: avoid;
+                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                    }
+                    .extra-card { 
+                        margin: 0 0 6px 0;
+                    }
+                    .split-panel { 
+                        background: #ffffff; 
+                        border: 1.5px solid #e2e8f0; 
+                        border-radius: 6px; 
+                        padding: 11px 12px;
+                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                    }
+
+                    /* ========================= SECTIONS ========================= */
+                    .section-head { 
+                        margin-bottom: 8px; 
+                        padding-bottom: 6px;
+                        border-bottom: 2px solid #e2e8f0;
+                    }
+                    .section-title { 
+                        font-size: 11px; 
+                        line-height: 1.2; 
+                        color: #1e3a8a; 
+                        font-weight: 800;
+                        text-transform: uppercase;
+                        letter-spacing: 0.3px;
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                    }
+                    .section-icon {
+                        width: 14px;
+                        height: 14px;
+                        flex-shrink: 0;
+                    }
+
+                    /* ========================= FIELDS ========================= */
+                    .field-table { 
+                        width: 100%; 
+                        border-collapse: separate; 
+                        border-spacing: 0 5px;
+                    }
+                    .field-table td { 
+                        width: 50%; 
+                        vertical-align: top; 
+                        padding-right: 4px;
+                    }
+                    .label { 
+                        font-size: 7px; 
+                        color: #64748b; 
+                        text-transform: uppercase; 
+                        letter-spacing: 0.2px; 
+                        font-weight: 700; 
+                        margin-bottom: 3px;
+                    }
+                    .value { 
+                        font-size: 9.2px; 
+                        line-height: 1.3; 
+                        color: #1e293b; 
+                        font-weight: 700; 
+                        overflow-wrap: anywhere; 
+                        word-wrap: break-word;
+                    }
+                    .plain-text { 
+                        font-size: 9px; 
+                        color: #334155; 
+                        line-height: 1.38; 
+                        margin-top: 3px; 
+                        white-space: pre-wrap;
+                        word-break: break-word;
+                    }
+
+                    /* ========================= BADGES ========================= */
+                    .badge { 
+                        display: inline-block; 
+                        padding: 3px 7px; 
+                        border-radius: 12px; 
+                        font-size: 7px; 
+                        font-weight: 700; 
+                        color: #fff;
+                        text-transform: uppercase;
+                        letter-spacing: 0.1px;
+                    }
+                    .badge-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+                    .badge-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+                    .badge-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+                    .badge-info { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+                    .badge-primary { background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); }
+
+                    /* ========================= MINI CARDS ========================= */
+                    .mini-table { 
+                        width: 100%; 
+                        border-collapse: separate; 
+                        border-spacing: 6px; 
+                        margin: 6px 0 0 0;
+                    }
+                    .mini-table td { 
+                        width: 50%; 
+                        vertical-align: top;
+                    }
+                    .mini-card { 
+                        background: #f8fafc; 
+                        border: 1px solid #e2e8f0; 
+                        border-radius: 5px; 
+                        padding: 8px 10px; 
+                        min-height: 40px;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                    }
+                    .mini-title { 
+                        font-size: 7.2px; 
+                        color: #64748b; 
+                        margin-bottom: 3px;
+                        text-transform: uppercase;
+                        font-weight: 600;
+                    }
+                    .mini-value { 
+                        font-size: 9.5px; 
+                        color: #1e293b; 
+                        font-weight: 800; 
+                        line-height: 1.2;
+                    }
+
+                    /* ========================= COUNTER CARDS ========================= */
+                    .counter-table { 
+                        width: 100%; 
+                        border-collapse: separate; 
+                        border-spacing: 6px; 
+                        margin: 6px 0 0 0;
+                    }
+                    .counter-table td { 
+                        width: 33.33%; 
+                        vertical-align: top;
+                    }
+                    .counter-card { 
+                        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                        border: 1px solid #cbd5e1; 
+                        border-radius: 6px; 
+                        padding: 9px 10px;
+                        text-align: center;
+                    }
+                    .counter-label { 
+                        font-size: 7px; 
+                        color: #64748b; 
+                        margin-bottom: 4px;
+                        text-transform: uppercase;
+                        font-weight: 700;
+                    }
+                    .counter-value { 
+                        font-size: 11px; 
+                        color: #1e3a8a; 
+                        font-weight: 900;
+                        font-family: 'Monaco', 'Courier New', monospace;
+                    }
+
+                    /* ========================= PARTS TABLE ========================= */
+                    .parts-notice { 
+                        margin-bottom: 6px; 
+                        padding: 6px 8px; 
+                        border-left: 4px solid #f59e0b; 
+                        background: #fffbeb; 
+                        color: #78350f; 
+                        font-size: 7.5px; 
+                        line-height: 1.25;
+                        border-radius: 0 4px 4px 0;
+                    }
+                    .parts-table { 
+                        width: 100%; 
+                        border-collapse: collapse; 
+                        table-layout: fixed;
+                        margin: 6px 0;
+                    }
+                    .parts-table th { 
+                        background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+                        color: #fff; 
+                        font-size: 7px; 
+                        font-weight: 700; 
+                        text-transform: uppercase; 
+                        padding: 5px 6px;
+                        border: 1px solid #1e3a8a;
+                    }
+                    .parts-table td { 
+                        color: #334155; 
+                        font-size: 8px; 
+                        padding: 5px 6px; 
+                        border: 1px solid #e2e8f0; 
+                        vertical-align: top;
+                    }
+                    .parts-description { 
+                        width: 82%; 
+                        white-space: pre-line;
+                    }
+                    .parts-quantity { 
+                        width: 18%; 
+                        text-align: center; 
+                        font-weight: 700;
+                    }
+                    .parts-acceptance { 
+                        margin-top: 6px; 
+                        padding: 6px 8px; 
+                        background: #eff6ff; 
+                        border: 1px solid #bfdbfe; 
+                        color: #1e40af; 
+                        font-size: 6.8px; 
+                        line-height: 1.25;
+                        border-radius: 4px;
+                    }
+
+                    /* ========================= EVIDENCE ========================= */
+                    .evidence-table { 
+                        width: 100%; 
+                        border-collapse: separate; 
+                        border-spacing: 6px;
+                        margin: 6px 0 0 0;
+                    }
+                    .evidence-table td { 
+                        width: 50%; 
+                        vertical-align: top;
+                    }
+                    .evidence-box { 
+                        text-align: center; 
+                        padding: 6px; 
+                        background: #f8fafc; 
+                        border: 1.5px solid #cbd5e1;
+                        border-radius: 5px;
+                    }
+                    .evidence-label { 
+                        font-size: 7.2px; 
+                        font-weight: 800; 
+                        color: #1e293b; 
+                        margin-bottom: 4px;
+                        text-transform: uppercase;
+                        letter-spacing: 0.1px;
+                    }
+                    .evidence-box img { 
+                        max-width: 100%; 
+                        max-height: 100px; 
+                        border: 1px solid #cbd5e1;
+                        border-radius: 3px;
+                    }
+                    .stars { 
+                        text-align: center; 
+                        font-size: 16px; 
+                        color: #f59e0b; 
+                        letter-spacing: 2px;
+                        margin: 6px 0;
+                    }
+
+                    /* ========================= SIGNATURES ========================= */
+                    .sign-table { 
+                        width: 100%; 
+                        border-collapse: separate; 
+                        border-spacing: 6px;
+                        margin: 6px 0 0 0;
+                    }
+                    .sign-table td { 
+                        width: 50%; 
+                        vertical-align: bottom;
+                    }
+                    .signature-card { 
+                        background: #f8fafc; 
+                        border: 1.5px solid #e2e8f0; 
+                        border-radius: 6px; 
+                        padding: 10px; 
+                        min-height: 95px; 
+                        text-align: center;
+                    }
+                    .signature-area { 
+                        height: 40px; 
+                        text-align: center;
+                        margin-bottom: 4px;
+                    }
+                    .signature-area img { 
+                        max-height: 38px; 
+                        max-width: 160px;
+                    }
+                    .signature-line { 
+                        width: 80%; 
+                        margin: 4px auto 5px; 
+                        border-top: 1.5px solid #334155;
+                    }
+                    .signature-role { 
+                        font-size: 7.2px; 
+                        color: #64748b; 
+                        text-transform: uppercase; 
+                        font-weight: 700; 
+                        margin-bottom: 2px;
+                        letter-spacing: 0.1px;
+                    }
+                    .signature-name { 
+                        font-size: 9px; 
+                        color: #1e293b; 
+                        font-weight: 700;
+                    }
+                    .signature-note { 
+                        font-size: 6.8px; 
+                        color: #64748b; 
+                        margin-top: 2px; 
+                        line-height: 1.2;
+                    }
+
+                    /* ========================= FOOTER ========================= */
+                    .footer-info { 
+                        margin-top: 8px; 
+                        padding-top: 6px; 
+                        border-top: 2px solid #e2e8f0; 
+                        text-align: center; 
+                        color: #64748b; 
+                        font-size: 7px;
+                    }
+                    .footer-info p { 
+                        margin: 2px 0;
+                    }
+                    .footer-info strong { 
+                        color: #1e293b;
+                        font-size: 7.5px;
+                    }
+
+                    /* ========================= UTILITIES ========================= */
+                    .text-muted { color: #64748b; }
+                    .text-sm { font-size: 8px; }
+                    .gap-4 { gap: 4px; }
+                    .mt-2 { margin-top: 2px; }
+                    .mb-2 { margin-bottom: 2px; }
+                    
                 </style>
 
                 <div class="page">
                     <div class="report-shell">
+                        <!-- =========== HEADER =========== -->
                         <div class="hero">
-                            <table class="hero-table">
-                                <tr>
-                                    <td class="hero-left">
-                                        <img t-if="docs[0].company_id.logo"
-                                             t-att-src="image_data_uri(docs[0].company_id.logo)"
+                            <div class="hero-left">
+                                <div class="company-logo-wrapper">
+                                    <t t-if="docs[0].company_id.logo">
+                                        <img t-att-src="image_data_uri(docs[0].company_id.logo)"
                                              class="company-logo"
-                                             alt="Logo"/>
-                                        <div class="company-tagline">Soluciones que impulsan</div>
-                                    </td>
-                                    <td class="hero-right">
-                                        <div class="hero-kicker">Reporte de</div>
-                                        <div class="hero-title">Servicio Técnico</div>
-                                    </td>
-                                </tr>
-                            </table>
+                                             alt="Logo Empresa"/>
+                                    </t>
+                                    <t t-else="">
+                                        <div style="color: #ccc; font-size: 10px; font-weight: bold;">Logo</div>
+                                    </t>
+                                </div>
+                                <div class="company-tagline" t-if="docs[0].company_id.website">
+                                    <t t-esc="docs[0].company_id.website"/>
+                                </div>
+                            </div>
+                            <div class="hero-right">
+                                <div class="hero-kicker">📋 Reporte de</div>
+                                <div class="hero-title">Servicio Técnico</div>
+                            </div>
                         </div>
 
+                        <!-- =========== META INFO =========== -->
                         <div class="report-meta">
                             <strong>N° <t t-esc="docs[0].name"/></strong>
-                            <span style="margin:0 10px;">|</span>
-                            <t t-esc="time.strftime('%d/%m/%Y')"/>
+                            <span style="margin: 0 12px; color: #cbd5e1;">|</span>
+                            <strong style="color: #64748b; font-weight: 600;"><t t-esc="time.strftime('%d de %B de %Y').replace('January', 'Enero').replace('February', 'Febrero').replace('March', 'Marzo').replace('April', 'Abril').replace('May', 'Mayo').replace('June', 'Junio').replace('July', 'Julio').replace('August', 'Agosto').replace('September', 'Setiembre').replace('October', 'Octubre').replace('November', 'Noviembre').replace('December', 'Diciembre')"/></strong>
                         </div>
 
                         <div class="content-area">
-                            <!-- Fila 1: Información general + cliente -->
+                            <!-- =========== ROW 1: INFORMACIÓN GENERAL + CLIENTE =========== -->
                             <table class="split-table">
                                 <tr>
                                     <td class="split-panel">
-                                        <div class="card split-inner">
+                                        <div class="card" style="border: none; padding: 0; box-shadow: none;">
                                             <div class="section-head">
-                                                <div class="section-title">Información General</div>
+                                                <div class="section-title">
+                                                    <span>ℹ️</span> Información General
+                                                </div>
                                             </div>
                                             <table class="field-table">
                                                 <tr>
@@ -169,11 +552,11 @@
                                                 </tr>
                                                 <tr>
                                                     <td>
-                                                        <div class="label">Duración</div>
-                                                        <div class="value"><t t-esc="round(docs[0].duracion_real or 0, 2)"/> h</div>
+                                                        <div class="label">⏱️ Duración</div>
+                                                        <div class="value"><t t-esc="round(docs[0].duracion_real or 0, 2)"/> horas</div>
                                                     </td>
                                                     <td>
-                                                        <div class="label">Tipo de solución</div>
+                                                        <div class="label">🔧 Tipo de solución</div>
                                                         <div class="value">
                                                             <t t-if="docs[0].solucion_aplicada"><t t-esc="dict(docs[0]._fields['solucion_aplicada'].selection).get(docs[0].solucion_aplicada)"/></t>
                                                             <t t-else="">—</t>
@@ -184,9 +567,11 @@
                                         </div>
                                     </td>
                                     <td class="split-panel">
-                                        <div class="card split-inner">
+                                        <div class="card" style="border: none; padding: 0; box-shadow: none;">
                                             <div class="section-head">
-                                                <div class="section-title">Datos del Cliente</div>
+                                                <div class="section-title">
+                                                    <span>👤</span> Datos del Cliente
+                                                </div>
                                             </div>
                                             <table class="field-table">
                                                 <tr>
@@ -201,11 +586,11 @@
                                                 </tr>
                                                 <tr>
                                                     <td>
-                                                        <div class="label">Teléfono</div>
+                                                        <div class="label">📞 Teléfono</div>
                                                         <div class="value"><t t-esc="docs[0].telefono_contacto or '—'"/></div>
                                                     </td>
                                                     <td>
-                                                        <div class="label">Email</div>
+                                                        <div class="label">📧 Email</div>
                                                         <div class="value"><t t-esc="docs[0].correo or '—'"/></div>
                                                     </td>
                                                 </tr>
@@ -215,10 +600,12 @@
                                 </tr>
                             </table>
 
-                            <!-- Equipo -->
+                            <!-- =========== EQUIPO =========== -->
                             <div class="full-row card">
                                 <div class="section-head">
-                                    <div class="section-title">Equipo / Dispositivo</div>
+                                    <div class="section-title">
+                                        <span>🖨️</span> Equipo / Dispositivo
+                                    </div>
                                 </div>
                                 <table class="field-table">
                                     <tr>
@@ -233,29 +620,33 @@
                                     </tr>
                                     <tr>
                                         <td>
-                                            <div class="label">Ubicación</div>
+                                            <div class="label">📍 Ubicación</div>
                                             <div class="value"><t t-esc="docs[0].ubicacion"/></div>
                                         </td>
                                         <td>
-                                            <div class="label">IP del equipo</div>
+                                            <div class="label">🌐 IP del equipo</div>
                                             <div class="value"><t t-esc="docs[0].ip_maquina or '—'"/></div>
                                         </td>
                                     </tr>
                                 </table>
                             </div>
 
-                            <!-- Descripción -->
+                            <!-- =========== DESCRIPCIÓN =========== -->
                             <div class="full-row card">
                                 <div class="section-head">
-                                    <div class="section-title">Descripción del Servicio</div>
+                                    <div class="section-title">
+                                        <span>📝</span> Descripción del Problema
+                                    </div>
                                 </div>
                                 <div class="plain-text"><t t-esc="docs[0].problema_reportado or '—'"/></div>
                             </div>
 
-                            <!-- Resultados -->
+                            <!-- =========== RESULTADOS =========== -->
                             <div class="full-row card">
                                 <div class="section-head">
-                                    <div class="section-title">Resultados / Observaciones</div>
+                                    <div class="section-title">
+                                        <span>✅</span> Resultados / Observaciones
+                                    </div>
                                 </div>
                                 <div class="plain-text">
                                     <t t-if="docs[0].trabajo_realizado">
@@ -265,12 +656,12 @@
                                 </div>
                             </div>
 
-                            <!-- Fechas de ejecución -->
+                            <!-- =========== FECHAS =========== -->
                             <table class="mini-table">
                                 <tr>
                                     <td>
                                         <div class="mini-card">
-                                            <div class="mini-title">Fecha de inicio</div>
+                                            <div class="mini-title">📅 Fecha de inicio</div>
                                             <div class="mini-value">
                                                 <t t-if="docs[0].fecha_inicio" t-esc="docs[0].fecha_inicio.strftime('%d/%m/%Y %H:%M')"/>
                                                 <t t-else="">—</t>
@@ -279,7 +670,7 @@
                                     </td>
                                     <td>
                                         <div class="mini-card">
-                                            <div class="mini-title">Fecha de fin</div>
+                                            <div class="mini-title">🏁 Fecha de fin</div>
                                             <div class="mini-value">
                                                 <t t-if="docs[0].fecha_fin" t-esc="docs[0].fecha_fin.strftime('%d/%m/%Y %H:%M')"/>
                                                 <t t-else="">—</t>
@@ -289,25 +680,25 @@
                                 </tr>
                             </table>
 
-                            <!-- Contadores -->
+                            <!-- =========== CONTADORES =========== -->
                             <t t-if="docs[0].contador_bn or docs[0].contador_color or docs[0].contador_total">
                                 <table class="counter-table">
                                     <tr>
                                         <td>
                                             <div class="counter-card">
-                                                <div class="counter-label">Contador B/N</div>
+                                                <div class="counter-label">📊 Contador B/N</div>
                                                 <div class="counter-value"><t t-esc="'{:,}'.format(docs[0].contador_bn or 0)"/></div>
                                             </div>
                                         </td>
                                         <td>
                                             <div class="counter-card">
-                                                <div class="counter-label">Contador color</div>
+                                                <div class="counter-label">🎨 Contador Color</div>
                                                 <div class="counter-value"><t t-esc="'{:,}'.format(docs[0].contador_color or 0)"/></div>
                                             </div>
                                         </td>
                                         <td>
                                             <div class="counter-card">
-                                                <div class="counter-label">Contador total</div>
+                                                <div class="counter-label">📈 Contador Total</div>
                                                 <div class="counter-value"><t t-esc="'{:,}'.format(docs[0].contador_total or 0)"/></div>
                                             </div>
                                         </td>
@@ -315,31 +706,35 @@
                                 </table>
                             </t>
 
-                            <!-- Insumos usados -->
+                            <!-- =========== INSUMOS =========== -->
                             <t t-if="docs[0].insumos_utilizados">
                                 <div class="extra-card">
                                     <div class="section-head">
-                                        <div class="section-title">Insumos / Repuestos Utilizados</div>
+                                        <div class="section-title">
+                                            <span>🛠️</span> Insumos / Repuestos Utilizados
+                                        </div>
                                     </div>
                                     <div class="plain-text"><t t-esc="docs[0].insumos_utilizados"/></div>
                                 </div>
                             </t>
 
-                            <!-- Repuestos solicitados -->
+                            <!-- =========== REPUESTOS SOLICITADOS =========== -->
                             <t t-if="docs[0].requiere_repuestos and docs[0].sale_order_id">
                                 <div class="extra-card">
                                     <div class="section-head">
-                                        <div class="section-title">Repuestos Solicitados</div>
+                                        <div class="section-title">
+                                            <span>📦</span> Repuestos Solicitados
+                                        </div>
                                     </div>
 
                                     <div class="parts-notice">
-                                        Los siguientes repuestos fueron identificados durante la atención técnica y quedan sujetos a revisión de disponibilidad y aprobación comercial.
+                                        <strong>⚠️ Aviso Importante:</strong> Los siguientes repuestos fueron identificados durante la atención técnica y quedan sujetos a revisión de disponibilidad y aprobación comercial.
                                     </div>
 
                                     <table class="parts-table">
                                         <thead>
                                             <tr>
-                                                <th class="parts-description">Descripción</th>
+                                                <th class="parts-description">Descripción del Repuesto</th>
                                                 <th class="parts-quantity">Cantidad</th>
                                             </tr>
                                         </thead>
@@ -354,29 +749,30 @@
                                     </table>
 
                                     <div class="parts-acceptance">
-                                        <strong>Constancia:</strong>
-                                        con su firma, el cliente confirma que fue informado sobre la necesidad técnica de los repuestos descritos. Este documento no constituye aceptación de precio ni aprobación de compra; la cotización comercial será comunicada por separado.
+                                        <strong>📋 Constancia de información:</strong> Con su firma, el cliente confirma haber sido informado sobre la necesidad técnica de los repuestos descritos. Este documento no constituye aceptación de precio ni aprobación de compra; la cotización comercial será comunicada por separado.
                                     </div>
                                 </div>
                             </t>
 
-                            <!-- Evidencias -->
+                            <!-- =========== EVIDENCIAS =========== -->
                             <t t-if="docs[0].foto_antes or docs[0].foto_despues">
                                 <div class="extra-card">
                                     <div class="section-head">
-                                        <div class="section-title">Evidencias Fotográficas</div>
+                                        <div class="section-title">
+                                            <span>📸</span> Evidencias Fotográficas
+                                        </div>
                                     </div>
                                     <table class="evidence-table">
                                         <tr>
                                             <td t-if="docs[0].foto_antes">
                                                 <div class="evidence-box">
-                                                    <div class="evidence-label">ANTES DEL SERVICIO</div>
+                                                    <div class="evidence-label">🔴 Antes del Servicio</div>
                                                     <img t-att-src="'data:image/png;base64,%s' % docs[0].foto_antes" alt="Foto Antes"/>
                                                 </div>
                                             </td>
                                             <td t-if="docs[0].foto_despues">
                                                 <div class="evidence-box">
-                                                    <div class="evidence-label">DESPUÉS DEL SERVICIO</div>
+                                                    <div class="evidence-label">🟢 Después del Servicio</div>
                                                     <img t-att-src="'data:image/png;base64,%s' % docs[0].foto_despues" alt="Foto Después"/>
                                                 </div>
                                             </td>
@@ -385,23 +781,29 @@
                                 </div>
                             </t>
 
-                            <!-- Evaluación -->
+                            <!-- =========== EVALUACIÓN =========== -->
                             <t t-if="docs[0].calificacion">
                                 <div class="extra-card">
                                     <div class="section-head">
-                                        <div class="section-title">Evaluación del Cliente</div>
+                                        <div class="section-title">
+                                            <span>⭐</span> Evaluación del Cliente
+                                        </div>
                                     </div>
-                                    <div class="stars"><t t-esc="'⭐' * int(docs[0].calificacion)"/></div>
+                                    <div class="stars"><t t-esc="'⭐ ' * int(docs[0].calificacion)"/></div>
                                     <t t-if="docs[0].comentario_cliente">
-                                        <div class="plain-text" style="margin-top: 10px;"><t t-esc="docs[0].comentario_cliente"/></div>
+                                        <div class="plain-text" style="margin-top: 6px; font-style: italic;">
+                                            <strong>Comentario:</strong> <t t-esc="docs[0].comentario_cliente"/>
+                                        </div>
                                     </t>
                                 </div>
                             </t>
 
-                            <!-- Firmas -->
+                            <!-- =========== FIRMAS =========== -->
                             <div class="extra-card">
                                 <div class="section-head">
-                                    <div class="section-title">Firmas y Conformidad</div>
+                                    <div class="section-title">
+                                        <span>✍️</span> Firmas y Conformidad
+                                    </div>
                                 </div>
                                 <table class="sign-table">
                                     <tr>
@@ -411,9 +813,9 @@
                                                     <!-- Espacio para firma del técnico -->
                                                 </div>
                                                 <div class="signature-line"></div>
-                                                <div class="signature-role">Técnico responsable</div>
+                                                <div class="signature-role">Técnico Responsable</div>
                                                 <div class="signature-name"><t t-esc="docs[0].tecnico_id.name or '___________________'"/></div>
-                                                <div class="signature-note">Firma y sello</div>
+                                                <div class="signature-note">Firma y sello del técnico</div>
                                             </div>
                                         </td>
                                         <td>
@@ -424,11 +826,11 @@
                                                     </t>
                                                 </div>
                                                 <div class="signature-line"></div>
-                                                <div class="signature-role">Conformidad del cliente</div>
+                                                <div class="signature-role">Conformidad del Cliente</div>
                                                 <div class="signature-name"><t t-esc="docs[0].nombre_firma or '___________________'"/></div>
                                                 <div class="signature-note">
-                                                    <t t-if="docs[0].requiere_repuestos and docs[0].sale_order_id">Firma, conformidad e información de repuestos</t>
-                                                    <t t-else="">Firma y conformidad</t>
+                                                    <t t-if="docs[0].requiere_repuestos and docs[0].sale_order_id">Firma y conformidad de información de repuestos</t>
+                                                    <t t-else="">Firma y conformidad del servicio</t>
                                                 </div>
                                             </div>
                                         </td>
@@ -436,13 +838,17 @@
                                 </table>
                             </div>
 
+                            <!-- =========== FOOTER =========== -->
                             <div class="footer-info">
-                                <p style="margin:0;">
-                                    <strong><t t-esc="docs[0].company_id.name"/></strong><br/>
-                                    <t t-if="docs[0].company_id.phone">Tel: <t t-esc="docs[0].company_id.phone"/> | </t>
+                                <p>
+                                    <strong><t t-esc="docs[0].company_id.name"/></strong>
+                                    <br/>
+                                    <t t-if="docs[0].company_id.phone">Teléfono: <t t-esc="docs[0].company_id.phone"/> | </t>
                                     <t t-if="docs[0].company_id.email">Email: <t t-esc="docs[0].company_id.email"/></t>
                                 </p>
-                                <p style="margin:2px 0 0 0; font-size:6.8px;">Este documento es válido como constancia del servicio técnico realizado</p>
+                                <p style="margin: 3px 0 0 0; font-size: 6.5px; color: #94a3b8;">
+                                    Este documento es válido como constancia del servicio técnico realizado conforme a los términos acordados.
+                                </p>
                             </div>
                         </div>
                     </div>
