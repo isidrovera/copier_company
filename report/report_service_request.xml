@@ -558,24 +558,6 @@
                                                         <div class="value"><t t-esc="docs[0].name"/></div>
                                                     </td>
                                                     <td>
-                                                        <div class="label">Fecha de solicitud</div>
-                                                        <div class="value">
-                                                            <t t-if="docs[0].create_date" t-esc="docs[0].create_date.strftime('%d/%m/%Y')"/>
-                                                            <t t-else="">—</t>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>
-                                                        <div class="label">Tipo de servicio</div>
-                                                        <div class="value">
-                                                            <t t-if="docs[0].tipo_servicio_id">
-                                                                <t t-esc="docs[0].tipo_servicio_id.name"/>
-                                                            </t>
-                                                            <t t-else="">Mantenimiento</t>
-                                                        </div>
-                                                    </td>
-                                                    <td>
                                                         <div class="label">Estado</div>
                                                         <div>
                                                             <t t-set="estado_dict" t-value="{
@@ -596,14 +578,8 @@
                                                 </tr>
                                                 <tr>
                                                     <td>
-                                                        <div class="label">Prioridad</div>
-                                                        <div class="value">
-                                                            <t t-if="docs[0].priority == '0' or not docs[0].priority">Normal</t>
-                                                            <t t-elif="docs[0].priority == '1'">Baja</t>
-                                                            <t t-elif="docs[0].priority == '2'">Alta</t>
-                                                            <t t-elif="docs[0].priority == '3'">Muy Alta</t>
-                                                            <t t-else="">Normal</t>
-                                                        </div>
+                                                        <div class="label">Técnico asignado</div>
+                                                        <div class="value"><t t-esc="docs[0].tecnico_id.name or 'No asignado'"/></div>
                                                     </td>
                                                     <td>
                                                         <div class="label">SLA cumplido</div>
@@ -644,12 +620,6 @@
                                                         <div class="value"><t t-esc="docs[0].correo or '—'"/></div>
                                                     </td>
                                                 </tr>
-                                                <tr>
-                                                    <td colspan="2">
-                                                        <div class="label">Dirección / Ubicación</div>
-                                                        <div class="value"><t t-esc="docs[0].ubicacion or '—'"/></div>
-                                                    </td>
-                                                </tr>
                                             </table>
                                         </div>
                                     </td>
@@ -664,37 +634,22 @@
                                 <table class="field-table">
                                     <tr>
                                         <td>
-                                            <div class="label">Marca</div>
-                                            <div class="value">
-                                                <t t-if="docs[0].modelo_maquina and docs[0].modelo_maquina.marca_id">
-                                                    <t t-esc="docs[0].modelo_maquina.marca_id.name"/>
-                                                </t>
-                                                <t t-else="">—</t>
-                                            </div>
+                                            <div class="label">Modelo</div>
+                                            <div class="value"><t t-esc="docs[0].modelo_maquina.name"/></div>
                                         </td>
                                         <td>
                                             <div class="label">Número de serie</div>
-                                            <div class="value"><t t-esc="docs[0].serie_maquina or '—'"/></div>
+                                            <div class="value"><t t-esc="docs[0].serie_maquina"/></div>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
-                                            <div class="label">Modelo</div>
-                                            <div class="value"><t t-esc="docs[0].modelo_maquina.name or '—'"/></div>
-                                        </td>
                                         <td>
                                             <div class="label">Ubicación</div>
-                                            <div class="value"><t t-esc="docs[0].ubicacion or '—'"/></div>
+                                            <div class="value"><t t-esc="docs[0].ubicacion"/></div>
                                         </td>
-                                    </tr>
-                                    <tr>
                                         <td>
                                             <div class="label">IP del equipo</div>
                                             <div class="value"><t t-esc="docs[0].ip_maquina or '—'"/></div>
-                                        </td>
-                                        <td>
-                                            <div class="label">Cliente</div>
-                                            <div class="value"><t t-esc="docs[0].cliente_id.name or '—'"/></div>
                                         </td>
                                     </tr>
                                 </table>
