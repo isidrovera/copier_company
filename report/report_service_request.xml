@@ -2,7 +2,7 @@
 <odoo>
 
     <!-- ===================================================== -->
-    <!-- FORMATO DE PAPEL A4 VERTICAL -->
+    <!-- FORMATO DE PAPEL VERTICAL A4 -->
     <!-- ===================================================== -->
     <record id="paperformat_service_request_portrait" model="report.paperformat">
         <field name="name">Service Request Portrait</field>
@@ -16,6 +16,7 @@
         <field name="header_spacing">8</field>
         <field name="dpi">90</field>
     </record>
+
 
     <!-- ===================================================== -->
     <!-- ACCIÓN DEL REPORTE -->
@@ -31,14 +32,21 @@
         <field name="print_report_name">'Servicio - %s' % (object.name)</field>
     </record>
 
+
     <!-- ===================================================== -->
-    <!-- TEMPLATE DEL REPORTE -->
+    <!-- TEMPLATE -->
     <!-- ===================================================== -->
     <template id="report_service_request">
+
         <t t-name="copier_company.report_service_request">
+
             <t t-call="web.basic_layout">
 
                 <style>
+
+                    /* =====================================================
+                       BASE
+                    ===================================================== */
 
                     * {
                         box-sizing: border-box;
@@ -63,6 +71,7 @@
                         background: #ffffff;
                     }
 
+
                     /* =====================================================
                        HEADER
                     ===================================================== */
@@ -72,46 +81,34 @@
                         border-collapse: collapse;
                         table-layout: fixed;
                         margin: 0 0 7px 0;
-                        border: 0;
                     }
 
                     .hero-table td {
-                        padding: 0;
                         border: 0;
                         vertical-align: middle;
                     }
 
-                    .hero-logo-cell {
-                        width: 42%;
-                        height: 112px;
-                        background: #ffffff;
-                        text-align: center;
-                        vertical-align: middle;
-                        padding: 7px 14px !important;
-                        border: 1px solid #dce3ec !important;
-                        border-right: 0 !important;
-                    }
-
-                    .hero-title-cell {
-                        width: 58%;
-                        height: 112px;
-                        background: #1e3a8a;
-                        vertical-align: middle;
-                        padding: 16px 20px !important;
-                        border: 1px solid #1e3a8a !important;
-                    }
 
                     /* =====================================================
                        LOGO
                     ===================================================== */
 
+                    .hero-logo-cell {
+                        width: 44%;
+                        height: 100px;
+                        background: #ffffff;
+                        text-align: left;
+                        vertical-align: middle;
+                        padding: 8px 10px !important;
+                    }
+
                     .company-logo-container {
                         width: 100%;
-                        height: 82px;
-                        text-align: center;
-                        vertical-align: middle;
-                        line-height: 82px;
+                        height: 72px;
+                        text-align: left;
+                        line-height: 72px;
                         overflow: hidden;
+                        white-space: nowrap;
                     }
 
                     .company-logo {
@@ -119,59 +116,70 @@
                         width: auto !important;
                         height: auto !important;
                         max-width: 100% !important;
-                        max-height: 82px !important;
+                        max-height: 72px !important;
                         vertical-align: middle;
                         border: 0;
-                        margin: 0;
                         padding: 0;
+                        margin: 0;
                     }
 
                     .company-tagline {
-                        margin-top: 3px;
-                        text-align: center;
-                        color: #526173;
-                        font-size: 7.5px;
+                        color: #64748b;
+                        font-size: 7.2px;
                         font-weight: 600;
-                        letter-spacing: 0.15px;
                         line-height: 1.2;
+                        margin-top: 2px;
+                        text-align: left;
+                        letter-spacing: 0.1px;
                     }
 
+
                     /* =====================================================
-                       TÍTULO
+                       BLOQUE TÍTULO DERECHO
                     ===================================================== */
 
+                    .hero-title-cell {
+                        width: 56%;
+                        height: 100px;
+                        background: #ffffff !important;
+                        text-align: right;
+                        vertical-align: middle;
+                        padding: 10px 4px 10px 12px !important;
+                    }
+
                     .hero-kicker {
-                        color: #dbeafe;
-                        font-size: 8px;
-                        font-weight: 700;
+                        color: #64748b;
+                        font-size: 7.5px;
+                        font-weight: 800;
                         text-transform: uppercase;
-                        letter-spacing: 0.8px;
-                        margin-bottom: 4px;
+                        letter-spacing: 0.6px;
+                        margin-bottom: 3px;
                     }
 
                     .hero-title {
-                        color: #ffffff;
+                        color: #1e3a8a;
                         font-size: 25px;
                         font-weight: 900;
-                        line-height: 1.05;
+                        line-height: 0.98;
                         text-transform: uppercase;
                         letter-spacing: -0.3px;
                     }
 
                     .hero-subtitle {
-                        color: #bfdbfe;
-                        font-size: 8px;
-                        margin-top: 5px;
+                        color: #475569;
+                        font-size: 7.5px;
                         font-weight: 600;
+                        margin-top: 5px;
                     }
 
+
                     /* =====================================================
-                       META
+                       NÚMERO Y FECHA
                     ===================================================== */
 
                     .report-meta {
                         width: 100%;
-                        padding: 5px 10px 7px 10px;
+                        padding: 5px 4px 7px 4px;
                         margin: 0 0 7px 0;
                         text-align: right;
                         border-bottom: 2px solid #e5eaf0;
@@ -195,6 +203,7 @@
                         font-weight: 600;
                     }
 
+
                     /* =====================================================
                        CONTENIDO
                     ===================================================== */
@@ -205,8 +214,9 @@
                         margin: 0;
                     }
 
+
                     /* =====================================================
-                       TABLAS 2 COLUMNAS
+                       DOS COLUMNAS
                     ===================================================== */
 
                     .split-table {
@@ -229,6 +239,7 @@
                     .split-table > tbody > tr > td:last-child {
                         padding-left: 3.5px;
                     }
+
 
                     /* =====================================================
                        CARDS
@@ -257,6 +268,7 @@
                         margin: 0 0 7px 0;
                     }
 
+
                     /* =====================================================
                        SECCIONES
                     ===================================================== */
@@ -276,6 +288,7 @@
                         letter-spacing: 0.25px;
                         line-height: 1.15;
                     }
+
 
                     /* =====================================================
                        CAMPOS
@@ -324,6 +337,7 @@
                         word-break: break-word;
                     }
 
+
                     /* =====================================================
                        BADGES
                     ===================================================== */
@@ -358,6 +372,7 @@
                     .badge-primary {
                         background: #1e3a8a;
                     }
+
 
                     /* =====================================================
                        MINI CARDS
@@ -408,6 +423,7 @@
                         line-height: 1.2;
                     }
 
+
                     /* =====================================================
                        CONTADORES
                     ===================================================== */
@@ -456,6 +472,7 @@
                         font-weight: 900;
                         font-family: Arial, Helvetica, sans-serif;
                     }
+
 
                     /* =====================================================
                        REPUESTOS
@@ -518,6 +535,7 @@
                         border-radius: 4px;
                     }
 
+
                     /* =====================================================
                        EVIDENCIAS
                     ===================================================== */
@@ -567,6 +585,7 @@
                         border: 1px solid #cbd5e1;
                     }
 
+
                     /* =====================================================
                        EVALUACIÓN
                     ===================================================== */
@@ -578,6 +597,7 @@
                         letter-spacing: 2px;
                         margin: 5px 0;
                     }
+
 
                     /* =====================================================
                        FIRMAS
@@ -653,6 +673,7 @@
                         line-height: 1.2;
                     }
 
+
                     /* =====================================================
                        FOOTER
                     ===================================================== */
@@ -678,33 +699,50 @@
                 </style>
 
 
+                <!-- ===================================================== -->
+                <!-- PÁGINA -->
+                <!-- ===================================================== -->
+
                 <div class="page">
+
                     <div class="report-shell">
+
 
                         <!-- =================================================
                              HEADER
                         ================================================== -->
 
                         <table class="hero-table">
+
                             <tbody>
+
                                 <tr>
 
+                                    <!-- LOGO -->
                                     <td class="hero-logo-cell">
 
                                         <div class="company-logo-container">
 
                                             <t t-if="docs[0].company_id.logo">
+
                                                 <img
                                                     t-att-src="image_data_uri(docs[0].company_id.logo)"
                                                     class="company-logo"
                                                     alt="Logo Empresa"
                                                 />
+
                                             </t>
 
                                             <t t-else="">
-                                                <span style="color:#94a3b8; font-size:11px; font-weight:700;">
+
+                                                <span style="
+                                                    color:#94a3b8;
+                                                    font-size:11px;
+                                                    font-weight:700;
+                                                ">
                                                     Logo
                                                 </span>
+
                                             </t>
 
                                         </div>
@@ -716,6 +754,7 @@
                                     </td>
 
 
+                                    <!-- TÍTULO -->
                                     <td class="hero-title-cell">
 
                                         <div class="hero-kicker">
@@ -723,8 +762,8 @@
                                         </div>
 
                                         <div class="hero-title">
-                                            Servicio<br/>
-                                            Técnico
+                                            SERVICIO<br/>
+                                            TÉCNICO
                                         </div>
 
                                         <div class="hero-subtitle">
@@ -734,22 +773,28 @@
                                     </td>
 
                                 </tr>
+
                             </tbody>
+
                         </table>
 
 
                         <!-- =================================================
-                             NÚMERO Y FECHA
+                             META
                         ================================================== -->
 
                         <div class="report-meta">
 
                             <span class="report-number">
+
                                 N°
                                 <t t-esc="docs[0].name"/>
+
                             </span>
 
-                            <span class="report-separator">|</span>
+                            <span class="report-separator">
+                                |
+                            </span>
 
                             <span class="report-date">
 
@@ -776,25 +821,34 @@
 
                         <div class="content-area">
 
+
                             <!-- =================================================
                                  INFORMACIÓN GENERAL + CLIENTE
                             ================================================== -->
 
                             <table class="split-table">
+
                                 <tbody>
+
                                     <tr>
 
+
+                                        <!-- INFORMACIÓN GENERAL -->
                                         <td>
 
                                             <div class="split-panel">
 
                                                 <div class="section-head">
+
                                                     <div class="section-title">
                                                         Información General
                                                     </div>
+
                                                 </div>
 
+
                                                 <table class="field-table">
+
                                                     <tbody>
 
                                                         <tr>
@@ -807,17 +861,20 @@
 
                                                                 <div>
 
-                                                                    <t t-set="estado_dict"
-                                                                       t-value="{
-                                                                           'nuevo': ('badge-info', 'Nuevo'),
-                                                                           'asignado': ('badge-primary', 'Asignado'),
-                                                                           'confirmado': ('badge-success', 'Confirmado'),
-                                                                           'en_ruta': ('badge-warning', 'En Ruta'),
-                                                                           'en_sitio': ('badge-warning', 'En Sitio'),
-                                                                           'pausado': ('badge-warning', 'Pausado'),
-                                                                           'completado': ('badge-success', 'Completado'),
-                                                                           'cancelado': ('badge-danger', 'Cancelado')
-                                                                       }"/>
+                                                                    <t
+                                                                        t-set="estado_dict"
+                                                                        t-value="{
+                                                                            'nuevo': ('badge-info', 'Nuevo'),
+                                                                            'asignado': ('badge-primary', 'Asignado'),
+                                                                            'confirmado': ('badge-success', 'Confirmado'),
+                                                                            'en_ruta': ('badge-warning', 'En Ruta'),
+                                                                            'en_sitio': ('badge-warning', 'En Sitio'),
+                                                                            'pausado': ('badge-warning', 'Pausado'),
+                                                                            'completado': ('badge-success', 'Completado'),
+                                                                            'cancelado': ('badge-danger', 'Cancelado')
+                                                                        }"
+                                                                    />
+
 
                                                                     <span
                                                                         class="badge"
@@ -828,12 +885,16 @@
                                                                             )[0]
                                                                         "
                                                                     >
-                                                                        <t t-esc="
-                                                                            estado_dict.get(
-                                                                                docs[0].estado,
-                                                                                ('badge-info', 'N/A')
-                                                                            )[1]
-                                                                        "/>
+
+                                                                        <t
+                                                                            t-esc="
+                                                                                estado_dict.get(
+                                                                                    docs[0].estado,
+                                                                                    ('badge-info', 'N/A')
+                                                                                )[1]
+                                                                            "
+                                                                        />
+
                                                                     </span>
 
                                                                 </div>
@@ -884,13 +945,18 @@
                                                                 </div>
 
                                                                 <div class="value">
-                                                                    <t t-esc="
-                                                                        round(
-                                                                            docs[0].duracion_real or 0,
-                                                                            2
-                                                                        )
-                                                                    "/>
+
+                                                                    <t
+                                                                        t-esc="
+                                                                            round(
+                                                                                docs[0].duracion_real or 0,
+                                                                                2
+                                                                            )
+                                                                        "
+                                                                    />
+
                                                                     horas
+
                                                                 </div>
 
                                                             </td>
@@ -906,15 +972,17 @@
 
                                                                     <t t-if="docs[0].solucion_aplicada">
 
-                                                                        <t t-esc="
-                                                                            dict(
-                                                                                docs[0]._fields[
-                                                                                    'solucion_aplicada'
-                                                                                ].selection
-                                                                            ).get(
-                                                                                docs[0].solucion_aplicada
-                                                                            )
-                                                                        "/>
+                                                                        <t
+                                                                            t-esc="
+                                                                                dict(
+                                                                                    docs[0]._fields[
+                                                                                        'solucion_aplicada'
+                                                                                    ].selection
+                                                                                ).get(
+                                                                                    docs[0].solucion_aplicada
+                                                                                )
+                                                                            "
+                                                                        />
 
                                                                     </t>
 
@@ -929,6 +997,7 @@
                                                         </tr>
 
                                                     </tbody>
+
                                                 </table>
 
                                             </div>
@@ -936,17 +1005,22 @@
                                         </td>
 
 
+                                        <!-- CLIENTE -->
                                         <td>
 
                                             <div class="split-panel">
 
                                                 <div class="section-head">
+
                                                     <div class="section-title">
                                                         Datos del Cliente
                                                     </div>
+
                                                 </div>
 
+
                                                 <table class="field-table">
+
                                                     <tbody>
 
                                                         <tr>
@@ -1009,6 +1083,7 @@
                                                         </tr>
 
                                                     </tbody>
+
                                                 </table>
 
                                             </div>
@@ -1016,7 +1091,9 @@
                                         </td>
 
                                     </tr>
+
                                 </tbody>
+
                             </table>
 
 
@@ -1027,12 +1104,16 @@
                             <div class="full-row card">
 
                                 <div class="section-head">
+
                                     <div class="section-title">
                                         Equipo / Dispositivo
                                     </div>
+
                                 </div>
 
+
                                 <table class="field-table">
+
                                     <tbody>
 
                                         <tr>
@@ -1095,6 +1176,7 @@
                                         </tr>
 
                                     </tbody>
+
                                 </table>
 
                             </div>
@@ -1107,9 +1189,11 @@
                             <div class="full-row card">
 
                                 <div class="section-head">
+
                                     <div class="section-title">
                                         Descripción del Problema
                                     </div>
+
                                 </div>
 
                                 <div class="plain-text">
@@ -1126,19 +1210,25 @@
                             <div class="full-row card">
 
                                 <div class="section-head">
+
                                     <div class="section-title">
                                         Resultados / Observaciones
                                     </div>
+
                                 </div>
 
                                 <div class="plain-text">
 
                                     <t t-if="docs[0].trabajo_realizado">
+
                                         <t t-esc="docs[0].trabajo_realizado"/>
+
                                     </t>
 
                                     <t t-else="">
+
                                         No se registraron observaciones adicionales.
+
                                     </t>
 
                                 </div>
@@ -1151,7 +1241,9 @@
                             ================================================== -->
 
                             <table class="mini-table">
+
                                 <tbody>
+
                                     <tr>
 
                                         <td>
@@ -1214,7 +1306,9 @@
                                         </td>
 
                                     </tr>
+
                                 </tbody>
+
                             </table>
 
 
@@ -1222,14 +1316,18 @@
                                  CONTADORES
                             ================================================== -->
 
-                            <t t-if="
-                                docs[0].contador_bn
-                                or docs[0].contador_color
-                                or docs[0].contador_total
-                            ">
+                            <t
+                                t-if="
+                                    docs[0].contador_bn
+                                    or docs[0].contador_color
+                                    or docs[0].contador_total
+                                "
+                            >
 
                                 <table class="counter-table">
+
                                     <tbody>
+
                                         <tr>
 
                                             <td>
@@ -1241,11 +1339,15 @@
                                                     </div>
 
                                                     <div class="counter-value">
-                                                        <t t-esc="
-                                                            '{:,}'.format(
-                                                                docs[0].contador_bn or 0
-                                                            )
-                                                        "/>
+
+                                                        <t
+                                                            t-esc="
+                                                                '{:,}'.format(
+                                                                    docs[0].contador_bn or 0
+                                                                )
+                                                            "
+                                                        />
+
                                                     </div>
 
                                                 </div>
@@ -1262,11 +1364,15 @@
                                                     </div>
 
                                                     <div class="counter-value">
-                                                        <t t-esc="
-                                                            '{:,}'.format(
-                                                                docs[0].contador_color or 0
-                                                            )
-                                                        "/>
+
+                                                        <t
+                                                            t-esc="
+                                                                '{:,}'.format(
+                                                                    docs[0].contador_color or 0
+                                                                )
+                                                            "
+                                                        />
+
                                                     </div>
 
                                                 </div>
@@ -1283,11 +1389,15 @@
                                                     </div>
 
                                                     <div class="counter-value">
-                                                        <t t-esc="
-                                                            '{:,}'.format(
-                                                                docs[0].contador_total or 0
-                                                            )
-                                                        "/>
+
+                                                        <t
+                                                            t-esc="
+                                                                '{:,}'.format(
+                                                                    docs[0].contador_total or 0
+                                                                )
+                                                            "
+                                                        />
+
                                                     </div>
 
                                                 </div>
@@ -1295,7 +1405,9 @@
                                             </td>
 
                                         </tr>
+
                                     </tbody>
+
                                 </table>
 
                             </t>
@@ -1310,9 +1422,11 @@
                                 <div class="extra-card">
 
                                     <div class="section-head">
+
                                         <div class="section-title">
                                             Insumos / Repuestos Utilizados
                                         </div>
+
                                     </div>
 
                                     <div class="plain-text">
@@ -1328,23 +1442,29 @@
                                  REPUESTOS SOLICITADOS
                             ================================================== -->
 
-                            <t t-if="
-                                docs[0].requiere_repuestos
-                                and docs[0].sale_order_id
-                            ">
+                            <t
+                                t-if="
+                                    docs[0].requiere_repuestos
+                                    and docs[0].sale_order_id
+                                "
+                            >
 
                                 <div class="extra-card">
 
                                     <div class="section-head">
+
                                         <div class="section-title">
                                             Repuestos Solicitados
                                         </div>
+
                                     </div>
 
 
                                     <div class="parts-notice">
 
-                                        <strong>Aviso importante:</strong>
+                                        <strong>
+                                            Aviso importante:
+                                        </strong>
 
                                         Los siguientes repuestos fueron identificados
                                         durante la atención técnica y quedan sujetos a
@@ -1356,6 +1476,7 @@
                                     <table class="parts-table">
 
                                         <thead>
+
                                             <tr>
 
                                                 <th class="parts-description">
@@ -1367,6 +1488,7 @@
                                                 </th>
 
                                             </tr>
+
                                         </thead>
 
 
@@ -1380,18 +1502,23 @@
                                                 <tr t-if="not line.display_type">
 
                                                     <td class="parts-description">
+
                                                         <t t-esc="line.name"/>
+
                                                     </td>
+
 
                                                     <td class="parts-quantity">
 
-                                                        <t t-esc="
-                                                            (
-                                                                '{:,.2f}'.format(
-                                                                    line.product_uom_qty or 0
-                                                                )
-                                                            ).rstrip('0').rstrip('.')
-                                                        "/>
+                                                        <t
+                                                            t-esc="
+                                                                (
+                                                                    '{:,.2f}'.format(
+                                                                        line.product_uom_qty or 0
+                                                                    )
+                                                                ).rstrip('0').rstrip('.')
+                                                            "
+                                                        />
 
                                                     </td>
 
@@ -1406,7 +1533,9 @@
 
                                     <div class="parts-acceptance">
 
-                                        <strong>Constancia de información:</strong>
+                                        <strong>
+                                            Constancia de información:
+                                        </strong>
 
                                         Con su firma, el cliente confirma haber sido
                                         informado sobre la necesidad técnica de los
@@ -1425,22 +1554,28 @@
                                  EVIDENCIAS
                             ================================================== -->
 
-                            <t t-if="
-                                docs[0].foto_antes
-                                or docs[0].foto_despues
-                            ">
+                            <t
+                                t-if="
+                                    docs[0].foto_antes
+                                    or docs[0].foto_despues
+                                "
+                            >
 
                                 <div class="extra-card">
 
                                     <div class="section-head">
+
                                         <div class="section-title">
                                             Evidencias Fotográficas
                                         </div>
+
                                     </div>
 
 
                                     <table class="evidence-table">
+
                                         <tbody>
+
                                             <tr>
 
                                                 <td t-if="docs[0].foto_antes">
@@ -1452,7 +1587,10 @@
                                                         </div>
 
                                                         <img
-                                                            t-att-src="'data:image/png;base64,%s' % docs[0].foto_antes"
+                                                            t-att-src="
+                                                                'data:image/png;base64,%s'
+                                                                % docs[0].foto_antes
+                                                            "
                                                             alt="Foto Antes"
                                                         />
 
@@ -1470,7 +1608,10 @@
                                                         </div>
 
                                                         <img
-                                                            t-att-src="'data:image/png;base64,%s' % docs[0].foto_despues"
+                                                            t-att-src="
+                                                                'data:image/png;base64,%s'
+                                                                % docs[0].foto_despues
+                                                            "
                                                             alt="Foto Después"
                                                         />
 
@@ -1479,7 +1620,9 @@
                                                 </td>
 
                                             </tr>
+
                                         </tbody>
+
                                     </table>
 
                                 </div>
@@ -1496,14 +1639,22 @@
                                 <div class="extra-card">
 
                                     <div class="section-head">
+
                                         <div class="section-title">
                                             Evaluación del Cliente
                                         </div>
+
                                     </div>
 
 
                                     <div class="stars">
-                                        <t t-esc="'★ ' * int(docs[0].calificacion)"/>
+
+                                        <t
+                                            t-esc="
+                                                '★ ' * int(docs[0].calificacion)
+                                            "
+                                        />
+
                                     </div>
 
 
@@ -1511,10 +1662,15 @@
 
                                         <div
                                             class="plain-text"
-                                            style="margin-top:5px; font-style:italic;"
+                                            style="
+                                                margin-top:5px;
+                                                font-style:italic;
+                                            "
                                         >
 
-                                            <strong>Comentario:</strong>
+                                            <strong>
+                                                Comentario:
+                                            </strong>
 
                                             <t t-esc="docs[0].comentario_cliente"/>
 
@@ -1534,16 +1690,22 @@
                             <div class="extra-card">
 
                                 <div class="section-head">
+
                                     <div class="section-title">
                                         Firmas y Conformidad
                                     </div>
+
                                 </div>
 
 
                                 <table class="sign-table">
+
                                     <tbody>
+
                                         <tr>
 
+
+                                            <!-- TÉCNICO -->
                                             <td>
 
                                                 <div class="signature-card">
@@ -1560,10 +1722,12 @@
 
                                                     <div class="signature-name">
 
-                                                        <t t-esc="
-                                                            docs[0].tecnico_id.name
-                                                            or '___________________'
-                                                        "/>
+                                                        <t
+                                                            t-esc="
+                                                                docs[0].tecnico_id.name
+                                                                or '___________________'
+                                                            "
+                                                        />
 
                                                     </div>
 
@@ -1576,6 +1740,7 @@
                                             </td>
 
 
+                                            <!-- CLIENTE -->
                                             <td>
 
                                                 <div class="signature-card">
@@ -1585,7 +1750,10 @@
                                                         <t t-if="docs[0].firma_cliente">
 
                                                             <img
-                                                                t-att-src="'data:image/png;base64,%s' % docs[0].firma_cliente"
+                                                                t-att-src="
+                                                                    'data:image/png;base64,%s'
+                                                                    % docs[0].firma_cliente
+                                                                "
                                                                 alt="Firma Cliente"
                                                             />
 
@@ -1602,25 +1770,34 @@
 
                                                     <div class="signature-name">
 
-                                                        <t t-esc="
-                                                            docs[0].nombre_firma
-                                                            or '___________________'
-                                                        "/>
+                                                        <t
+                                                            t-esc="
+                                                                docs[0].nombre_firma
+                                                                or '___________________'
+                                                            "
+                                                        />
 
                                                     </div>
 
+
                                                     <div class="signature-note">
 
-                                                        <t t-if="
-                                                            docs[0].requiere_repuestos
-                                                            and docs[0].sale_order_id
-                                                        ">
+                                                        <t
+                                                            t-if="
+                                                                docs[0].requiere_repuestos
+                                                                and docs[0].sale_order_id
+                                                            "
+                                                        >
+
                                                             Firma y conformidad de información
                                                             de repuestos
+
                                                         </t>
 
                                                         <t t-else="">
+
                                                             Firma y conformidad del servicio
+
                                                         </t>
 
                                                     </div>
@@ -1630,7 +1807,9 @@
                                             </td>
 
                                         </tr>
+
                                     </tbody>
+
                                 </table>
 
                             </div>
@@ -1650,6 +1829,7 @@
 
                                     <br/>
 
+
                                     <t t-if="docs[0].company_id.phone">
 
                                         Teléfono:
@@ -1658,10 +1838,12 @@
                                     </t>
 
 
-                                    <t t-if="
-                                        docs[0].company_id.phone
-                                        and docs[0].company_id.email
-                                    ">
+                                    <t
+                                        t-if="
+                                            docs[0].company_id.phone
+                                            and docs[0].company_id.email
+                                        "
+                                    >
                                         &#160; | &#160;
                                     </t>
 
@@ -1676,14 +1858,18 @@
                                 </p>
 
 
-                                <p style="
-                                    margin-top:3px;
-                                    font-size:6.2px;
-                                    color:#94a3b8;
-                                ">
+                                <p
+                                    style="
+                                        margin-top:3px;
+                                        font-size:6.2px;
+                                        color:#94a3b8;
+                                    "
+                                >
+
                                     Este documento es válido como constancia
                                     del servicio técnico realizado conforme
                                     a los términos acordados.
+
                                 </p>
 
                             </div>
@@ -1691,10 +1877,13 @@
                         </div>
 
                     </div>
+
                 </div>
 
             </t>
+
         </t>
+
     </template>
 
 </odoo>
