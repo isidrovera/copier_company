@@ -40,25 +40,25 @@
                     body { font-family: Arial, 'Segoe UI', sans-serif; font-size: 9.6px; color:#17365f; background:#fff; }
                     .page { padding:0; margin:0; }
                     .report-shell { background:#fff; }
-                    .hero { background-color:#eef4fa; color:#123a67; padding:0; min-height:92px; margin:0 0 7px 0; border:1px solid #dce6f0; }
+                    .hero { background-color:#ffffff; color:#123a67; padding:0; min-height:108px; margin:0 0 8px 0; border:1px solid #d9e3ef; border-radius:0; }
                     .hero-table,.split-table,.mini-table,.counter-table,.sign-table { width:100%; border-collapse:separate; table-layout:fixed; }
                     .hero-table td { vertical-align:middle; }
-                    .hero-left { width:42%; background:#ffffff; padding:14px 18px; }
-                    .hero-right { width:58%; text-align:right; background:#123a67; padding:16px 20px; }
-                    .company-logo { max-width:210px; max-height:58px; width:auto !important; height:auto !important; display:block; margin:0 auto 0 0; }
-                    .company-tagline { color:#58708d; font-size:8.5px; margin-top:3px; }
-                    .hero-kicker { color:#dce8f5; font-size:10px; line-height:1; text-transform:uppercase; }
-                    .hero-title { color:#fff; font-size:23px; line-height:1.05; font-weight:800; margin-top:4px; text-transform:uppercase; }
-                    .report-meta { text-align:right; padding:2px 10px 7px; font-size:9.5px; color:#274d7a; font-weight:600; }
+                    .hero-left { width:40%; background:#ffffff; padding:16px 16px; }
+                    .hero-right { width:60%; text-align:right; background:#ffffff; padding:18px 20px; border-left:1px solid #d9e3ef; }
+                    .company-logo { width:300px !important; max-width:100%; max-height:92px; height:auto !important; display:block; margin:0 auto 0 0; }
+                    .company-tagline { color:#58708d; font-size:10px; margin-top:4px; }
+                    .hero-kicker { color:#6a7f98; font-size:10px; line-height:1; text-transform:uppercase; }
+                    .hero-title { color:#123a67; font-size:24px; line-height:1.05; font-weight:800; margin-top:4px; text-transform:uppercase; }
+                    .report-meta { text-align:right; padding:3px 12px 8px; font-size:9.5px; color:#274d7a; font-weight:600; }
                     .report-meta strong { color:#123a67; font-size:10.5px; }
-                    .content-area { padding:0 8px; }
-                    .split-table { border-spacing:6px 0; margin-bottom:6px; }
+                    .content-area { padding:0; }
+                    .split-table { border-spacing:6px 6px; margin:0; }
                     .split-table td { width:50%; vertical-align:top; }
-                    .split-table td.split-panel { background-color:#f5f8fc; border:1px solid #e2eaf3; border-radius:7px; padding:9px 11px; }
+                    .split-table td.split-panel { background-color:#ffffff; border:1px solid #d9e3ef; border-radius:8px; padding:10px 12px; }
                     .split-table .split-inner { background:transparent; border:0; border-radius:0; padding:0; margin:0; }
-                    .full-row { margin-bottom:6px; }
-                    .card,.extra-card { box-sizing:border-box; background-color:#f5f8fc; border:1px solid #e2eaf3; border-radius:7px; padding:9px 11px; page-break-inside:avoid; }
-                    .extra-card { margin-top:6px; }
+                    .full-row { margin:0 6px 6px; }
+                    .card,.extra-card { box-sizing:border-box; background-color:#ffffff; border:1px solid #d9e3ef; border-radius:8px; padding:10px 12px; page-break-inside:avoid; }
+                    .extra-card { margin:0 6px 6px; }
                     .section-head { margin-bottom:6px; }
                     .section-title { font-size:11.5px; line-height:1.15; color:#123a67; font-weight:800; }
                     .field-table { width:100%; border-collapse:separate; border-spacing:0 4px; }
@@ -68,14 +68,14 @@
                     .plain-text { font-size:9px; color:#284669; line-height:1.32; margin-top:2px; white-space:pre-wrap; }
                     .badge { display:inline-block; padding:2px 6px; border-radius:8px; font-size:7px; font-weight:700; color:#fff; }
                     .badge-success { background-color:#39a97b; } .badge-warning { background-color:#cc8d1d; } .badge-danger { background-color:#c94b4b; } .badge-info { background-color:#397ab5; } .badge-primary { background-color:#245b95; }
-                    .mini-table { border-spacing:6px 5px; margin:0; }
+                    .mini-table { border-spacing:6px 6px; margin:0; }
                     .mini-table td { width:50%; vertical-align:top; }
-                    .mini-card { box-sizing:border-box; width:100%; background-color:#f5f8fc; border:1px solid #e2eaf3; border-radius:7px; padding:7px 9px; min-height:38px; }
+                    .mini-card { box-sizing:border-box; width:100%; background-color:#ffffff; border:1px solid #d9e3ef; border-radius:8px; padding:8px 10px; min-height:42px; }
                     .mini-title { font-size:7.8px; color:#71849b; margin-bottom:2px; }
                     .mini-value { font-size:9.2px; color:#173b73; font-weight:700; line-height:1.2; }
-                    .counter-table { border-spacing:6px 0; margin:5px 0 0; }
+                    .counter-table { border-spacing:6px 6px; margin:0; }
                     .counter-table td { width:33.33%; vertical-align:top; }
-                    .counter-card { box-sizing:border-box; width:100%; background-color:#f5f8fc; border:1px solid #e2eaf3; border-radius:7px; padding:7px 9px; }
+                    .counter-card { box-sizing:border-box; width:100%; background-color:#ffffff; border:1px solid #d9e3ef; border-radius:8px; padding:8px 10px; }
                     .counter-label { font-size:7.8px; color:#71849b; margin-bottom:2px; }
                     .counter-value { font-size:10.5px; color:#123d7d; font-weight:800; }
                     .parts-notice { margin-bottom:4px; padding:4px 6px; border-left:3px solid #dfaa3a; background:#fff8ea; color:#7a5921; font-size:7.5px; line-height:1.2; }
@@ -90,9 +90,9 @@
                     .evidence-label { font-size:7.5px; font-weight:700; color:#123a67; margin-bottom:2px; }
                     .evidence-box img { max-width:100%; max-height:95px; border:1px solid #dce7f1; }
                     .stars { text-align:center; font-size:15px; color:#e0ab3a; letter-spacing:1px; }
-                    .sign-table { border-spacing:6px 0; margin-top:1px; }
+                    .sign-table { border-spacing:6px 6px; margin-top:0; }
                     .sign-table td { width:50%; vertical-align:bottom; }
-                    .signature-card { box-sizing:border-box; width:100%; background:#fff; border:1px solid #e2eaf3; border-radius:7px; padding:7px 9px; min-height:82px; text-align:center; }
+                    .signature-card { box-sizing:border-box; width:100%; background:#fff; border:1px solid #d9e3ef; border-radius:8px; padding:8px 10px; min-height:86px; text-align:center; }
                     .signature-area { height:38px; text-align:center; }
                     .signature-area img { max-height:36px; max-width:165px; }
                     .signature-line { width:82%; margin:4px auto 3px; border-top:1px solid #274f7b; }
