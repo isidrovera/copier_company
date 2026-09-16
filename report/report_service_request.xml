@@ -8,10 +8,10 @@
         <field name="name">Service Request Portrait</field>
         <field name="format">A4</field>
         <field name="orientation">Portrait</field>
-        <field name="margin_top">8</field>
-        <field name="margin_bottom">18</field>
-        <field name="margin_left">8</field>
-        <field name="margin_right">8</field>
+        <field name="margin_top">5</field>
+        <field name="margin_bottom">7</field>
+        <field name="margin_left">6</field>
+        <field name="margin_right">6</field>
         <field name="header_line" eval="False"/>
         <field name="header_spacing">8</field>
         <field name="dpi">90</field>
@@ -37,483 +37,67 @@
         <t t-name="copier_company.report_service_request">
             <t t-call="web.basic_layout">
                 <style>
-                    body {
-                        font-family: 'Segoe UI', Arial, sans-serif;
-                        font-size: 10px;
-                        color: #17365f;
-                        background: #ffffff;
-                    }
-
-                    .page {
-                        padding: 0;
-                    }
-
-                    .report-shell {
-                        background: #ffffff;
-                    }
-
-                    .hero {
-                        position: relative;
-                        overflow: hidden;
-                        min-height: 118px;
-                        padding: 22px 26px;
-                        color: #ffffff;
-                        background: linear-gradient(120deg, #123a67 0%, #0e2f59 42%, #174e86 100%);
-                    }
-
-                    .hero:before {
-                        content: '';
-                        position: absolute;
-                        top: -38px;
-                        right: 130px;
-                        width: 140px;
-                        height: 210px;
-                        background: rgba(255,255,255,0.07);
-                        transform: skew(-18deg);
-                    }
-
-                    .hero:after {
-                        content: '';
-                        position: absolute;
-                        top: -18px;
-                        right: 32px;
-                        width: 150px;
-                        height: 210px;
-                        background: rgba(255,255,255,0.10);
-                        transform: skew(-18deg);
-                    }
-
-                    .hero-table,
-                    .split-table,
-                    .mini-table,
-                    .counter-table,
-                    .sign-table {
-                        width: 100%;
-                        border-collapse: separate;
-                    }
-
-                    .hero-table td {
-                        vertical-align: middle;
-                    }
-
-                    .hero-left {
-                        width: 44%;
-                    }
-
-                    .hero-right {
-                        width: 56%;
-                        text-align: right;
-                    }
-
-                    .company-logo {
-                        max-height: 54px;
-                        max-width: 195px;
-                        width: auto;
-                        filter: brightness(0) invert(1);
-                        margin-bottom: 6px;
-                    }
-
-                    .company-tagline {
-                        font-size: 11px;
-                        opacity: 0.88;
-                    }
-
-                    .hero-kicker {
-                        font-size: 14px;
-                        line-height: 1;
-                        letter-spacing: .4px;
-                        text-transform: uppercase;
-                        opacity: .92;
-                    }
-
-                    .hero-title {
-                        font-size: 28px;
-                        line-height: 1.05;
-                        font-weight: 800;
-                        margin-top: 4px;
-                        text-transform: uppercase;
-                    }
-
-                    .report-meta {
-                        text-align: right;
-                        padding: 10px 18px 4px;
-                        font-size: 11px;
-                        color: #274d7a;
-                        font-weight: 600;
-                    }
-
-                    .report-meta strong {
-                        color: #123a67;
-                        font-size: 12px;
-                    }
-
-                    .content-area {
-                        padding: 6px 12px 0;
-                    }
-
-                    .split-table {
-                        border-spacing: 8px 0;
-                        margin-bottom: 8px;
-                    }
-
-                    .split-table td {
-                        width: 50%;
-                        vertical-align: top;
-                    }
-
-                    .full-row {
-                        margin-bottom: 8px;
-                    }
-
-                    .card {
-                        background: #f5f8fc;
-                        border: 1px solid #e5edf5;
-                        border-radius: 10px;
-                        padding: 14px 16px;
-                        page-break-inside: avoid;
-                    }
-
-                    .section-head {
-                        margin-bottom: 10px;
-                    }
-
-                    .section-title {
-                        font-size: 14px;
-                        line-height: 1.2;
-                        color: #113d7a;
-                        font-weight: 800;
-                    }
-
-                    .field-table,
-                    .field-table-4 {
-                        width: 100%;
-                        border-collapse: separate;
-                        border-spacing: 0 6px;
-                    }
-
-                    .field-table td {
-                        width: 50%;
-                        vertical-align: top;
-                    }
-
-                    .field-table-4 td {
-                        width: 25%;
-                        vertical-align: top;
-                    }
-
-                    .label {
-                        font-size: 9px;
-                        color: #6f84a0;
-                        text-transform: uppercase;
-                        letter-spacing: .25px;
-                        font-weight: 700;
-                        margin-bottom: 2px;
-                    }
-
-                    .value {
-                        font-size: 11px;
-                        color: #17365f;
-                        font-weight: 600;
-                    }
-
-                    .plain-text {
-                        font-size: 11px;
-                        color: #284669;
-                        line-height: 1.45;
-                        margin-top: 2px;
-                        white-space: pre-wrap;
-                    }
-
-                    .badge {
-                        display: inline-block;
-                        padding: 3px 10px;
-                        border-radius: 12px;
-                        font-size: 9px;
-                        font-weight: 700;
-                        color: #ffffff;
-                    }
-
-                    .badge-success { background: #53c79d; }
-                    .badge-warning { background: #e0ab3a; }
-                    .badge-danger { background: #d35454; }
-                    .badge-info { background: #4a86c5; }
-                    .badge-primary { background: #245b95; }
-
-                    .mini-table {
-                        border-spacing: 8px 8px;
-                        margin: 0 -8px 0;
-                    }
-
-                    .mini-table td {
-                        width: 50%;
-                        vertical-align: top;
-                    }
-
-                    .mini-card {
-                        background: #f5f8fc;
-                        border: 1px solid #e5edf5;
-                        border-radius: 9px;
-                        padding: 12px 14px;
-                        min-height: 58px;
-                    }
-
-                    .mini-title {
-                        font-size: 10px;
-                        color: #6c82a0;
-                        margin-bottom: 4px;
-                    }
-
-                    .mini-value {
-                        font-size: 11px;
-                        color: #173b73;
-                        font-weight: 700;
-                        line-height: 1.25;
-                    }
-
-                    .counter-table {
-                        border-spacing: 8px 0;
-                        margin: 8px 0 0;
-                    }
-
-                    .counter-table td {
-                        width: 33.33%;
-                        vertical-align: top;
-                    }
-
-                    .counter-card {
-                        background: #f5f8fc;
-                        border: 1px solid #e5edf5;
-                        border-radius: 9px;
-                        padding: 12px 14px;
-                        text-align: left;
-                    }
-
-                    .counter-label {
-                        font-size: 10px;
-                        color: #6c82a0;
-                        margin-bottom: 4px;
-                    }
-
-                    .counter-value {
-                        font-size: 14px;
-                        color: #123d7d;
-                        font-weight: 800;
-                    }
-
-                    .quote-sign-row {
-                        margin-top: 12px;
-                    }
-
-                    .quote-box {
-                        background: #f5f8fc;
-                        border: 1px solid #e5edf5;
-                        border-radius: 9px;
-                        padding: 18px 18px;
-                        min-height: 66px;
-                        color: #2f4b73;
-                    }
-
-                    .quote-mark {
-                        font-size: 46px;
-                        color: #0f3a78;
-                        line-height: 0.8;
-                        font-weight: 700;
-                        padding-right: 10px;
-                    }
-
-                    .quote-text {
-                        font-size: 11px;
-                        font-style: italic;
-                        color: #2f4b73;
-                    }
-
-                    .sign-preview {
-                        text-align: center;
-                        padding: 16px 10px 4px;
-                    }
-
-                    .sign-preview .line {
-                        width: 78%;
-                        margin: 0 auto 8px;
-                        border-top: 1px solid #274f7b;
-                    }
-
-                    .sign-preview .role {
-                        font-size: 10px;
-                        color: #5f7695;
-                        margin-bottom: 5px;
-                    }
-
-                    .sign-preview .name {
-                        font-size: 11px;
-                        color: #173b73;
-                        font-weight: 700;
-                    }
-
-                    .extra-card {
-                        background: #f5f8fc;
-                        border: 1px solid #e5edf5;
-                        border-radius: 9px;
-                        padding: 13px 14px;
-                        margin-top: 10px;
-                        page-break-inside: avoid;
-                    }
-
-                    .parts-notice {
-                        margin-bottom: 8px;
-                        padding: 9px 10px;
-                        border-left: 3px solid #dfaa3a;
-                        border-radius: 6px;
-                        background: #fff8ea;
-                        color: #7a5921;
-                        font-size: 9.5px;
-                        line-height: 1.45;
-                    }
-
-                    .parts-table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        table-layout: fixed;
-                    }
-
-                    .parts-table th {
-                        background: #123a67;
-                        color: #ffffff;
-                        font-size: 9px;
-                        font-weight: 700;
-                        text-transform: uppercase;
-                        padding: 7px 8px;
-                        border: 1px solid #dbe6f0;
-                    }
-
-                    .parts-table td {
-                        color: #284669;
-                        font-size: 10px;
-                        padding: 7px 8px;
-                        border: 1px solid #dbe6f0;
-                        vertical-align: top;
-                    }
-
-                    .parts-description { width: 82%; white-space: pre-line; }
-                    .parts-quantity { width: 18%; text-align: center; font-weight: 700; }
-
-                    .parts-acceptance {
-                        margin-top: 8px;
-                        padding: 8px 10px;
-                        border-radius: 6px;
-                        background: #eef5fc;
-                        border: 1px solid #d7e5f2;
-                        color: #36587f;
-                        font-size: 9px;
-                        line-height: 1.45;
-                    }
-
-                    .evidence-table {
-                        width: 100%;
-                        border-collapse: separate;
-                        border-spacing: 8px 0;
-                    }
-
-                    .evidence-table td {
-                        width: 50%;
-                        vertical-align: top;
-                    }
-
-                    .evidence-box {
-                        text-align: center;
-                        padding: 9px;
-                        background: #ffffff;
-                        border: 1px solid #dce7f1;
-                        border-radius: 8px;
-                    }
-
-                    .evidence-label {
-                        font-size: 10px;
-                        font-weight: 700;
-                        color: #123a67;
-                        margin-bottom: 6px;
-                    }
-
-                    .evidence-box img {
-                        max-width: 100%;
-                        max-height: 190px;
-                        border-radius: 6px;
-                        border: 1px solid #dce7f1;
-                    }
-
-                    .stars {
-                        text-align: center;
-                        font-size: 22px;
-                        color: #e0ab3a;
-                        letter-spacing: 2px;
-                    }
-
-                    .sign-table {
-                        border-spacing: 10px 0;
-                        margin-top: 4px;
-                    }
-
-                    .sign-table td {
-                        width: 50%;
-                        vertical-align: bottom;
-                    }
-
-                    .signature-card {
-                        background: #ffffff;
-                        border: 1px solid #e5edf5;
-                        border-radius: 9px;
-                        padding: 12px 12px 10px;
-                        min-height: 135px;
-                        text-align: center;
-                    }
-
-                    .signature-area {
-                        height: 72px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                    }
-
-                    .signature-area img {
-                        max-height: 68px;
-                        max-width: 180px;
-                    }
-
-                    .signature-line {
-                        width: 82%;
-                        margin: 8px auto 6px;
-                        border-top: 1px solid #274f7b;
-                    }
-
-                    .signature-role {
-                        font-size: 10px;
-                        color: #6c82a0;
-                        text-transform: uppercase;
-                        font-weight: 700;
-                        margin-bottom: 4px;
-                    }
-
-                    .signature-name {
-                        font-size: 11px;
-                        color: #173b73;
-                        font-weight: 700;
-                    }
-
-                    .signature-note {
-                        font-size: 8.5px;
-                        color: #7d90a6;
-                        margin-top: 4px;
-                        line-height: 1.35;
-                    }
-
-                    .footer-info {
-                        margin-top: 12px;
-                        padding-top: 10px;
-                        border-top: 1px solid #dbe6f0;
-                        text-align: center;
-                        color: #7b8ca0;
-                        font-size: 8.5px;
-                    }
+                    body { font-family: Arial, 'Segoe UI', sans-serif; font-size: 9px; color:#17365f; background:#fff; }
+                    .page { padding:0; margin:0; }
+                    .report-shell { background:#fff; }
+                    .hero { background-color:#123a67; color:#fff; padding:10px 16px; min-height:68px; margin:0 0 4px 0; }
+                    .hero-table,.split-table,.mini-table,.counter-table,.sign-table { width:100%; border-collapse:separate; }
+                    .hero-table td { vertical-align:middle; }
+                    .hero-left { width:46%; }
+                    .hero-right { width:54%; text-align:right; }
+                    .company-logo { width:220px; max-width:220px; max-height:68px; height:auto; display:block; }
+                    .company-tagline { color:#dce8f5; font-size:8px; margin-top:1px; }
+                    .hero-kicker { color:#dce8f5; font-size:9px; line-height:1; text-transform:uppercase; }
+                    .hero-title { color:#fff; font-size:20px; line-height:1.05; font-weight:800; margin-top:3px; text-transform:uppercase; }
+                    .report-meta { text-align:right; padding:2px 10px 4px; font-size:9px; color:#274d7a; font-weight:600; }
+                    .report-meta strong { color:#123a67; font-size:10px; }
+                    .content-area { padding:0 6px; }
+                    .split-table { border-spacing:4px 0; margin-bottom:4px; }
+                    .split-table td { width:50%; vertical-align:top; }
+                    .full-row { margin-bottom:4px; }
+                    .card,.extra-card { background-color:#f3f7fb; border:1px solid #e2eaf3; border-radius:5px; padding:7px 9px; page-break-inside:avoid; }
+                    .extra-card { margin-top:4px; }
+                    .section-head { margin-bottom:4px; }
+                    .section-title { font-size:10.5px; line-height:1.1; color:#123a67; font-weight:800; }
+                    .field-table { width:100%; border-collapse:separate; border-spacing:0 2px; }
+                    .field-table td { width:50%; vertical-align:top; padding-right:4px; }
+                    .label { font-size:6.8px; color:#71849b; text-transform:uppercase; letter-spacing:.1px; font-weight:700; margin-bottom:1px; }
+                    .value { font-size:8.5px; line-height:1.18; color:#17365f; font-weight:700; }
+                    .plain-text { font-size:8.4px; color:#284669; line-height:1.22; margin-top:1px; white-space:pre-wrap; }
+                    .badge { display:inline-block; padding:2px 6px; border-radius:8px; font-size:7px; font-weight:700; color:#fff; }
+                    .badge-success { background-color:#39a97b; } .badge-warning { background-color:#cc8d1d; } .badge-danger { background-color:#c94b4b; } .badge-info { background-color:#397ab5; } .badge-primary { background-color:#245b95; }
+                    .mini-table { border-spacing:4px 3px; margin:0 -4px; }
+                    .mini-table td { width:50%; vertical-align:top; }
+                    .mini-card { background-color:#f3f7fb; border:1px solid #e2eaf3; border-radius:5px; padding:5px 7px; min-height:30px; }
+                    .mini-title { font-size:7px; color:#71849b; margin-bottom:1px; }
+                    .mini-value { font-size:8.5px; color:#173b73; font-weight:700; line-height:1.15; }
+                    .counter-table { border-spacing:4px 0; margin:3px 0 0; }
+                    .counter-table td { width:33.33%; vertical-align:top; }
+                    .counter-card { background-color:#f3f7fb; border:1px solid #e2eaf3; border-radius:5px; padding:5px 7px; }
+                    .counter-label { font-size:7px; color:#71849b; margin-bottom:1px; }
+                    .counter-value { font-size:9.5px; color:#123d7d; font-weight:800; }
+                    .parts-notice { margin-bottom:4px; padding:4px 6px; border-left:3px solid #dfaa3a; background:#fff8ea; color:#7a5921; font-size:7.5px; line-height:1.2; }
+                    .parts-table { width:100%; border-collapse:collapse; table-layout:fixed; }
+                    .parts-table th { background:#123a67; color:#fff; font-size:7px; font-weight:700; text-transform:uppercase; padding:3px 4px; border:1px solid #dbe6f0; }
+                    .parts-table td { color:#284669; font-size:7.5px; padding:3px 4px; border:1px solid #dbe6f0; vertical-align:top; }
+                    .parts-description { width:82%; white-space:pre-line; } .parts-quantity { width:18%; text-align:center; font-weight:700; }
+                    .parts-acceptance { margin-top:4px; padding:4px 6px; background:#eef5fc; border:1px solid #d7e5f2; color:#36587f; font-size:7px; line-height:1.2; }
+                    .evidence-table { width:100%; border-collapse:separate; border-spacing:4px 0; }
+                    .evidence-table td { width:50%; vertical-align:top; }
+                    .evidence-box { text-align:center; padding:4px; background:#fff; border:1px solid #dce7f1; }
+                    .evidence-label { font-size:7.5px; font-weight:700; color:#123a67; margin-bottom:2px; }
+                    .evidence-box img { max-width:100%; max-height:95px; border:1px solid #dce7f1; }
+                    .stars { text-align:center; font-size:15px; color:#e0ab3a; letter-spacing:1px; }
+                    .sign-table { border-spacing:6px 0; margin-top:1px; }
+                    .sign-table td { width:50%; vertical-align:bottom; }
+                    .signature-card { background:#fff; border:1px solid #e2eaf3; border-radius:5px; padding:4px 7px; min-height:64px; text-align:center; }
+                    .signature-area { height:28px; text-align:center; }
+                    .signature-area img { max-height:27px; max-width:145px; }
+                    .signature-line { width:82%; margin:2px auto; border-top:1px solid #274f7b; }
+                    .signature-role { font-size:6.8px; color:#71849b; text-transform:uppercase; font-weight:700; margin-bottom:1px; }
+                    .signature-name { font-size:8px; color:#173b73; font-weight:700; }
+                    .signature-note { font-size:6.5px; color:#7d90a6; margin-top:1px; line-height:1.1; }
+                    .footer-info { margin-top:4px; padding-top:3px; border-top:1px solid #dbe6f0; text-align:center; color:#7b8ca0; font-size:6.8px; }
                 </style>
 
                 <div class="page">
@@ -554,10 +138,6 @@
                                             <table class="field-table">
                                                 <tr>
                                                     <td>
-                                                        <div class="label">Código</div>
-                                                        <div class="value"><t t-esc="docs[0].name"/></div>
-                                                    </td>
-                                                    <td>
                                                         <div class="label">Estado</div>
                                                         <div>
                                                             <t t-set="estado_dict" t-value="{
@@ -575,12 +155,6 @@
                                                             </span>
                                                         </div>
                                                     </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>
-                                                        <div class="label">Técnico asignado</div>
-                                                        <div class="value"><t t-esc="docs[0].tecnico_id.name or 'No asignado'"/></div>
-                                                    </td>
                                                     <td>
                                                         <div class="label">SLA cumplido</div>
                                                         <div>
@@ -588,6 +162,19 @@
                                                                 <t t-if="docs[0].sla_cumplido">✓ Cumplido</t>
                                                                 <t t-else="">✗ No Cumplido</t>
                                                             </span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div class="label">Duración</div>
+                                                        <div class="value"><t t-esc="round(docs[0].duracion_real or 0, 2)"/> h</div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="label">Tipo de solución</div>
+                                                        <div class="value">
+                                                            <t t-if="docs[0].solucion_aplicada"><t t-esc="dict(docs[0]._fields['solucion_aplicada'].selection).get(docs[0].solucion_aplicada)"/></t>
+                                                            <t t-else="">—</t>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -676,27 +263,8 @@
                                 </div>
                             </div>
 
-                            <!-- Tarjetas pequeñas -->
+                            <!-- Fechas de ejecución -->
                             <table class="mini-table">
-                                <tr>
-                                    <td>
-                                        <div class="mini-card">
-                                            <div class="mini-title">Técnico responsable</div>
-                                            <div class="mini-value"><t t-esc="docs[0].tecnico_id.name or 'No asignado'"/></div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="mini-card">
-                                            <div class="mini-title">Tipo de solución</div>
-                                            <div class="mini-value">
-                                                <t t-if="docs[0].solucion_aplicada">
-                                                    <t t-esc="dict(docs[0]._fields['solucion_aplicada'].selection).get(docs[0].solucion_aplicada)"/>
-                                                </t>
-                                                <t t-else="">—</t>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
                                 <tr>
                                     <td>
                                         <div class="mini-card">
@@ -744,33 +312,6 @@
                                     </tr>
                                 </table>
                             </t>
-
-                            <!-- Frase + firma previa -->
-                            <table class="split-table quote-sign-row">
-                                <tr>
-                                    <td>
-                                        <div class="quote-box">
-                                            <table style="width:100%; border-collapse:collapse;">
-                                                <tr>
-                                                    <td style="width:38px; vertical-align:top;">
-                                                        <div class="quote-mark">“</div>
-                                                    </td>
-                                                    <td style="vertical-align:middle;">
-                                                        <div class="quote-text">La tecnología funciona mejor cuando alguien la cuida.</div>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="sign-preview">
-                                            <div class="line"></div>
-                                            <div class="role">Técnico Responsable</div>
-                                            <div class="name"><t t-esc="docs[0].tecnico_id.name or '___________________'"/></div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
 
                             <!-- Insumos usados -->
                             <t t-if="docs[0].insumos_utilizados">
@@ -899,7 +440,7 @@
                                     <t t-if="docs[0].company_id.phone">Tel: <t t-esc="docs[0].company_id.phone"/> | </t>
                                     <t t-if="docs[0].company_id.email">Email: <t t-esc="docs[0].company_id.email"/></t>
                                 </p>
-                                <p style="margin:5px 0 0 0; font-size:8.5px;">Este documento es válido como constancia del servicio técnico realizado</p>
+                                <p style="margin:2px 0 0 0; font-size:6.8px;">Este documento es válido como constancia del servicio técnico realizado</p>
                             </div>
                         </div>
                     </div>
