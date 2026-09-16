@@ -2,7 +2,7 @@
 <odoo>
 
     <!-- ===================================================== -->
-    <!-- FORMATO DE PAPEL VERTICAL A4 -->
+    <!-- FORMATO DE PAPEL A4 VERTICAL -->
     <!-- ===================================================== -->
     <record id="paperformat_service_request_portrait" model="report.paperformat">
         <field name="name">Service Request Portrait</field>
@@ -17,7 +17,6 @@
         <field name="dpi">90</field>
     </record>
 
-
     <!-- ===================================================== -->
     <!-- ACCIÓN DEL REPORTE -->
     <!-- ===================================================== -->
@@ -31,7 +30,6 @@
                ref="copier_company.paperformat_service_request_portrait"/>
         <field name="print_report_name">'Servicio - %s' % (object.name)</field>
     </record>
-
 
     <!-- ===================================================== -->
     <!-- TEMPLATE -->
@@ -71,7 +69,6 @@
                         background: #ffffff;
                     }
 
-
                     /* =====================================================
                        HEADER
                     ===================================================== */
@@ -80,14 +77,20 @@
                         width: 100%;
                         border-collapse: collapse;
                         table-layout: fixed;
-                        margin: 0 0 7px 0;
+                        margin: 0 0 6px 0;
+                        border: none !important;
+                    }
+
+                    .hero-table,
+                    .hero-table tbody,
+                    .hero-table tr,
+                    .hero-table td {
+                        border: none !important;
                     }
 
                     .hero-table td {
-                        border: 0;
                         vertical-align: middle;
                     }
-
 
                     /* =====================================================
                        LOGO
@@ -95,18 +98,18 @@
 
                     .hero-logo-cell {
                         width: 44%;
-                        height: 100px;
+                        height: 96px;
                         background: #ffffff;
                         text-align: left;
                         vertical-align: middle;
-                        padding: 8px 10px !important;
+                        padding: 6px 10px !important;
                     }
 
                     .company-logo-container {
                         width: 100%;
-                        height: 72px;
+                        height: 70px;
                         text-align: left;
-                        line-height: 72px;
+                        line-height: 70px;
                         overflow: hidden;
                         white-space: nowrap;
                     }
@@ -116,9 +119,9 @@
                         width: auto !important;
                         height: auto !important;
                         max-width: 100% !important;
-                        max-height: 72px !important;
+                        max-height: 70px !important;
                         vertical-align: middle;
-                        border: 0;
+                        border: none !important;
                         padding: 0;
                         margin: 0;
                     }
@@ -128,37 +131,36 @@
                         font-size: 7.2px;
                         font-weight: 600;
                         line-height: 1.2;
-                        margin-top: 2px;
+                        margin-top: 1px;
                         text-align: left;
                         letter-spacing: 0.1px;
                     }
 
-
                     /* =====================================================
-                       BLOQUE TÍTULO DERECHO
+                       TÍTULO DERECHO
                     ===================================================== */
 
                     .hero-title-cell {
                         width: 56%;
-                        height: 100px;
+                        height: 96px;
                         background: #ffffff !important;
                         text-align: right;
                         vertical-align: middle;
-                        padding: 10px 4px 10px 12px !important;
+                        padding: 8px 3px 8px 12px !important;
                     }
 
                     .hero-kicker {
                         color: #64748b;
-                        font-size: 7.5px;
+                        font-size: 7.4px;
                         font-weight: 800;
                         text-transform: uppercase;
                         letter-spacing: 0.6px;
-                        margin-bottom: 3px;
+                        margin-bottom: 2px;
                     }
 
                     .hero-title {
                         color: #1e3a8a;
-                        font-size: 25px;
+                        font-size: 24px;
                         font-weight: 900;
                         line-height: 0.98;
                         text-transform: uppercase;
@@ -167,34 +169,34 @@
 
                     .hero-subtitle {
                         color: #475569;
-                        font-size: 7.5px;
+                        font-size: 7.4px;
                         font-weight: 600;
-                        margin-top: 5px;
+                        margin-top: 4px;
                     }
 
-
                     /* =====================================================
-                       NÚMERO Y FECHA
+                       META
                     ===================================================== */
 
                     .report-meta {
                         width: 100%;
-                        padding: 5px 4px 7px 4px;
+                        padding: 4px 3px 6px 3px;
                         margin: 0 0 7px 0;
                         text-align: right;
-                        border-bottom: 2px solid #e5eaf0;
+                        border-top: 2px solid #e2e8f0;
+                        border-bottom: 2px solid #e2e8f0;
                         color: #526173;
-                        font-size: 8.5px;
+                        font-size: 8px;
                     }
 
                     .report-number {
                         color: #1e3a8a;
-                        font-size: 11px;
+                        font-size: 10px;
                         font-weight: 900;
                     }
 
                     .report-separator {
-                        margin: 0 9px;
+                        margin: 0 8px;
                         color: #cbd5e1;
                     }
 
@@ -202,7 +204,6 @@
                         color: #526173;
                         font-weight: 600;
                     }
-
 
                     /* =====================================================
                        CONTENIDO
@@ -214,9 +215,8 @@
                         margin: 0;
                     }
 
-
                     /* =====================================================
-                       DOS COLUMNAS
+                       CONTENEDORES DOS COLUMNAS
                     ===================================================== */
 
                     .split-table {
@@ -224,6 +224,14 @@
                         border-collapse: collapse;
                         table-layout: fixed;
                         margin: 0 0 7px 0;
+                        border: none !important;
+                    }
+
+                    .split-table,
+                    .split-table tbody,
+                    .split-table tr,
+                    .split-table td {
+                        border: none !important;
                     }
 
                     .split-table > tbody > tr > td {
@@ -233,13 +241,12 @@
                     }
 
                     .split-table > tbody > tr > td:first-child {
-                        padding-right: 3.5px;
+                        padding-right: 3px;
                     }
 
                     .split-table > tbody > tr > td:last-child {
-                        padding-left: 3.5px;
+                        padding-left: 3px;
                     }
-
 
                     /* =====================================================
                        CARDS
@@ -249,14 +256,14 @@
                     .extra-card,
                     .split-panel {
                         background: #ffffff;
-                        border: 1px solid #dce3ec;
+                        border: 1px solid #d8e0e9;
                         border-radius: 5px;
-                        padding: 9px 11px;
+                        padding: 9px 10px;
                         page-break-inside: avoid;
                     }
 
                     .split-panel {
-                        min-height: 116px;
+                        min-height: 105px;
                     }
 
                     .full-row {
@@ -268,114 +275,131 @@
                         margin: 0 0 7px 0;
                     }
 
-
                     /* =====================================================
-                       SECCIONES
+                       TITULOS DE SECCIÓN
                     ===================================================== */
 
                     .section-head {
                         width: 100%;
                         padding: 0 0 5px 0;
-                        margin: 0 0 7px 0;
-                        border-bottom: 1.5px solid #dfe5ec;
+                        margin: 0 0 6px 0;
+                        border: none;
+                        border-bottom: 1.5px solid #d7e0ea;
                     }
 
                     .section-title {
-                        color: #1e3a8a;
-                        font-size: 10px;
+                        color: #173b8f;
+                        font-size: 9.5px;
                         font-weight: 900;
                         text-transform: uppercase;
-                        letter-spacing: 0.25px;
+                        letter-spacing: 0.15px;
                         line-height: 1.15;
                     }
 
-
                     /* =====================================================
                        CAMPOS
+                       SIN BORDES INTERNOS
                     ===================================================== */
 
                     .field-table {
                         width: 100%;
                         border-collapse: collapse;
                         table-layout: fixed;
+                        border: none !important;
+                    }
+
+                    .field-table,
+                    .field-table tbody,
+                    .field-table tr,
+                    .field-table td {
+                        border: none !important;
+                        outline: none !important;
                     }
 
                     .field-table td {
                         width: 50%;
                         vertical-align: top;
-                        padding: 3px 7px 4px 0;
+                        padding: 3px 8px 5px 0;
+                        background: transparent !important;
                     }
 
                     .field-table td:last-child {
                         padding-right: 0;
+                        padding-left: 5px;
                     }
 
                     .label {
-                        font-size: 6.8px;
-                        color: #738195;
+                        font-size: 6.4px;
+                        color: #718096;
                         text-transform: uppercase;
-                        letter-spacing: 0.2px;
+                        letter-spacing: 0.15px;
                         font-weight: 700;
                         margin: 0 0 2px 0;
                     }
 
                     .value {
-                        font-size: 8.7px;
-                        line-height: 1.25;
-                        color: #1e293b;
+                        font-size: 8.5px;
+                        line-height: 1.28;
+                        color: #1f2937;
                         font-weight: 700;
                         overflow-wrap: anywhere;
                         word-wrap: break-word;
                     }
 
                     .plain-text {
-                        font-size: 8.7px;
+                        font-size: 8.5px;
                         color: #334155;
                         line-height: 1.35;
                         margin: 0;
+                        padding: 3px 2px;
                         white-space: pre-wrap;
                         word-break: break-word;
                     }
 
-
                     /* =====================================================
-                       BADGES
+                       ESTADOS
+                       SOLO TEXTO - SIN FONDO
                     ===================================================== */
 
-                    .badge {
-                        display: inline-block;
-                        padding: 3px 7px;
-                        border-radius: 10px;
-                        font-size: 6.7px;
+                    .status-text {
+                        display: inline;
+                        padding: 0 !important;
+                        margin: 0 !important;
+                        border: none !important;
+                        border-radius: 0 !important;
+                        background: transparent !important;
+                        font-size: 8.3px;
                         font-weight: 800;
-                        color: #ffffff;
-                        text-transform: uppercase;
-                        letter-spacing: 0.1px;
+                        line-height: 1.2;
                     }
 
-                    .badge-success {
-                        background: #059669;
+                    .status-success {
+                        color: #07883f !important;
+                        background: transparent !important;
                     }
 
-                    .badge-warning {
-                        background: #d97706;
+                    .status-warning {
+                        color: #c27803 !important;
+                        background: transparent !important;
                     }
 
-                    .badge-danger {
-                        background: #dc2626;
+                    .status-danger {
+                        color: #c62828 !important;
+                        background: transparent !important;
                     }
 
-                    .badge-info {
-                        background: #2563eb;
+                    .status-info {
+                        color: #2563eb !important;
+                        background: transparent !important;
                     }
 
-                    .badge-primary {
-                        background: #1e3a8a;
+                    .status-primary {
+                        color: #173b8f !important;
+                        background: transparent !important;
                     }
-
 
                     /* =====================================================
-                       MINI CARDS
+                       FECHAS
                     ===================================================== */
 
                     .mini-table {
@@ -383,6 +407,14 @@
                         border-collapse: collapse;
                         table-layout: fixed;
                         margin: 0 0 7px 0;
+                        border: none !important;
+                    }
+
+                    .mini-table,
+                    .mini-table tbody,
+                    .mini-table tr,
+                    .mini-table td {
+                        border: none !important;
                     }
 
                     .mini-table td {
@@ -392,37 +424,36 @@
                     }
 
                     .mini-table td:first-child {
-                        padding-right: 3.5px;
+                        padding-right: 3px;
                     }
 
                     .mini-table td:last-child {
-                        padding-left: 3.5px;
+                        padding-left: 3px;
                     }
 
                     .mini-card {
                         width: 100%;
-                        min-height: 42px;
+                        min-height: 39px;
                         background: #f8fafc;
-                        border: 1px solid #dce3ec;
+                        border: 1px solid #d8e0e9;
                         border-radius: 5px;
-                        padding: 7px 9px;
+                        padding: 6px 9px;
                     }
 
                     .mini-title {
-                        font-size: 6.8px;
-                        color: #738195;
-                        margin-bottom: 3px;
+                        font-size: 6.4px;
+                        color: #718096;
+                        margin-bottom: 2px;
                         text-transform: uppercase;
                         font-weight: 700;
                     }
 
                     .mini-value {
-                        font-size: 9px;
+                        font-size: 8.7px;
                         color: #1e293b;
-                        font-weight: 900;
+                        font-weight: 800;
                         line-height: 1.2;
                     }
-
 
                     /* =====================================================
                        CONTADORES
@@ -433,6 +464,14 @@
                         border-collapse: collapse;
                         table-layout: fixed;
                         margin: 0 0 7px 0;
+                        border: none !important;
+                    }
+
+                    .counter-table,
+                    .counter-table tbody,
+                    .counter-table tr,
+                    .counter-table td {
+                        border: none !important;
                     }
 
                     .counter-table td {
@@ -452,27 +491,25 @@
                     .counter-card {
                         width: 100%;
                         background: #f8fafc;
-                        border: 1px solid #d7dee8;
+                        border: 1px solid #d8e0e9;
                         border-radius: 5px;
-                        padding: 8px;
+                        padding: 7px 8px;
                         text-align: center;
                     }
 
                     .counter-label {
-                        font-size: 6.7px;
-                        color: #738195;
+                        font-size: 6.4px;
+                        color: #718096;
                         margin-bottom: 3px;
                         text-transform: uppercase;
-                        font-weight: 800;
+                        font-weight: 700;
                     }
 
                     .counter-value {
-                        font-size: 11px;
-                        color: #1e3a8a;
+                        font-size: 10.5px;
+                        color: #173b8f;
                         font-weight: 900;
-                        font-family: Arial, Helvetica, sans-serif;
                     }
-
 
                     /* =====================================================
                        REPUESTOS
@@ -481,9 +518,10 @@
                     .parts-notice {
                         margin: 0 0 6px 0;
                         padding: 6px 8px;
-                        border-left: 3px solid #f59e0b;
-                        background: #fffbeb;
-                        color: #78350f;
+                        border: none;
+                        border-left: 3px solid #d97706;
+                        background: #fffaf0;
+                        color: #7c4a03;
                         font-size: 7px;
                         line-height: 1.3;
                     }
@@ -496,21 +534,27 @@
                     }
 
                     .parts-table th {
-                        background: #1e3a8a;
-                        color: #ffffff;
-                        font-size: 6.8px;
+                        background: #f1f5f9;
+                        color: #173b8f;
+                        font-size: 6.7px;
                         font-weight: 800;
                         text-transform: uppercase;
                         padding: 5px 6px;
-                        border: 1px solid #1e3a8a;
+                        border: none;
+                        border-bottom: 1.5px solid #cbd5e1;
                     }
 
                     .parts-table td {
                         color: #334155;
-                        font-size: 7.7px;
+                        font-size: 7.6px;
                         padding: 5px 6px;
-                        border: 1px solid #dce3ec;
+                        border: none;
+                        border-bottom: 1px solid #e6ebf1;
                         vertical-align: top;
+                    }
+
+                    .parts-table tbody tr:last-child td {
+                        border-bottom: none;
                     }
 
                     .parts-description {
@@ -527,14 +571,13 @@
                     .parts-acceptance {
                         margin-top: 6px;
                         padding: 6px 8px;
-                        background: #eff6ff;
-                        border: 1px solid #bfdbfe;
-                        color: #1e40af;
-                        font-size: 6.6px;
+                        background: #f8fbff;
+                        border: 1px solid #dbe7f5;
+                        color: #365782;
+                        font-size: 6.5px;
                         line-height: 1.3;
                         border-radius: 4px;
                     }
-
 
                     /* =====================================================
                        EVIDENCIAS
@@ -544,6 +587,14 @@
                         width: 100%;
                         border-collapse: collapse;
                         table-layout: fixed;
+                        border: none !important;
+                    }
+
+                    .evidence-table,
+                    .evidence-table tbody,
+                    .evidence-table tr,
+                    .evidence-table td {
+                        border: none !important;
                     }
 
                     .evidence-table td {
@@ -565,14 +616,14 @@
                         text-align: center;
                         padding: 6px;
                         background: #f8fafc;
-                        border: 1px solid #d7dee8;
+                        border: 1px solid #d8e0e9;
                         border-radius: 5px;
                     }
 
                     .evidence-label {
-                        font-size: 6.8px;
+                        font-size: 6.6px;
                         font-weight: 800;
-                        color: #1e293b;
+                        color: #334155;
                         margin-bottom: 4px;
                         text-transform: uppercase;
                     }
@@ -582,9 +633,8 @@
                         height: auto;
                         max-width: 100%;
                         max-height: 100px;
-                        border: 1px solid #cbd5e1;
+                        border: none;
                     }
-
 
                     /* =====================================================
                        EVALUACIÓN
@@ -593,11 +643,10 @@
                     .stars {
                         text-align: center;
                         font-size: 15px;
-                        color: #f59e0b;
+                        color: #d89400;
                         letter-spacing: 2px;
                         margin: 5px 0;
                     }
-
 
                     /* =====================================================
                        FIRMAS
@@ -607,6 +656,14 @@
                         width: 100%;
                         border-collapse: collapse;
                         table-layout: fixed;
+                        border: none !important;
+                    }
+
+                    .sign-table,
+                    .sign-table tbody,
+                    .sign-table tr,
+                    .sign-table td {
+                        border: none !important;
                     }
 
                     .sign-table td {
@@ -626,15 +683,15 @@
                     .signature-card {
                         width: 100%;
                         background: #ffffff;
-                        border: 1px solid #dce3ec;
+                        border: 1px solid #d8e0e9;
                         border-radius: 5px;
                         padding: 8px;
-                        min-height: 91px;
+                        min-height: 88px;
                         text-align: center;
                     }
 
                     .signature-area {
-                        height: 38px;
+                        height: 36px;
                         text-align: center;
                         margin-bottom: 3px;
                     }
@@ -642,18 +699,19 @@
                     .signature-area img {
                         width: auto !important;
                         height: auto !important;
-                        max-height: 36px !important;
+                        max-height: 34px !important;
                         max-width: 150px !important;
+                        border: none !important;
                     }
 
                     .signature-line {
-                        width: 78%;
+                        width: 75%;
                         margin: 3px auto 5px auto;
-                        border-top: 1px solid #475569;
+                        border-top: 1px solid #64748b;
                     }
 
                     .signature-role {
-                        font-size: 6.8px;
+                        font-size: 6.6px;
                         color: #64748b;
                         text-transform: uppercase;
                         font-weight: 800;
@@ -661,18 +719,17 @@
                     }
 
                     .signature-name {
-                        font-size: 8.7px;
+                        font-size: 8.5px;
                         color: #1e293b;
                         font-weight: 800;
                     }
 
                     .signature-note {
-                        font-size: 6.3px;
+                        font-size: 6.2px;
                         color: #7c8999;
                         margin-top: 2px;
                         line-height: 1.2;
                     }
-
 
                     /* =====================================================
                        FOOTER
@@ -684,7 +741,7 @@
                         border-top: 1.5px solid #dfe5ec;
                         text-align: center;
                         color: #738195;
-                        font-size: 6.5px;
+                        font-size: 6.4px;
                     }
 
                     .footer-info p {
@@ -692,33 +749,24 @@
                     }
 
                     .footer-info strong {
-                        color: #1e293b;
-                        font-size: 7px;
+                        color: #334155;
+                        font-size: 6.9px;
                     }
 
                 </style>
 
-
-                <!-- ===================================================== -->
-                <!-- PÁGINA -->
-                <!-- ===================================================== -->
-
                 <div class="page">
 
                     <div class="report-shell">
-
 
                         <!-- =================================================
                              HEADER
                         ================================================== -->
 
                         <table class="hero-table">
-
                             <tbody>
-
                                 <tr>
 
-                                    <!-- LOGO -->
                                     <td class="hero-logo-cell">
 
                                         <div class="company-logo-container">
@@ -753,8 +801,6 @@
 
                                     </td>
 
-
-                                    <!-- TÍTULO -->
                                     <td class="hero-title-cell">
 
                                         <div class="hero-kicker">
@@ -773,23 +819,18 @@
                                     </td>
 
                                 </tr>
-
                             </tbody>
-
                         </table>
 
-
                         <!-- =================================================
-                             META
+                             NÚMERO / FECHA
                         ================================================== -->
 
                         <div class="report-meta">
 
                             <span class="report-number">
-
                                 N°
                                 <t t-esc="docs[0].name"/>
-
                             </span>
 
                             <span class="report-separator">
@@ -818,9 +859,7 @@
 
                         </div>
 
-
                         <div class="content-area">
-
 
                             <!-- =================================================
                                  INFORMACIÓN GENERAL + CLIENTE
@@ -832,20 +871,16 @@
 
                                     <tr>
 
-
                                         <!-- INFORMACIÓN GENERAL -->
                                         <td>
 
                                             <div class="split-panel">
 
                                                 <div class="section-head">
-
                                                     <div class="section-title">
                                                         Información General
                                                     </div>
-
                                                 </div>
-
 
                                                 <table class="field-table">
 
@@ -859,48 +894,40 @@
                                                                     Estado
                                                                 </div>
 
-                                                                <div>
+                                                                <t
+                                                                    t-set="estado_dict"
+                                                                    t-value="{
+                                                                        'nuevo': ('status-info', 'Nuevo'),
+                                                                        'asignado': ('status-primary', 'Asignado'),
+                                                                        'confirmado': ('status-success', 'Confirmado'),
+                                                                        'en_ruta': ('status-warning', 'En Ruta'),
+                                                                        'en_sitio': ('status-warning', 'En Sitio'),
+                                                                        'pausado': ('status-warning', 'Pausado'),
+                                                                        'completado': ('status-success', 'Completado'),
+                                                                        'cancelado': ('status-danger', 'Cancelado')
+                                                                    }"
+                                                                />
 
+                                                                <span
+                                                                    class="status-text"
+                                                                    t-att-class="
+                                                                        estado_dict.get(
+                                                                            docs[0].estado,
+                                                                            ('status-info', 'N/A')
+                                                                        )[0]
+                                                                    "
+                                                                >
                                                                     <t
-                                                                        t-set="estado_dict"
-                                                                        t-value="{
-                                                                            'nuevo': ('badge-info', 'Nuevo'),
-                                                                            'asignado': ('badge-primary', 'Asignado'),
-                                                                            'confirmado': ('badge-success', 'Confirmado'),
-                                                                            'en_ruta': ('badge-warning', 'En Ruta'),
-                                                                            'en_sitio': ('badge-warning', 'En Sitio'),
-                                                                            'pausado': ('badge-warning', 'Pausado'),
-                                                                            'completado': ('badge-success', 'Completado'),
-                                                                            'cancelado': ('badge-danger', 'Cancelado')
-                                                                        }"
-                                                                    />
-
-
-                                                                    <span
-                                                                        class="badge"
-                                                                        t-att-class="
+                                                                        t-esc="
                                                                             estado_dict.get(
                                                                                 docs[0].estado,
-                                                                                ('badge-info', 'N/A')
-                                                                            )[0]
+                                                                                ('status-info', 'N/A')
+                                                                            )[1]
                                                                         "
-                                                                    >
-
-                                                                        <t
-                                                                            t-esc="
-                                                                                estado_dict.get(
-                                                                                    docs[0].estado,
-                                                                                    ('badge-info', 'N/A')
-                                                                                )[1]
-                                                                            "
-                                                                        />
-
-                                                                    </span>
-
-                                                                </div>
+                                                                    />
+                                                                </span>
 
                                                             </td>
-
 
                                                             <td>
 
@@ -908,33 +935,28 @@
                                                                     SLA cumplido
                                                                 </div>
 
-                                                                <div>
+                                                                <span
+                                                                    class="status-text"
+                                                                    t-att-class="
+                                                                        docs[0].sla_cumplido
+                                                                        and 'status-success'
+                                                                        or 'status-danger'
+                                                                    "
+                                                                >
 
-                                                                    <span
-                                                                        class="badge"
-                                                                        t-att-class="
-                                                                            docs[0].sla_cumplido
-                                                                            and 'badge-success'
-                                                                            or 'badge-danger'
-                                                                        "
-                                                                    >
+                                                                    <t t-if="docs[0].sla_cumplido">
+                                                                        Cumplido
+                                                                    </t>
 
-                                                                        <t t-if="docs[0].sla_cumplido">
-                                                                            Cumplido
-                                                                        </t>
+                                                                    <t t-else="">
+                                                                        No Cumplido
+                                                                    </t>
 
-                                                                        <t t-else="">
-                                                                            No Cumplido
-                                                                        </t>
-
-                                                                    </span>
-
-                                                                </div>
+                                                                </span>
 
                                                             </td>
 
                                                         </tr>
-
 
                                                         <tr>
 
@@ -954,13 +976,11 @@
                                                                             )
                                                                         "
                                                                     />
-
                                                                     horas
 
                                                                 </div>
 
                                                             </td>
-
 
                                                             <td>
 
@@ -1004,20 +1024,16 @@
 
                                         </td>
 
-
                                         <!-- CLIENTE -->
                                         <td>
 
                                             <div class="split-panel">
 
                                                 <div class="section-head">
-
                                                     <div class="section-title">
                                                         Datos del Cliente
                                                     </div>
-
                                                 </div>
-
 
                                                 <table class="field-table">
 
@@ -1037,7 +1053,6 @@
 
                                                             </td>
 
-
                                                             <td>
 
                                                                 <div class="label">
@@ -1052,7 +1067,6 @@
 
                                                         </tr>
 
-
                                                         <tr>
 
                                                             <td>
@@ -1066,7 +1080,6 @@
                                                                 </div>
 
                                                             </td>
-
 
                                                             <td>
 
@@ -1096,7 +1109,6 @@
 
                             </table>
 
-
                             <!-- =================================================
                                  EQUIPO
                             ================================================== -->
@@ -1104,13 +1116,10 @@
                             <div class="full-row card">
 
                                 <div class="section-head">
-
                                     <div class="section-title">
                                         Equipo / Dispositivo
                                     </div>
-
                                 </div>
-
 
                                 <table class="field-table">
 
@@ -1130,7 +1139,6 @@
 
                                             </td>
 
-
                                             <td>
 
                                                 <div class="label">
@@ -1145,7 +1153,6 @@
 
                                         </tr>
 
-
                                         <tr>
 
                                             <td>
@@ -1159,7 +1166,6 @@
                                                 </div>
 
                                             </td>
-
 
                                             <td>
 
@@ -1181,7 +1187,6 @@
 
                             </div>
 
-
                             <!-- =================================================
                                  DESCRIPCIÓN
                             ================================================== -->
@@ -1189,11 +1194,9 @@
                             <div class="full-row card">
 
                                 <div class="section-head">
-
                                     <div class="section-title">
                                         Descripción del Problema
                                     </div>
-
                                 </div>
 
                                 <div class="plain-text">
@@ -1202,7 +1205,6 @@
 
                             </div>
 
-
                             <!-- =================================================
                                  RESULTADOS
                             ================================================== -->
@@ -1210,31 +1212,24 @@
                             <div class="full-row card">
 
                                 <div class="section-head">
-
                                     <div class="section-title">
                                         Resultados / Observaciones
                                     </div>
-
                                 </div>
 
                                 <div class="plain-text">
 
                                     <t t-if="docs[0].trabajo_realizado">
-
                                         <t t-esc="docs[0].trabajo_realizado"/>
-
                                     </t>
 
                                     <t t-else="">
-
                                         No se registraron observaciones adicionales.
-
                                     </t>
 
                                 </div>
 
                             </div>
-
 
                             <!-- =================================================
                                  FECHAS
@@ -1275,7 +1270,6 @@
 
                                         </td>
 
-
                                         <td>
 
                                             <div class="mini-card">
@@ -1310,7 +1304,6 @@
                                 </tbody>
 
                             </table>
-
 
                             <!-- =================================================
                                  CONTADORES
@@ -1354,7 +1347,6 @@
 
                                             </td>
 
-
                                             <td>
 
                                                 <div class="counter-card">
@@ -1378,7 +1370,6 @@
                                                 </div>
 
                                             </td>
-
 
                                             <td>
 
@@ -1412,7 +1403,6 @@
 
                             </t>
 
-
                             <!-- =================================================
                                  INSUMOS
                             ================================================== -->
@@ -1422,11 +1412,9 @@
                                 <div class="extra-card">
 
                                     <div class="section-head">
-
                                         <div class="section-title">
                                             Insumos / Repuestos Utilizados
                                         </div>
-
                                     </div>
 
                                     <div class="plain-text">
@@ -1437,9 +1425,8 @@
 
                             </t>
 
-
                             <!-- =================================================
-                                 REPUESTOS SOLICITADOS
+                                 REPUESTOS
                             ================================================== -->
 
                             <t
@@ -1452,26 +1439,20 @@
                                 <div class="extra-card">
 
                                     <div class="section-head">
-
                                         <div class="section-title">
                                             Repuestos Solicitados
                                         </div>
-
                                     </div>
-
 
                                     <div class="parts-notice">
 
-                                        <strong>
-                                            Aviso importante:
-                                        </strong>
+                                        <strong>Aviso importante:</strong>
 
                                         Los siguientes repuestos fueron identificados
-                                        durante la atención técnica y quedan sujetos a
-                                        revisión de disponibilidad y aprobación comercial.
+                                        durante la atención técnica y quedan sujetos
+                                        a revisión de disponibilidad y aprobación comercial.
 
                                     </div>
-
 
                                     <table class="parts-table">
 
@@ -1491,7 +1472,6 @@
 
                                         </thead>
 
-
                                         <tbody>
 
                                             <t
@@ -1502,11 +1482,8 @@
                                                 <tr t-if="not line.display_type">
 
                                                     <td class="parts-description">
-
                                                         <t t-esc="line.name"/>
-
                                                     </td>
-
 
                                                     <td class="parts-quantity">
 
@@ -1530,7 +1507,6 @@
 
                                     </table>
 
-
                                     <div class="parts-acceptance">
 
                                         <strong>
@@ -1549,7 +1525,6 @@
 
                             </t>
 
-
                             <!-- =================================================
                                  EVIDENCIAS
                             ================================================== -->
@@ -1564,13 +1539,10 @@
                                 <div class="extra-card">
 
                                     <div class="section-head">
-
                                         <div class="section-title">
                                             Evidencias Fotográficas
                                         </div>
-
                                     </div>
-
 
                                     <table class="evidence-table">
 
@@ -1597,7 +1569,6 @@
                                                     </div>
 
                                                 </td>
-
 
                                                 <td t-if="docs[0].foto_despues">
 
@@ -1629,7 +1600,6 @@
 
                             </t>
 
-
                             <!-- =================================================
                                  EVALUACIÓN
                             ================================================== -->
@@ -1639,13 +1609,10 @@
                                 <div class="extra-card">
 
                                     <div class="section-head">
-
                                         <div class="section-title">
                                             Evaluación del Cliente
                                         </div>
-
                                     </div>
-
 
                                     <div class="stars">
 
@@ -1656,7 +1623,6 @@
                                         />
 
                                     </div>
-
 
                                     <t t-if="docs[0].comentario_cliente">
 
@@ -1682,7 +1648,6 @@
 
                             </t>
 
-
                             <!-- =================================================
                                  FIRMAS
                             ================================================== -->
@@ -1690,13 +1655,10 @@
                             <div class="extra-card">
 
                                 <div class="section-head">
-
                                     <div class="section-title">
                                         Firmas y Conformidad
                                     </div>
-
                                 </div>
-
 
                                 <table class="sign-table">
 
@@ -1704,8 +1666,6 @@
 
                                         <tr>
 
-
-                                            <!-- TÉCNICO -->
                                             <td>
 
                                                 <div class="signature-card">
@@ -1739,8 +1699,6 @@
 
                                             </td>
 
-
-                                            <!-- CLIENTE -->
                                             <td>
 
                                                 <div class="signature-card">
@@ -1779,7 +1737,6 @@
 
                                                     </div>
 
-
                                                     <div class="signature-note">
 
                                                         <t
@@ -1788,16 +1745,12 @@
                                                                 and docs[0].sale_order_id
                                                             "
                                                         >
-
                                                             Firma y conformidad de información
                                                             de repuestos
-
                                                         </t>
 
                                                         <t t-else="">
-
                                                             Firma y conformidad del servicio
-
                                                         </t>
 
                                                     </div>
@@ -1814,7 +1767,6 @@
 
                             </div>
 
-
                             <!-- =================================================
                                  FOOTER
                             ================================================== -->
@@ -1829,14 +1781,12 @@
 
                                     <br/>
 
-
                                     <t t-if="docs[0].company_id.phone">
 
                                         Teléfono:
                                         <t t-esc="docs[0].company_id.phone"/>
 
                                     </t>
-
 
                                     <t
                                         t-if="
@@ -1847,7 +1797,6 @@
                                         &#160; | &#160;
                                     </t>
 
-
                                     <t t-if="docs[0].company_id.email">
 
                                         Email:
@@ -1857,7 +1806,6 @@
 
                                 </p>
 
-
                                 <p
                                     style="
                                         margin-top:3px;
@@ -1865,11 +1813,8 @@
                                         color:#94a3b8;
                                     "
                                 >
-
-                                    Este documento es válido como constancia
-                                    del servicio técnico realizado conforme
-                                    a los términos acordados.
-
+                                    Este documento es válido como constancia del servicio
+                                    técnico realizado conforme a los términos acordados.
                                 </p>
 
                             </div>
