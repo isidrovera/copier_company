@@ -245,6 +245,22 @@ class CopierPortal(CustomerPortal):
 
         current_domain = searchbar_filters[filterby]['domain']
 
+        # --- BÚSQUEDA RÁPIDA ---
+        # Mantiene la lógica existente y agrega búsqueda opcional por los
+        # principales datos visibles del equipo.
+        search = (kwargs.get('q') or '').strip()
+        if search:
+            search_domain = [
+                '|', '|', '|', '|', '|',
+                ('serie_id', 'ilike', search),
+                ('name.name', 'ilike', search),
+                ('marca_id.name', 'ilike', search),
+                ('ubicacion', 'ilike', search),
+                ('sede', 'ilike', search),
+                ('cliente_id.name', 'ilike', search),
+            ]
+            current_domain = Domain.AND([current_domain, search_domain])
+
         sortby = kwargs.get('sortby') or 'name'
         if sortby not in searchbar_sortings:
             sortby = 'name'
@@ -262,6 +278,7 @@ class CopierPortal(CustomerPortal):
             url_args={
                 'filterby': filterby,
                 'sortby': sortby,
+                'q': search,
             },
             total=total,
             page=page,
@@ -318,6 +335,7 @@ class CopierPortal(CustomerPortal):
             'sortby': sortby,
             'filters': searchbar_filters,
             'filterby': filterby,
+            'q': search,
             'service_counts': service_counts,
         }
 
@@ -768,169 +786,15 @@ class CopierPortal(CustomerPortal):
         return chart_data
 
     # -------------------------------------------------------------------------
-    # FASE 07 - HISTORIAL DE CONTADORES, GRÁFICOS Y EXPORTACIONES
-    # Qué hace:
-    # - Muestra lecturas filtradas por equipo.
-    # - Prepara métricas, gráficos, permisos de descarga, PDF y Excel.
-    # HISTORIAL DE CONTADORES
+    # FASE 07 - HISTORIAL DE CONTADORES
     # -------------------------------------------------------------------------
+    # La ruta:
+    #   /my/copier/equipment/<int:equipment_id>/counters
+    # se gestiona exclusivamente desde controllers/portal_counters.py.
+    #
+    # Se mantienen en este controlador los helpers existentes para no alterar
+    # ninguna otra lógica que pueda reutilizarlos.
 
-    @http.route(['/my/copier/equipment/<int:equipment_id>/counters'], type='http', auth="user", website=True)
-    def portal_equipment_counters(self, equipment_id, **kw):
-        """
-        Historial de contadores con acceso corregido para empresas visibles.
-        """
-        _logger.info("=== INICIANDO portal_equipment_counters EXTENDIDO ===")
-        _logger.info("Parámetros recibidos - equipment_id: %s, kw: %s", equipment_id, kw)
-
-        try:
-            try:
-                equipment_sudo = self._get_equipment_for_portal(equipment_id)
-                if not equipment_sudo:
-                    return request.redirect('/my')
-
-                _logger.info(
-                    "[PORTAL EQUIPMENTS ACCESS] Acceso verificado para equipo ID: %s",
-                    equipment_id,
-                )
-
-            except AccessError as e:
-                _logger.error(
-                    "[PORTAL EQUIPMENTS ACCESS] Error de acceso para equipo ID %s: %s",
-                    equipment_id,
-                    str(e),
-                )
-                return request.redirect('/my')
-
-            values = self._prepare_portal_layout_values()
-
-            if 'copier.counter' not in request.env:
-                _logger.error("Modelo copier.counter no encontrado")
-                counters = request.env['ir.ui.view'].sudo().browse([])
-                chart_data = {
-                    'monthly': [],
-                    'yearly': [],
-                    'by_user': [],
-                    'by_user_monthly': {
-                        'labels': [],
-                        'datasets': [],
-                    },
-                    'all_user_data': [],
-                    'by_equipment': [],
-                }
-            else:
-                try:
-                    _logger.info("Buscando contadores para el equipo ID: %s", equipment_id)
-
-                    counter_domain = self._build_counter_domain_for_portal(equipment_sudo, kw)
-
-                    counters = request.env['copier.counter'].sudo().search(
-                        counter_domain,
-                        order='fecha desc, id desc',
-                    )
-
-                    _logger.info(
-                        "[PORTAL EQUIPMENTS ACCESS] Contadores encontrados=%s ids=%s domain=%s",
-                        len(counters),
-                        counters.ids,
-                        counter_domain,
-                    )
-
-                    counters_with_users = counters.filtered(lambda c: c.usuario_detalle_ids)
-
-                    _logger.info(
-                        "[PORTAL EQUIPMENTS ACCESS] Contadores con usuarios=%s",
-                        len(counters_with_users),
-                    )
-
-                    for counter in counters_with_users:
-                        _logger.info(
-                            "[PORTAL EQUIPMENTS ACCESS] Contador con usuarios: ID=%s Nombre=%s Mes=%s Usuarios=%s Estado=%s",
-                            counter.id,
-                            counter.name,
-                            counter.mes_facturacion,
-                            len(counter.usuario_detalle_ids),
-                            counter.state,
-                        )
-
-                        for user_detail in counter.usuario_detalle_ids:
-                            _logger.info(
-                                "[PORTAL EQUIPMENTS ACCESS]   Usuario=%s B/N=%s Color=%s",
-                                user_detail.usuario_id.name,
-                                user_detail.cantidad_bn,
-                                user_detail.cantidad_color,
-                            )
-
-                    chart_data = self._build_chart_data_for_counters(equipment_sudo, counters)
-
-                    _logger.info(
-                        "[PORTAL EQUIPMENTS ACCESS] Datos gráficos: monthly=%s yearly=%s by_user=%s",
-                        len(chart_data.get('monthly', [])),
-                        len(chart_data.get('yearly', [])),
-                        len(chart_data.get('by_user', [])),
-                    )
-
-                except Exception as e:
-                    _logger.exception(
-                        "[PORTAL EQUIPMENTS ACCESS] Error al buscar contadores o preparar gráficos: %s",
-                        str(e),
-                    )
-                    counters = request.env['copier.counter'].sudo().browse([])
-                    chart_data = {
-                        'monthly': [],
-                        'yearly': [],
-                        'by_user': [],
-                        'by_user_monthly': {
-                            'labels': [],
-                            'datasets': [],
-                        },
-                        'all_user_data': [],
-                        'by_equipment': [],
-                    }
-
-            filter_values = self._get_counter_filter_values(kw)
-
-            pdf_url = self._get_url_with_filters(
-                f'/my/copier/equipment/{equipment_sudo.id}/counters/pdf',
-                kw,
-            )
-
-            xlsx_url = self._get_url_with_filters(
-                f'/my/copier/equipment/{equipment_sudo.id}/counters/xlsx',
-                kw,
-            )
-
-            values.update({
-                'equipment': equipment_sudo,
-                'counters': counters,
-                'page_name': 'equipment_counters',
-                'today': fields.Date.today(),
-                'chart_data': json.dumps(chart_data),
-                'filter_values': filter_values,
-                'user_options': self._get_user_options(equipment_sudo),
-                'can_download': self._check_download_permission(),
-                'pdf_url': pdf_url,
-                'xlsx_url': xlsx_url,
-                'summary': self._get_summary_values(counters),
-            })
-
-            template = 'copier_company.portal_my_copier_counters'
-
-            if not request.env['ir.ui.view'].sudo().search([('key', '=', template)]):
-                _logger.error("¡ERROR! Template %s no encontrado", template)
-                return request.redirect(f'/my/copier/equipment/{equipment_id}')
-
-            _logger.info("Renderizando template: %s", template)
-            _logger.info("=== FINALIZANDO portal_equipment_counters EXTENDIDO ===")
-
-            return request.render(template, values)
-
-        except Exception as e:
-            _logger.exception(
-                "¡EXCEPCIÓN GENERAL en portal_equipment_counters EXTENDIDO!: %s",
-                str(e),
-            )
-            return request.redirect('/my')
     # =========================================================================
     # FASE 08 - RUTAS PÚBLICAS DEL PORTAL DE EQUIPOS
     # Qué hace:

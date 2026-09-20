@@ -298,7 +298,77 @@
                     font-size: 0.8rem;
                 }
             }
-        </style>
+        
+
+            /* Modernización 2026: controles compactos y tarjetas más limpias */
+            .equipments-toolbar {
+                margin-top: -18px;
+                margin-bottom: 24px;
+                position: relative;
+                z-index: 5;
+            }
+            .equipments-toolbar-card {
+                background: rgba(255,255,255,.97);
+                border: 1px solid #e5e7eb;
+                border-radius: 18px;
+                padding: 16px;
+                box-shadow: 0 12px 35px rgba(15,23,42,.10);
+                backdrop-filter: blur(10px);
+            }
+            .equipments-search {
+                position: relative;
+            }
+            .equipments-search i {
+                position: absolute;
+                left: 14px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #64748b;
+                pointer-events: none;
+            }
+            .equipments-search input {
+                padding-left: 40px;
+                min-height: 44px;
+                border-radius: 12px;
+                border-color: #dbe3ee;
+            }
+            .equipments-toolbar .form-select,
+            .equipments-toolbar .btn {
+                min-height: 44px;
+                border-radius: 12px;
+            }
+            .equipment-card {
+                border-radius: 16px;
+                box-shadow: 0 8px 24px rgba(15,23,42,.07);
+                border: 1px solid #e8edf4;
+            }
+            .equipment-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 16px 34px rgba(15,23,42,.12);
+            }
+            .equipment-header {
+                background: #fff;
+            }
+            .equipment-actions {
+                background: #f8fafc;
+            }
+            .active-filter-pill {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 6px 10px;
+                border-radius: 999px;
+                background: #eef2ff;
+                color: #4338ca;
+                font-size: .78rem;
+                font-weight: 600;
+            }
+            @media (max-width: 767.98px) {
+                .equipments-hero { padding: 28px 15px; border-radius: 0 0 22px 22px; }
+                .equipments-toolbar { margin-top: -12px; }
+                .equipment-card:hover { transform: none; }
+            }
+</style>
         
         <!-- Hero Section -->
         <div class="equipments-hero animate__animated animate__fadeInDown">
@@ -320,6 +390,70 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="container equipments-toolbar">
+            <div class="equipments-toolbar-card">
+                <form method="get" action="/my/copier/equipments" id="equipmentFilterForm">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-lg-5">
+                            <div class="equipments-search">
+                                <i class="bi bi-search"></i>
+                                <input type="search"
+                                       class="form-control"
+                                       name="q"
+                                       t-att-value="q or ''"
+                                       placeholder="Buscar por modelo, serie, marca, sede, ubicación o cliente..."
+                                       autocomplete="off"/>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-2">
+                            <select class="form-select" name="filterby" onchange="this.form.submit()">
+                                <t t-foreach="filters.items()" t-as="f">
+                                    <option t-att-value="f[0]"
+                                            t-att-selected="f[0] == filterby">
+                                        <t t-esc="f[1]['label']"/>
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+                        <div class="col-sm-6 col-lg-2">
+                            <select class="form-select" name="sortby" onchange="this.form.submit()">
+                                <t t-foreach="searchbar_sortings.items()" t-as="sorting">
+                                    <option t-att-value="sorting[0]"
+                                            t-att-selected="sorting[0] == sortby">
+                                        <t t-esc="sorting[1]['label']"/>
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+                        <div class="col-6 col-lg-1 d-grid">
+                            <button type="submit" class="btn btn-primary" title="Aplicar filtros">
+                                <i class="bi bi-funnel"></i>
+                            </button>
+                        </div>
+                        <div class="col-6 col-lg-2 d-grid">
+                            <a href="/my/copier/equipments" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-counterclockwise me-1"></i>Limpiar
+                            </a>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 mt-2" t-if="q or filterby != 'all' or sortby != 'name'">
+                        <span class="active-filter-pill" t-if="q">
+                            <i class="bi bi-search"></i>
+                            <t t-esc="q"/>
+                        </span>
+                        <span class="active-filter-pill" t-if="filterby != 'all'">
+                            <i class="bi bi-funnel"></i>
+                            <t t-esc="filters[filterby]['label']"/>
+                        </span>
+                        <span class="active-filter-pill" t-if="sortby != 'name'">
+                            <i class="bi bi-sort-down"></i>
+                            Orden: <t t-esc="searchbar_sortings[sortby]['label']"/>
+                        </span>
+                    </div>
+                </form>
             </div>
         </div>
         
@@ -696,7 +830,54 @@
                     margin-top: -20px;
                 }
             }
-        </style>
+        
+
+            /* Modernización 2026: detalle más limpio y amigable */
+            .hero-equipment {
+                background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 58%, #4f46e5 100%);
+                border-radius: 0 0 24px 24px;
+                padding: 34px 15px 54px;
+            }
+            .equipment-card {
+                border: 1px solid #e5e7eb;
+                border-radius: 18px;
+                box-shadow: 0 16px 40px rgba(15,23,42,.10);
+            }
+            .action-card {
+                border: 1px solid #e5e7eb;
+                border-radius: 14px;
+                background: #fff;
+                box-shadow: 0 6px 18px rgba(15,23,42,.05);
+            }
+            .action-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 12px 28px rgba(15,23,42,.10);
+            }
+            .info-card {
+                border-radius: 16px !important;
+                border: 1px solid #e5e7eb !important;
+                box-shadow: 0 7px 22px rgba(15,23,42,.05) !important;
+                overflow: hidden;
+            }
+            .info-card-header {
+                background: #f8fafc !important;
+                border-bottom: 1px solid #e5e7eb !important;
+            }
+            .service-mini-card {
+                border: 1px solid #e5e7eb !important;
+                border-radius: 14px !important;
+                box-shadow: none !important;
+            }
+            .service-mini-card:hover {
+                transform: translateY(-2px);
+                border-color: #bfdbfe !important;
+                box-shadow: 0 8px 22px rgba(37,99,235,.08) !important;
+            }
+            @media (max-width: 767.98px) {
+                .hero-equipment { padding: 28px 12px 48px; }
+                .action-card:hover, .equipment-card:hover { transform: none; }
+            }
+</style>
         
         <!-- Hero Section -->
         <div class="hero-equipment animate__animated animate__fadeInDown">
@@ -1374,7 +1555,46 @@
                         font-size: 1.25rem;
                     }
                 }
-            </style>
+            
+
+                /* Modernización 2026 */
+                .counter-page .form-control,
+                .counter-page .form-select {
+                    min-height: 44px;
+                    border-radius: 12px;
+                    border-color: #dbe3ee;
+                }
+                .counter-page .form-control:focus,
+                .counter-page .form-select:focus {
+                    border-color: #93c5fd;
+                    box-shadow: 0 0 0 .2rem rgba(37,99,235,.10);
+                }
+                .counter-active-filters {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                    margin-top: 14px;
+                }
+                .counter-filter-chip {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    padding: 7px 11px;
+                    border-radius: 999px;
+                    background: #eef2ff;
+                    color: #3730a3;
+                    font-size: .78rem;
+                    font-weight: 600;
+                    border: 1px solid #dfe3ff;
+                }
+                .counter-card { border-radius: 16px; }
+                .metric-card { border-radius: 15px; }
+                .counter-hero { border-radius: 20px; }
+                @media (max-width: 767.98px) {
+                    .counter-hero { padding: 22px 18px; }
+                    .counter-card-body { padding: 16px; }
+                }
+</style>
 
             <div class="counter-page container-fluid px-0">
 
@@ -1509,7 +1729,7 @@
 
                                 <div class="col-md-2">
                                     <label class="filter-label">Mes</label>
-                                    <select name="mes" class="form-select">
+                                    <select name="mes" class="form-select" onchange="this.form.submit()">
                                         <option value="">Todos</option>
                                         <option value="1" t-att-selected="filter_values.get('mes') == '1'">Enero</option>
                                         <option value="2" t-att-selected="filter_values.get('mes') == '2'">Febrero</option>
@@ -1528,7 +1748,7 @@
 
                                 <div class="col-md-2">
                                     <label class="filter-label">Estado</label>
-                                    <select name="state" class="form-select">
+                                    <select name="state" class="form-select" onchange="this.form.submit()">
                                         <option value="">Todos</option>
                                         <option value="draft" t-att-selected="filter_values.get('state') == 'draft'">Borrador</option>
                                         <option value="confirmed" t-att-selected="filter_values.get('state') == 'confirmed'">Confirmado</option>
@@ -1539,7 +1759,7 @@
 
                                 <div class="col-md-3">
                                     <label class="filter-label">Usuario interno</label>
-                                    <select name="usuario_id" class="form-select">
+                                    <select name="usuario_id" class="form-select" onchange="this.form.submit()">
                                         <option value="">Todos los usuarios</option>
                                         <t t-foreach="user_options" t-as="u">
                                             <option t-att-value="u.id"
@@ -1568,6 +1788,31 @@
 
                             </div>
                         </form>
+
+                        <div class="counter-active-filters"
+                             t-if="filter_values.get('fecha_desde') or filter_values.get('fecha_hasta') or filter_values.get('fecha_facturacion_desde') or filter_values.get('fecha_facturacion_hasta') or filter_values.get('anio') or filter_values.get('mes') or filter_values.get('state') or filter_values.get('usuario_id') or filter_values.get('q')">
+                            <span class="counter-filter-chip" t-if="filter_values.get('anio')">
+                                <i class="bi bi-calendar3"></i>Año: <t t-esc="filter_values.get('anio')"/>
+                            </span>
+                            <span class="counter-filter-chip" t-if="filter_values.get('mes')">
+                                <i class="bi bi-calendar-month"></i>Mes: <t t-esc="filter_values.get('mes')"/>
+                            </span>
+                            <span class="counter-filter-chip" t-if="filter_values.get('state')">
+                                <i class="bi bi-flag"></i>Estado: <t t-esc="filter_values.get('state')"/>
+                            </span>
+                            <span class="counter-filter-chip" t-if="filter_values.get('usuario_id')">
+                                <i class="bi bi-person"></i>Usuario seleccionado
+                            </span>
+                            <span class="counter-filter-chip" t-if="filter_values.get('q')">
+                                <i class="bi bi-search"></i><t t-esc="filter_values.get('q')"/>
+                            </span>
+                            <span class="counter-filter-chip" t-if="filter_values.get('fecha_desde') or filter_values.get('fecha_hasta')">
+                                <i class="bi bi-calendar-range"></i>Rango de lectura
+                            </span>
+                            <span class="counter-filter-chip" t-if="filter_values.get('fecha_facturacion_desde') or filter_values.get('fecha_facturacion_hasta')">
+                                <i class="bi bi-receipt"></i>Rango de facturación
+                            </span>
+                        </div>
 
                         <div class="filter-note">
                             <i class="bi bi-info-circle me-1"></i>
