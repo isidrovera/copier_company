@@ -7,60 +7,65 @@
     <!-- ========================================================= -->
 
     <record id="view_libro_reclamaciones_search" model="ir.ui.view">
-        <field name="name">libro.reclamaciones.search</field>
-        <field name="model">libro.reclamaciones</field>
-        <field name="arch" type="xml">
+    <field name="name">libro.reclamaciones.search</field>
+    <field name="model">libro.reclamaciones</field>
+    <field name="arch" type="xml">
+        <search>
 
-            <search string="Buscar en Libro de Reclamaciones">
+            <!-- BÚSQUEDA DIRECTA -->
+            <field name="name"/>
+            <field name="nombre_consumidor"/>
+            <field name="numero_documento"/>
+            <field name="email"/>
+            <field name="telefono"/>
+            <field name="responsable_id"/>
+            <field name="company_id"/>
+            <field name="fecha_reclamo_date"/>
+            <field name="fecha_limite_respuesta"/>
 
-                <field name="name"/>
-                <field name="nombre_consumidor"/>
-                <field name="numero_documento"/>
-                <field name="email"/>
-                <field name="telefono"/>
-                <field name="responsable_id"/>
-                <field name="company_id"/>
+            <separator/>
 
-                <separator/>
+            <!-- ESTADOS -->
+            <filter name="pendientes" string="Pendientes" domain="[('state', 'in', ['submitted', 'review'])]"/>
+            <filter name="submitted" string="Registrados" domain="[('state', '=', 'submitted')]"/>
+            <filter name="review" string="En revisión" domain="[('state', '=', 'review')]"/>
+            <filter name="answered" string="Respondidos" domain="[('state', '=', 'answered')]"/>
+            <filter name="closed" string="Cerrados" domain="[('state', '=', 'closed')]"/>
+            <filter name="cancelled" string="Anulados" domain="[('state', '=', 'cancelled')]"/>
 
-                <filter name="pendientes" string="Pendientes" domain="[('state', 'in', ['submitted', 'review'])]"/>
-                <filter name="submitted" string="Registrados" domain="[('state', '=', 'submitted')]"/>
-                <filter name="review" string="En revisión" domain="[('state', '=', 'review')]"/>
-                <filter name="answered" string="Respondidos" domain="[('state', '=', 'answered')]"/>
-                <filter name="closed" string="Cerrados" domain="[('state', '=', 'closed')]"/>
-                <filter name="cancelled" string="Anulados" domain="[('state', '=', 'cancelled')]"/>
+            <separator/>
 
-                <separator/>
+            <!-- TIPO -->
+            <filter name="reclamos" string="Reclamos" domain="[('tipo_reclamacion', '=', 'reclamo')]"/>
+            <filter name="quejas" string="Quejas" domain="[('tipo_reclamacion', '=', 'queja')]"/>
+            <filter name="productos" string="Productos" domain="[('tipo_bien', '=', 'producto')]"/>
+            <filter name="servicios" string="Servicios" domain="[('tipo_bien', '=', 'servicio')]"/>
 
-                <filter name="reclamos" string="Reclamos" domain="[('tipo_reclamacion', '=', 'reclamo')]"/>
-                <filter name="quejas" string="Quejas" domain="[('tipo_reclamacion', '=', 'queja')]"/>
+            <separator/>
 
-                <separator/>
+            <!-- CONTROL -->
+            <filter name="vencidos" string="Vencidos" domain="[('fecha_limite_respuesta', '&lt;', context_today()), ('state', 'in', ['submitted', 'review'])]"/>
+            <filter name="sin_responsable" string="Sin responsable" domain="[('responsable_id', '=', False)]"/>
+            <filter name="desde_web" string="Desde página web" domain="[('origen', '=', 'website')]"/>
+            <filter name="ingreso_manual" string="Ingreso manual" domain="[('ingreso_manual', '=', True)]"/>
 
-                <filter name="vencidos" string="Vencidos" domain="[('fecha_limite_respuesta', '&lt;', context_today()), ('state', 'in', ['submitted', 'review'])]"/>
-                <filter name="sin_responsable" string="Sin responsable" domain="[('responsable_id', '=', False)]"/>
-                <filter name="web" string="Desde página web" domain="[('origen', '=', 'website')]"/>
-                <filter name="manuales" string="Datos manuales" domain="[('ingreso_manual', '=', True)]"/>
+            <separator/>
 
-                <separator/>
+            <!-- FECHA -->
+            <filter name="hoy" string="Registrados hoy" domain="[('fecha_reclamo_date', '=', context_today())]"/>
 
-                <filter name="hoy" string="Registrados hoy" domain="[('fecha_reclamo_date', '=', context_today())]"/>
-                <filter name="fecha_reclamo" string="Fecha de reclamación" date="fecha_reclamo_date"/>
-                <filter name="fecha_limite" string="Fecha límite" date="fecha_limite_respuesta"/>
+            <group string="Agrupar por">
+                <filter name="group_state" string="Estado" context="{'group_by': 'state'}"/>
+                <filter name="group_tipo" string="Reclamo / Queja" context="{'group_by': 'tipo_reclamacion'}"/>
+                <filter name="group_bien" string="Producto / Servicio" context="{'group_by': 'tipo_bien'}"/>
+                <filter name="group_responsable" string="Responsable" context="{'group_by': 'responsable_id'}"/>
+                <filter name="group_fecha" string="Fecha" context="{'group_by': 'fecha_reclamo_date'}"/>
+                <filter name="group_empresa" string="Empresa" context="{'group_by': 'company_id'}"/>
+            </group>
 
-                <group expand="0" string="Agrupar por">
-                    <filter name="group_state" string="Estado" context="{'group_by': 'state'}"/>
-                    <filter name="group_tipo" string="Reclamo / Queja" context="{'group_by': 'tipo_reclamacion'}"/>
-                    <filter name="group_bien" string="Producto / Servicio" context="{'group_by': 'tipo_bien'}"/>
-                    <filter name="group_responsable" string="Responsable" context="{'group_by': 'responsable_id'}"/>
-                    <filter name="group_fecha" string="Fecha" context="{'group_by': 'fecha_reclamo_date'}"/>
-                    <filter name="group_company" string="Empresa" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
-                </group>
-
-            </search>
-
-        </field>
-    </record>
+        </search>
+    </field>
+</record>
 
 
     <!-- ========================================================= -->
