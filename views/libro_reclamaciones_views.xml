@@ -7,65 +7,53 @@
     <!-- ========================================================= -->
 
     <record id="view_libro_reclamaciones_search" model="ir.ui.view">
-    <field name="name">libro.reclamaciones.search</field>
-    <field name="model">libro.reclamaciones</field>
-    <field name="arch" type="xml">
-        <search>
+        <field name="name">libro.reclamaciones.search</field>
+        <field name="model">libro.reclamaciones</field>
+        <field name="arch" type="xml">
+            <search>
 
-            <!-- BÚSQUEDA DIRECTA -->
-            <field name="name"/>
-            <field name="nombre_consumidor"/>
-            <field name="numero_documento"/>
-            <field name="email"/>
-            <field name="telefono"/>
-            <field name="responsable_id"/>
-            <field name="company_id"/>
-            <field name="fecha_reclamo_date"/>
-            <field name="fecha_limite_respuesta"/>
+                <field name="name"/>
+                <field name="nombre_consumidor"/>
+                <field name="numero_documento"/>
+                <field name="email"/>
+                <field name="telefono"/>
+                <field name="responsable_id"/>
+                <field name="company_id"/>
 
-            <separator/>
+                <separator/>
 
-            <!-- ESTADOS -->
-            <filter name="pendientes" string="Pendientes" domain="[('state', 'in', ['submitted', 'review'])]"/>
-            <filter name="submitted" string="Registrados" domain="[('state', '=', 'submitted')]"/>
-            <filter name="review" string="En revisión" domain="[('state', '=', 'review')]"/>
-            <filter name="answered" string="Respondidos" domain="[('state', '=', 'answered')]"/>
-            <filter name="closed" string="Cerrados" domain="[('state', '=', 'closed')]"/>
-            <filter name="cancelled" string="Anulados" domain="[('state', '=', 'cancelled')]"/>
+                <filter name="pendientes" string="Pendientes" domain="[('state', 'in', ['submitted', 'review'])]"/>
+                <filter name="registrados" string="Registrados" domain="[('state', '=', 'submitted')]"/>
+                <filter name="en_revision" string="En revisión" domain="[('state', '=', 'review')]"/>
+                <filter name="respondidos" string="Respondidos" domain="[('state', '=', 'answered')]"/>
+                <filter name="cerrados" string="Cerrados" domain="[('state', '=', 'closed')]"/>
+                <filter name="anulados" string="Anulados" domain="[('state', '=', 'cancelled')]"/>
 
-            <separator/>
+                <separator/>
 
-            <!-- TIPO -->
-            <filter name="reclamos" string="Reclamos" domain="[('tipo_reclamacion', '=', 'reclamo')]"/>
-            <filter name="quejas" string="Quejas" domain="[('tipo_reclamacion', '=', 'queja')]"/>
-            <filter name="productos" string="Productos" domain="[('tipo_bien', '=', 'producto')]"/>
-            <filter name="servicios" string="Servicios" domain="[('tipo_bien', '=', 'servicio')]"/>
+                <filter name="filtro_reclamos" string="Reclamos" domain="[('tipo_reclamacion', '=', 'reclamo')]"/>
+                <filter name="filtro_quejas" string="Quejas" domain="[('tipo_reclamacion', '=', 'queja')]"/>
+                <filter name="filtro_productos" string="Productos" domain="[('tipo_bien', '=', 'producto')]"/>
+                <filter name="filtro_servicios" string="Servicios" domain="[('tipo_bien', '=', 'servicio')]"/>
 
-            <separator/>
+                <separator/>
 
-            <!-- CONTROL -->
-            <filter name="vencidos" string="Vencidos" domain="[('fecha_limite_respuesta', '&lt;', context_today()), ('state', 'in', ['submitted', 'review'])]"/>
-            <filter name="sin_responsable" string="Sin responsable" domain="[('responsable_id', '=', False)]"/>
-            <filter name="desde_web" string="Desde página web" domain="[('origen', '=', 'website')]"/>
-            <filter name="ingreso_manual" string="Ingreso manual" domain="[('ingreso_manual', '=', True)]"/>
+                <filter name="sin_responsable" string="Sin responsable" domain="[('responsable_id', '=', False)]"/>
+                <filter name="origen_web" string="Desde página web" domain="[('origen', '=', 'website')]"/>
+                <filter name="datos_manuales" string="Ingreso manual" domain="[('ingreso_manual', '=', True)]"/>
 
-            <separator/>
+                <group string="Agrupar por">
+                    <filter name="agrupar_estado" string="Estado" context="{'group_by': 'state'}"/>
+                    <filter name="agrupar_tipo" string="Reclamo / Queja" context="{'group_by': 'tipo_reclamacion'}"/>
+                    <filter name="agrupar_bien" string="Producto / Servicio" context="{'group_by': 'tipo_bien'}"/>
+                    <filter name="agrupar_responsable" string="Responsable" context="{'group_by': 'responsable_id'}"/>
+                    <filter name="agrupar_fecha" string="Fecha" context="{'group_by': 'fecha_reclamo_date'}"/>
+                    <filter name="agrupar_empresa" string="Empresa" context="{'group_by': 'company_id'}"/>
+                </group>
 
-            <!-- FECHA -->
-            <filter name="hoy" string="Registrados hoy" domain="[('fecha_reclamo_date', '=', context_today())]"/>
-
-            <group string="Agrupar por">
-                <filter name="group_state" string="Estado" context="{'group_by': 'state'}"/>
-                <filter name="group_tipo" string="Reclamo / Queja" context="{'group_by': 'tipo_reclamacion'}"/>
-                <filter name="group_bien" string="Producto / Servicio" context="{'group_by': 'tipo_bien'}"/>
-                <filter name="group_responsable" string="Responsable" context="{'group_by': 'responsable_id'}"/>
-                <filter name="group_fecha" string="Fecha" context="{'group_by': 'fecha_reclamo_date'}"/>
-                <filter name="group_empresa" string="Empresa" context="{'group_by': 'company_id'}"/>
-            </group>
-
-        </search>
-    </field>
-</record>
+            </search>
+        </field>
+    </record>
 
 
     <!-- ========================================================= -->
@@ -76,14 +64,7 @@
         <field name="name">libro.reclamaciones.list</field>
         <field name="model">libro.reclamaciones</field>
         <field name="arch" type="xml">
-
-            <list string="Libro de Reclamaciones"
-                  default_order="fecha_reclamo desc"
-                  decoration-danger="vencido and state in ['submitted', 'review']"
-                  decoration-warning="not vencido and dias_para_vencer &gt;= 0 and dias_para_vencer &lt;= 3 and state in ['submitted', 'review']"
-                  decoration-info="state == 'review'"
-                  decoration-success="state in ['answered', 'closed']"
-                  decoration-muted="state == 'cancelled'">
+            <list string="Libro de Reclamaciones" default_order="fecha_reclamo desc" decoration-danger="vencido and state in ['submitted', 'review']" decoration-warning="not vencido and dias_para_vencer &gt;= 0 and dias_para_vencer &lt;= 3 and state in ['submitted', 'review']" decoration-info="state == 'review'" decoration-success="state in ['answered', 'closed']" decoration-muted="state == 'cancelled'">
 
                 <field name="name" string="N.º Hoja"/>
                 <field name="fecha_reclamo"/>
@@ -103,7 +84,6 @@
                 <field name="vencido" column_invisible="1"/>
 
             </list>
-
         </field>
     </record>
 
@@ -116,8 +96,7 @@
         <field name="name">libro.reclamaciones.kanban</field>
         <field name="model">libro.reclamaciones</field>
         <field name="arch" type="xml">
-
-            <kanban default_group_by="state" class="o_kanban_small_column" records_draggable="false">
+            <kanban default_group_by="state" class="o_kanban_small_column">
 
                 <field name="name"/>
                 <field name="state"/>
@@ -131,20 +110,16 @@
                 <field name="vencido"/>
                 <field name="responsable_id"/>
                 <field name="email"/>
-                <field name="telefono"/>
 
                 <templates>
 
                     <t t-name="card">
 
-                        <div class="oe_kanban_global_click h-100">
-
-                            <!-- CABECERA -->
+                        <div class="oe_kanban_global_click">
 
                             <div class="d-flex justify-content-between align-items-start mb-3">
 
                                 <div>
-
                                     <div class="fw-bold fs-5">
                                         <field name="name"/>
                                     </div>
@@ -153,31 +128,25 @@
                                         <i class="fa fa-calendar me-1"/>
                                         <field name="fecha_reclamo"/>
                                     </div>
-
                                 </div>
 
+                                <div>
+                                    <t t-if="record.tipo_reclamacion.raw_value == 'reclamo'">
+                                        <span class="badge text-bg-primary">Reclamo</span>
+                                    </t>
 
-                                <t t-if="record.tipo_reclamacion.raw_value == 'reclamo'">
-                                    <span class="badge rounded-pill text-bg-primary px-3 py-2">
-                                        Reclamo
-                                    </span>
-                                </t>
-
-                                <t t-if="record.tipo_reclamacion.raw_value == 'queja'">
-                                    <span class="badge rounded-pill text-bg-warning px-3 py-2">
-                                        Queja
-                                    </span>
-                                </t>
+                                    <t t-if="record.tipo_reclamacion.raw_value == 'queja'">
+                                        <span class="badge text-bg-warning">Queja</span>
+                                    </t>
+                                </div>
 
                             </div>
 
 
-                            <!-- CONSUMIDOR -->
-
                             <div class="border rounded-3 p-3 bg-light mb-3">
 
-                                <div class="fw-semibold text-dark">
-                                    <i class="fa fa-user me-2 text-primary"/>
+                                <div class="fw-semibold">
+                                    <i class="fa fa-user me-2"/>
                                     <field name="nombre_consumidor"/>
                                 </div>
 
@@ -194,86 +163,35 @@
                             </div>
 
 
-                            <!-- DETALLE -->
-
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-
-                                <span class="text-muted small">
-                                    Bien
-                                </span>
-
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted small">Bien</span>
                                 <span class="fw-semibold small">
                                     <field name="tipo_bien"/>
                                 </span>
-
                             </div>
 
 
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-
-                                <span class="text-muted small">
-                                    Responsable
-                                </span>
-
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted small">Responsable</span>
                                 <span class="fw-semibold small">
                                     <field name="responsable_id"/>
                                 </span>
-
                             </div>
 
 
-                            <div class="d-flex justify-content-between align-items-center">
-
-                                <span class="text-muted small">
-                                    Fecha límite
-                                </span>
-
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted small">Fecha límite</span>
                                 <span class="fw-semibold">
                                     <field name="fecha_limite_respuesta"/>
                                 </span>
-
                             </div>
 
 
-                            <!-- VENCIDO -->
-
                             <t t-if="record.vencido.raw_value">
-
                                 <div class="alert alert-danger py-2 px-3 mt-3 mb-0">
-
-                                    <div class="d-flex align-items-center gap-2">
-
-                                        <i class="fa fa-exclamation-triangle"/>
-
-                                        <strong>
-                                            Plazo vencido
-                                        </strong>
-
-                                    </div>
-
+                                    <i class="fa fa-exclamation-triangle me-1"/>
+                                    <strong>Plazo vencido</strong>
                                 </div>
-
-                            </t>
-
-
-                            <!-- PRÓXIMO A VENCER -->
-
-                            <t t-if="not record.vencido.raw_value and record.dias_para_vencer.raw_value &gt;= 0 and record.dias_para_vencer.raw_value &lt;= 3 and (record.state.raw_value == 'submitted' or record.state.raw_value == 'review')">
-
-                                <div class="alert alert-warning py-2 px-3 mt-3 mb-0">
-
-                                    <i class="fa fa-clock-o me-1"/>
-
-                                    Quedan
-
-                                    <strong>
-                                        <field name="dias_para_vencer"/>
-                                    </strong>
-
-                                    días
-
-                                </div>
-
                             </t>
 
                         </div>
@@ -283,7 +201,6 @@
                 </templates>
 
             </kanban>
-
         </field>
     </record>
 
@@ -299,28 +216,16 @@
 
             <form string="Libro de Reclamaciones">
 
-                <!-- ================================================= -->
-                <!-- HEADER                                            -->
-                <!-- ================================================= -->
-
                 <header>
 
                     <button name="action_submit" string="Registrar" type="object" class="btn-primary" icon="fa-check" invisible="state != 'draft'"/>
-
                     <button name="action_start_review" string="Iniciar revisión" type="object" class="btn-primary" icon="fa-search" invisible="state != 'submitted'"/>
-
                     <button name="action_enviar_respuesta_email" string="Enviar respuesta" type="object" class="btn-primary" icon="fa-envelope" invisible="state != 'review' or respuesta_enviada"/>
-
                     <button name="action_marcar_respondido" string="Marcar respondido" type="object" icon="fa-check-circle" invisible="state != 'review'"/>
-
                     <button name="action_close" string="Cerrar" type="object" icon="fa-lock" invisible="state != 'answered'"/>
-
                     <button name="action_reopen" string="Reabrir" type="object" icon="fa-undo" invisible="state not in ['answered', 'closed']"/>
-
                     <button name="action_cancel" string="Anular" type="object" icon="fa-ban" invisible="state in ['closed', 'cancelled']"/>
-
                     <button name="action_consultar_documento" string="Consultar DNI" type="object" icon="fa-search" invisible="tipo_documento != 'dni' or state not in ['draft', 'submitted']"/>
-
                     <button name="%(action_report_libro_reclamaciones)d" string="Imprimir PDF" type="action" icon="fa-print"/>
 
                     <field name="state" widget="statusbar" statusbar_visible="draft,submitted,review,answered,closed"/>
@@ -330,11 +235,18 @@
 
                 <sheet>
 
+                    <!-- VARIABLES NECESARIAS PARA INVISIBLE -->
+
+                    <field name="vencido" invisible="1"/>
+                    <field name="dias_para_vencer" invisible="1"/>
+                    <field name="respuesta_enviada" invisible="1"/>
+
+
                     <!-- ================================================= -->
                     <!-- RIBBON                                            -->
                     <!-- ================================================= -->
 
-                    <widget name="web_ribbon" title="VENCIDO" bg_color="text-bg-danger" invisible="not vencido or state not in ['submitted', 'review']"/>
+                    <widget name="web_ribbon" title="VENCIDO" bg_color="bg-danger" invisible="not vencido or state not in ['submitted', 'review']"/>
 
 
                     <!-- ================================================= -->
@@ -357,43 +269,21 @@
 
 
                     <!-- ================================================= -->
-                    <!-- ALERTAS                                           -->
+                    <!-- ALERTA VENCIDO                                     -->
                     <!-- ================================================= -->
 
-                    <div class="alert alert-danger d-flex align-items-center gap-3 rounded-3" role="alert" invisible="not vencido or state not in ['submitted', 'review']">
+                    <div class="alert alert-danger rounded-3" invisible="not vencido or state not in ['submitted', 'review']">
 
-                        <i class="fa fa-exclamation-triangle fa-2x"/>
+                        <div class="d-flex align-items-center">
 
-                        <div>
-
-                            <div class="fw-bold">
-                                Esta reclamación está vencida
-                            </div>
+                            <i class="fa fa-exclamation-triangle fa-2x me-3"/>
 
                             <div>
-                                Se superó la fecha límite de respuesta:
-                                <field name="fecha_limite_respuesta" class="oe_inline"/>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="alert alert-warning d-flex align-items-center gap-3 rounded-3" role="alert" invisible="vencido or dias_para_vencer &gt; 3 or dias_para_vencer &lt; 0 or state not in ['submitted', 'review']">
-
-                        <i class="fa fa-clock-o fa-2x"/>
-
-                        <div>
-
-                            <div class="fw-bold">
-                                Reclamación próxima a vencer
-                            </div>
-
-                            <div>
-                                Quedan
-                                <field name="dias_para_vencer" class="oe_inline"/>
-                                días para la fecha límite.
+                                <div class="fw-bold">Esta reclamación está vencida</div>
+                                <div>
+                                    Fecha límite:
+                                    <field name="fecha_limite_respuesta" class="oe_inline"/>
+                                </div>
                             </div>
 
                         </div>
@@ -402,13 +292,36 @@
 
 
                     <!-- ================================================= -->
-                    <!-- RESUMEN SUPERIOR                                  -->
+                    <!-- ALERTA PRÓXIMO A VENCER                            -->
+                    <!-- ================================================= -->
+
+                    <div class="alert alert-warning rounded-3" invisible="vencido or dias_para_vencer &gt; 3 or dias_para_vencer &lt; 0 or state not in ['submitted', 'review']">
+
+                        <div class="d-flex align-items-center">
+
+                            <i class="fa fa-clock-o fa-2x me-3"/>
+
+                            <div>
+                                <div class="fw-bold">Próximo a vencer</div>
+                                <div>
+                                    Quedan
+                                    <field name="dias_para_vencer" class="oe_inline"/>
+                                    días.
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- TARJETAS RESUMEN                                   -->
                     <!-- ================================================= -->
 
                     <div class="row g-3 mb-4">
 
                         <div class="col-lg-4">
-
                             <div class="border rounded-3 p-3 h-100 bg-light">
 
                                 <div class="text-muted small text-uppercase fw-semibold mb-2">
@@ -430,12 +343,10 @@
                                 </div>
 
                             </div>
-
                         </div>
 
 
                         <div class="col-lg-4">
-
                             <div class="border rounded-3 p-3 h-100 bg-light">
 
                                 <div class="text-muted small text-uppercase fw-semibold mb-2">
@@ -451,18 +362,16 @@
                                     <field name="tipo_bien" class="oe_inline ms-1"/>
                                 </div>
 
-                                <div class="mt-1">
+                                <div class="mt-2">
                                     <span class="text-muted">Monto:</span>
                                     <field name="monto_reclamado" class="oe_inline ms-1"/>
                                 </div>
 
                             </div>
-
                         </div>
 
 
                         <div class="col-lg-4">
-
                             <div class="border rounded-3 p-3 h-100 bg-light">
 
                                 <div class="text-muted small text-uppercase fw-semibold mb-2">
@@ -475,7 +384,7 @@
                                 </div>
 
                                 <div class="mt-2">
-                                    <span class="text-muted">Límite:</span>
+                                    <span class="text-muted">Fecha límite:</span>
                                     <field name="fecha_limite_respuesta" class="oe_inline ms-1"/>
                                 </div>
 
@@ -485,7 +394,6 @@
                                 </div>
 
                             </div>
-
                         </div>
 
                     </div>
@@ -522,35 +430,19 @@
 
                     <notebook>
 
-
-                        <!-- ================================================= -->
-                        <!-- CONSUMIDOR                                        -->
-                        <!-- ================================================= -->
+                        <!-- CONSUMIDOR -->
 
                         <page string="Consumidor" name="consumer">
 
                             <div class="border rounded-3 p-3 mb-4 bg-light">
-
-                                <div class="d-flex align-items-center gap-2">
-
-                                    <i class="fa fa-user-circle fa-2x text-primary"/>
-
+                                <div class="d-flex align-items-center">
+                                    <i class="fa fa-user-circle fa-2x text-primary me-3"/>
                                     <div>
-
-                                        <div class="fw-bold fs-5">
-                                            Datos del consumidor
-                                        </div>
-
-                                        <div class="text-muted small">
-                                            Información registrada en la Hoja de Reclamación
-                                        </div>
-
+                                        <div class="fw-bold fs-5">Datos del consumidor</div>
+                                        <div class="text-muted small">Información registrada por el consumidor.</div>
                                     </div>
-
                                 </div>
-
                             </div>
-
 
                             <group>
 
@@ -572,69 +464,41 @@
 
                             </group>
 
-
                             <group string="Menor de edad">
                                 <field name="es_menor_edad"/>
                                 <field name="representante_menor_nombre" invisible="not es_menor_edad"/>
                             </group>
 
-
-                            <div class="border rounded-3 p-3 mt-4">
-
-                                <div class="fw-semibold mb-3">
-                                    <i class="fa fa-database me-2 text-primary"/>
-                                    Consulta automática del documento
-                                </div>
-
+                            <group string="Consulta automática">
                                 <group>
-
-                                    <group>
-                                        <field name="documento_consultado" readonly="1"/>
-                                        <field name="documento_encontrado" readonly="1"/>
-                                        <field name="ingreso_manual" readonly="1"/>
-                                    </group>
-
-                                    <group>
-                                        <field name="consulta_documento_estado" readonly="1"/>
-                                        <field name="consulta_documento_mensaje" readonly="1"/>
-                                        <field name="fecha_consulta_documento" readonly="1"/>
-                                    </group>
-
+                                    <field name="documento_consultado" readonly="1"/>
+                                    <field name="documento_encontrado" readonly="1"/>
+                                    <field name="ingreso_manual" readonly="1"/>
                                 </group>
 
-                            </div>
+                                <group>
+                                    <field name="consulta_documento_estado" readonly="1"/>
+                                    <field name="consulta_documento_mensaje" readonly="1"/>
+                                    <field name="fecha_consulta_documento" readonly="1"/>
+                                </group>
+                            </group>
 
                         </page>
 
 
-                        <!-- ================================================= -->
-                        <!-- PRODUCTO / SERVICIO                                -->
-                        <!-- ================================================= -->
+                        <!-- PRODUCTO / SERVICIO -->
 
                         <page string="Producto / Servicio" name="product_service">
 
                             <div class="border rounded-3 p-3 mb-4 bg-light">
-
-                                <div class="d-flex align-items-center gap-2">
-
-                                    <i class="fa fa-shopping-bag fa-2x text-primary"/>
-
+                                <div class="d-flex align-items-center">
+                                    <i class="fa fa-shopping-bag fa-2x text-primary me-3"/>
                                     <div>
-
-                                        <div class="fw-bold fs-5">
-                                            Bien contratado
-                                        </div>
-
-                                        <div class="text-muted small">
-                                            Producto o servicio relacionado con la reclamación
-                                        </div>
-
+                                        <div class="fw-bold fs-5">Bien contratado</div>
+                                        <div class="text-muted small">Producto o servicio relacionado con la reclamación.</div>
                                     </div>
-
                                 </div>
-
                             </div>
-
 
                             <group>
 
@@ -651,133 +515,60 @@
 
                             </group>
 
-
-                            <div class="border rounded-3 p-3 mt-3">
-
-                                <div class="fw-semibold mb-2">
-                                    Descripción del bien o servicio
-                                </div>
-
-                                <field name="descripcion_bien" nolabel="1" placeholder="Descripción del producto o servicio relacionado con la reclamación..."/>
-
-                            </div>
+                            <group string="Descripción">
+                                <field name="descripcion_bien" nolabel="1"/>
+                            </group>
 
                         </page>
 
 
-                        <!-- ================================================= -->
-                        <!-- RECLAMACIÓN                                        -->
-                        <!-- ================================================= -->
+                        <!-- RECLAMACIÓN -->
 
                         <page string="Reclamación" name="claim">
 
                             <div class="border rounded-3 p-3 mb-4 bg-light">
-
-                                <div class="d-flex align-items-center gap-2">
-
-                                    <i class="fa fa-file-text-o fa-2x text-primary"/>
-
+                                <div class="d-flex align-items-center">
+                                    <i class="fa fa-file-text-o fa-2x text-primary me-3"/>
                                     <div>
-
-                                        <div class="fw-bold fs-5">
-                                            Detalle de la reclamación
-                                        </div>
-
-                                        <div class="text-muted small">
-                                            Información registrada por el consumidor
-                                        </div>
-
+                                        <div class="fw-bold fs-5">Detalle de la reclamación</div>
+                                        <div class="text-muted small">Información proporcionada por el consumidor.</div>
                                     </div>
-
                                 </div>
-
                             </div>
 
-
-                            <group>
-                                <group string="Tipo">
-                                    <field name="tipo_reclamacion" widget="radio"/>
-                                </group>
+                            <group string="Tipo">
+                                <field name="tipo_reclamacion" widget="radio"/>
                             </group>
 
+                            <group string="Detalle">
+                                <field name="detalle" nolabel="1"/>
+                            </group>
 
-                            <div class="row g-3">
+                            <group string="Pedido del consumidor">
+                                <field name="pedido_consumidor" nolabel="1"/>
+                            </group>
 
-                                <div class="col-12">
-
-                                    <div class="border rounded-3 p-3 h-100">
-
-                                        <div class="fw-semibold mb-2">
-                                            Detalle
-                                        </div>
-
-                                        <field name="detalle" nolabel="1" placeholder="Detalle de la reclamación..."/>
-
-                                    </div>
-
-                                </div>
-
-
-                                <div class="col-12">
-
-                                    <div class="border rounded-3 p-3 h-100">
-
-                                        <div class="fw-semibold mb-2">
-                                            Pedido del consumidor
-                                        </div>
-
-                                        <field name="pedido_consumidor" nolabel="1" placeholder="Solución solicitada por el consumidor..."/>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="border rounded-3 p-3 mt-4">
-
-                                <div class="fw-semibold mb-3">
-                                    <i class="fa fa-pencil me-2"/>
-                                    Firma del consumidor
-                                </div>
-
+                            <group string="Firma del consumidor">
                                 <field name="firma_consumidor" widget="image" nolabel="1" options="{'size': [350, 160]}"/>
                                 <field name="firma_consumidor_filename" invisible="1"/>
-
-                            </div>
+                            </group>
 
                         </page>
 
 
-                        <!-- ================================================= -->
-                        <!-- ATENCIÓN / RESPUESTA                               -->
-                        <!-- ================================================= -->
+                        <!-- ATENCIÓN / RESPUESTA -->
 
                         <page string="Atención y respuesta" name="provider_response">
 
                             <div class="border rounded-3 p-3 mb-4 bg-light">
-
-                                <div class="d-flex align-items-center gap-2">
-
-                                    <i class="fa fa-headphones fa-2x text-primary"/>
-
+                                <div class="d-flex align-items-center">
+                                    <i class="fa fa-headphones fa-2x text-primary me-3"/>
                                     <div>
-
-                                        <div class="fw-bold fs-5">
-                                            Gestión del proveedor
-                                        </div>
-
-                                        <div class="text-muted small">
-                                            Seguimiento, acciones y respuesta al consumidor
-                                        </div>
-
+                                        <div class="fw-bold fs-5">Gestión del proveedor</div>
+                                        <div class="text-muted small">Seguimiento y respuesta de la reclamación.</div>
                                     </div>
-
                                 </div>
-
                             </div>
-
 
                             <group>
 
@@ -796,89 +587,34 @@
 
                             </group>
 
-
-                            <div class="border rounded-3 p-3 mt-3">
-
-                                <div class="fw-bold mb-2">
-                                    Observaciones del proveedor
-                                </div>
-
-                                <div class="text-muted small mb-3">
-                                    Registre información interna o consideraciones del caso.
-                                </div>
-
+                            <group string="Observaciones del proveedor">
                                 <field name="observaciones_proveedor" widget="html" nolabel="1"/>
+                            </group>
 
-                            </div>
-
-
-                            <div class="border rounded-3 p-3 mt-3">
-
-                                <div class="fw-bold mb-2">
-                                    Acciones adoptadas
-                                </div>
-
-                                <div class="text-muted small mb-3">
-                                    Indique las medidas adoptadas para atender la reclamación.
-                                </div>
-
+                            <group string="Acciones adoptadas">
                                 <field name="acciones_adoptadas" widget="html" nolabel="1"/>
+                            </group>
 
-                            </div>
-
-
-                            <div class="border rounded-3 p-3 mt-3">
-
-                                <div class="fw-bold mb-2">
-                                    Respuesta al consumidor
-                                </div>
-
-                                <div class="text-muted small mb-3">
-                                    Esta información será utilizada para responder al consumidor.
-                                </div>
-
+                            <group string="Respuesta al consumidor">
                                 <field name="respuesta" widget="html" nolabel="1"/>
+                            </group>
 
-                            </div>
-
-
-                            <div class="border rounded-3 p-3 mt-3">
-
-                                <div class="fw-semibold mb-3">
-                                    <i class="fa fa-pencil-square-o me-2"/>
-                                    Firma del proveedor
-                                </div>
-
+                            <group string="Firma del proveedor">
                                 <field name="firma_proveedor" widget="image" nolabel="1" options="{'size': [350, 160]}"/>
                                 <field name="firma_proveedor_filename" invisible="1"/>
-
-                            </div>
+                            </group>
 
                         </page>
 
 
-                        <!-- ================================================= -->
-                        <!-- ADJUNTOS                                           -->
-                        <!-- ================================================= -->
+                        <!-- ADJUNTOS -->
 
                         <page string="Adjuntos" name="attachments">
 
-                            <div class="border rounded-3 p-4 bg-light mb-3">
-
-                                <div class="text-center">
-
-                                    <i class="fa fa-paperclip fa-3x text-secondary mb-3"/>
-
-                                    <div class="fw-bold fs-5">
-                                        Evidencias adjuntas
-                                    </div>
-
-                                    <div class="text-muted">
-                                        Documentos y fotografías enviados junto con la reclamación
-                                    </div>
-
-                                </div>
-
+                            <div class="border rounded-3 p-4 bg-light mb-3 text-center">
+                                <i class="fa fa-paperclip fa-3x text-secondary mb-3"/>
+                                <div class="fw-bold fs-5">Evidencias adjuntas</div>
+                                <div class="text-muted">Documentos y fotografías enviados con la reclamación.</div>
                             </div>
 
                             <field name="attachment_ids" widget="many2many_binary" nolabel="1"/>
@@ -886,34 +622,19 @@
                         </page>
 
 
-                        <!-- ================================================= -->
-                        <!-- AUDITORÍA                                          -->
-                        <!-- ================================================= -->
+                        <!-- AUDITORÍA -->
 
                         <page string="Auditoría" name="audit">
 
                             <div class="border rounded-3 p-3 mb-4 bg-light">
-
-                                <div class="d-flex align-items-center gap-2">
-
-                                    <i class="fa fa-shield fa-2x text-primary"/>
-
+                                <div class="d-flex align-items-center">
+                                    <i class="fa fa-shield fa-2x text-primary me-3"/>
                                     <div>
-
-                                        <div class="fw-bold fs-5">
-                                            Trazabilidad
-                                        </div>
-
-                                        <div class="text-muted small">
-                                            Información técnica del registro
-                                        </div>
-
+                                        <div class="fw-bold fs-5">Trazabilidad</div>
+                                        <div class="text-muted small">Información técnica del registro.</div>
                                     </div>
-
                                 </div>
-
                             </div>
-
 
                             <group>
 
@@ -932,7 +653,6 @@
 
                             </group>
 
-
                             <group string="Declaraciones">
                                 <field name="acepta_declaracion" readonly="1"/>
                                 <field name="acepta_privacidad" readonly="1"/>
@@ -943,11 +663,6 @@
                     </notebook>
 
                 </sheet>
-
-
-                <!-- ================================================= -->
-                <!-- CHATTER                                           -->
-                <!-- ================================================= -->
 
                 <chatter/>
 
@@ -969,7 +684,7 @@
         <field name="context">{'search_default_pendientes': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">No hay reclamaciones pendientes</p>
-            <p>Las reclamaciones registradas desde la página web aparecerán automáticamente aquí para su atención.</p>
+            <p>Las reclamaciones enviadas desde la página web aparecerán automáticamente aquí.</p>
         </field>
     </record>
 
@@ -988,19 +703,6 @@
 
 
     <!-- ========================================================= -->
-    <!-- VENCIDAS                                                  -->
-    <!-- ========================================================= -->
-
-    <record id="action_libro_reclamaciones_vencidos" model="ir.actions.act_window">
-        <field name="name">Reclamaciones Vencidas</field>
-        <field name="res_model">libro.reclamaciones</field>
-        <field name="view_mode">list,kanban,form</field>
-        <field name="search_view_id" ref="view_libro_reclamaciones_search"/>
-        <field name="context">{'search_default_vencidos': 1}</field>
-    </record>
-
-
-    <!-- ========================================================= -->
     <!-- RESPONDIDAS                                               -->
     <!-- ========================================================= -->
 
@@ -1009,7 +711,8 @@
         <field name="res_model">libro.reclamaciones</field>
         <field name="view_mode">list,kanban,form</field>
         <field name="search_view_id" ref="view_libro_reclamaciones_search"/>
-        <field name="context">{'search_default_answered': 1}</field>
+        <field name="domain">[('state', 'in', ['answered', 'closed'])]</field>
+        <field name="context">{}</field>
     </record>
 
 
@@ -1023,8 +726,6 @@
 
     <menuitem id="menu_libro_reclamaciones_all" name="Todas" parent="menu_libro_reclamaciones_root" action="action_libro_reclamaciones_all" sequence="20"/>
 
-    <menuitem id="menu_libro_reclamaciones_vencidos" name="Vencidas" parent="menu_libro_reclamaciones_root" action="action_libro_reclamaciones_vencidos" sequence="30"/>
-
-    <menuitem id="menu_libro_reclamaciones_respondidas" name="Respondidas" parent="menu_libro_reclamaciones_root" action="action_libro_reclamaciones_respondidas" sequence="40"/>
+    <menuitem id="menu_libro_reclamaciones_respondidas" name="Respondidas / Cerradas" parent="menu_libro_reclamaciones_root" action="action_libro_reclamaciones_respondidas" sequence="30"/>
 
 </odoo>
