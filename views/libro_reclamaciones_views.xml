@@ -3,7 +3,7 @@
 <odoo>
 
     <!-- ========================================================= -->
-    <!-- VISTA SEARCH                                              -->
+    <!-- SEARCH VIEW                                               -->
     <!-- ========================================================= -->
 
     <record id="view_libro_reclamaciones_search" model="ir.ui.view">
@@ -23,6 +23,7 @@
 
                 <separator/>
 
+                <filter name="pendientes" string="Pendientes" domain="[('state', 'in', ['submitted', 'review'])]"/>
                 <filter name="submitted" string="Registrados" domain="[('state', '=', 'submitted')]"/>
                 <filter name="review" string="En revisión" domain="[('state', '=', 'review')]"/>
                 <filter name="answered" string="Respondidos" domain="[('state', '=', 'answered')]"/>
@@ -37,23 +38,23 @@
                 <separator/>
 
                 <filter name="vencidos" string="Vencidos" domain="[('fecha_limite_respuesta', '&lt;', context_today()), ('state', 'in', ['submitted', 'review'])]"/>
-
                 <filter name="sin_responsable" string="Sin responsable" domain="[('responsable_id', '=', False)]"/>
+                <filter name="web" string="Desde página web" domain="[('origen', '=', 'website')]"/>
+                <filter name="manuales" string="Datos manuales" domain="[('ingreso_manual', '=', True)]"/>
 
                 <separator/>
 
-                <filter name="hoy" string="Hoy" domain="[('fecha_reclamo_date', '=', context_today())]"/>
-
-                <filter name="este_mes" string="Este mes" date="fecha_reclamo_date" default_period="this_month"/>
+                <filter name="hoy" string="Registrados hoy" domain="[('fecha_reclamo_date', '=', context_today())]"/>
+                <filter name="fecha_reclamo" string="Fecha de reclamación" date="fecha_reclamo_date"/>
+                <filter name="fecha_limite" string="Fecha límite" date="fecha_limite_respuesta"/>
 
                 <group expand="0" string="Agrupar por">
-
                     <filter name="group_state" string="Estado" context="{'group_by': 'state'}"/>
-                    <filter name="group_tipo" string="Tipo" context="{'group_by': 'tipo_reclamacion'}"/>
+                    <filter name="group_tipo" string="Reclamo / Queja" context="{'group_by': 'tipo_reclamacion'}"/>
+                    <filter name="group_bien" string="Producto / Servicio" context="{'group_by': 'tipo_bien'}"/>
                     <filter name="group_responsable" string="Responsable" context="{'group_by': 'responsable_id'}"/>
-                    <filter name="group_company" string="Empresa" context="{'group_by': 'company_id'}"/>
                     <filter name="group_fecha" string="Fecha" context="{'group_by': 'fecha_reclamo_date'}"/>
-
+                    <filter name="group_company" string="Empresa" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
                 </group>
 
             </search>
@@ -63,7 +64,7 @@
 
 
     <!-- ========================================================= -->
-    <!-- VISTA LIST                                                -->
+    <!-- LIST VIEW                                                 -->
     <!-- ========================================================= -->
 
     <record id="view_libro_reclamaciones_list" model="ir.ui.view">
@@ -74,25 +75,27 @@
             <list string="Libro de Reclamaciones"
                   default_order="fecha_reclamo desc"
                   decoration-danger="vencido and state in ['submitted', 'review']"
-                  decoration-warning="dias_para_vencer &gt;= 0 and dias_para_vencer &lt;= 3 and state in ['submitted', 'review']"
+                  decoration-warning="not vencido and dias_para_vencer &gt;= 0 and dias_para_vencer &lt;= 3 and state in ['submitted', 'review']"
+                  decoration-info="state == 'review'"
                   decoration-success="state in ['answered', 'closed']"
                   decoration-muted="state == 'cancelled'">
 
-                <field name="name"/>
+                <field name="name" string="N.º Hoja"/>
                 <field name="fecha_reclamo"/>
                 <field name="nombre_consumidor"/>
-                <field name="numero_documento"/>
-                <field name="tipo_reclamacion"/>
-                <field name="tipo_bien"/>
+                <field name="numero_documento" string="DNI / CE"/>
+                <field name="tipo_reclamacion" widget="badge"/>
+                <field name="tipo_bien" optional="show"/>
                 <field name="monto_reclamado" optional="show"/>
-                <field name="email" optional="hide"/>
-                <field name="telefono" optional="hide"/>
                 <field name="responsable_id"/>
                 <field name="fecha_limite_respuesta"/>
-                <field name="dias_para_vencer" optional="show"/>
-                <field name="vencido" column_invisible="True"/>
-                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="dias_para_vencer" string="Días restantes" optional="show"/>
+                <field name="email" optional="hide"/>
+                <field name="telefono" optional="hide"/>
+                <field name="origen" optional="hide"/>
+                <field name="company_id" optional="hide" groups="base.group_multi_company"/>
                 <field name="state" widget="badge"/>
+                <field name="vencido" column_invisible="1"/>
 
             </list>
 
@@ -101,7 +104,7 @@
 
 
     <!-- ========================================================= -->
-    <!-- VISTA KANBAN                                              -->
+    <!-- KANBAN VIEW                                               -->
     <!-- ========================================================= -->
 
     <record id="view_libro_reclamaciones_kanban" model="ir.ui.view">
@@ -109,7 +112,7 @@
         <field name="model">libro.reclamaciones</field>
         <field name="arch" type="xml">
 
-            <kanban default_group_by="state" class="o_kanban_small_column">
+            <kanban default_group_by="state" class="o_kanban_small_column" records_draggable="false">
 
                 <field name="name"/>
                 <field name="state"/>
@@ -129,99 +132,144 @@
 
                     <t t-name="card">
 
-                        <div class="oe_kanban_global_click">
+                        <div class="oe_kanban_global_click h-100">
 
-                            <div class="d-flex justify-content-between align-items-start mb-2">
+                            <!-- CABECERA -->
+
+                            <div class="d-flex justify-content-between align-items-start mb-3">
 
                                 <div>
 
-                                    <strong style="font-size:15px;">
+                                    <div class="fw-bold fs-5">
                                         <field name="name"/>
-                                    </strong>
+                                    </div>
 
                                     <div class="text-muted small mt-1">
+                                        <i class="fa fa-calendar me-1"/>
                                         <field name="fecha_reclamo"/>
                                     </div>
 
                                 </div>
 
-                                <span t-if="record.tipo_reclamacion.raw_value == 'reclamo'" class="badge text-bg-primary">
-                                    Reclamo
-                                </span>
 
-                                <span t-if="record.tipo_reclamacion.raw_value == 'queja'" class="badge text-bg-warning">
-                                    Queja
-                                </span>
+                                <t t-if="record.tipo_reclamacion.raw_value == 'reclamo'">
+                                    <span class="badge rounded-pill text-bg-primary px-3 py-2">
+                                        Reclamo
+                                    </span>
+                                </t>
+
+                                <t t-if="record.tipo_reclamacion.raw_value == 'queja'">
+                                    <span class="badge rounded-pill text-bg-warning px-3 py-2">
+                                        Queja
+                                    </span>
+                                </t>
 
                             </div>
 
 
-                            <div class="mb-3">
+                            <!-- CONSUMIDOR -->
 
-                                <div class="fw-semibold">
-                                    <i class="fa fa-user me-1"/>
+                            <div class="border rounded-3 p-3 bg-light mb-3">
+
+                                <div class="fw-semibold text-dark">
+                                    <i class="fa fa-user me-2 text-primary"/>
                                     <field name="nombre_consumidor"/>
                                 </div>
 
-                                <div class="text-muted small mt-1">
-                                    <i class="fa fa-id-card-o me-1"/>
+                                <div class="text-muted small mt-2">
+                                    <i class="fa fa-id-card-o me-2"/>
                                     <field name="numero_documento"/>
                                 </div>
 
-                            </div>
-
-
-                            <div class="border-top pt-2">
-
-                                <div class="d-flex justify-content-between mb-1">
-
-                                    <span class="text-muted small">
-                                        Tipo
-                                    </span>
-
-                                    <span class="small fw-semibold">
-                                        <field name="tipo_bien"/>
-                                    </span>
-
-                                </div>
-
-                                <div class="d-flex justify-content-between mb-1">
-
-                                    <span class="text-muted small">
-                                        Responsable
-                                    </span>
-
-                                    <span class="small">
-                                        <field name="responsable_id"/>
-                                    </span>
-
-                                </div>
-
-                                <div class="d-flex justify-content-between">
-
-                                    <span class="text-muted small">
-                                        Límite
-                                    </span>
-
-                                    <span t-att-class="'small fw-semibold text-danger' if record.vencido.raw_value else 'small fw-semibold'">
-                                        <field name="fecha_limite_respuesta"/>
-                                    </span>
-
+                                <div class="text-muted small mt-1">
+                                    <i class="fa fa-envelope-o me-2"/>
+                                    <field name="email"/>
                                 </div>
 
                             </div>
 
 
-                            <div t-if="record.vencido.raw_value" class="alert alert-danger py-1 px-2 mt-2 mb-0 small">
-                                <i class="fa fa-exclamation-triangle me-1"/>
-                                Plazo vencido
+                            <!-- DETALLE -->
+
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+
+                                <span class="text-muted small">
+                                    Bien
+                                </span>
+
+                                <span class="fw-semibold small">
+                                    <field name="tipo_bien"/>
+                                </span>
+
                             </div>
 
 
-                            <div t-if="!record.vencido.raw_value and record.dias_para_vencer.raw_value &gt;= 0 and record.dias_para_vencer.raw_value &lt;= 3 and ['submitted', 'review'].includes(record.state.raw_value)" class="alert alert-warning py-1 px-2 mt-2 mb-0 small">
-                                <i class="fa fa-clock-o me-1"/>
-                                Próximo a vencer
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+
+                                <span class="text-muted small">
+                                    Responsable
+                                </span>
+
+                                <span class="fw-semibold small">
+                                    <field name="responsable_id"/>
+                                </span>
+
                             </div>
+
+
+                            <div class="d-flex justify-content-between align-items-center">
+
+                                <span class="text-muted small">
+                                    Fecha límite
+                                </span>
+
+                                <span class="fw-semibold">
+                                    <field name="fecha_limite_respuesta"/>
+                                </span>
+
+                            </div>
+
+
+                            <!-- VENCIDO -->
+
+                            <t t-if="record.vencido.raw_value">
+
+                                <div class="alert alert-danger py-2 px-3 mt-3 mb-0">
+
+                                    <div class="d-flex align-items-center gap-2">
+
+                                        <i class="fa fa-exclamation-triangle"/>
+
+                                        <strong>
+                                            Plazo vencido
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+                            </t>
+
+
+                            <!-- PRÓXIMO A VENCER -->
+
+                            <t t-if="not record.vencido.raw_value and record.dias_para_vencer.raw_value &gt;= 0 and record.dias_para_vencer.raw_value &lt;= 3 and (record.state.raw_value == 'submitted' or record.state.raw_value == 'review')">
+
+                                <div class="alert alert-warning py-2 px-3 mt-3 mb-0">
+
+                                    <i class="fa fa-clock-o me-1"/>
+
+                                    Quedan
+
+                                    <strong>
+                                        <field name="dias_para_vencer"/>
+                                    </strong>
+
+                                    días
+
+                                </div>
+
+                            </t>
 
                         </div>
 
@@ -236,7 +284,7 @@
 
 
     <!-- ========================================================= -->
-    <!-- VISTA FORM                                                -->
+    <!-- FORM VIEW                                                 -->
     <!-- ========================================================= -->
 
     <record id="view_libro_reclamaciones_form" model="ir.ui.view">
@@ -256,7 +304,7 @@
 
                     <button name="action_start_review" string="Iniciar revisión" type="object" class="btn-primary" icon="fa-search" invisible="state != 'submitted'"/>
 
-                    <button name="action_enviar_respuesta_email" string="Enviar respuesta" type="object" class="btn-primary" icon="fa-envelope" invisible="state not in ['review', 'answered']"/>
+                    <button name="action_enviar_respuesta_email" string="Enviar respuesta" type="object" class="btn-primary" icon="fa-envelope" invisible="state != 'review' or respuesta_enviada"/>
 
                     <button name="action_marcar_respondido" string="Marcar respondido" type="object" icon="fa-check-circle" invisible="state != 'review'"/>
 
@@ -264,9 +312,11 @@
 
                     <button name="action_reopen" string="Reabrir" type="object" icon="fa-undo" invisible="state not in ['answered', 'closed']"/>
 
-                    <button name="action_cancel" string="Anular" type="object" class="btn-secondary" icon="fa-ban" invisible="state in ['closed', 'cancelled']"/>
+                    <button name="action_cancel" string="Anular" type="object" icon="fa-ban" invisible="state in ['closed', 'cancelled']"/>
 
-                    <button name="action_consultar_documento" string="Consultar DNI" type="object" icon="fa-search" invisible="tipo_documento != 'dni'"/>
+                    <button name="action_consultar_documento" string="Consultar DNI" type="object" icon="fa-search" invisible="tipo_documento != 'dni' or state not in ['draft', 'submitted']"/>
+
+                    <button name="%(action_report_libro_reclamaciones)d" string="Imprimir PDF" type="action" icon="fa-print"/>
 
                     <field name="state" widget="statusbar" statusbar_visible="draft,submitted,review,answered,closed"/>
 
@@ -276,10 +326,17 @@
                 <sheet>
 
                     <!-- ================================================= -->
-                    <!-- CABECERA PRINCIPAL                                -->
+                    <!-- RIBBON                                            -->
                     <!-- ================================================= -->
 
-                    <div class="oe_title">
+                    <widget name="web_ribbon" title="VENCIDO" bg_color="text-bg-danger" invisible="not vencido or state not in ['submitted', 'review']"/>
+
+
+                    <!-- ================================================= -->
+                    <!-- TÍTULO                                            -->
+                    <!-- ================================================= -->
+
+                    <div class="oe_title mb-4">
 
                         <label for="name" string="Hoja de Reclamación"/>
 
@@ -287,31 +344,144 @@
                             <field name="name" readonly="1"/>
                         </h1>
 
-                    </div>
-
-
-                    <div class="alert alert-danger" role="alert" invisible="not vencido or state not in ['submitted', 'review']">
-
-                        <i class="fa fa-exclamation-triangle me-2"/>
-
-                        <strong>Plazo vencido.</strong>
-
-                        Esta reclamación superó su fecha límite de respuesta.
+                        <div class="text-muted">
+                            Hoja de Reclamación Virtual
+                        </div>
 
                     </div>
 
 
-                    <div class="alert alert-warning" role="alert" invisible="vencido or dias_para_vencer &gt; 3 or dias_para_vencer &lt; 0 or state not in ['submitted', 'review']">
+                    <!-- ================================================= -->
+                    <!-- ALERTAS                                           -->
+                    <!-- ================================================= -->
 
-                        <i class="fa fa-clock-o me-2"/>
+                    <div class="alert alert-danger d-flex align-items-center gap-3 rounded-3" role="alert" invisible="not vencido or state not in ['submitted', 'review']">
 
-                        <strong>Próximo a vencer.</strong>
+                        <i class="fa fa-exclamation-triangle fa-2x"/>
 
-                        Quedan
+                        <div>
 
-                        <field name="dias_para_vencer" class="oe_inline"/>
+                            <div class="fw-bold">
+                                Esta reclamación está vencida
+                            </div>
 
-                        días.
+                            <div>
+                                Se superó la fecha límite de respuesta:
+                                <field name="fecha_limite_respuesta" class="oe_inline"/>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="alert alert-warning d-flex align-items-center gap-3 rounded-3" role="alert" invisible="vencido or dias_para_vencer &gt; 3 or dias_para_vencer &lt; 0 or state not in ['submitted', 'review']">
+
+                        <i class="fa fa-clock-o fa-2x"/>
+
+                        <div>
+
+                            <div class="fw-bold">
+                                Reclamación próxima a vencer
+                            </div>
+
+                            <div>
+                                Quedan
+                                <field name="dias_para_vencer" class="oe_inline"/>
+                                días para la fecha límite.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- RESUMEN SUPERIOR                                  -->
+                    <!-- ================================================= -->
+
+                    <div class="row g-3 mb-4">
+
+                        <div class="col-lg-4">
+
+                            <div class="border rounded-3 p-3 h-100 bg-light">
+
+                                <div class="text-muted small text-uppercase fw-semibold mb-2">
+                                    Consumidor
+                                </div>
+
+                                <div class="fw-bold fs-5">
+                                    <field name="nombre_consumidor"/>
+                                </div>
+
+                                <div class="text-muted mt-2">
+                                    <i class="fa fa-id-card-o me-2"/>
+                                    <field name="numero_documento"/>
+                                </div>
+
+                                <div class="text-muted mt-1">
+                                    <i class="fa fa-envelope-o me-2"/>
+                                    <field name="email"/>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-lg-4">
+
+                            <div class="border rounded-3 p-3 h-100 bg-light">
+
+                                <div class="text-muted small text-uppercase fw-semibold mb-2">
+                                    Reclamación
+                                </div>
+
+                                <div class="mb-2">
+                                    <field name="tipo_reclamacion" widget="badge"/>
+                                </div>
+
+                                <div>
+                                    <span class="text-muted">Bien:</span>
+                                    <field name="tipo_bien" class="oe_inline ms-1"/>
+                                </div>
+
+                                <div class="mt-1">
+                                    <span class="text-muted">Monto:</span>
+                                    <field name="monto_reclamado" class="oe_inline ms-1"/>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-lg-4">
+
+                            <div class="border rounded-3 p-3 h-100 bg-light">
+
+                                <div class="text-muted small text-uppercase fw-semibold mb-2">
+                                    Gestión
+                                </div>
+
+                                <div>
+                                    <span class="text-muted">Responsable:</span>
+                                    <field name="responsable_id" class="oe_inline ms-1"/>
+                                </div>
+
+                                <div class="mt-2">
+                                    <span class="text-muted">Límite:</span>
+                                    <field name="fecha_limite_respuesta" class="oe_inline ms-1"/>
+                                </div>
+
+                                <div class="mt-2">
+                                    <span class="text-muted">Estado:</span>
+                                    <field name="state" widget="badge" class="oe_inline ms-1"/>
+                                </div>
+
+                            </div>
+
+                        </div>
 
                     </div>
 
@@ -323,27 +493,27 @@
                     <group>
 
                         <group string="Información general">
-
                             <field name="fecha_reclamo" readonly="1"/>
                             <field name="fecha_limite_respuesta" readonly="1"/>
                             <field name="tipo_hoja" readonly="1"/>
                             <field name="origen" readonly="1"/>
                             <field name="responsable_id"/>
-
                         </group>
 
                         <group string="Proveedor">
-
                             <field name="company_id"/>
                             <field name="proveedor_razon_social" readonly="1"/>
                             <field name="proveedor_ruc" readonly="1"/>
                             <field name="proveedor_domicilio" readonly="1"/>
                             <field name="website_id" readonly="1"/>
-
                         </group>
 
                     </group>
 
+
+                    <!-- ================================================= -->
+                    <!-- NOTEBOOK                                          -->
+                    <!-- ================================================= -->
 
                     <notebook>
 
@@ -354,93 +524,138 @@
 
                         <page string="Consumidor" name="consumer">
 
+                            <div class="border rounded-3 p-3 mb-4 bg-light">
+
+                                <div class="d-flex align-items-center gap-2">
+
+                                    <i class="fa fa-user-circle fa-2x text-primary"/>
+
+                                    <div>
+
+                                        <div class="fw-bold fs-5">
+                                            Datos del consumidor
+                                        </div>
+
+                                        <div class="text-muted small">
+                                            Información registrada en la Hoja de Reclamación
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
                             <group>
 
                                 <group string="Identificación">
-
                                     <field name="tipo_documento"/>
                                     <field name="numero_documento"/>
                                     <field name="nombre_consumidor"/>
                                     <field name="nombres" readonly="1"/>
                                     <field name="apellido_paterno" readonly="1"/>
                                     <field name="apellido_materno" readonly="1"/>
-
                                 </group>
 
                                 <group string="Contacto">
-
                                     <field name="domicilio_consumidor"/>
                                     <field name="telefono" widget="phone"/>
                                     <field name="email" widget="email"/>
                                     <field name="partner_id"/>
-
                                 </group>
 
                             </group>
 
 
                             <group string="Menor de edad">
-
                                 <field name="es_menor_edad"/>
                                 <field name="representante_menor_nombre" invisible="not es_menor_edad"/>
-
                             </group>
 
 
-                            <group string="Consulta automática">
+                            <div class="border rounded-3 p-3 mt-4">
+
+                                <div class="fw-semibold mb-3">
+                                    <i class="fa fa-database me-2 text-primary"/>
+                                    Consulta automática del documento
+                                </div>
 
                                 <group>
 
-                                    <field name="documento_consultado" readonly="1"/>
-                                    <field name="documento_encontrado" readonly="1"/>
-                                    <field name="ingreso_manual" readonly="1"/>
+                                    <group>
+                                        <field name="documento_consultado" readonly="1"/>
+                                        <field name="documento_encontrado" readonly="1"/>
+                                        <field name="ingreso_manual" readonly="1"/>
+                                    </group>
+
+                                    <group>
+                                        <field name="consulta_documento_estado" readonly="1"/>
+                                        <field name="consulta_documento_mensaje" readonly="1"/>
+                                        <field name="fecha_consulta_documento" readonly="1"/>
+                                    </group>
 
                                 </group>
 
-                                <group>
-
-                                    <field name="consulta_documento_estado" readonly="1"/>
-                                    <field name="consulta_documento_mensaje" readonly="1"/>
-                                    <field name="fecha_consulta_documento" readonly="1"/>
-
-                                </group>
-
-                            </group>
+                            </div>
 
                         </page>
 
 
                         <!-- ================================================= -->
-                        <!-- BIEN / SERVICIO                                    -->
+                        <!-- PRODUCTO / SERVICIO                                -->
                         <!-- ================================================= -->
 
                         <page string="Producto / Servicio" name="product_service">
 
+                            <div class="border rounded-3 p-3 mb-4 bg-light">
+
+                                <div class="d-flex align-items-center gap-2">
+
+                                    <i class="fa fa-shopping-bag fa-2x text-primary"/>
+
+                                    <div>
+
+                                        <div class="fw-bold fs-5">
+                                            Bien contratado
+                                        </div>
+
+                                        <div class="text-muted small">
+                                            Producto o servicio relacionado con la reclamación
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
                             <group>
 
-                                <group string="Bien contratado">
-
-                                    <field name="tipo_bien"/>
+                                <group string="Información">
+                                    <field name="tipo_bien" widget="radio"/>
                                     <field name="product_id"/>
                                     <field name="numero_documento_comercial"/>
-
                                 </group>
 
                                 <group string="Importe">
-
                                     <field name="currency_id" invisible="1"/>
                                     <field name="monto_reclamado"/>
-
                                 </group>
 
                             </group>
 
 
-                            <group string="Descripción">
+                            <div class="border rounded-3 p-3 mt-3">
 
-                                <field name="descripcion_bien" nolabel="1" placeholder="Descripción del producto o servicio..."/>
+                                <div class="fw-semibold mb-2">
+                                    Descripción del bien o servicio
+                                </div>
 
-                            </group>
+                                <field name="descripcion_bien" nolabel="1" placeholder="Descripción del producto o servicio relacionado con la reclamación..."/>
+
+                            </div>
 
                         </page>
 
@@ -451,105 +666,215 @@
 
                         <page string="Reclamación" name="claim">
 
+                            <div class="border rounded-3 p-3 mb-4 bg-light">
+
+                                <div class="d-flex align-items-center gap-2">
+
+                                    <i class="fa fa-file-text-o fa-2x text-primary"/>
+
+                                    <div>
+
+                                        <div class="fw-bold fs-5">
+                                            Detalle de la reclamación
+                                        </div>
+
+                                        <div class="text-muted small">
+                                            Información registrada por el consumidor
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
                             <group>
-
-                                <group>
-
+                                <group string="Tipo">
                                     <field name="tipo_reclamacion" widget="radio"/>
-
                                 </group>
-
                             </group>
 
 
-                            <group string="Detalle">
+                            <div class="row g-3">
 
-                                <field name="detalle" nolabel="1" placeholder="Detalle de la reclamación..."/>
+                                <div class="col-12">
 
-                            </group>
+                                    <div class="border rounded-3 p-3 h-100">
+
+                                        <div class="fw-semibold mb-2">
+                                            Detalle
+                                        </div>
+
+                                        <field name="detalle" nolabel="1" placeholder="Detalle de la reclamación..."/>
+
+                                    </div>
+
+                                </div>
 
 
-                            <group string="Pedido del consumidor">
+                                <div class="col-12">
 
-                                <field name="pedido_consumidor" nolabel="1" placeholder="Solución solicitada por el consumidor..."/>
+                                    <div class="border rounded-3 p-3 h-100">
 
-                            </group>
+                                        <div class="fw-semibold mb-2">
+                                            Pedido del consumidor
+                                        </div>
+
+                                        <field name="pedido_consumidor" nolabel="1" placeholder="Solución solicitada por el consumidor..."/>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
 
 
-                            <group string="Firma del consumidor">
+                            <div class="border rounded-3 p-3 mt-4">
 
-                                <field name="firma_consumidor" widget="image" class="oe_avatar" options="{'size': [300, 150]}"/>
+                                <div class="fw-semibold mb-3">
+                                    <i class="fa fa-pencil me-2"/>
+                                    Firma del consumidor
+                                </div>
+
+                                <field name="firma_consumidor" widget="image" nolabel="1" options="{'size': [350, 160]}"/>
                                 <field name="firma_consumidor_filename" invisible="1"/>
 
-                            </group>
+                            </div>
 
                         </page>
 
 
                         <!-- ================================================= -->
-                        <!-- RESPUESTA DEL PROVEEDOR                            -->
+                        <!-- ATENCIÓN / RESPUESTA                               -->
                         <!-- ================================================= -->
 
                         <page string="Atención y respuesta" name="provider_response">
 
+                            <div class="border rounded-3 p-3 mb-4 bg-light">
+
+                                <div class="d-flex align-items-center gap-2">
+
+                                    <i class="fa fa-headphones fa-2x text-primary"/>
+
+                                    <div>
+
+                                        <div class="fw-bold fs-5">
+                                            Gestión del proveedor
+                                        </div>
+
+                                        <div class="text-muted small">
+                                            Seguimiento, acciones y respuesta al consumidor
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
                             <group>
 
                                 <group string="Gestión">
-
                                     <field name="responsable_id"/>
                                     <field name="fecha_inicio_revision" readonly="1"/>
                                     <field name="fecha_comunicacion_respuesta" readonly="1"/>
                                     <field name="usuario_respuesta_id" readonly="1"/>
-
                                 </group>
 
-                                <group string="Envío">
-
+                                <group string="Comunicación">
                                     <field name="respuesta_enviada" readonly="1"/>
                                     <field name="respuesta_email" readonly="1"/>
                                     <field name="fecha_cierre" readonly="1"/>
-
                                 </group>
 
                             </group>
 
 
-                            <group string="Observaciones">
+                            <div class="border rounded-3 p-3 mt-3">
+
+                                <div class="fw-bold mb-2">
+                                    Observaciones del proveedor
+                                </div>
+
+                                <div class="text-muted small mb-3">
+                                    Registre información interna o consideraciones del caso.
+                                </div>
 
                                 <field name="observaciones_proveedor" widget="html" nolabel="1"/>
 
-                            </group>
+                            </div>
 
 
-                            <group string="Acciones adoptadas">
+                            <div class="border rounded-3 p-3 mt-3">
+
+                                <div class="fw-bold mb-2">
+                                    Acciones adoptadas
+                                </div>
+
+                                <div class="text-muted small mb-3">
+                                    Indique las medidas adoptadas para atender la reclamación.
+                                </div>
 
                                 <field name="acciones_adoptadas" widget="html" nolabel="1"/>
 
-                            </group>
+                            </div>
 
 
-                            <group string="Respuesta al consumidor">
+                            <div class="border rounded-3 p-3 mt-3">
+
+                                <div class="fw-bold mb-2">
+                                    Respuesta al consumidor
+                                </div>
+
+                                <div class="text-muted small mb-3">
+                                    Esta información será utilizada para responder al consumidor.
+                                </div>
 
                                 <field name="respuesta" widget="html" nolabel="1"/>
 
-                            </group>
+                            </div>
 
 
-                            <group string="Firma del proveedor">
+                            <div class="border rounded-3 p-3 mt-3">
 
-                                <field name="firma_proveedor" widget="image" class="oe_avatar" options="{'size': [300, 150]}"/>
+                                <div class="fw-semibold mb-3">
+                                    <i class="fa fa-pencil-square-o me-2"/>
+                                    Firma del proveedor
+                                </div>
+
+                                <field name="firma_proveedor" widget="image" nolabel="1" options="{'size': [350, 160]}"/>
                                 <field name="firma_proveedor_filename" invisible="1"/>
 
-                            </group>
+                            </div>
 
                         </page>
 
 
                         <!-- ================================================= -->
-                        <!-- ARCHIVOS                                           -->
+                        <!-- ADJUNTOS                                           -->
                         <!-- ================================================= -->
 
                         <page string="Adjuntos" name="attachments">
+
+                            <div class="border rounded-3 p-4 bg-light mb-3">
+
+                                <div class="text-center">
+
+                                    <i class="fa fa-paperclip fa-3x text-secondary mb-3"/>
+
+                                    <div class="fw-bold fs-5">
+                                        Evidencias adjuntas
+                                    </div>
+
+                                    <div class="text-muted">
+                                        Documentos y fotografías enviados junto con la reclamación
+                                    </div>
+
+                                </div>
+
+                            </div>
 
                             <field name="attachment_ids" widget="many2many_binary" nolabel="1"/>
 
@@ -562,33 +887,50 @@
 
                         <page string="Auditoría" name="audit">
 
+                            <div class="border rounded-3 p-3 mb-4 bg-light">
+
+                                <div class="d-flex align-items-center gap-2">
+
+                                    <i class="fa fa-shield fa-2x text-primary"/>
+
+                                    <div>
+
+                                        <div class="fw-bold fs-5">
+                                            Trazabilidad
+                                        </div>
+
+                                        <div class="text-muted small">
+                                            Información técnica del registro
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
                             <group>
 
                                 <group string="Origen">
-
                                     <field name="origen" readonly="1"/>
                                     <field name="website_id" readonly="1"/>
                                     <field name="ip_address" readonly="1"/>
                                     <field name="user_agent" readonly="1"/>
-
                                 </group>
 
                                 <group string="Constancia">
-
                                     <field name="constancia_enviada" readonly="1"/>
                                     <field name="fecha_envio_constancia" readonly="1"/>
                                     <field name="public_token" readonly="1"/>
-
                                 </group>
 
                             </group>
 
 
                             <group string="Declaraciones">
-
                                 <field name="acepta_declaracion" readonly="1"/>
                                 <field name="acepta_privacidad" readonly="1"/>
-
                             </group>
 
                         </page>
@@ -619,16 +961,16 @@
         <field name="res_model">libro.reclamaciones</field>
         <field name="view_mode">kanban,list,form</field>
         <field name="search_view_id" ref="view_libro_reclamaciones_search"/>
-        <field name="context">{'search_default_submitted': 1}</field>
+        <field name="context">{'search_default_pendientes': 1}</field>
         <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">No hay reclamaciones registradas</p>
-            <p>Las reclamaciones enviadas desde la página web aparecerán automáticamente en esta sección.</p>
+            <p class="o_view_nocontent_smiling_face">No hay reclamaciones pendientes</p>
+            <p>Las reclamaciones registradas desde la página web aparecerán automáticamente aquí para su atención.</p>
         </field>
     </record>
 
 
     <!-- ========================================================= -->
-    <!-- ACCIÓN TODAS                                              -->
+    <!-- TODAS                                                     -->
     <!-- ========================================================= -->
 
     <record id="action_libro_reclamaciones_all" model="ir.actions.act_window">
@@ -641,7 +983,7 @@
 
 
     <!-- ========================================================= -->
-    <!-- ACCIÓN VENCIDOS                                           -->
+    <!-- VENCIDAS                                                  -->
     <!-- ========================================================= -->
 
     <record id="action_libro_reclamaciones_vencidos" model="ir.actions.act_window">
@@ -649,20 +991,35 @@
         <field name="res_model">libro.reclamaciones</field>
         <field name="view_mode">list,kanban,form</field>
         <field name="search_view_id" ref="view_libro_reclamaciones_search"/>
-        <field name="domain">[('fecha_limite_respuesta', '&lt;', context_today()), ('state', 'in', ['submitted', 'review'])]</field>
+        <field name="context">{'search_default_vencidos': 1}</field>
     </record>
 
 
     <!-- ========================================================= -->
-    <!-- MENÚ                                                      -->
+    <!-- RESPONDIDAS                                               -->
+    <!-- ========================================================= -->
+
+    <record id="action_libro_reclamaciones_respondidas" model="ir.actions.act_window">
+        <field name="name">Reclamaciones Respondidas</field>
+        <field name="res_model">libro.reclamaciones</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_libro_reclamaciones_search"/>
+        <field name="context">{'search_default_answered': 1}</field>
+    </record>
+
+
+    <!-- ========================================================= -->
+    <!-- MENÚS                                                     -->
     <!-- ========================================================= -->
 
     <menuitem id="menu_libro_reclamaciones_root" name="Libro de Reclamaciones" parent="copier_company.menu_root" sequence="65"/>
 
-    <menuitem id="menu_libro_reclamaciones" name="Reclamaciones" parent="menu_libro_reclamaciones_root" action="action_libro_reclamaciones" sequence="10"/>
+    <menuitem id="menu_libro_reclamaciones" name="Pendientes" parent="menu_libro_reclamaciones_root" action="action_libro_reclamaciones" sequence="10"/>
 
     <menuitem id="menu_libro_reclamaciones_all" name="Todas" parent="menu_libro_reclamaciones_root" action="action_libro_reclamaciones_all" sequence="20"/>
 
     <menuitem id="menu_libro_reclamaciones_vencidos" name="Vencidas" parent="menu_libro_reclamaciones_root" action="action_libro_reclamaciones_vencidos" sequence="30"/>
+
+    <menuitem id="menu_libro_reclamaciones_respondidas" name="Respondidas" parent="menu_libro_reclamaciones_root" action="action_libro_reclamaciones_respondidas" sequence="40"/>
 
 </odoo>
