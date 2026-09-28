@@ -6,87 +6,32 @@
     <!-- FORMATO DE PAPEL                                          -->
     <!-- ========================================================= -->
 
-    <record id="paperformat_libro_reclamaciones"
-            model="report.paperformat">
-
-        <field name="name">
-            Libro de Reclamaciones
-        </field>
-
-        <field name="format">
-            A4
-        </field>
-
-        <field name="orientation">
-            Portrait
-        </field>
-
-        <field name="margin_top">
-            7
-        </field>
-
-        <field name="margin_bottom">
-            8
-        </field>
-
-        <field name="margin_left">
-            8
-        </field>
-
-        <field name="margin_right">
-            8
-        </field>
-
-        <field name="header_line"
-               eval="False"/>
-
-        <field name="header_spacing">
-            0
-        </field>
-
-        <field name="dpi">
-            90
-        </field>
-
-    </record>
-
+    <record id="paperformat_libro_reclamaciones" model="report.paperformat">
+    <field name="name">Libro de Reclamaciones</field>
+    <field name="format">A4</field>
+    <field name="orientation">Portrait</field>
+    <field name="margin_top">7</field>
+    <field name="margin_bottom">8</field>
+    <field name="margin_left">8</field>
+    <field name="margin_right">8</field>
+    <field name="header_line" eval="False"/>
+    <field name="header_spacing">0</field>
+    <field name="dpi">90</field>
+</record>
 
     <!-- ========================================================= -->
     <!-- ACCIÓN DEL REPORTE                                        -->
     <!-- ========================================================= -->
 
-    <record id="action_report_libro_reclamaciones"
-            model="ir.actions.report">
-
-        <field name="name">
-            Hoja de Reclamación
-        </field>
-
-        <field name="model">
-            libro.reclamaciones
-        </field>
-
-        <field name="report_type">
-            qweb-pdf
-        </field>
-
-        <field name="report_name">
-            copier_company.report_libro_reclamaciones
-        </field>
-
-        <field name="report_file">
-            copier_company.report_libro_reclamaciones
-        </field>
-
-        <field name="paperformat_id"
-               ref="copier_company.paperformat_libro_reclamaciones"/>
-
-        <field name="print_report_name">
-            'Hoja de Reclamacion - %s' % (object.name or '')
-        </field>
-
-    </record>
-
+    <record id="action_report_libro_reclamaciones" model="ir.actions.report">
+    <field name="name">Hoja de Reclamación</field>
+    <field name="model">libro.reclamaciones</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">copier_company.report_libro_reclamaciones</field>
+    <field name="report_file">copier_company.report_libro_reclamaciones</field>
+    <field name="paperformat_id" ref="copier_company.paperformat_libro_reclamaciones"/>
+    <field name="print_report_name">'Hoja de Reclamacion - %s' % (object.name or '')</field>
+</record>
 
     <!-- ========================================================= -->
     <!-- TEMPLATE QWEB                                             -->
