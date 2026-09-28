@@ -1088,7 +1088,7 @@
 
                         const digits = text.replace(/\D/g, "");
 
-                        return digits.length >= 6 &amp;&amp; digits.length <= 15;
+                        return digits.length >= 6 &amp;&amp; digits.length &lt;= 15;
                     }
 
                     function validateDocument() {
@@ -1129,7 +1129,7 @@
                             }
                         }
 
-                        if ((type === "ce" || type === "pasaporte") &amp;&amp; value.length < 3) {
+                        if ((type === "ce" || type === "pasaporte") &amp;&amp; value.length &lt; 3) {
                             setInvalid(
                                 numeroDocumento,
                                 error,
@@ -1216,7 +1216,7 @@
 
                         const value = Number(monto.value);
 
-                        if (!Number.isFinite(value) || value < 0) {
+                        if (!Number.isFinite(value) || value &lt; 0) {
                             setInvalid(
                                 monto,
                                 error,
