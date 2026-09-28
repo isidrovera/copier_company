@@ -6,54 +6,6 @@
     <!-- SEARCH VIEW                                               -->
     <!-- ========================================================= -->
 
-    <record id="view_libro_reclamaciones_search" model="ir.ui.view">
-        <field name="name">libro.reclamaciones.search</field>
-        <field name="model">libro.reclamaciones</field>
-        <field name="arch" type="xml">
-            <search>
-
-                <field name="name"/>
-                <field name="nombre_consumidor"/>
-                <field name="numero_documento"/>
-                <field name="email"/>
-                <field name="telefono"/>
-                <field name="responsable_id"/>
-                <field name="company_id"/>
-
-                <separator/>
-
-                <filter name="pendientes" string="Pendientes" domain="[('state', 'in', ['submitted', 'review'])]"/>
-                <filter name="registrados" string="Registrados" domain="[('state', '=', 'submitted')]"/>
-                <filter name="en_revision" string="En revisión" domain="[('state', '=', 'review')]"/>
-                <filter name="respondidos" string="Respondidos" domain="[('state', '=', 'answered')]"/>
-                <filter name="cerrados" string="Cerrados" domain="[('state', '=', 'closed')]"/>
-                <filter name="anulados" string="Anulados" domain="[('state', '=', 'cancelled')]"/>
-
-                <separator/>
-
-                <filter name="filtro_reclamos" string="Reclamos" domain="[('tipo_reclamacion', '=', 'reclamo')]"/>
-                <filter name="filtro_quejas" string="Quejas" domain="[('tipo_reclamacion', '=', 'queja')]"/>
-                <filter name="filtro_productos" string="Productos" domain="[('tipo_bien', '=', 'producto')]"/>
-                <filter name="filtro_servicios" string="Servicios" domain="[('tipo_bien', '=', 'servicio')]"/>
-
-                <separator/>
-
-                <filter name="sin_responsable" string="Sin responsable" domain="[('responsable_id', '=', False)]"/>
-                <filter name="origen_web" string="Desde página web" domain="[('origen', '=', 'website')]"/>
-                <filter name="datos_manuales" string="Ingreso manual" domain="[('ingreso_manual', '=', True)]"/>
-
-                <group string="Agrupar por">
-                    <filter name="agrupar_estado" string="Estado" context="{'group_by': 'state'}"/>
-                    <filter name="agrupar_tipo" string="Reclamo / Queja" context="{'group_by': 'tipo_reclamacion'}"/>
-                    <filter name="agrupar_bien" string="Producto / Servicio" context="{'group_by': 'tipo_bien'}"/>
-                    <filter name="agrupar_responsable" string="Responsable" context="{'group_by': 'responsable_id'}"/>
-                    <filter name="agrupar_fecha" string="Fecha" context="{'group_by': 'fecha_reclamo_date'}"/>
-                    <filter name="agrupar_empresa" string="Empresa" context="{'group_by': 'company_id'}"/>
-                </group>
-
-            </search>
-        </field>
-    </record>
 
 
     <!-- ========================================================= -->
