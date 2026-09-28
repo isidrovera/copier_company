@@ -1,0 +1,3145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ========================================================= -->
+    <!-- FORMULARIO PÚBLICO                                        -->
+    <!-- ========================================================= -->
+
+    <template id="libro_reclamaciones_form"
+              name="Libro de Reclamaciones">
+
+        <t t-call="website.layout">
+
+            <t t-set="title">
+                Libro de Reclamaciones
+            </t>
+
+            <div id="wrap"
+                 class="o_libro_reclamaciones_page">
+
+                <!-- ================================================= -->
+                <!-- ESTILOS                                           -->
+                <!-- ================================================= -->
+
+                <style>
+
+                    .o_libro_reclamaciones_page {
+                        --lr-primary: #182b49;
+                        --lr-primary-soft: #eef3f9;
+                        --lr-secondary: #4f6b95;
+                        --lr-accent: #1a73e8;
+                        --lr-success: #198754;
+                        --lr-warning: #b7791f;
+                        --lr-danger: #c62828;
+                        --lr-text: #1f2937;
+                        --lr-muted: #667085;
+                        --lr-border: #e4e7ec;
+                        --lr-bg: #f6f8fb;
+                        --lr-card: #ffffff;
+
+                        background:
+                            radial-gradient(
+                                circle at top right,
+                                rgba(26, 115, 232, 0.07),
+                                transparent 28%
+                            ),
+                            linear-gradient(
+                                180deg,
+                                #f8fafc 0%,
+                                #f4f7fb 100%
+                            );
+
+                        color: var(--lr-text);
+                        min-height: 100vh;
+                        padding-bottom: 70px;
+                    }
+
+                    .lr-container {
+                        max-width: 1120px;
+                        margin: 0 auto;
+                        padding-left: 20px;
+                        padding-right: 20px;
+                    }
+
+                    .lr-hero {
+                        padding: 50px 0 32px;
+                    }
+
+                    .lr-hero-card {
+                        position: relative;
+                        overflow: hidden;
+                        border-radius: 24px;
+                        background:
+                            linear-gradient(
+                                135deg,
+                                #152945 0%,
+                                #203d68 55%,
+                                #315b91 100%
+                            );
+                        color: #fff;
+                        padding: 38px 42px;
+                        box-shadow:
+                            0 20px 55px rgba(16, 24, 40, 0.18);
+                    }
+
+                    .lr-hero-card:after {
+                        content: "";
+                        position: absolute;
+                        width: 320px;
+                        height: 320px;
+                        border-radius: 50%;
+                        right: -110px;
+                        top: -140px;
+                        background: rgba(255, 255, 255, 0.07);
+                    }
+
+                    .lr-hero-icon {
+                        width: 58px;
+                        height: 58px;
+                        border-radius: 17px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 27px;
+                        background: rgba(255,255,255,0.13);
+                        border: 1px solid rgba(255,255,255,0.16);
+                        margin-bottom: 18px;
+                    }
+
+                    .lr-hero-title {
+                        font-size: clamp(28px, 4vw, 42px);
+                        font-weight: 750;
+                        line-height: 1.1;
+                        margin: 0;
+                    }
+
+                    .lr-hero-subtitle {
+                        color: rgba(255,255,255,0.82);
+                        font-size: 16px;
+                        margin-top: 10px;
+                        margin-bottom: 0;
+                    }
+
+                    .lr-provider-card {
+                        margin-top: -2px;
+                        background: #fff;
+                        border: 1px solid var(--lr-border);
+                        border-radius: 18px;
+                        padding: 20px 24px;
+                        box-shadow:
+                            0 7px 25px rgba(16,24,40,0.06);
+                    }
+
+                    .lr-provider-label {
+                        font-size: 11px;
+                        font-weight: 700;
+                        letter-spacing: 0.08em;
+                        text-transform: uppercase;
+                        color: var(--lr-muted);
+                    }
+
+                    .lr-provider-value {
+                        font-weight: 650;
+                        margin-top: 3px;
+                    }
+
+                    .lr-main-card {
+                        background: var(--lr-card);
+                        border: 1px solid var(--lr-border);
+                        border-radius: 24px;
+                        box-shadow:
+                            0 14px 45px rgba(16, 24, 40, 0.07);
+                        margin-top: 24px;
+                        overflow: hidden;
+                    }
+
+                    .lr-form-header {
+                        border-bottom: 1px solid var(--lr-border);
+                        padding: 22px 28px;
+                        background: #fff;
+                    }
+
+                    .lr-form-header-title {
+                        font-size: 18px;
+                        font-weight: 700;
+                        margin: 0;
+                    }
+
+                    .lr-form-body {
+                        padding: 30px;
+                    }
+
+                    .lr-section {
+                        padding-bottom: 34px;
+                        margin-bottom: 34px;
+                        border-bottom: 1px solid var(--lr-border);
+                    }
+
+                    .lr-section:last-of-type {
+                        border-bottom: none;
+                        margin-bottom: 0;
+                    }
+
+                    .lr-section-head {
+                        display: flex;
+                        align-items: flex-start;
+                        gap: 14px;
+                        margin-bottom: 24px;
+                    }
+
+                    .lr-section-number {
+                        flex: 0 0 auto;
+                        width: 38px;
+                        height: 38px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 12px;
+                        background: var(--lr-primary-soft);
+                        color: var(--lr-primary);
+                        font-weight: 800;
+                    }
+
+                    .lr-section-title {
+                        font-size: 19px;
+                        font-weight: 750;
+                        margin: 1px 0 3px;
+                    }
+
+                    .lr-section-help {
+                        color: var(--lr-muted);
+                        font-size: 13px;
+                        margin: 0;
+                    }
+
+                    .lr-label {
+                        font-size: 13px;
+                        font-weight: 650;
+                        margin-bottom: 7px;
+                        color: #344054;
+                    }
+
+                    .lr-required {
+                        color: var(--lr-danger);
+                    }
+
+                    .lr-input,
+                    .lr-select,
+                    .lr-textarea {
+                        width: 100%;
+                        border: 1px solid #d0d5dd;
+                        background: #fff;
+                        border-radius: 12px;
+                        padding: 11px 13px;
+                        color: #101828;
+                        font-size: 14px;
+                        transition:
+                            border-color 0.15s ease,
+                            box-shadow 0.15s ease;
+                    }
+
+                    .lr-input:focus,
+                    .lr-select:focus,
+                    .lr-textarea:focus {
+                        outline: none;
+                        border-color: #6ea8fe;
+                        box-shadow:
+                            0 0 0 4px rgba(13,110,253,0.10);
+                    }
+
+                    .lr-input[readonly] {
+                        background: #f8fafc;
+                    }
+
+                    .lr-textarea {
+                        min-height: 125px;
+                        resize: vertical;
+                    }
+
+                    .lr-document-row {
+                        display: grid;
+                        grid-template-columns: 190px 1fr auto;
+                        gap: 12px;
+                        align-items: end;
+                    }
+
+                    .lr-btn {
+                        border: 0;
+                        border-radius: 12px;
+                        min-height: 44px;
+                        padding: 10px 18px;
+                        font-size: 14px;
+                        font-weight: 650;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 8px;
+                        text-decoration: none !important;
+                        transition: all 0.15s ease;
+                        cursor: pointer;
+                    }
+
+                    .lr-btn-primary {
+                        background: var(--lr-primary);
+                        color: #fff !important;
+                    }
+
+                    .lr-btn-primary:hover {
+                        transform: translateY(-1px);
+                        box-shadow:
+                            0 7px 18px rgba(24,43,73,0.22);
+                    }
+
+                    .lr-btn-light {
+                        background: #f2f4f7;
+                        color: #344054 !important;
+                    }
+
+                    .lr-btn-outline {
+                        background: #fff;
+                        border: 1px solid var(--lr-border);
+                        color: #344054 !important;
+                    }
+
+                    .lr-btn-danger-light {
+                        background: #fff3f2;
+                        color: #b42318 !important;
+                    }
+
+                    .lr-document-status {
+                        margin-top: 10px;
+                        border-radius: 11px;
+                        padding: 10px 13px;
+                        display: none;
+                        font-size: 13px;
+                    }
+
+                    .lr-document-status.lr-success {
+                        display: block;
+                        background: #ecfdf3;
+                        border: 1px solid #abefc6;
+                        color: #067647;
+                    }
+
+                    .lr-document-status.lr-warning {
+                        display: block;
+                        background: #fffaeb;
+                        border: 1px solid #fedf89;
+                        color: #93370d;
+                    }
+
+                    .lr-document-status.lr-loading {
+                        display: block;
+                        background: #eff8ff;
+                        border: 1px solid #b2ddff;
+                        color: #175cd3;
+                    }
+
+                    .lr-choice-grid {
+                        display: grid;
+                        grid-template-columns: repeat(2, 1fr);
+                        gap: 14px;
+                    }
+
+                    .lr-choice {
+                        position: relative;
+                    }
+
+                    .lr-choice input {
+                        position: absolute;
+                        opacity: 0;
+                        pointer-events: none;
+                    }
+
+                    .lr-choice label {
+                        cursor: pointer;
+                        border: 1.5px solid var(--lr-border);
+                        border-radius: 16px;
+                        padding: 17px;
+                        display: block;
+                        background: #fff;
+                        transition: all 0.15s ease;
+                        min-height: 112px;
+                    }
+
+                    .lr-choice label:hover {
+                        border-color: #98a2b3;
+                        background: #fafbfc;
+                    }
+
+                    .lr-choice input:checked + label {
+                        border-color: var(--lr-primary);
+                        background: var(--lr-primary-soft);
+                        box-shadow:
+                            0 0 0 3px rgba(24,43,73,0.06);
+                    }
+
+                    .lr-choice-icon {
+                        width: 36px;
+                        height: 36px;
+                        border-radius: 10px;
+                        background: #f2f4f7;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        margin-bottom: 10px;
+                        color: var(--lr-primary);
+                    }
+
+                    .lr-choice-title {
+                        font-size: 15px;
+                        font-weight: 700;
+                    }
+
+                    .lr-choice-desc {
+                        margin-top: 5px;
+                        font-size: 12px;
+                        color: var(--lr-muted);
+                    }
+
+                    .lr-inline-note {
+                        border-radius: 13px;
+                        padding: 13px 15px;
+                        background: #f8fafc;
+                        border: 1px solid var(--lr-border);
+                        color: #475467;
+                        font-size: 13px;
+                    }
+
+                    .lr-minor-box {
+                        margin-top: 16px;
+                        display: none;
+                        padding: 18px;
+                        background: #f9fafb;
+                        border: 1px solid var(--lr-border);
+                        border-radius: 15px;
+                    }
+
+                    .lr-signature-wrap {
+                        border: 1px solid #d0d5dd;
+                        border-radius: 16px;
+                        overflow: hidden;
+                        background: #fff;
+                    }
+
+                    .lr-signature-toolbar {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 10px 12px;
+                        border-bottom: 1px solid var(--lr-border);
+                        background: #f9fafb;
+                    }
+
+                    #lr_signature_canvas {
+                        display: block;
+                        width: 100%;
+                        height: 220px;
+                        touch-action: none;
+                        cursor: crosshair;
+                        background:
+                            linear-gradient(#fff, #fff),
+                            repeating-linear-gradient(
+                                0deg,
+                                transparent,
+                                transparent 31px,
+                                #f0f2f5 32px
+                            );
+                    }
+
+                    .lr-dropzone {
+                        border: 1.5px dashed #b8c0cc;
+                        border-radius: 16px;
+                        background: #fafbfc;
+                        padding: 24px;
+                        text-align: center;
+                        cursor: pointer;
+                        transition: all 0.15s ease;
+                    }
+
+                    .lr-dropzone:hover {
+                        border-color: var(--lr-secondary);
+                        background: #f5f8fc;
+                    }
+
+                    .lr-file-hint {
+                        color: var(--lr-muted);
+                        font-size: 12px;
+                        margin-top: 6px;
+                    }
+
+                    .lr-legal {
+                        background: #f8fafc;
+                        border: 1px solid var(--lr-border);
+                        border-radius: 16px;
+                        padding: 17px;
+                        font-size: 13px;
+                    }
+
+                    .lr-checkbox-row {
+                        display: flex;
+                        align-items: flex-start;
+                        gap: 10px;
+                        margin-bottom: 13px;
+                    }
+
+                    .lr-checkbox-row:last-child {
+                        margin-bottom: 0;
+                    }
+
+                    .lr-checkbox-row input {
+                        margin-top: 3px;
+                        width: 17px;
+                        height: 17px;
+                    }
+
+                    .lr-submit-bar {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        gap: 20px;
+                        padding-top: 25px;
+                    }
+
+                    .lr-submit-help {
+                        max-width: 550px;
+                        color: var(--lr-muted);
+                        font-size: 12px;
+                    }
+
+                    .lr-submit-btn {
+                        min-width: 220px;
+                        min-height: 50px;
+                        font-size: 15px;
+                    }
+
+                    .lr-error-box {
+                        margin-bottom: 22px;
+                        padding: 16px 18px;
+                        border-radius: 14px;
+                        border: 1px solid #fecdca;
+                        background: #fef3f2;
+                        color: #b42318;
+                    }
+
+                    .lr-error-box ul {
+                        margin: 8px 0 0;
+                    }
+
+                    .lr-summary-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                    }
+
+                    .lr-summary-table td {
+                        padding: 10px 0;
+                        vertical-align: top;
+                        border-bottom: 1px solid #eef0f2;
+                    }
+
+                    .lr-summary-table td:first-child {
+                        width: 38%;
+                        color: var(--lr-muted);
+                    }
+
+                    .modal-content.lr-modal {
+                        border: 0;
+                        border-radius: 22px;
+                        overflow: hidden;
+                        box-shadow:
+                            0 24px 70px rgba(16,24,40,0.2);
+                    }
+
+                    .lr-modal .modal-header {
+                        padding: 20px 22px;
+                        border-bottom: 1px solid var(--lr-border);
+                    }
+
+                    .lr-modal .modal-body {
+                        padding: 22px;
+                    }
+
+                    .lr-modal .modal-footer {
+                        padding: 16px 22px;
+                        border-top: 1px solid var(--lr-border);
+                    }
+
+                    .lr-definition {
+                        padding: 15px;
+                        border-radius: 14px;
+                        background: #f8fafc;
+                        margin-bottom: 12px;
+                    }
+
+                    .lr-definition-title {
+                        font-weight: 750;
+                        margin-bottom: 4px;
+                    }
+
+                    @media (max-width: 768px) {
+
+                        .lr-container {
+                            padding-left: 13px;
+                            padding-right: 13px;
+                        }
+
+                        .lr-hero {
+                            padding-top: 22px;
+                        }
+
+                        .lr-hero-card {
+                            padding: 27px 22px;
+                            border-radius: 19px;
+                        }
+
+                        .lr-form-body {
+                            padding: 21px 17px;
+                        }
+
+                        .lr-form-header {
+                            padding: 18px;
+                        }
+
+                        .lr-document-row {
+                            grid-template-columns: 1fr;
+                        }
+
+                        .lr-choice-grid {
+                            grid-template-columns: 1fr;
+                        }
+
+                        .lr-submit-bar {
+                            flex-direction: column;
+                            align-items: stretch;
+                        }
+
+                        .lr-submit-btn {
+                            width: 100%;
+                        }
+
+                        #lr_signature_canvas {
+                            height: 180px;
+                        }
+
+                    }
+
+                </style>
+
+
+                <!-- ================================================= -->
+                <!-- HERO                                              -->
+                <!-- ================================================= -->
+
+                <section class="lr-hero">
+
+                    <div class="lr-container">
+
+                        <div class="lr-hero-card">
+
+                            <div class="lr-hero-icon">
+                                <i class="fa fa-book"/>
+                            </div>
+
+                            <h1 class="lr-hero-title">
+                                Libro de Reclamaciones
+                            </h1>
+
+                            <p class="lr-hero-subtitle">
+                                Hoja de Reclamación Virtual
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ================================================= -->
+                <!-- DATOS DEL PROVEEDOR                               -->
+                <!-- ================================================= -->
+
+                <div class="lr-container">
+
+                    <div class="lr-provider-card">
+
+                        <div class="row g-3">
+
+                            <div class="col-lg-4">
+
+                                <div class="lr-provider-label">
+                                    Proveedor
+                                </div>
+
+                                <div class="lr-provider-value">
+                                    <t t-esc="company.name"/>
+                                </div>
+
+                            </div>
+
+                            <div class="col-lg-3">
+
+                                <div class="lr-provider-label">
+                                    RUC
+                                </div>
+
+                                <div class="lr-provider-value">
+                                    <t t-esc="company.vat or '-'"/>
+                                </div>
+
+                            </div>
+
+                            <div class="col-lg-5">
+
+                                <div class="lr-provider-label">
+                                    Domicilio
+                                </div>
+
+                                <div class="lr-provider-value">
+                                    <t t-esc="company.street or ''"/>
+
+                                    <t t-if="company.street2">
+                                        <t t-esc="' ' + company.street2"/>
+                                    </t>
+
+                                    <t t-if="company.city">
+                                        <t t-esc="' - ' + company.city"/>
+                                    </t>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- FORMULARIO                                        -->
+                    <!-- ================================================= -->
+
+                    <div class="lr-main-card">
+
+                        <div class="lr-form-header">
+
+                            <h2 class="lr-form-header-title">
+                                Registrar una reclamación
+                            </h2>
+
+                        </div>
+
+                        <div class="lr-form-body">
+
+
+                            <!-- ============================================= -->
+                            <!-- ERRORES                                       -->
+                            <!-- ============================================= -->
+
+                            <t t-if="error">
+
+                                <div class="lr-error-box">
+
+                                    <strong>
+                                        Revise la información ingresada.
+                                    </strong>
+
+                                    <ul>
+
+                                        <t t-foreach="error"
+                                           t-as="error_item">
+
+                                            <li>
+                                                <t t-esc="error_item"/>
+                                            </li>
+
+                                        </t>
+
+                                    </ul>
+
+                                </div>
+
+                            </t>
+
+
+                            <form id="lr_form"
+                                  action="/libro-de-reclamaciones/enviar"
+                                  method="post"
+                                  enctype="multipart/form-data">
+
+                                <input type="hidden"
+                                       name="csrf_token"
+                                       t-att-value="request.csrf_token()"/>
+
+
+                                <!-- Firma base64 -->
+
+                                <input type="hidden"
+                                       id="firma_consumidor"
+                                       name="firma_consumidor"/>
+
+
+                                <!-- ================================================= -->
+                                <!-- 1 CONSUMIDOR                                      -->
+                                <!-- ================================================= -->
+
+                                <section class="lr-section">
+
+                                    <div class="lr-section-head">
+
+                                        <div class="lr-section-number">
+                                            1
+                                        </div>
+
+                                        <div>
+
+                                            <h3 class="lr-section-title">
+                                                Identificación del consumidor reclamante
+                                            </h3>
+
+                                            <p class="lr-section-help">
+                                                Ingrese los datos de la persona que presenta
+                                                la reclamación.
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- Documento -->
+
+                                    <div class="lr-document-row">
+
+                                        <div>
+
+                                            <label class="lr-label">
+                                                Tipo de documento
+                                                <span class="lr-required">*</span>
+                                            </label>
+
+                                            <select class="lr-select"
+                                                    id="tipo_documento"
+                                                    name="tipo_documento"
+                                                    required="required">
+
+                                                <option value="dni"
+                                                        t-att-selected="'selected' if form_data.get('tipo_documento', 'dni') == 'dni' else None">
+                                                    DNI
+                                                </option>
+
+                                                <option value="ce"
+                                                        t-att-selected="'selected' if form_data.get('tipo_documento') == 'ce' else None">
+                                                    Carné de Extranjería
+                                                </option>
+
+                                            </select>
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label class="lr-label">
+                                                Número de documento
+                                                <span class="lr-required">*</span>
+                                            </label>
+
+                                            <input type="text"
+                                                   class="lr-input"
+                                                   id="numero_documento"
+                                                   name="numero_documento"
+                                                   autocomplete="off"
+                                                   maxlength="30"
+                                                   t-att-value="form_data.get('numero_documento', '')"
+                                                   required="required"/>
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <button type="button"
+                                                    id="btn_buscar_dni"
+                                                    class="lr-btn lr-btn-primary">
+
+                                                <i class="fa fa-search"/>
+
+                                                Consultar
+
+                                            </button>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div id="lr_document_status"
+                                         class="lr-document-status">
+                                    </div>
+
+
+                                    <!-- Nombre -->
+
+                                    <div class="row g-3 mt-1">
+
+                                        <div class="col-12">
+
+                                            <label class="lr-label">
+                                                Nombre completo
+                                                <span class="lr-required">*</span>
+                                            </label>
+
+                                            <input type="text"
+                                                   class="lr-input"
+                                                   id="nombre_consumidor"
+                                                   name="nombre_consumidor"
+                                                   maxlength="250"
+                                                   t-att-value="form_data.get('nombre_consumidor', '')"
+                                                   required="required"/>
+
+                                            <div class="lr-file-hint"
+                                                 id="lr_name_help">
+
+                                                Para DNI intentaremos completar
+                                                automáticamente el nombre.
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="col-lg-8">
+
+                                            <label class="lr-label">
+                                                Domicilio
+                                                <span class="lr-required">*</span>
+                                            </label>
+
+                                            <input type="text"
+                                                   class="lr-input"
+                                                   name="domicilio_consumidor"
+                                                   maxlength="500"
+                                                   t-att-value="form_data.get('domicilio_consumidor', '')"
+                                                   required="required"/>
+
+                                        </div>
+
+
+                                        <div class="col-lg-4">
+
+                                            <label class="lr-label">
+                                                Teléfono / Celular
+                                                <span class="lr-required">*</span>
+                                            </label>
+
+                                            <input type="tel"
+                                                   class="lr-input"
+                                                   name="telefono"
+                                                   maxlength="50"
+                                                   t-att-value="form_data.get('telefono', '')"
+                                                   required="required"/>
+
+                                        </div>
+
+
+                                        <div class="col-12">
+
+                                            <label class="lr-label">
+                                                E-mail
+                                                <span class="lr-required">*</span>
+                                            </label>
+
+                                            <input type="email"
+                                                   class="lr-input"
+                                                   name="email"
+                                                   maxlength="254"
+                                                   t-att-value="form_data.get('email', '')"
+                                                   required="required"/>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- Menor -->
+
+                                    <div class="mt-4">
+
+                                        <div class="form-check">
+
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   value="1"
+                                                   id="es_menor_edad"
+                                                   name="es_menor_edad"
+                                                   t-att-checked="'checked' if form_data.get('es_menor_edad') else None"/>
+
+                                            <label class="form-check-label"
+                                                   for="es_menor_edad">
+
+                                                El consumidor es menor de edad
+
+                                            </label>
+
+                                            <button type="button"
+                                                    class="btn btn-link btn-sm text-decoration-none"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#modalMenor">
+
+                                                ¿Por qué se solicita?
+
+                                            </button>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="lr-minor-box"
+                                         id="lr_minor_box">
+
+                                        <label class="lr-label">
+                                            Nombre del padre, madre o apoderado
+                                            <span class="lr-required">*</span>
+                                        </label>
+
+                                        <input type="text"
+                                               class="lr-input"
+                                               id="representante_menor_nombre"
+                                               name="representante_menor_nombre"
+                                               maxlength="250"
+                                               t-att-value="form_data.get('representante_menor_nombre', '')"/>
+
+                                    </div>
+
+                                </section>
+
+
+                                <!-- ================================================= -->
+                                <!-- 2 BIEN CONTRATADO                                 -->
+                                <!-- ================================================= -->
+
+                                <section class="lr-section">
+
+                                    <div class="lr-section-head">
+
+                                        <div class="lr-section-number">
+                                            2
+                                        </div>
+
+                                        <div>
+
+                                            <h3 class="lr-section-title">
+                                                Identificación del bien contratado
+                                            </h3>
+
+                                            <p class="lr-section-help">
+                                                Indique si la reclamación se relaciona
+                                                con un producto o servicio.
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="lr-choice-grid">
+
+                                        <div class="lr-choice">
+
+                                            <input type="radio"
+                                                   id="tipo_producto"
+                                                   name="tipo_bien"
+                                                   value="producto"
+                                                   t-att-checked="'checked' if form_data.get('tipo_bien') == 'producto' else None"/>
+
+                                            <label for="tipo_producto">
+
+                                                <div class="lr-choice-icon">
+                                                    <i class="fa fa-cube"/>
+                                                </div>
+
+                                                <div class="lr-choice-title">
+                                                    Producto
+                                                </div>
+
+                                                <div class="lr-choice-desc">
+                                                    Reclamo relacionado con un bien
+                                                    adquirido.
+                                                </div>
+
+                                            </label>
+
+                                        </div>
+
+
+                                        <div class="lr-choice">
+
+                                            <input type="radio"
+                                                   id="tipo_servicio"
+                                                   name="tipo_bien"
+                                                   value="servicio"
+                                                   t-att-checked="'checked' if form_data.get('tipo_bien') == 'servicio' else None"/>
+
+                                            <label for="tipo_servicio">
+
+                                                <div class="lr-choice-icon">
+                                                    <i class="fa fa-wrench"/>
+                                                </div>
+
+                                                <div class="lr-choice-title">
+                                                    Servicio
+                                                </div>
+
+                                                <div class="lr-choice-desc">
+                                                    Reclamo relacionado con un servicio
+                                                    contratado.
+                                                </div>
+
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="row g-3 mt-3">
+
+                                        <div class="col-md-5">
+
+                                            <label class="lr-label">
+                                                Monto reclamado
+                                            </label>
+
+                                            <div class="input-group">
+
+                                                <span class="input-group-text">
+                                                    S/
+                                                </span>
+
+                                                <input type="text"
+                                                       class="form-control"
+                                                       name="monto_reclamado"
+                                                       inputmode="decimal"
+                                                       t-att-value="form_data.get('monto_reclamado', '')"/>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="col-md-7">
+
+                                            <label class="lr-label">
+                                                Pedido / Factura / Cotización
+                                            </label>
+
+                                            <input type="text"
+                                                   class="lr-input"
+                                                   name="numero_documento_comercial"
+                                                   maxlength="100"
+                                                   placeholder="Opcional"
+                                                   t-att-value="form_data.get('numero_documento_comercial', '')"/>
+
+                                        </div>
+
+
+                                        <div class="col-12">
+
+                                            <label class="lr-label">
+                                                Descripción
+                                                <span class="lr-required">*</span>
+                                            </label>
+
+                                            <textarea class="lr-textarea"
+                                                      name="descripcion_bien"
+                                                      required="required"
+                                                      placeholder="Describa el producto o servicio relacionado con su reclamación."><t t-esc="form_data.get('descripcion_bien', '')"/></textarea>
+
+                                        </div>
+
+                                    </div>
+
+                                </section>
+
+
+                                <!-- ================================================= -->
+                                <!-- 3 RECLAMACIÓN                                     -->
+                                <!-- ================================================= -->
+
+                                <section class="lr-section">
+
+                                    <div class="lr-section-head">
+
+                                        <div class="lr-section-number">
+                                            3
+                                        </div>
+
+                                        <div>
+
+                                            <h3 class="lr-section-title">
+                                                Detalle de la reclamación y pedido
+                                                del consumidor
+                                            </h3>
+
+                                            <p class="lr-section-help">
+
+                                                Seleccione Reclamo o Queja.
+
+                                                <button type="button"
+                                                        class="btn btn-link btn-sm text-decoration-none p-0 ms-1"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#modalReclamoQueja">
+
+                                                    Ver diferencia
+
+                                                </button>
+
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="lr-choice-grid">
+
+                                        <div class="lr-choice">
+
+                                            <input type="radio"
+                                                   id="tipo_reclamo"
+                                                   name="tipo_reclamacion"
+                                                   value="reclamo"
+                                                   t-att-checked="'checked' if form_data.get('tipo_reclamacion') == 'reclamo' else None"/>
+
+                                            <label for="tipo_reclamo">
+
+                                                <div class="lr-choice-icon">
+                                                    <i class="fa fa-file-text-o"/>
+                                                </div>
+
+                                                <div class="lr-choice-title">
+                                                    Reclamo
+                                                </div>
+
+                                                <div class="lr-choice-desc">
+                                                    Disconformidad relacionada a
+                                                    los productos o servicios.
+                                                </div>
+
+                                            </label>
+
+                                        </div>
+
+
+                                        <div class="lr-choice">
+
+                                            <input type="radio"
+                                                   id="tipo_queja"
+                                                   name="tipo_reclamacion"
+                                                   value="queja"
+                                                   t-att-checked="'checked' if form_data.get('tipo_reclamacion') == 'queja' else None"/>
+
+                                            <label for="tipo_queja">
+
+                                                <div class="lr-choice-icon">
+                                                    <i class="fa fa-commenting-o"/>
+                                                </div>
+
+                                                <div class="lr-choice-title">
+                                                    Queja
+                                                </div>
+
+                                                <div class="lr-choice-desc">
+                                                    Malestar o descontento respecto
+                                                    de la atención al público.
+                                                </div>
+
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="row g-3 mt-3">
+
+                                        <div class="col-12">
+
+                                            <label class="lr-label">
+                                                Detalle
+                                                <span class="lr-required">*</span>
+                                            </label>
+
+                                            <textarea class="lr-textarea"
+                                                      name="detalle"
+                                                      required="required"
+                                                      placeholder="Explique lo ocurrido con el mayor detalle posible."><t t-esc="form_data.get('detalle', '')"/></textarea>
+
+                                        </div>
+
+
+                                        <div class="col-12">
+
+                                            <label class="lr-label">
+                                                Pedido del consumidor
+                                                <span class="lr-required">*</span>
+                                            </label>
+
+                                            <textarea class="lr-textarea"
+                                                      name="pedido_consumidor"
+                                                      required="required"
+                                                      placeholder="Indique claramente qué solución solicita."><t t-esc="form_data.get('pedido_consumidor', '')"/></textarea>
+
+                                        </div>
+
+                                    </div>
+
+                                </section>
+
+
+                                <!-- ================================================= -->
+                                <!-- FIRMA                                             -->
+                                <!-- ================================================= -->
+
+                                <section class="lr-section">
+
+                                    <div class="lr-section-head">
+
+                                        <div class="lr-section-number">
+                                            <i class="fa fa-pencil"/>
+                                        </div>
+
+                                        <div>
+
+                                            <h3 class="lr-section-title">
+                                                Firma del consumidor
+                                            </h3>
+
+                                            <p class="lr-section-help">
+                                                Dibuje su firma en el recuadro.
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="lr-signature-wrap">
+
+                                        <div class="lr-signature-toolbar">
+
+                                            <span class="small text-muted">
+                                                Firma
+                                            </span>
+
+                                            <button type="button"
+                                                    id="btn_clear_signature"
+                                                    class="lr-btn lr-btn-light">
+
+                                                <i class="fa fa-eraser"/>
+
+                                                Limpiar
+
+                                            </button>
+
+                                        </div>
+
+                                        <canvas id="lr_signature_canvas">
+                                        </canvas>
+
+                                    </div>
+
+                                </section>
+
+
+                                <!-- ================================================= -->
+                                <!-- ADJUNTOS                                          -->
+                                <!-- ================================================= -->
+
+                                <section class="lr-section">
+
+                                    <div class="lr-section-head">
+
+                                        <div class="lr-section-number">
+                                            <i class="fa fa-paperclip"/>
+                                        </div>
+
+                                        <div>
+
+                                            <h3 class="lr-section-title">
+                                                Adjuntar evidencia
+                                            </h3>
+
+                                            <p class="lr-section-help">
+                                                Opcional. Puede adjuntar documentos,
+                                                comprobantes o fotografías.
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <label class="lr-dropzone"
+                                           for="attachment_ids">
+
+                                        <div style="font-size:28px; color:#667085;">
+                                            <i class="fa fa-cloud-upload"/>
+                                        </div>
+
+                                        <div class="fw-semibold mt-2">
+                                            Seleccionar archivos
+                                        </div>
+
+                                        <div class="lr-file-hint">
+                                            PDF, JPG, PNG o WEBP · Máximo 5 archivos ·
+                                            10 MB cada uno
+                                        </div>
+
+                                        <input type="file"
+                                               id="attachment_ids"
+                                               name="attachment_ids"
+                                               multiple="multiple"
+                                               accept=".pdf,.jpg,.jpeg,.png,.webp"
+                                               style="display:none;"/>
+
+                                    </label>
+
+                                    <div id="lr_file_list"
+                                         class="mt-3">
+                                    </div>
+
+                                </section>
+
+
+                                <!-- ================================================= -->
+                                <!-- TEXTOS LEGALES                                    -->
+                                <!-- ================================================= -->
+
+                                <section class="lr-section">
+
+                                    <div class="lr-legal">
+
+                                        <p class="mb-3">
+
+                                            La formulación del reclamo no impide
+                                            acudir a otras vías de solución de
+                                            controversias ni es requisito previo
+                                            para interponer una denuncia ante
+                                            el INDECOPI.
+
+                                        </p>
+
+                                        <p class="mb-3">
+
+                                            El proveedor debe dar respuesta al
+                                            reclamo o queja en un plazo no mayor
+                                            a quince (15) días hábiles, el cual
+                                            es improrrogable.
+
+                                        </p>
+
+
+                                        <div class="lr-checkbox-row">
+
+                                            <input type="checkbox"
+                                                   id="acepta_declaracion"
+                                                   name="acepta_declaracion"
+                                                   value="1"
+                                                   required="required"
+                                                   t-att-checked="'checked' if form_data.get('acepta_declaracion') else None"/>
+
+                                            <label for="acepta_declaracion">
+
+                                                Declaro que la información
+                                                proporcionada es correcta.
+
+                                            </label>
+
+                                        </div>
+
+
+                                        <div class="lr-checkbox-row">
+
+                                            <input type="checkbox"
+                                                   id="acepta_privacidad"
+                                                   name="acepta_privacidad"
+                                                   value="1"
+                                                   t-att-checked="'checked' if form_data.get('acepta_privacidad') else None"/>
+
+                                            <label for="acepta_privacidad">
+
+                                                He leído la
+
+                                                <button type="button"
+                                                        class="btn btn-link btn-sm p-0 align-baseline text-decoration-none"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#modalPrivacidad">
+
+                                                    información sobre tratamiento
+                                                    de datos personales
+
+                                                </button>.
+
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="lr-submit-bar">
+
+                                        <div class="lr-submit-help">
+
+                                            Al registrar la reclamación se generará
+                                            un número único de hoja y podrá obtener
+                                            su constancia en PDF.
+
+                                        </div>
+
+                                        <button type="button"
+                                                id="btn_prepare_submit"
+                                                class="lr-btn lr-btn-primary lr-submit-btn">
+
+                                            <i class="fa fa-paper-plane"/>
+
+                                            Registrar reclamación
+
+                                        </button>
+
+                                    </div>
+
+                                </section>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- MODAL RECLAMO / QUEJA                             -->
+                <!-- ================================================= -->
+
+                <div class="modal fade"
+                     id="modalReclamoQueja"
+                     tabindex="-1"
+                     aria-hidden="true">
+
+                    <div class="modal-dialog modal-dialog-centered">
+
+                        <div class="modal-content lr-modal">
+
+                            <div class="modal-header">
+
+                                <h5 class="modal-title">
+                                    Reclamo y Queja
+                                </h5>
+
+                                <button type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"/>
+                            </div>
+
+                            <div class="modal-body">
+
+                                <div class="lr-definition">
+
+                                    <div class="lr-definition-title">
+                                        Reclamo
+                                    </div>
+
+                                    <div>
+                                        Disconformidad relacionada a los
+                                        productos o servicios.
+                                    </div>
+
+                                </div>
+
+                                <div class="lr-definition mb-0">
+
+                                    <div class="lr-definition-title">
+                                        Queja
+                                    </div>
+
+                                    <div>
+                                        Disconformidad no relacionada a los
+                                        productos o servicios; o malestar o
+                                        descontento respecto a la atención
+                                        al público.
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="modal-footer">
+
+                                <button type="button"
+                                        class="lr-btn lr-btn-primary"
+                                        data-bs-dismiss="modal">
+                                    Entendido
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- MODAL MENOR                                       -->
+                <!-- ================================================= -->
+
+                <div class="modal fade"
+                     id="modalMenor"
+                     tabindex="-1"
+                     aria-hidden="true">
+
+                    <div class="modal-dialog modal-dialog-centered">
+
+                        <div class="modal-content lr-modal">
+
+                            <div class="modal-header">
+
+                                <h5 class="modal-title">
+                                    Consumidor menor de edad
+                                </h5>
+
+                                <button type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"/>
+
+                            </div>
+
+                            <div class="modal-body">
+
+                                <p class="mb-0">
+
+                                    El formato del Libro de Reclamaciones
+                                    solicita indicar el nombre del padre,
+                                    madre o apoderado cuando el consumidor
+                                    reclamante es menor de edad.
+
+                                </p>
+
+                            </div>
+
+                            <div class="modal-footer">
+
+                                <button type="button"
+                                        class="lr-btn lr-btn-primary"
+                                        data-bs-dismiss="modal">
+                                    Entendido
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- MODAL PRIVACIDAD                                  -->
+                <!-- ================================================= -->
+
+                <div class="modal fade"
+                     id="modalPrivacidad"
+                     tabindex="-1"
+                     aria-hidden="true">
+
+                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+
+                        <div class="modal-content lr-modal">
+
+                            <div class="modal-header">
+
+                                <h5 class="modal-title">
+                                    Tratamiento de datos personales
+                                </h5>
+
+                                <button type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"/>
+
+                            </div>
+
+                            <div class="modal-body">
+
+                                <p>
+                                    Los datos ingresados en este formulario
+                                    serán utilizados para registrar, gestionar
+                                    y responder la reclamación presentada.
+                                </p>
+
+                                <p class="mb-0">
+                                    Para información adicional, consulte la
+                                    Política de Privacidad publicada en este
+                                    sitio web.
+                                </p>
+
+                            </div>
+
+                            <div class="modal-footer">
+
+                                <button type="button"
+                                        class="lr-btn lr-btn-primary"
+                                        data-bs-dismiss="modal">
+
+                                    Cerrar
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- MODAL RESUMEN / CONFIRMACIÓN                      -->
+                <!-- ================================================= -->
+
+                <div class="modal fade"
+                     id="modalConfirmacion"
+                     tabindex="-1"
+                     aria-hidden="true">
+
+                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+
+                        <div class="modal-content lr-modal">
+
+                            <div class="modal-header">
+
+                                <div>
+
+                                    <h5 class="modal-title">
+                                        Confirmar reclamación
+                                    </h5>
+
+                                    <div class="small text-muted mt-1">
+                                        Revise la información antes de registrar.
+                                    </div>
+
+                                </div>
+
+                                <button type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"/>
+
+                            </div>
+
+                            <div class="modal-body">
+
+                                <table class="lr-summary-table">
+
+                                    <tr>
+                                        <td>Consumidor</td>
+                                        <td id="summary_nombre"/>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Documento</td>
+                                        <td id="summary_documento"/>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Bien</td>
+                                        <td id="summary_bien"/>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Tipo</td>
+                                        <td id="summary_tipo"/>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Detalle</td>
+                                        <td id="summary_detalle"/>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Pedido</td>
+                                        <td id="summary_pedido"/>
+                                    </tr>
+
+                                </table>
+
+                            </div>
+
+                            <div class="modal-footer">
+
+                                <button type="button"
+                                        class="lr-btn lr-btn-outline"
+                                        data-bs-dismiss="modal">
+
+                                    Volver y revisar
+
+                                </button>
+
+                                <button type="button"
+                                        id="btn_final_submit"
+                                        class="lr-btn lr-btn-primary">
+
+                                    <i class="fa fa-check"/>
+
+                                    Confirmar y registrar
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- JAVASCRIPT                                        -->
+                <!-- ================================================= -->
+
+                <script type="text/javascript">
+
+                    document.addEventListener(
+                        "DOMContentLoaded",
+                        function () {
+
+                            const form =
+                                document.getElementById("lr_form");
+
+                            if (!form) {
+                                return;
+                            }
+
+
+                            // =========================================
+                            // DOCUMENTO DNI / CE
+                            // =========================================
+
+                            const tipoDocumento =
+                                document.getElementById(
+                                    "tipo_documento"
+                                );
+
+                            const numeroDocumento =
+                                document.getElementById(
+                                    "numero_documento"
+                                );
+
+                            const nombreConsumidor =
+                                document.getElementById(
+                                    "nombre_consumidor"
+                                );
+
+                            const btnBuscar =
+                                document.getElementById(
+                                    "btn_buscar_dni"
+                                );
+
+                            const documentStatus =
+                                document.getElementById(
+                                    "lr_document_status"
+                                );
+
+                            const nameHelp =
+                                document.getElementById(
+                                    "lr_name_help"
+                                );
+
+
+                            function statusMessage(
+                                type,
+                                message
+                            ) {
+
+                                documentStatus.className =
+                                    "lr-document-status lr-" + type;
+
+                                documentStatus.textContent =
+                                    message;
+
+                            }
+
+
+                            function configureDocumentType() {
+
+                                if (
+                                    tipoDocumento.value === "dni"
+                                ) {
+
+                                    numeroDocumento.maxLength = 8;
+
+                                    numeroDocumento.inputMode =
+                                        "numeric";
+
+                                    btnBuscar.style.display =
+                                        "inline-flex";
+
+                                    nameHelp.textContent =
+                                        "Para DNI intentaremos completar automáticamente el nombre.";
+
+                                } else {
+
+                                    numeroDocumento.maxLength = 30;
+
+                                    numeroDocumento.inputMode =
+                                        "text";
+
+                                    btnBuscar.style.display =
+                                        "none";
+
+                                    nombreConsumidor.readOnly =
+                                        false;
+
+                                    statusMessage(
+                                        "warning",
+                                        "Para Carné de Extranjería ingrese los datos manualmente."
+                                    );
+
+                                    nameHelp.textContent =
+                                        "Ingrese el nombre completo manualmente.";
+
+                                }
+
+                            }
+
+
+                            async function consultarDNI() {
+
+                                const dni =
+                                    numeroDocumento.value
+                                        .trim();
+
+                                if (
+                                    !/^\d{8}$/.test(dni)
+                                ) {
+
+                                    statusMessage(
+                                        "warning",
+                                        "El DNI debe contener exactamente 8 dígitos."
+                                    );
+
+                                    nombreConsumidor.readOnly =
+                                        false;
+
+                                    return;
+                                }
+
+
+                                statusMessage(
+                                    "loading",
+                                    "Consultando documento..."
+                                );
+
+
+                                btnBuscar.disabled = true;
+
+
+                                try {
+
+                                    const response =
+                                        await fetch(
+                                            "/libro-de-reclamaciones/consultar-dni",
+                                            {
+                                                method: "POST",
+
+                                                headers: {
+                                                    "Content-Type":
+                                                        "application/json"
+                                                },
+
+                                                body: JSON.stringify({
+                                                    jsonrpc: "2.0",
+                                                    method: "call",
+                                                    params: {
+                                                        numero_documento:
+                                                            dni
+                                                    },
+                                                    id: Date.now()
+                                                })
+                                            }
+                                        );
+
+
+                                    const payload =
+                                        await response.json();
+
+
+                                    const result =
+                                        payload.result || {};
+
+
+                                    if (result.ok) {
+
+                                        nombreConsumidor.value =
+                                            result.nombre || "";
+
+                                        nombreConsumidor.readOnly =
+                                            true;
+
+                                        statusMessage(
+                                            "success",
+                                            "Datos encontrados. El nombre fue cargado automáticamente."
+                                        );
+
+                                    } else {
+
+                                        nombreConsumidor.readOnly =
+                                            false;
+
+                                        statusMessage(
+                                            "warning",
+                                            result.message ||
+                                            "No se encontraron datos. Puede ingresar el nombre manualmente."
+                                        );
+
+                                        nombreConsumidor.focus();
+
+                                    }
+
+                                } catch (error) {
+
+                                    nombreConsumidor.readOnly =
+                                        false;
+
+                                    statusMessage(
+                                        "warning",
+                                        "No fue posible consultar el DNI. Puede continuar ingresando los datos manualmente."
+                                    );
+
+                                } finally {
+
+                                    btnBuscar.disabled = false;
+
+                                }
+
+                            }
+
+
+                            tipoDocumento.addEventListener(
+                                "change",
+                                function () {
+
+                                    numeroDocumento.value = "";
+
+                                    nombreConsumidor.value = "";
+
+                                    nombreConsumidor.readOnly =
+                                        false;
+
+                                    documentStatus.className =
+                                        "lr-document-status";
+
+                                    configureDocumentType();
+
+                                }
+                            );
+
+
+                            btnBuscar.addEventListener(
+                                "click",
+                                consultarDNI
+                            );
+
+
+                            numeroDocumento.addEventListener(
+                                "input",
+                                function () {
+
+                                    if (
+                                        tipoDocumento.value ===
+                                        "dni"
+                                    ) {
+
+                                        this.value =
+                                            this.value.replace(
+                                                /\D/g,
+                                                ""
+                                            );
+
+                                        nombreConsumidor.readOnly =
+                                            false;
+
+                                    }
+
+                                }
+                            );
+
+
+                            numeroDocumento.addEventListener(
+                                "blur",
+                                function () {
+
+                                    if (
+                                        tipoDocumento.value ===
+                                        "dni" &amp;&amp;
+                                        this.value.length === 8
+                                    ) {
+
+                                        consultarDNI();
+
+                                    }
+
+                                }
+                            );
+
+
+                            configureDocumentType();
+
+
+                            // =========================================
+                            // MENOR DE EDAD
+                            // =========================================
+
+                            const menorCheck =
+                                document.getElementById(
+                                    "es_menor_edad"
+                                );
+
+                            const minorBox =
+                                document.getElementById(
+                                    "lr_minor_box"
+                                );
+
+                            const minorName =
+                                document.getElementById(
+                                    "representante_menor_nombre"
+                                );
+
+
+                            function toggleMinor() {
+
+                                if (menorCheck.checked) {
+
+                                    minorBox.style.display =
+                                        "block";
+
+                                    minorName.required =
+                                        true;
+
+                                } else {
+
+                                    minorBox.style.display =
+                                        "none";
+
+                                    minorName.required =
+                                        false;
+
+                                }
+
+                            }
+
+
+                            menorCheck.addEventListener(
+                                "change",
+                                toggleMinor
+                            );
+
+                            toggleMinor();
+
+
+                            // =========================================
+                            // FIRMA
+                            // =========================================
+
+                            const canvas =
+                                document.getElementById(
+                                    "lr_signature_canvas"
+                                );
+
+                            const signatureInput =
+                                document.getElementById(
+                                    "firma_consumidor"
+                                );
+
+                            const clearSignature =
+                                document.getElementById(
+                                    "btn_clear_signature"
+                                );
+
+                            const ctx =
+                                canvas.getContext("2d");
+
+                            let drawing = false;
+
+                            let hasSignature = false;
+
+
+                            function resizeCanvas() {
+
+                                const ratio =
+                                    Math.max(
+                                        window.devicePixelRatio || 1,
+                                        1
+                                    );
+
+                                const rect =
+                                    canvas.getBoundingClientRect();
+
+                                canvas.width =
+                                    rect.width * ratio;
+
+                                canvas.height =
+                                    rect.height * ratio;
+
+                                ctx.setTransform(
+                                    ratio,
+                                    0,
+                                    0,
+                                    ratio,
+                                    0,
+                                    0
+                                );
+
+                                ctx.lineWidth = 2;
+
+                                ctx.lineCap =
+                                    "round";
+
+                                ctx.lineJoin =
+                                    "round";
+
+                                ctx.strokeStyle =
+                                    "#101828";
+
+                            }
+
+
+                            function getPoint(event) {
+
+                                const rect =
+                                    canvas.getBoundingClientRect();
+
+                                const source =
+                                    event.touches
+                                        ? event.touches[0]
+                                        : event;
+
+                                return {
+                                    x:
+                                        source.clientX -
+                                        rect.left,
+
+                                    y:
+                                        source.clientY -
+                                        rect.top
+                                };
+
+                            }
+
+
+                            function startDrawing(event) {
+
+                                event.preventDefault();
+
+                                drawing = true;
+
+                                const point =
+                                    getPoint(event);
+
+                                ctx.beginPath();
+
+                                ctx.moveTo(
+                                    point.x,
+                                    point.y
+                                );
+
+                            }
+
+
+                            function draw(event) {
+
+                                if (!drawing) {
+                                    return;
+                                }
+
+                                event.preventDefault();
+
+                                const point =
+                                    getPoint(event);
+
+                                ctx.lineTo(
+                                    point.x,
+                                    point.y
+                                );
+
+                                ctx.stroke();
+
+                                hasSignature = true;
+
+                            }
+
+
+                            function stopDrawing(event) {
+
+                                if (!drawing) {
+                                    return;
+                                }
+
+                                if (event) {
+                                    event.preventDefault();
+                                }
+
+                                drawing = false;
+
+                                ctx.closePath();
+
+                            }
+
+
+                            canvas.addEventListener(
+                                "mousedown",
+                                startDrawing
+                            );
+
+                            canvas.addEventListener(
+                                "mousemove",
+                                draw
+                            );
+
+                            window.addEventListener(
+                                "mouseup",
+                                stopDrawing
+                            );
+
+
+                            canvas.addEventListener(
+                                "touchstart",
+                                startDrawing,
+                                {passive: false}
+                            );
+
+                            canvas.addEventListener(
+                                "touchmove",
+                                draw,
+                                {passive: false}
+                            );
+
+                            canvas.addEventListener(
+                                "touchend",
+                                stopDrawing,
+                                {passive: false}
+                            );
+
+
+                            clearSignature.addEventListener(
+                                "click",
+                                function () {
+
+                                    ctx.clearRect(
+                                        0,
+                                        0,
+                                        canvas.width,
+                                        canvas.height
+                                    );
+
+                                    hasSignature = false;
+
+                                    signatureInput.value = "";
+
+                                }
+                            );
+
+
+                            resizeCanvas();
+
+                            window.addEventListener(
+                                "resize",
+                                function () {
+
+                                    if (!hasSignature) {
+                                        resizeCanvas();
+                                    }
+
+                                }
+                            );
+
+
+                            // =========================================
+                            // ARCHIVOS
+                            // =========================================
+
+                            const fileInput =
+                                document.getElementById(
+                                    "attachment_ids"
+                                );
+
+                            const fileList =
+                                document.getElementById(
+                                    "lr_file_list"
+                                );
+
+
+                            fileInput.addEventListener(
+                                "change",
+                                function () {
+
+                                    fileList.innerHTML = "";
+
+                                    const files =
+                                        Array.from(
+                                            fileInput.files
+                                        );
+
+                                    files.forEach(
+                                        function (file) {
+
+                                            const item =
+                                                document.createElement(
+                                                    "div"
+                                                );
+
+                                            item.className =
+                                                "small border rounded-3 px-3 py-2 mb-2 bg-white";
+
+                                            item.textContent =
+                                                file.name +
+                                                " · " +
+                                                (
+                                                    file.size /
+                                                    1024 /
+                                                    1024
+                                                ).toFixed(2) +
+                                                " MB";
+
+                                            fileList.appendChild(
+                                                item
+                                            );
+
+                                        }
+                                    );
+
+                                }
+                            );
+
+
+                            // =========================================
+                            // RESUMEN
+                            // =========================================
+
+                            const btnPrepare =
+                                document.getElementById(
+                                    "btn_prepare_submit"
+                                );
+
+                            const btnFinal =
+                                document.getElementById(
+                                    "btn_final_submit"
+                                );
+
+
+                            btnPrepare.addEventListener(
+                                "click",
+                                function () {
+
+                                    if (
+                                        !form.reportValidity()
+                                    ) {
+                                        return;
+                                    }
+
+
+                                    if (!hasSignature) {
+
+                                        alert(
+                                            "Debe registrar su firma antes de continuar."
+                                        );
+
+                                        canvas.scrollIntoView({
+                                            behavior: "smooth",
+                                            block: "center"
+                                        });
+
+                                        return;
+                                    }
+
+
+                                    signatureInput.value =
+                                        canvas.toDataURL(
+                                            "image/png"
+                                        );
+
+
+                                    const selectedBien =
+                                        form.querySelector(
+                                            "input[name='tipo_bien']:checked"
+                                        );
+
+                                    const selectedTipo =
+                                        form.querySelector(
+                                            "input[name='tipo_reclamacion']:checked"
+                                        );
+
+
+                                    if (!selectedBien) {
+
+                                        alert(
+                                            "Seleccione Producto o Servicio."
+                                        );
+
+                                        return;
+                                    }
+
+
+                                    if (!selectedTipo) {
+
+                                        alert(
+                                            "Seleccione Reclamo o Queja."
+                                        );
+
+                                        return;
+                                    }
+
+
+                                    document.getElementById(
+                                        "summary_nombre"
+                                    ).textContent =
+                                        nombreConsumidor.value;
+
+
+                                    document.getElementById(
+                                        "summary_documento"
+                                    ).textContent =
+                                        tipoDocumento.options[
+                                            tipoDocumento.selectedIndex
+                                        ].text +
+                                        " " +
+                                        numeroDocumento.value;
+
+
+                                    document.getElementById(
+                                        "summary_bien"
+                                    ).textContent =
+                                        selectedBien.value ===
+                                        "producto"
+                                            ? "Producto"
+                                            : "Servicio";
+
+
+                                    document.getElementById(
+                                        "summary_tipo"
+                                    ).textContent =
+                                        selectedTipo.value ===
+                                        "reclamo"
+                                            ? "Reclamo"
+                                            : "Queja";
+
+
+                                    document.getElementById(
+                                        "summary_detalle"
+                                    ).textContent =
+                                        form.elements[
+                                            "detalle"
+                                        ].value;
+
+
+                                    document.getElementById(
+                                        "summary_pedido"
+                                    ).textContent =
+                                        form.elements[
+                                            "pedido_consumidor"
+                                        ].value;
+
+
+                                    const modal =
+                                        bootstrap.Modal.getOrCreateInstance(
+                                            document.getElementById(
+                                                "modalConfirmacion"
+                                            )
+                                        );
+
+                                    modal.show();
+
+                                }
+                            );
+
+
+                            btnFinal.addEventListener(
+                                "click",
+                                function () {
+
+                                    btnFinal.disabled = true;
+
+                                    btnFinal.innerHTML =
+                                        '<i class="fa fa-spinner fa-spin"></i> Registrando...';
+
+
+                                    signatureInput.value =
+                                        canvas.toDataURL(
+                                            "image/png"
+                                        );
+
+
+                                    form.submit();
+
+                                }
+                            );
+
+                        }
+                    );
+
+                </script>
+
+            </div>
+
+        </t>
+
+    </template>
+
+
+    <!-- ========================================================= -->
+    <!-- CONFIRMACIÓN                                               -->
+    <!-- ========================================================= -->
+
+    <template id="libro_reclamaciones_confirmation"
+              name="Reclamación registrada">
+
+        <t t-call="website.layout">
+
+            <t t-set="title">
+                Reclamación registrada
+            </t>
+
+            <div id="wrap"
+                 style="background:#f6f8fb; min-height:75vh; padding:60px 15px;">
+
+                <div style="max-width:760px; margin:auto;">
+
+                    <div style="
+                        background:#fff;
+                        border:1px solid #e4e7ec;
+                        border-radius:24px;
+                        padding:42px;
+                        text-align:center;
+                        box-shadow:0 16px 45px rgba(16,24,40,.08);
+                    ">
+
+                        <div style="
+                            width:70px;
+                            height:70px;
+                            margin:0 auto 18px;
+                            border-radius:50%;
+                            background:#ecfdf3;
+                            color:#067647;
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                            font-size:31px;
+                        ">
+                            <i class="fa fa-check"/>
+                        </div>
+
+                        <h1 style="font-size:30px; font-weight:750;">
+                            Reclamación registrada
+                        </h1>
+
+                        <p class="text-muted">
+                            Su Hoja de Reclamación fue registrada correctamente.
+                        </p>
+
+
+                        <div style="
+                            margin:28px 0;
+                            background:#f8fafc;
+                            border:1px solid #e4e7ec;
+                            border-radius:17px;
+                            padding:22px;
+                        ">
+
+                            <div class="text-muted small">
+                                Número de hoja
+                            </div>
+
+                            <div style="
+                                font-size:26px;
+                                font-weight:800;
+                                color:#182b49;
+                            ">
+                                <t t-esc="reclamacion.name"/>
+                            </div>
+
+                            <div class="mt-3 small text-muted">
+                                Fecha
+                            </div>
+
+                            <div class="fw-semibold">
+                                <span t-field="reclamacion.fecha_reclamo"/>
+                            </div>
+
+                        </div>
+
+
+                        <div class="d-flex flex-wrap justify-content-center gap-2">
+
+                            <a t-att-href="'/libro-de-reclamaciones/constancia/%s' % reclamacion.public_token"
+                               class="btn btn-outline-secondary">
+
+                                <i class="fa fa-eye me-1"/>
+
+                                Ver constancia
+
+                            </a>
+
+                            <a t-att-href="'/libro-de-reclamaciones/pdf/%s' % reclamacion.public_token"
+                               target="_blank"
+                               class="btn btn-primary">
+
+                                <i class="fa fa-print me-1"/>
+
+                                Abrir / Imprimir PDF
+
+                            </a>
+
+                            <a t-att-href="'/libro-de-reclamaciones/descargar/%s' % reclamacion.public_token"
+                               class="btn btn-outline-primary">
+
+                                <i class="fa fa-download me-1"/>
+
+                                Descargar PDF
+
+                            </a>
+
+                        </div>
+
+
+                        <div class="mt-4">
+
+                            <a href="/"
+                               class="text-decoration-none">
+                                Volver al inicio
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </t>
+
+    </template>
+
+
+    <!-- ========================================================= -->
+    <!-- CONSTANCIA HTML                                            -->
+    <!-- ========================================================= -->
+
+    <template id="libro_reclamaciones_constancia"
+              name="Constancia Libro de Reclamaciones">
+
+        <t t-call="website.layout">
+
+            <t t-set="title">
+                <t t-esc="reclamacion.name"/>
+            </t>
+
+            <div id="wrap"
+                 style="background:#f5f6f8; padding:40px 15px 70px;">
+
+                <div style="
+                    max-width:900px;
+                    margin:auto;
+                    background:#fff;
+                    border:1px solid #ddd;
+                    padding:36px;
+                    border-radius:15px;
+                ">
+
+                    <div class="text-center mb-4">
+
+                        <h2 class="fw-bold mb-1">
+                            LIBRO DE RECLAMACIONES
+                        </h2>
+
+                        <div>
+                            HOJA DE RECLAMACIÓN VIRTUAL
+                        </div>
+
+                    </div>
+
+
+                    <table class="table table-bordered">
+
+                        <tr>
+                            <th style="width:30%;">
+                                N.º DE HOJA
+                            </th>
+
+                            <td>
+                                <t t-esc="reclamacion.name"/>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>
+                                FECHA
+                            </th>
+
+                            <td>
+                                <span t-field="reclamacion.fecha_reclamo"/>
+                            </td>
+                        </tr>
+
+                    </table>
+
+
+                    <h5 class="mt-4">
+                        PROVEEDOR
+                    </h5>
+
+                    <table class="table table-bordered">
+
+                        <tr>
+                            <th style="width:30%;">
+                                Razón social
+                            </th>
+
+                            <td>
+                                <t t-esc="reclamacion.proveedor_razon_social"/>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>
+                                RUC
+                            </th>
+
+                            <td>
+                                <t t-esc="reclamacion.proveedor_ruc"/>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>
+                                Domicilio
+                            </th>
+
+                            <td>
+                                <t t-esc="reclamacion.proveedor_domicilio"/>
+                            </td>
+                        </tr>
+
+                    </table>
+
+
+                    <h5 class="mt-4">
+                        1. IDENTIFICACIÓN DEL CONSUMIDOR RECLAMANTE
+                    </h5>
+
+                    <table class="table table-bordered">
+
+                        <tr>
+                            <th style="width:30%;">
+                                Nombre
+                            </th>
+
+                            <td>
+                                <t t-esc="reclamacion.nombre_consumidor"/>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>
+                                DNI / CE
+                            </th>
+
+                            <td>
+                                <t t-esc="reclamacion.numero_documento"/>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>
+                                Domicilio
+                            </th>
+
+                            <td>
+                                <t t-esc="reclamacion.domicilio_consumidor"/>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>
+                                Teléfono
+                            </th>
+
+                            <td>
+                                <t t-esc="reclamacion.telefono"/>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>
+                                E-mail
+                            </th>
+
+                            <td>
+                                <t t-esc="reclamacion.email"/>
+                            </td>
+                        </tr>
+
+                        <tr t-if="reclamacion.es_menor_edad">
+
+                            <th>
+                                Padre, madre o apoderado
+                            </th>
+
+                            <td>
+                                <t t-esc="reclamacion.representante_menor_nombre"/>
+                            </td>
+
+                        </tr>
+
+                    </table>
+
+
+                    <h5 class="mt-4">
+                        2. IDENTIFICACIÓN DEL BIEN CONTRATADO
+                    </h5>
+
+                    <table class="table table-bordered">
+
+                        <tr>
+                            <th style="width:30%;">
+                                Tipo
+                            </th>
+
+                            <td>
+                                <t t-esc="'Producto' if reclamacion.tipo_bien == 'producto' else 'Servicio'"/>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>
+                                Monto reclamado
+                            </th>
+
+                            <td>
+                                S/
+                                <t t-esc="'%.2f' % reclamacion.monto_reclamado"/>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>
+                                Descripción
+                            </th>
+
+                            <td style="white-space:pre-wrap;">
+                                <t t-esc="reclamacion.descripcion_bien"/>
+                            </td>
+                        </tr>
+
+                    </table>
+
+
+                    <h5 class="mt-4">
+                        3. DETALLE DE LA RECLAMACIÓN Y PEDIDO
+                    </h5>
+
+                    <table class="table table-bordered">
+
+                        <tr>
+                            <th style="width:30%;">
+                                Tipo
+                            </th>
+
+                            <td>
+                                <t t-esc="'Reclamo' if reclamacion.tipo_reclamacion == 'reclamo' else 'Queja'"/>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>
+                                Detalle
+                            </th>
+
+                            <td style="white-space:pre-wrap;">
+                                <t t-esc="reclamacion.detalle"/>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>
+                                Pedido
+                            </th>
+
+                            <td style="white-space:pre-wrap;">
+                                <t t-esc="reclamacion.pedido_consumidor"/>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>
+                                Firma
+                            </th>
+
+                            <td>
+
+                                <img t-if="reclamacion.firma_consumidor"
+                                     t-att-src="'data:image/png;base64,%s' % reclamacion.firma_consumidor.decode()"
+                                     style="max-width:230px; max-height:100px;"/>
+
+                            </td>
+                        </tr>
+
+                    </table>
+
+
+                    <h5 class="mt-4">
+                        4. OBSERVACIONES Y ACCIONES ADOPTADAS
+                        POR EL PROVEEDOR
+                    </h5>
+
+                    <table class="table table-bordered">
+
+                        <tr>
+                            <th style="width:30%;">
+                                Observaciones
+                            </th>
+
+                            <td>
+                                <t t-if="reclamacion.observaciones_proveedor">
+                                    <t t-out="reclamacion.observaciones_proveedor"/>
+                                </t>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>
+                                Acciones adoptadas
+                            </th>
+
+                            <td>
+                                <t t-if="reclamacion.acciones_adoptadas">
+                                    <t t-out="reclamacion.acciones_adoptadas"/>
+                                </t>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>
+                                Fecha comunicación
+                            </th>
+
+                            <td>
+                                <span t-if="reclamacion.fecha_comunicacion_respuesta"
+                                      t-field="reclamacion.fecha_comunicacion_respuesta"/>
+                            </td>
+                        </tr>
+
+                    </table>
+
+
+                    <div class="border rounded p-3 mt-4 small">
+
+                        <p class="mb-2">
+                            <strong>RECLAMO:</strong>
+                            Disconformidad relacionada a los productos
+                            o servicios.
+                        </p>
+
+                        <p class="mb-2">
+                            <strong>QUEJA:</strong>
+                            Disconformidad no relacionada a los productos
+                            o servicios; o, malestar o descontento respecto
+                            a la atención al público.
+                        </p>
+
+                        <p class="mb-2">
+                            La formulación del reclamo no impide acudir
+                            a otras vías de solución de controversias ni
+                            es requisito previo para interponer una denuncia
+                            ante el INDECOPI.
+                        </p>
+
+                        <p class="mb-0">
+                            El proveedor debe dar respuesta al reclamo o
+                            queja en un plazo no mayor a quince (15) días
+                            hábiles, el cual es improrrogable.
+                        </p>
+
+                    </div>
+
+
+                    <div class="d-flex flex-wrap gap-2 mt-4">
+
+                        <a t-att-href="'/libro-de-reclamaciones/pdf/%s' % reclamacion.public_token"
+                           target="_blank"
+                           class="btn btn-primary">
+
+                            <i class="fa fa-print me-1"/>
+
+                            Imprimir PDF
+
+                        </a>
+
+                        <a t-att-href="'/libro-de-reclamaciones/descargar/%s' % reclamacion.public_token"
+                           class="btn btn-outline-primary">
+
+                            <i class="fa fa-download me-1"/>
+
+                            Descargar
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </t>
+
+    </template>
+
+
+    <!-- ========================================================= -->
+    <!-- ENLACE EN FOOTER                                           -->
+    <!-- ========================================================= -->
+
+    <template id="website_footer_libro_reclamaciones"
+              inherit_id="website.layout"
+              name="Libro de Reclamaciones en Footer">
+
+        <xpath expr="//footer"
+               position="inside">
+
+            <div class="container py-2">
+
+                <a href="/libro-de-reclamaciones"
+                   class="text-decoration-none d-inline-flex align-items-center gap-2">
+
+                    <i class="fa fa-book"/>
+
+                    <span>
+                        Libro de Reclamaciones
+                    </span>
+
+                </a>
+
+            </div>
+
+        </xpath>
+
+    </template>
+
+</odoo>
