@@ -681,7 +681,7 @@
         <field name="res_model">libro.reclamaciones</field>
         <field name="view_mode">kanban,list,form</field>
         <field name="search_view_id" ref="view_libro_reclamaciones_search"/>
-        <field name="context">{'search_default_pendientes': 1}</field>
+        
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">No hay reclamaciones pendientes</p>
             <p>Las reclamaciones enviadas desde la página web aparecerán automáticamente aquí.</p>
@@ -698,7 +698,7 @@
         <field name="res_model">libro.reclamaciones</field>
         <field name="view_mode">kanban,list,form</field>
         <field name="search_view_id" ref="view_libro_reclamaciones_search"/>
-        <field name="context">{}</field>
+      
     </record>
 
 
@@ -712,7 +712,7 @@
         <field name="view_mode">list,kanban,form</field>
         <field name="search_view_id" ref="view_libro_reclamaciones_search"/>
         <field name="domain">[('state', 'in', ['answered', 'closed'])]</field>
-        <field name="context">{}</field>
+        
     </record>
 
 
