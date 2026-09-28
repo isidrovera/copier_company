@@ -6,34 +6,504 @@
             <t t-set="additional_title">Libro de Reclamaciones</t>
 
             <style>
-                .lr-page{background:#f7f8fb;padding:32px 0 56px}
-                .lr-wrap{max-width:920px;margin:0 auto;padding:0 16px}
-                .lr-head{margin-bottom:22px}
-                .lr-head h1{font-size:1.8rem;font-weight:800;color:#17233f;margin:0 0 6px}
-                .lr-head p{margin:0;color:#64748b;font-size:.95rem}
-                .lr-card{background:#fff;border:1px solid #e8edf4;border-radius:16px;padding:22px;margin-bottom:14px}
-                .lr-title{font-size:.92rem;font-weight:800;color:#17233f;margin-bottom:16px;text-transform:uppercase;letter-spacing:.04em}
-                .lr-label{font-size:.82rem;font-weight:700;color:#475569;margin-bottom:6px}
-                .lr-required{color:#dc3545}
-                .lr-control{width:100%;min-height:44px;border:1px solid #dce3ec;border-radius:10px;padding:9px 12px;background:#fff;color:#17233f}
-                .lr-control:focus{border-color:#4d74d6;outline:none;box-shadow:0 0 0 3px rgba(77,116,214,.08)}
-                textarea.lr-control{min-height:105px;resize:vertical}
-                .lr-help{font-size:.78rem;color:#7c8798;margin-top:5px;min-height:16px}
-                .lr-money{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-                .lr-money-input{position:relative}
-                .lr-symbol{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-weight:800;color:#17233f}
-                .lr-money-input input{padding-left:43px}
-                .lr-signature{border:1px solid #dce3ec;border-radius:12px;overflow:hidden;background:#fff}
-                #lr_signature_canvas{display:block;width:100%;height:180px;touch-action:none;cursor:crosshair}
-                .lr-signature-tools{display:flex;justify-content:flex-end;border-top:1px solid #edf1f5;padding:8px}
-                .lr-clear{border:0;background:#f1f4f8;color:#475569;border-radius:8px;padding:7px 12px;font-weight:700;font-size:.82rem}
-                .lr-check{display:flex;gap:9px;align-items:flex-start;margin-bottom:10px;font-size:.88rem;color:#475569}
-                .lr-check input{margin-top:4px}
-                .lr-submit{width:100%;border:0;background:#1e3a6d;color:#fff;border-radius:11px;padding:13px 18px;font-weight:800}
-                .lr-submit:hover{background:#172f5c}
-                .lr-error{background:#fff5f5;border:1px solid #ffd2d2;color:#a61b1b;border-radius:12px;padding:12px 14px;margin-bottom:14px}
-                .lr-inline-note{font-size:.78rem;color:#7c8798}
-                @media(max-width:768px){.lr-page{padding-top:22px}.lr-card{padding:18px}.lr-money{grid-template-columns:1fr}}
+                :root{
+                    --lr-primary:#173963;
+                    --lr-primary-hover:#102f55;
+                    --lr-primary-soft:#eef4fb;
+                    --lr-text:#17233f;
+                    --lr-muted:#718096;
+                    --lr-border:#dce3ec;
+                    --lr-bg:#f5f7fb;
+                    --lr-danger:#c62828;
+                    --lr-danger-soft:#fff5f5;
+                    --lr-success:#157347;
+                    --lr-success-soft:#edf8f2;
+                    --lr-radius:14px;
+                }
+
+                .lr-page{
+                    background:var(--lr-bg);
+                    padding:34px 0 56px;
+                    min-height:70vh;
+                }
+
+                .lr-wrap{
+                    max-width:940px;
+                    margin:0 auto;
+                    padding:0 16px;
+                }
+
+                .lr-head{
+                    margin-bottom:22px;
+                }
+
+                .lr-head h1{
+                    font-size:1.85rem;
+                    line-height:1.2;
+                    font-weight:800;
+                    color:var(--lr-text);
+                    margin:0 0 7px;
+                    letter-spacing:-.02em;
+                }
+
+                .lr-head p{
+                    margin:0;
+                    color:var(--lr-muted);
+                    font-size:.95rem;
+                }
+
+                .lr-card{
+                    background:#fff;
+                    border:1px solid #e6ebf2;
+                    border-radius:var(--lr-radius);
+                    padding:22px;
+                    margin-bottom:14px;
+                    box-shadow:0 4px 18px rgba(23,35,63,.035);
+                }
+
+                .lr-title{
+                    display:flex;
+                    align-items:center;
+                    gap:8px;
+                    font-size:.91rem;
+                    font-weight:800;
+                    color:var(--lr-text);
+                    margin-bottom:17px;
+                    text-transform:uppercase;
+                    letter-spacing:.045em;
+                }
+
+                .lr-title::before{
+                    content:"";
+                    width:4px;
+                    height:18px;
+                    border-radius:999px;
+                    background:var(--lr-primary);
+                }
+
+                .lr-label{
+                    display:block;
+                    font-size:.82rem;
+                    font-weight:700;
+                    color:#475569;
+                    margin-bottom:6px;
+                }
+
+                .lr-required{
+                    color:var(--lr-danger);
+                }
+
+                .lr-control{
+                    width:100%;
+                    min-height:46px;
+                    border:1px solid var(--lr-border);
+                    border-radius:10px;
+                    padding:10px 12px;
+                    background:#fff;
+                    color:var(--lr-text);
+                    font-size:.92rem;
+                    transition:border-color .16s ease, box-shadow .16s ease, background .16s ease;
+                }
+
+                .lr-control:hover{
+                    border-color:#c8d2df;
+                }
+
+                .lr-control:focus{
+                    border-color:#4d74d6;
+                    outline:none;
+                    box-shadow:0 0 0 3px rgba(77,116,214,.10);
+                }
+
+                .lr-control[readonly]{
+                    background:#f8fafc;
+                    color:#475569;
+                }
+
+                .lr-control.is-invalid{
+                    border-color:#dc3545;
+                    box-shadow:0 0 0 3px rgba(220,53,69,.08);
+                }
+
+                textarea.lr-control{
+                    min-height:108px;
+                    resize:vertical;
+                }
+
+                .lr-help{
+                    font-size:.76rem;
+                    color:#7c8798;
+                    margin-top:5px;
+                    min-height:16px;
+                }
+
+                .lr-help.lr-help-error{
+                    color:var(--lr-danger);
+                    font-weight:600;
+                }
+
+                .lr-help.lr-help-success{
+                    color:var(--lr-success);
+                    font-weight:600;
+                }
+
+                .lr-inline-note{
+                    font-size:.76rem;
+                    color:#8a95a6;
+                    font-weight:500;
+                }
+
+                .lr-field-error{
+                    display:none;
+                    margin-top:5px;
+                    color:var(--lr-danger);
+                    font-size:.75rem;
+                    font-weight:600;
+                }
+
+                .lr-field-error.show{
+                    display:block;
+                }
+
+                /* ==============================
+                   MONEDA
+                   ============================== */
+
+                .lr-money{
+                    display:grid;
+                    grid-template-columns:minmax(220px,.8fr) minmax(220px,1.2fr);
+                    gap:12px;
+                    align-items:stretch;
+                }
+
+                .lr-native-currency{
+                    position:absolute !important;
+                    width:1px !important;
+                    height:1px !important;
+                    opacity:0 !important;
+                    pointer-events:none !important;
+                }
+
+                .lr-currency-picker{
+                    position:relative;
+                    width:100%;
+                }
+
+                .lr-currency-button{
+                    width:100%;
+                    min-height:48px;
+                    display:flex;
+                    align-items:center;
+                    justify-content:space-between;
+                    padding:7px 12px;
+                    border:1px solid var(--lr-border);
+                    border-radius:10px;
+                    background:#fff;
+                    color:var(--lr-text);
+                    cursor:pointer;
+                    transition:border-color .18s ease, box-shadow .18s ease, background .18s ease;
+                    text-align:left;
+                }
+
+                .lr-currency-button:hover{
+                    border-color:#c8d2df;
+                    background:#fbfcfe;
+                }
+
+                .lr-currency-picker.open .lr-currency-button{
+                    border-color:#4d74d6;
+                    box-shadow:0 0 0 3px rgba(77,116,214,.10);
+                }
+
+                .lr-currency-button-left{
+                    display:flex;
+                    align-items:center;
+                    gap:10px;
+                    min-width:0;
+                }
+
+                .lr-flag,
+                .lr-option-flag{
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    font-size:20px;
+                    line-height:1;
+                    width:28px;
+                    min-width:28px;
+                }
+
+                .lr-currency-current{
+                    display:flex;
+                    flex-direction:column;
+                    line-height:1.18;
+                }
+
+                .lr-currency-current strong{
+                    color:var(--lr-text);
+                    font-size:.87rem;
+                    font-weight:750;
+                }
+
+                .lr-currency-current small{
+                    color:#8792a3;
+                    font-size:.69rem;
+                    margin-top:3px;
+                    font-weight:650;
+                    letter-spacing:.02em;
+                }
+
+                .lr-currency-chevron{
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    color:#778397;
+                    transition:transform .18s ease;
+                }
+
+                .lr-currency-picker.open .lr-currency-chevron{
+                    transform:rotate(180deg);
+                }
+
+                .lr-currency-menu{
+                    position:absolute;
+                    z-index:60;
+                    top:calc(100% + 7px);
+                    left:0;
+                    width:100%;
+                    min-width:240px;
+                    background:#fff;
+                    border:1px solid #e2e7ee;
+                    border-radius:12px;
+                    padding:6px;
+                    box-shadow:0 16px 38px rgba(23,35,63,.12), 0 3px 8px rgba(23,35,63,.06);
+                    opacity:0;
+                    visibility:hidden;
+                    transform:translateY(-5px);
+                    transition:opacity .15s ease, transform .15s ease, visibility .15s ease;
+                }
+
+                .lr-currency-picker.open .lr-currency-menu{
+                    opacity:1;
+                    visibility:visible;
+                    transform:translateY(0);
+                }
+
+                .lr-currency-option{
+                    width:100%;
+                    border:0;
+                    display:flex;
+                    align-items:center;
+                    gap:10px;
+                    padding:10px 11px;
+                    border-radius:8px;
+                    background:transparent;
+                    color:var(--lr-text);
+                    cursor:pointer;
+                    text-align:left;
+                    transition:background .14s ease, color .14s ease;
+                }
+
+                .lr-currency-option + .lr-currency-option{
+                    margin-top:3px;
+                }
+
+                .lr-currency-option:hover{
+                    background:#f4f7fb;
+                }
+
+                .lr-currency-option.active{
+                    background:var(--lr-primary);
+                    color:#fff;
+                }
+
+                .lr-currency-option.active .lr-option-info strong,
+                .lr-currency-option.active .lr-option-info small{
+                    color:#fff;
+                }
+
+                .lr-option-info{
+                    display:flex;
+                    flex-direction:column;
+                    flex:1;
+                    min-width:0;
+                }
+
+                .lr-option-info strong{
+                    font-size:.84rem;
+                    font-weight:750;
+                    color:#25344e;
+                }
+
+                .lr-option-info small{
+                    font-size:.7rem;
+                    color:#8b96a7;
+                    margin-top:2px;
+                    font-weight:600;
+                }
+
+                .lr-option-check{
+                    font-size:13px;
+                    font-weight:800;
+                    opacity:0;
+                }
+
+                .lr-currency-option.active .lr-option-check{
+                    opacity:1;
+                }
+
+                .lr-money-input{
+                    position:relative;
+                }
+
+                .lr-symbol{
+                    position:absolute;
+                    left:14px;
+                    top:50%;
+                    transform:translateY(-50%);
+                    z-index:2;
+                    font-weight:800;
+                    font-size:.9rem;
+                    color:var(--lr-text);
+                    pointer-events:none;
+                }
+
+                .lr-money-input .lr-control{
+                    height:48px;
+                    padding-left:48px;
+                    font-size:.95rem;
+                    font-weight:650;
+                    font-variant-numeric:tabular-nums;
+                }
+
+                /* ==============================
+                   FIRMA
+                   ============================== */
+
+                .lr-signature{
+                    border:1px solid var(--lr-border);
+                    border-radius:12px;
+                    overflow:hidden;
+                    background:#fff;
+                }
+
+                #lr_signature_canvas{
+                    display:block;
+                    width:100%;
+                    height:180px;
+                    touch-action:none;
+                    cursor:crosshair;
+                    background:#fff;
+                }
+
+                .lr-signature-tools{
+                    display:flex;
+                    justify-content:flex-end;
+                    border-top:1px solid #edf1f5;
+                    padding:8px;
+                    background:#fbfcfe;
+                }
+
+                .lr-clear{
+                    border:0;
+                    background:#eef2f7;
+                    color:#475569;
+                    border-radius:8px;
+                    padding:7px 12px;
+                    font-weight:700;
+                    font-size:.82rem;
+                    cursor:pointer;
+                }
+
+                .lr-clear:hover{
+                    background:#e5ebf2;
+                }
+
+                .lr-signature-error{
+                    display:none;
+                    color:var(--lr-danger);
+                    font-size:.77rem;
+                    font-weight:600;
+                    margin-top:7px;
+                }
+
+                .lr-signature-error.show{
+                    display:block;
+                }
+
+                /* ==============================
+                   CHECKS Y BOTÓN
+                   ============================== */
+
+                .lr-check{
+                    display:flex;
+                    gap:9px;
+                    align-items:flex-start;
+                    margin-bottom:11px;
+                    font-size:.88rem;
+                    color:#475569;
+                }
+
+                .lr-check input{
+                    margin-top:4px;
+                    width:16px;
+                    height:16px;
+                    accent-color:var(--lr-primary);
+                }
+
+                .lr-submit{
+                    width:100%;
+                    border:0;
+                    background:var(--lr-primary);
+                    color:#fff;
+                    border-radius:11px;
+                    min-height:48px;
+                    padding:13px 18px;
+                    font-weight:800;
+                    font-size:.92rem;
+                    cursor:pointer;
+                    transition:background .16s ease, transform .16s ease, opacity .16s ease;
+                }
+
+                .lr-submit:hover{
+                    background:var(--lr-primary-hover);
+                }
+
+                .lr-submit:active{
+                    transform:translateY(1px);
+                }
+
+                .lr-submit:disabled{
+                    opacity:.65;
+                    cursor:not-allowed;
+                }
+
+                .lr-error{
+                    background:var(--lr-danger-soft);
+                    border:1px solid #ffd2d2;
+                    color:#a61b1b;
+                    border-radius:12px;
+                    padding:12px 14px;
+                    margin-bottom:14px;
+                }
+
+                @media(max-width:768px){
+                    .lr-page{
+                        padding-top:22px;
+                    }
+
+                    .lr-card{
+                        padding:18px;
+                    }
+
+                    .lr-money{
+                        grid-template-columns:1fr;
+                    }
+
+                    .lr-currency-menu{
+                        min-width:100%;
+                    }
+                }
             </style>
 
             <main class="lr-page">
@@ -45,20 +515,41 @@
                     </div>
 
                     <t t-if="error">
-                        <div class="lr-error"><t t-esc="error"/></div>
+                        <div class="lr-error">
+                            <t t-esc="error"/>
+                        </div>
                     </t>
 
-                    <form id="lr_form" action="/libro-de-reclamaciones/enviar" method="post" enctype="multipart/form-data">
-                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                        <input type="hidden" name="firma_consumidor_data" id="lr_signature_data"/>
+                    <form id="lr_form"
+                          action="/libro-de-reclamaciones/enviar"
+                          method="post"
+                          enctype="multipart/form-data"
+                          novalidate="novalidate">
 
+                        <input type="hidden"
+                               name="csrf_token"
+                               t-att-value="request.csrf_token()"/>
+
+                        <input type="hidden"
+                               name="firma_consumidor_data"
+                               id="lr_signature_data"/>
+
+                        <!-- DATOS DEL CONSUMIDOR -->
                         <section class="lr-card">
                             <div class="lr-title">Datos del consumidor</div>
 
                             <div class="row g-3">
+
                                 <div class="col-md-4">
-                                    <label class="lr-label">Tipo de documento <span class="lr-required">*</span></label>
-                                    <select class="lr-control" name="tipo_documento" id="lr_tipo_documento" required="required">
+                                    <label class="lr-label">
+                                        Tipo de documento
+                                        <span class="lr-required">*</span>
+                                    </label>
+
+                                    <select class="lr-control"
+                                            name="tipo_documento"
+                                            id="lr_tipo_documento"
+                                            required="required">
                                         <option value="dni">DNI</option>
                                         <option value="ruc">RUC</option>
                                         <option value="ce">Carné de extranjería</option>
@@ -67,147 +558,470 @@
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label class="lr-label">Número de documento <span class="lr-required">*</span></label>
-                                    <input class="lr-control" type="text" name="numero_documento" id="lr_numero_documento" maxlength="20" autocomplete="off" required="required"/>
-                                    <div id="lr_doc_status" class="lr-help"></div>
+                                    <label class="lr-label">
+                                        Número de documento
+                                        <span class="lr-required">*</span>
+                                    </label>
+
+                                    <input class="lr-control"
+                                           type="text"
+                                           name="numero_documento"
+                                           id="lr_numero_documento"
+                                           maxlength="20"
+                                           autocomplete="off"
+                                           required="required"/>
+
+                                    <div id="lr_doc_status"
+                                         class="lr-help"></div>
+
+                                    <div id="lr_doc_error"
+                                         class="lr-field-error"></div>
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label class="lr-label" id="lr_nombre_label">Nombre completo <span class="lr-required">*</span></label>
-                                    <input class="lr-control" type="text" name="nombre_consumidor" id="lr_nombre_consumidor" maxlength="180" required="required"/>
+                                    <label class="lr-label"
+                                           id="lr_nombre_label">
+                                        Nombre completo
+                                        <span class="lr-required">*</span>
+                                    </label>
+
+                                    <input class="lr-control"
+                                           type="text"
+                                           name="nombre_consumidor"
+                                           id="lr_nombre_consumidor"
+                                           maxlength="180"
+                                           autocomplete="name"
+                                           required="required"/>
+
+                                    <div id="lr_nombre_error"
+                                         class="lr-field-error">
+                                        Complete este campo.
+                                    </div>
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="lr-label">Domicilio <span class="lr-required">*</span></label>
-                                    <input class="lr-control" type="text" name="domicilio_consumidor" id="lr_domicilio_consumidor" maxlength="250" required="required"/>
+                                    <label class="lr-label">
+                                        Domicilio
+                                        <span class="lr-required">*</span>
+                                    </label>
+
+                                    <input class="lr-control"
+                                           type="text"
+                                           name="domicilio_consumidor"
+                                           id="lr_domicilio_consumidor"
+                                           maxlength="250"
+                                           autocomplete="street-address"
+                                           required="required"/>
+
+                                    <div id="lr_domicilio_error"
+                                         class="lr-field-error">
+                                        Complete el domicilio.
+                                    </div>
                                 </div>
 
                                 <div class="col-md-3">
-                                    <label class="lr-label">Teléfono <span class="lr-required">*</span></label>
-                                    <input class="lr-control" type="tel" name="telefono" maxlength="30" required="required"/>
+                                    <label class="lr-label">
+                                        Teléfono
+                                        <span class="lr-required">*</span>
+                                    </label>
+
+                                    <input class="lr-control"
+                                           type="tel"
+                                           name="telefono"
+                                           id="lr_telefono"
+                                           maxlength="30"
+                                           autocomplete="tel"
+                                           inputmode="tel"
+                                           required="required"/>
+
+                                    <div id="lr_telefono_error"
+                                         class="lr-field-error">
+                                        Ingrese un teléfono válido.
+                                    </div>
                                 </div>
 
                                 <div class="col-md-3">
-                                    <label class="lr-label">Correo electrónico <span class="lr-required">*</span></label>
-                                    <input class="lr-control" type="email" name="email" maxlength="180" required="required"/>
-                                </div>
+                                    <label class="lr-label">
+                                        Correo electrónico
+                                        <span class="lr-required">*</span>
+                                    </label>
 
-                                <div class="col-12">
-                                    <label class="lr-label">Padre, madre o apoderado <span class="lr-inline-note">(solo si corresponde)</span></label>
-                                    <input class="lr-control" type="text" name="representante_menor_nombre" maxlength="180"/>
-                                </div>
-                            </div>
-                        </section>
+                                    <input class="lr-control"
+                                           type="email"
+                                           name="email"
+                                           id="lr_email"
+                                           maxlength="180"
+                                           autocomplete="email"
+                                           required="required"/>
 
-                        <section class="lr-card">
-                            <div class="lr-title">Producto o servicio</div>
-
-                            <div class="row g-3">
-                                <div class="col-md-4">
-                                    <label class="lr-label">Tipo <span class="lr-required">*</span></label>
-                                    <select class="lr-control" name="tipo_bien" required="required">
-                                        <option value="">Seleccione</option>
-                                        <option value="producto">Producto</option>
-                                        <option value="servicio">Servicio</option>
-                                    </select>
-                                </div>
-
-                                <div class="col-md-8">
-                                    <label class="lr-label">Comprobante o documento relacionado</label>
-                                    <input class="lr-control" type="text" name="numero_documento_comercial" maxlength="100"/>
-                                </div>
-
-                                <div class="col-12">
-                                    <label class="lr-label">Monto reclamado</label>
-                                    <div class="lr-money">
-                                        <select class="lr-control" name="currency_code" id="lr_currency">
-                                            <option value="PEN">🇵🇪 PEN · S/ · Sol peruano</option>
-                                            <option value="USD">🇺🇸 USD · $ · Dólar estadounidense</option>
-                                        </select>
-
-                                        <div class="lr-money-input">
-                                            <span class="lr-symbol" id="lr_currency_symbol">S/</span>
-                                            <input class="lr-control" type="number" name="monto_reclamado" id="lr_monto" min="0" step="0.01" inputmode="decimal" placeholder="0.00"/>
-                                        </div>
+                                    <div id="lr_email_error"
+                                         class="lr-field-error">
+                                        Ingrese un correo electrónico válido.
                                     </div>
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="lr-label">Descripción <span class="lr-required">*</span></label>
-                                    <textarea class="lr-control" name="descripcion_bien" required="required"></textarea>
+                                    <label class="lr-label">
+                                        Padre, madre o apoderado
+                                        <span class="lr-inline-note">(solo si corresponde)</span>
+                                    </label>
+
+                                    <input class="lr-control"
+                                           type="text"
+                                           name="representante_menor_nombre"
+                                           maxlength="180"/>
                                 </div>
+
                             </div>
                         </section>
 
+                        <!-- PRODUCTO O SERVICIO -->
+                        <section class="lr-card">
+                            <div class="lr-title">Producto o servicio</div>
+
+                            <div class="row g-3">
+
+                                <div class="col-md-4">
+                                    <label class="lr-label">
+                                        Tipo
+                                        <span class="lr-required">*</span>
+                                    </label>
+
+                                    <select class="lr-control"
+                                            name="tipo_bien"
+                                            id="lr_tipo_bien"
+                                            required="required">
+                                        <option value="">Seleccione</option>
+                                        <option value="producto">Producto</option>
+                                        <option value="servicio">Servicio</option>
+                                    </select>
+
+                                    <div id="lr_tipo_bien_error"
+                                         class="lr-field-error">
+                                        Seleccione producto o servicio.
+                                    </div>
+                                </div>
+
+                                <div class="col-md-8">
+                                    <label class="lr-label">
+                                        Comprobante o documento relacionado
+                                    </label>
+
+                                    <input class="lr-control"
+                                           type="text"
+                                           name="numero_documento_comercial"
+                                           maxlength="100"/>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="lr-label">Monto reclamado</label>
+
+                                    <div class="lr-money">
+
+                                        <!-- Campo real enviado al backend -->
+                                        <select name="currency_code"
+                                                id="lr_currency"
+                                                class="lr-native-currency"
+                                                aria-hidden="true">
+                                            <option value="PEN">PEN</option>
+                                            <option value="USD">USD</option>
+                                        </select>
+
+                                        <div class="lr-currency-picker"
+                                             id="lr_currency_picker">
+
+                                            <button type="button"
+                                                    class="lr-currency-button"
+                                                    id="lr_currency_button"
+                                                    aria-expanded="false">
+
+                                                <span class="lr-currency-button-left">
+                                                    <span class="lr-flag">🇵🇪</span>
+
+                                                    <span class="lr-currency-current">
+                                                        <strong id="lr_currency_name">Soles</strong>
+                                                        <small id="lr_currency_code">PEN</small>
+                                                    </span>
+                                                </span>
+
+                                                <span class="lr-currency-chevron">
+                                                    <svg viewBox="0 0 24 24"
+                                                         width="16"
+                                                         height="16"
+                                                         fill="none"
+                                                         stroke="currentColor"
+                                                         stroke-width="2.2">
+                                                        <path d="m6 9 6 6 6-6"/>
+                                                    </svg>
+                                                </span>
+                                            </button>
+
+                                            <div class="lr-currency-menu"
+                                                 id="lr_currency_menu">
+
+                                                <button type="button"
+                                                        class="lr-currency-option active"
+                                                        data-value="PEN"
+                                                        data-symbol="S/"
+                                                        data-flag="🇵🇪"
+                                                        data-name="Soles">
+
+                                                    <span class="lr-option-flag">🇵🇪</span>
+
+                                                    <span class="lr-option-info">
+                                                        <strong>Soles</strong>
+                                                        <small>PEN · S/</small>
+                                                    </span>
+
+                                                    <span class="lr-option-check">✓</span>
+                                                </button>
+
+                                                <button type="button"
+                                                        class="lr-currency-option"
+                                                        data-value="USD"
+                                                        data-symbol="$"
+                                                        data-flag="🇺🇸"
+                                                        data-name="Dólares">
+
+                                                    <span class="lr-option-flag">🇺🇸</span>
+
+                                                    <span class="lr-option-info">
+                                                        <strong>Dólares</strong>
+                                                        <small>USD · $</small>
+                                                    </span>
+
+                                                    <span class="lr-option-check">✓</span>
+                                                </button>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="lr-money-input">
+                                            <span class="lr-symbol"
+                                                  id="lr_currency_symbol">S/</span>
+
+                                            <input class="lr-control"
+                                                   type="number"
+                                                   name="monto_reclamado"
+                                                   id="lr_monto"
+                                                   min="0"
+                                                   step="0.01"
+                                                   inputmode="decimal"
+                                                   placeholder="0.00"/>
+
+                                            <div id="lr_monto_error"
+                                                 class="lr-field-error">
+                                                Ingrese un monto válido.
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="lr-label">
+                                        Descripción
+                                        <span class="lr-required">*</span>
+                                    </label>
+
+                                    <textarea class="lr-control"
+                                              name="descripcion_bien"
+                                              id="lr_descripcion_bien"
+                                              required="required"></textarea>
+
+                                    <div id="lr_descripcion_bien_error"
+                                         class="lr-field-error">
+                                        Complete la descripción.
+                                    </div>
+                                </div>
+
+                            </div>
+                        </section>
+
+                        <!-- RECLAMO O QUEJA -->
                         <section class="lr-card">
                             <div class="lr-title">Reclamo o queja</div>
 
                             <div class="row g-3">
+
                                 <div class="col-md-4">
-                                    <label class="lr-label">Tipo <span class="lr-required">*</span></label>
-                                    <select class="lr-control" name="tipo_reclamacion" required="required">
+                                    <label class="lr-label">
+                                        Tipo
+                                        <span class="lr-required">*</span>
+                                    </label>
+
+                                    <select class="lr-control"
+                                            name="tipo_reclamacion"
+                                            id="lr_tipo_reclamacion"
+                                            required="required">
                                         <option value="">Seleccione</option>
                                         <option value="reclamo">Reclamo</option>
                                         <option value="queja">Queja</option>
                                     </select>
+
+                                    <div id="lr_tipo_reclamacion_error"
+                                         class="lr-field-error">
+                                        Seleccione reclamo o queja.
+                                    </div>
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="lr-label">Detalle <span class="lr-required">*</span></label>
-                                    <textarea class="lr-control" name="detalle" required="required"></textarea>
+                                    <label class="lr-label">
+                                        Detalle
+                                        <span class="lr-required">*</span>
+                                    </label>
+
+                                    <textarea class="lr-control"
+                                              name="detalle"
+                                              id="lr_detalle"
+                                              required="required"></textarea>
+
+                                    <div id="lr_detalle_error"
+                                         class="lr-field-error">
+                                        Complete el detalle.
+                                    </div>
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="lr-label">Pedido del consumidor <span class="lr-required">*</span></label>
-                                    <textarea class="lr-control" name="pedido_consumidor" required="required"></textarea>
+                                    <label class="lr-label">
+                                        Pedido del consumidor
+                                        <span class="lr-required">*</span>
+                                    </label>
+
+                                    <textarea class="lr-control"
+                                              name="pedido_consumidor"
+                                              id="lr_pedido_consumidor"
+                                              required="required"></textarea>
+
+                                    <div id="lr_pedido_consumidor_error"
+                                         class="lr-field-error">
+                                        Complete el pedido del consumidor.
+                                    </div>
                                 </div>
+
                             </div>
                         </section>
 
+                        <!-- FIRMA -->
                         <section class="lr-card">
                             <div class="lr-title">Firma</div>
 
                             <div class="lr-signature">
                                 <canvas id="lr_signature_canvas"></canvas>
+
                                 <div class="lr-signature-tools">
-                                    <button class="lr-clear" id="lr_clear_signature" type="button">Limpiar</button>
+                                    <button class="lr-clear"
+                                            id="lr_clear_signature"
+                                            type="button">
+                                        Limpiar
+                                    </button>
                                 </div>
                             </div>
 
+                            <div id="lr_signature_error"
+                                 class="lr-signature-error">
+                                Debe registrar su firma antes de enviar la reclamación.
+                            </div>
+
                             <div class="mt-3">
-                                <label class="lr-label">Adjuntos <span class="lr-inline-note">(opcional)</span></label>
-                                <input class="lr-control" type="file" name="adjuntos" multiple="multiple" accept=".pdf,.png,.jpg,.jpeg"/>
+                                <label class="lr-label">
+                                    Adjuntos
+                                    <span class="lr-inline-note">(opcional)</span>
+                                </label>
+
+                                <input class="lr-control"
+                                       type="file"
+                                       name="adjuntos"
+                                       multiple="multiple"
+                                       accept=".pdf,.png,.jpg,.jpeg"/>
                             </div>
                         </section>
 
+                        <!-- DECLARACIONES -->
                         <section class="lr-card">
+
                             <div class="lr-check">
-                                <input type="checkbox" name="acepta_declaracion" value="1" id="lr_declaracion" required="required"/>
-                                <label for="lr_declaracion">Declaro que la información registrada es correcta.</label>
+                                <input type="checkbox"
+                                       name="acepta_declaracion"
+                                       value="1"
+                                       id="lr_declaracion"
+                                       required="required"/>
+
+                                <label for="lr_declaracion">
+                                    Declaro que la información registrada es correcta.
+                                </label>
+                            </div>
+
+                            <div id="lr_declaracion_error"
+                                 class="lr-field-error">
+                                Debe aceptar esta declaración.
                             </div>
 
                             <div class="lr-check">
-                                <input type="checkbox" name="acepta_privacidad" value="1" id="lr_privacidad" required="required"/>
-                                <label for="lr_privacidad">Autorizo el tratamiento de los datos proporcionados para la atención de esta reclamación.</label>
+                                <input type="checkbox"
+                                       name="acepta_privacidad"
+                                       value="1"
+                                       id="lr_privacidad"
+                                       required="required"/>
+
+                                <label for="lr_privacidad">
+                                    Autorizo el tratamiento de los datos proporcionados para la atención de esta reclamación.
+                                </label>
                             </div>
 
-                            <button class="lr-submit" type="submit" id="lr_submit">Registrar reclamación</button>
+                            <div id="lr_privacidad_error"
+                                 class="lr-field-error">
+                                Debe aceptar esta autorización.
+                            </div>
+
+                            <button class="lr-submit"
+                                    type="submit"
+                                    id="lr_submit">
+                                Registrar reclamación
+                            </button>
+
                         </section>
+
                     </form>
                 </div>
             </main>
 
             <script type="text/javascript">
                 document.addEventListener("DOMContentLoaded", function () {
+
                     const form = document.getElementById("lr_form");
+
                     const tipoDocumento = document.getElementById("lr_tipo_documento");
                     const numeroDocumento = document.getElementById("lr_numero_documento");
                     const nombreConsumidor = document.getElementById("lr_nombre_consumidor");
                     const nombreLabel = document.getElementById("lr_nombre_label");
                     const domicilioConsumidor = document.getElementById("lr_domicilio_consumidor");
+                    const telefono = document.getElementById("lr_telefono");
+                    const email = document.getElementById("lr_email");
+
+                    const tipoBien = document.getElementById("lr_tipo_bien");
+                    const monto = document.getElementById("lr_monto");
+                    const descripcionBien = document.getElementById("lr_descripcion_bien");
+
+                    const tipoReclamacion = document.getElementById("lr_tipo_reclamacion");
+                    const detalle = document.getElementById("lr_detalle");
+                    const pedidoConsumidor = document.getElementById("lr_pedido_consumidor");
+
+                    const declaracion = document.getElementById("lr_declaracion");
+                    const privacidad = document.getElementById("lr_privacidad");
+
                     const docStatus = document.getElementById("lr_doc_status");
+
                     const currency = document.getElementById("lr_currency");
                     const currencySymbol = document.getElementById("lr_currency_symbol");
+                    const currencyPicker = document.getElementById("lr_currency_picker");
+                    const currencyButton = document.getElementById("lr_currency_button");
+                    const currencyMenu = document.getElementById("lr_currency_menu");
+                    const currencyName = document.getElementById("lr_currency_name");
+                    const currencyCode = document.getElementById("lr_currency_code");
+                    const currencyFlag = currencyButton.querySelector(".lr-flag");
+                    const currencyOptions = currencyMenu.querySelectorAll(".lr-currency-option");
+
                     const canvas = document.getElementById("lr_signature_canvas");
                     const signatureData = document.getElementById("lr_signature_data");
                     const clearSignature = document.getElementById("lr_clear_signature");
@@ -219,51 +1033,391 @@
                     let dniTimer = null;
                     let rucTimer = null;
 
+                    function getError(id) {
+                        return document.getElementById(id);
+                    }
+
+                    function setInvalid(field, errorElement, message) {
+                        if (field) {
+                            field.classList.add("is-invalid");
+                        }
+
+                        if (errorElement) {
+                            if (message) {
+                                errorElement.textContent = message;
+                            }
+
+                            errorElement.classList.add("show");
+                        }
+                    }
+
+                    function clearInvalid(field, errorElement) {
+                        if (field) {
+                            field.classList.remove("is-invalid");
+                        }
+
+                        if (errorElement) {
+                            errorElement.classList.remove("show");
+                        }
+                    }
+
+                    function normalizeText(value) {
+                        return (value || "").trim();
+                    }
+
+                    function isValidEmail(value) {
+                        const text = normalizeText(value);
+
+                        if (!text) {
+                            return false;
+                        }
+
+                        if (text.length > 180) {
+                            return false;
+                        }
+
+                        return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(text);
+                    }
+
+                    function isValidPhone(value) {
+                        const text = normalizeText(value);
+
+                        if (!text) {
+                            return false;
+                        }
+
+                        const digits = text.replace(/\D/g, "");
+
+                        return digits.length >= 6 &amp;&amp; digits.length <= 15;
+                    }
+
+                    function validateDocument() {
+                        const type = tipoDocumento.value;
+                        const value = normalizeText(numeroDocumento.value);
+                        const error = getError("lr_doc_error");
+
+                        clearInvalid(numeroDocumento, error);
+
+                        if (!value) {
+                            setInvalid(
+                                numeroDocumento,
+                                error,
+                                "Ingrese el número de documento."
+                            );
+                            return false;
+                        }
+
+                        if (type === "dni") {
+                            if (!/^\d{8}$/.test(value)) {
+                                setInvalid(
+                                    numeroDocumento,
+                                    error,
+                                    "El DNI debe contener 8 dígitos."
+                                );
+                                return false;
+                            }
+                        }
+
+                        if (type === "ruc") {
+                            if (!/^\d{11}$/.test(value)) {
+                                setInvalid(
+                                    numeroDocumento,
+                                    error,
+                                    "El RUC debe contener 11 dígitos."
+                                );
+                                return false;
+                            }
+                        }
+
+                        if ((type === "ce" || type === "pasaporte") &amp;&amp; value.length < 3) {
+                            setInvalid(
+                                numeroDocumento,
+                                error,
+                                "Ingrese un número de documento válido."
+                            );
+                            return false;
+                        }
+
+                        return true;
+                    }
+
+                    function validateRequiredText(field, errorId, message) {
+                        const error = getError(errorId);
+                        const value = normalizeText(field.value);
+
+                        clearInvalid(field, error);
+
+                        if (!value) {
+                            setInvalid(field, error, message);
+                            return false;
+                        }
+
+                        return true;
+                    }
+
+                    function validateSelect(field, errorId, message) {
+                        const error = getError(errorId);
+
+                        clearInvalid(field, error);
+
+                        if (!field.value) {
+                            setInvalid(field, error, message);
+                            return false;
+                        }
+
+                        return true;
+                    }
+
+                    function validateEmailField() {
+                        const error = getError("lr_email_error");
+                        const value = normalizeText(email.value);
+
+                        clearInvalid(email, error);
+
+                        if (!isValidEmail(value)) {
+                            setInvalid(
+                                email,
+                                error,
+                                "Ingrese un correo electrónico válido."
+                            );
+                            return false;
+                        }
+
+                        email.value = value.toLowerCase();
+
+                        return true;
+                    }
+
+                    function validatePhoneField() {
+                        const error = getError("lr_telefono_error");
+
+                        clearInvalid(telefono, error);
+
+                        if (!isValidPhone(telefono.value)) {
+                            setInvalid(
+                                telefono,
+                                error,
+                                "Ingrese un teléfono válido."
+                            );
+                            return false;
+                        }
+
+                        return true;
+                    }
+
+                    function validateAmount() {
+                        const error = getError("lr_monto_error");
+
+                        clearInvalid(monto, error);
+
+                        if (!normalizeText(monto.value)) {
+                            return true;
+                        }
+
+                        const value = Number(monto.value);
+
+                        if (!Number.isFinite(value) || value < 0) {
+                            setInvalid(
+                                monto,
+                                error,
+                                "Ingrese un monto válido."
+                            );
+                            return false;
+                        }
+
+                        return true;
+                    }
+
+                    function validateCheckbox(field, errorId) {
+                        const error = getError(errorId);
+
+                        if (field.checked) {
+                            error.classList.remove("show");
+                            return true;
+                        }
+
+                        error.classList.add("show");
+                        return false;
+                    }
+
+                    function validateSignature() {
+                        const error = getError("lr_signature_error");
+
+                        if (hasSignature) {
+                            error.classList.remove("show");
+                            return true;
+                        }
+
+                        error.classList.add("show");
+                        return false;
+                    }
+
+                    function validateForm() {
+                        let valid = true;
+
+                        if (!validateDocument()) valid = false;
+
+                        if (!validateRequiredText(
+                            nombreConsumidor,
+                            "lr_nombre_error",
+                            tipoDocumento.value === "ruc"
+                                ? "Complete la razón social."
+                                : "Complete el nombre completo."
+                        )) valid = false;
+
+                        if (!validateRequiredText(
+                            domicilioConsumidor,
+                            "lr_domicilio_error",
+                            "Complete el domicilio."
+                        )) valid = false;
+
+                        if (!validatePhoneField()) valid = false;
+                        if (!validateEmailField()) valid = false;
+
+                        if (!validateSelect(
+                            tipoBien,
+                            "lr_tipo_bien_error",
+                            "Seleccione producto o servicio."
+                        )) valid = false;
+
+                        if (!validateAmount()) valid = false;
+
+                        if (!validateRequiredText(
+                            descripcionBien,
+                            "lr_descripcion_bien_error",
+                            "Complete la descripción."
+                        )) valid = false;
+
+                        if (!validateSelect(
+                            tipoReclamacion,
+                            "lr_tipo_reclamacion_error",
+                            "Seleccione reclamo o queja."
+                        )) valid = false;
+
+                        if (!validateRequiredText(
+                            detalle,
+                            "lr_detalle_error",
+                            "Complete el detalle."
+                        )) valid = false;
+
+                        if (!validateRequiredText(
+                            pedidoConsumidor,
+                            "lr_pedido_consumidor_error",
+                            "Complete el pedido del consumidor."
+                        )) valid = false;
+
+                        if (!validateSignature()) valid = false;
+
+                        if (!validateCheckbox(
+                            declaracion,
+                            "lr_declaracion_error"
+                        )) valid = false;
+
+                        if (!validateCheckbox(
+                            privacidad,
+                            "lr_privacidad_error"
+                        )) valid = false;
+
+                        return valid;
+                    }
+
+                    function focusFirstInvalid() {
+                        const firstInvalid = form.querySelector(".is-invalid");
+
+                        if (firstInvalid) {
+                            firstInvalid.scrollIntoView({
+                                behavior:"smooth",
+                                block:"center"
+                            });
+
+                            window.setTimeout(function () {
+                                firstInvalid.focus();
+                            }, 250);
+
+                            return;
+                        }
+
+                        const signatureError = getError("lr_signature_error");
+
+                        if (signatureError.classList.contains("show")) {
+                            canvas.scrollIntoView({
+                                behavior:"smooth",
+                                block:"center"
+                            });
+                        }
+                    }
+
                     function resizeCanvas() {
                         const ratio = Math.max(window.devicePixelRatio || 1, 1);
                         const rect = canvas.getBoundingClientRect();
-                        const saved = hasSignature ? canvas.toDataURL("image/png") : null;
+                        const saved = hasSignature
+                            ? canvas.toDataURL("image/png")
+                            : null;
+
                         canvas.width = Math.floor(rect.width * ratio);
                         canvas.height = Math.floor(180 * ratio);
+
                         ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
                         ctx.lineWidth = 2;
                         ctx.lineCap = "round";
                         ctx.lineJoin = "round";
                         ctx.strokeStyle = "#17233f";
+
                         if (saved) {
                             const image = new Image();
+
                             image.onload = function () {
                                 ctx.drawImage(image, 0, 0, rect.width, 180);
                             };
+
                             image.src = saved;
                         }
                     }
 
                     function point(event) {
                         const rect = canvas.getBoundingClientRect();
-                        const source = event.touches ? event.touches[0] : event;
-                        return {x: source.clientX - rect.left, y: source.clientY - rect.top};
+                        const source = event.touches
+                            ? event.touches[0]
+                            : event;
+
+                        return {
+                            x:source.clientX - rect.left,
+                            y:source.clientY - rect.top
+                        };
                     }
 
                     function start(event) {
                         event.preventDefault();
+
                         drawing = true;
                         hasSignature = true;
+
+                        getError("lr_signature_error").classList.remove("show");
+
                         const p = point(event);
+
                         ctx.beginPath();
                         ctx.moveTo(p.x, p.y);
                     }
 
                     function move(event) {
-                        if (!drawing) return;
+                        if (!drawing) {
+                            return;
+                        }
+
                         event.preventDefault();
+
                         const p = point(event);
+
                         ctx.lineTo(p.x, p.y);
                         ctx.stroke();
                     }
 
                     function end(event) {
-                        if (!drawing) return;
+                        if (!drawing) {
+                            return;
+                        }
+
                         event.preventDefault();
                         drawing = false;
                     }
@@ -271,14 +1425,31 @@
                     canvas.addEventListener("mousedown", start);
                     canvas.addEventListener("mousemove", move);
                     window.addEventListener("mouseup", end);
-                    canvas.addEventListener("touchstart", start, {passive:false});
-                    canvas.addEventListener("touchmove", move, {passive:false});
-                    canvas.addEventListener("touchend", end, {passive:false});
+
+                    canvas.addEventListener("touchstart", start, {
+                        passive:false
+                    });
+
+                    canvas.addEventListener("touchmove", move, {
+                        passive:false
+                    });
+
+                    canvas.addEventListener("touchend", end, {
+                        passive:false
+                    });
 
                     clearSignature.addEventListener("click", function () {
-                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.clearRect(
+                            0,
+                            0,
+                            canvas.width,
+                            canvas.height
+                        );
+
                         hasSignature = false;
                         signatureData.value = "";
+
+                        getError("lr_signature_error").classList.remove("show");
                     });
 
                     window.addEventListener("resize", resizeCanvas);
@@ -292,48 +1463,79 @@
                         numeroDocumento.value = "";
                         nombreConsumidor.value = "";
                         nombreConsumidor.readOnly = false;
+
                         docStatus.textContent = "";
+                        docStatus.className = "lr-help";
+
+                        clearInvalid(
+                            numeroDocumento,
+                            getError("lr_doc_error")
+                        );
+
+                        clearInvalid(
+                            nombreConsumidor,
+                            getError("lr_nombre_error")
+                        );
 
                         if (isDni) {
                             numeroDocumento.maxLength = 8;
                             numeroDocumento.inputMode = "numeric";
-                            nombreLabel.innerHTML = 'Nombre completo <span class="lr-required">*</span>';
+
+                            nombreLabel.innerHTML =
+                                'Nombre completo <span class="lr-required">*</span>';
+
                         } else if (isRuc) {
                             numeroDocumento.maxLength = 11;
                             numeroDocumento.inputMode = "numeric";
-                            nombreLabel.innerHTML = 'Razón social <span class="lr-required">*</span>';
+
+                            nombreLabel.innerHTML =
+                                'Razón social <span class="lr-required">*</span>';
+
                         } else {
                             numeroDocumento.maxLength = 20;
                             numeroDocumento.inputMode = "text";
-                            nombreLabel.innerHTML = 'Nombre completo <span class="lr-required">*</span>';
+
+                            nombreLabel.innerHTML =
+                                'Nombre completo <span class="lr-required">*</span>';
                         }
                     }
 
                     async function lookupDni() {
-                        if (tipoDocumento.value !== "dni") return;
+                        if (tipoDocumento.value !== "dni") {
+                            return;
+                        }
 
                         const dni = numeroDocumento.value.replace(/\D/g, "");
                         numeroDocumento.value = dni;
 
                         if (dni.length !== 8) {
                             docStatus.textContent = "";
+                            docStatus.className = "lr-help";
                             nombreConsumidor.readOnly = false;
                             return;
                         }
 
                         docStatus.textContent = "Consultando...";
+                        docStatus.className = "lr-help";
 
                         try {
-                            const response = await fetch("/libro-de-reclamaciones/consultar-dni", {
-                                method: "POST",
-                                headers: {"Content-Type": "application/json"},
-                                body: JSON.stringify({
-                                    jsonrpc: "2.0",
-                                    method: "call",
-                                    params: {numero: dni},
-                                    id: Date.now()
-                                })
-                            });
+                            const response = await fetch(
+                                "/libro-de-reclamaciones/consultar-dni",
+                                {
+                                    method:"POST",
+                                    headers:{
+                                        "Content-Type":"application/json"
+                                    },
+                                    body:JSON.stringify({
+                                        jsonrpc:"2.0",
+                                        method:"call",
+                                        params:{
+                                            numero:dni
+                                        },
+                                        id:Date.now()
+                                    })
+                                }
+                            );
 
                             const payload = await response.json();
                             const result = payload.result || {};
@@ -341,19 +1543,37 @@
                             if (result.ok) {
                                 nombreConsumidor.value = result.nombre || "";
                                 nombreConsumidor.readOnly = true;
-                                docStatus.textContent = "";
+
+                                docStatus.textContent = "Documento verificado.";
+                                docStatus.className = "lr-help lr-help-success";
+
+                                clearInvalid(
+                                    numeroDocumento,
+                                    getError("lr_doc_error")
+                                );
+
+                                clearInvalid(
+                                    nombreConsumidor,
+                                    getError("lr_nombre_error")
+                                );
+
                             } else {
                                 nombreConsumidor.readOnly = false;
                                 docStatus.textContent = "";
+                                docStatus.className = "lr-help";
                             }
+
                         } catch (error) {
                             nombreConsumidor.readOnly = false;
                             docStatus.textContent = "";
+                            docStatus.className = "lr-help";
                         }
                     }
 
                     async function lookupRuc() {
-                        if (tipoDocumento.value !== "ruc") return;
+                        if (tipoDocumento.value !== "ruc") {
+                            return;
+                        }
 
                         const ruc = numeroDocumento.value.replace(/\D/g, "");
                         numeroDocumento.value = ruc;
@@ -363,118 +1583,441 @@
                             return;
                         }
 
+                        docStatus.textContent = "Consultando...";
+                        docStatus.className = "lr-help";
+
                         try {
-                            const response = await fetch("/libro-de-reclamaciones/consultar-ruc", {
-                                method: "POST",
-                                headers: {"Content-Type": "application/json"},
-                                body: JSON.stringify({
-                                    jsonrpc: "2.0",
-                                    method: "call",
-                                    params: {numero: ruc},
-                                    id: Date.now()
-                                })
-                            });
+                            const response = await fetch(
+                                "/libro-de-reclamaciones/consultar-ruc",
+                                {
+                                    method:"POST",
+                                    headers:{
+                                        "Content-Type":"application/json"
+                                    },
+                                    body:JSON.stringify({
+                                        jsonrpc:"2.0",
+                                        method:"call",
+                                        params:{
+                                            numero:ruc
+                                        },
+                                        id:Date.now()
+                                    })
+                                }
+                            );
 
                             const payload = await response.json();
                             const result = payload.result || {};
 
                             if (result.ok) {
-                                nombreConsumidor.value = result.razon_social || result.nombre || "";
+                                nombreConsumidor.value =
+                                    result.razon_social ||
+                                    result.nombre ||
+                                    "";
+
                                 nombreConsumidor.readOnly = true;
 
                                 if (result.direccion) {
-                                    domicilioConsumidor.value = result.direccion;
+                                    domicilioConsumidor.value =
+                                        result.direccion;
                                 }
 
-                                docStatus.textContent = "";
+                                docStatus.textContent = "Documento verificado.";
+                                docStatus.className = "lr-help lr-help-success";
+
+                                clearInvalid(
+                                    numeroDocumento,
+                                    getError("lr_doc_error")
+                                );
+
+                                clearInvalid(
+                                    nombreConsumidor,
+                                    getError("lr_nombre_error")
+                                );
+
+                                if (result.direccion) {
+                                    clearInvalid(
+                                        domicilioConsumidor,
+                                        getError("lr_domicilio_error")
+                                    );
+                                }
+
                             } else {
                                 nombreConsumidor.readOnly = false;
                                 docStatus.textContent = "";
+                                docStatus.className = "lr-help";
                             }
+
                         } catch (error) {
                             nombreConsumidor.readOnly = false;
                             docStatus.textContent = "";
+                            docStatus.className = "lr-help";
                         }
                     }
 
-                    tipoDocumento.addEventListener("change", updateDocumentMode);
+                    tipoDocumento.addEventListener(
+                        "change",
+                        updateDocumentMode
+                    );
 
                     numeroDocumento.addEventListener("input", function () {
+                        clearInvalid(
+                            numeroDocumento,
+                            getError("lr_doc_error")
+                        );
+
+                        docStatus.textContent = "";
+                        docStatus.className = "lr-help";
+
                         if (tipoDocumento.value === "dni") {
-                            numeroDocumento.value = numeroDocumento.value.replace(/\D/g, "").slice(0, 8);
+                            numeroDocumento.value =
+                                numeroDocumento.value
+                                    .replace(/\D/g, "")
+                                    .slice(0, 8);
+
                             clearTimeout(dniTimer);
-                            dniTimer = setTimeout(lookupDni, 400);
+
+                            dniTimer = setTimeout(
+                                lookupDni,
+                                400
+                            );
+
                         } else if (tipoDocumento.value === "ruc") {
-                            numeroDocumento.value = numeroDocumento.value.replace(/\D/g, "").slice(0, 11);
+                            numeroDocumento.value =
+                                numeroDocumento.value
+                                    .replace(/\D/g, "")
+                                    .slice(0, 11);
+
                             clearTimeout(rucTimer);
-                            rucTimer = setTimeout(lookupRuc, 400);
+
+                            rucTimer = setTimeout(
+                                lookupRuc,
+                                400
+                            );
                         }
                     });
 
-                    currency.addEventListener("change", function () {
-                        currencySymbol.textContent = currency.value === "USD" ? "$" : "S/";
+                    numeroDocumento.addEventListener(
+                        "blur",
+                        validateDocument
+                    );
+
+                    nombreConsumidor.addEventListener("input", function () {
+                        clearInvalid(
+                            nombreConsumidor,
+                            getError("lr_nombre_error")
+                        );
+                    });
+
+                    domicilioConsumidor.addEventListener("input", function () {
+                        clearInvalid(
+                            domicilioConsumidor,
+                            getError("lr_domicilio_error")
+                        );
+                    });
+
+                    telefono.addEventListener("input", function () {
+                        clearInvalid(
+                            telefono,
+                            getError("lr_telefono_error")
+                        );
+                    });
+
+                    telefono.addEventListener(
+                        "blur",
+                        validatePhoneField
+                    );
+
+                    email.addEventListener("input", function () {
+                        clearInvalid(
+                            email,
+                            getError("lr_email_error")
+                        );
+                    });
+
+                    email.addEventListener(
+                        "blur",
+                        validateEmailField
+                    );
+
+                    tipoBien.addEventListener("change", function () {
+                        clearInvalid(
+                            tipoBien,
+                            getError("lr_tipo_bien_error")
+                        );
+                    });
+
+                    monto.addEventListener("input", function () {
+                        clearInvalid(
+                            monto,
+                            getError("lr_monto_error")
+                        );
+                    });
+
+                    monto.addEventListener(
+                        "blur",
+                        validateAmount
+                    );
+
+                    descripcionBien.addEventListener("input", function () {
+                        clearInvalid(
+                            descripcionBien,
+                            getError("lr_descripcion_bien_error")
+                        );
+                    });
+
+                    tipoReclamacion.addEventListener("change", function () {
+                        clearInvalid(
+                            tipoReclamacion,
+                            getError("lr_tipo_reclamacion_error")
+                        );
+                    });
+
+                    detalle.addEventListener("input", function () {
+                        clearInvalid(
+                            detalle,
+                            getError("lr_detalle_error")
+                        );
+                    });
+
+                    pedidoConsumidor.addEventListener("input", function () {
+                        clearInvalid(
+                            pedidoConsumidor,
+                            getError("lr_pedido_consumidor_error")
+                        );
+                    });
+
+                    declaracion.addEventListener("change", function () {
+                        if (declaracion.checked) {
+                            getError(
+                                "lr_declaracion_error"
+                            ).classList.remove("show");
+                        }
+                    });
+
+                    privacidad.addEventListener("change", function () {
+                        if (privacidad.checked) {
+                            getError(
+                                "lr_privacidad_error"
+                            ).classList.remove("show");
+                        }
+                    });
+
+                    function setCurrency(option) {
+                        const value = option.dataset.value;
+                        const symbol = option.dataset.symbol;
+                        const flag = option.dataset.flag;
+                        const name = option.dataset.name;
+
+                        currency.value = value;
+
+                        currencySymbol.textContent = symbol;
+                        currencyFlag.textContent = flag;
+                        currencyName.textContent = name;
+                        currencyCode.textContent = value;
+
+                        currencyOptions.forEach(function (item) {
+                            item.classList.toggle(
+                                "active",
+                                item.dataset.value === value
+                            );
+                        });
+
+                        currencyPicker.classList.remove("open");
+                        currencyButton.setAttribute(
+                            "aria-expanded",
+                            "false"
+                        );
+                    }
+
+                    currencyButton.addEventListener("click", function (event) {
+                        event.stopPropagation();
+
+                        const opened =
+                            currencyPicker.classList.toggle("open");
+
+                        currencyButton.setAttribute(
+                            "aria-expanded",
+                            opened ? "true" : "false"
+                        );
+                    });
+
+                    currencyOptions.forEach(function (option) {
+                        option.addEventListener("click", function () {
+                            setCurrency(option);
+                        });
+                    });
+
+                    document.addEventListener("click", function (event) {
+                        if (!currencyPicker.contains(event.target)) {
+                            currencyPicker.classList.remove("open");
+
+                            currencyButton.setAttribute(
+                                "aria-expanded",
+                                "false"
+                            );
+                        }
+                    });
+
+                    document.addEventListener("keydown", function (event) {
+                        if (event.key === "Escape") {
+                            currencyPicker.classList.remove("open");
+
+                            currencyButton.setAttribute(
+                                "aria-expanded",
+                                "false"
+                            );
+                        }
                     });
 
                     form.addEventListener("submit", function (event) {
-                        if (!hasSignature) {
-                            event.preventDefault();
-                            alert("Debe registrar su firma antes de enviar la reclamación.");
-                            canvas.scrollIntoView({behavior:"smooth", block:"center"});
+                        event.preventDefault();
+
+                        if (!validateForm()) {
+                            focusFirstInvalid();
                             return;
                         }
 
-                        signatureData.value = canvas.toDataURL("image/png");
+                        signatureData.value =
+                            canvas.toDataURL("image/png");
+
                         submitButton.disabled = true;
                         submitButton.textContent = "Registrando...";
+
+                        form.submit();
                     });
+
+                    updateDocumentMode();
                 });
             </script>
+
         </t>
     </template>
 
-    <template id="libro_reclamaciones_confirmacion" name="Confirmación - Libro de Reclamaciones">
+
+    <template id="libro_reclamaciones_confirmacion"
+              name="Confirmación - Libro de Reclamaciones">
+
         <t t-call="website.layout">
+
             <main style="background:#f7f8fb;padding:60px 20px;min-height:65vh;">
+
                 <div style="max-width:680px;margin:0 auto;background:#fff;border:1px solid #e8edf4;border-radius:16px;padding:32px;text-align:center;">
-                    <h1 style="font-size:1.6rem;font-weight:800;color:#17233f;">Reclamación registrada</h1>
-                    <p style="color:#64748b;">Número de hoja</p>
-                    <div style="font-size:1.3rem;font-weight:800;color:#1e3a6d;margin:16px 0;"><t t-esc="reclamacion.name"/></div>
+
+                    <h1 style="font-size:1.6rem;font-weight:800;color:#17233f;">
+                        Reclamación registrada
+                    </h1>
+
+                    <p style="color:#64748b;">
+                        Número de hoja
+                    </p>
+
+                    <div style="font-size:1.3rem;font-weight:800;color:#1e3a6d;margin:16px 0;">
+                        <t t-esc="reclamacion.name"/>
+                    </div>
+
                     <div class="d-flex flex-wrap justify-content-center gap-2 mt-4">
-                        <a class="btn btn-primary" t-att-href="'/libro-de-reclamaciones/pdf/%s' % reclamacion.public_token" target="_blank">Ver PDF</a>
-                        <a class="btn btn-outline-primary" t-att-href="'/libro-de-reclamaciones/descargar/%s' % reclamacion.public_token">Descargar</a>
+
+                        <a class="btn btn-primary"
+                           t-att-href="'/libro-de-reclamaciones/pdf/%s' % reclamacion.public_token"
+                           target="_blank">
+                            Ver PDF
+                        </a>
+
+                        <a class="btn btn-outline-primary"
+                           t-att-href="'/libro-de-reclamaciones/descargar/%s' % reclamacion.public_token">
+                            Descargar
+                        </a>
+
                     </div>
+
                 </div>
             </main>
+
         </t>
     </template>
 
-    <template id="libro_reclamaciones_constancia" name="Constancia - Libro de Reclamaciones">
+
+    <template id="libro_reclamaciones_constancia"
+              name="Constancia - Libro de Reclamaciones">
+
         <t t-call="website.layout">
+
             <main style="background:#f7f8fb;padding:46px 20px;">
+
                 <div style="max-width:820px;margin:0 auto;background:#fff;border-radius:16px;padding:28px;border:1px solid #e8edf4;">
-                    <h2 style="font-weight:800;color:#17233f;">Constancia de reclamación</h2>
+
+                    <h2 style="font-weight:800;color:#17233f;">
+                        Constancia de reclamación
+                    </h2>
+
                     <hr/>
+
                     <div class="row g-3">
-                        <div class="col-md-6"><strong>N.º Hoja:</strong><br/><t t-esc="reclamacion.name"/></div>
-                        <div class="col-md-6"><strong>Fecha:</strong><br/><span t-field="reclamacion.fecha_reclamo"/></div>
-                        <div class="col-md-6"><strong>Consumidor:</strong><br/><t t-esc="reclamacion.nombre_consumidor"/></div>
-                        <div class="col-md-6"><strong>Documento:</strong><br/><t t-esc="reclamacion.numero_documento"/></div>
-                        <div class="col-md-6"><strong>Tipo:</strong><br/><t t-esc="dict(reclamacion._fields['tipo_reclamacion'].selection).get(reclamacion.tipo_reclamacion)"/></div>
-                        <div class="col-md-6"><strong>Monto:</strong><br/><span t-field="reclamacion.monto_reclamado" t-options='{"widget":"monetary","display_currency":reclamacion.currency_id}'/></div>
+
+                        <div class="col-md-6">
+                            <strong>N.º Hoja:</strong><br/>
+                            <t t-esc="reclamacion.name"/>
+                        </div>
+
+                        <div class="col-md-6">
+                            <strong>Fecha:</strong><br/>
+                            <span t-field="reclamacion.fecha_reclamo"/>
+                        </div>
+
+                        <div class="col-md-6">
+                            <strong>Consumidor:</strong><br/>
+                            <t t-esc="reclamacion.nombre_consumidor"/>
+                        </div>
+
+                        <div class="col-md-6">
+                            <strong>Documento:</strong><br/>
+                            <t t-esc="reclamacion.numero_documento"/>
+                        </div>
+
+                        <div class="col-md-6">
+                            <strong>Tipo:</strong><br/>
+                            <t t-esc="dict(reclamacion._fields['tipo_reclamacion'].selection).get(reclamacion.tipo_reclamacion)"/>
+                        </div>
+
+                        <div class="col-md-6">
+                            <strong>Monto:</strong><br/>
+                            <span t-field="reclamacion.monto_reclamado"
+                                  t-options='{"widget":"monetary","display_currency":reclamacion.currency_id}'/>
+                        </div>
+
                     </div>
+
                     <div class="mt-4">
-                        <a class="btn btn-primary" t-att-href="'/libro-de-reclamaciones/descargar/%s' % reclamacion.public_token">Descargar PDF</a>
+
+                        <a class="btn btn-primary"
+                           t-att-href="'/libro-de-reclamaciones/descargar/%s' % reclamacion.public_token">
+                            Descargar PDF
+                        </a>
+
                     </div>
+
                 </div>
             </main>
+
         </t>
     </template>
 
-    <template id="footer_libro_reclamaciones_link" inherit_id="website.layout" name="Enlace Libro de Reclamaciones">
+
+    <template id="footer_libro_reclamaciones_link"
+              inherit_id="website.layout"
+              name="Enlace Libro de Reclamaciones">
+
         <xpath expr="//footer" position="inside">
+
             <div class="container py-2 text-center">
-                <a href="/libro-de-reclamaciones" class="text-decoration-none">Libro de Reclamaciones</a>
+
+                <a href="/libro-de-reclamaciones"
+                   class="text-decoration-none">
+                    Libro de Reclamaciones
+                </a>
+
             </div>
+
         </xpath>
     </template>
 
