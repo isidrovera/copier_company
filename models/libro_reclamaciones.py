@@ -36,7 +36,7 @@ class LibroReclamaciones(models.Model):
     dias_para_vencer = fields.Integer(string="Días para vencer", compute="_compute_plazo")
     vencido = fields.Boolean(string="Vencido", compute="_compute_plazo")
 
-    tipo_documento = fields.Selection([("dni", "DNI"), ("ce", "Carné de extranjería"), ("pasaporte", "Pasaporte")], string="Tipo de documento", default="dni", required=True, tracking=True)
+    tipo_documento = fields.Selection([("dni", "DNI"), ("ruc", "RUC"), ("ce", "Carné de extranjería"), ("pasaporte", "Pasaporte")], string="Tipo de documento", default="dni", required=True, tracking=True)
     numero_documento = fields.Char(string="Número de documento", required=True, tracking=True, index=True)
     nombre_consumidor = fields.Char(string="Nombre completo", required=True, tracking=True)
     nombres = fields.Char(string="Nombres", readonly=True)
@@ -187,9 +187,65 @@ class LibroReclamaciones(models.Model):
             _logger.exception("[LIBRO RECLAMACIONES] Error consultando DNI")
             return {"ok": False, "message": "No fue posible consultar el DNI en este momento."}
 
+
+    @api.model
+    def consultar_ruc(self, numero):
+        numero = re.sub(r"\D", "", numero or "")
+        if len(numero) != 11:
+            return {"ok": False, "message": "Ingrese un RUC válido de 11 dígitos."}
+
+        token = self._decolecta_token()
+        if not token:
+            return {"ok": False, "message": "La consulta de RUC no está disponible temporalmente."}
+
+        try:
+            response = requests.get(
+                "https://api.decolecta.com/v1/sunat/ruc",
+                params={"numero": numero},
+                headers={"Authorization": "Bearer %s" % token},
+                timeout=15,
+            )
+            _logger.info(
+                "[LIBRO RECLAMACIONES] Decolecta endpoint=/v1/sunat/ruc HTTP=%s",
+                response.status_code,
+            )
+
+            if response.status_code != 200:
+                return {"ok": False, "message": "No fue posible consultar el RUC."}
+
+            data = response.json() or {}
+            razon_social = (data.get("razon_social") or "").strip()
+            direccion = (
+                data.get("direccion")
+                or data.get("dirección")
+                or ""
+            ).strip()
+
+            if not razon_social:
+                return {"ok": False, "message": "No se encontró información para el RUC ingresado."}
+
+            return {
+                "ok": True,
+                "numero": data.get("numero_documento") or numero,
+                "nombre": razon_social,
+                "razon_social": razon_social,
+                "direccion": direccion,
+                "estado": data.get("estado") or "",
+                "condicion": data.get("condicion") or "",
+            }
+
+        except Exception:
+            _logger.exception("[LIBRO RECLAMACIONES] Error consultando RUC")
+            return {"ok": False, "message": "No fue posible consultar el RUC en este momento."}
+
     def action_consultar_documento(self):
         self.ensure_one()
-        if self.tipo_documento != "dni":
+
+        if self.tipo_documento == "dni":
+            result = self.consultar_dni(self.numero_documento)
+        elif self.tipo_documento == "ruc":
+            result = self.consultar_ruc(self.numero_documento)
+        else:
             self.write({
                 "documento_consultado": False,
                 "documento_encontrado": False,
@@ -198,7 +254,6 @@ class LibroReclamaciones(models.Model):
                 "consulta_documento_mensaje": "El documento se registra manualmente.",
             })
             return True
-        result = self.consultar_dni(self.numero_documento)
         vals = {
             "documento_consultado": True,
             "documento_encontrado": bool(result.get("ok")),
@@ -210,10 +265,12 @@ class LibroReclamaciones(models.Model):
         if result.get("ok"):
             vals.update({
                 "nombre_consumidor": result.get("nombre"),
-                "nombres": result.get("nombres"),
-                "apellido_paterno": result.get("apellido_paterno"),
-                "apellido_materno": result.get("apellido_materno"),
+                "nombres": result.get("nombres") or "",
+                "apellido_paterno": result.get("apellido_paterno") or "",
+                "apellido_materno": result.get("apellido_materno") or "",
             })
+            if self.tipo_documento == "ruc" and result.get("direccion"):
+                vals["domicilio_consumidor"] = result.get("direccion")
         self.write(vals)
         return True
 

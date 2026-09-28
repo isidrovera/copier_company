@@ -53,12 +53,16 @@ class LibroReclamacionesController(http.Controller):
     def libro_reclamaciones_consultar_dni(self, numero=None, **kwargs):
         return request.env["libro.reclamaciones"].sudo().consultar_dni(numero)
 
+    @http.route("/libro-de-reclamaciones/consultar-ruc", type="jsonrpc", auth="public", website=True, csrf=False)
+    def libro_reclamaciones_consultar_ruc(self, numero=None, **kwargs):
+        return request.env["libro.reclamaciones"].sudo().consultar_ruc(numero)
+
     @http.route("/libro-de-reclamaciones/enviar", type="http", auth="public", website=True, methods=["POST"], csrf=True)
     def libro_reclamaciones_enviar(self, **post):
         Reclamacion = request.env["libro.reclamaciones"].sudo()
 
         tipo_documento = self._clean(post.get("tipo_documento")).lower()
-        if tipo_documento not in ("dni", "ce", "pasaporte"):
+        if tipo_documento not in ("dni", "ruc", "ce", "pasaporte"):
             tipo_documento = "dni"
 
         numero_documento = self._clean(post.get("numero_documento"))
@@ -82,11 +86,20 @@ class LibroReclamacionesController(http.Controller):
                 "form_data": post,
             })
 
-        dni_data = {}
+        document_data = {}
+
         if tipo_documento == "dni" and len(re.sub(r"\D", "", numero_documento)) == 8:
-            dni_data = Reclamacion.consultar_dni(numero_documento)
-            if dni_data.get("ok") and not nombre_consumidor:
-                nombre_consumidor = dni_data.get("nombre") or ""
+            document_data = Reclamacion.consultar_dni(numero_documento)
+            if document_data.get("ok") and not nombre_consumidor:
+                nombre_consumidor = document_data.get("nombre") or ""
+
+        elif tipo_documento == "ruc" and len(re.sub(r"\D", "", numero_documento)) == 11:
+            document_data = Reclamacion.consultar_ruc(numero_documento)
+            if document_data.get("ok"):
+                if not nombre_consumidor:
+                    nombre_consumidor = document_data.get("nombre") or ""
+                if not self._clean(post.get("domicilio_consumidor")) and document_data.get("direccion"):
+                    post["domicilio_consumidor"] = document_data.get("direccion")
 
         vals = {
             "state": "draft",
@@ -97,9 +110,9 @@ class LibroReclamacionesController(http.Controller):
             "tipo_documento": tipo_documento,
             "numero_documento": numero_documento,
             "nombre_consumidor": nombre_consumidor,
-            "nombres": dni_data.get("nombres") or "",
-            "apellido_paterno": dni_data.get("apellido_paterno") or "",
-            "apellido_materno": dni_data.get("apellido_materno") or "",
+            "nombres": document_data.get("nombres") or "",
+            "apellido_paterno": document_data.get("apellido_paterno") or "",
+            "apellido_materno": document_data.get("apellido_materno") or "",
             "domicilio_consumidor": self._clean(post.get("domicilio_consumidor")),
             "telefono": self._clean(post.get("telefono")),
             "email": self._clean(post.get("email")),
@@ -118,12 +131,12 @@ class LibroReclamacionesController(http.Controller):
             "acepta_privacidad": post.get("acepta_privacidad") == "1",
             "ip_address": request.httprequest.remote_addr,
             "user_agent": request.httprequest.headers.get("User-Agent", ""),
-            "documento_consultado": tipo_documento == "dni",
-            "documento_encontrado": bool(dni_data.get("ok")) if tipo_documento == "dni" else False,
-            "ingreso_manual": tipo_documento != "dni" or not bool(dni_data.get("ok")),
-            "consulta_documento_estado": "ok" if dni_data.get("ok") else ("no_encontrado" if tipo_documento == "dni" else "sin_consulta"),
-            "consulta_documento_mensaje": dni_data.get("message") or "",
-            "fecha_consulta_documento": fields.Datetime.now() if tipo_documento == "dni" else False,
+            "documento_consultado": tipo_documento in ("dni", "ruc"),
+            "documento_encontrado": bool(document_data.get("ok")) if tipo_documento in ("dni", "ruc") else False,
+            "ingreso_manual": tipo_documento not in ("dni", "ruc") or not bool(document_data.get("ok")),
+            "consulta_documento_estado": "ok" if document_data.get("ok") else ("no_encontrado" if tipo_documento in ("dni", "ruc") else "sin_consulta"),
+            "consulta_documento_mensaje": document_data.get("message") or "",
+            "fecha_consulta_documento": fields.Datetime.now() if tipo_documento in ("dni", "ruc") else False,
         }
 
         try:

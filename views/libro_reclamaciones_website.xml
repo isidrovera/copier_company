@@ -6,52 +6,46 @@
             <t t-set="additional_title">Libro de Reclamaciones</t>
 
             <style>
-                .lr-page{background:#f5f7fb;padding:48px 0 70px}
-                .lr-wrap{max-width:1050px;margin:0 auto;padding:0 18px}
-                .lr-hero{background:linear-gradient(135deg,#17233f,#243f71);color:#fff;border-radius:22px;padding:34px 36px;margin-bottom:24px;box-shadow:0 18px 50px rgba(20,38,71,.16)}
-                .lr-hero h1{font-size:2rem;font-weight:800;margin:0 0 8px}
-                .lr-hero p{margin:0;color:rgba(255,255,255,.82)}
-                .lr-card{background:#fff;border:1px solid #e8edf5;border-radius:20px;padding:28px;margin-bottom:20px;box-shadow:0 8px 30px rgba(20,38,71,.06)}
-                .lr-card-title{font-size:1.05rem;font-weight:800;color:#17233f;margin-bottom:20px;display:flex;align-items:center;gap:10px}
-                .lr-number{width:30px;height:30px;border-radius:9px;background:#eef3ff;color:#2854b8;display:inline-flex;align-items:center;justify-content:center;font-size:.9rem}
-                .lr-label{font-size:.88rem;font-weight:700;color:#334155;margin-bottom:7px}
+                .lr-page{background:#f7f8fb;padding:32px 0 56px}
+                .lr-wrap{max-width:920px;margin:0 auto;padding:0 16px}
+                .lr-head{margin-bottom:22px}
+                .lr-head h1{font-size:1.8rem;font-weight:800;color:#17233f;margin:0 0 6px}
+                .lr-head p{margin:0;color:#64748b;font-size:.95rem}
+                .lr-card{background:#fff;border:1px solid #e8edf4;border-radius:16px;padding:22px;margin-bottom:14px}
+                .lr-title{font-size:.92rem;font-weight:800;color:#17233f;margin-bottom:16px;text-transform:uppercase;letter-spacing:.04em}
+                .lr-label{font-size:.82rem;font-weight:700;color:#475569;margin-bottom:6px}
                 .lr-required{color:#dc3545}
-                .lr-control{border:1px solid #dbe3ef;border-radius:12px;min-height:48px;padding:10px 13px;background:#fff;width:100%;transition:.2s}
-                .lr-control:focus{border-color:#4d74d6;box-shadow:0 0 0 .2rem rgba(77,116,214,.12);outline:none}
-                textarea.lr-control{min-height:120px;resize:vertical}
-                .lr-doc-status{font-size:.82rem;margin-top:7px;min-height:18px}
-                .lr-money-grid{display:grid;grid-template-columns:minmax(230px,1fr) minmax(230px,1fr);gap:14px}
-                .lr-currency-card{border:1px solid #dbe3ef;border-radius:14px;padding:12px 14px;background:#fff;display:flex;align-items:center;gap:12px;width:100%;min-height:52px}
-                .lr-flag{font-size:1.45rem}
+                .lr-control{width:100%;min-height:44px;border:1px solid #dce3ec;border-radius:10px;padding:9px 12px;background:#fff;color:#17233f}
+                .lr-control:focus{border-color:#4d74d6;outline:none;box-shadow:0 0 0 3px rgba(77,116,214,.08)}
+                textarea.lr-control{min-height:105px;resize:vertical}
+                .lr-help{font-size:.78rem;color:#7c8798;margin-top:5px;min-height:16px}
+                .lr-money{display:grid;grid-template-columns:1fr 1fr;gap:12px}
                 .lr-money-input{position:relative}
-                .lr-money-symbol{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-weight:800;color:#17233f;z-index:2}
-                .lr-money-input input{padding-left:46px;font-size:1.05rem;font-weight:700}
-                .lr-signature-box{border:1px solid #dbe3ef;border-radius:16px;background:#fff;overflow:hidden}
-                #lr_signature_canvas{display:block;width:100%;height:210px;touch-action:none;cursor:crosshair;background:#fff}
-                .lr-signature-tools{display:flex;justify-content:flex-end;border-top:1px solid #edf1f7;padding:10px}
-                .lr-btn-clear{border:0;background:#eef2f7;color:#475569;padding:8px 14px;border-radius:9px;font-weight:700}
-                .lr-submit{width:100%;border:0;border-radius:14px;background:#1e3a6d;color:#fff;font-size:1rem;font-weight:800;padding:15px 20px;box-shadow:0 10px 24px rgba(30,58,109,.22)}
-                .lr-submit:hover{background:#172f5c}
-                .lr-note{font-size:.84rem;color:#64748b}
-                .lr-error{background:#fff2f2;border:1px solid #ffc9c9;color:#a61b1b;border-radius:14px;padding:14px 16px;margin-bottom:20px}
-                .lr-check{display:flex;gap:10px;align-items:flex-start;margin-bottom:12px}
+                .lr-symbol{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-weight:800;color:#17233f}
+                .lr-money-input input{padding-left:43px}
+                .lr-signature{border:1px solid #dce3ec;border-radius:12px;overflow:hidden;background:#fff}
+                #lr_signature_canvas{display:block;width:100%;height:180px;touch-action:none;cursor:crosshair}
+                .lr-signature-tools{display:flex;justify-content:flex-end;border-top:1px solid #edf1f5;padding:8px}
+                .lr-clear{border:0;background:#f1f4f8;color:#475569;border-radius:8px;padding:7px 12px;font-weight:700;font-size:.82rem}
+                .lr-check{display:flex;gap:9px;align-items:flex-start;margin-bottom:10px;font-size:.88rem;color:#475569}
                 .lr-check input{margin-top:4px}
-                @media(max-width:768px){.lr-page{padding-top:24px}.lr-hero{padding:26px 22px}.lr-card{padding:20px}.lr-money-grid{grid-template-columns:1fr}}
+                .lr-submit{width:100%;border:0;background:#1e3a6d;color:#fff;border-radius:11px;padding:13px 18px;font-weight:800}
+                .lr-submit:hover{background:#172f5c}
+                .lr-error{background:#fff5f5;border:1px solid #ffd2d2;color:#a61b1b;border-radius:12px;padding:12px 14px;margin-bottom:14px}
+                .lr-inline-note{font-size:.78rem;color:#7c8798}
+                @media(max-width:768px){.lr-page{padding-top:22px}.lr-card{padding:18px}.lr-money{grid-template-columns:1fr}}
             </style>
 
             <main class="lr-page">
                 <div class="lr-wrap">
 
-                    <section class="lr-hero">
+                    <div class="lr-head">
                         <h1>Libro de Reclamaciones</h1>
-                        <p>Registre aquí su reclamo o queja. Al finalizar recibirá un número de hoja y podrá descargar su constancia.</p>
-                    </section>
+                        <p>Complete los datos para registrar su reclamo o queja.</p>
+                    </div>
 
                     <t t-if="error">
-                        <div class="lr-error">
-                            <i class="fa fa-exclamation-circle me-2"/>
-                            <t t-esc="error"/>
-                        </div>
+                        <div class="lr-error"><t t-esc="error"/></div>
                     </t>
 
                     <form id="lr_form" action="/libro-de-reclamaciones/enviar" method="post" enctype="multipart/form-data">
@@ -59,13 +53,14 @@
                         <input type="hidden" name="firma_consumidor_data" id="lr_signature_data"/>
 
                         <section class="lr-card">
-                            <div class="lr-card-title"><span class="lr-number">1</span> Identificación del consumidor</div>
+                            <div class="lr-title">Datos del consumidor</div>
 
                             <div class="row g-3">
                                 <div class="col-md-4">
                                     <label class="lr-label">Tipo de documento <span class="lr-required">*</span></label>
                                     <select class="lr-control" name="tipo_documento" id="lr_tipo_documento" required="required">
                                         <option value="dni">DNI</option>
+                                        <option value="ruc">RUC</option>
                                         <option value="ce">Carné de extranjería</option>
                                         <option value="pasaporte">Pasaporte</option>
                                     </select>
@@ -74,17 +69,17 @@
                                 <div class="col-md-4">
                                     <label class="lr-label">Número de documento <span class="lr-required">*</span></label>
                                     <input class="lr-control" type="text" name="numero_documento" id="lr_numero_documento" maxlength="20" autocomplete="off" required="required"/>
-                                    <div id="lr_doc_status" class="lr-doc-status"></div>
+                                    <div id="lr_doc_status" class="lr-help"></div>
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label class="lr-label">Nombre completo <span class="lr-required">*</span></label>
+                                    <label class="lr-label" id="lr_nombre_label">Nombre completo <span class="lr-required">*</span></label>
                                     <input class="lr-control" type="text" name="nombre_consumidor" id="lr_nombre_consumidor" maxlength="180" required="required"/>
                                 </div>
 
                                 <div class="col-md-6">
                                     <label class="lr-label">Domicilio <span class="lr-required">*</span></label>
-                                    <input class="lr-control" type="text" name="domicilio_consumidor" maxlength="250" required="required"/>
+                                    <input class="lr-control" type="text" name="domicilio_consumidor" id="lr_domicilio_consumidor" maxlength="250" required="required"/>
                                 </div>
 
                                 <div class="col-md-3">
@@ -98,14 +93,14 @@
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="lr-label">Nombre del padre, madre o apoderado <span class="text-muted fw-normal">(si corresponde)</span></label>
+                                    <label class="lr-label">Padre, madre o apoderado <span class="lr-inline-note">(solo si corresponde)</span></label>
                                     <input class="lr-control" type="text" name="representante_menor_nombre" maxlength="180"/>
                                 </div>
                             </div>
                         </section>
 
                         <section class="lr-card">
-                            <div class="lr-card-title"><span class="lr-number">2</span> Identificación del bien contratado</div>
+                            <div class="lr-title">Producto o servicio</div>
 
                             <div class="row g-3">
                                 <div class="col-md-4">
@@ -124,28 +119,28 @@
 
                                 <div class="col-12">
                                     <label class="lr-label">Monto reclamado</label>
-                                    <div class="lr-money-grid">
-                                        <select class="lr-currency-card" name="currency_code" id="lr_currency">
+                                    <div class="lr-money">
+                                        <select class="lr-control" name="currency_code" id="lr_currency">
                                             <option value="PEN">🇵🇪 PEN · S/ · Sol peruano</option>
                                             <option value="USD">🇺🇸 USD · $ · Dólar estadounidense</option>
                                         </select>
 
                                         <div class="lr-money-input">
-                                            <span class="lr-money-symbol" id="lr_currency_symbol">S/</span>
+                                            <span class="lr-symbol" id="lr_currency_symbol">S/</span>
                                             <input class="lr-control" type="number" name="monto_reclamado" id="lr_monto" min="0" step="0.01" inputmode="decimal" placeholder="0.00"/>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="lr-label">Descripción del producto o servicio <span class="lr-required">*</span></label>
+                                    <label class="lr-label">Descripción <span class="lr-required">*</span></label>
                                     <textarea class="lr-control" name="descripcion_bien" required="required"></textarea>
                                 </div>
                             </div>
                         </section>
 
                         <section class="lr-card">
-                            <div class="lr-card-title"><span class="lr-number">3</span> Detalle de la reclamación y pedido</div>
+                            <div class="lr-title">Reclamo o queja</div>
 
                             <div class="row g-3">
                                 <div class="col-md-4">
@@ -170,27 +165,25 @@
                         </section>
 
                         <section class="lr-card">
-                            <div class="lr-card-title"><span class="lr-number">4</span> Firma y adjuntos</div>
+                            <div class="lr-title">Firma</div>
 
-                            <label class="lr-label">Firma del consumidor <span class="lr-required">*</span></label>
-                            <div class="lr-signature-box">
+                            <div class="lr-signature">
                                 <canvas id="lr_signature_canvas"></canvas>
                                 <div class="lr-signature-tools">
-                                    <button class="lr-btn-clear" id="lr_clear_signature" type="button"><i class="fa fa-eraser me-1"/> Limpiar firma</button>
+                                    <button class="lr-clear" id="lr_clear_signature" type="button">Limpiar</button>
                                 </div>
                             </div>
 
-                            <div class="mt-4">
-                                <label class="lr-label">Adjuntar archivos <span class="text-muted fw-normal">(opcional)</span></label>
+                            <div class="mt-3">
+                                <label class="lr-label">Adjuntos <span class="lr-inline-note">(opcional)</span></label>
                                 <input class="lr-control" type="file" name="adjuntos" multiple="multiple" accept=".pdf,.png,.jpg,.jpeg"/>
-                                <div class="lr-note mt-2">Puede adjuntar comprobantes, fotografías u otros documentos relacionados.</div>
                             </div>
                         </section>
 
                         <section class="lr-card">
                             <div class="lr-check">
                                 <input type="checkbox" name="acepta_declaracion" value="1" id="lr_declaracion" required="required"/>
-                                <label for="lr_declaracion">Declaro que la información registrada es correcta y corresponde a mi reclamación.</label>
+                                <label for="lr_declaracion">Declaro que la información registrada es correcta.</label>
                             </div>
 
                             <div class="lr-check">
@@ -198,20 +191,9 @@
                                 <label for="lr_privacidad">Autorizo el tratamiento de los datos proporcionados para la atención de esta reclamación.</label>
                             </div>
 
-                            <button class="lr-submit" type="submit" id="lr_submit">
-                                <i class="fa fa-paper-plane me-2"/>
-                                Registrar reclamación
-                            </button>
+                            <button class="lr-submit" type="submit" id="lr_submit">Registrar reclamación</button>
                         </section>
                     </form>
-
-                    <section class="lr-card">
-                        <div class="lr-note">
-                            <strong>Reclamo:</strong> disconformidad relacionada con los productos o servicios contratados.
-                            <br/>
-                            <strong>Queja:</strong> disconformidad no relacionada directamente con los productos o servicios, o malestar respecto de la atención al público.
-                        </div>
-                    </section>
                 </div>
             </main>
 
@@ -221,6 +203,8 @@
                     const tipoDocumento = document.getElementById("lr_tipo_documento");
                     const numeroDocumento = document.getElementById("lr_numero_documento");
                     const nombreConsumidor = document.getElementById("lr_nombre_consumidor");
+                    const nombreLabel = document.getElementById("lr_nombre_label");
+                    const domicilioConsumidor = document.getElementById("lr_domicilio_consumidor");
                     const docStatus = document.getElementById("lr_doc_status");
                     const currency = document.getElementById("lr_currency");
                     const currencySymbol = document.getElementById("lr_currency_symbol");
@@ -233,13 +217,14 @@
                     let drawing = false;
                     let hasSignature = false;
                     let dniTimer = null;
+                    let rucTimer = null;
 
                     function resizeCanvas() {
                         const ratio = Math.max(window.devicePixelRatio || 1, 1);
                         const rect = canvas.getBoundingClientRect();
                         const saved = hasSignature ? canvas.toDataURL("image/png") : null;
                         canvas.width = Math.floor(rect.width * ratio);
-                        canvas.height = Math.floor(210 * ratio);
+                        canvas.height = Math.floor(180 * ratio);
                         ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
                         ctx.lineWidth = 2;
                         ctx.lineCap = "round";
@@ -248,7 +233,7 @@
                         if (saved) {
                             const image = new Image();
                             image.onload = function () {
-                                ctx.drawImage(image, 0, 0, rect.width, 210);
+                                ctx.drawImage(image, 0, 0, rect.width, 180);
                             };
                             image.src = saved;
                         }
@@ -300,20 +285,36 @@
                     resizeCanvas();
 
                     function updateDocumentMode() {
-                        const isDni = tipoDocumento.value === "dni";
-                        numeroDocumento.maxLength = isDni ? 8 : 20;
-                        numeroDocumento.inputMode = isDni ? "numeric" : "text";
+                        const type = tipoDocumento.value;
+                        const isDni = type === "dni";
+                        const isRuc = type === "ruc";
+
+                        numeroDocumento.value = "";
+                        nombreConsumidor.value = "";
+                        nombreConsumidor.readOnly = false;
                         docStatus.textContent = "";
-                        docStatus.className = "lr-doc-status";
-                        if (!isDni) {
-                            nombreConsumidor.readOnly = false;
+
+                        if (isDni) {
+                            numeroDocumento.maxLength = 8;
+                            numeroDocumento.inputMode = "numeric";
+                            nombreLabel.innerHTML = 'Nombre completo <span class="lr-required">*</span>';
+                        } else if (isRuc) {
+                            numeroDocumento.maxLength = 11;
+                            numeroDocumento.inputMode = "numeric";
+                            nombreLabel.innerHTML = 'Razón social <span class="lr-required">*</span>';
+                        } else {
+                            numeroDocumento.maxLength = 20;
+                            numeroDocumento.inputMode = "text";
+                            nombreLabel.innerHTML = 'Nombre completo <span class="lr-required">*</span>';
                         }
                     }
 
                     async function lookupDni() {
                         if (tipoDocumento.value !== "dni") return;
+
                         const dni = numeroDocumento.value.replace(/\D/g, "");
                         numeroDocumento.value = dni;
+
                         if (dni.length !== 8) {
                             docStatus.textContent = "";
                             nombreConsumidor.readOnly = false;
@@ -321,7 +322,6 @@
                         }
 
                         docStatus.textContent = "Consultando...";
-                        docStatus.className = "lr-doc-status text-muted";
 
                         try {
                             const response = await fetch("/libro-de-reclamaciones/consultar-dni", {
@@ -341,32 +341,73 @@
                             if (result.ok) {
                                 nombreConsumidor.value = result.nombre || "";
                                 nombreConsumidor.readOnly = true;
-                                docStatus.textContent = "Documento validado";
-                                docStatus.className = "lr-doc-status text-success";
+                                docStatus.textContent = "";
                             } else {
                                 nombreConsumidor.readOnly = false;
-                                docStatus.textContent = result.message || "Ingrese el nombre completo manualmente.";
-                                docStatus.className = "lr-doc-status text-muted";
+                                docStatus.textContent = "";
                             }
                         } catch (error) {
                             nombreConsumidor.readOnly = false;
-                            docStatus.textContent = "Ingrese el nombre completo manualmente.";
-                            docStatus.className = "lr-doc-status text-muted";
+                            docStatus.textContent = "";
                         }
                     }
 
-                    tipoDocumento.addEventListener("change", function () {
-                        numeroDocumento.value = "";
-                        nombreConsumidor.value = "";
-                        nombreConsumidor.readOnly = false;
-                        updateDocumentMode();
-                    });
+                    async function lookupRuc() {
+                        if (tipoDocumento.value !== "ruc") return;
+
+                        const ruc = numeroDocumento.value.replace(/\D/g, "");
+                        numeroDocumento.value = ruc;
+
+                        if (ruc.length !== 11) {
+                            nombreConsumidor.readOnly = false;
+                            return;
+                        }
+
+                        try {
+                            const response = await fetch("/libro-de-reclamaciones/consultar-ruc", {
+                                method: "POST",
+                                headers: {"Content-Type": "application/json"},
+                                body: JSON.stringify({
+                                    jsonrpc: "2.0",
+                                    method: "call",
+                                    params: {numero: ruc},
+                                    id: Date.now()
+                                })
+                            });
+
+                            const payload = await response.json();
+                            const result = payload.result || {};
+
+                            if (result.ok) {
+                                nombreConsumidor.value = result.razon_social || result.nombre || "";
+                                nombreConsumidor.readOnly = true;
+
+                                if (result.direccion) {
+                                    domicilioConsumidor.value = result.direccion;
+                                }
+
+                                docStatus.textContent = "";
+                            } else {
+                                nombreConsumidor.readOnly = false;
+                                docStatus.textContent = "";
+                            }
+                        } catch (error) {
+                            nombreConsumidor.readOnly = false;
+                            docStatus.textContent = "";
+                        }
+                    }
+
+                    tipoDocumento.addEventListener("change", updateDocumentMode);
 
                     numeroDocumento.addEventListener("input", function () {
                         if (tipoDocumento.value === "dni") {
                             numeroDocumento.value = numeroDocumento.value.replace(/\D/g, "").slice(0, 8);
                             clearTimeout(dniTimer);
-                            dniTimer = setTimeout(lookupDni, 450);
+                            dniTimer = setTimeout(lookupDni, 400);
+                        } else if (tipoDocumento.value === "ruc") {
+                            numeroDocumento.value = numeroDocumento.value.replace(/\D/g, "").slice(0, 11);
+                            clearTimeout(rucTimer);
+                            rucTimer = setTimeout(lookupRuc, 400);
                         }
                     });
 
@@ -384,10 +425,8 @@
 
                         signatureData.value = canvas.toDataURL("image/png");
                         submitButton.disabled = true;
-                        submitButton.innerHTML = '<i class="fa fa-spinner fa-spin me-2"></i> Registrando...';
+                        submitButton.textContent = "Registrando...";
                     });
-
-                    updateDocumentMode();
                 });
             </script>
         </t>
@@ -395,15 +434,14 @@
 
     <template id="libro_reclamaciones_confirmacion" name="Confirmación - Libro de Reclamaciones">
         <t t-call="website.layout">
-            <main style="background:#f5f7fb;padding:70px 20px;min-height:65vh;">
-                <div style="max-width:760px;margin:0 auto;background:#fff;border:1px solid #e8edf5;border-radius:22px;padding:38px;box-shadow:0 12px 35px rgba(20,38,71,.08);text-align:center;">
-                    <div style="width:68px;height:68px;border-radius:50%;background:#e9f8ef;color:#21854b;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:30px;"><i class="fa fa-check"/></div>
-                    <h1 style="font-weight:800;color:#17233f;">Reclamación registrada</h1>
-                    <p style="color:#64748b;">Su hoja fue registrada correctamente con el número:</p>
-                    <div style="font-size:1.4rem;font-weight:800;color:#1e3a6d;margin:18px 0;"><t t-esc="reclamacion.name"/></div>
+            <main style="background:#f7f8fb;padding:60px 20px;min-height:65vh;">
+                <div style="max-width:680px;margin:0 auto;background:#fff;border:1px solid #e8edf4;border-radius:16px;padding:32px;text-align:center;">
+                    <h1 style="font-size:1.6rem;font-weight:800;color:#17233f;">Reclamación registrada</h1>
+                    <p style="color:#64748b;">Número de hoja</p>
+                    <div style="font-size:1.3rem;font-weight:800;color:#1e3a6d;margin:16px 0;"><t t-esc="reclamacion.name"/></div>
                     <div class="d-flex flex-wrap justify-content-center gap-2 mt-4">
-                        <a class="btn btn-primary" t-att-href="'/libro-de-reclamaciones/pdf/%s' % reclamacion.public_token" target="_blank"><i class="fa fa-file-pdf-o me-2"/> Ver PDF</a>
-                        <a class="btn btn-outline-primary" t-att-href="'/libro-de-reclamaciones/descargar/%s' % reclamacion.public_token"><i class="fa fa-download me-2"/> Descargar constancia</a>
+                        <a class="btn btn-primary" t-att-href="'/libro-de-reclamaciones/pdf/%s' % reclamacion.public_token" target="_blank">Ver PDF</a>
+                        <a class="btn btn-outline-primary" t-att-href="'/libro-de-reclamaciones/descargar/%s' % reclamacion.public_token">Descargar</a>
                     </div>
                 </div>
             </main>
@@ -412,8 +450,8 @@
 
     <template id="libro_reclamaciones_constancia" name="Constancia - Libro de Reclamaciones">
         <t t-call="website.layout">
-            <main style="background:#f5f7fb;padding:50px 20px;">
-                <div style="max-width:900px;margin:0 auto;background:#fff;border-radius:20px;padding:30px;border:1px solid #e8edf5;">
+            <main style="background:#f7f8fb;padding:46px 20px;">
+                <div style="max-width:820px;margin:0 auto;background:#fff;border-radius:16px;padding:28px;border:1px solid #e8edf4;">
                     <h2 style="font-weight:800;color:#17233f;">Constancia de reclamación</h2>
                     <hr/>
                     <div class="row g-3">
@@ -425,7 +463,7 @@
                         <div class="col-md-6"><strong>Monto:</strong><br/><span t-field="reclamacion.monto_reclamado" t-options='{"widget":"monetary","display_currency":reclamacion.currency_id}'/></div>
                     </div>
                     <div class="mt-4">
-                        <a class="btn btn-primary" t-att-href="'/libro-de-reclamaciones/descargar/%s' % reclamacion.public_token"><i class="fa fa-download me-2"/> Descargar PDF</a>
+                        <a class="btn btn-primary" t-att-href="'/libro-de-reclamaciones/descargar/%s' % reclamacion.public_token">Descargar PDF</a>
                     </div>
                 </div>
             </main>
