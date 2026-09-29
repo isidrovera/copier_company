@@ -1165,7 +1165,9 @@
                            class="btn-act primary">
                             <i class="bi bi-star-fill"></i> Evaluar Servicio
                         </a>
-                        <a t-if="tracking_data['estado_key'] == 'completado'" href="#" class="btn-act outline">
+                        <a t-if="tracking_data['estado_key'] == 'completado'"
+                           t-attf-href="/service/report/{{ service.tracking_token }}"
+                           class="btn-act outline">
                             <i class="bi bi-file-earmark-arrow-down-fill"></i> Descargar Reporte
                         </a>
                     </div>
