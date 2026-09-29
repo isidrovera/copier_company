@@ -1270,575 +1270,730 @@
         <t t-call="website.layout">
             <t t-set="no_header" t-value="True"/>
             <t t-set="no_footer" t-value="True"/>
-            
+
             <t t-call-assets="copier_company.assets_public_service_tracking"/>
-            
-            <!-- Estilos para evaluación -->
+
+            <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+
             <style>
-                /* ===== SECCIÓN DE FORMULARIO ===== */
-                .form-section {
-                    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-                    border-radius: var(--radius-xl);
-                    padding: 2.5rem;
-                    margin-bottom: 2rem;
-                    box-shadow: var(--shadow-md);
-                    border: 1px solid rgba(102, 126, 234, 0.1);
-                    transition: all 0.3s ease;
+                :root {
+                    --ev-bg: #f0f4f8;
+                    --ev-surface: #ffffff;
+                    --ev-surface-soft: #f8fafc;
+                    --ev-border: #e2e8f0;
+                    --ev-border-strong: #cbd5e1;
+                    --ev-primary: #1e40af;
+                    --ev-primary-light: #3b82f6;
+                    --ev-primary-soft: rgba(59,130,246,.08);
+                    --ev-success: #059669;
+                    --ev-success-light: #10b981;
+                    --ev-success-soft: rgba(16,185,129,.08);
+                    --ev-warning: #d97706;
+                    --ev-warning-soft: rgba(245,158,11,.10);
+                    --ev-danger: #dc2626;
+                    --ev-danger-soft: rgba(239,68,68,.08);
+                    --ev-text: #1e293b;
+                    --ev-text-2: #475569;
+                    --ev-muted: #94a3b8;
+                    --ev-radius: 16px;
+                    --ev-radius-lg: 24px;
+                    --ev-shadow: 0 20px 50px -12px rgba(15,23,42,.14);
+                    --ev-font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
                 }
-                
-                .form-section:hover {
-                    box-shadow: var(--shadow-lg);
-                    transform: translateY(-2px);
+
+                body {
+                    font-family: var(--ev-font) !important;
+                    background: var(--ev-bg) !important;
+                    color: var(--ev-text);
+                    min-height: 100vh;
+                    padding: 0 !important;
                 }
-                
-                .form-section-title {
-                    font-size: 1.3rem;
-                    font-weight: 700;
-                    color: #1e293b;
-                    margin-bottom: 2rem;
-                    padding-bottom: 1rem;
-                    border-bottom: 3px solid #e0e7ff;
-                    display: flex;
-                    align-items: center;
-                    gap: 0.75rem;
-                }
-                
-                .form-section-title i {
-                    font-size: 1.5rem;
-                    color: var(--color-primary);
-                }
-                
-                /* ===== RATING CON ESTRELLAS ===== */
-                .rating-container {
-                    background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
-                    border-radius: var(--radius-xl);
-                    padding: 3rem 2rem;
-                    margin-bottom: 2rem;
-                    box-shadow: inset 0 2px 8px rgba(251, 191, 36, 0.1);
-                    border: 2px solid #fde68a;
-                }
-                
-                .star-rating {
-                    display: flex;
-                    gap: 1rem;
-                    justify-content: center;
-                    margin: 2rem 0;
-                    flex-direction: row-reverse;
-                }
-                
-                .star-rating input[type="radio"] {
-                    display: none;
-                }
-                
-                .star-rating label {
-                    font-size: 4rem;
-                    cursor: pointer;
-                    color: #cbd5e1;
-                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
+
+                .evaluation-page {
                     position: relative;
-                }
-                
-                .star-rating label::after {
-                    content: '';
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    width: 0;
-                    height: 0;
-                    border-radius: 50%;
-                    background: rgba(251, 191, 36, 0.3);
-                    transition: all 0.3s ease;
-                }
-                
-                .star-rating label:hover::after,
-                .star-rating label:hover ~ label::after {
-                    width: 120%;
-                    height: 120%;
-                }
-                
-                .star-rating label:hover,
-                .star-rating label:hover ~ label {
-                    color: #fbbf24;
-                    transform: scale(1.2) rotate(-10deg);
-                    filter: drop-shadow(0 8px 12px rgba(251, 191, 36, 0.4));
-                }
-                
-                .star-rating input[type="radio"]:checked ~ label {
-                    color: #f59e0b;
-                    transform: scale(1.15);
-                    filter: drop-shadow(0 6px 10px rgba(245, 158, 11, 0.5));
-                }
-                
-                .rating-label {
-                    text-align: center;
-                    font-size: 1.75rem;
-                    font-weight: 700;
-                    color: #92400e;
-                    min-height: 3rem;
-                    margin-top: 1.5rem;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 0.5rem;
-                }
-                
-                /* ===== CAMPOS DE TEXTO ===== */
-                .form-group-modern {
-                    margin-bottom: 2rem;
-                }
-                
-                .form-label-modern {
-                    display: flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                    font-weight: 700;
-                    font-size: 1.1rem;
-                    color: #1e293b;
-                    margin-bottom: 0.75rem;
-                }
-                
-                .form-label-modern i {
-                    color: var(--color-primary);
-                    font-size: 1.25rem;
-                }
-                
-                .form-label-modern .badge {
-                    font-size: 0.75rem;
-                    padding: 0.25rem 0.5rem;
-                    border-radius: 0.5rem;
-                }
-                
-                .textarea-modern {
-                    width: 100%;
-                    border: 2px solid #e2e8f0;
-                    border-radius: var(--radius-lg);
-                    padding: 1.25rem;
-                    transition: all 0.3s ease;
-                    font-size: 1rem;
-                    font-family: inherit;
-                    resize: vertical;
-                    background: white;
-                    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
-                }
-                
-                .textarea-modern:hover {
-                    border-color: #cbd5e1;
-                    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
-                }
-                
-                .textarea-modern:focus {
-                    outline: none;
-                    border-color: var(--color-primary);
-                    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15),
-                                inset 0 2px 4px rgba(0, 0, 0, 0.02);
-                    background: #fefeff;
-                }
-                
-                .form-text-modern {
-                    display: flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                    margin-top: 0.75rem;
-                    font-size: 0.9rem;
-                    color: #64748b;
-                }
-                
-                .form-text-modern i {
-                    color: #94a3b8;
-                }
-                
-                /* ===== CONTADOR DE CARACTERES ===== */
-                .char-counter {
-                    text-align: right;
-                    font-size: 0.85rem;
-                    color: #94a3b8;
-                    margin-top: 0.5rem;
-                }
-                
-                .char-counter.warning {
-                    color: #f59e0b;
-                    font-weight: 600;
-                }
-                
-                .char-counter.danger {
-                    color: #ef4444;
-                    font-weight: 700;
-                }
-                
-                /* ===== BOTONES MEJORADOS ===== */
-                .btn-submit-modern {
-                    width: 100%;
-                    padding: 1.25rem 2rem;
-                    font-size: 1.2rem;
-                    font-weight: 700;
-                    text-transform: uppercase;
-                    letter-spacing: 1px;
-                    border-radius: var(--radius-xl);
-                    border: none;
-                    background: var(--gradient-success);
-                    color: white;
-                    box-shadow: var(--shadow-lg);
-                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                    cursor: pointer;
-                    position: relative;
+                    min-height: 100vh;
+                    padding: 2rem 1rem 3rem;
                     overflow: hidden;
                 }
-                
-                .btn-submit-modern::before {
+
+                .evaluation-page::before {
                     content: '';
-                    position: absolute;
-                    top: 0;
-                    left: -100%;
+                    position: fixed;
+                    inset: 0;
+                    pointer-events: none;
+                    background:
+                        radial-gradient(ellipse 70% 45% at 50% 0%, rgba(59,130,246,.08), transparent 60%),
+                        radial-gradient(ellipse 55% 35% at 100% 100%, rgba(124,58,237,.05), transparent 60%);
+                }
+
+                .evaluation-page::after {
+                    content: '';
+                    position: fixed;
+                    top: 0; left: 0; right: 0;
+                    height: 4px;
+                    background: linear-gradient(90deg, var(--ev-primary-light), #7c3aed, var(--ev-success-light));
+                }
+
+                .evaluation-wrap {
+                    position: relative;
+                    z-index: 1;
                     width: 100%;
-                    height: 100%;
-                    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-                    transition: left 0.5s;
+                    max-width: 880px;
+                    margin: 0 auto;
                 }
-                
-                .btn-submit-modern:hover {
-                    transform: translateY(-4px) scale(1.02);
-                    box-shadow: 0 20px 40px rgba(79, 172, 254, 0.4);
-                }
-                
-                .btn-submit-modern:hover::before {
-                    left: 100%;
-                }
-                
-                .btn-submit-modern:active {
-                    transform: translateY(-2px) scale(1);
-                }
-                
-                .btn-submit-modern:disabled {
-                    background: #cbd5e1;
-                    cursor: not-allowed;
-                    transform: none;
-                    box-shadow: var(--shadow-sm);
-                }
-                
-                /* ===== INDICADORES DE VALIDACIÓN ===== */
-                .is-valid {
-                    border-color: #10b981 !important;
-                }
-                
-                .is-invalid {
-                    border-color: #ef4444 !important;
-                }
-                
-                .valid-feedback,
-                .invalid-feedback {
+
+                .eval-brand {
                     display: flex;
                     align-items: center;
-                    gap: 0.5rem;
-                    font-size: 0.9rem;
-                    margin-top: 0.5rem;
+                    justify-content: center;
+                    gap: .75rem;
+                    padding: .5rem 0 1.5rem;
                 }
-                
-                .valid-feedback {
-                    color: #10b981;
+
+                .eval-brand-icon {
+                    width: 46px;
+                    height: 46px;
+                    border-radius: 14px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #fff;
+                    font-size: 1.2rem;
+                    background: linear-gradient(135deg, var(--ev-primary), #4338ca);
+                    box-shadow: 0 8px 20px rgba(30,64,175,.2);
                 }
-                
-                .invalid-feedback {
-                    color: #ef4444;
+
+                .eval-brand-name {
+                    font-size: 1rem;
+                    font-weight: 800;
+                    line-height: 1.2;
+                    color: var(--ev-text);
                 }
-                
-                /* ===== RESPONSIVE ===== */
-                @media (max-width: 768px) {
-                    .form-section {
-                        padding: 1.5rem;
-                    }
-                    
-                    .rating-container {
-                        padding: 2rem 1rem;
-                    }
-                    
-                    .star-rating label {
-                        font-size: 3rem;
-                    }
-                    
-                    .rating-label {
-                        font-size: 1.3rem;
-                    }
-                    
-                    .btn-submit-modern {
-                        padding: 1rem 1.5rem;
-                        font-size: 1rem;
-                    }
+
+                .eval-brand-sub {
+                    margin-top: .15rem;
+                    font-size: .68rem;
+                    font-weight: 700;
+                    letter-spacing: 1.2px;
+                    text-transform: uppercase;
+                    color: var(--ev-muted);
+                }
+
+                .evaluation-card-new {
+                    background: var(--ev-surface);
+                    border: 1px solid var(--ev-border);
+                    border-radius: var(--ev-radius-lg);
+                    overflow: hidden;
+                    box-shadow: var(--ev-shadow);
+                    animation: evFadeUp .55s ease-out both;
+                }
+
+                .eval-hero {
+                    position: relative;
+                    overflow: hidden;
+                    padding: 2rem 2rem 1.75rem;
+                    text-align: center;
+                    background: linear-gradient(135deg, #1e3a5f 0%, #1e40af 52%, #4338ca 100%);
+                    color: #fff;
+                }
+
+                .eval-hero::before {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    background:
+                        radial-gradient(circle at 20% 30%, rgba(255,255,255,.10), transparent 35%),
+                        radial-gradient(circle at 85% 70%, rgba(255,255,255,.06), transparent 40%);
+                }
+
+                .eval-hero-content { position: relative; z-index: 1; }
+
+                .eval-hero-icon {
+                    width: 58px;
+                    height: 58px;
+                    margin: 0 auto 1rem;
+                    border: 1px solid rgba(255,255,255,.20);
+                    border-radius: 18px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: rgba(255,255,255,.13);
+                    backdrop-filter: blur(8px);
+                    font-size: 1.55rem;
+                }
+
+                .eval-hero h1 {
+                    margin: 0;
+                    font-size: 1.55rem;
+                    font-weight: 800;
+                    letter-spacing: -.3px;
+                }
+
+                .eval-hero p {
+                    margin: .45rem 0 0;
+                    font-size: .88rem;
+                    color: rgba(255,255,255,.78);
+                }
+
+                .eval-body { padding: 2rem 2.5rem 2.4rem; }
+
+                .service-summary {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: .75rem;
+                    margin-bottom: 1.75rem;
+                }
+
+                .summary-item {
+                    min-width: 0;
+                    padding: 1rem;
+                    border: 1px solid var(--ev-border);
+                    border-radius: 14px;
+                    background: var(--ev-surface-soft);
+                }
+
+                .summary-label {
+                    display: flex;
+                    align-items: center;
+                    gap: .4rem;
+                    margin-bottom: .45rem;
+                    font-size: .66rem;
+                    font-weight: 800;
+                    letter-spacing: .75px;
+                    text-transform: uppercase;
+                    color: var(--ev-muted);
+                }
+
+                .summary-label i { color: var(--ev-primary-light); }
+
+                .summary-value {
+                    font-size: .84rem;
+                    font-weight: 700;
+                    line-height: 1.4;
+                    color: var(--ev-text);
+                    overflow-wrap: anywhere;
+                }
+
+                .eval-alert {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: .75rem;
+                    margin-bottom: 1.25rem;
+                    padding: .9rem 1rem;
+                    border-radius: 13px;
+                    border: 1px solid rgba(239,68,68,.18);
+                    background: var(--ev-danger-soft);
+                    color: var(--ev-danger);
+                    font-size: .84rem;
+                    font-weight: 600;
+                }
+
+                .eval-section {
+                    padding: 1.5rem;
+                    border: 1px solid var(--ev-border);
+                    border-radius: var(--ev-radius);
+                    background: var(--ev-surface);
+                    margin-bottom: 1rem;
+                }
+
+                .eval-section-head {
+                    display: flex;
+                    align-items: center;
+                    gap: .75rem;
+                    margin-bottom: 1.25rem;
+                }
+
+                .eval-section-icon {
+                    width: 36px;
+                    height: 36px;
+                    flex: 0 0 36px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 11px;
+                    background: var(--ev-primary-soft);
+                    color: var(--ev-primary);
+                }
+
+                .eval-section-copy { min-width: 0; }
+
+                .eval-section-title {
+                    margin: 0;
+                    font-size: .92rem;
+                    font-weight: 800;
+                    color: var(--ev-text);
+                }
+
+                .eval-section-sub {
+                    margin: .15rem 0 0;
+                    font-size: .75rem;
+                    color: var(--ev-muted);
+                }
+
+                .rating-options {
+                    display: grid;
+                    grid-template-columns: repeat(5, 1fr);
+                    gap: .65rem;
+                }
+
+                .rating-option input {
+                    position: absolute;
+                    opacity: 0;
+                    pointer-events: none;
+                }
+
+                .rating-option label {
+                    height: 100%;
+                    min-height: 96px;
+                    padding: .8rem .45rem;
+                    border: 1.5px solid var(--ev-border);
+                    border-radius: 14px;
+                    background: var(--ev-surface-soft);
+                    cursor: pointer;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    gap: .45rem;
+                    transition: .22s ease;
+                    user-select: none;
+                }
+
+                .rating-option label:hover {
+                    transform: translateY(-2px);
+                    border-color: #fbbf24;
+                    background: #fffbeb;
+                }
+
+                .rating-star {
+                    font-size: 1.7rem;
+                    line-height: 1;
+                    color: #cbd5e1;
+                    transition: .22s ease;
+                }
+
+                .rating-word {
+                    font-size: .68rem;
+                    font-weight: 700;
+                    color: var(--ev-text-2);
+                    text-align: center;
+                }
+
+                .rating-option input:checked + label {
+                    border-color: #f59e0b;
+                    background: linear-gradient(180deg, #fffbeb, #fff7ed);
+                    box-shadow: 0 5px 16px rgba(245,158,11,.14);
+                    transform: translateY(-2px);
+                }
+
+                .rating-option input:checked + label .rating-star {
+                    color: #f59e0b;
+                    transform: scale(1.12);
+                }
+
+                .rating-current {
+                    min-height: 28px;
+                    margin-top: 1rem;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    gap: .45rem;
+                    font-size: .8rem;
+                    font-weight: 700;
+                    color: var(--ev-warning);
+                }
+
+                .eval-label-row {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 1rem;
+                    margin-bottom: .65rem;
+                }
+
+                .eval-label {
+                    margin: 0;
+                    font-size: .82rem;
+                    font-weight: 700;
+                    color: var(--ev-text);
+                }
+
+                .optional-pill {
+                    padding: .2rem .55rem;
+                    border-radius: 999px;
+                    background: #f1f5f9;
+                    color: #64748b;
+                    font-size: .62rem;
+                    font-weight: 700;
+                }
+
+                .eval-textarea {
+                    width: 100%;
+                    min-height: 135px;
+                    padding: 1rem;
+                    border: 1.5px solid var(--ev-border);
+                    border-radius: 14px;
+                    background: var(--ev-surface-soft);
+                    color: var(--ev-text);
+                    font: inherit;
+                    font-size: .86rem;
+                    line-height: 1.6;
+                    resize: vertical;
+                    outline: none;
+                    transition: .22s ease;
+                }
+
+                .eval-textarea:hover { border-color: var(--ev-border-strong); }
+
+                .eval-textarea:focus {
+                    border-color: var(--ev-primary-light);
+                    background: #fff;
+                    box-shadow: 0 0 0 4px rgba(59,130,246,.10);
+                }
+
+                .comment-meta {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 1rem;
+                    margin-top: .6rem;
+                    font-size: .68rem;
+                    color: var(--ev-muted);
+                }
+
+                .comment-hint {
+                    display: flex;
+                    align-items: center;
+                    gap: .35rem;
+                }
+
+                .char-counter { white-space: nowrap; font-variant-numeric: tabular-nums; }
+                .char-counter.warning { color: var(--ev-warning); font-weight: 700; }
+                .char-counter.danger { color: var(--ev-danger); font-weight: 800; }
+
+                .submit-area {
+                    margin-top: 1.25rem;
+                    padding: 1.15rem;
+                    border: 1px solid rgba(16,185,129,.18);
+                    border-radius: 16px;
+                    background: var(--ev-success-soft);
+                }
+
+                .submit-row {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 1.25rem;
+                }
+
+                .submit-note {
+                    display: flex;
+                    align-items: center;
+                    gap: .65rem;
+                    min-width: 0;
+                }
+
+                .submit-note-icon {
+                    width: 38px;
+                    height: 38px;
+                    flex: 0 0 38px;
+                    border-radius: 11px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: var(--ev-success);
+                    background: rgba(16,185,129,.10);
+                }
+
+                .submit-note strong {
+                    display: block;
+                    font-size: .76rem;
+                    color: var(--ev-text);
+                }
+
+                .submit-note span {
+                    display: block;
+                    margin-top: .1rem;
+                    font-size: .66rem;
+                    color: var(--ev-muted);
+                }
+
+                .eval-submit {
+                    flex: 0 0 auto;
+                    border: 0;
+                    border-radius: 999px;
+                    padding: .82rem 1.4rem;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: .55rem;
+                    background: linear-gradient(135deg, var(--ev-success-light), var(--ev-success));
+                    color: #fff;
+                    font-family: var(--ev-font);
+                    font-size: .8rem;
+                    font-weight: 800;
+                    cursor: pointer;
+                    box-shadow: 0 5px 16px rgba(16,185,129,.22);
+                    transition: .22s ease;
+                }
+
+                .eval-submit:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 8px 22px rgba(16,185,129,.28);
+                }
+
+                .eval-submit:disabled {
+                    opacity: .65;
+                    cursor: wait;
+                    transform: none;
+                }
+
+                .eval-footer {
+                    padding: 1.4rem 0 0;
+                    text-align: center;
+                }
+
+                .eval-footer-pill {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: .45rem;
+                    padding: .4rem .9rem;
+                    border: 1px solid var(--ev-border);
+                    border-radius: 999px;
+                    background: rgba(255,255,255,.75);
+                    font-size: .66rem;
+                    font-weight: 600;
+                    color: var(--ev-muted);
+                }
+
+                .eval-footer-pill i { color: var(--ev-success); }
+
+                @keyframes evFadeUp {
+                    from { opacity: 0; transform: translateY(14px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+
+                @media (max-width: 760px) {
+                    .evaluation-page { padding: 1rem .75rem 2rem; }
+                    .eval-body { padding: 1.35rem 1rem 1.5rem; }
+                    .eval-hero { padding: 1.6rem 1rem 1.4rem; }
+                    .eval-hero h1 { font-size: 1.3rem; }
+                    .service-summary { grid-template-columns: 1fr 1fr; }
+                    .eval-section { padding: 1.15rem; }
+                    .rating-options { gap: .4rem; }
+                    .rating-option label { min-height: 82px; padding: .65rem .2rem; }
+                    .rating-star { font-size: 1.45rem; }
+                    .rating-word { font-size: .58rem; }
+                    .submit-row { flex-direction: column; align-items: stretch; }
+                    .eval-submit { width: 100%; }
+                }
+
+                @media (max-width: 420px) {
+                    .service-summary { grid-template-columns: 1fr; }
+                    .rating-word { display: none; }
+                    .rating-option label { min-height: 62px; }
+                    .rating-star { font-size: 1.55rem; }
+                    .comment-meta { align-items: flex-start; flex-direction: column; gap: .35rem; }
                 }
             </style>
-            
-            <script type="module">
-                import { waapi } from 'https://cdn.jsdelivr.net/npm/animejs@4.0.0-beta.102/+esm';
-                
-                waapi.animate('.evaluation-card', {
-                    opacity: [0, 1],
-                    scale: [0.95, 1],
-                    duration: 700,
-                    ease: 'outBack'
-                });
-                
-                waapi.animate('.form-section', {
-                    opacity: [0, 1],
-                    translateY: ['20px', 0],
-                    delay: 200,
-                    duration: 600,
-                    ease: 'outCubic'
-                });
-                
-                document.addEventListener('DOMContentLoaded', function() {
-                    const stars = document.querySelectorAll('.star-rating label');
-                    const ratingLabels = {
-                        '1': '😞 Muy Malo',
-                        '2': '😕 Malo',
-                        '3': '😐 Regular',
-                        '4': '😊 Bueno',
-                        '5': '😍 Excelente'
-                    };
-                    const ratingLabelElement = document.getElementById('ratingLabel');
-                    const textarea = document.getElementById('comentario');
-                    const charCounter = document.getElementById('charCounter');
-                    const submitBtn = document.getElementById('submitBtn');
-                    const form = document.getElementById('evaluationForm');
-                    
-                    // Interacción con estrellas
-                    stars.forEach(star =&gt; {
-                        star.addEventListener('mouseenter', function() {
-                            const rating = this.getAttribute('data-rating');
-                            ratingLabelElement.innerHTML = ratingLabels[rating];
-                            
-                            waapi.animate(ratingLabelElement, {
-                                scale: [0.9, 1],
-                                opacity: [0.5, 1],
-                                duration: 300,
-                                ease: 'outQuad'
-                            });
-                        });
-                        
-                        star.addEventListener('click', function() {
-                            const rating = this.getAttribute('data-rating');
-                            ratingLabelElement.innerHTML = ratingLabels[rating];
-                            
-                            waapi.animate(this, {
-                                scale: [1, 1.5, 1.15],
-                                rotate: [0, 360],
-                                duration: 600,
-                                ease: 'outElastic'
-                            });
-                            
-                            // Habilitar botón de envío
-                            submitBtn.disabled = false;
-                            
-                            // Animación del botón
-                            waapi.animate(submitBtn, {
-                                scale: [1, 1.05, 1],
-                                duration: 400,
-                                ease: 'outQuad'
-                            });
-                        });
-                    });
-                    
-                    document.querySelector('.star-rating').addEventListener('mouseleave', function() {
-                        const checkedStar = document.querySelector('.star-rating input:checked');
-                        if (!checkedStar) {
-                            ratingLabelElement.innerHTML = '👆 Selecciona tu calificación';
-                        }
-                    });
-                    
-                    // Contador de caracteres
-                    if (textarea &amp;&amp; charCounter) {
-                        textarea.addEventListener('input', function() {
-                            const length = this.value.length;
-                            const max = 500;
-                            const remaining = max - length;
-                            
-                            charCounter.textContent = `${length} / ${max} caracteres`;
-                            
-                            charCounter.classList.remove('warning', 'danger');
-                            if (remaining &lt; 100) {
-                                charCounter.classList.add('warning');
-                            }
-                            if (remaining &gt; 20) {
-                                charCounter.classList.add('danger');
-                            }
-                        });
-                    }
-                    
-                    // Validación en tiempo real
-                    if (form) {
-                        form.addEventListener('submit', function(e) {
-                            const rating = document.querySelector('.star-rating input:checked');
-                            
-                            if (!rating) {
-                                e.preventDefault();
-                                
-                                // Mostrar error
-                                ratingLabelElement.innerHTML = '❌ Por favor selecciona una calificación';
-                                ratingLabelElement.style.color = '#ef4444';
-                                
-                                waapi.animate('.rating-container', {
-                                    translateX: [-10, 10, -10, 10, 0],
-                                    duration: 400,
-                                    ease: 'linear'
-                                });
-                                
-                                setTimeout(() =&gt; {
-                                    ratingLabelElement.innerHTML = '👆 Selecciona tu calificación';
-                                    ratingLabelElement.style.color = '';
-                                }, 2000);
-                                
-                                return false;
-                            }
-                            
-                            // Animación de envío
-                            submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Enviando...';
-                            submitBtn.disabled = true;
-                        });
-                    }
-                });
-            </script>
-            
-            <div class="service-container">
-                <div class="card card-modern evaluation-card">
-                    <div class="card-header-modern text-center">
-                        <div class="float-icon">
-                            <i class="bi bi-star-fill" style="font-size: 3.5rem;"></i>
-                        </div>
-                        <h1 class="mt-3 mb-2">Evaluar Servicio</h1>
-                        <p class="mb-0 h5" style="opacity: 0.95;">
-                            Tu opinión nos ayuda a mejorar
-                        </p>
-                    </div>
-                    
-                    <div class="card-body">
-                        <!-- Info del Servicio -->
-                        <div class="alert alert-light d-flex align-items-start gap-3 mb-4">
-                            <i class="bi bi-info-circle-fill fs-4 text-primary flex-shrink-0"></i>
-                            <div>
-                                <h6 class="mb-2 fw-bold">Servicio Completado</h6>
-                                <div class="small">
-                                    <div class="mb-1"><strong>Solicitud:</strong> <t t-esc="service.name"/></div>
-                                    <div class="mb-1"><strong>Equipo:</strong> <t t-esc="service.modelo_maquina.name"/></div>
-                                    <div class="mb-1"><strong>Técnico:</strong> <t t-esc="service.tecnico_id.name"/></div>
-                                    <div><strong>Finalizado:</strong> <t t-esc="service.fecha_fin.strftime('%d/%m/%Y %H:%M')"/></div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Error -->
-                        <div class="alert alert-danger d-flex align-items-center gap-3" t-if="error_message">
-                            <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
-                            <span t-esc="error_message"/>
-                        </div>
-                        
-                        <!-- Formulario -->
-                        <form method="POST" t-attf-action="/service/evaluate/{{ token }}" id="evaluationForm">
-                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                            
-                            <!-- SECCIÓN 1: Calificación -->
-                            <div class="form-section rating-container">
-                                <div class="form-section-title">
-                                    <i class="bi bi-star-fill"></i>
-                                    Paso 1: Califica el Servicio
-                                </div>
-                                
-                                <p class="text-center text-muted mb-4">
-                                    Selecciona las estrellas según tu nivel de satisfacción
-                                </p>
-                                
-                                <div class="star-rating">
-                                    <input type="radio" name="rating" value="5" id="star5" required="required"/>
-                                    <label for="star5" data-rating="5">★</label>
-                                    
-                                    <input type="radio" name="calificacion" value="4" id="star4"/>
-                                    <label for="star4" data-rating="4">★</label>
-                                    
-                                    <input type="radio" name="calificacion" value="3" id="star3"/>
-                                    <label for="star3" data-rating="3">★</label>
-                                    
-                                    <input type="radio" name="calificacion" value="2" id="star2"/>
-                                    <label for="star2" data-rating="2">★</label>
-                                    
-                                    <input type="radio" name="calificacion" value="1" id="star1"/>
-                                    <label for="star1" data-rating="1">★</label>
-                                </div>
-                                
-                                <div class="rating-label" id="ratingLabel">
-                                    👆 Selecciona tu calificación
-                                </div>
-                            </div>
-                            
-                            <!-- SECCIÓN 2: Comentarios -->
-                            <div class="form-section">
-                                <div class="form-section-title">
-                                    <i class="bi bi-chat-left-text-fill"></i>
-                                    Paso 2: Comparte tu Experiencia
-                                </div>
-                                
-                                <div class="form-group-modern">
-                                    <label for="comentario" class="form-label-modern">
-                                        <i class="bi bi-pencil-fill"></i>
-                                        Comentarios Adicionales
-                                        <span class="badge bg-secondary">Opcional</span>
-                                    </label>
-                                    
-                                    <textarea 
-                                        class="form-control textarea-modern" 
-                                        id="comentario" 
-                                        name="comentario" 
-                                        rows="6"
-                                        maxlength="500"
-                                        placeholder="Cuéntanos sobre tu experiencia con el servicio... 
 
-• ¿Cómo fue la atención del técnico?
-• ¿El problema fue resuelto satisfactoriamente?
-• ¿Qué podríamos mejorar?
-• ¿Recomendarías nuestro servicio?"
-                                        t-att-value="comentario or ''"></textarea>
-                                    
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="form-text-modern">
-                                            <i class="bi bi-lock-fill"></i>
-                                            Tus comentarios son confidenciales y nos ayudan a mejorar
-                                        </small>
-                                        <div class="char-counter" id="charCounter">
-                                            0 / 500 caracteres
-                                        </div>
+            <div class="evaluation-page">
+                <div class="evaluation-wrap">
+
+                    <div class="eval-brand">
+                        <div class="eval-brand-icon"><i class="bi bi-printer-fill"></i></div>
+                        <div>
+                            <div class="eval-brand-name">Copier Company</div>
+                            <div class="eval-brand-sub">Servicio técnico</div>
+                        </div>
+                    </div>
+
+                    <div class="evaluation-card-new">
+                        <div class="eval-hero">
+                            <div class="eval-hero-content">
+                                <div class="eval-hero-icon"><i class="bi bi-star-fill"></i></div>
+                                <h1>Evalúa tu experiencia</h1>
+                                <p>Tu opinión nos ayuda a mejorar la calidad de cada atención.</p>
+                            </div>
+                        </div>
+
+                        <div class="eval-body">
+                            <div class="service-summary">
+                                <div class="summary-item">
+                                    <div class="summary-label"><i class="bi bi-hash"></i> Solicitud</div>
+                                    <div class="summary-value"><t t-esc="service.name"/></div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label"><i class="bi bi-printer"></i> Equipo</div>
+                                    <div class="summary-value"><t t-esc="service.modelo_maquina.name"/></div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label"><i class="bi bi-person-badge"></i> Técnico</div>
+                                    <div class="summary-value"><t t-esc="service.tecnico_id.name"/></div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label"><i class="bi bi-check-circle"></i> Finalizado</div>
+                                    <div class="summary-value">
+                                        <t t-if="service.fecha_fin"><t t-esc="service.fecha_fin.strftime('%d/%m/%Y %H:%M')"/></t>
+                                        <t t-else="">—</t>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <!-- SECCIÓN 3: Botón de Envío -->
-                            <div class="form-section" style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);">
-                                <div class="text-center mb-3">
-                                    <i class="bi bi-shield-check" style="font-size: 2rem; color: #10b981;"></i>
-                                    <p class="text-muted mb-0 mt-2">
-                                        Tu evaluación es importante para nosotros
-                                    </p>
-                                </div>
-                                
-                                <button type="submit" class="btn btn-submit-modern" id="submitBtn" disabled="disabled">
-                                    <i class="bi bi-send-fill"></i>
-                                    Enviar Evaluación
-                                </button>
-                                
-                                <p class="text-center text-muted small mt-3 mb-0">
-                                    <i class="bi bi-info-circle"></i>
-                                    Al enviar, aceptas que tu evaluación será revisada por nuestro equipo
-                                </p>
+
+                            <div class="eval-alert" t-if="error_message">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                <span t-esc="error_message"/>
                             </div>
-                        </form>
+
+                            <form method="POST" t-attf-action="/service/evaluate/{{ token }}" id="evaluationForm">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                                <div class="eval-section">
+                                    <div class="eval-section-head">
+                                        <div class="eval-section-icon"><i class="bi bi-stars"></i></div>
+                                        <div class="eval-section-copy">
+                                            <h2 class="eval-section-title">¿Cómo calificarías el servicio?</h2>
+                                            <p class="eval-section-sub">Selecciona una opción del 1 al 5.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="rating-options" id="ratingOptions">
+                                        <div class="rating-option">
+                                            <input type="radio" name="calificacion" value="1" id="star1" required="required" t-att-checked="'checked' if calificacion == '1' else None"/>
+                                            <label for="star1" data-rating="1"><span class="rating-star">★</span><span class="rating-word">Muy malo</span></label>
+                                        </div>
+                                        <div class="rating-option">
+                                            <input type="radio" name="calificacion" value="2" id="star2" required="required" t-att-checked="'checked' if calificacion == '2' else None"/>
+                                            <label for="star2" data-rating="2"><span class="rating-star">★</span><span class="rating-word">Malo</span></label>
+                                        </div>
+                                        <div class="rating-option">
+                                            <input type="radio" name="calificacion" value="3" id="star3" required="required" t-att-checked="'checked' if calificacion == '3' else None"/>
+                                            <label for="star3" data-rating="3"><span class="rating-star">★</span><span class="rating-word">Regular</span></label>
+                                        </div>
+                                        <div class="rating-option">
+                                            <input type="radio" name="calificacion" value="4" id="star4" required="required" t-att-checked="'checked' if calificacion == '4' else None"/>
+                                            <label for="star4" data-rating="4"><span class="rating-star">★</span><span class="rating-word">Bueno</span></label>
+                                        </div>
+                                        <div class="rating-option">
+                                            <input type="radio" name="calificacion" value="5" id="star5" required="required" t-att-checked="'checked' if calificacion == '5' else None"/>
+                                            <label for="star5" data-rating="5"><span class="rating-star">★</span><span class="rating-word">Excelente</span></label>
+                                        </div>
+                                    </div>
+
+                                    <div class="rating-current" id="ratingLabel">Selecciona tu calificación</div>
+                                </div>
+
+                                <div class="eval-section">
+                                    <div class="eval-section-head">
+                                        <div class="eval-section-icon"><i class="bi bi-chat-left-text-fill"></i></div>
+                                        <div class="eval-section-copy">
+                                            <h2 class="eval-section-title">Cuéntanos sobre tu experiencia</h2>
+                                            <p class="eval-section-sub">Puedes indicar cómo fue la atención y si el inconveniente quedó resuelto.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="eval-label-row">
+                                        <label for="comentario" class="eval-label">Comentario</label>
+                                        <span class="optional-pill">Opcional</span>
+                                    </div>
+
+                                    <textarea class="eval-textarea" id="comentario" name="comentario" rows="5" maxlength="500" placeholder="Escribe aquí tu comentario o sugerencia..."><t t-esc="comentario or ''"/></textarea>
+
+                                    <div class="comment-meta">
+                                        <div class="comment-hint"><i class="bi bi-lock-fill"></i> Tu comentario será revisado por nuestro equipo.</div>
+                                        <div class="char-counter" id="charCounter">0 / 500</div>
+                                    </div>
+                                </div>
+
+                                <div class="submit-area">
+                                    <div class="submit-row">
+                                        <div class="submit-note">
+                                            <div class="submit-note-icon"><i class="bi bi-shield-check"></i></div>
+                                            <div>
+                                                <strong>Evaluación segura</strong>
+                                                <span>Solo toma unos segundos y se registra una vez por servicio.</span>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="eval-submit" id="submitBtn">
+                                            <i class="bi bi-send-fill"></i>
+                                            Enviar evaluación
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="eval-footer">
+                        <div class="eval-footer-pill">
+                            <i class="bi bi-shield-lock-fill"></i>
+                            Enlace seguro · Copier Company S.A.C.
+                        </div>
                     </div>
                 </div>
-                
-                <div class="footer-text">
-                    <i class="bi bi-shield-check"></i>
-                    Enlace seguro - Copier Company S.A.C.
-                </div>
             </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var labels = {
+                        '1': 'Muy malo',
+                        '2': 'Malo',
+                        '3': 'Regular',
+                        '4': 'Bueno',
+                        '5': 'Excelente'
+                    };
+
+                    var form = document.getElementById('evaluationForm');
+                    var ratingLabel = document.getElementById('ratingLabel');
+                    var textarea = document.getElementById('comentario');
+                    var counter = document.getElementById('charCounter');
+                    var submitBtn = document.getElementById('submitBtn');
+                    var radios = document.querySelectorAll('input[name="calificacion"]');
+
+                    function updateRatingText() {
+                        var selected = document.querySelector('input[name="calificacion"]:checked');
+                        if (selected) {
+                            ratingLabel.textContent = selected.value + ' de 5 · ' + labels[selected.value];
+                        } else {
+                            ratingLabel.textContent = 'Selecciona tu calificación';
+                        }
+                    }
+
+                    function updateCounter() {
+                        if (!textarea || !counter) return;
+                        var length = textarea.value.length;
+                        var remaining = 500 - length;
+                        counter.textContent = length + ' / 500';
+                        counter.classList.remove('warning', 'danger');
+                        if (remaining &lt;= 20) {
+                            counter.classList.add('danger');
+                        } else if (remaining &lt;= 100) {
+                            counter.classList.add('warning');
+                        }
+                    }
+
+                    radios.forEach(function (radio) {
+                        radio.addEventListener('change', updateRatingText);
+                    });
+
+                    if (textarea) textarea.addEventListener('input', updateCounter);
+
+                    if (form) {
+                        form.addEventListener('submit', function () {
+                            if (submitBtn) {
+                                submitBtn.disabled = true;
+                                submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Enviando...';
+                            }
+                        });
+                    }
+
+                    updateRatingText();
+                    updateCounter();
+                });
+            </script>
         </t>
     </template>
-    
+
     <!-- ========================================== -->
     <!-- TEMPLATE: GRACIAS POR EVALUAR -->
     <!-- ========================================== -->
