@@ -4,277 +4,277 @@
 
 
 
-    <template id="politica_cambios_devoluciones" name="Política de Cambios y Devoluciones">
+    <template id="politica_cambios_devoluciones" name="Política de Cambios y Devoluciones">
 
-        <t t-call="website.layout">
+        <t t-call="website.layout">
 
-            <t t-set="additional_title">Política de Cambios y Devoluciones</t>
+            <t t-set="additional_title">Política de Cambios y Devoluciones</t>
 
 
 
-            <style>
+            <style>
 
-                :root{
+                :root{
 
-                    --pcd-primary:#173963;
+                    --pcd-primary:#173963;
 
-                    --pcd-text:#17233f;
+                    --pcd-text:#17233f;
 
-                    --pcd-muted:#64748b;
+                    --pcd-muted:#64748b;
 
-                    --pcd-border:#e3e8ef;
+                    --pcd-border:#e3e8ef;
 
-                    --pcd-bg:#f6f8fb;
+                    --pcd-bg:#f6f8fb;
 
-                    --pcd-soft:#eef4fb;
+                    --pcd-soft:#eef4fb;
 
-                    --pcd-radius:16px;
+                    --pcd-radius:16px;
 
-                }
+                }
 
 
 
-                .pcd-page{background:var(--pcd-bg);padding:38px 0 64px;min-height:70vh}
+                .pcd-page{background:var(--pcd-bg);padding:38px 0 64px;min-height:70vh}
 
-                .pcd-wrap{width:100%;max-width:940px;margin:0 auto;padding:0 16px}
+                .pcd-wrap{width:100%;max-width:940px;margin:0 auto;padding:0 16px}
 
-                .pcd-head{margin-bottom:20px}
+                .pcd-head{margin-bottom:20px}
 
-                .pcd-head h1{margin:0 0 7px;color:var(--pcd-text);font-size:1.9rem;line-height:1.2;font-weight:800;letter-spacing:-.02em}
+                .pcd-head h1{margin:0 0 7px;color:var(--pcd-text);font-size:1.9rem;line-height:1.2;font-weight:800;letter-spacing:-.02em}
 
-                .pcd-head p{margin:0;color:var(--pcd-muted);font-size:.95rem}
+                .pcd-head p{margin:0;color:var(--pcd-muted);font-size:.95rem}
 
-                .pcd-card{background:#fff;border:1px solid var(--pcd-border);border-radius:var(--pcd-radius);padding:24px;margin-bottom:14px;box-shadow:0 4px 18px rgba(23,35,63,.035)}
+                .pcd-card{background:#fff;border:1px solid var(--pcd-border);border-radius:var(--pcd-radius);padding:24px;margin-bottom:14px;box-shadow:0 4px 18px rgba(23,35,63,.035)}
 
-                .pcd-card h2{margin:0 0 13px;color:var(--pcd-text);font-size:1rem;font-weight:800}
+                .pcd-card h2{margin:0 0 13px;color:var(--pcd-text);font-size:1rem;font-weight:800}
 
-                .pcd-card p{margin:0 0 12px;color:#475569;line-height:1.7;font-size:.92rem}
+                .pcd-card p{margin:0 0 12px;color:#475569;line-height:1.7;font-size:.92rem}
 
-                .pcd-card p:last-child{margin-bottom:0}
+                .pcd-card p:last-child{margin-bottom:0}
 
-                .pcd-list{margin:0;padding-left:20px;color:#475569;font-size:.92rem;line-height:1.7}
+                .pcd-list{margin:0;padding-left:20px;color:#475569;font-size:.92rem;line-height:1.7}
 
-                .pcd-list li + li{margin-top:7px}
+                .pcd-list li + li{margin-top:7px}
 
-                .pcd-highlight{background:var(--pcd-soft);border:1px solid #d8e6f7;border-radius:12px;padding:15px 16px;color:#334155;font-size:.9rem;line-height:1.65}
+                .pcd-highlight{background:var(--pcd-soft);border:1px solid #d8e6f7;border-radius:12px;padding:15px 16px;color:#334155;font-size:.9rem;line-height:1.65}
 
-                .pcd-contact{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+                .pcd-contact{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
-                .pcd-contact-item{border:1px solid var(--pcd-border);border-radius:12px;padding:14px;background:#fff}
+                .pcd-contact-item{border:1px solid var(--pcd-border);border-radius:12px;padding:14px;background:#fff}
 
-                .pcd-contact-item strong{display:block;color:var(--pcd-text);font-size:.82rem;margin-bottom:5px}
+                .pcd-contact-item strong{display:block;color:var(--pcd-text);font-size:.82rem;margin-bottom:5px}
 
-                .pcd-contact-item span{color:#475569;font-size:.9rem;word-break:break-word}
+                .pcd-contact-item span{color:#475569;font-size:.9rem;word-break:break-word}
 
-                .pcd-footer-note{color:#7c8798;font-size:.79rem;line-height:1.6;margin-top:16px}
+                .pcd-footer-note{color:#7c8798;font-size:.79rem;line-height:1.6;margin-top:16px}
 
 
 
-                @media(max-width:768px){
+                @media(max-width:768px){
 
-                    .pcd-page{padding-top:24px}
+                    .pcd-page{padding-top:24px}
 
-                    .pcd-card{padding:19px}
+                    .pcd-card{padding:19px}
 
-                    .pcd-contact{grid-template-columns:1fr}
+                    .pcd-contact{grid-template-columns:1fr}
 
-                }
+                }
 
-            </style>
+            </style>
 
 
 
-            <main class="pcd-page">
+            <main class="pcd-page">
 
-                <div class="pcd-wrap">
+                <div class="pcd-wrap">
 
 
 
-                    <div class="pcd-head">
+                    <div class="pcd-head">
 
-                        <h1>Política de Cambios y Devoluciones</h1>
+                        <h1>Política de Cambios y Devoluciones</h1>
 
-                        <p>COPIER COMPANY SAC</p>
+                        <p>COPIER COMPANY SAC</p>
 
-                    </div>
+                    </div>
 
 
 
-                    <section class="pcd-card">
+                    <section class="pcd-card">
 
-                        <h2>1. Alcance</h2>
+                        <h2>1. Alcance</h2>
 
-                        <p>La presente Política de Cambios y Devoluciones regula las solicitudes relacionadas con productos adquiridos a COPIER COMPANY SAC a través de sus canales de venta.</p>
+                        <p>La presente Política de Cambios y Devoluciones regula las solicitudes relacionadas con productos adquiridos a COPIER COMPANY SAC a través de sus canales de venta.</p>
 
-                        <p>Las condiciones aquí indicadas corresponden a la política comercial de la empresa y se aplican sin perjuicio de los derechos que correspondan al consumidor cuando exista una falla, defecto, error de despacho, incumplimiento de lo ofrecido o una situación cubierta por garantía.</p>
+                        <p>Las condiciones aquí indicadas corresponden a la política comercial de la empresa y se aplican sin perjuicio de los derechos que correspondan al consumidor cuando exista una falla, defecto, error de despacho, incumplimiento de lo ofrecido o una situación cubierta por garantía.</p>
 
-                    </section>
+                    </section>
 
 
 
-                    <section class="pcd-card">
+                    <section class="pcd-card">
 
-                        <h2>2. Plazo para solicitar un cambio o devolución</h2>
+                        <h2>2. Plazo para solicitar un cambio o devolución</h2>
 
-                        <div class="pcd-highlight">El cliente podrá solicitar el cambio o devolución dentro de los siete (7) días calendario posteriores a la entrega del producto, siempre que cumpla con las condiciones establecidas en la presente política.</div>
+                        <div class="pcd-highlight">El cliente podrá solicitar el cambio o devolución dentro de los siete (7) días calendario posteriores a la entrega del producto, siempre que cumpla con las condiciones establecidas en la presente política.</div>
 
-                    </section>
+                    </section>
 
 
 
-                    <section class="pcd-card">
+                    <section class="pcd-card">
 
-                        <h2>3. Condiciones del producto</h2>
+                        <h2>3. Condiciones del producto</h2>
 
-                        <p>Para una solicitud de cambio o devolución comercial, el producto deberá:</p>
+                        <p>Para una solicitud de cambio o devolución comercial, el producto deberá:</p>
 
-                        <ul class="pcd-list">
+                        <ul class="pcd-list">
 
-                            <li>Encontrarse en condiciones adecuadas y sin daños atribuibles al cliente.</li>
+                            <li>Encontrarse en condiciones adecuadas y sin daños atribuibles al cliente.</li>
 
-                            <li>Conservar sus accesorios, piezas y componentes entregados originalmente, cuando corresponda.</li>
+                            <li>Conservar sus accesorios, piezas y componentes entregados originalmente, cuando corresponda.</li>
 
-                            <li>Incluir el comprobante, documento de venta o información suficiente para identificar la operación.</li>
+                            <li>Incluir el comprobante, documento de venta o información suficiente para identificar la operación.</li>
 
-                            <li>No presentar alteraciones, manipulaciones, daños físicos o uso distinto al necesario para su revisión inicial.</li>
+                            <li>No presentar alteraciones, manipulaciones, daños físicos o uso distinto al necesario para su revisión inicial.</li>
 
-                        </ul>
+                        </ul>
 
-                    </section>
+                    </section>
 
 
 
-                    <section class="pcd-card">
+                    <section class="pcd-card">
 
-                        <h2>4. Productos que requieren evaluación previa</h2>
+                        <h2>4. Productos que requieren evaluación previa</h2>
 
-                        <p>Los equipos, repuestos, consumibles y demás productos técnicos podrán requerir una revisión previa por parte del área correspondiente antes de aprobar un cambio o devolución.</p>
+                        <p>Los equipos, repuestos, consumibles y demás productos técnicos podrán requerir una revisión previa por parte del área correspondiente antes de aprobar un cambio o devolución.</p>
 
-                        <p>La evaluación permitirá determinar si la situación corresponde a una devolución comercial, garantía, defecto de producto, error de despacho o daño generado después de la entrega.</p>
+                        <p>La evaluación permitirá determinar si la situación corresponde a una devolución comercial, garantía, defecto de producto, error de despacho o daño generado después de la entrega.</p>
 
-                    </section>
+                    </section>
 
 
 
-                    <section class="pcd-card">
+                    <section class="pcd-card">
 
-                        <h2>5. Casos que no califican como devolución comercial</h2>
+                        <h2>5. Casos que no califican como devolución comercial</h2>
 
-                        <p>Salvo que exista una falla, defecto, error de despacho o derecho aplicable, no procederá una devolución comercial cuando:</p>
+                        <p>Salvo que exista una falla, defecto, error de despacho o derecho aplicable, no procederá una devolución comercial cuando:</p>
 
-                        <ul class="pcd-list">
+                        <ul class="pcd-list">
 
-                            <li>El producto presente daños ocasionados por golpes, humedad, manipulación inadecuada, instalación incorrecta o uso distinto al recomendado.</li>
+                            <li>El producto presente daños ocasionados por golpes, humedad, manipulación inadecuada, instalación incorrecta o uso distinto al recomendado.</li>
 
-                            <li>Falten accesorios, piezas o componentes originalmente entregados.</li>
+                            <li>Falten accesorios, piezas o componentes originalmente entregados.</li>
 
-                            <li>El producto haya sido modificado o intervenido por terceros de manera que impida verificar su estado original.</li>
+                            <li>El producto haya sido modificado o intervenido por terceros de manera que impida verificar su estado original.</li>
 
-                            <li>Se trate de un producto preparado, configurado o solicitado especialmente para el cliente y no exista defecto o error atribuible a COPIER COMPANY SAC.</li>
+                            <li>Se trate de un producto preparado, configurado o solicitado especialmente para el cliente y no exista defecto o error atribuible a COPIER COMPANY SAC.</li>
 
-                        </ul>
+                        </ul>
 
-                    </section>
+                    </section>
 
 
 
-                    <section class="pcd-card">
+                    <section class="pcd-card">
 
-                        <h2>6. Productos defectuosos o errores de despacho</h2>
+                        <h2>6. Productos defectuosos o errores de despacho</h2>
 
-                        <p>Si el producto presenta una falla, defecto, diferencia respecto de lo ofrecido o se hubiera entregado un producto distinto al adquirido, el cliente deberá comunicarlo a COPIER COMPANY SAC para su evaluación.</p>
+                        <p>Si el producto presenta una falla, defecto, diferencia respecto de lo ofrecido o se hubiera entregado un producto distinto al adquirido, el cliente deberá comunicarlo a COPIER COMPANY SAC para su evaluación.</p>
 
-                        <p>De corresponder, la empresa gestionará la solución aplicable según el caso, la cual podrá incluir revisión técnica, reparación, reposición, cambio, entrega correcta o devolución del importe, según corresponda.</p>
+                        <p>De corresponder, la empresa gestionará la solución aplicable según el caso, la cual podrá incluir revisión técnica, reparación, reposición, cambio, entrega correcta o devolución del importe, según corresponda.</p>
 
-                    </section>
+                    </section>
 
 
 
-                    <section class="pcd-card">
+                    <section class="pcd-card">
 
-                        <h2>7. Procedimiento para solicitar un cambio o devolución</h2>
+                        <h2>7. Procedimiento para solicitar un cambio o devolución</h2>
 
-                        <p>El cliente deberá comunicar su solicitud indicando como mínimo:</p>
+                        <p>El cliente deberá comunicar su solicitud indicando como mínimo:</p>
 
-                        <ul class="pcd-list">
+                        <ul class="pcd-list">
 
-                            <li>Nombre o razón social.</li>
+                            <li>Nombre o razón social.</li>
 
-                            <li>DNI, RUC, carné de extranjería o pasaporte, según corresponda.</li>
+                            <li>DNI, RUC, carné de extranjería o pasaporte, según corresponda.</li>
 
-                            <li>Número de comprobante, pedido o documento relacionado con la compra.</li>
+                            <li>Número de comprobante, pedido o documento relacionado con la compra.</li>
 
-                            <li>Producto involucrado y motivo de la solicitud.</li>
+                            <li>Producto involucrado y motivo de la solicitud.</li>
 
-                            <li>Fotografías, videos u otras evidencias cuando sean necesarias para la evaluación.</li>
+                            <li>Fotografías, videos u otras evidencias cuando sean necesarias para la evaluación.</li>
 
-                        </ul>
+                        </ul>
 
-                        <p>COPIER COMPANY SAC podrá solicitar información adicional cuando sea necesaria para verificar la compra y evaluar el estado del producto.</p>
+                        <p>COPIER COMPANY SAC podrá solicitar información adicional cuando sea necesaria para verificar la compra y evaluar el estado del producto.</p>
 
-                    </section>
+                    </section>
 
 
 
-                    <section class="pcd-card">
+                    <section class="pcd-card">
 
-                        <h2>8. Cambio del producto</h2>
+                        <h2>8. Cambio del producto</h2>
 
-                        <p>Cuando la solicitud sea aprobada para cambio, este estará sujeto a la disponibilidad del producto correspondiente.</p>
+                        <p>Cuando la solicitud sea aprobada para cambio, este estará sujeto a la disponibilidad del producto correspondiente.</p>
 
-                        <p>Si no existiera disponibilidad, se podrá coordinar una alternativa, reposición posterior o devolución del importe, según corresponda al caso.</p>
+                        <p>Si no existiera disponibilidad, se podrá coordinar una alternativa, reposición posterior o devolución del importe, según corresponda al caso.</p>
 
-                    </section>
+                    </section>
 
 
 
-                    <section class="pcd-card">
+                    <section class="pcd-card">
 
-                        <h2>9. Devolución del importe</h2>
+                        <h2>9. Devolución del importe</h2>
 
-                        <p>Cuando corresponda realizar una devolución de dinero, esta se procesará después de la aprobación de la solicitud y de la recepción o validación del producto, según corresponda.</p>
+                        <p>Cuando corresponda realizar una devolución de dinero, esta se procesará después de la aprobación de la solicitud y de la recepción o validación del producto, según corresponda.</p>
 
-                        <p>La devolución se efectuará mediante el medio disponible que corresponda a la operación original o mediante otro medio coordinado con el cliente cuando sea necesario.</p>
+                        <p>La devolución se efectuará mediante el medio disponible que corresponda a la operación original o mediante otro medio coordinado con el cliente cuando sea necesario.</p>
 
-                        <p>El tiempo en que el importe se refleje finalmente en una tarjeta, cuenta bancaria u otro medio de pago puede depender de la entidad financiera o del proveedor del medio de pago utilizado.</p>
+                        <p>El tiempo en que el importe se refleje finalmente en una tarjeta, cuenta bancaria u otro medio de pago puede depender de la entidad financiera o del proveedor del medio de pago utilizado.</p>
 
-                    </section>
+                    </section>
 
 
 
-                    <section class="pcd-card">
+                    <section class="pcd-card">
 
-                        <h2>10. Costos de traslado o envío</h2>
+                        <h2>10. Costos de traslado o envío</h2>
 
-                        <p>Cuando el cambio o devolución se origine por un error de despacho, producto incorrecto o defecto atribuible a COPIER COMPANY SAC, la empresa coordinará el traslado o la solución correspondiente.</p>
+                        <p>Cuando el cambio o devolución se origine por un error de despacho, producto incorrecto o defecto atribuible a COPIER COMPANY SAC, la empresa coordinará el traslado o la solución correspondiente.</p>
 
-                        <p>Cuando se trate de una devolución comercial sin defecto atribuible a la empresa, los costos de traslado o envío serán evaluados según la operación, ubicación y condiciones de la solicitud, y serán informados al cliente antes de ejecutar el cambio o devolución.</p>
+                        <p>Cuando se trate de una devolución comercial sin defecto atribuible a la empresa, los costos de traslado o envío serán evaluados según la operación, ubicación y condiciones de la solicitud, y serán informados al cliente antes de ejecutar el cambio o devolución.</p>
 
-                    </section>
+                    </section>
 
 
 
-                    <section class="pcd-card">
+                    <section class="pcd-card">
 
-                        <h2>11. Servicios</h2>
+                        <h2>11. Servicios</h2>
 
-                        <p>En el caso de servicios ya ejecutados total o parcialmente, la solicitud será evaluada de acuerdo con el trabajo efectivamente realizado, los materiales utilizados, el alcance contratado y cualquier incidencia reportada por el cliente.</p>
+                        <p>En el caso de servicios ya ejecutados total o parcialmente, la solicitud será evaluada de acuerdo con el trabajo efectivamente realizado, los materiales utilizados, el alcance contratado y cualquier incidencia reportada por el cliente.</p>
 
-                        <p>Si existiera una disconformidad relacionada con la prestación del servicio, el cliente podrá solicitar su revisión a través de nuestros canales de atención o registrar un reclamo en el Libro de Reclamaciones.</p>
+                        <p>Si existiera una disconformidad relacionada con la prestación del servicio, el cliente podrá solicitar su revisión a través de nuestros canales de atención o registrar un reclamo en el Libro de Reclamaciones.</p>
 
-                    </section>
+                    </section>
 
 
 
-                    <section class="pcd-card">
+                    <section class="pcd-card">
 
-                        <h2>12. Libro de Reclamaciones</h2>
+                        <h2>12. Libro de Reclamaciones</h2>
 
-                        <p>La presente política no limita el derecho del consumidor a registrar un reclamo o queja en el Libro de Reclamaciones de COPIER COMPANY SAC.</p>
+                        <p>La presente política no limita el derecho del consumidor a registrar un reclamo o queja en el Libro de Reclamaciones de COPIER COMPANY SAC.</p>
 
-                        <p><a href="/libro-de-reclamaciones">Ir al Libro de Reclamaciones</a></p>
+                        <p><a href="/libro-de-reclamaciones">Ir al Libro de Reclamaciones</a></p>
 
-                    </section>
+                    </section>
 
 
 
@@ -282,43 +282,43 @@
 
 
 
-                </div>
+                </div>
 
-            </main>
+            </main>
 
-        </t>
+        </t>
 
-    </template>
+    </template>
 
 
 
-    <record id="page_politica_cambios_devoluciones" model="website.page">
+    <record id="page_politica_cambios_devoluciones" model="website.page">
 
-        <field name="name">Política de Cambios y Devoluciones</field>
+        <field name="name">Política de Cambios y Devoluciones</field>
 
-        <field name="url">/politica-de-cambios-y-devoluciones</field>
+        <field name="url">/politica-de-cambios-y-devoluciones</field>
 
-        <field name="view_id" ref="copier_company.politica_cambios_devoluciones"/>
+        <field name="view_id" ref="copier_company.politica_cambios_devoluciones"/>
 
-        <field name="is_published" eval="True"/>
+        <field name="is_published" eval="True"/>
 
-    </record>
+    </record>
 
 
 
-    <template id="footer_politica_cambios_devoluciones" inherit_id="website.layout" name="Enlace Política de Cambios y Devoluciones">
+    <template id="footer_politica_cambios_devoluciones" inherit_id="website.layout" name="Enlace Política de Cambios y Devoluciones">
 
-        <xpath expr="//footer" position="inside">
+        <xpath expr="//footer" position="inside">
 
-            <div class="container text-center py-2">
+            <div class="container text-center py-2">
 
-                <a href="/politica-de-cambios-y-devoluciones" class="text-decoration-none">Política de Cambios y Devoluciones</a>
+                <a href="/politica-de-cambios-y-devoluciones" class="text-decoration-none">Política de Cambios y Devoluciones</a>
 
-            </div>
+            </div>
 
-        </xpath>
+        </xpath>
 
-    </template>
+    </template>
 
     <!-- ========================================================= -->
     <!-- TÉRMINOS Y CONDICIONES                                    -->
