@@ -220,6 +220,7 @@
         # =========================================================
 
         'views/libro_reclamaciones_website.xml',
+        'views/politica_cambios_devoluciones.xml',
     ],
 
     'assets': {
