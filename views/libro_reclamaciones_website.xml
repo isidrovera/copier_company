@@ -2004,21 +2004,18 @@
 
 
     <template id="footer_libro_reclamaciones_link"
-              inherit_id="website.layout"
-              name="Enlace Libro de Reclamaciones">
+          inherit_id="website.layout"
+          name="Enlace Libro de Reclamaciones">
 
-        <xpath expr="//footer" position="inside">
+    <xpath expr="//footer" position="inside">
 
-            <div class="container py-2 text-center">
+        <div class="container py-2 text-center">
 
-                <a href="/libro-de-reclamaciones"
-                   class="text-decoration-none">
-                    Libro de Reclamaciones
-                </a>
+          
 
-            </div>
+        </div>
 
-        </xpath>
-    </template>
+    </xpath>
+</template>
 
 </odoo>
