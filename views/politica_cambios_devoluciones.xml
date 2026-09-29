@@ -303,24 +303,7 @@
         <field name="is_published" eval="True"/>
 
     </record>
-
-
-
-    <template id="footer_politica_cambios_devoluciones" inherit_id="website.layout" name="Enlace Política de Cambios y Devoluciones">
-
-        <xpath expr="//footer" position="inside">
-
-            <div class="container text-center py-2">
-
-                <a href="/politica-de-cambios-y-devoluciones" class="text-decoration-none">Política de Cambios y Devoluciones</a>
-
-            </div>
-
-        </xpath>
-
-    </template>
-
-    <!-- ========================================================= -->
+<!-- ========================================================= -->
     <!-- TÉRMINOS Y CONDICIONES                                    -->
     <!-- ========================================================= -->
 
@@ -515,11 +498,86 @@
         <field name="is_published" eval="True"/>
     </record>
 
-    <template id="footer_terminos_condiciones" inherit_id="website.layout" name="Enlace Términos y Condiciones">
-        <xpath expr="//footer" position="inside">
-            <div class="container text-center py-2">
-                <a href="/terminos-y-condiciones" class="text-decoration-none">Términos y Condiciones</a>
+    <!-- ========================================================= -->
+    <!-- ENLACES LEGALES AL COSTADO DEL LIBRO DE RECLAMACIONES    -->
+    <!-- ========================================================= -->
+
+    <template id="footer_enlaces_legales" inherit_id="copier_company.footer_libro_reclamaciones_link" name="Enlaces legales del sitio">
+        <xpath expr="//div[contains(concat(' ', normalize-space(@class), ' '), ' cc-libro-reclamaciones-footer ')]" position="inside">
+
+            <style>
+                .cc-libro-reclamaciones-footer{
+                    display:flex !important;
+                    flex-direction:row !important;
+                    flex-wrap:wrap !important;
+                    justify-content:center !important;
+                    align-items:center !important;
+                    gap:22px !important;
+                    padding-top:10px !important;
+                    padding-bottom:10px !important;
+                }
+
+                .cc-legal-footer-links{
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    flex-wrap:wrap;
+                    gap:10px 18px;
+                    min-width:0;
+                }
+
+                .cc-legal-footer-link{
+                    display:inline-flex;
+                    align-items:center;
+                    color:inherit !important;
+                    text-decoration:none !important;
+                    font-size:.84rem;
+                    font-weight:600;
+                    line-height:1.2;
+                    white-space:nowrap;
+                    opacity:.92;
+                    transition:opacity .16s ease, transform .16s ease;
+                }
+
+                .cc-legal-footer-link:hover{
+                    opacity:1;
+                    transform:translateY(-1px);
+                }
+
+                .cc-legal-footer-separator{
+                    width:4px;
+                    height:4px;
+                    border-radius:50%;
+                    background:currentColor;
+                    opacity:.4;
+                }
+
+                @media(max-width:768px){
+                    .cc-libro-reclamaciones-footer{
+                        gap:12px !important;
+                    }
+
+                    .cc-legal-footer-links{
+                        width:100%;
+                        gap:8px 14px;
+                    }
+
+                    .cc-legal-footer-separator{
+                        display:none;
+                    }
+
+                    .cc-legal-footer-link{
+                        font-size:.79rem;
+                    }
+                }
+            </style>
+
+            <div class="cc-legal-footer-links">
+                <a href="/politica-de-cambios-y-devoluciones" class="cc-legal-footer-link">Política de Cambios y Devoluciones</a>
+                <span class="cc-legal-footer-separator"/>
+                <a href="/terminos-y-condiciones" class="cc-legal-footer-link">Términos y Condiciones</a>
             </div>
+
         </xpath>
     </template>
 
