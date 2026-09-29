@@ -2003,16 +2003,25 @@
     </template>
 
 
-    <div class="container py-3 text-center">
+    <template id="footer_libro_reclamaciones_link"
+              inherit_id="website.layout"
+              name="Enlace Libro de Reclamaciones">
+
+        <xpath expr="//footer" position="inside">
+
+            <div class="container py-3 text-center">
     <a href="/libro-de-reclamaciones"
        title="Libro de Reclamaciones"
        aria-label="Libro de Reclamaciones">
 
-        <img src="/copier_company/static/img/lrmypes.svg"
+        <img src="/copier_company/static/src/img/lrmypes.svg"
              alt="Libro de Reclamaciones"
              style="width:59px;height:39px;object-fit:contain;"/>
 
     </a>
 </div>
+
+        </xpath>
+    </template>
 
 </odoo>
