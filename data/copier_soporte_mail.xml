@@ -1,94 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- ========================================== -->
-    <!-- PLANTILLA 1: CONFIRMACIÓN DE SOLICITUD -->
-    <!-- ========================================== -->
+
+    <!-- ========================================================= -->
+    <!-- PLANTILLA 1: CONFIRMACIÓN DE SOLICITUD                    -->
+    <!-- ========================================================= -->
     <record id="email_template_service_confirmacion" model="mail.template">
         <field name="name">Servicio Técnico - Confirmación de Solicitud</field>
         <field name="model_id" ref="model_copier_service_request"/>
         <field name="email_from">info@copiercompanysac.com</field>
         <field name="email_to">{{ object.correo }}</field>
-        <field name="subject">✅ Solicitud {{ object.name }} Recibida - Copier Company</field>
+        <field name="subject">Solicitud {{ object.name }} recibida - Copier Company</field>
         <field name="auto_delete" eval="False"/>
         <field name="body_html"><![CDATA[
-<div style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
-    <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; padding: 20px;">
+<div style="margin:0;padding:0;background-color:#f3f6fa;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background-color:#f3f6fa;margin:0;padding:0;">
         <tr>
-            <td align="center">
-                <table border="0" cellpadding="0" cellspacing="0" style="width: 600px; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                    
-                    <!-- Header -->
+            <td align="center" style="padding:32px 12px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:640px;background-color:#ffffff;border:1px solid #e5e7eb;border-radius:18px;overflow:hidden;">
+
                     <tr>
-                        <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px; text-align: center;">
-                            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">
-                                ✅ Solicitud Recibida
-                            </h1>
-                            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">
-                                Hemos recibido tu solicitud de servicio técnico
-                            </p>
+                        <td style="height:5px;background-color:#2563eb;font-size:0;line-height:0;">&nbsp;</td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding:30px 34px 22px 34px;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                    <td>
+                                        <div style="font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#64748b;margin-bottom:8px;">
+                                            COPIER COMPANY · SERVICIO TÉCNICO
+                                        </div>
+                                        <h1 style="margin:0;font-size:26px;line-height:1.25;color:#0f172a;font-weight:700;">
+                                            Solicitud recibida
+                                        </h1>
+                                        <p style="margin:9px 0 0 0;font-size:15px;line-height:1.6;color:#64748b;">
+                                            Hemos registrado correctamente tu solicitud de atención.
+                                        </p>
+                                    </td>
+                                    <td width="64" align="right" valign="top">
+                                        <div style="width:52px;height:52px;line-height:52px;text-align:center;background-color:#eff6ff;border-radius:14px;font-size:24px;">
+                                            ✓
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
 
-                    <!-- Contenido -->
                     <tr>
-                        <td style="padding: 40px 30px;">
-                            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 20px 0;">
+                        <td style="padding:0 34px 30px 34px;">
+                            <p style="margin:0 0 20px 0;font-size:15px;line-height:1.7;color:#334155;">
                                 Hola <strong><t t-out="object.contacto or 'Cliente'"/></strong>,
                             </p>
-                            
-                            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 30px 0;">
-                                Gracias por contactarnos. Hemos recibido tu solicitud de servicio técnico 
-                                y nuestro equipo la está revisando.
+
+                            <p style="margin:0 0 24px 0;font-size:15px;line-height:1.7;color:#475569;">
+                                Recibimos tu solicitud de servicio técnico. Nuestro equipo la revisará y te notificaremos cuando la atención sea programada.
                             </p>
 
-                            <!-- Detalles -->
-                            <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; background-color: #f8f9fa; border-radius: 8px; overflow: hidden; margin: 0 0 30px 0;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background-color:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;margin-bottom:24px;">
                                 <tr>
-                                    <td style="padding: 20px; border-left: 4px solid #667eea;">
-                                        <h3 style="color: #667eea; margin: 0 0 15px 0; font-size: 18px;">
-                                            📋 Detalles de tu Solicitud
-                                        </h3>
-                                        
-                                        <table border="0" cellpadding="8" cellspacing="0" style="width: 100%;">
+                                    <td style="padding:20px 22px;">
+                                        <div style="font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#64748b;margin-bottom:14px;">
+                                            Resumen de la solicitud
+                                        </div>
+                                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                                             <tr>
-                                                <td style="font-weight: bold; color: #555555; width: 40%;">Número:</td>
-                                                <td style="color: #333333;">
-                                                    <span style="background: #667eea; color: white; padding: 4px 12px; border-radius: 4px; font-weight: bold;">
-                                                        <t t-out="object.name"/>
-                                                    </span>
-                                                </td>
+                                                <td style="padding:6px 0;font-size:13px;color:#64748b;width:38%;">Solicitud</td>
+                                                <td style="padding:6px 0;font-size:14px;color:#0f172a;font-weight:700;"><t t-out="object.name"/></td>
                                             </tr>
                                             <tr>
-                                                <td style="font-weight: bold; color: #555555;">Equipo:</td>
-                                                <td style="color: #333333;"><t t-out="object.modelo_maquina.name or 'N/A'"/></td>
+                                                <td style="padding:6px 0;font-size:13px;color:#64748b;">Equipo</td>
+                                                <td style="padding:6px 0;font-size:14px;color:#0f172a;"><t t-out="object.modelo_maquina.name or 'N/A'"/></td>
                                             </tr>
                                             <tr>
-                                                <td style="font-weight: bold; color: #555555;">Serie:</td>
-                                                <td style="color: #333333;"><t t-out="object.serie_maquina or 'N/A'"/></td>
+                                                <td style="padding:6px 0;font-size:13px;color:#64748b;">Serie</td>
+                                                <td style="padding:6px 0;font-size:14px;color:#0f172a;"><t t-out="object.serie_maquina or 'N/A'"/></td>
                                             </tr>
                                             <tr>
-                                                <td style="font-weight: bold; color: #555555;">Ubicación:</td>
-                                                <td style="color: #333333;"><t t-out="object.ubicacion or 'N/A'"/></td>
+                                                <td style="padding:6px 0;font-size:13px;color:#64748b;">Ubicación</td>
+                                                <td style="padding:6px 0;font-size:14px;color:#0f172a;"><t t-out="object.ubicacion or 'N/A'"/></td>
                                             </tr>
                                             <tr>
-                                                <td style="font-weight: bold; color: #555555;">Tipo de Problema:</td>
-                                                <td style="color: #333333;"><t t-out="object.tipo_problema_id.name or 'N/A'"/></td>
+                                                <td style="padding:6px 0;font-size:13px;color:#64748b;">Tipo de problema</td>
+                                                <td style="padding:6px 0;font-size:14px;color:#0f172a;"><t t-out="object.tipo_problema_id.name or 'N/A'"/></td>
                                             </tr>
                                             <tr>
-                                                <td style="font-weight: bold; color: #555555;">Prioridad:</td>
-                                                <td style="color: #333333;">
-                                                    <t t-if="object.prioridad == '3'">
-                                                        <span style="background: #dc3545; color: white; padding: 4px 12px; border-radius: 4px;">🔴 Crítica</span>
-                                                    </t>
-                                                    <t t-elif="object.prioridad == '2'">
-                                                        <span style="background: #ffc107; color: #333; padding: 4px 12px; border-radius: 4px;">🟠 Alta</span>
-                                                    </t>
-                                                    <t t-elif="object.prioridad == '1'">
-                                                        <span style="background: #17a2b8; color: white; padding: 4px 12px; border-radius: 4px;">🔵 Normal</span>
-                                                    </t>
-                                                    <t t-else="">
-                                                        <span style="background: #28a745; color: white; padding: 4px 12px; border-radius: 4px;">🟢 Baja</span>
-                                                    </t>
+                                                <td style="padding:6px 0;font-size:13px;color:#64748b;">Prioridad</td>
+                                                <td style="padding:6px 0;font-size:14px;color:#0f172a;">
+                                                    <t t-if="object.prioridad == '3'">Crítica</t>
+                                                    <t t-elif="object.prioridad == '2'">Alta</t>
+                                                    <t t-elif="object.prioridad == '1'">Normal</t>
+                                                    <t t-else="">Baja</t>
                                                 </td>
                                             </tr>
                                         </table>
@@ -96,41 +98,52 @@
                                 </tr>
                             </table>
 
-                            <!-- Próximos pasos -->
-                            <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; background-color: #fff3cd; border-radius: 8px; overflow: hidden; margin: 0 0 30px 0;">
-                                <tr>
-                                    <td style="padding: 20px;">
-                                        <h3 style="color: #856404; margin: 0 0 15px 0; font-size: 18px;">
-                                            ⏱️ Próximos Pasos
-                                        </h3>
-                                        <p style="color: #856404; margin: 0; line-height: 1.6;">
-                                            • Un técnico será asignado en las próximas horas<br/>
-                                            • Recibirás un correo con los detalles del técnico y la fecha programada<br/>
-                                            • El técnico se pondrá en contacto contigo antes de la visita
-                                        </p>
-                                    </td>
-                                </tr>
-                            </table>
+                            <t t-if="object.problema_reportado">
+                                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;margin-bottom:24px;">
+                                    <tr>
+                                        <td style="padding:16px 18px;background-color:#fff7ed;border-left:4px solid #f59e0b;border-radius:10px;">
+                                            <div style="font-size:12px;font-weight:700;color:#9a3412;text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;">
+                                                Problema reportado
+                                            </div>
+                                            <div style="font-size:14px;line-height:1.6;color:#7c2d12;white-space:pre-line;">
+                                                <t t-out="object.problema_reportado"/>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </t>
 
-                            <p style="font-size: 14px; color: #666666; line-height: 1.6; margin: 0;">
-                                Si necesitas modificar o cancelar esta solicitud, por favor contáctanos.
+                            <t t-if="object.tracking_url">
+                                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                                    <tr>
+                                        <td align="center" style="padding:4px 0 8px 0;">
+                                            <a t-att-href="object.tracking_url"
+                                               style="display:inline-block;background-color:#2563eb;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;padding:13px 24px;border-radius:10px;">
+                                                Ver seguimiento
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </t>
+
+                            <p style="margin:18px 0 0 0;font-size:12px;line-height:1.6;color:#94a3b8;text-align:center;">
+                                Puedes volver a consultar el estado de tu solicitud desde el enlace de seguimiento.
                             </p>
                         </td>
                     </tr>
 
-                    <!-- Footer -->
                     <tr>
-                        <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #dee2e6;">
-                            <p style="margin: 0 0 10px 0; color: #667eea; font-weight: bold; font-size: 18px;">
-                                Copier Company
-                            </p>
-                            <p style="margin: 0; color: #666666; font-size: 14px;">
-                                📧 info@copiercompanysac.com<br/>
-                                📱 +51 975 399 303<br/>
-                                🌐 www.copiercompanysac.com
-                            </p>
+                        <td style="padding:20px 28px;background-color:#f8fafc;border-top:1px solid #e5e7eb;text-align:center;">
+                            <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:6px;">Copier Company S.A.C.</div>
+                            <div style="font-size:12px;line-height:1.7;color:#64748b;">
+                                info@copiercompanysac.com · +51 975 399 303 · www.copiercompanysac.com
+                            </div>
+                            <div style="margin-top:8px;font-size:11px;color:#94a3b8;">
+                                Solicitud <t t-out="object.name"/>
+                            </div>
                         </td>
                     </tr>
+
                 </table>
             </td>
         </tr>
@@ -139,419 +152,370 @@
         ]]></field>
     </record>
 
-    <!-- ========================================== -->
-    <!-- PLANTILLA 2: TÉCNICO ASIGNADO -->
-    <!-- ========================================== -->
+
+    <!-- ========================================================= -->
+    <!-- PLANTILLA 2: TÉCNICO ASIGNADO                             -->
+    <!-- ========================================================= -->
     <record id="email_template_service_tecnico_asignado" model="mail.template">
-    <field name="name">Servicio Técnico - Técnico Asignado</field>
-    <field name="model_id" ref="model_copier_service_request"/>
-    <field name="email_from">info@copiercompanysac.com</field>
-    <field name="email_to">{{ object.correo }}</field>
-    <field name="subject">👨‍🔧 Técnico Asignado - Solicitud {{ object.name }}</field>
-    <field name="auto_delete" eval="False"/>
-    <field name="body_html"><![CDATA[
-<div style="margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; background-color: #f4f4f4;">
-    <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 20px 0;">
+        <field name="name">Servicio Técnico - Técnico Asignado</field>
+        <field name="model_id" ref="model_copier_service_request"/>
+        <field name="email_from">info@copiercompanysac.com</field>
+        <field name="email_to">{{ object.correo }}</field>
+        <field name="subject">Técnico asignado - Solicitud {{ object.name }}</field>
+        <field name="auto_delete" eval="False"/>
+        <field name="body_html"><![CDATA[
+<div style="margin:0;padding:0;background-color:#f3f6fa;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background-color:#f3f6fa;">
         <tr>
-            <td align="center">
-                <table width="600" border="0" cellpadding="0" cellspacing="0" style="background-color: #ffffff; max-width: 600px;">
-                    
-                    <!-- Header con fondo sólido (más compatible) -->
+            <td align="center" style="padding:32px 12px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:640px;background-color:#ffffff;border:1px solid #e5e7eb;border-radius:18px;overflow:hidden;">
+
                     <tr>
-                        <td bgcolor="#28a745" style="padding: 30px 20px; text-align: center;">
-                            <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: bold;">
-                                👨‍🔧 Técnico Asignado
-                            </h1>
-                            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 14px;">
-                                Tu servicio ha sido programado
-                            </p>
-                        </td>
+                        <td style="height:5px;background-color:#0f9f6e;font-size:0;line-height:0;">&nbsp;</td>
                     </tr>
 
-                    <!-- Contenido Principal -->
                     <tr>
-                        <td style="padding: 30px 20px;">
-                            
-                            <!-- Saludo -->
-                            <p style="font-size: 15px; color: #333333; line-height: 1.5; margin: 0 0 15px 0;">
-                                Hola <strong><t t-out="object.contacto or 'Cliente'"/></strong>,
-                            </p>
-                            
-                            <p style="font-size: 15px; color: #333333; line-height: 1.5; margin: 0 0 20px 0;">
-                                ¡Buenas noticias! Hemos asignado un técnico a tu solicitud 
-                                <strong><t t-out="object.name"/></strong>.
-                            </p>
-
-                            <!-- Tabla: Información del Técnico -->
-                            <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin: 0 0 20px 0;">
+                        <td style="padding:30px 34px 22px 34px;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                                 <tr>
-                                    <td bgcolor="#e7f3ff" style="padding: 20px; border-left: 4px solid #28a745;">
-                                        <h3 style="color: #28a745; margin: 0 0 15px 0; font-size: 16px;">
-                                            👨‍🔧 Información del Técnico
-                                        </h3>
-                                        
-                                        <table width="100%" border="0" cellpadding="5" cellspacing="0">
-                                            <tr>
-                                                <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0;">
-                                                    Técnico:
-                                                </td>
-                                                <td style="color: #333333; font-size: 16px; font-weight: bold; padding: 5px 0;">
-                                                    <t t-out="object.tecnico_id.name or 'Por asignar'"/>
-                                                </td>
-                                            </tr>
-                                            
-                                            <!-- ✅ DNI del técnico -->
-                                            <tr t-if="object.tecnico_id.vat">
-                                                <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0;">
-                                                    DNI:
-                                                </td>
-                                                <td style="color: #333333; font-size: 14px; padding: 5px 0;">
-                                                    <t t-out="object.tecnico_id.vat"/>
-                                                </td>
-                                            </tr>
-                                            <!-- Vehículo del Técnico -->
-                                            <tr t-if="object.vehicle_info">
-                                                <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0;">
-                                                    Vehículo:
-                                                </td>
-                                                <td style="color: #333333; font-size: 14px; padding: 5px 0;">
-                                                    🚗 <t t-out="object.vehicle_info"/>
-                                                </td>
-                                            </tr>
-                                            
-                                            <tr>
-    <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0;">
-        Fecha Programada:
-    </td>
-    <td style="color: #333333; font-size: 14px; padding: 5px 0;">
-        <t t-if="object.fecha_programada">
-            <span style="color: #28a745; font-weight: bold;">
-                <!-- ✅ Usar format_datetime con contexto de zona horaria -->
-                <t t-out="format_datetime(object.fecha_programada, dt_format='dd/MM/yyyy', tz=object.env.user.tz or 'America/Lima')"/>
-                a las
-                <t t-out="format_datetime(object.fecha_programada, dt_format='hh:mm a', tz=object.env.user.tz or 'America/Lima')"/>
-            </span>
-        </t>
-        <t t-else="">
-            <span style="color: #ffc107;">Por confirmar</span>
-        </t>
-    </td>
-</tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <!-- Tabla: Detalles del Equipo -->
-                            <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin: 0 0 20px 0;">
-                                <tr>
-                                    <td bgcolor="#f8f9fa" style="padding: 20px;">
-                                        <h3 style="color: #667eea; margin: 0 0 15px 0; font-size: 16px;">
-                                            🖨️ Equipo a Atender
-                                        </h3>
-                                        
-                                        <table width="100%" border="0" cellpadding="5" cellspacing="0">
-                                            <tr>
-                                                <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0;">
-                                                    Cliente:
-                                                </td>
-                                                <td style="color: #333333; font-size: 14px; padding: 5px 0;">
-                                                    <t t-out="object.cliente_id.name or 'N/A'"/>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0;">
-                                                    Equipo:
-                                                </td>
-                                                <td style="color: #333333; font-size: 14px; padding: 5px 0;">
-                                                    <t t-out="object.modelo_maquina.name or 'N/A'"/>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0;">
-                                                    Serie:
-                                                </td>
-                                                <td style="color: #333333; font-size: 14px; padding: 5px 0;">
-                                                    <t t-out="object.serie_maquina or 'N/A'"/>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0;">
-                                                    Ubicación:
-                                                </td>
-                                                <td style="color: #333333; font-size: 14px; padding: 5px 0;">
-                                                    <t t-out="object.ubicacion or 'N/A'"/>
-                                                </td>
-                                            </tr>
-                                            <tr t-if="object.sede">
-                                                <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0;">
-                                                    Sede:
-                                                </td>
-                                                <td style="color: #333333; font-size: 14px; padding: 5px 0;">
-                                                    <t t-out="object.sede"/>
-                                                </td>
-                                            </tr>
-                                            
-                                            <!-- Tipo de problema -->
-                                            <tr t-if="object.tipo_problema_id">
-                                                <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0;">
-                                                    Tipo de Problema:
-                                                </td>
-                                                <td style="color: #333333; font-size: 14px; padding: 5px 0;">
-                                                    <t t-out="object.tipo_problema_id.name"/>
-                                                </td>
-                                            </tr>
-                                            
-                                            <!-- Problema reportado -->
-                                            <tr t-if="object.problema_reportado">
-                                                <td width="40%" style="font-weight: bold; color: #555555; font-size: 14px; padding: 5px 0; vertical-align: top;">
-                                                    Problema:
-                                                </td>
-                                                <td style="color: #333333; font-size: 14px; padding: 5px 0;">
-                                                    <t t-out="object.problema_reportado"/>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <!-- Botón para rastrear solicitud -->
-                            <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin: 0 0 20px 0;">
-                                <tr>
-                                    <td align="center" style="padding: 20px 0;">
-                                        <a t-if="object.tracking_url" 
-                                           t-att-href="object.tracking_url"
-                                           style="background-color: #28a745; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; font-size: 14px;">
-                                            🔍 Rastrear mi Solicitud
-                                        </a>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <!-- Preparativos -->
-                            <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin: 0 0 20px 0;">
-                                <tr>
-                                    <td bgcolor="#d1ecf1" style="padding: 15px; border-left: 4px solid #17a2b8;">
-                                        <h3 style="color: #0c5460; margin: 0 0 10px 0; font-size: 16px;">
-                                            ✅ Preparativos para la Visita
-                                        </h3>
-                                        <p style="color: #0c5460; margin: 0; line-height: 1.6; font-size: 14px;">
-                                            • Asegúrate de que el equipo esté accesible<br/>
-                                            • Mantén el área de trabajo despejada<br/>
-                                            • Ten disponible alguna persona para recibir al técnico<br/>
-                                            • El técnico te contactará antes de la visita
+                                    <td>
+                                        <div style="font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#64748b;margin-bottom:8px;">
+                                            COPIER COMPANY · SERVICIO PROGRAMADO
+                                        </div>
+                                        <h1 style="margin:0;font-size:26px;line-height:1.25;color:#0f172a;font-weight:700;">
+                                            Técnico asignado
+                                        </h1>
+                                        <p style="margin:9px 0 0 0;font-size:15px;line-height:1.6;color:#64748b;">
+                                            La atención de tu solicitud ya fue programada.
                                         </p>
                                     </td>
+                                    <td width="64" align="right" valign="top">
+                                        <div style="width:52px;height:52px;line-height:52px;text-align:center;background-color:#ecfdf5;border-radius:14px;font-size:24px;">
+                                            👨‍🔧
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding:0 34px 30px 34px;">
+                            <p style="margin:0 0 22px 0;font-size:15px;line-height:1.7;color:#334155;">
+                                Hola <strong><t t-out="object.contacto or 'Cliente'"/></strong>,
+                            </p>
+
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;margin-bottom:20px;">
+                                <tr>
+                                    <td style="padding:20px 22px;">
+                                        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#15803d;margin-bottom:14px;">
+                                            Datos del técnico
+                                        </div>
+                                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                                            <tr>
+                                                <td style="padding:6px 0;font-size:13px;color:#64748b;width:38%;">Técnico</td>
+                                                <td style="padding:6px 0;font-size:14px;color:#0f172a;font-weight:700;"><t t-out="object.tecnico_id.name or 'Por asignar'"/></td>
+                                            </tr>
+                                            <tr t-if="object.tecnico_id.vat">
+                                                <td style="padding:6px 0;font-size:13px;color:#64748b;">DNI</td>
+                                                <td style="padding:6px 0;font-size:14px;color:#0f172a;"><t t-out="object.tecnico_id.vat"/></td>
+                                            </tr>
+                                            <tr t-if="object.vehicle_info">
+                                                <td style="padding:6px 0;font-size:13px;color:#64748b;">Vehículo</td>
+                                                <td style="padding:6px 0;font-size:14px;color:#0f172a;"><t t-out="object.vehicle_info"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding:6px 0;font-size:13px;color:#64748b;">Fecha programada</td>
+                                                <td style="padding:6px 0;font-size:14px;color:#0f172a;font-weight:700;">
+                                                    <t t-if="object.fecha_programada">
+                                                        <t t-out="format_datetime(object.fecha_programada, dt_format='dd/MM/yyyy', tz=object.env.user.tz or 'America/Lima')"/>
+                                                        ·
+                                                        <t t-out="format_datetime(object.fecha_programada, dt_format='hh:mm a', tz=object.env.user.tz or 'America/Lima')"/>
+                                                    </t>
+                                                    <t t-else="">Por confirmar</t>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
                                 </tr>
                             </table>
 
-                            
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background-color:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;margin-bottom:22px;">
+                                <tr>
+                                    <td style="padding:20px 22px;">
+                                        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#64748b;margin-bottom:14px;">
+                                            Equipo a atender
+                                        </div>
+                                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                                            <tr>
+                                                <td style="padding:6px 0;font-size:13px;color:#64748b;width:38%;">Cliente</td>
+                                                <td style="padding:6px 0;font-size:14px;color:#0f172a;"><t t-out="object.cliente_id.name or 'N/A'"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding:6px 0;font-size:13px;color:#64748b;">Equipo</td>
+                                                <td style="padding:6px 0;font-size:14px;color:#0f172a;"><t t-out="object.modelo_maquina.name or 'N/A'"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding:6px 0;font-size:13px;color:#64748b;">Serie</td>
+                                                <td style="padding:6px 0;font-size:14px;color:#0f172a;"><t t-out="object.serie_maquina or 'N/A'"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding:6px 0;font-size:13px;color:#64748b;">Ubicación</td>
+                                                <td style="padding:6px 0;font-size:14px;color:#0f172a;"><t t-out="object.ubicacion or 'N/A'"/></td>
+                                            </tr>
+                                            <tr t-if="object.sede">
+                                                <td style="padding:6px 0;font-size:13px;color:#64748b;">Sede</td>
+                                                <td style="padding:6px 0;font-size:14px;color:#0f172a;"><t t-out="object.sede"/></td>
+                                            </tr>
+                                            <tr t-if="object.tipo_problema_id">
+                                                <td style="padding:6px 0;font-size:13px;color:#64748b;">Tipo de problema</td>
+                                                <td style="padding:6px 0;font-size:14px;color:#0f172a;"><t t-out="object.tipo_problema_id.name"/></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <t t-if="object.problema_reportado">
+                                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;margin-bottom:22px;">
+                                    <tr>
+                                        <td style="padding:16px 18px;background-color:#fff7ed;border-left:4px solid #f59e0b;border-radius:10px;">
+                                            <div style="font-size:12px;font-weight:700;color:#9a3412;text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;">
+                                                Problema reportado
+                                            </div>
+                                            <div style="font-size:14px;line-height:1.6;color:#7c2d12;white-space:pre-line;">
+                                                <t t-out="object.problema_reportado"/>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </t>
+
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background-color:#eff6ff;border-radius:12px;margin-bottom:22px;">
+                                <tr>
+                                    <td style="padding:16px 18px;">
+                                        <div style="font-size:13px;font-weight:700;color:#1d4ed8;margin-bottom:6px;">Antes de la visita</div>
+                                        <div style="font-size:13px;line-height:1.7;color:#475569;">
+                                            Procura que el equipo y el área de trabajo estén accesibles, y que haya una persona disponible para recibir al técnico.
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <t t-if="object.tracking_url">
+                                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                                    <tr>
+                                        <td align="center" style="padding:4px 0 8px 0;">
+                                            <a t-att-href="object.tracking_url"
+                                               style="display:inline-block;background-color:#0f9f6e;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;padding:13px 24px;border-radius:10px;">
+                                                Ver seguimiento
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </t>
                         </td>
                     </tr>
 
-                    <!-- Footer -->
                     <tr>
-                        <td bgcolor="#f8f9fa" style="padding: 20px; text-align: center; border-top: 1px solid #dee2e6;">
-                            <p style="margin: 0 0 10px 0; color: #667eea; font-weight: bold; font-size: 16px;">
-                                Copier Company
-                            </p>
-                            <p style="margin: 0; color: #666666; font-size: 13px; line-height: 1.5;">
-                                📧 info@copiercompanysac.com<br/>
-                                📱 +51 975 399 303<br/>
-                                🌐 www.copiercompanysac.com
-                            </p>
-                            <p style="margin: 15px 0 0 0; color: #999999; font-size: 11px;">
-                                Este es un correo automático, por favor no responder.<br/>
-                                Solicitud: <t t-out="object.name"/>
-                            </p>
+                        <td style="padding:20px 28px;background-color:#f8fafc;border-top:1px solid #e5e7eb;text-align:center;">
+                            <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:6px;">Copier Company S.A.C.</div>
+                            <div style="font-size:12px;line-height:1.7;color:#64748b;">
+                                info@copiercompanysac.com · +51 975 399 303 · www.copiercompanysac.com
+                            </div>
+                            <div style="margin-top:8px;font-size:11px;color:#94a3b8;">
+                                Solicitud <t t-out="object.name"/>
+                            </div>
                         </td>
                     </tr>
+
                 </table>
             </td>
         </tr>
     </table>
 </div>
-    ]]></field>
-</record>
+        ]]></field>
+    </record>
 
-    <!-- ========================================== -->
-    <!-- PLANTILLA 3: SERVICIO COMPLETADO -->
-    <!-- ========================================== -->
+
+    <!-- ========================================================= -->
+    <!-- PLANTILLA 3: SERVICIO COMPLETADO                          -->
+    <!-- ========================================================= -->
     <record id="email_template_service_completado" model="mail.template">
         <field name="name">Servicio Técnico - Servicio Completado</field>
         <field name="model_id" ref="model_copier_service_request"/>
         <field name="email_from">info@copiercompanysac.com</field>
         <field name="email_to">{{ object.correo }}</field>
-        <field name="subject">✅ Servicio Completado - Solicitud {{ object.name }}</field>
+        <field name="subject">Servicio completado - Solicitud {{ object.name }}</field>
         <field name="auto_delete" eval="False"/>
         <field name="body_html"><![CDATA[
-<div style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
-    <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; padding: 20px;">
+<div style="margin:0;padding:0;background-color:#f3f6fa;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background-color:#f3f6fa;">
         <tr>
-            <td align="center">
-                <table border="0" cellpadding="0" cellspacing="0" style="width: 600px; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                    
-                    <!-- Header -->
+            <td align="center" style="padding:32px 12px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:640px;background-color:#ffffff;border:1px solid #e5e7eb;border-radius:18px;overflow:hidden;">
+
                     <tr>
-                        <td style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); padding: 40px; text-align: center;">
-                            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">
-                                ✅ Servicio Completado
-                            </h1>
-                            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">
-                                Tu equipo ha sido atendido exitosamente
-                            </p>
+                        <td style="height:5px;background-color:#10b981;font-size:0;line-height:0;">&nbsp;</td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding:30px 34px 22px 34px;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                    <td>
+                                        <div style="font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#64748b;margin-bottom:8px;">
+                                            COPIER COMPANY · ATENCIÓN FINALIZADA
+                                        </div>
+                                        <h1 style="margin:0;font-size:26px;line-height:1.25;color:#0f172a;font-weight:700;">
+                                            Servicio completado
+                                        </h1>
+                                        <p style="margin:9px 0 0 0;font-size:15px;line-height:1.6;color:#64748b;">
+                                            La atención técnica ha finalizado.
+                                        </p>
+                                    </td>
+                                    <td width="64" align="right" valign="top">
+                                        <div style="width:52px;height:52px;line-height:52px;text-align:center;background-color:#ecfdf5;border-radius:14px;font-size:24px;color:#059669;">
+                                            ✓
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
 
-                    <!-- Contenido -->
                     <tr>
-                        <td style="padding: 40px 30px;">
-                            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 20px 0;">
+                        <td style="padding:0 34px 30px 34px;">
+                            <p style="margin:0 0 22px 0;font-size:15px;line-height:1.7;color:#334155;">
                                 Hola <strong><t t-out="object.contacto or 'Cliente'"/></strong>,
                             </p>
-                            
-                            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 30px 0;">
-                                Nos complace informarte que el servicio técnico para tu equipo 
-                                ha sido completado exitosamente.
+
+                            <p style="margin:0 0 24px 0;font-size:15px;line-height:1.7;color:#475569;">
+                                El servicio técnico de tu equipo fue completado. A continuación encontrarás el resumen de la atención.
                             </p>
 
-                            <!-- Resumen del Servicio -->
-                            <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; background-color: #d4edda; border-radius: 8px; overflow: hidden; margin: 0 0 30px 0;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;margin-bottom:22px;">
                                 <tr>
-                                    <td style="padding: 20px; border-left: 4px solid #28a745;">
-                                        <h3 style="color: #155724; margin: 0 0 15px 0; font-size: 18px;">
-                                            📋 Resumen del Servicio
-                                        </h3>
-                                        
-                                        <table border="0" cellpadding="8" cellspacing="0" style="width: 100%;">
+                                    <td style="padding:20px 22px;">
+                                        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#15803d;margin-bottom:14px;">
+                                            Resumen del servicio
+                                        </div>
+                                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                                             <tr>
-                                                <td style="font-weight: bold; color: #155724; width: 40%;">Solicitud:</td>
-                                                <td style="color: #155724;"><t t-out="object.name"/></td>
+                                                <td style="padding:6px 0;font-size:13px;color:#64748b;width:38%;">Solicitud</td>
+                                                <td style="padding:6px 0;font-size:14px;color:#0f172a;font-weight:700;"><t t-out="object.name"/></td>
                                             </tr>
                                             <tr>
-                                                <td style="font-weight: bold; color: #155724;">Técnico:</td>
-                                                <td style="color: #155724;"><t t-out="object.tecnico_id.name or 'N/A'"/></td>
+                                                <td style="padding:6px 0;font-size:13px;color:#64748b;">Técnico</td>
+                                                <td style="padding:6px 0;font-size:14px;color:#0f172a;"><t t-out="object.tecnico_id.name or 'N/A'"/></td>
                                             </tr>
                                             <tr>
-    <td width="40%" style="font-weight: bold; color: #155724;">Fecha de Finalización:</td>
-    <td style="color: #155724;">
-        <t t-if="object.fecha_fin">
-            <t t-out="format_datetime(object.fecha_fin, dt_format='dd/MM/yyyy', tz='America/Lima')"/>
-            a las
-            <t t-out="format_datetime(object.fecha_fin, dt_format='hh:mm a', tz='America/Lima')"/>
-        </t>
-        <t t-else="">N/A</t>
-    </td>
-</tr>
-                                            <tr>
-                                                <td style="font-weight: bold; color: #155724;">Equipo:</td>
-                                                <td style="color: #155724;">
-                                                    <t t-out="object.modelo_maquina.name or 'N/A'"/> - 
-                                                    Serie: <t t-out="object.serie_maquina or 'N/A'"/>
+                                                <td style="padding:6px 0;font-size:13px;color:#64748b;">Finalizado</td>
+                                                <td style="padding:6px 0;font-size:14px;color:#0f172a;">
+                                                    <t t-if="object.fecha_fin">
+                                                        <t t-out="format_datetime(object.fecha_fin, dt_format='dd/MM/yyyy', tz='America/Lima')"/>
+                                                        ·
+                                                        <t t-out="format_datetime(object.fecha_fin, dt_format='hh:mm a', tz='America/Lima')"/>
+                                                    </t>
+                                                    <t t-else="">N/A</t>
                                                 </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding:6px 0;font-size:13px;color:#64748b;">Equipo</td>
+                                                <td style="padding:6px 0;font-size:14px;color:#0f172a;">
+                                                    <t t-out="object.modelo_maquina.name or 'N/A'"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding:6px 0;font-size:13px;color:#64748b;">Serie</td>
+                                                <td style="padding:6px 0;font-size:14px;color:#0f172a;"><t t-out="object.serie_maquina or 'N/A'"/></td>
                                             </tr>
                                         </table>
                                     </td>
                                 </tr>
                             </table>
 
-                            <!-- Trabajo Realizado -->
                             <t t-if="object.trabajo_realizado">
-                                <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; background-color: #f8f9fa; border-radius: 8px; overflow: hidden; margin: 0 0 30px 0;">
+                                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;margin-bottom:20px;">
                                     <tr>
-                                        <td style="padding: 20px;">
-                                            <h3 style="color: #667eea; margin: 0 0 15px 0; font-size: 18px;">
-                                                🔧 Trabajo Realizado
-                                            </h3>
-                                            <p style="color: #333333; margin: 0; line-height: 1.6; white-space: pre-line;">
+                                        <td style="padding:18px 20px;background-color:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;">
+                                            <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#64748b;margin-bottom:8px;">
+                                                Trabajo realizado
+                                            </div>
+                                            <div style="font-size:14px;line-height:1.7;color:#334155;white-space:pre-line;">
                                                 <t t-out="object.trabajo_realizado"/>
-                                            </p>
+                                            </div>
                                         </td>
                                     </tr>
                                 </table>
                             </t>
 
-                            <!-- Observaciones -->
                             <t t-if="object.observaciones_tecnico">
-                                <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; background-color: #fff3cd; border-radius: 8px; overflow: hidden; margin: 0 0 30px 0;">
+                                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;margin-bottom:22px;">
                                     <tr>
-                                        <td style="padding: 20px;">
-                                            <h3 style="color: #856404; margin: 0 0 15px 0; font-size: 18px;">
-                                                💡 Observaciones y Recomendaciones
-                                            </h3>
-                                            <p style="color: #856404; margin: 0; line-height: 1.6; white-space: pre-line;">
+                                        <td style="padding:18px 20px;background-color:#fffbeb;border-left:4px solid #f59e0b;border-radius:10px;">
+                                            <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#92400e;margin-bottom:8px;">
+                                                Observaciones y recomendaciones
+                                            </div>
+                                            <div style="font-size:14px;line-height:1.7;color:#78350f;white-space:pre-line;">
                                                 <t t-out="object.observaciones_tecnico"/>
-                                            </p>
+                                            </div>
                                         </td>
                                     </tr>
                                 </table>
                             </t>
 
-                            <!-- Calificación -->
-                            <!-- Botón de Evaluación -->
-<table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin: 0 0 30px 0;">
-    <tr>
-        <td bgcolor="#e7f3ff" style="padding: 30px; text-align: center;">
-            <h3 style="color: #004085; margin: 0 0 15px 0; font-size: 20px;">
-                &#11088; ¿Cómo fue nuestro servicio?
-            </h3>
-            <p style="color: #004085; margin: 0 0 20px 0; line-height: 1.6;">
-                Tu opinión es muy importante para nosotros.<br/>
-                Nos ayudaría mucho si pudieras calificar el servicio recibido.
-            </p>
-            
-            <!-- Botón para evaluar -->
-            <table width="100%" border="0" cellpadding="0" cellspacing="0">
-                <tr>
-                    <td align="center" style="padding: 10px 0;">
-                        <a t-if="object.evaluation_url" 
-                           t-att-href="object.evaluation_url"
-                           style="background-color: #ffc107; color: #000000; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; font-size: 16px;">
-                            &#11088; Evaluar Servicio
-                        </a>
-                    </td>
-                </tr>
-            </table>
-            
-            <p style="color: #004085; font-size: 14px; margin: 15px 0 0 0;">
-                Solo toma un minuto. &#161;Gracias por tu tiempo!
-            </p>
-        </td>
-    </tr>
-</table>
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background-color:#eff6ff;border:1px solid #bfdbfe;border-radius:14px;margin-bottom:22px;">
+                                <tr>
+                                    <td style="padding:22px;text-align:center;">
+                                        <div style="font-size:18px;font-weight:700;color:#1e3a8a;margin-bottom:8px;">
+                                            ¿Cómo fue nuestro servicio?
+                                        </div>
+                                        <div style="font-size:14px;line-height:1.6;color:#475569;margin-bottom:18px;">
+                                            Tu evaluación nos ayuda a mejorar la calidad de atención.
+                                        </div>
 
-<!-- Botón para ver seguimiento -->
-<table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin: 0 0 30px 0;">
-    <tr>
-        <td align="center" style="padding: 20px 0;">
-            <a t-if="object.tracking_url" 
-               t-att-href="object.tracking_url"
-               style="background-color: #28a745; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; font-size: 14px;">
-                &#128269; Ver Detalles del Servicio
-            </a>
-        </td>
-    </tr>
-</table>
-                            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0; text-align: center;">
-                                <strong>¡Gracias por confiar en Copier Company!</strong>
+                                        <t t-if="object.evaluation_url">
+                                            <a t-att-href="object.evaluation_url"
+                                               style="display:inline-block;background-color:#10b981;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;padding:13px 24px;border-radius:10px;">
+                                                ★ Evaluar servicio
+                                            </a>
+                                        </t>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <t t-if="object.tracking_url">
+                                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                                    <tr>
+                                        <td align="center" style="padding:0 0 8px 0;">
+                                            <a t-att-href="object.tracking_url"
+                                               style="display:inline-block;background-color:#ffffff;color:#334155;text-decoration:none;font-size:14px;font-weight:700;padding:12px 22px;border-radius:10px;border:1px solid #cbd5e1;">
+                                                Ver seguimiento y reporte
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </t>
+
+                            <p style="margin:16px 0 0 0;font-size:12px;line-height:1.6;color:#94a3b8;text-align:center;">
+                                Desde el seguimiento puedes revisar el detalle del servicio y acceder al reporte disponible.
                             </p>
                         </td>
                     </tr>
 
-                    <!-- Footer -->
                     <tr>
-                        <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #dee2e6;">
-                            <p style="margin: 0 0 10px 0; color: #667eea; font-weight: bold; font-size: 18px;">
-                                Copier Company
-                            </p>
-                            <p style="margin: 0; color: #666666; font-size: 14px;">
-                                📧 info@copiercompanysac.com<br/>
-                                📱 +51 975 399 303<br/>
-                                🌐 www.copiercompanysac.com
-                            </p>
+                        <td style="padding:20px 28px;background-color:#f8fafc;border-top:1px solid #e5e7eb;text-align:center;">
+                            <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:6px;">Copier Company S.A.C.</div>
+                            <div style="font-size:12px;line-height:1.7;color:#64748b;">
+                                info@copiercompanysac.com · +51 975 399 303 · www.copiercompanysac.com
+                            </div>
+                            <div style="margin-top:8px;font-size:11px;color:#94a3b8;">
+                                Gracias por confiar en nuestro servicio técnico.
+                            </div>
                         </td>
                     </tr>
+
                 </table>
             </td>
         </tr>
@@ -560,98 +524,97 @@
         ]]></field>
     </record>
 
-    <!-- ========================================== -->
-    <!-- PLANTILLA 4: RECORDATORIO DE EVALUACIÓN -->
-    <!-- ========================================== -->
+
+    <!-- ========================================================= -->
+    <!-- PLANTILLA 4: RECORDATORIO DE EVALUACIÓN                   -->
+    <!-- ========================================================= -->
     <record id="email_template_service_recordatorio_evaluacion" model="mail.template">
         <field name="name">Servicio Técnico - Recordatorio de Evaluación</field>
         <field name="model_id" ref="model_copier_service_request"/>
         <field name="email_from">info@copiercompanysac.com</field>
         <field name="email_to">{{ object.correo }}</field>
-        <field name="subject">⭐ ¿Cómo fue nuestro servicio? - Solicitud {{ object.name }}</field>
+        <field name="subject">¿Cómo fue nuestro servicio? - Solicitud {{ object.name }}</field>
         <field name="auto_delete" eval="False"/>
         <field name="body_html"><![CDATA[
-<div style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
-    <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; padding: 20px;">
+<div style="margin:0;padding:0;background-color:#f3f6fa;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background-color:#f3f6fa;">
         <tr>
-            <td align="center">
-                <table border="0" cellpadding="0" cellspacing="0" style="width: 600px; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                    
-                    <!-- Header -->
+            <td align="center" style="padding:32px 12px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background-color:#ffffff;border:1px solid #e5e7eb;border-radius:18px;overflow:hidden;">
+
                     <tr>
-                        <td style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); padding: 40px; text-align: center;">
-                            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">
-                                ⭐ Tu Opinión Importa
-                            </h1>
-                            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">
-                                Ayúdanos a mejorar nuestro servicio
-                            </p>
-                        </td>
+                        <td style="height:5px;background-color:#f59e0b;font-size:0;line-height:0;">&nbsp;</td>
                     </tr>
 
-                    <!-- Contenido -->
                     <tr>
-                        <td style="padding: 40px 30px;">
-                            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 20px 0;">
-                                Hola <strong><t t-out="object.contacto or 'Cliente'"/></strong>,
-                            </p>
-                            
-                            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 30px 0;">
-                                Hace unos días completamos el servicio técnico para tu equipo 
-                                <strong><t t-out="object.modelo_maquina.name or 'N/A'"/></strong> 
-                                (Solicitud <strong><t t-out="object.name"/></strong>).
+                        <td style="padding:32px 34px;text-align:center;">
+                            <div style="width:54px;height:54px;line-height:54px;margin:0 auto 16px auto;background-color:#fffbeb;border-radius:14px;font-size:24px;">
+                                ★
+                            </div>
+
+                            <div style="font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#64748b;margin-bottom:8px;">
+                                COPIER COMPANY · EVALUACIÓN
+                            </div>
+
+                            <h1 style="margin:0 0 10px 0;font-size:25px;line-height:1.3;color:#0f172a;font-weight:700;">
+                                Tu opinión nos ayuda a mejorar
+                            </h1>
+
+                            <p style="margin:0 0 22px 0;font-size:15px;line-height:1.7;color:#64748b;">
+                                Hola <strong><t t-out="object.contacto or 'Cliente'"/></strong>. Queremos conocer tu experiencia con el servicio realizado.
                             </p>
 
-                            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 30px 0;">
-                                Nos gustaría conocer tu experiencia. Tu opinión nos ayuda a mejorar 
-                                continuamente nuestro servicio.
-                            </p>
-
-                            <!-- Mensaje simple -->
-                            <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; overflow: hidden; margin: 0 0 30px 0;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background-color:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:22px;">
                                 <tr>
-                                    <td style="padding: 40px; text-align: center;">
-                                        <h2 style="color: #ffffff; margin: 0 0 20px 0; font-size: 24px;">
-                                            ⚡ Solo toma un momento
-                                        </h2>
-                                        <p style="color: #ffffff; margin: 0; opacity: 0.9; font-size: 16px;">
-                                            ¿Podrías calificar el servicio que recibiste?<br/>
-                                            Tu feedback es muy valioso para nosotros.
-                                        </p>
+                                    <td style="padding:18px 20px;text-align:left;">
+                                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                                            <tr>
+                                                <td style="padding:5px 0;font-size:13px;color:#64748b;width:38%;">Solicitud</td>
+                                                <td style="padding:5px 0;font-size:14px;color:#0f172a;font-weight:700;"><t t-out="object.name"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding:5px 0;font-size:13px;color:#64748b;">Equipo</td>
+                                                <td style="padding:5px 0;font-size:14px;color:#0f172a;"><t t-out="object.modelo_maquina.name or 'N/A'"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding:5px 0;font-size:13px;color:#64748b;">Técnico</td>
+                                                <td style="padding:5px 0;font-size:14px;color:#0f172a;"><t t-out="object.tecnico_id.name or 'N/A'"/></td>
+                                            </tr>
+                                        </table>
                                     </td>
                                 </tr>
                             </table>
 
-                            <p style="font-size: 14px; color: #666666; line-height: 1.6; margin: 0; text-align: center;">
-                                También puedes llamarnos al <strong>+51 975 399 303</strong><br/>
-                                para compartir tus comentarios directamente.
-                            </p>
-                        </td>
-                    </tr>
-                    <!-- Botón de Evaluación en Recordatorio -->
-<table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-    <tr>
-        <td align="center" style="padding: 20px 0;">
-            <a t-if="object.evaluation_url" 
-               t-att-href="object.evaluation_url"
-               style="background-color: #ffc107; color: #000000; padding: 18px 50px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 18px; box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);">
-                &#11088; Evaluar Ahora
-            </a>
-        </td>
-    </tr>
-</table>
+                            <div style="font-size:25px;letter-spacing:4px;color:#f59e0b;margin:4px 0 18px 0;">
+                                ★★★★★
+                            </div>
 
-                    <!-- Footer -->
-                    <tr>
-                        <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #dee2e6;">
-                            <p style="margin: 0 0 10px 0; color: #667eea; font-weight: bold; font-size: 18px;">
-                                Copier Company
+                            <p style="margin:0 0 20px 0;font-size:14px;line-height:1.6;color:#475569;">
+                                La evaluación toma menos de un minuto.
                             </p>
-                            <p style="margin: 0; color: #666666; font-size: 14px;">
-                                Gracias por ayudarnos a mejorar 🙏
+
+                            <t t-if="object.evaluation_url">
+                                <a t-att-href="object.evaluation_url"
+                                   style="display:inline-block;background-color:#f59e0b;color:#111827;text-decoration:none;font-size:14px;font-weight:700;padding:13px 26px;border-radius:10px;">
+                                    Evaluar servicio
+                                </a>
+                            </t>
+
+                            <p style="margin:20px 0 0 0;font-size:12px;line-height:1.6;color:#94a3b8;">
+                                Este recordatorio se envía únicamente mientras la solicitud permanezca sin evaluación.
                             </p>
                         </td>
                     </tr>
+
+                    <tr>
+                        <td style="padding:20px 28px;background-color:#f8fafc;border-top:1px solid #e5e7eb;text-align:center;">
+                            <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:6px;">Copier Company S.A.C.</div>
+                            <div style="font-size:12px;line-height:1.7;color:#64748b;">
+                                info@copiercompanysac.com · +51 975 399 303 · www.copiercompanysac.com
+                            </div>
+                        </td>
+                    </tr>
+
                 </table>
             </td>
         </tr>
