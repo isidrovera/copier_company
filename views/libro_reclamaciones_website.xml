@@ -2004,24 +2004,121 @@
 
 
     <template id="footer_libro_reclamaciones_link"
-              inherit_id="website.layout"
-              name="Enlace Libro de Reclamaciones">
+          inherit_id="website.layout"
+          name="Enlace Libro de Reclamaciones">
 
-        <xpath expr="//footer" position="inside">
+    <xpath expr="//footer" position="inside">
 
-            <div class="container py-3 text-center">
-    <a href="/libro-de-reclamaciones"
-       title="Libro de Reclamaciones"
-       aria-label="Libro de Reclamaciones">
+        <style>
+            .cc-libro-reclamaciones-footer{
+                display:flex;
+                justify-content:center;
+                align-items:center;
+                padding:12px 15px;
+            }
 
-        <img src="/copier_company/static/src/img/lrmypes.svg"
-             alt="Libro de Reclamaciones"
-             style="width:59px;height:39px;object-fit:contain;"/>
+            .cc-libro-reclamaciones-link{
+                display:inline-flex;
+                align-items:center;
+                gap:10px;
 
-    </a>
-</div>
+                text-decoration:none !important;
 
-        </xpath>
-    </template>
+                color:inherit;
+
+                padding:7px 12px;
+
+                border-radius:10px;
+
+                transition:
+                    background .18s ease,
+                    transform .18s ease,
+                    opacity .18s ease;
+            }
+
+            .cc-libro-reclamaciones-link:hover{
+                background:rgba(255,255,255,.08);
+                transform:translateY(-1px);
+            }
+
+            .cc-libro-reclamaciones-img{
+                display:block;
+
+                width:59px;
+                height:39px;
+
+                object-fit:contain;
+
+                flex-shrink:0;
+            }
+
+            .cc-libro-reclamaciones-text{
+                display:flex;
+                flex-direction:column;
+
+                line-height:1.2;
+
+                text-align:left;
+            }
+
+            .cc-libro-reclamaciones-text strong{
+                font-size:.84rem;
+                font-weight:700;
+                color:inherit;
+            }
+
+            .cc-libro-reclamaciones-text span{
+                margin-top:2px;
+
+                font-size:.72rem;
+
+                opacity:.72;
+            }
+
+            @media(max-width:576px){
+
+                .cc-libro-reclamaciones-footer{
+                    padding:10px;
+                }
+
+                .cc-libro-reclamaciones-link{
+                    gap:8px;
+                    padding:6px 9px;
+                }
+
+                .cc-libro-reclamaciones-img{
+                    width:70px;
+                    height:auto;
+                }
+
+                .cc-libro-reclamaciones-text strong{
+                    font-size:.79rem;
+                }
+
+                .cc-libro-reclamaciones-text span{
+                    font-size:.68rem;
+                }
+            }
+        </style>
+
+        <div class="container cc-libro-reclamaciones-footer">
+
+            <a href="/libro-de-reclamaciones"
+               class="cc-libro-reclamaciones-link"
+               title="Libro de Reclamaciones">
+
+                <img src="/copier_company/static/img/lrmypes.svg"
+                     alt="Libro de Reclamaciones"
+                     class="cc-libro-reclamaciones-img"/>
+
+                
+
+            </a>
+
+        </div>
+
+    </xpath>
+
+</template>
 
 </odoo>
