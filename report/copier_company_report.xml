@@ -1,339 +1,107 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
-        <record id="action_report_report_cotizacion_alquiler" model="ir.actions.report">
-            <field name="name">Propuesta Comercial de Alquiler</field>
-            <field name="model">copier.company</field>
-            <field name="report_type">qweb-pdf</field>
-            <field name="report_name">copier_company.cotizacion_view</field>
-            <field name="report_file">copier_company.cotizacion_view</field>
-            <field name="print_report_name">'Propuesta Comercial - %s' % object.secuencia</field>
-            <field name="binding_model_id" ref="model_copier_company" />
-            <field name="binding_type">report</field>
-        </record>
+  <data>
+    <!-- Se conserva el identificador utilizado por action_print_report y los correos. -->
+    <record id="action_report_report_cotizacion_alquiler" model="ir.actions.report">
+      <field name="name">Propuesta Comercial de Alquiler</field>
+      <field name="model">copier.company</field>
+      <field name="report_type">qweb-pdf</field>
+      <field name="report_name">copier_company.cotizacion_view</field>
+      <field name="report_file">copier_company.cotizacion_view</field>
+      <field name="print_report_name">'Propuesta Comercial - %s' % object.secuencia</field>
+      <field name="binding_model_id" ref="model_copier_company"/>
+      <field name="binding_type">report</field>
+    </record>
 
-        <template id="cotizacion_view">
-            <t t-call="web.html_container">
-                <t t-foreach="docs" t-as="doc">
-                    <t t-call="web.external_layout">
-                        <!-- CSS -->
-                        <link rel="stylesheet" href="/copier_company/static/src/css/cotizacion_styles.css"/>
-
-                        <!-- ENCABEZADO -->
-                        <div class="main-header">
-                            <div class="flex-between">
-                                <h1 style="font-size: 1.75rem; margin: 0;">
-                                    Propuesta Comercial N° <t t-esc="doc.secuencia" />
-                                </h1>
-                            </div>
-                            <p style="margin-top: 1rem;">
-                                <t t-esc="doc.fecha_formateada"/>
-                            </p>
-                        </div>
-
-                        <!-- INFORMACIÓN DEL CLIENTE -->
-                        <div class="section">
-                            <div class="section-header">
-                                <i class="fa fa-user-circle"></i>
-                                <span>Información del Cliente</span>
-                            </div>
-                            <div class="data-grid">
-                                <div class="data-row">
-                                    <span class="label">Atención:</span>
-                                    <span class="value">
-                                        <t t-esc="doc.cliente_id.name" />
-                                    </span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="label">RUC/DNI:</span>
-                                    <span class="value">
-                                        <t t-esc="doc.identificacion" />
-                                    </span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="label">Dirección:</span>
-                                    <span class="value">
-                                        <t t-esc="doc.cliente_id.street" />
-                                    </span>
-                                </div>
-                            </div>
-                            <p style="margin-top: 1rem;" class="intro-text">
-                                Nos complace presentar nuestra <strong>PROPUESTA COMERCIAL</strong> detallando las especificaciones y condiciones para el arrendamiento del siguiente equipo multifuncional de última generación:
-                            </p>
-                        </div>
-
-                        <!-- EQUIPO PROPUESTO -->
-                        <div class="section">
-                            <div class="section-header">
-                                <i class="fa fa-print"></i>
-                                <span>Equipo Multifuncional</span>
-                            </div>
-                            <div style="text-align: center;">
-                                <h3 style="color: var(--primary-blue);">
-                                    <t t-esc="doc.name.name" />
-                                </h3>
-                                <t t-if="doc.imagen_id">
-                                    <img
-                                        t-att-src="'data:image/png;base64,%s' % doc.imagen_id.decode('utf-8')"
-                                        class="machine-image" />
-                                </t>
-                            </div>
-                            <t t-if="doc.especificaciones_id">
-                                <div class="specs-section">
-                                    <t t-raw="doc.especificaciones_id" />
-                                </div>
-                            </t>
-                        </div>
-
-                        <!-- DETALLES DE TARIFA -->
-                        <div class="section">
-                            <div class="section-header">
-                                <i class="fa fa-info-circle"></i>
-                                <span>Detalles de Tarifa</span>
-                            </div>
-                            <div class="pricing-details">
-                                <!-- TARIFA BLANCO Y NEGRO -->
-                                <div class="tariff-section">
-                                    <h4><i class="fa fa-print"></i> TARIFA BLANCO Y NEGRO</h4>
-                                    <ul class="benefits-list">
-                                        <!-- CON VOLUMEN MENSUAL B/N -->
-                                        <t t-if="doc.volumen_mensual_bn &gt; 0">
-                                            <li>
-                                                Volumen mensual:
-                                                <strong>
-                                                    <t t-esc="'{:,}'.format(doc.volumen_mensual_bn)"/> impresiones
-                                                </strong>
-                                            </li>
-                                            <li>
-                                                Costo por impresión dentro del volumen:
-                                                <strong>
-                                                    S/.
-                                                    <t t-esc="'%.3f' % doc.costo_copia_bn"/>
-                                                    <t t-if="doc.precio_bn_incluye_igv">
-                                                        (incluye IGV)
-                                                    </t>
-                                                    <t t-else="">
-                                                        + IGV
-                                                    </t>
-                                                </strong>
-                                            </li>
-                                            <li>
-                                                Excedente por impresión:
-                                                <strong>
-                                                    S/.
-                                                    <t t-esc="'%.3f' % doc.costo_copia_bn"/>
-                                                    <t t-if="doc.precio_bn_incluye_igv">
-                                                        (incluye IGV)
-                                                    </t>
-                                                    <t t-else="">
-                                                        + IGV
-                                                    </t>
-                                                </strong>
-                                            </li>
-                                            <li>
-                                                Renta mensual B/N:
-                                                <strong>
-                                                    S/. <t t-esc="'%.2f' % doc.renta_mensual_bn"/> Sin IGV
-                                                </strong>
-                                            </li>
-                                        </t>
-                                        <!-- SIN VOLUMEN MENSUAL B/N: SOLO SE COBRA LO REALIZADO -->
-                                        <t t-else="">
-                                            <li>
-                                                <strong>Sin volumen mensual mínimo.</strong>
-                                                Se cobra únicamente por la cantidad efectivamente impresa.
-                                            </li>
-                                            <li>
-                                                Costo por impresión B/N:
-                                                <strong>
-                                                    S/.
-                                                    <t t-esc="'%.3f' % doc.costo_copia_bn"/>
-                                                    <t t-if="doc.precio_bn_incluye_igv">
-                                                        (incluye IGV)
-                                                    </t>
-                                                    <t t-else="">
-                                                        + IGV
-                                                    </t>
-                                                </strong>
-                                            </li>
-                                        </t>
-                                    </ul>
-
-                                    <!-- TARIFA COLOR (SOLO SI LA MÁQUINA ES COLOR) -->
-                                    <t t-if="doc.tipo == 'color'">
-                                        <h4 class="mt-4"><i class="fa fa-paint-brush"></i> TARIFA COLOR</h4>
-                                        <ul class="benefits-list">
-                                            <!-- CON VOLUMEN MENSUAL COLOR -->
-                                            <t t-if="doc.volumen_mensual_color &gt; 0">
-                                                <li>
-                                                    Volumen mensual:
-                                                    <strong>
-                                                        <t t-esc="'{:,}'.format(doc.volumen_mensual_color)"/> impresiones
-                                                    </strong>
-                                                </li>
-                                                <li>
-                                                    Costo por impresión dentro del volumen:
-                                                    <strong>
-                                                        S/.
-                                                        <t t-esc="'%.2f' % doc.costo_copia_color"/>
-                                                        <t t-if="doc.precio_color_incluye_igv">
-                                                            (incluye IGV)
-                                                        </t>
-                                                        <t t-else="">
-                                                            + IGV
-                                                        </t>
-                                                    </strong>
-                                                </li>
-                                                <li>
-                                                    Excedente por impresión:
-                                                    <strong>
-                                                        S/.
-                                                        <t t-esc="'%.2f' % doc.costo_copia_color"/>
-                                                        <t t-if="doc.precio_color_incluye_igv">
-                                                            (incluye IGV)
-                                                        </t>
-                                                        <t t-else="">
-                                                            + IGV
-                                                        </t>
-                                                    </strong>
-                                                </li>
-                                                <li>
-                                                    Renta mensual Color:
-                                                    <strong>
-                                                        S/. <t t-esc="'%.2f' % doc.renta_mensual_color"/> Sin IGV
-                                                    </strong>
-                                                </li>
-                                            </t>
-                                            <!-- SIN VOLUMEN MENSUAL COLOR -->
-                                            <t t-else="">
-                                                <li>
-                                                    <strong>Sin volumen mensual mínimo para color.</strong>
-                                                    Se cobra únicamente por la cantidad efectivamente impresa.
-                                                </li>
-                                                <li>
-                                                    Costo por impresión Color:
-                                                    <strong>
-                                                        S/.
-                                                        <t t-esc="'%.2f' % doc.costo_copia_color"/>
-                                                        <t t-if="doc.precio_color_incluye_igv">
-                                                            (incluye IGV)
-                                                        </t>
-                                                        <t t-else="">
-                                                            + IGV
-                                                        </t>
-                                                    </strong>
-                                                </li>
-                                            </t>
-                                        </ul>
-                                    </t>
-
-                                    <!-- TOTAL MENSUAL -->
-                                    <div class="total-section">
-                                        <div class="total-header">TOTAL MENSUAL A FACTURAR</div>
-                                        <div class="total-amount">
-                                            <span class="currency">S/.</span>
-                                            <span class="amount">
-                                                <t t-esc="'%.2f' % doc.total_facturar_mensual"/>
-                                            </span>
-                                            <span class="tax-note">Inc. IGV</span>
-                                        </div>
-                                    </div>
-
-                                    <!-- FEATURES ADICIONALES -->
-                                    <div class="additional-features mt-4">
-                                        <ul class="benefits-list">
-                                            <li class="highlight">
-                                                <strong class="text-success">Scanner ilimitado sin costo adicional</strong>
-                                            </li>
-                                            <li>Disponibilidad: <strong>5 días presentada la orden de compra</strong></li>
-                                            <li>IGV: <strong><t t-esc="doc.igv"/>%</strong></li>
-                                            <t t-if="doc.descuento &gt; 0">
-                                                <li>Descuento aplicado: <strong><t t-esc="doc.descuento"/>%</strong></li>
-                                            </t>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <!-- INFORMACIÓN ADICIONAL -->
-                                <div class="additional-info">
-                                    <h4>INFORMACIÓN ADICIONAL</h4>
-                                    <ul class="benefits-list">
-                                        <li>Tarifas en nuevos soles incluyen IGV (18%)</li>
-                                        <li>Facturación mensual en nuevos soles</li>
-                                        <li>Incluye instalación y capacitación</li>
-                                        <li>Incluye renovación de maquinaria, insumos, repuestos y servicio técnico</li>
-                                    </ul>
-                                </div>
-
-                                <!-- CONDICIONES -->
-                                <div class="conditions">
-                                    <h4>CONDICIONES DE ALQUILER</h4>
-                                    <ul class="benefits-list">
-                                        <li>Los equipos se alquilan sin papel</li>
-                                        <li>Periodo de alquiler: desde entrega hasta recepción del equipo</li>
-                                        <li>Mantenimiento preventivo cada 2 meses</li>
-                                        <li>Contrato marco mínimo de <t t-esc="doc.duracion_alquiler_id.name"/></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- INFORMACIÓN DE PAGO -->
-                        <div class="section payment-section">
-                            <div class="section-header">
-                                <i class="fa fa-credit-card"></i>
-                                <span>Información de Pago</span>
-                            </div>
-
-                            <div class="bank-accounts">
-                                <!-- BCP -->
-                                <div class="bank-account">
-                                    <div class="bank-logo">
-                                        <i class="fa fa-university"></i>
-                                        <span class="bank-name">BCP</span>
-                                    </div>
-                                    <div class="account-details">
-                                        <div class="account-type">Cuenta Corriente - Soles</div>
-                                        <div class="account-number">191-2334609-0-07</div>
-                                        <div class="cci-number">CCI: 002-19100233460900751</div>
-                                    </div>
-                                </div>
-
-                                <!-- Banco de la Nación -->
-                                <div class="bank-account">
-                                    <div class="bank-logo">
-                                        <i class="fa fa-university"></i>
-                                        <span class="bank-name">Banco de la Nación</span>
-                                    </div>
-                                    <div class="account-details">
-                                        <div class="account-type">Cuenta de Detracción</div>
-                                        <div class="account-number">00802007582</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="company-info">
-                                <i class="fa fa-building"></i>
-                                <span>A nombre de: COPIER COMPANY SAC</span>
-                            </div>
-                        </div>
-
-                        <!-- FIRMA -->
-                        <div style="margin-top: 3rem;">
-                            <p>Sin otro particular, quedamos a su disposición para cualquier
-                                consulta.</p>
-                            <div style="margin-top: 2rem;">
-                                <p>Atentamente,</p>
-                                <div style="margin-top: 4rem;">
-                                    <div style="width: 200px; border-top: 1px solid #000;"></div>
-                                    <p>Ejecutivo Comercial</p>
-                                </div>
-                            </div>
-                        </div>
-
-                    </t>
-                </t>
-            </t>
-        </template>
-    </data>
+    <template id="cotizacion_view">
+      <t t-call="web.html_container">
+        <t t-foreach="docs" t-as="doc">
+          <t t-call="web.basic_layout">
+            <link rel="stylesheet" href="/copier_company/static/src/css/cotizacion_styles.css"/>
+            <div class="page cc-pdf">
+              <t t-set="symbol" t-value="doc.currency_id.symbol or 'S/'"/>
+              <div class="cc-brand">
+                <div class="cc-logo">
+                  <t t-if="doc.env.company.logo"><img t-att-src="image_data_uri(doc.env.company.logo)" alt="Logo"/></t>
+                  <div class="cc-brand-text"><strong>COPIER COMPANY SAC</strong><small>Soluciones de impresión y alquiler</small></div>
+                </div>
+                <div class="cc-brand-right">PROPUESTA COMERCIAL<br/><strong>ALQUILER DE EQUIPOS</strong></div>
+              </div>
+              <div class="cc-title">
+                <div><div class="cc-kicker">PROPUESTA INDIVIDUAL</div><h1>Cotización de alquiler de equipo</h1></div>
+                <div class="cc-quote-code">COTIZACIÓN N.º<br/><strong><t t-esc="doc.secuencia"/></strong></div>
+              </div>
+              <table class="cc-summary-meta"><tr>
+                <td><small>CLIENTE</small><strong><t t-esc="doc.cliente_id.name or 'Por asignar'"/></strong></td>
+                <td><small>RUC / DNI</small><strong><t t-esc="doc.identificacion or '—'"/></strong></td>
+                <td><small>FECHA</small><strong><t t-esc="doc.fecha_formateada or ''"/></strong></td>
+                <td><small>SEDE</small><strong><t t-esc="doc.sede or '—'"/></strong></td>
+              </tr></table>
+              <div class="cc-section cc-product-section">
+                <div class="cc-section-label">01 · EQUIPO PROPUESTO</div>
+                <table class="cc-product-table"><tr>
+                  <td class="cc-machine-photo">
+                    <t t-if="doc.imagen_id"><img t-att-src="image_data_uri(doc.imagen_id)" alt="Equipo"/></t>
+                    <t t-else=""><div class="cc-photo-placeholder">EQUIPO MULTIFUNCIONAL</div></t>
+                  </td>
+                  <td class="cc-machine-detail">
+                    <h2><t t-esc="doc.name.name or 'Equipo multifuncional'"/></h2>
+                    <div class="cc-pills"><span><t t-esc="'Color' if doc.tipo == 'color' else 'Blanco y negro'"/></span><span><t t-esc="doc.formato.upper() if doc.formato else '—'"/></span><t t-if="doc.marca_id"><span><t t-esc="doc.marca_id.name"/></span></t></div>
+                    <p class="cc-copy"><t t-esc="doc.descripcion_cotizacion_final or ''"/></p>
+                    <t t-if="doc.serie_id"><p class="cc-subtle">Serie de referencia: <t t-esc="doc.serie_id"/></p></t>
+                  </td>
+                </tr></table>
+                <t t-if="doc.especificaciones_id"><div class="cc-specs" t-field="doc.especificaciones_id"/></t>
+              </div>
+              <div class="cc-section">
+                <div class="cc-section-label">02 · PROPUESTA ECONÓMICA MENSUAL</div>
+                <table class="cc-price-table">
+                  <thead><tr><th>CONCEPTO</th><th class="cc-right">BLANCO Y NEGRO</th><t t-if="doc.tipo == 'color'"><th class="cc-right">COLOR</th></t></tr></thead>
+                  <tbody>
+                    <tr><td>Volumen mensual incluido</td><td class="cc-right"><t t-esc="'{:,}'.format(doc.volumen_mensual_bn or 0)"/> impresiones</td><t t-if="doc.tipo == 'color'"><td class="cc-right"><t t-esc="'{:,}'.format(doc.volumen_mensual_color or 0)"/> impresiones</td></t></tr>
+                    <tr><td>Tarifa unitaria contratada</td><td class="cc-right"><strong><t t-esc="'%s %.4f' % (symbol, doc.costo_copia_bn)"/></strong><br/><span class="cc-tax-note"><t t-esc="'(incluye IGV)' if doc.precio_bn_incluye_igv else '+ IGV'"/></span></td><t t-if="doc.tipo == 'color'"><td class="cc-right"><strong><t t-esc="'%s %.4f' % (symbol, doc.costo_copia_color)"/></strong><br/><span class="cc-tax-note"><t t-esc="'(incluye IGV)' if doc.precio_color_incluye_igv else '+ IGV'"/></span></td></t></tr>
+                    <tr class="cc-excess"><td><strong>Tarifa por impresión excedente</strong></td><td class="cc-right"><strong><t t-esc="'%s %.4f' % (symbol, doc.precio_excedente_bn)"/></strong><br/><span class="cc-tax-note"><t t-esc="'(incluye IGV)' if doc.precio_excedente_bn_incluye_igv else '+ IGV'"/></span></td><t t-if="doc.tipo == 'color'"><td class="cc-right"><strong><t t-esc="'%s %.4f' % (symbol, doc.precio_excedente_color)"/></strong><br/><span class="cc-tax-note"><t t-esc="'(incluye IGV)' if doc.precio_excedente_color_incluye_igv else '+ IGV'"/></span></td></t></tr>
+                    <tr><td>Renta mensual sin IGV por categoría</td><td class="cc-right"><t t-esc="'%s %.2f' % (symbol, doc.renta_mensual_bn)"/></td><t t-if="doc.tipo == 'color'"><td class="cc-right"><t t-esc="'%s %.2f' % (symbol, doc.renta_mensual_color)"/></td></t></tr>
+                  </tbody>
+                </table>
+                <div class="cc-information"><strong>¿Cómo se cobra el excedente?</strong> Las impresiones que superen el volumen mensual incluido se facturan a la tarifa de excedente correspondiente, de forma adicional al importe base. El excedente no está incluido en el total estimado.</div>
+              </div>
+              <table class="cc-two-cols"><tr>
+                <td>
+                  <div class="cc-section cc-short"><div class="cc-section-label">03 · CONTRATO</div>
+                    <table class="cc-keyvalues">
+                      <tr><td>Duración</td><td><strong><t t-esc="doc.duracion_alquiler_id.name or 'Por definir'"/></strong></td></tr>
+                      <tr><td>Inicio previsto</td><td><t t-esc="doc.fecha_inicio_alquiler or 'Por definir'"/></td></tr>
+                      <tr><td>Fin previsto</td><td><t t-esc="doc.fecha_fin_alquiler or 'Por definir'"/></td></tr>
+                      <tr><td>Facturación</td><td>Mensual</td></tr>
+                    </table>
+                  </div>
+                </td><td>
+                  <div class="cc-section cc-short"><div class="cc-section-label">04 · RESUMEN MENSUAL</div>
+                    <table class="cc-keyvalues">
+                      <tr><td>Subtotal</td><td><t t-esc="'%s %.2f' % (symbol, doc.subtotal_sin_igv)"/></td></tr>
+                      <tr><td>IGV (<t t-esc="'%g' % doc.igv"/>%)</td><td><t t-esc="'%s %.2f' % (symbol, doc.monto_igv)"/></td></tr>
+                      <tr class="cc-final"><td>TOTAL MENSUAL</td><td><t t-esc="'%s %.2f' % (symbol, doc.total_facturar_mensual)"/></td></tr>
+                    </table>
+                    <div class="cc-small-note">Total base calculado con los volúmenes y descuentos de la propuesta, sin consumos excedentes.</div>
+                  </div>
+                </td>
+              </tr></table>
+              <div class="cc-section"><div class="cc-section-label">05 · CONDICIONES COMERCIALES</div>
+                <table class="cc-conditions"><tr><td>✓ Instalación y capacitación según propuesta.</td><td>✓ Mantenimiento y servicio técnico durante el contrato.</td></tr><tr><td>✓ Consumibles incluidos, excepto papel.</td><td>✓ Lectura y liquidación de excedentes mensualmente.</td></tr><tr><td>✓ Entrega: 5 días desde orden de compra.</td><td>✓ Escaneo sin cargo por página.</td></tr><tr><td>✓ Mantenimiento preventivo cada 2 meses.</td><td>✓ Período desde entrega hasta recepción del equipo.</td></tr></table>
+                <p class="cc-small-note">Los términos comerciales consignados son los utilizados en la propuesta vigente; cualquier condición especial debe quedar expresamente acordada.</p>
+              </div>
+              <div class="cc-section"><div class="cc-section-label">06 · DATOS DE PAGO</div>
+                <table class="cc-bank-table"><tr>
+                  <td><strong>BCP · Cuenta corriente en soles</strong><br/>191-2334609-0-07<br/>CCI: 002-19100233460900751</td>
+                  <td><strong>Banco de la Nación · Detracciones</strong><br/>00802007582<br/>Titular: COPIER COMPANY SAC</td>
+                </tr></table>
+              </div>
+              <div class="cc-footer"><span>COPIER COMPANY SAC · Propuesta comercial</span><span>Ejecutivo Comercial · <t t-esc="doc.secuencia"/></span></div>
+            </div>
+          </t>
+        </t>
+      </t>
+    </template>
+  </data>
 </odoo>
