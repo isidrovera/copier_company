@@ -482,6 +482,77 @@ class CopierCompany(models.Model):
     detalles = fields.Text(string='Detalles técnicos')
     qr_code = fields.Binary(string='Código QR', readonly=True, attachment=True)
     
+    # Tarifas independientes para impresiones que superan el volumen contratado.
+    # Se mantienen separados los precios normales y los precios de excedente.
+    precio_excedente_bn = fields.Float(
+        string='Precio Excedente B/N', digits=(16, 4), default=0.0,
+        help='Tarifa por cada impresión B/N que exceda el volumen incluido.'
+    )
+    precio_excedente_color = fields.Float(
+        string='Precio Excedente Color', digits=(16, 4), default=0.0,
+        help='Tarifa por cada impresión a color que exceda el volumen incluido.'
+    )
+    precio_excedente_bn_incluye_igv = fields.Boolean(
+        string='Excedente B/N incluye IGV', default=False
+    )
+    precio_excedente_color_incluye_igv = fields.Boolean(
+        string='Excedente Color incluye IGV', default=False
+    )
+
+    # El texto automático se actualiza al cambiar los datos de la máquina.
+    # Para personalizarlo, escribir en descripcion_cotizacion_manual: no se sobrescribe.
+    descripcion_cotizacion_manual = fields.Text(
+        string='Descripción personalizada para cotización',
+        help='Si se completa, sustituye la descripción automática en el PDF.'
+    )
+    descripcion_cotizacion_auto = fields.Text(
+        string='Descripción automática para cotización',
+        compute='_compute_descripcion_cotizacion', readonly=True
+    )
+    descripcion_cotizacion_final = fields.Text(
+        string='Descripción para cotización',
+        compute='_compute_descripcion_cotizacion', readonly=True
+    )
+
+    @api.depends(
+        'name', 'name.name', 'tipo', 'formato', 'volumen_mensual_bn',
+        'volumen_mensual_color', 'duracion_alquiler_id',
+        'duracion_alquiler_id.name', 'precio_excedente_bn',
+        'precio_excedente_color', 'precio_excedente_bn_incluye_igv',
+        'precio_excedente_color_incluye_igv', 'descripcion_cotizacion_manual'
+    )
+    def _compute_descripcion_cotizacion(self):
+        for rec in self:
+            tipo = 'color' if rec.tipo == 'color' else 'blanco y negro'
+            formato = (rec.formato or '').upper()
+            modelo = rec.name.display_name if rec.name else 'Equipo multifuncional'
+            partes = [f'{modelo} · {tipo} · formato {formato or "no especificado"}.']
+            partes.append(
+                f'Volumen mensual incluido: {rec.volumen_mensual_bn or 0:,} impresiones B/N'
+                + (f' y {rec.volumen_mensual_color or 0:,} impresiones color' if rec.tipo == 'color' else '')
+                + '.'
+            )
+            if rec.duracion_alquiler_id:
+                partes.append(f'Duración del contrato: {rec.duracion_alquiler_id.display_name}.')
+            rec.descripcion_cotizacion_auto = ' '.join(partes)
+            rec.descripcion_cotizacion_final = (
+                rec.descripcion_cotizacion_manual.strip()
+                if rec.descripcion_cotizacion_manual and rec.descripcion_cotizacion_manual.strip()
+                else rec.descripcion_cotizacion_auto
+            )
+
+    def get_label_excedente_bn(self):
+        self.ensure_one()
+        simbolo = self.currency_id.symbol or 'S/'
+        sufijo = '(incluye IGV)' if self.precio_excedente_bn_incluye_igv else '+ IGV'
+        return f'{simbolo} {self.precio_excedente_bn:.4f} {sufijo}'
+
+    def get_label_excedente_color(self):
+        self.ensure_one()
+        simbolo = self.currency_id.symbol or 'S/'
+        sufijo = '(incluye IGV)' if self.precio_excedente_color_incluye_igv else '+ IGV'
+        return f'{simbolo} {self.precio_excedente_color:.4f} {sufijo}'
+
     @api.onchange('tipo')
     def _onchange_tipo(self):
         if self.tipo == 'monocroma':

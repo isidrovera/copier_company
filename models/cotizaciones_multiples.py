@@ -181,6 +181,37 @@ class CopierQuotation(models.Model):
                 record.total_por_modalidad = total_mensual
                 record.total_anual = total_mensual * 12
 
+    # Descripción comercial generada con las líneas; editable mediante override.
+    descripcion_cotizacion_manual = fields.Text(
+        string='Presentación comercial personalizada',
+        help='Texto opcional que reemplaza la presentación automática del PDF.'
+    )
+    descripcion_cotizacion_auto = fields.Text(
+        string='Presentación comercial automática', compute='_compute_descripcion_comercial'
+    )
+    descripcion_cotizacion_final = fields.Text(
+        string='Presentación comercial final', compute='_compute_descripcion_comercial'
+    )
+
+    @api.depends('linea_equipos_ids', 'linea_equipos_ids.equipo_id',
+                 'linea_equipos_ids.cantidad', 'duracion_contrato_id',
+                 'duracion_contrato_id.name', 'modalidad_pago_id',
+                 'modalidad_pago_id.name', 'descripcion_cotizacion_manual')
+    def _compute_descripcion_comercial(self):
+        for rec in self:
+            equipos = sum(rec.linea_equipos_ids.mapped('cantidad'))
+            partes = [f'Propuesta de alquiler de {equipos} equipo(s) multifuncional(es).']
+            if rec.duracion_contrato_id:
+                partes.append(f'Plazo: {rec.duracion_contrato_id.display_name}.')
+            if rec.modalidad_pago_id:
+                partes.append(f'Modalidad de pago: {rec.modalidad_pago_id.display_name}.')
+            rec.descripcion_cotizacion_auto = ' '.join(partes)
+            rec.descripcion_cotizacion_final = (
+                rec.descripcion_cotizacion_manual.strip()
+                if rec.descripcion_cotizacion_manual and rec.descripcion_cotizacion_manual.strip()
+                else rec.descripcion_cotizacion_auto
+            )
+
     # Campos de validez
     validez_dias = fields.Integer('Validez de la Cotización (días)', default=30)
     fecha_vencimiento = fields.Date('Fecha de Vencimiento', compute='_compute_fecha_vencimiento', store=True)
@@ -226,6 +257,13 @@ class CopierQuotation(models.Model):
                 'volumen_mensual_color': linea.volumen_mensual_color,
                 'costo_copia_bn': linea.precio_bn,
                 'costo_copia_color': linea.precio_color,
+                'precio_bn_incluye_igv': linea.precio_bn_incluye_igv,
+                'precio_color_incluye_igv': linea.precio_color_incluye_igv,
+                'precio_excedente_bn': linea.precio_excedente_bn,
+                'precio_excedente_color': linea.precio_excedente_color,
+                'precio_excedente_bn_incluye_igv': linea.precio_excedente_bn_incluye_igv,
+                'precio_excedente_color_incluye_igv': linea.precio_excedente_color_incluye_igv,
+                'descripcion_cotizacion_manual': linea.descripcion_cotizacion_manual,
                 'fecha_inicio_alquiler': self.fecha_inicio_propuesta,
                 'duracion_alquiler_id': self.duracion_contrato_id.id,
                 'descuento': self.descuento_general,
@@ -284,6 +322,67 @@ class CopierQuotationLine(models.Model):
     # Precios unitarios
     precio_bn = fields.Float('Precio por Copia B/N', digits=(16, 4), default=0.04)
     precio_color = fields.Float('Precio por Copia Color', digits=(16, 4), default=0.20)
+
+    # Tarifas adicionales por excedente, diferenciadas del precio contratado.
+    precio_excedente_bn = fields.Float('Excedente B/N por copia', digits=(16, 4), default=0.0)
+    precio_excedente_color = fields.Float('Excedente Color por copia', digits=(16, 4), default=0.0)
+
+    # El valor introducido determina cómo se interpreta el IGV del unitario.
+    precio_bn_incluye_igv = fields.Boolean('Precio B/N incluye IGV', default=False)
+    precio_color_incluye_igv = fields.Boolean('Precio Color incluye IGV', default=False)
+    precio_excedente_bn_incluye_igv = fields.Boolean('Excedente B/N incluye IGV', default=False)
+    precio_excedente_color_incluye_igv = fields.Boolean('Excedente Color incluye IGV', default=False)
+
+    descripcion_cotizacion_manual = fields.Text(
+        'Descripción personalizada del equipo',
+        help='Opcional; si se rellena reemplaza la descripción automática.'
+    )
+    descripcion_cotizacion_auto = fields.Text(
+        'Descripción automática del equipo', compute='_compute_descripcion_cotizacion_linea'
+    )
+    descripcion_cotizacion_final = fields.Text(
+        'Descripción final del equipo', compute='_compute_descripcion_cotizacion_linea'
+    )
+
+    @api.depends('equipo_id', 'equipo_id.name', 'tipo_equipo', 'formato',
+                 'cantidad', 'volumen_mensual_bn', 'volumen_mensual_color',
+                 'descripcion_cotizacion_manual')
+    def _compute_descripcion_cotizacion_linea(self):
+        for line in self:
+            nombre = line.equipo_id.display_name if line.equipo_id else 'Multifuncional'
+            tipo = 'color' if line.tipo_equipo == 'color' else 'blanco y negro'
+            volumen = f'{line.volumen_mensual_bn or 0:,} B/N'
+            if line.tipo_equipo == 'color':
+                volumen += f' y {line.volumen_mensual_color or 0:,} color'
+            line.descripcion_cotizacion_auto = (
+                f'{nombre}. Equipo {tipo}, formato {(line.formato or "").upper()}, '
+                f'cantidad {line.cantidad}, volumen mensual incluido {volumen} impresiones.'
+            )
+            line.descripcion_cotizacion_final = (
+                line.descripcion_cotizacion_manual.strip()
+                if line.descripcion_cotizacion_manual and line.descripcion_cotizacion_manual.strip()
+                else line.descripcion_cotizacion_auto
+            )
+
+    def get_label_precio_bn(self):
+        self.ensure_one()
+        sufijo = '(incluye IGV)' if self.precio_bn_incluye_igv else '+ IGV'
+        return f'{self.currency_id.symbol or "S/"} {self.precio_bn:.4f} {sufijo}'
+
+    def get_label_precio_color(self):
+        self.ensure_one()
+        sufijo = '(incluye IGV)' if self.precio_color_incluye_igv else '+ IGV'
+        return f'{self.currency_id.symbol or "S/"} {self.precio_color:.4f} {sufijo}'
+
+    def get_label_excedente_bn(self):
+        self.ensure_one()
+        sufijo = '(incluye IGV)' if self.precio_excedente_bn_incluye_igv else '+ IGV'
+        return f'{self.currency_id.symbol or "S/"} {self.precio_excedente_bn:.4f} {sufijo}'
+
+    def get_label_excedente_color(self):
+        self.ensure_one()
+        sufijo = '(incluye IGV)' if self.precio_excedente_color_incluye_igv else '+ IGV'
+        return f'{self.currency_id.symbol or "S/"} {self.precio_excedente_color:.4f} {sufijo}'
 
     # Cálculos por línea
     subtotal_bn = fields.Monetary(
@@ -353,11 +452,15 @@ class CopierQuotationLine(models.Model):
         currency_field='currency_id'
     )
 
-    @api.depends('cantidad', 'volumen_mensual_bn', 'volumen_mensual_color', 'precio_bn', 'precio_color')
+    @api.depends('cantidad', 'volumen_mensual_bn', 'volumen_mensual_color', 'precio_bn', 'precio_color',
+                 'precio_bn_incluye_igv', 'precio_color_incluye_igv', 'quotation_id.igv')
     def _compute_subtotales(self):
         for line in self:
-            subtotal_bn = line.cantidad * line.volumen_mensual_bn * line.precio_bn
-            subtotal_color = line.cantidad * line.volumen_mensual_color * line.precio_color
+            factor_igv = 1.0 + (line.quotation_id.igv or 0.0) / 100.0
+            precio_bn_base = line.precio_bn / factor_igv if line.precio_bn_incluye_igv and factor_igv else line.precio_bn
+            precio_color_base = line.precio_color / factor_igv if line.precio_color_incluye_igv and factor_igv else line.precio_color
+            subtotal_bn = line.cantidad * line.volumen_mensual_bn * precio_bn_base
+            subtotal_color = line.cantidad * line.volumen_mensual_color * precio_color_base
 
             line.subtotal_bn = subtotal_bn
             line.subtotal_color = subtotal_color

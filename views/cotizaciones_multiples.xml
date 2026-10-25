@@ -123,7 +123,13 @@
                     <field name="volumen_mensual_bn"/>
                     <field name="volumen_mensual_color" invisible="tipo_equipo == 'monocroma'"/>
                     <field name="precio_bn"/>
+                    <field name="precio_bn_incluye_igv" string="Precio B/N incluye IGV"/>
+                    <field name="precio_excedente_bn" string="Excedente B/N"/>
+                    <field name="precio_excedente_bn_incluye_igv" string="Excedente B/N incluye IGV"/>
                     <field name="precio_color" invisible="tipo_equipo == 'monocroma'"/>
+                    <field name="precio_color_incluye_igv" invisible="tipo_equipo == 'monocroma'"/>
+                    <field name="precio_excedente_color" invisible="tipo_equipo == 'monocroma'"/>
+                    <field name="precio_excedente_color_incluye_igv" invisible="tipo_equipo == 'monocroma'"/>
                     <field name="subtotal_bn" readonly="1"/>
                     <field name="subtotal_color" readonly="1" invisible="tipo_equipo == 'monocroma'"/>
                     <field name="subtotal_linea" readonly="1" class="oe_subtotal_footer_separator"/>
@@ -142,7 +148,13 @@
                         <field name="volumen_mensual_bn"/>
                         <field name="volumen_mensual_color" invisible="tipo_equipo == 'monocroma'"/>
                         <field name="precio_bn"/>
+                        <field name="precio_bn_incluye_igv"/>
+                        <field name="precio_excedente_bn"/>
+                        <field name="precio_excedente_bn_incluye_igv"/>
                         <field name="precio_color" invisible="tipo_equipo == 'monocroma'"/>
+                        <field name="precio_color_incluye_igv" invisible="tipo_equipo == 'monocroma'"/>
+                        <field name="precio_excedente_color" invisible="tipo_equipo == 'monocroma'"/>
+                        <field name="precio_excedente_color_incluye_igv" invisible="tipo_equipo == 'monocroma'"/>
                       </group>
                     </group>
                     
@@ -153,6 +165,11 @@
                     </group>
                     
                     <field name="especificaciones" readonly="1"/>
+                    <group string="Descripción comercial editable">
+                      <field name="descripcion_cotizacion_auto" readonly="1"/>
+                      <field name="descripcion_cotizacion_manual" placeholder="Opcional: descripción personalizada"/>
+                      <field name="descripcion_cotizacion_final" readonly="1"/>
+                    </group>
                     <field name="observaciones" placeholder="Observaciones específicas para este equipo..."/>
                   </form>
                 </field>

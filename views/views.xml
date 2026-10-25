@@ -55,6 +55,8 @@
                            string="Costo Color"
                            optional="hide"
                            avg="Promedio Costo Color"/>
+                    <field name="precio_excedente_bn" string="Excedente B/N" optional="hide"/>
+                    <field name="precio_excedente_color" string="Excedente Color" optional="hide"/>
                     <field name="renta_mensual_bn"
                            string="Renta B/N"
                            widget="monetary"
@@ -364,6 +366,8 @@
                                                    readonly="tipo_calculo != 'auto'"/>
                                             <field name="precio_bn_incluye_igv"
                                                    invisible="tipo_calculo != 'auto'"/>
+                                            <field name="precio_excedente_bn" string="Excedente B/N por impresión"/>
+                                            <field name="precio_excedente_bn_incluye_igv"/>
                                             <field name="renta_mensual_bn" readonly="1"/>
                                         </group>
 
@@ -374,6 +378,8 @@
                                                    readonly="tipo_calculo != 'auto'"/>
                                             <field name="precio_color_incluye_igv"
                                                    invisible="tipo_calculo != 'auto'"/>
+                                            <field name="precio_excedente_color" string="Excedente Color por impresión"/>
+                                            <field name="precio_excedente_color_incluye_igv"/>
                                             <field name="renta_mensual_color" readonly="1"/>
                                         </group>
                                     </group>
@@ -401,6 +407,19 @@
                                                    invisible="tipo_calculo not in ['manual_sin_igv_total', 'manual_con_igv_total']"
                                                    placeholder="Monto mensual total"/>
                                         </group>
+                                    </group>
+                                </div>
+
+                                <!-- Descripción de cotización editable -->
+                                <div class="cc_panel cc_panel_inside">
+                                    <div class="cc_panel_title">
+                                        <i class="fa fa-file-text-o"/>
+                                        Descripción comercial para la propuesta
+                                    </div>
+                                    <group>
+                                        <field name="descripcion_cotizacion_auto" readonly="1"/>
+                                        <field name="descripcion_cotizacion_manual" placeholder="Opcional: personalizar descripción de la propuesta"/>
+                                        <field name="descripcion_cotizacion_final" readonly="1"/>
                                     </group>
                                 </div>
 
