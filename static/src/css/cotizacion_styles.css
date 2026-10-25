@@ -1,3 +1,51 @@
 /* COPIER COMPANY SAC · QWeb PDF (Odoo 19) · compatible con wkhtmltopdf */
 .cc-pdf{font-family:Arial,Helvetica,sans-serif;color:#19334b;font-size:10px;line-height:1.45;padding:0 2mm}.cc-pdf *{box-sizing:border-box}.cc-pdf .cc-brand{display:table;width:100%;border-bottom:2px solid #1b5681;padding:0 0 12px;margin:0 0 12px}.cc-pdf .cc-logo{display:table-cell;vertical-align:middle;width:65%}.cc-pdf .cc-logo img{float:left;max-height:42px;max-width:92px;margin-right:10px}.cc-pdf .cc-brand-text strong{display:block;font-size:21px;letter-spacing:.3px;color:#133f62}.cc-pdf .cc-brand-text small{display:block;font-size:9px;letter-spacing:1px;color:#667b8c}.cc-pdf .cc-brand-right{display:table-cell;text-align:right;vertical-align:middle;color:#71879b;font-size:8px;letter-spacing:.8px}.cc-pdf .cc-brand-right strong{color:#214e72;font-size:11px}.cc-pdf .cc-title{display:table;width:100%;background:#123f68;color:white;border-radius:5px;padding:15px 16px;margin:6px 0 13px}.cc-pdf .cc-title>div{display:table-cell;vertical-align:middle}.cc-pdf .cc-title h1{font-size:19px;font-weight:bold;margin:3px 0 0;color:white}.cc-pdf .cc-kicker{font-size:8px;letter-spacing:1.8px;color:#a6d4eb}.cc-pdf .cc-quote-code{text-align:right;font-size:8px;min-width:142px;color:#d4e7f2}.cc-pdf .cc-quote-code strong{font-size:15px;color:white}.cc-pdf table{width:100%;border-collapse:collapse}.cc-pdf .cc-summary-meta{background:#f2f7fb;margin:0 0 13px}.cc-pdf .cc-summary-meta td{width:25%;border-right:1px solid #dae4eb;padding:10px}.cc-pdf .cc-summary-meta td:last-child{border-right:0}.cc-pdf .cc-summary-meta small{display:block;color:#7690a5;font-size:8px;letter-spacing:.5px}.cc-pdf .cc-summary-meta strong{display:block;font-size:10px;margin-top:3px;color:#1b405f}.cc-pdf .cc-section{border:1px solid #dce7ee;border-radius:6px;margin:0 0 11px;padding:11px 12px;page-break-inside:avoid}.cc-pdf .cc-section-label{font-size:10px;font-weight:bold;color:#17608c;border-bottom:1px solid #d8e7ef;padding-bottom:7px;margin-bottom:10px;letter-spacing:.65px}.cc-pdf .cc-product-table td{vertical-align:top}.cc-pdf .cc-machine-photo{width:37%;text-align:center;padding:4px 12px 4px 2px}.cc-pdf .cc-machine-photo img{max-width:100%;max-height:168px}.cc-pdf .cc-photo-placeholder{color:#8797a5;background:#eef3f7;padding:55px 8px}.cc-pdf .cc-machine-detail{padding:5px 0 5px 14px}.cc-pdf .cc-machine-detail h2{font-size:17px;color:#164568;margin:0 0 9px}.cc-pdf .cc-pills{margin-bottom:11px}.cc-pdf .cc-pills span{display:inline-block;border-radius:12px;background:#e6f1f7;color:#235575;padding:4px 9px;margin:0 5px 5px 0;font-size:9px}.cc-pdf .cc-copy{white-space:pre-line;color:#4b6477;font-size:10px;margin:4px 0 7px}.cc-pdf .cc-subtle{color:#7e8e9b;font-size:9px}.cc-pdf .cc-price-table th{background:#e6f0f7;color:#245574;padding:8px 7px;text-align:left;font-size:8px}.cc-pdf .cc-price-table td{padding:8px 7px;border-bottom:1px solid #e8eef2;vertical-align:middle}.cc-pdf .cc-right{text-align:right!important}.cc-pdf .cc-excess{background:#fff2f1;color:#962e30}.cc-pdf .cc-tax-note{font-size:8px;color:#657d8f}.cc-pdf .cc-information{background:#f1f8fc;border-left:3px solid #4d99c3;margin-top:9px;padding:9px 11px;font-size:9px;color:#43657c}.cc-pdf .cc-two-cols td{width:50%;vertical-align:top}.cc-pdf .cc-two-cols>tbody>tr>td:first-child{padding-right:5px}.cc-pdf .cc-two-cols>tbody>tr>td:last-child{padding-left:5px}.cc-pdf .cc-short{min-height:141px}.cc-pdf .cc-keyvalues td{padding:5px 4px;border-bottom:1px solid #e8eef2}.cc-pdf .cc-keyvalues td:last-child{text-align:right}.cc-pdf .cc-final td{background:#164f78;color:#fff;font-size:11px;font-weight:bold;padding:10px 7px}.cc-pdf .cc-small-note{font-size:8px;color:#7a90a0;margin-top:7px}.cc-pdf .cc-conditions td{width:50%;padding:6px;color:#315a74}.cc-pdf .cc-bank-table td{width:50%;padding:9px;background:#f5f9fb;vertical-align:top}.cc-pdf .cc-bank-table td:first-child{border-right:7px solid white}.cc-pdf .cc-footer{border-top:2px solid #d5e5ee;margin-top:12px;padding-top:8px;display:table;width:100%;font-size:8px;color:#668295}.cc-pdf .cc-footer span{display:table-cell}.cc-pdf .cc-footer span:last-child{text-align:right}.cc-pdf .cc-multi-table{font-size:8px}.cc-pdf .cc-multi-table th,.cc-pdf .cc-multi-table td{padding:6px 4px}.cc-pdf .cc-multi-table .cc-equip-row{background:#f9fbfd}.cc-pdf .cc-multi-table .cc-line-desc{font-size:9px;white-space:pre-line;color:#688093;padding:4px 8px 10px}.cc-pdf .cc-multi-table .cc-excess-text{color:#ac3743}.cc-pdf .cc-multi .cc-short{min-height:145px}
 .cc-pdf .cc-specs{border-top:1px solid #e4edf3;margin-top:9px;padding-top:8px;font-size:9px;color:#5d7384}.cc-pdf .cc-specs p{margin:4px 0}.cc-pdf .cc-specs table{font-size:8px}
+
+
+/* ================== REFINAMIENTO DE COTIZACIÓN INDIVIDUAL ==================
+   Solo afecta a la familia cc-pdf. Apto para wkhtmltopdf / Odoo 19. */
+.cc-pdf { font-family: Arial, Helvetica, sans-serif; color: #152e46; font-size: 10.5px; line-height: 1.5; padding: 0 2mm 9mm; }
+.cc-pdf .cc-brand { display: block; width: 100%; border-bottom: 3px solid #194d78; padding: 0 0 10px; margin: 0 0 13px; }
+.cc-pdf .cc-brand-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.cc-pdf .cc-brand-table td { vertical-align: middle; padding: 0; border: 0; }
+.cc-pdf .cc-brand-logo-cell { width: 63%; text-align: left; }
+.cc-pdf img.cc-brand-logo-large { width: auto; max-width: 290px; max-height: 95px; object-fit: contain; }
+.cc-pdf .cc-brand-name-fallback { color: #173f61; font-size: 23px; font-weight: 800; }
+.cc-pdf .cc-brand-table .cc-brand-right { width: 37%; text-align: right; color: #627a90; font-size: 9px; line-height: 1.8; letter-spacing: .35px; }
+.cc-pdf .cc-brand-table .cc-brand-right span, .cc-pdf .cc-brand-table .cc-brand-right strong { display: block; }
+.cc-pdf .cc-brand-table .cc-brand-right strong { color: #153f63; font-size: 13px; font-weight: 800; letter-spacing: .6px; }
+.cc-pdf .cc-brand-table .cc-brand-code { font-size: 9px; color: #527089; }
+.cc-pdf .cc-title { background: #143c60; padding: 17px 19px; margin-bottom: 14px; }
+.cc-pdf .cc-title h1 { color: #fff; font-size: 21px; font-weight: 800; line-height: 1.25; }
+.cc-pdf .cc-kicker { color: #c7e6f5; letter-spacing: 1.2px; font-weight: bold; }
+.cc-pdf .cc-quote-code strong { font-size: 15px; color: #fff; }
+.cc-pdf .cc-summary-meta { border: 1px solid #d5e3ee; background: #f2f7fb; margin-bottom: 14px; }
+.cc-pdf .cc-summary-meta td { padding: 10px 9px; }
+.cc-pdf .cc-summary-meta strong { color: #183c59; font-size: 10px; font-weight: 800; }
+.cc-pdf .cc-section { border: 1px solid #d7e4ed; border-radius: 5px; padding: 11px 13px; margin-bottom: 12px; }
+.cc-pdf .cc-section-label { font-size: 11px; color: #11466f; border-bottom: 2px solid #cfe3ef; margin-bottom: 10px; padding-bottom: 7px; font-weight: 800; }
+.cc-pdf .cc-machine-detail h2 { font-size: 19px; font-weight: 800; color: #163c5c; }
+.cc-pdf .cc-machine-photo img { max-height: 190px; }
+.cc-pdf .cc-copy { color: #354f62; font-size: 10.5px; line-height: 1.5; }
+.cc-pdf .cc-price-table th { background: #1b547e; color: #fff; font-size: 9px; padding: 9px 8px; }
+.cc-pdf .cc-price-table td { padding: 9px 8px; color: #263d50; }
+.cc-pdf .cc-price-table td strong { font-size: 11px; font-weight: 800; color: #143f61; }
+.cc-pdf .cc-price-table .cc-excess { background: #fff3ea; }
+.cc-pdf .cc-price-table .cc-excess td, .cc-pdf .cc-price-table .cc-excess td strong { color: #a04d1e; }
+.cc-pdf .cc-tax-note { color: #607a91; font-size: 8.7px; font-weight: 600; }
+.cc-pdf .cc-information { background: #eaf4fb; border-left: 4px solid #267bb0; font-size: 9.5px; }
+.cc-pdf .cc-information strong { color: #14486e; }
+.cc-pdf .cc-final td { background: #164b73; font-size: 12px; font-weight: 800; padding: 12px 8px; }
+.cc-pdf .cc-final td:last-child { font-size: 15px; }
+.cc-pdf .cc-conditions td { color: #254e68; font-size: 9.5px; }
+.cc-pdf .cc-bank-table td { background: #f2f7fa; font-size: 9.5px; line-height: 1.6; }
+.cc-pdf .cc-bank-table strong { color: #16466b; }
+.cc-pdf .cc-footer { display: block; width: 100%; border-top: 3px solid #1b537c; margin-top: 17px; padding: 10px 3px 0; color: #516e82; font-size: 9px; line-height: 1.6; page-break-inside: avoid; }
+.cc-pdf .cc-footer-company { color: #173e5d; font-size: 11px; margin-bottom: 3px; }
+.cc-pdf .cc-footer-contact { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.cc-pdf .cc-footer-contact td { border: 0; padding: 2px 0; vertical-align: middle; width: 50%; }
+.cc-pdf .cc-footer-contact strong { color: #1b537c; }
+.cc-pdf .cc-footer-bottom { border-top: 1px solid #d5e4ed; margin-top: 6px; padding-top: 5px; display: table; width: 100%; font-size: 8px; color: #8296a5; }
+.cc-pdf .cc-footer-bottom span { display: table-cell; }
+.cc-pdf .cc-footer-bottom span:last-child { text-align: right; }
