@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <odoo>
      <!-- Definición del formato de papel personalizado -->
     <record id="paperformat_counter_landscape" model="report.paperformat">
@@ -27,299 +27,184 @@
     <!-- Template del Reporte -->
     <template id="report_counter_readings">
         <t t-name="copier_company.report_counter_readings">
-            <t t-call="web.basic_layout">
-                <!-- Estilos CSS -->
-                <style>
-                    .card-container {
-                        background-color: white;
-                        border-radius: 16px;
-                        padding: 1.5rem;
-                        margin-bottom: 2rem;
-                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-                    }
-                    .header-gradient {
-                        background: linear-gradient(135deg, #1d4ed8, #3b82f6);
-                        border-radius: 8px;
-                        padding: 1rem;  /* Reducido de 2rem */
-                        margin-bottom: 1rem;  /* Reducido de 2rem */
-                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                    }
-                    .info-container {
-                        background-color: #f8fafc;
-                        border-radius: 8px;
-                        padding: 1rem;  /* Reducido de 1.5rem */
-                        margin-bottom: 1rem;  /* Reducido de 2rem */
-                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-                    }
-                    .badge {
-                        padding: 0.5rem 1rem;
-                        border-radius: 9999px;
-                        font-size: 0.875rem;
-                        color: white;
-                    }
-                    .badge-mono {
-                        background-color: #64748b;
-                    }
-                    .badge-color {
-                        background-color: #0ea5e9;
-                    }
-                    .company-logo {
-                        max-height: 120px;  /* Reducido de 90px */
-                        width: auto;
-                    }
-                    .client-info-row {
-                        margin-top: 0.5rem;
-                    }
-                </style>
-
-                <!-- Definición de Variables -->
-                <t t-set="cliente" t-value="docs[0].cliente_id" />
-                <t t-set="maquinas_mono" t-value="docs.filtered(lambda x: x.maquina_id.tipo == 'monocroma')" />
-                <t t-set="maquinas_color" t-value="docs.filtered(lambda x: x.maquina_id.tipo == 'color')" />
-                <t t-set="total_general" t-value="sum(docs.mapped('total'))" />
-
-                <div class="page">
-                    <!-- Encabezado -->
-                    <div class="header-gradient">
-                        <div class="row align-items-center">
-                            <div class="col-2">
-                                <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" 
-                                    class="company-logo" alt="Logo de la empresa"/>
-                            </div>                            
-                        </div>
-                    </div>
-                    <!-- Información del Cliente -->
-                    <div class="info-container">
-                        <div class="row">
-                            <div class="col-10">
-                                <h2 style="color: #1429c5; margin: 0; font-weight: 600; font-size: 1.5rem;">
-                                    Reporte de Lecturas
-                                </h2>
-                            </div>                          
-                        </div>
-                    </div>
-                    <!-- Información del Cliente -->
-                    <div class="info-container">
-                        <div class="row">                            
-                            <div class="col-6">
-                                <h4 style="color: #1e293b; font-weight: 600;">
-                                    <i class="fa fa-building me-2" />Información del Cliente
-                                </h4>
-                                <p style="margin-bottom: 0.5rem;">
-                                    <strong t-field="cliente.name" />
-                                </p>
-                                <p t-if="cliente.vat" style="color: #64748b;">
-                                    RUC/DNI: <t t-esc="cliente.vat" />
-                                </p>
-                               <p style="color: #64748b;">
-                                    Ubicación: <t t-esc="docs and docs[0].ubicacion or ''" />
-                                </p>
-
-
-                            </div>
-                            <div class="col-6 text-end">
-                                <h4 style="color: #1e293b; font-weight: 600;">
-                                    <i class="fa fa-calendar me-2" />Fecha
-                                </h4>
-                                <p style="color: #64748b;">
-                                    <t t-esc="time.strftime('%d/%m/%Y')" />
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Sección Máquinas Monocromáticas -->
-                    <t t-if="maquinas_mono">
-                        <div class="card-container">
-                            <h4 style="color: #1e293b; font-weight: 600; margin-bottom: 1.5rem;">
-                                <i class="fa fa-print me-2" />Máquinas Monocromáticas
-                                <span class="badge badge-mono">B/N</span>
-                            </h4>
-                            <div class="table-responsive">
-                                <table class="table table-sm">
-                                    <thead>
-                                        <tr style="background-color: #f8fafc;">
-                                            <th scope="col" style="padding: 1rem;">Modelo</th>
-                                            <th scope="col">Serie</th>                                            
-                                            <th scope="col" class="text-end">Cont. Anterior</th>
-                                            <th scope="col" class="text-end">Cont. Actual</th>
-                                            <th scope="col" class="text-end">Total BN</th>
-                                            <th scope="col" class="text-end">Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <t t-foreach="maquinas_mono" t-as="maquina">
-                                            <tr>
-                                                <td><t t-esc="maquina.maquina_id.name.name" /></td>
-                                                <td><t t-esc="maquina.serie" /></td>
-                                                
-                                                <td class="text-end">
-                                                    <t t-esc="'{:,}'.format(maquina.contador_anterior_bn)" />
-                                                </td>
-                                                <td class="text-end">
-                                                    <t t-esc="'{:,}'.format(maquina.contador_actual_bn)" />
-                                                </td>
-                                                <td class="text-end">
-                                                    <t t-esc="'{:,}'.format(maquina.total_copias_bn)" />
-                                                </td>
-                                                <td class="text-end">
-                                                    <span t-field="maquina.total" t-options='{"widget": "monetary", "display_currency": maquina.currency_id}' />
-                                                </td>
-                                            </tr>
-                                        </t>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </t>
-
-                    <!-- Sección Máquinas Color -->
-                    <t t-if="maquinas_color">
-                        <div class="card-container">
-                            <h4 style="color: #1e293b; font-weight: 600; margin-bottom: 1.5rem;">
-                                <i class="fa fa-palette me-2" />Máquinas Color
-                                <span class="badge badge-color">Color</span>
-                            </h4>
-                            <div class="table-responsive">
-                                <table class="table table-sm">
-                                    <thead>
-                                        <tr style="background-color: #f8fafc;">
-                                            <th scope="col">Modelo</th>
-                                            <th scope="col">Serie</th>                                            
-                                            <th scope="col" class="text-end">Cont. Anterior B/N</th>
-                                            <th scope="col" class="text-end">Cont. Actual B/N</th>
-                                            <th scope="col" class="text-end">Cont. Anterior Color</th>
-                                            <th scope="col" class="text-end">Cont. Actual Color</th>
-                                            <th scope="col" class="text-end">Total BN</th>
-                                            <th scope="col" class="text-end">Total Color</th>
-                                            <th scope="col" class="text-end">Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <t t-foreach="maquinas_color" t-as="maquina">
-                                            <tr>
-                                                <td><t t-esc="maquina.maquina_id.name.name" /></td>
-                                                <td><t t-esc="maquina.serie" /></td>
-                                                
-                                                <td class="text-end">
-                                                    <t t-esc="'{:,}'.format(maquina.contador_anterior_bn)" />
-                                                </td>
-                                                <td class="text-end">
-                                                    <t t-esc="'{:,}'.format(maquina.contador_actual_bn)" />
-                                                </td>
-                                                <td class="text-end">
-                                                    <t t-esc="'{:,}'.format(maquina.contador_anterior_color)" />
-                                                </td>
-                                                <td class="text-end">
-                                                    <t t-esc="'{:,}'.format(maquina.contador_actual_color)" />
-                                                </td>
-                                                <td class="text-end">
-                                                    <t t-esc="'{:,}'.format(maquina.total_copias_bn)" />
-                                                </td>
-                                                <td class="text-end">
-                                                    <t t-esc="'{:,}'.format(maquina.total_copias_color)" />
-                                                </td>
-                                                <td class="text-end">
-                                                    <span t-field="maquina.total" t-options='{"widget": "monetary", "display_currency": maquina.currency_id}' />
-                                                </td>
-                                            </tr>
-                                        </t>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </t>
-                   <t t-if="any(doc.informe_por_usuario for doc in docs)">
-    <div class="card-container">
-        <h4 style="color: #1e293b; font-weight: 600; margin-bottom: 1.5rem;">
-            <i class="fa fa-users me-2"/>Detalle por Usuario
-        </h4>
-        <div class="table-responsive">
-            <table class="table table-sm">
-                <thead>
-                    <tr style="background-color: #f8fafc;">
-                        <th scope="col">Máquina</th>
-                        <th scope="col">Usuario / Empresa</th>
-                        <th scope="col" class="text-end">B/N</th>
-
-                        <!-- Mostrar columna Color solo si existe alguna máquina color -->
-                        <t t-if="any(doc.maquina_id.tipo == 'color' for doc in docs)">
-                            <th scope="col" class="text-end">Color</th>
-                        </t>
-
-                        <th scope="col" class="text-end">Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <t t-foreach="docs.filtered(lambda d: d.informe_por_usuario)" t-as="doc">
-                        <t t-foreach="doc.usuario_detalle_ids" t-as="detalle">
-                            <tr>
-                                <!-- Máquina -->
-                                <td>
-                                    <t t-esc="doc.maquina_id.name.name"/> -
-                                    <t t-esc="doc.serie"/>
-                                </td>
-
-                                <!-- Usuario -->
-                                <td>
-                                    <t t-esc="detalle.usuario_id.name"/>
-                                </td>
-
-                                <!-- B/N -->
-                                <td class="text-end">
-                                    <t t-esc="'{:,}'.format(detalle.cantidad_bn or 0)"/>
-                                </td>
-
-                                <!-- Color (solo si esta máquina es color) -->
-                                <t t-if="doc.maquina_id.tipo == 'color'">
-                                    <td class="text-end">
-                                        <t t-esc="'{:,}'.format(detalle.cantidad_color or 0)"/>
-                                    </td>
-                                </t>
-                                <t t-else="">
-                                    <!-- Celda vacía si hay columna Color global -->
-                                    <t t-if="any(doc.maquina_id.tipo == 'color' for doc in docs)">
-                                        <td class="text-end">-</td>
-                                    </t>
-                                </t>
-
-                                <!-- Total -->
-                                <td class="text-end">
-                                    <t t-esc="'{:,}'.format(detalle.total_copias or 0)"/>
-                                </td>
-                            </tr>
-                        </t>
-                    </t>
-                </tbody>
-            </table>
+  <t t-call="web.basic_layout">
+    <t t-set="empresa" t-value="docs[0].env.company"/>
+    <t t-set="cliente" t-value="docs[0].cliente_id"/>
+    <t t-set="maquinas_mono" t-value="docs.filtered(lambda x: x.maquina_id.tipo == 'monocroma')"/>
+    <t t-set="maquinas_color" t-value="docs.filtered(lambda x: x.maquina_id.tipo == 'color')"/>
+    <t t-set="total_general" t-value="sum(docs.mapped('total'))"/>
+    <t t-set="total_bn" t-value="sum(docs.mapped('total_copias_bn'))"/>
+    <t t-set="total_color" t-value="sum(docs.mapped('total_copias_color'))"/>
+    <t t-set="total_exceso_bn" t-value="sum(docs.mapped('exceso_bn'))"/>
+    <t t-set="total_exceso_color" t-value="sum(docs.mapped('exceso_color'))"/>
+    <t t-set="total_antes_desc" t-value="sum(docs.mapped('subtotal_antes_descuento'))"/>
+    <t t-set="total_desc" t-value="sum(docs.mapped('monto_descuento'))"/>
+    <t t-set="total_subtotal" t-value="sum(docs.mapped('subtotal'))"/>
+    <t t-set="total_igv" t-value="sum(docs.mapped('igv'))"/>
+    <style type="text/css">
+      .ccr-page{font-family:Arial,Helvetica,sans-serif;color:#1d2b43;font-size:10px;line-height:1.38;}
+      .ccr-head{width:100%;border-collapse:collapse;border-bottom:3px solid #17365d;margin-bottom:12px;}
+      .ccr-head td{padding:5px 7px 12px;vertical-align:middle;border:none;}
+      .ccr-logo{max-width:275px;max-height:90px;width:auto;height:auto;}
+      .ccr-eyebrow{font-size:10px;font-weight:700;letter-spacing:1.4px;color:#557194;}
+      .ccr-headline{font-size:21px;color:#152d50;font-weight:800;margin:5px 0 2px;}
+      .ccr-small{font-size:9px;color:#61728a;}
+      .ccr-meta{width:100%;border-collapse:separate;border-spacing:7px 0;margin:3px -7px 11px;}
+      .ccr-meta td{width:25%;border:1px solid #dae3ed;background:#f6f9fd;border-radius:5px;vertical-align:top;padding:9px 10px;}
+      .ccr-label{color:#62758f;font-weight:700;font-size:8px;letter-spacing:.7px;text-transform:uppercase;display:block;margin-bottom:4px;}
+      .ccr-value{color:#142a49;font-size:10.5px;font-weight:700;word-wrap:break-word;}
+      .ccr-kpis{width:100%;border-collapse:separate;border-spacing:7px 0;margin:0 -7px 12px;}
+      .ccr-kpis td{width:25%;border:1px solid #dce6f2;border-radius:6px;padding:9px 11px;background:#fff;}
+      .ccr-kpi-num{display:block;font-size:17px;font-weight:800;color:#183f70;}
+      .ccr-kpi-label{display:block;font-size:9px;color:#5b6e85;margin-top:1px;}
+      .ccr-section{margin:11px 0 6px;page-break-inside:avoid;}
+      .ccr-section h2{font-size:12px;font-weight:800;color:#123154;margin:0 0 7px;padding:0 0 5px;border-bottom:2px solid #dfe8f3;letter-spacing:.2px;}
+      .ccr-tag{display:inline-block;background:#e8eff7;color:#24496f;padding:3px 7px;border-radius:4px;font-size:9px;font-weight:700;margin-left:6px;}
+      .ccr-tag-color{background:#e2f2fb;color:#086c9e;}
+      .ccr-table{width:100%;border-collapse:collapse;font-size:9px;table-layout:auto;}
+      .ccr-table thead{display:table-header-group;}
+      .ccr-table th{background:#173a62;color:#fff;font-weight:700;font-size:8px;padding:8px 6px;text-align:left;border:1px solid #173a62;}
+      .ccr-table td{padding:7px 6px;border-bottom:1px solid #e2e9f1;vertical-align:middle;}
+      .ccr-table tbody tr:nth-child(even){background:#f5f8fc;}
+      .ccr-table tr{page-break-inside:avoid;}
+      .ccr-right{text-align:right!important;white-space:nowrap;}
+      .ccr-strong{font-weight:800;color:#17365d;}
+      .ccr-muted{color:#748398;}
+      .ccr-note{border-left:3px solid #2a7cbb;background:#f1f7fc;padding:7px 10px;margin-top:7px;color:#3c5874;font-size:9px;}
+      .ccr-finance{width:100%;border-collapse:collapse;margin-top:10px;}
+      .ccr-finance&gt;tbody&gt;tr&gt;td{vertical-align:top;border:none;}
+      .ccr-finance-box{border:1px solid #dce5ef;border-radius:5px;background:#f8fafc;padding:11px 13px;}
+      .ccr-money{width:100%;border-collapse:collapse;font-size:10px;}
+      .ccr-money td{padding:5px 0;border-bottom:1px solid #e2e8f0;}
+      .ccr-money .ccr-grand td{font-size:15px;font-weight:800;background:#173a62;color:#fff;padding:11px 9px;border:0;}
+      .ccr-footer{margin-top:17px;border-top:2px solid #dce5f0;padding-top:8px;font-size:9px;color:#64758c;}
+      .ccr-footer-name{font-weight:800;color:#17365d;font-size:10px;}
+    </style>
+    <div class="page ccr-page">
+      <!-- Datos e identificadores provienen de Odoo, no hay marca fija -->
+      <table class="ccr-head"><tr>
+        <td style="width:45%;">
+          <t t-if="empresa.logo"><img t-att-src="image_data_uri(empresa.logo)" class="ccr-logo" alt="Logotipo empresarial"/></t>
+          <t t-else=""><strong t-esc="empresa.name"/></t>
+        </td>
+        <td style="width:55%;text-align:right;">
+          <div class="ccr-eyebrow">INFORME DE CONSUMO Y FACTURACIÓN</div>
+          <div class="ccr-headline">Reporte de lecturas</div>
+          <div class="ccr-small">Fecha de emisión: <t t-esc="time.strftime('%d/%m/%Y')"/></div>
+        </td>
+      </tr></table>
+      <table class="ccr-meta"><tr>
+        <td><span class="ccr-label">Cliente</span><span class="ccr-value" t-esc="cliente.name or '—'"/></td>
+        <td><span class="ccr-label">RUC / DNI</span><span class="ccr-value" t-esc="cliente.vat or '—'"/></td>
+        <td><span class="ccr-label">Ubicación de referencia</span><span class="ccr-value" t-esc="docs[0].ubicacion or '—'"/></td>
+        <td><span class="ccr-label">Periodo de referencia</span><span class="ccr-value" t-esc="docs[0].mes_facturacion or '—'"/></td>
+      </tr></table>
+      <table class="ccr-kpis"><tr>
+        <td><span class="ccr-kpi-num" t-esc="len(docs)"/><span class="ccr-kpi-label">Lecturas incluidas</span></td>
+        <td><span class="ccr-kpi-num" t-esc="'{:,}'.format(total_bn)"/><span class="ccr-kpi-label">Consumo B/N</span></td>
+        <td><span class="ccr-kpi-num" t-esc="'{:,}'.format(total_color)"/><span class="ccr-kpi-label">Consumo color</span></td>
+        <td><span class="ccr-kpi-num" t-esc="'{:,}'.format(total_exceso_bn + total_exceso_color)"/><span class="ccr-kpi-label">Impresiones excedentes</span></td>
+      </tr></table>
+      <t t-if="maquinas_mono">
+        <div class="ccr-section"><h2>01 · Máquinas blanco y negro <span class="ccr-tag">B/N</span></h2>
+          <table class="ccr-table"><thead><tr>
+            <th>Modelo / equipo</th><th>Serie</th><th class="ccr-right">Anterior B/N</th><th class="ccr-right">Actual B/N</th><th class="ccr-right">Consumo</th><th class="ccr-right">Excedente</th><th class="ccr-right">Importe excedente</th><th class="ccr-right">Total con IGV</th>
+          </tr></thead><tbody>
+            <t t-foreach="maquinas_mono" t-as="m"><tr>
+              <td><span class="ccr-strong" t-esc="m.maquina_id.name.name or '—'"/></td>
+              <td t-esc="m.serie or '—'"/>
+              <td class="ccr-right" t-esc="'{:,}'.format(m.contador_anterior_bn or 0)"/>
+              <td class="ccr-right" t-esc="'{:,}'.format(m.contador_actual_bn or 0)"/>
+              <td class="ccr-right ccr-strong" t-esc="'{:,}'.format(m.total_copias_bn or 0)"/>
+              <td class="ccr-right" t-esc="'{:,}'.format(m.exceso_bn or 0)"/>
+              <td class="ccr-right"><span t-field="m.monto_exceso_bn" t-options="{&quot;widget&quot;:&quot;monetary&quot;,&quot;display_currency&quot;:m.currency_id}"/></td>
+              <td class="ccr-right ccr-strong"><span t-field="m.total" t-options="{&quot;widget&quot;:&quot;monetary&quot;,&quot;display_currency&quot;:m.currency_id}"/></td>
+            </tr></t>
+          </tbody></table>
         </div>
-    </div>
-</t>
-
-
-
-                    <!-- Total General -->
-                    <div class="info-container" style="margin-top: 2rem;">
-                        <div class="row justify-content-end">
-                            <div class="col-4">
-                                <table class="table table-sm">
-                                    <tr>
-                                        <td style="border: none;">
-                                            <strong>Total a Pagar:</strong>
-                                        </td>
-                                        <td class="text-end" style="border: none;">
-                                            <strong style="color: #1d4ed8; font-size: 1.25rem;">
-                                                <span t-esc="total_general" 
-                                                      t-options='{"widget": "monetary", "display_currency": docs[0].currency_id}' />
-                                            </strong>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+      </t>
+      <t t-if="maquinas_color">
+        <div class="ccr-section"><h2>02 · Máquinas a color <span class="ccr-tag ccr-tag-color">COLOR</span></h2>
+          <table class="ccr-table"><thead><tr>
+            <th>Modelo / equipo</th><th>Serie</th><th class="ccr-right">Anterior B/N</th><th class="ccr-right">Actual B/N</th><th class="ccr-right">Consumo B/N</th><th class="ccr-right">Anterior color</th><th class="ccr-right">Actual color</th><th class="ccr-right">Consumo color</th><th class="ccr-right">Exceso B/N</th><th class="ccr-right">Exceso color</th><th class="ccr-right">Total con IGV</th>
+          </tr></thead><tbody>
+            <t t-foreach="maquinas_color" t-as="m"><tr>
+              <td><span class="ccr-strong" t-esc="m.maquina_id.name.name or '—'"/></td>
+              <td t-esc="m.serie or '—'"/>
+              <td class="ccr-right" t-esc="'{:,}'.format(m.contador_anterior_bn or 0)"/>
+              <td class="ccr-right" t-esc="'{:,}'.format(m.contador_actual_bn or 0)"/>
+              <td class="ccr-right ccr-strong" t-esc="'{:,}'.format(m.total_copias_bn or 0)"/>
+              <td class="ccr-right" t-esc="'{:,}'.format(m.contador_anterior_color or 0)"/>
+              <td class="ccr-right" t-esc="'{:,}'.format(m.contador_actual_color or 0)"/>
+              <td class="ccr-right ccr-strong" t-esc="'{:,}'.format(m.total_copias_color or 0)"/>
+              <td class="ccr-right" t-esc="'{:,}'.format(m.exceso_bn or 0)"/>
+              <td class="ccr-right" t-esc="'{:,}'.format(m.exceso_color or 0)"/>
+              <td class="ccr-right ccr-strong"><span t-field="m.total" t-options="{&quot;widget&quot;:&quot;monetary&quot;,&quot;display_currency&quot;:m.currency_id}"/></td>
+            </tr></t>
+          </tbody></table>
+        </div>
+      </t>
+      <!-- Se mantiene la sección de desglose por usuario -->
+      <t t-if="any(doc.informe_por_usuario for doc in docs)">
+        <div class="ccr-section"><h2>03 · Detalle por usuario</h2>
+          <table class="ccr-table"><thead><tr>
+            <th>Máquina</th><th>Usuario / empresa</th><th class="ccr-right">Copias B/N</th>
+            <t t-if="maquinas_color"><th class="ccr-right">Copias color</th></t>
+            <th class="ccr-right">Total</th>
+          </tr></thead><tbody>
+            <t t-foreach="docs.filtered(lambda d: d.informe_por_usuario)" t-as="doc">
+              <t t-foreach="doc.usuario_detalle_ids" t-as="detalle"><tr>
+                <td><t t-esc="doc.maquina_id.name.name or '—'"/> · <t t-esc="doc.serie or '—'"/></td>
+                <td t-esc="detalle.usuario_id.name or '—'"/>
+                <td class="ccr-right" t-esc="'{:,}'.format(detalle.cantidad_bn or 0)"/>
+                <t t-if="maquinas_color"><td class="ccr-right"><t t-esc="'{:,}'.format(detalle.cantidad_color or 0)" t-if="doc.maquina_id.tipo == 'color'"/><t t-else="">—</t></td></t>
+                <td class="ccr-right ccr-strong" t-esc="'{:,}'.format(detalle.total_copias or 0)"/>
+              </tr></t>
             </t>
-        </t>
-    </template>
+          </tbody></table>
+        </div>
+      </t>
+      <div class="ccr-section"><h2>Resumen económico</h2>
+        <table class="ccr-finance"><tr>
+          <td style="width:52%;padding-right:18px;">
+            <div class="ccr-finance-box">
+              <div style="font-weight:800;font-size:11px;margin-bottom:8px;color:#173a62;">Desglose de renta y excedentes</div>
+              <table class="ccr-money">
+                <tr><td>Renta fija B/N</td><td class="ccr-right" t-esc="'%s %.2f' % (docs[0].currency_id.symbol or 'S/',sum(docs.mapped('renta_fija_bn')))"/></tr>
+                <tr><td>Renta fija color</td><td class="ccr-right" t-esc="'%s %.2f' % (docs[0].currency_id.symbol or 'S/',sum(docs.mapped('renta_fija_color')))"/></tr>
+                <tr><td>Excedente B/N</td><td class="ccr-right" t-esc="'%s %.2f' % (docs[0].currency_id.symbol or 'S/',sum(docs.mapped('monto_exceso_bn')))"/></tr>
+                <tr><td>Excedente color</td><td class="ccr-right" t-esc="'%s %.2f' % (docs[0].currency_id.symbol or 'S/',sum(docs.mapped('monto_exceso_color')))"/></tr>
+              </table>
+            </div>
+          </td>
+          <td style="width:48%;">
+            <div class="ccr-finance-box">
+              <table class="ccr-money">
+                <tr><td>Subtotal antes de descuento</td><td class="ccr-right" t-esc="'%s %.2f' % (docs[0].currency_id.symbol or 'S/',total_antes_desc)"/></tr>
+                <tr><td>Descuento</td><td class="ccr-right" t-esc="'%s %.2f' % (docs[0].currency_id.symbol or 'S/',total_desc)"/></tr>
+                <tr><td>Subtotal</td><td class="ccr-right" t-esc="'%s %.2f' % (docs[0].currency_id.symbol or 'S/',total_subtotal)"/></tr>
+                <tr><td>IGV</td><td class="ccr-right" t-esc="'%s %.2f' % (docs[0].currency_id.symbol or 'S/',total_igv)"/></tr>
+                <tr class="ccr-grand"><td>TOTAL A PAGAR</td><td class="ccr-right"><span t-esc="total_general" t-options="{&quot;widget&quot;:&quot;monetary&quot;,&quot;display_currency&quot;:docs[0].currency_id}"/></td></tr>
+              </table>
+            </div>
+          </td>
+        </tr></table>
+        <div class="ccr-note">Los importes de excedentes y las rentas corresponden a los valores calculados y guardados en las lecturas seleccionadas. El reporte no recalcula ni modifica la facturación.</div>
+      </div>
+      <div class="ccr-footer">
+        <table style="width:100%;border-collapse:collapse;"><tr>
+          <td style="width:60%;vertical-align:top;"><span class="ccr-footer-name" t-esc="empresa.name or ''"/>
+            <t t-if="empresa.vat"><br/>RUC: <t t-esc="empresa.vat"/></t>
+            <t t-if="empresa.email"><br/><t t-esc="empresa.email"/></t>
+            <t t-if="empresa.website"><br/><t t-esc="empresa.website"/></t>
+          </td>
+          <td style="width:40%;text-align:right;vertical-align:top;">
+            <t t-if="empresa.phone"><t t-esc="empresa.phone"/><br/></t>
+            <span>Reporte de lecturas · <t t-esc="time.strftime('%d/%m/%Y')"/></span>
+          </td>
+        </tr></table>
+      </div>
+    </div>
+  </t>
+</t></template>
 </odoo>

@@ -169,6 +169,42 @@ class CopierCounter(models.Model):
     )
 
 
+    # Tarifas de excedente sin IGV. Si no se ha configurado una tarifa
+    # (valor 0 en registros anteriores), se conserva la tarifa habitual.
+    precio_excedente_bn_sin_igv = fields.Float(
+        'Precio excedente B/N sin IGV', compute='_compute_precios_excedente_sin_igv',
+        digits=(16, 6), store=True,
+    )
+    precio_excedente_color_sin_igv = fields.Float(
+        'Precio excedente Color sin IGV', compute='_compute_precios_excedente_sin_igv',
+        digits=(16, 6), store=True,
+    )
+
+    @api.depends(
+        'maquina_id.precio_excedente_bn', 'maquina_id.precio_excedente_color',
+        'maquina_id.precio_excedente_bn_incluye_igv',
+        'maquina_id.precio_excedente_color_incluye_igv',
+        'maquina_id.igv', 'precio_bn_sin_igv', 'precio_color_sin_igv',
+    )
+    def _compute_precios_excedente_sin_igv(self):
+        for record in self:
+            maquina = record.maquina_id
+            if not maquina:
+                record.precio_excedente_bn_sin_igv = 0.0
+                record.precio_excedente_color_sin_igv = 0.0
+                continue
+            divisor = 1.0 + (maquina.igv or 0.0) / 100.0
+            precio_bn = maquina.precio_excedente_bn or 0.0
+            precio_color = maquina.precio_excedente_color or 0.0
+            record.precio_excedente_bn_sin_igv = (
+                precio_bn / divisor if maquina.precio_excedente_bn_incluye_igv
+                else precio_bn
+            ) if precio_bn else (record.precio_bn_sin_igv or 0.0)
+            record.precio_excedente_color_sin_igv = (
+                precio_color / divisor if maquina.precio_excedente_color_incluye_igv
+                else precio_color
+            ) if precio_color else (record.precio_color_sin_igv or 0.0)
+
     # Campos financieros
     currency_id = fields.Many2one(
         'res.currency',
@@ -216,7 +252,7 @@ class CopierCounter(models.Model):
                 'maquina_id.precio_bn_incluye_igv', 
                 'maquina_id.precio_color_incluye_igv',
                 'maquina_id.costo_copia_bn', 
-                'maquina_id.costo_copia_color')
+                'maquina_id.costo_copia_color', 'maquina_id.igv')
     def _compute_precios_sin_igv(self):
         """Convierte los precios a su valor sin IGV manteniendo precisión completa"""
         for record in self:
@@ -226,8 +262,8 @@ class CopierCounter(models.Model):
                 precio_color = float(record.maquina_id.costo_copia_color or 0.0)
 
                 # Convertir a precio sin IGV si incluye IGV (manteniendo toda la precisión)
-                record.precio_bn_sin_igv = precio_bn / 1.18 if record.maquina_id.precio_bn_incluye_igv else precio_bn
-                record.precio_color_sin_igv = precio_color / 1.18 if record.maquina_id.precio_color_incluye_igv else precio_color
+                record.precio_bn_sin_igv = precio_bn / (1.0 + (record.maquina_id.igv or 0.0) / 100.0) if record.maquina_id.precio_bn_incluye_igv else precio_bn
+                record.precio_color_sin_igv = precio_color / (1.0 + (record.maquina_id.igv or 0.0) / 100.0) if record.maquina_id.precio_color_incluye_igv else precio_color
             else:
                 record.precio_bn_sin_igv = 0.0
                 record.precio_color_sin_igv = 0.0
@@ -719,6 +755,8 @@ class CopierCounter(models.Model):
         'exceso_color',
         'precio_bn_sin_igv',
         'precio_color_sin_igv',
+        'precio_excedente_bn_sin_igv',
+        'precio_excedente_color_sin_igv',
         'descuento_porcentaje',
         'maquina_id.tipo',
         'maquina_id.tipo_calculo',
@@ -774,16 +812,20 @@ class CopierCounter(models.Model):
                 # CÁLCULO AUTOMÁTICO
                 # ======================================================
                 if tipo_calculo == 'auto':
-                    renta_bn = (
-                        (record.copias_facturables_bn or 0)
-                        * (record.precio_bn_sin_igv or 0.0)
-                    )
+                    # Con volumen incluido: base a tarifa normal, exceso a tarifa especial.
+                    # Sin volumen contratado: conservar cobro por consumo real normal.
+                    base_bn = (min(record.copias_facturables_bn or 0, maquina.volumen_mensual_bn)
+                               if maquina.volumen_mensual_bn else record.copias_facturables_bn or 0)
+                    monto_exceso_bn = ((record.exceso_bn or 0) * record.precio_excedente_bn_sin_igv
+                                       if maquina.volumen_mensual_bn else 0.0)
+                    renta_bn = base_bn * (record.precio_bn_sin_igv or 0.0) + monto_exceso_bn
 
                     if maquina.tipo == 'color':
-                        renta_color = (
-                            (record.copias_facturables_color or 0)
-                            * (record.precio_color_sin_igv or 0.0)
-                        )
+                        base_color = (min(record.copias_facturables_color or 0, maquina.volumen_mensual_color)
+                                      if maquina.volumen_mensual_color else record.copias_facturables_color or 0)
+                        monto_exceso_color = ((record.exceso_color or 0) * record.precio_excedente_color_sin_igv
+                                              if maquina.volumen_mensual_color else 0.0)
+                        renta_color = base_color * (record.precio_color_sin_igv or 0.0) + monto_exceso_color
 
                     _logger.info(
                         "AUTO | B/N: %s x %s = %s | Color: %s x %s = %s",
@@ -812,7 +854,7 @@ class CopierCounter(models.Model):
 
                     monto_exceso_bn = (
                         (record.exceso_bn or 0)
-                        * (record.precio_bn_sin_igv or 0.0)
+                        * (record.precio_excedente_bn_sin_igv or 0.0)
                     )
                     renta_bn = renta_fija_bn + monto_exceso_bn
 
@@ -856,7 +898,7 @@ class CopierCounter(models.Model):
                     if maquina.tipo == 'color':
                         monto_exceso_color = (
                             (record.exceso_color or 0)
-                            * (record.precio_color_sin_igv or 0.0)
+                            * (record.precio_excedente_color_sin_igv or 0.0)
                         )
                         renta_color = renta_fija_color + monto_exceso_color
 
@@ -887,13 +929,13 @@ class CopierCounter(models.Model):
 
                     monto_exceso_bn = (
                         (record.exceso_bn or 0)
-                        * (record.precio_bn_sin_igv or 0.0)
+                        * (record.precio_excedente_bn_sin_igv or 0.0)
                     )
 
                     if maquina.tipo == 'color':
                         monto_exceso_color = (
                             (record.exceso_color or 0)
-                            * (record.precio_color_sin_igv or 0.0)
+                            * (record.precio_excedente_color_sin_igv or 0.0)
                         )
 
                     # Distribuir únicamente la renta fija total.
@@ -1462,7 +1504,7 @@ class CopierCounter(models.Model):
                 * factor_descuento
             )
             exceso_bn_unitario = (
-                (self.precio_bn_sin_igv or 0.0)
+                (self.precio_excedente_bn_sin_igv or 0.0)
                 * factor_descuento
             )
 
@@ -1486,24 +1528,37 @@ class CopierCounter(models.Model):
                         f'{self.producto_facturable_bn_id.name} - '
                         f'Excedente B/N - {self.mes_facturacion}\n'
                         f'{int(self.exceso_bn)} copias excedentes x '
-                        f'{self.precio_bn_sin_igv:.6f} sin IGV\n'
+                        f'{self.precio_excedente_bn_sin_igv:.6f} sin IGV\n'
                         f'{info_maquina}'
                     ),
                     self.exceso_bn,
                     exceso_bn_unitario,
                 )
         else:
-            _append_line(
-                self.producto_facturable_bn_id,
-                (
-                    f'{self.producto_facturable_bn_id.name} - '
-                    f'Copias B/N: '
-                    f'{int(self.copias_facturables_bn)} - '
-                    f'{self.mes_facturacion}\n{info_maquina}'
-                ),
-                1,
-                self.subtotal_bn,
-            )
+            # Cálculo automático: separar el volumen incluido del excedente.
+            if maquina.volumen_mensual_bn and self.exceso_bn > 0:
+                _append_line(
+                    self.producto_facturable_bn_id,
+                    f'{self.producto_facturable_bn_id.name} - Volumen B/N incluido - '
+                    f'{self.mes_facturacion}\n{info_maquina}',
+                    1,
+                    (maquina.volumen_mensual_bn * self.precio_bn_sin_igv) * factor_descuento,
+                )
+                _append_line(
+                    self.producto_facturable_bn_id,
+                    f'{self.producto_facturable_bn_id.name} - Excedente B/N - '
+                    f'{self.mes_facturacion}\n{info_maquina}',
+                    self.exceso_bn,
+                    self.precio_excedente_bn_sin_igv * factor_descuento,
+                )
+            else:
+                _append_line(
+                    self.producto_facturable_bn_id,
+                    f'{self.producto_facturable_bn_id.name} - Copias B/N: '
+                    f'{int(self.copias_facturables_bn)} - {self.mes_facturacion}\n{info_maquina}',
+                    1,
+                    self.subtotal_bn,
+                )
 
         # ==========================================================
         # COLOR
@@ -1515,7 +1570,7 @@ class CopierCounter(models.Model):
                     * factor_descuento
                 )
                 exceso_color_unitario = (
-                    (self.precio_color_sin_igv or 0.0)
+                    (self.precio_excedente_color_sin_igv or 0.0)
                     * factor_descuento
                 )
 
@@ -1539,24 +1594,36 @@ class CopierCounter(models.Model):
                             f'{self.producto_facturable_color_id.name} - '
                             f'Excedente Color - {self.mes_facturacion}\n'
                             f'{int(self.exceso_color)} copias excedentes x '
-                            f'{self.precio_color_sin_igv:.6f} sin IGV\n'
+                            f'{self.precio_excedente_color_sin_igv:.6f} sin IGV\n'
                             f'{info_maquina}'
                         ),
                         self.exceso_color,
                         exceso_color_unitario,
                     )
             else:
-                _append_line(
-                    self.producto_facturable_color_id,
-                    (
-                        f'{self.producto_facturable_color_id.name} - '
-                        f'Copias Color: '
-                        f'{int(self.copias_facturables_color)} - '
-                        f'{self.mes_facturacion}\n{info_maquina}'
-                    ),
-                    1,
-                    self.subtotal_color,
-                )
+                if maquina.volumen_mensual_color and self.exceso_color > 0:
+                    _append_line(
+                        self.producto_facturable_color_id,
+                        f'{self.producto_facturable_color_id.name} - Volumen Color incluido - '
+                        f'{self.mes_facturacion}\n{info_maquina}',
+                        1,
+                        (maquina.volumen_mensual_color * self.precio_color_sin_igv) * factor_descuento,
+                    )
+                    _append_line(
+                        self.producto_facturable_color_id,
+                        f'{self.producto_facturable_color_id.name} - Excedente Color - '
+                        f'{self.mes_facturacion}\n{info_maquina}',
+                        self.exceso_color,
+                        self.precio_excedente_color_sin_igv * factor_descuento,
+                    )
+                else:
+                    _append_line(
+                        self.producto_facturable_color_id,
+                        f'{self.producto_facturable_color_id.name} - Copias Color: '
+                        f'{int(self.copias_facturables_color)} - {self.mes_facturacion}\n{info_maquina}',
+                        1,
+                        self.subtotal_color,
+                    )
 
         if not invoice_lines:
             invoice.unlink()

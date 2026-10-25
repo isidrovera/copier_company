@@ -135,6 +135,10 @@
                 <field name="exceso_bn"
                        string="Excedente B/N"
                        sum="Total excedente B/N"/>
+                <field name="precio_excedente_bn_sin_igv"
+                       string="Tarifa excedente B/N s/IGV"
+                       digits="[16, 6]"
+                       optional="hide"/>
                 <field name="monto_exceso_bn"
                        string="Importe exceso B/N"
                        widget="monetary"
@@ -147,6 +151,10 @@
                 <field name="exceso_color"
                        string="Excedente Color"
                        sum="Total excedente Color"
+                       optional="hide"/>
+                <field name="precio_excedente_color_sin_igv"
+                       string="Tarifa excedente Color s/IGV"
+                       digits="[16, 6]"
                        optional="hide"/>
                 <field name="monto_exceso_color"
                        string="Importe exceso Color"
@@ -337,11 +345,15 @@
                                     <separator string="Facturación B/N"/>
                                     <group col="2">
                                         <field name="copias_facturables_bn"
-                                               string="Copias excedentes facturables"
+                                               string="Copias facturables"
                                                readonly="1"/>
                                         <field name="precio_bn_sin_igv"
-                                               string="Precio por copia sin IGV"
-                                               widget="monetary"
+                                               string="Tarifa normal B/N sin IGV"
+                                               digits="[16, 6]"
+                                               readonly="1"/>
+                                        <field name="precio_excedente_bn_sin_igv"
+                                               string="Tarifa excedente B/N sin IGV"
+                                               digits="[16, 6]"
                                                readonly="1"/>
                                         <field name="renta_fija_bn"
                                                widget="monetary"
@@ -393,11 +405,15 @@
                                     <separator string="Facturación Color"/>
                                     <group col="2">
                                         <field name="copias_facturables_color"
-                                               string="Copias excedentes facturables"
+                                               string="Copias facturables"
                                                readonly="1"/>
                                         <field name="precio_color_sin_igv"
-                                               string="Precio por copia sin IGV"
-                                               widget="monetary"
+                                               string="Tarifa normal Color sin IGV"
+                                               digits="[16, 6]"
+                                               readonly="1"/>
+                                        <field name="precio_excedente_color_sin_igv"
+                                               string="Tarifa excedente Color sin IGV"
+                                               digits="[16, 6]"
                                                readonly="1"/>
                                         <field name="renta_fija_color"
                                                widget="monetary"
@@ -417,6 +433,13 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="alert alert-info mt-3 mb-2" role="alert">
+                        <strong>Tarifas aplicadas:</strong>
+                        el precio normal y el precio de excedente se muestran por separado.
+                        Ambos importes unitarios están expresados sin IGV para facilitar
+                        la revisión. El cálculo final mantiene renta fija, descuentos e IGV.
                     </div>
 
                     <!-- Resumen financiero -->
