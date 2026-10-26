@@ -49,7 +49,7 @@ class PcloudController(http.Controller):
             allowed_root_folders = [
                 'Konica Minolta',
                 'Ricoh',
-                'Canon',
+                #'Canon',
             ]
             
             current_folder_id = int(folder_id)
