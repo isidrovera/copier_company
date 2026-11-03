@@ -58,7 +58,7 @@ class LibroReclamaciones(models.Model):
 
     tipo_bien = fields.Selection([("producto", "Producto"), ("servicio", "Servicio")], string="Bien contratado", required=True, tracking=True)
     currency_id = fields.Many2one("res.currency", string="Moneda", required=True, default=lambda self: self._default_currency())
-    monto_reclamado = fields.Monetary(string="Monto reclamado", currency_field="currency_id", digits=(16, 2), tracking=True)
+    monto_reclamado = fields.Monetary(string="Monto reclamado", currency_field="currency_id", tracking=True)
     descripcion_bien = fields.Text(string="Descripción", required=True)
     product_id = fields.Many2one("product.product", string="Producto / Servicio")
     numero_documento_comercial = fields.Char(string="Comprobante / documento")
