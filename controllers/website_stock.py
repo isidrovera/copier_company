@@ -2,10 +2,9 @@
 import base64
 import logging
 
-from odoo import http, _
+from odoo import http, _, fields
 from odoo.http import request
 from odoo.fields import Datetime
-from odoo.osv import expression
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
 
 _logger = logging.getLogger(__name__)
@@ -235,13 +234,13 @@ class WebsiteStock(http.Controller):
         search = (kwargs.get('search') or '').strip()
 
         if search:
-            search_domain = expression.OR([
-                [('name', 'ilike', search)],
-                [('serie', 'ilike', search)],
-                [('modelo_id.name', 'ilike', search)],
-                [('marca_id.name', 'ilike', search)],
+            search_domain = fields.Domain.OR([
+                fields.Domain('name', 'ilike', search),
+                fields.Domain('serie', 'ilike', search),
+                fields.Domain('modelo_id.name', 'ilike', search),
+                fields.Domain('marca_id.name', 'ilike', search),
             ])
-            domain = expression.AND([domain, search_domain])
+            domain = list(fields.Domain(domain) & search_domain)
 
         values = {
             'domain': domain,
