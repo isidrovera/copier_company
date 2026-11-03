@@ -1,706 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- ============================================ -->
-    <!-- FORMULARIO DE COTIZACIÓN                     -->
-    <!-- ============================================ -->
-    <template id="copier_company_form_template" name="Formulario de Cotización">
-        <t t-call="website.layout">
-            <!-- Font Awesome para iconos -->
-            <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
-            
-            <!-- Bootstrap CSS -->
-            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
-            
-            <div class="bootstrap-scope">
-                <div class="container-fluid py-3 py-md-5" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); min-height: 100vh;">
-                    <div class="row justify-content-center">
-                        <div class="col-12 col-lg-11 col-xl-10">
-                            <div class="card shadow-lg border-0 rounded-3 overflow-hidden">
-                                <!-- Header mejorado -->
-                                <div class="card-header position-relative overflow-hidden py-3 py-md-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                                    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2220%22 cy=%2220%22 r=%222%22 fill=%22rgba(255,255,255,0.1)%22/%3E%3Ccircle cx=%2280%22 cy=%2240%22 r=%221.5%22 fill=%22rgba(255,255,255,0.1)%22/%3E%3Ccircle cx=%2240%22 cy=%2280%22 r=%221%22 fill=%22rgba(255,255,255,0.1)%22/%3E%3C/svg%3E'); animation: float 20s infinite linear;"></div>
-                                    <div class="d-flex align-items-center position-relative flex-column flex-md-row text-center text-md-start">
-                                        <div class="bg-white bg-opacity-20 rounded-circle p-3 mb-3 mb-md-0 me-md-4">
-                                            <i class="fas fa-clipboard-list fa-2x text-white"></i>
-                                        </div>
-                                        <div>
-                                            <h1 class="mb-1 fw-bold text-white fs-3 fs-md-2">Solicitud de Cotización</h1>
-                                            <p class="mb-0 text-white-50 fs-6 small">Complete el formulario para recibir una cotización personalizada en 24 horas</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="card-body p-3 p-md-5">
-                                    <!-- Alertas -->
-                                    <div id="error_message" class="alert alert-danger d-none border-0 shadow-sm rounded-3 mb-3">
-                                        <i class="fas fa-exclamation-triangle me-2"></i>
-                                        <span id="error_text"></span>
-                                    </div>
-                                    
-                                    <div id="success_message" class="alert alert-success d-none border-0 shadow-sm rounded-3 mb-3">
-                                        <i class="fas fa-check-circle me-2"></i>
-                                        <span id="success_text"></span>
-                                    </div>
-
-                                    <div id="warning_message" class="alert alert-warning d-none border-0 shadow-sm rounded-3 mb-3">
-                                        <i class="fas fa-exclamation-circle me-2"></i>
-                                        <span id="warning_text"></span>
-                                    </div>
-                                    
-                                    <!-- Barra de progreso -->
-                                    <div class="progress mb-3 shadow-sm" style="height: 8px; border-radius: 10px;">
-                                        <div class="progress-bar" role="progressbar" style="width: 0%; background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%); border-radius: 10px; transition: width 0.3s ease;" id="form_progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                    <div class="d-flex justify-content-between mb-4 flex-wrap">
-                                        <small class="text-muted mb-2 mb-sm-0">
-                                            <i class="fas fa-info-circle me-1"></i>
-                                            Progreso: <span id="progress_text">0%</span>
-                                        </small>
-                                        <small class="text-muted">
-                                            <i class="fas fa-clock me-1"></i>
-                                            Tiempo estimado: 3 minutos
-                                        </small>
-                                    </div>
-                                    
-                                    <form action="/cotizacion/submit" method="POST" id="copier_form" class="needs-validation" novalidate="novalidate">
-                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                        <input type="hidden" id="cliente_id" name="cliente_id" />
-                                        
-                                        <!-- ================================ -->
-                                        <!-- SECCIÓN: INFORMACIÓN DEL CLIENTE -->
-                                        <!-- ================================ -->
-                                        <div class="card mb-3 mb-md-4 border-0 shadow-sm rounded-3 form-section">
-                                            <div class="card-header text-white py-3 rounded-top-3" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                                                <h5 class="mb-0 d-flex align-items-center flex-column flex-md-row text-center text-md-start">
-                                                    <div class="bg-white bg-opacity-20 rounded-circle p-2 mb-2 mb-md-0 me-md-3">
-                                                        <i class="fas fa-user-circle"></i>
-                                                    </div>
-                                                    <div>
-                                                        <div class="fw-bold fs-6 fs-md-5">Información del Cliente</div>
-                                                        <small class="opacity-75 d-block d-md-inline">Datos básicos para contacto</small>
-                                                    </div>
-                                                </h5>
-                                            </div>
-                                            <div class="card-body p-3 p-md-4">
-                                                <div class="row g-3 g-md-4">
-                                                    <!-- Tipo de Identificación -->
-                                                    <div class="col-12 col-md-6">
-                                                        <div class="form-floating mb-3">
-                                                            <select class="form-select shadow-sm" id="tipo_identificacion" name="tipo_identificacion" style="border-radius: 12px;">
-                                                                <t t-foreach="tipos_identificacion" t-as="tipo">
-                                                                    <option t-att-value="tipo.l10n_pe_vat_code">
-                                                                        <t t-esc="tipo.name"/>
-                                                                    </option>
-                                                                </t>
-                                                            </select>
-                                                            <label for="tipo_identificacion">
-                                                                <i class="fas fa-id-badge me-2 text-primary"></i>Tipo de Identificación
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <!-- Número de Identificación con Botón de Búsqueda -->
-                                                    <div class="col-12 col-md-6">
-                                                        <div class="form-floating mb-3">
-                                                            <div class="input-group">
-                                                                <div class="form-floating flex-grow-1">
-                                                                    <input type="text" class="form-control shadow-sm" id="identificacion" name="identificacion" placeholder="Número de RUC / DNI" required="required" style="border-radius: 12px 0 0 12px;"/>
-                                                                    <label for="identificacion">
-                                                                        <i class="fas fa-id-card me-2 text-primary"></i>Número de Identificación
-                                                                    </label>
-                                                                    <div class="spinner-border spinner-border-sm position-absolute d-none" id="loading_spinner" style="top: 50%; right: 15px; transform: translateY(-50%); z-index: 10;"></div>
-                                                                </div>
-                                                                <button type="button" class="btn btn-primary shadow-sm" id="btn_buscar" onclick="buscarCliente()" style="border-radius: 0 12px 12px 0; min-width: 100px;">
-                                                                    <i class="fas fa-search me-2"></i>
-                                                                    <span class="d-none d-sm-inline">Buscar</span>
-                                                                </button>
-                                                            </div>
-                                                            <div class="invalid-feedback d-block" style="margin-top: 0.5rem;">
-                                                                <i class="fas fa-exclamation-circle me-1"></i>
-                                                                Por favor ingrese un número de identificación válido
-                                                            </div>
-                                                            <small class="form-text text-muted d-block mt-2">
-                                                                <i class="fas fa-info-circle me-1"></i>
-                                                                Ingrese el número y presione "Buscar" para cargar los datos automáticamente
-                                                            </small>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <!-- Nombre/Razón Social -->
-                                                    <div class="col-12">
-                                                        <div class="form-floating mb-3">
-                                                            <input type="text" class="form-control shadow-sm" id="cliente_name" name="cliente_name" placeholder="Nombre del Cliente" required="required" style="border-radius: 12px;"/>
-                                                            <label for="cliente_name">
-                                                                <i class="fas fa-building me-2 text-primary"></i>Nombre/Razón Social
-                                                            </label>
-                                                            <div class="invalid-feedback">
-                                                                <i class="fas fa-exclamation-circle me-1"></i>
-                                                                Por favor ingrese el nombre o razón social
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <!-- Contacto -->
-                                                    <div class="col-12 col-md-4">
-                                                        <div class="form-floating mb-3">
-                                                            <input type="text" class="form-control shadow-sm" id="contacto" name="contacto" placeholder="Contacto" required="required" style="border-radius: 12px;"/>
-                                                            <label for="contacto">
-                                                                <i class="fas fa-user me-2 text-primary"></i>Persona de Contacto
-                                                            </label>
-                                                            <div class="invalid-feedback">
-                                                                <i class="fas fa-exclamation-circle me-1"></i>
-                                                                Por favor ingrese un nombre de contacto
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <!-- Correo -->
-                                                    <div class="col-12 col-md-4">
-                                                        <div class="form-floating mb-3">
-                                                            <input type="email" class="form-control shadow-sm" id="correo" name="correo" placeholder="Correo" required="required" style="border-radius: 12px;"/>
-                                                            <label for="correo">
-                                                                <i class="fas fa-envelope me-2 text-primary"></i>Correo Electrónico
-                                                            </label>
-                                                            <div class="invalid-feedback">
-                                                                <i class="fas fa-exclamation-circle me-1"></i>
-                                                                Por favor ingrese un correo válido
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <!-- Teléfono -->
-                                                    <div class="col-12 col-md-4">
-                                                        <div class="form-floating mb-3">
-                                                            <input type="tel" class="form-control shadow-sm" id="telefono" name="telefono" placeholder="Teléfono" required="required" style="border-radius: 12px;"/>
-                                                            <label for="telefono">
-                                                                <i class="fas fa-phone me-2 text-primary"></i>Teléfono
-                                                            </label>
-                                                            <div class="invalid-feedback">
-                                                                <i class="fas fa-exclamation-circle me-1"></i>
-                                                                Por favor ingrese un número de teléfono
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- ================================ -->
-                                        <!-- SECCIÓN: INFORMACIÓN DEL EQUIPO  -->
-                                        <!-- ================================ -->
-                                        <div class="card mb-3 mb-md-4 border-0 shadow-sm rounded-3 form-section">
-                                            <div class="card-header text-white py-3 rounded-top-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                                                <h5 class="mb-0 d-flex align-items-center flex-column flex-md-row text-center text-md-start">
-                                                    <div class="bg-white bg-opacity-20 rounded-circle p-2 mb-2 mb-md-0 me-md-3">
-                                                        <i class="fas fa-print"></i>
-                                                    </div>
-                                                    <div>
-                                                        <div class="fw-bold fs-6 fs-md-5">Especificaciones del Equipo</div>
-                                                        <small class="opacity-75 d-block d-md-inline">Detalles técnicos y requerimientos</small>
-                                                    </div>
-                                                </h5>
-                                            </div>
-                                            <div class="card-body p-3 p-md-4">
-                                                <div class="row g-3 g-md-4">
-                                                    <!-- Modelo de Fotocopiadora -->
-                                                    <div class="col-12 col-md-6">
-                                                        <div class="form-floating mb-3">
-                                                            <select class="form-select shadow-sm" id="modelo_id" name="modelo_id" required="required" style="border-radius: 12px;">
-                                                                <option value="">Seleccione un modelo</option>
-                                                                <t t-foreach="modelos" t-as="modelo">
-                                                                    <option t-att-value="modelo.id">
-                                                                        <t t-esc="modelo.name"/>
-                                                                    </option>
-                                                                </t>
-                                                            </select>
-                                                            <label for="modelo_id">
-                                                                <i class="fas fa-tag me-2 text-primary"></i>Modelo de Fotocopiadora
-                                                            </label>
-                                                            <div class="invalid-feedback">
-                                                                <i class="fas fa-exclamation-circle me-1"></i>
-                                                                Por favor seleccione un modelo
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <!-- Tipo de Impresión -->
-                                                    <div class="col-12 col-md-6">
-                                                        <div class="form-floating mb-3">
-                                                            <select class="form-select shadow-sm" id="tipo" name="tipo" style="border-radius: 12px;">
-                                                                <option value="monocroma">Blanco y negro</option>
-                                                                <option value="color">Color</option>
-                                                            </select>
-                                                            <label for="tipo">
-                                                                <i class="fas fa-adjust me-2 text-primary"></i>Tipo de Impresión
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <!-- Formato de Papel -->
-                                                    <div class="col-12 col-md-4">
-                                                        <div class="form-floating mb-3">
-                                                            <select class="form-select shadow-sm" id="formato" name="formato" style="border-radius: 12px;">
-                                                                <option value="a4">A4 (210 × 297 mm)</option>
-                                                                <option value="a3">A3 (297 × 420 mm)</option>
-                                                            </select>
-                                                            <label for="formato">
-                                                                <i class="fas fa-file-alt me-2 text-primary"></i>Formato de Papel
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <!-- Volumen Mensual Color -->
-                                                    <div class="col-12 col-md-4">
-                                                        <div class="form-floating mb-3">
-                                                            <input type="number" min="0" class="form-control shadow-sm" id="volumen_mensual_color" name="volumen_mensual_color" placeholder="Volumen Mensual (Color)" required="required" style="border-radius: 12px;" value="0"/>
-                                                            <label for="volumen_mensual_color">
-                                                                <i class="fas fa-palette me-2 text-primary"></i>Impresiones Color/Mes
-                                                            </label>
-                                                            <div class="invalid-feedback">
-                                                                <i class="fas fa-exclamation-circle me-1"></i>
-                                                                Por favor ingrese un volumen válido
-                                                            </div>
-                                                            <div class="form-text small">
-                                                                <i class="fas fa-info-circle me-1 text-muted"></i>
-                                                                Número estimado de páginas a color por mes
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <!-- Volumen Mensual B/N -->
-                                                    <div class="col-12 col-md-4">
-                                                        <div class="form-floating mb-3">
-                                                            <input type="number" min="0" class="form-control shadow-sm" id="volumen_mensual_bn" name="volumen_mensual_bn" placeholder="Volumen Mensual (B/N)" required="required" style="border-radius: 12px;" value="0"/>
-                                                            <label for="volumen_mensual_bn">
-                                                                <i class="fas fa-align-justify me-2 text-primary"></i>Impresiones B/N/Mes
-                                                            </label>
-                                                            <div class="invalid-feedback">
-                                                                <i class="fas fa-exclamation-circle me-1"></i>
-                                                                Por favor ingrese un volumen válido
-                                                            </div>
-                                                            <div class="form-text small">
-                                                                <i class="fas fa-info-circle me-1 text-muted"></i>
-                                                                Número estimado de páginas en blanco y negro por mes
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <!-- Requerimientos Adicionales -->
-                                                    <div class="col-12">
-                                                        <div class="form-floating mb-3">
-                                                            <textarea class="form-control shadow-sm" id="detalles" name="detalles" rows="4" style="height: 120px; border-radius: 12px;" placeholder="Detalles adicionales"></textarea>
-                                                            <label for="detalles">
-                                                                <i class="fas fa-comment-dots me-2 text-primary"></i>Requerimientos Adicionales (Opcional)
-                                                            </label>
-                                                            <div class="form-text small">
-                                                                <i class="fas fa-lightbulb me-1 text-muted"></i>
-                                                                Especifique funciones especiales, ubicación, horarios de uso, etc.
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- ================================ -->
-                                        <!-- SECCIÓN: TÉRMINOS Y ENVÍO        -->
-                                        <!-- ================================ -->
-                                        <div class="card mb-3 mb-md-4 border-0 shadow-sm rounded-3">
-                                            <div class="card-body p-3 p-md-4">
-                                                <div class="row align-items-center g-3">
-                                                    <div class="col-12 col-md-8">
-                                                        <div class="form-check d-flex align-items-start">
-                                                            <input class="form-check-input me-3 mt-1" type="checkbox" id="terminos" required="required" style="transform: scale(1.2);"/>
-                                                            <label class="form-check-label flex-fill" for="terminos">
-                                                                <i class="fas fa-shield-alt me-2 text-success"></i>
-                                                                Acepto los <a href="#" class="text-decoration-none">términos y condiciones</a> de servicio y autorizo el tratamiento de mis datos personales
-                                                            </label>
-                                                            <div class="invalid-feedback d-block">
-                                                                <i class="fas fa-exclamation-circle me-1"></i>
-                                                                Debe aceptar los términos y condiciones
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-12 col-md-4 text-center text-md-end">
-                                                        <button type="submit" class="btn btn-primary btn-lg px-4 py-2 shadow-lg w-100 w-md-auto" style="border-radius: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; transition: all 0.3s ease;">
-                                                            <i class="fas fa-paper-plane me-2"></i>
-                                                            Solicitar Cotización
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                                
-                                <!-- Footer -->
-                                <div class="card-footer text-center py-3 py-md-4 bg-light border-0">
-                                    <div class="row g-3">
-                                        <div class="col-12 col-md-4">
-                                            <i class="fas fa-clock text-primary mb-2 fa-2x"></i>
-                                            <div class="small text-muted">
-                                               <span class="fw-bold">Respuesta rápida</span><br/>
-                                                24 horas hábiles
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-md-4">
-                                            <i class="fas fa-shield-alt text-success mb-2 fa-2x"></i>
-                                            <div class="small text-muted">
-                                                <span class="fw-bold">Datos seguros</span><br/>
-                                                Información protegida
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-md-4">
-                                            <i class="fas fa-headset text-info mb-2 fa-2x"></i>
-                                            <div class="small text-muted">
-                                                <span class="fw-bold">Soporte técnico</span><br/>
-                                                Asesoría personalizada
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+  <template id="copier_company_form_template" name="Solicitud rápida de cotización">
+    <t t-call="website.layout">
+      <style>
+        .cc-lead{background:#f4f8fd;min-height:76vh;padding:36px 16px;font-family:Arial,sans-serif;color:#183651}
+        .cc-lead *{box-sizing:border-box}
+        .cc-lead-wrap{max-width:850px;margin:auto}
+        .cc-lead h1{text-align:center;font-weight:800;font-size:clamp(26px,4vw,38px);margin:0 0 8px}
+        .cc-lead-sub{text-align:center;color:#60748a;margin:0 0 23px}
+        .cc-lead-card{background:#fff;border:1px solid #e0e9f5;border-radius:18px;padding:27px;box-shadow:0 12px 38px #123e6214}
+        .cc-lead .cc-section-title{font-size:17px;font-weight:700;color:#16456d;margin:22px 0 12px;border-top:1px solid #e8eef5;padding-top:17px}
+        .cc-lead label{display:block;font-weight:600;font-size:13px;margin-bottom:6px}
+        .cc-lead input:not([type=checkbox]),.cc-lead textarea{width:100%;border:1px solid #cbd7e6;border-radius:9px;padding:11px 12px;background:#fff;color:#19334b;min-height:44px}
+        .cc-lead input[readonly]{background:#f0f5fa}
+        .cc-lead .cc-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        .cc-lead .cc-field{margin-bottom:13px;min-width:0}
+        .cc-lead .cc-inline{display:flex;gap:8px;align-items:stretch}
+        .cc-lead .cc-inline input{min-width:0}
+        .cc-lead button{cursor:pointer}
+        .cc-lead .cc-search{background:#075dcc;border:0;color:white;border-radius:9px;padding:0 16px;font-weight:700}
+        .cc-lead .cc-choices{display:flex;gap:8px;flex-wrap:wrap}
+        .cc-lead .cc-choice{position:relative;cursor:pointer;flex:1;min-width:85px}
+        .cc-lead .cc-choice input{position:absolute;opacity:0;pointer-events:none}
+        .cc-lead .cc-choice span{display:block;text-align:center;border:1px solid #bdccde;border-radius:9px;padding:11px 9px;font-weight:700}
+        .cc-lead .cc-choice input:checked+span{background:#075dcc;color:#fff;border-color:#075dcc}
+        .cc-lead .cc-choice input:focus-visible+span{outline:3px solid #7cb4fb}
+        .cc-lead .cc-note{font-size:12px;color:#627b91;margin-top:5px}
+        .cc-lead .cc-manual{display:flex;gap:8px;align-items:center;margin-top:9px;color:#115cbb;font-size:13px}
+        .cc-lead .cc-manual input,.cc-lead .cc-terms input{width:17px;height:17px;flex:0 0 auto}
+        .cc-lead .cc-terms{display:flex;align-items:start;gap:8px;margin:14px 0;font-size:13px}
+        .cc-lead .cc-terms label{font-weight:400;margin:0}
+        .cc-lead .cc-submit{width:100%;background:#075dcc;border:0;border-radius:9px;padding:14px;color:white;font-weight:800;font-size:16px}
+        .cc-lead button:disabled{opacity:.6;cursor:wait}
+        .cc-lead .cc-notice{background:#e9f4ff;color:#144973;padding:10px 12px;border-radius:8px;margin:10px 0}
+        .cc-lead .cc-notice.cc-error{background:#fff0f0;color:#9c2530}
+        .cc-lead .cc-honey{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+        @media(max-width:640px){.cc-lead{padding:19px 10px}.cc-lead-card{padding:17px}.cc-lead .cc-grid{grid-template-columns:1fr}.cc-lead h1{font-size:26px}.cc-lead .cc-search{padding:0 12px}}
+      </style>
+      <section class="cc-lead">
+        <div class="cc-lead-wrap">
+          <h1>Solicita tu cotización en 1 minuto</h1>
+          <p class="cc-lead-sub">Alquiler, venta o servicio técnico. Autocompletamos DNI y RUC.</p>
+          <div class="cc-lead-card">
+            <t t-if="error_message"><div class="cc-notice cc-error" t-esc="error_message"/></t>
+            <div id="cc_notice" class="cc-notice" hidden="hidden" aria-live="polite"/>
+            <form id="copier_form" action="/cotizacion/submit" method="post">
+              <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+              <div class="cc-honey" aria-hidden="true"><label for="website_note">No llenar</label><input id="website_note" name="website_note" tabindex="-1" autocomplete="off"/></div>
+              <div class="cc-field">
+                <label>¿Qué necesitas?</label>
+                <div class="cc-choices">
+                  <label class="cc-choice"><input type="radio" name="solicitud_tipo" value="alquiler" required="required" t-att-checked="'checked' if (form_values or {}).get('solicitud_tipo', 'alquiler') == 'alquiler' else None"/><span>Alquiler</span></label>
+                  <label class="cc-choice"><input type="radio" name="solicitud_tipo" value="venta" t-att-checked="'checked' if (form_values or {}).get('solicitud_tipo') == 'venta' else None"/><span>Venta</span></label>
+                  <label class="cc-choice"><input type="radio" name="solicitud_tipo" value="servicio" t-att-checked="'checked' if (form_values or {}).get('solicitud_tipo') == 'servicio' else None"/><span>Servicio</span></label>
                 </div>
-            </div>
-            
-            <!-- Scripts -->
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-            <script src="/copier_company/static/src/js/cotizacion.js"></script>
-        </t>
-        
-        <!-- Estilos adicionales responsivos -->
-        <style>
-            /* Resetear estilos dentro del scope Bootstrap */
-            .bootstrap-scope {
-                all: initial;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, "Helvetica Neue", Arial, sans-serif;
-                display: block;
-            }
-            
-            .bootstrap-scope * {
-                box-sizing: border-box;
-            }
-            
-            /* Estilos responsivos mejorados */
-            @media (max-width: 768px) {
-                .bootstrap-scope .card-header h1 {
-                    font-size: 1.5rem !important;
-                }
-                
-                .bootstrap-scope .card-body {
-                    padding: 1rem !important;
-                }
-                
-                .bootstrap-scope .btn-lg {
-                    padding: 0.75rem 1rem !important;
-                    font-size: 1rem !important;
-                }
-                
-                .bootstrap-scope .form-floating label {
-                    font-size: 0.875rem !important;
-                }
-            }
-            
-            /* Estilos personalizados adicionales */
-            .bootstrap-scope .btn-primary:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3) !important;
-            }
-            
-            .bootstrap-scope .form-control:focus,
-            .bootstrap-scope .form-select:focus {
-                border-color: #667eea;
-                box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-            }
-            
-            .bootstrap-scope .card {
-                transition: transform 0.3s ease;
-            }
-            
-            .bootstrap-scope .card:hover {
-                transform: translateY(-5px);
-            }
-            
-            .bootstrap-scope .form-floating &gt; .form-control:focus ~ label,
-            .bootstrap-scope .form-floating &gt; .form-select:focus ~ label {
-                color: #667eea;
-            }
-            
-            .bootstrap-scope .progress-bar {
-                transition: width 0.6s ease;
-            }
-            
-            .bootstrap-scope .alert {
-                border-radius: 12px;
-                animation: fadeIn 0.5s ease-in-out;
-            }
-            
-            /* Input group responsive */
-            @media (max-width: 576px) {
-                .bootstrap-scope .input-group .btn {
-                    min-width: 60px !important;
-                }
-                
-                .bootstrap-scope .input-group .btn span {
-                    display: none !important;
-                }
-            }
-            
-            /* Animaciones específicas */
-            @keyframes float {
-                0% { transform: translateX(-100%); }
-                100% { transform: translateX(100%); }
-            }
-            
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(-10px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-        </style>
-    </template>
-
-    <!-- ============================================ -->
-    <!-- PÁGINA DE CONFIRMACIÓN                       -->
-    <!-- ============================================ -->
-    <template id="confirmacion_template" name="Confirmación de Cotización">
-        <t t-call="website.layout">
-            <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
-            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
-            
-            <div class="bootstrap-scope">
-                <div class="container-fluid py-5" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); min-height: 100vh;">
-                    <div class="row justify-content-center">
-                        <div class="col-12 col-lg-8 col-xl-6">
-                            <!-- Card de Confirmación -->
-                            <div class="card shadow-lg border-0 rounded-3 overflow-hidden animate__animated animate__fadeInUp">
-                                <!-- Header de éxito -->
-                                <div class="card-header text-center py-5" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                                    <div class="bg-white bg-opacity-20 rounded-circle p-4 d-inline-block mb-3">
-                                        <i class="fas fa-check-circle fa-4x text-white"></i>
-                                    </div>
-                                    <h1 class="text-white fw-bold mb-2">¡Cotización Recibida!</h1>
-                                    <p class="text-white mb-0 fs-5">Su solicitud ha sido procesada exitosamente</p>
-                                </div>
-                                
-                                <div class="card-body p-4 p-md-5">
-                                    <!-- Información de la cotización -->
-                                    <div class="alert alert-info border-0 shadow-sm rounded-3 mb-4">
-                                        <div class="d-flex align-items-center">
-                                            <i class="fas fa-info-circle fa-2x me-3 text-info"></i>
-                                            <div>
-                                                <h5 class="mb-1">Número de Cotización</h5>
-                                                <p class="mb-0 fw-bold fs-4" t-if="cotizacion">
-                                                    <t t-esc="cotizacion.secuencia"/>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Detalles de la cotización -->
-                                    <div class="mb-4" t-if="cotizacion">
-                                        <h5 class="mb-3">
-                                            <i class="fas fa-clipboard-list me-2 text-primary"></i>
-                                            Resumen de su Solicitud
-                                        </h5>
-                                        
-                                        <div class="row g-3">
-                                            <div class="col-12">
-                                                <div class="card bg-light border-0">
-                                                    <div class="card-body p-3">
-                                                        <div class="row g-2 small">
-                                                            <div class="col-6 col-md-3">
-                                                                <strong class="text-muted d-block">Cliente:</strong>
-                                                                <span t-esc="cotizacion.cliente_id.name"/>
-                                                            </div>
-                                                            <div class="col-6 col-md-3">
-                                                                <strong class="text-muted d-block">Modelo:</strong>
-                                                                <span t-esc="cotizacion.name.name"/>
-                                                            </div>
-                                                            <div class="col-6 col-md-3">
-                                                                <strong class="text-muted d-block">Tipo:</strong>
-                                                                <span t-if="cotizacion.tipo == 'monocroma'">Blanco y Negro</span>
-                                                                <span t-if="cotizacion.tipo == 'color'">Color</span>
-                                                            </div>
-                                                            <div class="col-6 col-md-3">
-                                                                <strong class="text-muted d-block">Formato:</strong>
-                                                                <span t-esc="cotizacion.formato.upper()"/>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Próximos pasos -->
-                                    <div class="mb-4">
-                                        <h5 class="mb-3">
-                                            <i class="fas fa-tasks me-2 text-success"></i>
-                                            ¿Qué sigue?
-                                        </h5>
-                                        
-                                        <div class="timeline">
-                                            <div class="timeline-item mb-3">
-                                                <div class="d-flex">
-                                                    <div class="flex-shrink-0">
-                                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                                            <i class="fas fa-envelope"></i>
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex-grow-1 ms-3">
-                                                        <h6 class="mb-1">Confirmación por Correo</h6>
-                                                        <p class="text-muted mb-0 small">Recibirá un correo de confirmación con todos los detalles</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="timeline-item mb-3">
-                                                <div class="d-flex">
-                                                    <div class="flex-shrink-0">
-                                                        <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                                            <i class="fas fa-search"></i>
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex-grow-1 ms-3">
-                                                        <h6 class="mb-1">Evaluación de Requerimientos</h6>
-                                                        <p class="text-muted mb-0 small">Nuestro equipo analizará sus necesidades en detalle</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="timeline-item mb-3">
-                                                <div class="d-flex">
-                                                    <div class="flex-shrink-0">
-                                                        <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                                            <i class="fas fa-file-invoice-dollar"></i>
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex-grow-1 ms-3">
-                                                        <h6 class="mb-1">Cotización Personalizada</h6>
-                                                        <p class="text-muted mb-0 small">En 24 horas recibirá su cotización detallada</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="timeline-item">
-                                                <div class="d-flex">
-                                                    <div class="flex-shrink-0">
-                                                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                                            <i class="fas fa-phone"></i>
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex-grow-1 ms-3">
-                                                        <h6 class="mb-1">Contacto Directo</h6>
-                                                        <p class="text-muted mb-0 small">Un asesor se comunicará para resolver sus dudas</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Información de contacto -->
-                                    <div class="alert alert-light border shadow-sm rounded-3 mb-4">
-                                        <h6 class="mb-2">
-                                            <i class="fas fa-headset me-2 text-primary"></i>
-                                            ¿Necesita ayuda inmediata?
-                                        </h6>
-                                        <p class="mb-2 small">Contáctenos directamente:</p>
-                                        <div class="d-flex flex-wrap gap-3">
-                                            <a href="tel:+51975399303" class="btn btn-sm btn-outline-primary rounded-pill">
-                                                <i class="fas fa-phone me-2"></i>
-                                                +51 975 399 303
-                                            </a>
-                                            <a href="https://wa.me/51975399303" target="_blank" class="btn btn-sm btn-outline-success rounded-pill">
-                                                <i class="fab fa-whatsapp me-2"></i>
-                                                WhatsApp
-                                            </a>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Botones de acción -->
-                                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                                        <a href="/cotizacion/form" class="btn btn-outline-primary btn-lg rounded-pill px-4">
-                                            <i class="fas fa-plus me-2"></i>
-                                            Nueva Cotización
-                                        </a>
-                                        <a href="/" class="btn btn-primary btn-lg rounded-pill px-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
-                                            <i class="fas fa-home me-2"></i>
-                                            Volver al Inicio
-                                        </a>
-                                    </div>
-                                </div>
-                                
-                                <!-- Footer -->
-                                <div class="card-footer text-center py-4 bg-light border-0">
-                                    <p class="text-muted mb-0 small">
-                                        <i class="fas fa-heart text-danger me-1"></i>
-                                        Gracias por confiar en nosotros
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <style>
-                .bootstrap-scope {
-                    all: initial;
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, "Helvetica Neue", Arial, sans-serif;
-                    display: block;
-                }
-                
-                .bootstrap-scope * {
-                    box-sizing: border-box;
-                }
-                
-                .bootstrap-scope .timeline-item:not(:last-child)::before {
-                    content: '';
-                    position: absolute;
-                    left: 19px;
-                    top: 40px;
-                    width: 2px;
-                    height: calc(100% + 12px);
-                    background: #e0e0e0;
-                }
-                
-                .bootstrap-scope .timeline-item {
-                    position: relative;
-                }
-                
-                @keyframes fadeInUp {
-                    from {
-                        opacity: 0;
-                        transform: translateY(30px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-                
-                .bootstrap-scope .animate__animated {
-                    animation-duration: 0.8s;
-                }
-                
-                .bootstrap-scope .animate__fadeInUp {
-                    animation-name: fadeInUp;
-                }
-                
-                /* Responsive adjustments */
-                @media (max-width: 768px) {
-                    .bootstrap-scope .card-header h1 {
-                        font-size: 1.75rem !important;
-                    }
-                    
-                    .bootstrap-scope .timeline-item .flex-shrink-0 &gt; div {
-                        width: 35px !important;
-                        height: 35px !important;
-                    }
-                }
-            </style>
-        </t>
-    </template>
+              </div>
+              <div class="cc-section-title">Datos del contacto</div>
+              <div class="cc-field">
+                <label for="dni_contacto">DNI del contacto</label>
+                <div class="cc-inline"><input type="text" id="dni_contacto" name="dni_contacto" inputmode="numeric" pattern="[0-9]{8}" maxlength="8" placeholder="8 dígitos" required="required" t-att-value="(form_values or {}).get('dni_contacto', '')"/><button id="buscar_dni" class="cc-search" type="button">Buscar</button></div>
+                <div class="cc-note">Buscamos automáticamente el nombre.</div>
+                <div class="cc-manual"><input type="checkbox" id="manual_contacto" name="manual_contacto" value="1"/><label for="manual_contacto" style="margin:0;font-weight:400">No tengo DNI / ingresar nombre manualmente</label></div>
+              </div>
+              <div class="cc-field"><label for="contacto">Nombre del contacto *</label><input id="contacto" name="contacto" required="required" maxlength="150" placeholder="Nombre y apellidos" t-att-value="(form_values or {}).get('contacto', '')"/></div>
+              <div class="cc-section-title">Datos de la empresa</div>
+              <div class="cc-field">
+                <label for="ruc_empresa">RUC de la empresa *</label>
+                <div class="cc-inline"><input type="text" id="ruc_empresa" name="ruc_empresa" inputmode="numeric" pattern="[0-9]{11}" maxlength="11" placeholder="11 dígitos" required="required" t-att-value="(form_values or {}).get('ruc_empresa', '')"/><button id="buscar_ruc" class="cc-search" type="button">Buscar</button></div>
+              </div>
+              <div class="cc-field"><label for="razon_social">Razón social *</label><input id="razon_social" name="razon_social" maxlength="200" required="required" placeholder="Nombre de la empresa" t-att-value="(form_values or {}).get('razon_social', '')"/></div>
+              <div class="cc-grid">
+                <div class="cc-field"><label for="correo">Correo electrónico *</label><input type="email" id="correo" name="correo" required="required" maxlength="254" placeholder="contacto@empresa.com" t-att-value="(form_values or {}).get('correo', '')"/></div>
+                <div class="cc-field"><label for="telefono">Celular / teléfono *</label><input type="tel" id="telefono" name="telefono" required="required" maxlength="35" placeholder="999 888 777" t-att-value="(form_values or {}).get('telefono', '')"/></div>
+              </div>
+              <div class="cc-field"><label for="detalles">Descripción breve (opcional)</label><textarea name="detalles" id="detalles" rows="2" maxlength="1800" placeholder="¿Qué equipo o servicio necesitas?" t-esc="(form_values or {}).get('detalles', '')"/></div>
+              <div class="cc-terms"><input type="checkbox" name="acepta_privacidad" id="acepta_privacidad" value="1" required="required"/><label for="acepta_privacidad">Acepto el tratamiento de mis datos personales según la política de privacidad de Copier Company SAC.</label></div>
+              <button id="enviar_solicitud" class="cc-submit" type="submit">Solicitar cotización</button>
+            </form>
+          </div>
+        </div>
+      </section>
+      <script src="/copier_company/static/src/js/cotizacion.js"/>
+    </t>
+  </template>
+  <template id="confirmacion_template" name="Confirmación de solicitud">
+    <t t-call="website.layout">
+      <section style="max-width:650px;margin:60px auto;padding:25px;text-align:center;border:1px solid #e0e8f1;border-radius:14px;font-family:Arial,sans-serif">
+        <h1 style="color:#075dcc">¡Recibimos tu solicitud!</h1>
+        <p>Gracias por contactar a Copier Company SAC. Nuestro equipo revisará tu solicitud.</p>
+        <p><strong>Número de solicitud:</strong> <span t-esc="cotizacion.secuencia"/></p>
+        <p><strong>Tipo:</strong> <span t-esc="solicitud_tipo"/></p>
+        <p><strong>Empresa:</strong> <span t-esc="empresa_nombre"/></p>
+        <a href="/" style="display:inline-block;padding:12px 25px;background:#075dcc;color:white;border-radius:9px;text-decoration:none">Volver al inicio</a>
+      </section>
+    </t>
+  </template>
 </odoo>
