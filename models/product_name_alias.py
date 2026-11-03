@@ -19,6 +19,8 @@ class ProductNameAlias(models.Model):
         ondelete='cascade',
     )
 
-    _sql_constraints = [
-        ('name_unique', 'UNIQUE(name)', 'Ya existe un alias con ese nombre exacto.'),
-    ]
+    
+    _name_unique = models.Constraint(
+        'UNIQUE(name)',
+        'Ya existe un alias con ese nombre exacto.'
+    )

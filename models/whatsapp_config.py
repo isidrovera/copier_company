@@ -128,11 +128,12 @@ class WhatsAppConfig(models.Model):
     # ============================================
     # CONSTRAINTS
     # ============================================
-    _sql_constraints = [
-        ('unique_active', 
-         'CHECK(1=1)', 
-         'Solo puede haber una configuración activa'),
-    ]
+    
+    _unique_active = models.Constraint(
+        'CHECK(1=1)',
+        'Solo puede haber una configuración activa'
+    )
+
     
     # ============================================
     # VALIDACIONES

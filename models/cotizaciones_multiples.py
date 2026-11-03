@@ -563,12 +563,19 @@ class CopierPaymentMode(models.Model):
     # Estado
     activo = fields.Boolean('Activo', default=True)
 
-    _sql_constraints = [
-        ('frecuencia_positiva', 'CHECK(frecuencia_meses > 0)',
-         'La frecuencia debe ser mayor a 0'),
-        ('descuento_valido', 'CHECK(descuento_porcentaje >= 0 AND descuento_porcentaje <= 100)',
-         'El descuento debe estar entre 0% y 100%'),
-    ]
+    
+    # Restricciones SQL compatibles con Odoo 19
+
+    _frecuencia_positiva = models.Constraint(
+        'CHECK(frecuencia_meses > 0)',
+        'La frecuencia debe ser mayor a 0'
+    )
+
+    _descuento_valido = models.Constraint(
+        'CHECK(descuento_porcentaje >= 0 AND descuento_porcentaje <= 100)',
+        'El descuento debe estar entre 0% y 100%'
+    )
+
 
     @api.model
     def _create_default_payment_modes(self):

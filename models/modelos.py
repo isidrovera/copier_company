@@ -11,19 +11,10 @@ class ModelosMaquinas(models.Model):
     _description = 'Modelos de Máquinas'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    # ⚠️ MISMA regla que tu _sql_constraints = unique(name)
-    @api.constrains('name')
-    def _check_unique_name(self):
-        for rec in self:
-            if rec.name:
-                dup = self.search_count([
-                    ('name', '=', rec.name),
-                    ('id', '!=', rec.id)
-                ])
-                if dup:
-                    raise ValidationError(
-                        _('El modelo de la máquina debe ser único!')
-                    )
+    _unique_name = models.Constraint(
+        'UNIQUE(name)',
+        'El modelo de la máquina debe ser único!'
+    )
 
     name = fields.Char(string='Modelo', required=True, index=True)
     marca_id = fields.Many2one('marcas.maquinas', string='Marca')

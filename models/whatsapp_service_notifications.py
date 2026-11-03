@@ -379,12 +379,12 @@ class WhatsAppServiceTemplate(models.Model):
         required=True
     )
     
-    _sql_constraints = [
-        ('unique_type_company', 
-         'UNIQUE(notification_type, company_id)', 
-         'Solo puede haber una plantilla activa por tipo de notificación por compañía.')
-    ]
     
+    _unique_type_company = models.Constraint(
+        'UNIQUE(notification_type, company_id)',
+        'Solo puede haber una plantilla por tipo de notificación por compañía.'
+    )
+
     @api.model
     def get_template(self, notification_type):
         """Obtener plantilla activa para un tipo de notificación"""
