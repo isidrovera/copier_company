@@ -38,6 +38,7 @@ class PcloudController(http.Controller):
         if not config:
             return request.render('copier_company.no_config_template')
     
+        folder_path = []
         try:
             if search:
                 contents = self._search_files_recursive(config, search, folder_id)
@@ -53,6 +54,7 @@ class PcloudController(http.Controller):
             ]
             
             current_folder_id = int(folder_id)
+            folder_path = config.get_folder_path(current_folder_id) if current_folder_id else []
             filtered_contents = []
     
             if current_folder_id == 0:
@@ -61,8 +63,6 @@ class PcloudController(http.Controller):
                     if item.get('name', 'Unknown') in allowed_root_folders
                 ]
             else:
-                folder_path = config.get_folder_path(current_folder_id)
-                
                 if any(folder['name'] in allowed_root_folders for folder in folder_path):
                     filtered_contents = contents
                 else:
@@ -89,7 +89,9 @@ class PcloudController(http.Controller):
         return request.render('copier_company.pcloud_files_template', {
             'contents': processed_contents,
             'current_folder_id': int(folder_id),
-            'search': search
+            'search': search,
+            'folder_path': folder_path,
+            'view_mode': kwargs.get('view_mode', 'list') if kwargs.get('view_mode') in ('list', 'kanban') else 'list',
         })
 
     def _search_files_recursive(self, config, search_term, folder_id=0):
