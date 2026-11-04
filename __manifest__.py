@@ -296,25 +296,8 @@
 
             'copier_company/static/src/xml/counter_charts_templates.xml',
 
-            # -----------------------------------------------------
-            # Librerías externas existentes
-            # Se mantienen sin modificar
-            # -----------------------------------------------------
-
-            (
-                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
-                {'type': 'external'}
-            ),
-
-            (
-                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',
-                {'type': 'external'}
-            ),
-
-            (
-                'https://unpkg.com/lucide@0.451.0/dist/umd/lucide.min.js',
-                {'type': 'external'}
-            ),
+           
+           
         ],
 
         # =========================================================
