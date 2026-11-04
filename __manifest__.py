@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 {
     'name': "Gestión de Fotocopiadoras",
@@ -55,7 +56,6 @@
 
         # =========================================================
         # REPORTES
-        # Deben cargarse antes de vistas que llamen sus acciones.
         # =========================================================
 
         'report/copier_company_report.xml',
@@ -119,10 +119,7 @@
         'views/sticker_template.xml',
 
         # =========================================================
-        # VISTAS QUE MENUS_ACTIONS NECESITA
-        #
-        # Estas deben estar ANTES porque menus_actions.xml contiene
-        # search_view_id que apunta a estas vistas.
+        # VISTAS REQUERIDAS POR MENUS_ACTIONS
         # =========================================================
 
         'views/view_remote_assistance_request.xml',
@@ -134,27 +131,19 @@
         'views/copier_counter_billing_group_views.xml',
 
         # =========================================================
-        # LIBRO DE RECLAMACIONES - VISTA INTERNA
-        # El reporte ya existe arriba.
+        # LIBRO DE RECLAMACIONES
         # =========================================================
 
         'views/libro_reclamaciones_views.xml',
 
         # =========================================================
         # ACCIONES Y MENÚS
-        #
-        # IMPORTANTE:
-        # Desde este punto ya existen las vistas Search y acciones
-        # externas que menus_actions.xml necesita.
-        #
-        # A su vez, las vistas que vienen DESPUÉS ya pueden llamar
-        # action_copier_service_request y demás acciones.
         # =========================================================
 
         'views/menus_actions.xml',
 
         # =========================================================
-        # VISTAS QUE DEPENDEN DE ACCIONES DE MENUS_ACTIONS
+        # VISTAS DEPENDIENTES DE ACCIONES
         # =========================================================
 
         'views/whatsapp_config_views.xml',
@@ -223,50 +212,134 @@
         'views/politica_cambios_devoluciones.xml',
     ],
 
+    # =============================================================
+    # ASSETS ODOO 19
+    # =============================================================
+
     'assets': {
+
+        # =========================================================
+        # BACKEND
+        # =========================================================
+
         'web.assets_backend': [
+
+            # Explorador interno de pCloud
             'copier_company/static/src/css/pcloud_explorer.css',
             'copier_company/static/src/xml/pcloud_explorer.xml',
             'copier_company/static/src/js/pcloud_explorer.js',
 
+            # Selector OneDrive
             'copier_company/static/src/css/onedrive_selector.css',
             'copier_company/static/src/js/onedrive_selector_dialog.js',
             'copier_company/static/src/xml/onedrive_selector_dialog.xml',
 
+            # Estilos generales backend Odoo 19
             'copier_company/static/src/scss/copier_company_odoo19.scss',
         ],
 
-        'website.assets_frontend': [
+        # =========================================================
+        # FRONTEND - WEBSITE Y PORTAL DE CLIENTES
+        #
+        # CORREGIDO PARA ODOO 19:
+        # website.assets_frontend -> web.assets_frontend
+        # =========================================================
+
+        'web.assets_frontend': [
+
+            # -----------------------------------------------------
+            # Estilos generales del portal
+            # -----------------------------------------------------
+
             'copier_company/static/src/css/counter_charts.css',
             'copier_company/static/src/css/cotizacion_styles.css',
+
+            # -----------------------------------------------------
+            # CENTRO DE DESCARGAS PCLOUD - ESTILO DROPBOX
+            # -----------------------------------------------------
+
             'copier_company/static/src/css/PcloudDescargas.css',
+
+            # -----------------------------------------------------
+            # Otros estilos del sitio web
+            # -----------------------------------------------------
+
             'copier_company/static/src/css/copier_list.css',
             'copier_company/static/src/scss/copier_company_shop.scss',
             'copier_company/static/src/css/portal_commercial.css',
 
+            # -----------------------------------------------------
+            # JavaScript general del portal
+            # -----------------------------------------------------
+
             'copier_company/static/src/js/portal_commercial.js',
             'copier_company/static/src/js/manuals.js',
             'copier_company/static/src/js/counter_charts.js',
+
+            # -----------------------------------------------------
+            # CENTRO DE DESCARGAS PCLOUD - JAVASCRIPT
+            # -----------------------------------------------------
+
             'copier_company/static/src/js/PcloudDescargas.js',
+
+            # -----------------------------------------------------
+            # Otros JavaScript del sitio web
+            # -----------------------------------------------------
+
             'copier_company/static/src/js/cotizacion.js',
             'copier_company/static/src/js/copier_homepage_scripts.js',
             'copier_company/static/src/js/copier_services_scripts.js',
 
+            # -----------------------------------------------------
+            # Plantillas frontend
+            # -----------------------------------------------------
+
             'copier_company/static/src/xml/counter_charts_templates.xml',
 
-            ('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js', {'type': 'external'}),
-            ('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js', {'type': 'external'}),
-            ('https://unpkg.com/lucide@0.451.0/dist/umd/lucide.min.js', {'type': 'external'}),
+            # -----------------------------------------------------
+            # Librerías externas existentes
+            # Se mantienen sin modificar
+            # -----------------------------------------------------
+
+            (
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+                {'type': 'external'}
+            ),
+
+            (
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',
+                {'type': 'external'}
+            ),
+
+            (
+                'https://unpkg.com/lucide@0.451.0/dist/umd/lucide.min.js',
+                {'type': 'external'}
+            ),
         ],
 
+        # =========================================================
+        # LIBRERÍAS FRONTEND EXISTENTES
+        # =========================================================
+
         'website.assets_frontend_lib': [
-            ('https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js', {'type': 'external'}),
+            (
+                'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js',
+                {'type': 'external'}
+            ),
         ],
+
+        # =========================================================
+        # ASSETS DE REPORTES
+        # =========================================================
 
         'web.report_assets_common': [
             'copier_company/static/src/css/invoice_style.css',
         ],
     },
+
+    # =============================================================
+    # CONFIGURACIÓN DEL MÓDULO
+    # =============================================================
 
     'application': True,
     'installable': True,
